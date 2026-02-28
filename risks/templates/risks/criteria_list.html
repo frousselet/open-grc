@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Critères de risque — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">Critères de risque</h1>
+  <a href="{% url 'risks:criteria-create' %}" class="btn btn-primary ms-auto">Nouveaux critères</a>
+</div>
+{% help_modal "risks.criteria_list" %}
+
+<div class="mb-3 d-flex gap-2">
+  <a href="{% url 'risks:criteria-list' %}" class="btn btn-sm {% if not request.GET.status %}btn-primary{% else %}btn-outline-primary{% endif %}">Tous</a>
+  <a href="?status=active" class="btn btn-sm {% if request.GET.status == 'active' %}btn-primary{% else %}btn-outline-primary{% endif %}">Actifs</a>
+  <a href="?status=draft" class="btn btn-sm {% if request.GET.status == 'draft' %}btn-primary{% else %}btn-outline-primary{% endif %}">Brouillons</a>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Nom</th>
+        <th>Périmètre</th>
+        <th>Seuil d'acceptation</th>
+        <th>Par défaut</th>
+        <th>Statut</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in criteria_list %}
+      <tr>
+        <td><a href="{% url 'risks:criteria-detail' c.pk %}">{{ c.name }}</a></td>
+        <td>{{ c.scope }}</td>
+        <td>{{ c.acceptance_threshold }}</td>
+        <td>{% if c.is_default %}<span class="badge text-bg-success">Oui</span>{% else %}—{% endif %}</td>
+        <td>
+          <span class="badge text-bg-{% if c.status == 'active' %}success{% elif c.status == 'draft' %}secondary{% else %}dark{% endif %}">
+            {{ c.get_status_display }}
+          </span>
+        </td>
+        <td>
+          <a href="{% url 'risks:criteria-update' c.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="text-center text-muted">Aucun critère de risque.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>{% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>{% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ stakeholder.name }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>{{ stakeholder.name }}</h1>
+  <div>
+    <a href="{% url 'context:stakeholder-update' stakeholder.pk %}" class="btn btn-primary">Modifier</a>
+    <a href="{% url 'context:stakeholder-list' %}" class="btn btn-outline-secondary">Retour</a>
+  </div>
+</div>
+{% include "includes/approval_badge.html" %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#info">Informations</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#expectations">Attentes & Exigences</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="info">
+    <dl class="row">
+      <dt class="col-sm-3">Périmètre</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' stakeholder.scope.pk %}">{{ stakeholder.scope }}</a></dd>
+      <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ stakeholder.get_type_display }}</dd>
+      <dt class="col-sm-3">Catégorie</dt><dd class="col-sm-9">{{ stakeholder.get_category_display }}</dd>
+      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ stakeholder.description|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">Contact</dt><dd class="col-sm-9">{{ stakeholder.contact_name|default:"—" }}</dd>
+      <dt class="col-sm-3">Email</dt><dd class="col-sm-9">{{ stakeholder.contact_email|default:"—" }}</dd>
+      <dt class="col-sm-3">Téléphone</dt><dd class="col-sm-9">{{ stakeholder.contact_phone|default:"—" }}</dd>
+      <dt class="col-sm-3">Influence</dt><dd class="col-sm-9">{{ stakeholder.get_influence_level_display }}</dd>
+      <dt class="col-sm-3">Intérêt</dt><dd class="col-sm-9">{{ stakeholder.get_interest_level_display }}</dd>
+      <dt class="col-sm-3">Statut</dt><dd class="col-sm-9">{{ stakeholder.get_status_display }}</dd>
+    </dl>
+  </div>
+  <div class="tab-pane fade" id="expectations">
+    {% if stakeholder.expectations.all %}
+    <table class="table table-striped">
+      <thead>
+        <tr><th>Type</th><th>Description</th><th>Priorité</th><th>Applicable</th></tr>
+      </thead>
+      <tbody>
+        {% for exp in stakeholder.expectations.all %}
+        <tr>
+          <td>{{ exp.get_type_display }}</td>
+          <td>{{ exp.description }}</td>
+          <td>{{ exp.get_priority_display }}</td>
+          <td>{% if exp.is_applicable %}Oui{% else %}Non{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">Aucune attente définie.</p>
+    {% endif %}
+  </div>
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

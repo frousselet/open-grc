@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Sites — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">Sites</h1>
+  <a href="{% url 'context:site-create' %}" class="btn btn-primary ms-auto">Nouveau site</a>
+</div>
+{% help_modal "context.site_list" %}
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Nom</th>
+        <th>Type</th>
+        <th>Statut</th>
+        <th>Approbation</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for site in sites %}
+      <tr>
+        <td>
+          <div style="padding-left: {{ site.tree_indent }}px;">
+            {% if site.tree_level > 0 %}<span class="text-muted me-1">&boxur;</span>{% endif %}
+            <a href="{% url 'context:site-detail' site.pk %}">{{ site.name }}</a>
+          </div>
+        </td>
+        <td>{{ site.get_type_display }}</td>
+        <td>
+          <span class="badge text-bg-{% if site.status == 'active' %}success{% elif site.status == 'draft' %}secondary{% else %}dark{% endif %}">
+            {{ site.get_status_display }}
+          </span>
+        </td>
+        <td>
+          <span class="badge text-bg-{% if site.is_approved %}success{% else %}warning{% endif %}">
+            {% if site.is_approved %}Approuvé{% else %}En attente{% endif %}
+          </span>
+        </td>
+        <td>
+          <a href="{% url 'context:site-update' site.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+          <a href="{% url 'context:site-delete' site.pk %}" class="btn btn-sm btn-outline-danger">Supprimer</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="text-center text-muted">Aucun site défini.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

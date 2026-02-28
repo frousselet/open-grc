@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Acceptations de risque — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">Acceptations de risque</h1>
+  <a href="{% url 'risks:acceptance-create' %}" class="btn btn-primary ms-auto">Nouvelle acceptation</a>
+</div>
+{% help_modal "risks.acceptance_list" %}
+
+<div class="mb-3 d-flex gap-2">
+  <a href="{% url 'risks:acceptance-list' %}" class="btn btn-sm {% if not request.GET.status %}btn-primary{% else %}btn-outline-primary{% endif %}">Toutes</a>
+  <a href="?status=active" class="btn btn-sm {% if request.GET.status == 'active' %}btn-primary{% else %}btn-outline-primary{% endif %}">Actives</a>
+  <a href="?status=expired" class="btn btn-sm {% if request.GET.status == 'expired' %}btn-primary{% else %}btn-outline-primary{% endif %}">Expirées</a>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Risque</th>
+        <th>Accepté par</th>
+        <th>Niveau à l'acceptation</th>
+        <th>Valide jusqu'au</th>
+        <th>Statut</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for acc in acceptances %}
+      <tr>
+        <td><a href="{% url 'risks:acceptance-detail' acc.pk %}">{{ acc.risk }}</a></td>
+        <td>{{ acc.accepted_by|default:"—" }}</td>
+        <td>{{ acc.risk_level_at_acceptance|default:"—" }}</td>
+        <td>{{ acc.valid_until|default:"—" }}</td>
+        <td>
+          <span class="badge text-bg-{% if acc.status == 'active' %}success{% elif acc.status == 'expired' %}danger{% else %}secondary{% endif %}">
+            {{ acc.get_status_display }}
+          </span>
+        </td>
+        <td>
+          <a href="{% url 'risks:acceptance-update' acc.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="text-center text-muted">Aucune acceptation de risque.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>{% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>{% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

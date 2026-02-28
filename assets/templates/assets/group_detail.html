@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{{ group.name }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>{{ group.name }}</h1>
+  <div>
+    <a href="{% url 'assets:group-update' group.pk %}" class="btn btn-primary">Modifier</a>
+    <a href="{% url 'assets:group-list' %}" class="btn btn-outline-secondary">Retour</a>
+  </div>
+</div>
+{% include "includes/approval_badge.html" %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#info">Informations</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="info">
+    <dl class="row mb-4">
+      <dt class="col-sm-3">Périmètre</dt><dd class="col-sm-9">{{ group.scope }}</dd>
+      <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ group.get_type_display }}</dd>
+      <dt class="col-sm-3">Propriétaire</dt><dd class="col-sm-9">{{ group.owner|default:"—" }}</dd>
+      <dt class="col-sm-3">Statut</dt><dd class="col-sm-9">{{ group.get_status_display }}</dd>
+      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ group.description|default:"—"|linebreaksbr }}</dd>
+    </dl>
+
+    <h4>Membres ({{ group.members.count }})</h4>
+    {% if group.members.all %}
+    <table class="table table-striped">
+      <thead><tr><th>Réf.</th><th>Nom</th><th>Type</th><th>Catégorie</th><th>Statut</th></tr></thead>
+      <tbody>
+        {% for member in group.members.all %}
+        <tr>
+          <td>{{ member.reference }}</td>
+          <td><a href="{% url 'assets:support-asset-detail' member.pk %}">{{ member.name }}</a></td>
+          <td>{{ member.get_type_display }}</td>
+          <td>{{ member.get_category_display }}</td>
+          <td>{{ member.get_status_display }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">Aucun membre dans ce groupe.</p>
+    {% endif %}
+  </div>
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

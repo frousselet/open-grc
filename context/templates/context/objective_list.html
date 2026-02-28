@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Objectifs — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">Objectifs</h1>
+  <a href="{% url 'context:objective-create' %}" class="btn btn-primary ms-auto">Nouvel objectif</a>
+</div>
+{% help_modal "context.objective_list" %}
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Référence</th>
+        <th>Intitulé</th>
+        <th>Catégorie</th>
+        <th>Responsable</th>
+        <th>Avancement</th>
+        <th>Statut</th>
+        <th>Date cible</th>
+        <th>Approbation</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for obj in objectives %}
+      <tr>
+        <td>{{ obj.reference }}</td>
+        <td><a href="{% url 'context:objective-detail' obj.pk %}">{{ obj.name }}</a></td>
+        <td>{{ obj.get_category_display }}</td>
+        <td>{{ obj.owner }}</td>
+        <td>
+          {% if obj.progress_percentage is not None %}
+          <div class="progress" style="min-width: 80px;">
+            <div class="progress-bar {% if obj.progress_percentage == 100 %}bg-success{% elif obj.progress_percentage >= 50 %}bg-info{% else %}bg-warning{% endif %}"
+                 style="width: {{ obj.progress_percentage }}%">{{ obj.progress_percentage }}%</div>
+          </div>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          <span class="badge text-bg-{% if obj.status == 'achieved' %}success{% elif obj.status == 'active' %}primary{% elif obj.status == 'not_achieved' %}danger{% else %}secondary{% endif %}">
+            {{ obj.get_status_display }}
+          </span>
+        </td>
+        <td>{{ obj.target_date|default:"—" }}</td>
+        <td>
+          <span class="badge text-bg-{% if obj.is_approved %}success{% else %}warning{% endif %}">
+            {% if obj.is_approved %}Approuvé{% else %}En attente{% endif %}
+          </span>
+        </td>
+        <td>
+          <a href="{% url 'context:objective-update' obj.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="9" class="text-center text-muted">Aucun objectif défini.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>{% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>{% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

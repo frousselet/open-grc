@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load dic_tags help_tags %}
+
+{% block title %}Biens essentiels — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">Biens essentiels</h1>
+  <a href="{% url 'assets:essential-asset-create' %}" class="btn btn-primary ms-auto">Nouveau bien essentiel</a>
+</div>
+{% help_modal "assets.essential_asset_list" %}
+
+<div class="mb-3 d-flex gap-2">
+  <a href="{% url 'assets:essential-asset-list' %}" class="btn btn-sm {% if not request.GET.type %}btn-primary{% else %}btn-outline-primary{% endif %}">Tous</a>
+  <a href="?type=business_process" class="btn btn-sm {% if request.GET.type == 'business_process' %}btn-primary{% else %}btn-outline-primary{% endif %}">Processus</a>
+  <a href="?type=information" class="btn btn-sm {% if request.GET.type == 'information' %}btn-primary{% else %}btn-outline-primary{% endif %}">Information</a>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Réf.</th>
+        <th>Nom</th>
+        <th>Type</th>
+        <th>Catégorie</th>
+        <th>Propriétaire</th>
+        <th class="text-center">C</th>
+        <th class="text-center">I</th>
+        <th class="text-center">D</th>
+        <th>Statut</th>
+        <th>Approbation</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for asset in assets %}
+      <tr>
+        <td>{{ asset.reference }}</td>
+        <td><a href="{% url 'assets:essential-asset-detail' asset.pk %}">{{ asset.name }}</a></td>
+        <td>{{ asset.get_type_display }}</td>
+        <td>{{ asset.get_category_display }}</td>
+        <td>{{ asset.owner }}</td>
+        <td class="text-center">{{ asset.confidentiality_level|dic_badge }}</td>
+        <td class="text-center">{{ asset.integrity_level|dic_badge }}</td>
+        <td class="text-center">{{ asset.availability_level|dic_badge }}</td>
+        <td>
+          <span class="badge text-bg-{% if asset.status == 'active' %}success{% elif asset.status == 'identified' %}info{% elif asset.status == 'under_review' %}warning{% else %}secondary{% endif %}">
+            {{ asset.get_status_display }}
+          </span>
+        </td>
+        <td>
+          <span class="badge text-bg-{% if asset.is_approved %}success{% else %}warning{% endif %}">
+            {% if asset.is_approved %}Approuvé{% else %}En attente{% endif %}
+          </span>
+        </td>
+        <td>
+          <a href="{% url 'assets:essential-asset-update' asset.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="11" class="text-center text-muted">Aucun bien essentiel.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>{% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>{% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

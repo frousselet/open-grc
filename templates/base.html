@@ -1,0 +1,483 @@
+{% load static %}
+{% load accounts_tags %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Open GRC{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+  <style>
+    /* ── Global font scaling ─────────────────────────────── */
+    html { font-size: 13.5px; }
+
+    /* ── Layout ──────────────────────────────────────────── */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 240px;
+      background: #fff;
+      border-right: 1px solid #e5e7eb;
+      overflow-y: auto;
+      z-index: 1040;
+      display: flex;
+      flex-direction: column;
+      transition: transform .2s ease;
+    }
+    .sidebar-brand {
+      padding: 1rem 1.15rem;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sidebar-brand a {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #111;
+      text-decoration: none;
+    }
+    .sidebar-body {
+      flex: 1;
+      padding: .5rem 0;
+      overflow-y: auto;
+    }
+    .sidebar-section {
+      padding: .85rem 1.15rem .25rem;
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #6b7280;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .4rem 1.15rem;
+      color: #374151;
+      text-decoration: none;
+      font-size: .92rem;
+      border-radius: 0;
+      transition: background .1s;
+    }
+    .sidebar-link:hover { background: #f3f4f6; color: #111; }
+    .sidebar-link.active { background: #e5e7eb; color: #111; font-weight: 600; }
+    .sidebar-link i { font-size: 1.05rem; width: 1.25rem; text-align: center; color: #6b7280; }
+    .sidebar-link.active i { color: #111; }
+    .sidebar-sub { padding-left: 2.9rem; font-size: .88rem; color: #4b5563; }
+    .sidebar-collapse-btn {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .4rem 1.15rem;
+      color: #374151;
+      text-decoration: none;
+      font-size: .92rem;
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      transition: background .1s;
+    }
+    .sidebar-collapse-btn:hover { background: #f3f4f6; color: #111; }
+    .sidebar-collapse-btn i.bi-chevron-down {
+      margin-left: auto;
+      font-size: .7rem;
+      transition: transform .2s;
+      color: #9ca3af;
+    }
+    .sidebar-collapse-btn[aria-expanded="true"] i.bi-chevron-down {
+      transform: rotate(180deg);
+    }
+    .sidebar-collapse-btn i:first-child { font-size: 1.05rem; width: 1.25rem; text-align: center; color: #6b7280; }
+    .sidebar-footer {
+      border-top: 1px solid #e5e7eb;
+      padding: .75rem 1.15rem;
+    }
+
+    .main-content {
+      margin-left: 240px;
+      padding: 3.5rem 2.5rem 5rem;
+      min-height: 100vh;
+      background: #f9fafb;
+    }
+
+    /* ── Vertical rhythm ──────────────────────────────────── */
+    .main-content h1,
+    .main-content h2 { margin-bottom: 1.5rem; }
+    .main-content .d-flex > h1,
+    .main-content .d-flex > h2 { margin-bottom: 0; }
+    .main-content h3,
+    .main-content h5.card-title { margin-bottom: 1rem; }
+    .main-content hr { margin: 3.5rem 0; }
+    .main-content .card { margin-bottom: 2.5rem; }
+    .main-content .row.g-3 { --bs-gutter-y: 2rem; }
+    .main-content .table-responsive { margin-top: 1rem; margin-bottom: 3rem; }
+    .main-content form.row { margin-bottom: 2.5rem; }
+    .main-content .help-banner { margin-bottom: 2rem; }
+    .main-content > .container-xl > .d-flex:first-child { margin-bottom: 2rem; }
+    .main-content .pagination { margin-top: 1.5rem; }
+    .main-content .alert { margin-bottom: 2.5rem; }
+    .main-content .mb-3 { margin-bottom: 1.75rem !important; }
+    .main-content .mb-4 { margin-bottom: 2.5rem !important; }
+
+    /* ── Mobile ──────────────────────────────────────────── */
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.3);
+      z-index: 1035;
+    }
+    .sidebar-toggle {
+      display: none;
+      position: fixed;
+      top: .5rem;
+      left: .5rem;
+      z-index: 1050;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: .375rem;
+      font-size: 1.3rem;
+      color: #374151;
+      padding: .25rem .5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    }
+    @media (max-width: 991.98px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.show { transform: translateX(0); }
+      .sidebar-backdrop.show { display: block; }
+      .sidebar-toggle { display: inline-flex; }
+      .main-content { margin-left: 0; }
+    }
+
+    /* ── Help banner ───────────────────────────────────────── */
+    .help-banner {
+      background: var(--bs-tertiary-bg);
+      border-color: var(--bs-border-color) !important;
+    }
+
+    /* ── Airy tables ─────────────────────────────────────── */
+    .table > thead.table-dark {
+      --bs-table-bg: transparent;
+      --bs-table-color: var(--bs-body-color);
+      --bs-table-border-color: var(--bs-border-color);
+      font-weight: 600;
+    }
+    .table-striped > tbody > tr:nth-of-type(odd) > * {
+      --bs-table-striped-bg: transparent;
+    }
+    .table > :not(caption) > * > * {
+      padding: .75rem;
+    }
+
+    h1 { font-size: 1.55rem; }
+    h2 { font-size: 1.3rem; }
+    h3 { font-size: 1.15rem; }
+    h4 { font-size: 1.05rem; }
+    h5 { font-size: .95rem; }
+    h6 { font-size: .88rem; }
+    .display-4 { font-size: 2rem; }
+    .display-6 { font-size: 1.6rem; }
+
+    /* ── Dark theme overrides ──────────────────────────────── */
+    [data-bs-theme="dark"] .sidebar {
+      background: #1a1d21;
+      border-right-color: #2d3238;
+    }
+    [data-bs-theme="dark"] .sidebar-brand {
+      border-bottom-color: #2d3238;
+    }
+    [data-bs-theme="dark"] .sidebar-brand a {
+      color: #e9ecef;
+    }
+    [data-bs-theme="dark"] .sidebar-section {
+      color: #868e96;
+    }
+    [data-bs-theme="dark"] .sidebar-link {
+      color: #ced4da;
+    }
+    [data-bs-theme="dark"] .sidebar-link:hover {
+      background: #2d3238;
+      color: #f8f9fa;
+    }
+    [data-bs-theme="dark"] .sidebar-link.active {
+      background: #343a40;
+      color: #f8f9fa;
+    }
+    [data-bs-theme="dark"] .sidebar-link i {
+      color: #868e96;
+    }
+    [data-bs-theme="dark"] .sidebar-link.active i {
+      color: #f8f9fa;
+    }
+    [data-bs-theme="dark"] .sidebar-sub {
+      color: #adb5bd;
+    }
+    [data-bs-theme="dark"] .sidebar-collapse-btn {
+      color: #ced4da;
+    }
+    [data-bs-theme="dark"] .sidebar-collapse-btn:hover {
+      background: #2d3238;
+      color: #f8f9fa;
+    }
+    [data-bs-theme="dark"] .sidebar-collapse-btn i:first-child {
+      color: #868e96;
+    }
+    [data-bs-theme="dark"] .sidebar-collapse-btn i.bi-chevron-down {
+      color: #6c757d;
+    }
+    [data-bs-theme="dark"] .sidebar-footer {
+      border-top-color: #2d3238;
+    }
+    [data-bs-theme="dark"] .main-content {
+      background: #212529;
+    }
+    [data-bs-theme="dark"] .sidebar-toggle {
+      background: #1a1d21;
+      border-color: #2d3238;
+      color: #ced4da;
+    }
+  </style>
+  <script>
+    (function(){
+      var m = window.matchMedia('(prefers-color-scheme: dark)');
+      function apply(dark) {
+        document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+      }
+      apply(m.matches);
+      m.addEventListener('change', function(e) { apply(e.matches); });
+    })();
+  </script>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  {% block layout %}
+  {# ── Sidebar ────────────────────────────────────────── #}
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <a href="/">Open GRC</a>
+      <button class="sidebar-toggle d-lg-none" onclick="toggleSidebar()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-body">
+      {# ── Gouvernance ─────────────────────────────────── #}
+      <div class="sidebar-section">Gouvernance</div>
+      <a href="{% url 'context:dashboard' %}" class="sidebar-link">
+        <i class="bi bi-speedometer2"></i> Tableau de bord
+      </a>
+      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navGouv" aria-expanded="true">
+        <i class="bi bi-diagram-3"></i> Organisation
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      <div class="collapse show" id="navGouv">
+        <a href="{% url 'context:scope-list' %}" class="sidebar-link sidebar-sub">Périmètres</a>
+        <a href="{% url 'context:issue-list' %}" class="sidebar-link sidebar-sub">Enjeux</a>
+        <a href="{% url 'context:stakeholder-list' %}" class="sidebar-link sidebar-sub">Parties intéressées</a>
+        <a href="{% url 'context:objective-list' %}" class="sidebar-link sidebar-sub">Objectifs</a>
+        <a href="{% url 'context:swot-list' %}" class="sidebar-link sidebar-sub">Analyses SWOT</a>
+      </div>
+      <a href="{% url 'context:role-list' %}" class="sidebar-link">
+        <i class="bi bi-person-badge"></i> Rôles
+      </a>
+      <a href="{% url 'context:activity-list' %}" class="sidebar-link">
+        <i class="bi bi-activity"></i> Activités
+      </a>
+      <a href="{% url 'context:site-list' %}" class="sidebar-link">
+        <i class="bi bi-building"></i> Sites
+      </a>
+
+      {# ── Actifs ──────────────────────────────────────── #}
+      <div class="sidebar-section">Actifs</div>
+      <a href="{% url 'assets:dashboard' %}" class="sidebar-link">
+        <i class="bi bi-speedometer2"></i> Tableau de bord
+      </a>
+      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navActifs" aria-expanded="true">
+        <i class="bi bi-box-seam"></i> Actifs
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      <div class="collapse show" id="navActifs">
+        <a href="{% url 'assets:essential-asset-list' %}" class="sidebar-link sidebar-sub">Biens essentiels</a>
+        <a href="{% url 'assets:support-asset-list' %}" class="sidebar-link sidebar-sub">Biens supports</a>
+        <a href="{% url 'assets:group-list' %}" class="sidebar-link sidebar-sub">Groupes d'actifs</a>
+      </div>
+      <a href="{% url 'assets:dependency-list' %}" class="sidebar-link">
+        <i class="bi bi-share"></i> Dépendances
+      </a>
+
+      {# ── Gestion des risques ───────────────────────── #}
+      <div class="sidebar-section">Gestion des risques</div>
+      <a href="{% url 'risks:dashboard' %}" class="sidebar-link">
+        <i class="bi bi-speedometer2"></i> Tableau de bord
+      </a>
+      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navRiskAssess" aria-expanded="true">
+        <i class="bi bi-clipboard-data"></i> Appréciations
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      <div class="collapse show" id="navRiskAssess">
+        <a href="{% url 'risks:assessment-list' %}" class="sidebar-link sidebar-sub">Appréciations</a>
+        <a href="{% url 'risks:criteria-list' %}" class="sidebar-link sidebar-sub">Critères</a>
+      </div>
+      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navRiskReg" aria-expanded="true">
+        <i class="bi bi-shield-exclamation"></i> Registre
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      <div class="collapse show" id="navRiskReg">
+        <a href="{% url 'risks:risk-list' %}" class="sidebar-link sidebar-sub">Risques</a>
+        <a href="{% url 'risks:treatment-plan-list' %}" class="sidebar-link sidebar-sub">Plans de traitement</a>
+        <a href="{% url 'risks:acceptance-list' %}" class="sidebar-link sidebar-sub">Acceptations</a>
+      </div>
+      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navISO27005" aria-expanded="true">
+        <i class="bi bi-diagram-2"></i> ISO 27005
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      <div class="collapse show" id="navISO27005">
+        <a href="{% url 'risks:threat-list' %}" class="sidebar-link sidebar-sub">Menaces</a>
+        <a href="{% url 'risks:vulnerability-list' %}" class="sidebar-link sidebar-sub">Vulnérabilités</a>
+        <a href="{% url 'risks:iso27005-list' %}" class="sidebar-link sidebar-sub">Analyses</a>
+      </div>
+
+      {# ── Conformité ──────────────────────────────────── #}
+      <div class="sidebar-section">Conformité</div>
+      <a href="{% url 'compliance:dashboard' %}" class="sidebar-link">
+        <i class="bi bi-speedometer2"></i> Tableau de bord
+      </a>
+      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navReferentiels" aria-expanded="true">
+        <i class="bi bi-journal-bookmark"></i> Référentiels
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      <div class="collapse show" id="navReferentiels">
+        <a href="{% url 'compliance:framework-list' %}" class="sidebar-link sidebar-sub">Liste</a>
+        <a href="{% url 'compliance:framework-import' %}" class="sidebar-link sidebar-sub">Importer</a>
+      </div>
+      <a href="{% url 'compliance:requirement-list' %}" class="sidebar-link">
+        <i class="bi bi-list-check"></i> Exigences
+      </a>
+      <a href="{% url 'compliance:assessment-list' %}" class="sidebar-link">
+        <i class="bi bi-clipboard-data"></i> Évaluations
+      </a>
+      <a href="{% url 'compliance:mapping-list' %}" class="sidebar-link">
+        <i class="bi bi-arrow-left-right"></i> Mappings
+      </a>
+      <a href="{% url 'compliance:action-plan-list' %}" class="sidebar-link">
+        <i class="bi bi-kanban"></i> Plans d'action
+      </a>
+
+      {# ── Administration ──────────────────────────────── #}
+      {% has_module_perms "system" as can_admin %}
+      {% if can_admin %}
+      <div class="sidebar-section">Administration</div>
+      {% has_perm "system.users.read" as can_users %}
+      {% if can_users %}
+      <a href="{% url 'accounts:user-list' %}" class="sidebar-link">
+        <i class="bi bi-people"></i> Utilisateurs
+      </a>
+      {% endif %}
+      {% has_perm "system.groups.read" as can_groups %}
+      {% if can_groups %}
+      <a href="{% url 'accounts:group-list' %}" class="sidebar-link">
+        <i class="bi bi-shield-lock"></i> Groupes
+      </a>
+      <a href="{% url 'accounts:permission-list' %}" class="sidebar-link">
+        <i class="bi bi-key"></i> Permissions
+      </a>
+      {% endif %}
+      {% has_perm "system.audit_trail.read" as can_audit %}
+      {% if can_audit %}
+      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navLogs" aria-expanded="true">
+        <i class="bi bi-journal-text"></i> Journaux
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      <div class="collapse show" id="navLogs">
+        <a href="{% url 'accounts:access-log-list' %}" class="sidebar-link sidebar-sub">Journal des accès</a>
+        <a href="{% url 'accounts:action-log-list' %}" class="sidebar-link sidebar-sub">Journal des actions</a>
+      </div>
+      {% endif %}
+      {% has_perm "system.admin_django.access" as can_django_admin %}
+      {% if can_django_admin %}
+      <a href="{% url 'admin:index' %}" class="sidebar-link">
+        <i class="bi bi-gear"></i> Admin Django
+      </a>
+      {% endif %}
+      {% endif %}
+    </div>
+
+    {# ── Sidebar footer (user) ─────────────────────────── #}
+    {% if user.is_authenticated %}
+    <div class="sidebar-footer">
+      <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
+           data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-person-circle me-2" style="font-size:1.2rem"></i>
+          <span class="text-truncate" style="max-width:140px">{{ user.display_name }}</span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+          <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Mon profil</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <form method="post" action="{% url 'accounts:logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-item">Déconnexion</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+  </aside>
+
+  {# ── Mobile toggle ────────────────────────────────────── #}
+  <button class="sidebar-toggle" onclick="toggleSidebar()">
+    <i class="bi bi-list"></i>
+  </button>
+
+  {# ── Main content ─────────────────────────────────────── #}
+  <main class="main-content">
+    <div class="container-xl">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+  {% endblock %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+          crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/htmx.org@2.0.4"
+          integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+          crossorigin="anonymous"></script>
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('show');
+      document.getElementById('sidebarBackdrop').classList.toggle('show');
+    }
+    /* Auto-expand and highlight the active sidebar link */
+    (function() {
+      var path = location.pathname;
+      document.querySelectorAll('.sidebar-link').forEach(function(link) {
+        if (link.getAttribute('href') === path) {
+          link.classList.add('active');
+          var collapse = link.closest('.collapse');
+          if (collapse) {
+            collapse.classList.add('show');
+            var btn = document.querySelector('[data-bs-target="#' + collapse.id + '"]');
+            if (btn) btn.setAttribute('aria-expanded', 'true');
+          }
+        }
+      });
+    })();
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

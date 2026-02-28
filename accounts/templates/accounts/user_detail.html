@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load accounts_tags %}
+{% block title %}{{ account_user.display_name }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>{{ account_user.display_name }}</h2>
+  <div>
+    {% has_perm "system.users.update" as can_edit %}
+    {% if can_edit %}
+    <a href="{% url 'accounts:user-update' account_user.pk %}" class="btn btn-outline-primary">Modifier</a>
+    {% endif %}
+    <a href="{% url 'accounts:user-list' %}" class="btn btn-outline-secondary">Retour à la liste</a>
+  </div>
+</div>
+
+<ul class="nav nav-tabs mb-4" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#info">Informations</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#groups-tab">Groupes</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#perms-tab">Permissions effectives</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#logs-tab">Journal des accès</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="info">
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3">Email</dt><dd class="col-sm-9">{{ account_user.email }}</dd>
+          <dt class="col-sm-3">Prénom</dt><dd class="col-sm-9">{{ account_user.first_name }}</dd>
+          <dt class="col-sm-3">Nom</dt><dd class="col-sm-9">{{ account_user.last_name }}</dd>
+          <dt class="col-sm-3">Fonction</dt><dd class="col-sm-9">{{ account_user.job_title|default:"-" }}</dd>
+          <dt class="col-sm-3">Service</dt><dd class="col-sm-9">{{ account_user.department|default:"-" }}</dd>
+          <dt class="col-sm-3">Téléphone</dt><dd class="col-sm-9">{{ account_user.phone|default:"-" }}</dd>
+          <dt class="col-sm-3">Langue</dt><dd class="col-sm-9">{{ account_user.get_language_display }}</dd>
+          <dt class="col-sm-3">Fuseau horaire</dt><dd class="col-sm-9">{{ account_user.timezone }}</dd>
+          <dt class="col-sm-3">Statut</dt>
+          <dd class="col-sm-9">
+            {% if account_user.is_active %}
+              {% if account_user.is_locked %}
+              <span class="badge bg-warning text-dark">Verrouillé</span>
+              {% else %}
+              <span class="badge bg-success">Actif</span>
+              {% endif %}
+            {% else %}
+            <span class="badge bg-secondary">Inactif</span>
+            {% endif %}
+          </dd>
+          <dt class="col-sm-3">Dernière connexion</dt><dd class="col-sm-9">{{ account_user.last_login|date:"d/m/Y H:i"|default:"-" }}</dd>
+          <dt class="col-sm-3">Créé le</dt><dd class="col-sm-9">{{ account_user.created_at|date:"d/m/Y H:i" }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="groups-tab">
+    <div class="card">
+      <div class="card-body">
+        {% if groups %}
+        <ul class="list-group list-group-flush">
+          {% for group in groups %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="{% url 'accounts:group-detail' group.pk %}">{{ group.name }}</a>
+            {% if group.is_system %}<span class="badge bg-info">Système</span>{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted mb-0">Aucun groupe assigné.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="perms-tab">
+    <div class="card">
+      <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+        {% if permissions %}
+        <ul class="list-unstyled mb-0" style="font-size: 0.85rem;">
+          {% for perm in permissions %}
+          <li><code>{{ perm }}</code></li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted mb-0">Aucune permission.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="logs-tab">
+    <div class="card">
+      <div class="card-body">
+        {% if recent_access_logs %}
+        <table class="table table-sm">
+          <thead><tr><th>Date</th><th>Événement</th><th>IP</th><th>Raison</th></tr></thead>
+          <tbody>
+            {% for log in recent_access_logs %}
+            <tr>
+              <td>{{ log.timestamp|date:"d/m/Y H:i:s" }}</td>
+              <td>{{ log.get_event_type_display }}</td>
+              <td>{{ log.ip_address|default:"-" }}</td>
+              <td>{{ log.get_failure_reason_display|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted mb-0">Aucun événement.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

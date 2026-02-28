@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load dic_tags %}
+
+{% block title %}{{ asset.reference }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>{{ asset.reference }} — {{ asset.name }}</h1>
+  <div>
+    <a href="{% url 'assets:support-asset-update' asset.pk %}" class="btn btn-primary">Modifier</a>
+    <a href="{% url 'assets:support-asset-list' %}" class="btn btn-outline-secondary">Retour</a>
+  </div>
+</div>
+
+{% include "includes/approval_badge.html" %}
+
+{% if asset.is_end_of_life %}
+<div class="alert alert-danger">Ce bien support a dépassé sa date de fin de vie ({{ asset.end_of_life_date }}).</div>
+{% endif %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#technical">Caractéristiques techniques</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#lifecycle">Cycle de vie</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#dic">DIC hérité</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#relations">Relations</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="general">
+    <dl class="row">
+      <dt class="col-sm-3">Périmètre</dt><dd class="col-sm-9">{{ asset.scope }}</dd>
+      <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ asset.get_type_display }}</dd>
+      <dt class="col-sm-3">Catégorie</dt><dd class="col-sm-9">{{ asset.get_category_display }}</dd>
+      <dt class="col-sm-3">Propriétaire</dt><dd class="col-sm-9">{{ asset.owner }}</dd>
+      <dt class="col-sm-3">Dépositaire</dt><dd class="col-sm-9">{{ asset.custodian|default:"—" }}</dd>
+      <dt class="col-sm-3">Statut</dt><dd class="col-sm-9">{{ asset.get_status_display }}</dd>
+      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ asset.description|default:"—"|linebreaksbr }}</dd>
+    </dl>
+  </div>
+
+  <div class="tab-pane fade" id="technical">
+    <dl class="row">
+      <dt class="col-sm-3">Localisation</dt><dd class="col-sm-9">{{ asset.location|default:"—" }}</dd>
+      <dt class="col-sm-3">Fabricant</dt><dd class="col-sm-9">{{ asset.manufacturer|default:"—" }}</dd>
+      <dt class="col-sm-3">Modèle</dt><dd class="col-sm-9">{{ asset.model_name|default:"—" }}</dd>
+      <dt class="col-sm-3">N° de série</dt><dd class="col-sm-9">{{ asset.serial_number|default:"—" }}</dd>
+      <dt class="col-sm-3">Version logicielle</dt><dd class="col-sm-9">{{ asset.software_version|default:"—" }}</dd>
+      <dt class="col-sm-3">Adresse IP</dt><dd class="col-sm-9">{{ asset.ip_address|default:"—" }}</dd>
+      <dt class="col-sm-3">Nom d'hôte</dt><dd class="col-sm-9">{{ asset.hostname|default:"—" }}</dd>
+      <dt class="col-sm-3">OS</dt><dd class="col-sm-9">{{ asset.operating_system|default:"—" }}</dd>
+      <dt class="col-sm-3">Exposition</dt><dd class="col-sm-9">{{ asset.get_exposure_level_display|default:"—" }}</dd>
+      <dt class="col-sm-3">Environnement</dt><dd class="col-sm-9">{{ asset.get_environment_display|default:"—" }}</dd>
+    </dl>
+  </div>
+
+  <div class="tab-pane fade" id="lifecycle">
+    <dl class="row">
+      <dt class="col-sm-3">Date d'acquisition</dt><dd class="col-sm-9">{{ asset.acquisition_date|default:"—" }}</dd>
+      <dt class="col-sm-3">Fin de vie</dt>
+      <dd class="col-sm-9">
+        {{ asset.end_of_life_date|default:"—" }}
+        {% if asset.is_end_of_life %}<span class="badge text-bg-danger">Dépassée</span>{% endif %}
+      </dd>
+      <dt class="col-sm-3">Expiration garantie</dt><dd class="col-sm-9">{{ asset.warranty_expiry_date|default:"—" }}</dd>
+      <dt class="col-sm-3">Réf. contrat</dt><dd class="col-sm-9">{{ asset.contract_reference|default:"—" }}</dd>
+      <dt class="col-sm-3">Prochaine revue</dt><dd class="col-sm-9">{{ asset.review_date|default:"—" }}</dd>
+    </dl>
+  </div>
+
+  <div class="tab-pane fade" id="dic">
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h6>Confidentialité héritée</h6>
+            <p class="display-6">{{ asset.inherited_confidentiality|dic_badge }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h6>Intégrité héritée</h6>
+            <p class="display-6">{{ asset.inherited_integrity|dic_badge }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h6>Disponibilité héritée</h6>
+            <p class="display-6">{{ asset.inherited_availability|dic_badge }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <h6>Provenance (biens essentiels contributeurs)</h6>
+    {% if dependencies %}
+    <table class="table table-striped">
+      <thead><tr><th>Bien essentiel</th><th class="text-center">C</th><th class="text-center">I</th><th class="text-center">D</th></tr></thead>
+      <tbody>
+        {% for dep in dependencies %}
+        <tr>
+          <td><a href="{% url 'assets:essential-asset-detail' dep.essential_asset.pk %}">{{ dep.essential_asset }}</a></td>
+          <td class="text-center">{{ dep.essential_asset.confidentiality_level|dic_badge }}</td>
+          <td class="text-center">{{ dep.essential_asset.integrity_level|dic_badge }}</td>
+          <td class="text-center">{{ dep.essential_asset.availability_level|dic_badge }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">Aucun bien essentiel associé (bien support orphelin).</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="relations">
+    <h5>Bien support parent</h5>
+    <p>
+      {% if asset.parent_asset %}
+      <a href="{% url 'assets:support-asset-detail' asset.parent_asset.pk %}">{{ asset.parent_asset }}</a>
+      {% else %}—{% endif %}
+    </p>
+
+    {% if children %}
+    <h5>Sous-biens supports</h5>
+    <ul class="list-group mb-3">
+      {% for child in children %}
+      <li class="list-group-item">
+        <a href="{% url 'assets:support-asset-detail' child.pk %}">{{ child.reference }} — {{ child.name }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

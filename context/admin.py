@@ -1,0 +1,115 @@
+from django.contrib import admin
+from simple_history.admin import SimpleHistoryAdmin
+
+from .models import (
+    Activity,
+    Issue,
+    Objective,
+    Responsibility,
+    Role,
+    Scope,
+    Site,
+    Stakeholder,
+    StakeholderExpectation,
+    SwotAnalysis,
+    SwotItem,
+)
+
+
+@admin.register(Scope)
+class ScopeAdmin(SimpleHistoryAdmin):
+    list_display = ("name", "version", "status", "effective_date", "review_date", "created_at")
+    list_filter = ("status",)
+    search_fields = ("name", "description")
+    readonly_fields = ("id", "created_at", "updated_at")
+    filter_horizontal = ("included_sites", "excluded_sites")
+
+
+@admin.register(Site)
+class SiteAdmin(SimpleHistoryAdmin):
+    list_display = ("name", "type", "status", "parent_site", "is_approved", "created_at")
+    list_filter = ("type", "status")
+    search_fields = ("name", "description", "address")
+    readonly_fields = ("id", "created_at", "updated_at")
+
+
+@admin.register(Issue)
+class IssueAdmin(SimpleHistoryAdmin):
+    list_display = ("name", "scope", "type", "category", "impact_level", "status", "trend")
+    list_filter = ("type", "category", "impact_level", "status", "trend")
+    search_fields = ("name", "description")
+    readonly_fields = ("id", "created_at", "updated_at")
+    filter_horizontal = ("related_stakeholders",)
+
+
+class StakeholderExpectationInline(admin.TabularInline):
+    model = StakeholderExpectation
+    extra = 1
+    readonly_fields = ("id",)
+
+
+@admin.register(Stakeholder)
+class StakeholderAdmin(SimpleHistoryAdmin):
+    list_display = (
+        "name", "scope", "type", "category", "influence_level", "interest_level", "status",
+    )
+    list_filter = ("type", "category", "influence_level", "interest_level", "status")
+    search_fields = ("name", "description", "contact_name")
+    readonly_fields = ("id", "created_at", "updated_at")
+    inlines = [StakeholderExpectationInline]
+
+
+@admin.register(Objective)
+class ObjectiveAdmin(SimpleHistoryAdmin):
+    list_display = (
+        "reference", "name", "scope", "category", "type", "status",
+        "progress_percentage", "owner", "target_date",
+    )
+    list_filter = ("category", "type", "status", "measurement_frequency")
+    search_fields = ("reference", "name", "description")
+    readonly_fields = ("id", "created_at", "updated_at")
+    filter_horizontal = ("related_issues", "related_stakeholders")
+
+
+class SwotItemInline(admin.TabularInline):
+    model = SwotItem
+    extra = 1
+    readonly_fields = ("id",)
+
+
+@admin.register(SwotAnalysis)
+class SwotAnalysisAdmin(SimpleHistoryAdmin):
+    list_display = ("name", "scope", "analysis_date", "status", "validated_by", "validated_at")
+    list_filter = ("status",)
+    search_fields = ("name", "description")
+    readonly_fields = ("id", "created_at", "updated_at")
+    inlines = [SwotItemInline]
+
+
+class ResponsibilityInline(admin.TabularInline):
+    model = Responsibility
+    extra = 1
+    readonly_fields = ("id",)
+
+
+@admin.register(Role)
+class RoleAdmin(SimpleHistoryAdmin):
+    list_display = ("name", "scope", "type", "status", "is_mandatory", "compliance_alert")
+    list_filter = ("type", "status", "is_mandatory")
+    search_fields = ("name", "description")
+    readonly_fields = ("id", "created_at", "updated_at")
+    filter_horizontal = ("assigned_users",)
+    inlines = [ResponsibilityInline]
+
+    @admin.display(description="Alerte conformité")
+    def compliance_alert(self, obj):
+        return obj.compliance_alert or "—"
+
+
+@admin.register(Activity)
+class ActivityAdmin(SimpleHistoryAdmin):
+    list_display = ("reference", "name", "scope", "type", "criticality", "owner", "status")
+    list_filter = ("type", "criticality", "status")
+    search_fields = ("reference", "name", "description")
+    readonly_fields = ("id", "created_at", "updated_at")
+    filter_horizontal = ("related_stakeholders", "related_objectives")

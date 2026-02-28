@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Aperçu de l'import — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">Aperçu de l'import</h1>
+</div>
+
+{% if existing_framework %}
+<div class="alert alert-info">
+  <i class="bi bi-info-circle me-1"></i>
+  Import dans le référentiel existant <strong>{{ existing_framework.reference }} — {{ existing_framework.name }}</strong>.
+  Le nom sera remplacé par <strong>{{ framework.name }}</strong>.
+</div>
+{% endif %}
+
+{# ── Metadata card ────────────────────────────────────── #}
+<div class="card mb-3">
+  <div class="card-header">{% if existing_framework %}Données importées{% else %}Métadonnées du référentiel{% endif %}</div>
+  <div class="card-body">
+    <dl class="row mb-0">
+      <dt class="col-sm-3">Référence</dt>
+      <dd class="col-sm-9">{{ framework.reference }}</dd>
+      <dt class="col-sm-3">Nom</dt>
+      <dd class="col-sm-9">{{ framework.name }}</dd>
+      {% if framework.short_name %}
+      <dt class="col-sm-3">Abréviation</dt>
+      <dd class="col-sm-9">{{ framework.short_name }}</dd>
+      {% endif %}
+      {% if framework.type %}
+      <dt class="col-sm-3">Type</dt>
+      <dd class="col-sm-9">{{ framework.type }}</dd>
+      {% endif %}
+      {% if framework.category %}
+      <dt class="col-sm-3">Catégorie</dt>
+      <dd class="col-sm-9">{{ framework.category }}</dd>
+      {% endif %}
+      {% if framework.issuing_body %}
+      <dt class="col-sm-3">Organisme émetteur</dt>
+      <dd class="col-sm-9">{{ framework.issuing_body }}</dd>
+      {% endif %}
+      {% if framework.description %}
+      <dt class="col-sm-3">Description</dt>
+      <dd class="col-sm-9">{{ framework.description }}</dd>
+      {% endif %}
+    </dl>
+  </div>
+</div>
+
+{# ── Stats badges ─────────────────────────────────────── #}
+<div class="d-flex gap-2 mb-3">
+  <span class="badge text-bg-primary fs-6"><i class="bi bi-folder me-1"></i>{{ stats.section_count }} section{{ stats.section_count|pluralize }}</span>
+  <span class="badge text-bg-info fs-6"><i class="bi bi-list-check me-1"></i>{{ stats.requirement_count }} exigence{{ stats.requirement_count|pluralize }}</span>
+  <span class="badge text-bg-secondary fs-6"><i class="bi bi-diagram-3 me-1"></i>Profondeur max : {{ stats.max_depth }}</span>
+</div>
+
+{# ── Warnings ─────────────────────────────────────────── #}
+{% if warnings %}
+<div class="alert alert-warning">
+  <strong><i class="bi bi-exclamation-triangle me-1"></i>Avertissements :</strong>
+  <ul class="mb-0 mt-1">
+    {% for w in warnings %}
+    <li>{{ w }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{# ── Tree view ────────────────────────────────────────── #}
+<div class="card mb-3">
+  <div class="card-header">Arborescence</div>
+  <div class="card-body p-2">
+    <ul class="list-unstyled mb-0">
+      {% for section in sections %}
+      {% if not section.is_virtual %}
+      <li style="padding-left: {{ section.depth|add:"-1"|floatformat:"0" }}rem;" class="py-1">
+        <i class="bi bi-folder text-warning me-1"></i>
+        <strong>{{ section.reference }}</strong> — {{ section.name }}
+        {% if section.requirements %}
+        <ul class="list-unstyled ms-3 mt-1">
+          {% for req in section.requirements %}
+          <li class="py-1 text-muted">
+            <i class="bi bi-check-square me-1"></i>
+            {{ req.reference }} — {{ req.name }}
+            {% if req.type %}<span class="badge text-bg-light">{{ req.type }}</span>{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </li>
+      {% else %}
+      {# Virtual section: orphan requirements #}
+      <li class="py-1">
+        <i class="bi bi-exclamation-triangle text-warning me-1"></i>
+        <em>Exigences sans section :</em>
+        <ul class="list-unstyled ms-3 mt-1">
+          {% for req in section.requirements %}
+          <li class="py-1 text-muted">
+            <i class="bi bi-check-square me-1"></i>
+            {{ req.reference }} — {{ req.name }}
+          </li>
+          {% endfor %}
+        </ul>
+      </li>
+      {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{# ── Actions ──────────────────────────────────────────── #}
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{% if existing_framework %}Confirmer l'ajout{% else %}Confirmer l'import{% endif %}</button>
+  <a href="{% url 'compliance:framework-import' %}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}

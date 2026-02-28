@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Importer un référentiel — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">Importer un référentiel</h1>
+</div>
+{% help_modal "compliance.framework_import" %}
+
+{% if form.non_field_errors %}
+<div class="alert alert-danger">
+  <strong>Erreurs de validation :</strong>
+  <ul class="mb-0 mt-1">
+    {% for error in form.non_field_errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {% for field in form %}
+          <div class="mb-3">
+            <label for="{{ field.id_for_label }}" class="form-label">
+              {{ field.label }}{% if field.field.required %} *{% endif %}
+            </label>
+            {{ field }}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+          {% endfor %}
+          <div class="mt-4">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>Analyser</button>
+            <a href="{% url 'compliance:framework-list' %}" class="btn btn-secondary">Annuler</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-info-circle me-1"></i>Formats acceptés</div>
+      <div class="card-body">
+        <h6>JSON</h6>
+        <p class="small text-muted">Structure arborescente avec <code>framework</code>, <code>sections</code> (imbriquées) et <code>requirements</code> dans chaque section.</p>
+        <h6>Excel (.xlsx)</h6>
+        <p class="small text-muted mb-0">Une seule feuille avec les colonnes : <code>type</code>, <code>reference</code>, <code>name</code>, <code>description</code>, <code>guidance</code>, <code>req_type</code>, <code>req_category</code>. La hiérarchie est déduite des préfixes de références.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><i class="bi bi-download me-1"></i>Templates d'exemple</div>
+      <div class="card-body">
+        <p class="small text-muted">Téléchargez un fichier d'exemple pré-rempli pour vous aider à préparer votre import.</p>
+        <div class="d-grid gap-2">
+          <a href="{% url 'compliance:framework-import-sample' %}?format=json" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-filetype-json me-1"></i>Exemple JSON
+          </a>
+          <a href="{% url 'compliance:framework-import-sample' %}?format=xlsx" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i>Exemple Excel
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
