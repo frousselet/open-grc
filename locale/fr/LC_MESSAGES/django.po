@@ -3382,3 +3382,133 @@ msgstr "Aucun changement détecté"
 
 msgid "No history available."
 msgstr "Aucun historique disponible."
+
+#: templates/base.html — sidebar
+msgid "Catalogs"
+msgstr "Catalogues"
+
+#: risks/templates/risks/assessment_detail.html — workflow ISO 27005
+msgid "ISO 27005 workflow"
+msgstr "Démarche ISO 27005"
+
+msgid "Identify threats"
+msgstr "Identifier les menaces"
+
+msgid "Define or select threats from the catalog that apply to your scope."
+msgstr "Définissez ou sélectionnez les menaces du catalogue qui s'appliquent à votre périmètre."
+
+msgid "threat(s)"
+msgstr "menace(s)"
+
+msgid "Manage"
+msgstr "Gérer"
+
+msgid "Identify vulnerabilities"
+msgstr "Identifier les vulnérabilités"
+
+msgid "Define or select vulnerabilities from the catalog."
+msgstr "Définissez ou sélectionnez les vulnérabilités du catalogue."
+
+msgid "vulnerability(ies)"
+msgstr "vulnérabilité(s)"
+
+msgid "Analyze risk scenarios"
+msgstr "Analyser les scénarios de risque"
+
+msgid "Create threat × vulnerability scenarios and evaluate their likelihood and impact."
+msgstr "Créez des scénarios menace × vulnérabilité et évaluez leur vraisemblance et impact."
+
+msgid "analysis(es)"
+msgstr "analyse(s)"
+
+msgid "Consolidate risks"
+msgstr "Consolider les risques"
+
+msgid "Promote analyses to the risk register for treatment planning."
+msgstr "Promouvez les analyses vers le registre des risques pour planifier le traitement."
+
+msgid "risk(s)"
+msgstr "risque(s)"
+
+msgid "Consolidate"
+msgstr "Consolider"
+
+msgid "Consolidated risk"
+msgstr "Risque consolidé"
+
+msgid "No analyses yet. Start by creating threat × vulnerability scenarios to identify risks."
+msgstr "Aucune analyse pour le moment. Commencez par créer des scénarios menace × vulnérabilité pour identifier les risques."
+
+msgid "Risks are created by consolidating ISO 27005 analyses."
+msgstr "Les risques sont créés en consolidant les analyses ISO 27005."
+
+#: risks/templates/risks/assessment_detail.html — workflow EBIOS RM
+msgid "EBIOS RM workflow"
+msgstr "Démarche EBIOS RM"
+
+msgid "The EBIOS RM methodology is not yet implemented. It will be available in a future version."
+msgstr "La méthodologie EBIOS RM n'est pas encore implémentée. Elle sera disponible dans une version future."
+
+msgid "Define scope and security baseline"
+msgstr "Définir le périmètre et le socle de sécurité"
+
+msgid "Workshop 1 — Identify essential assets, business values and the security baseline."
+msgstr "Atelier 1 — Identifier les valeurs métier, les biens essentiels et le socle de sécurité."
+
+msgid "Identify risk origins"
+msgstr "Identifier les sources de risque"
+
+msgid "Workshop 2 — Identify threat sources and their objectives."
+msgstr "Atelier 2 — Identifier les sources de menace et leurs objectifs."
+
+msgid "Build strategic scenarios"
+msgstr "Élaborer les scénarios stratégiques"
+
+msgid "Workshop 3 — Define attack paths from threat source to essential assets."
+msgstr "Atelier 3 — Définir les chemins d'attaque de la source de menace aux valeurs métier."
+
+msgid "Build operational scenarios"
+msgstr "Élaborer les scénarios opérationnels"
+
+msgid "Workshop 4 — Detail technical attack sequences on support assets."
+msgstr "Atelier 4 — Détailler les séquences d'attaque techniques sur les biens supports."
+
+msgid "Treat risks"
+msgstr "Traiter les risques"
+
+msgid "Workshop 5 — Define and track risk treatment measures."
+msgstr "Atelier 5 — Définir et suivre les mesures de traitement des risques."
+
+msgid "Unknown methodology. Please edit this assessment and select a valid methodology."
+msgstr "Méthodologie inconnue. Veuillez modifier cette évaluation et sélectionner une méthodologie valide."
+
+#: risks/templates/risks/risk_list.html
+msgid "Go to assessments"
+msgstr "Aller aux évaluations"
+
+msgid "Risks are identified through methodology-driven assessments. Open an assessment and use its methodology workflow to create risks."
+msgstr "Les risques sont identifiés au travers d'évaluations méthodologiques. Ouvrez une évaluation et utilisez sa démarche pour créer des risques."
+
+#: risks/templates/risks/risk_detail.html
+msgid "Methodology sources"
+msgstr "Sources méthodologiques"
+
+msgid "This risk was identified through ISO 27005 analyses (threat × vulnerability)."
+msgstr "Ce risque a été identifié via des analyses ISO 27005 (menace × vulnérabilité)."
+
+#: risks/templates/risks/iso27005_risk_list.html
+msgid "ISO 27005 analyses are created from within an assessment's methodology workflow. Open an ISO 27005 assessment to create new analyses."
+msgstr "Les analyses ISO 27005 sont créées depuis la démarche méthodologique d'une évaluation. Ouvrez une évaluation ISO 27005 pour créer de nouvelles analyses."
+
+#: risks/views.py — consolidation
+msgid "Please select an assessment and use its methodology workflow to create risks."
+msgstr "Veuillez sélectionner une évaluation et utiliser sa démarche méthodologique pour créer des risques."
+
+msgid "This analysis is already linked to a risk."
+msgstr "Cette analyse est déjà liée à un risque."
+
+msgid "Risk \"%(ref)s\" created from the ISO 27005 analysis."
+msgstr "Risque « %(ref)s » créé à partir de l'analyse ISO 27005."
+
+msgid "Consolidate as risk"
+msgstr "Consolider en risque"
