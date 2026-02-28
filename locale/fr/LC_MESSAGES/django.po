@@ -3433,9 +3433,6 @@ msgstr "risque(s)"
 msgid "Consolidate"
 msgstr "Consolider"
 
-msgid "Consolidated risk"
-msgstr "Risque consolidé"
-
 msgid "No analyses yet. Start by creating threat × vulnerability scenarios to identify risks."
 msgstr "Aucune analyse pour le moment. Commencez par créer des scénarios menace × vulnérabilité pour identifier les risques."
 
