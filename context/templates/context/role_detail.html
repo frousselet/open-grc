@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ role.name }}</h1>
-  <div>
+  <div class="d-flex gap-2">
     <a href="{% url 'context:role-update' role.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'context:role-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
@@ -26,31 +26,39 @@
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="info">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' role.scope.pk %}">{{ role.scope }}</a></dd>
-      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ role.get_type_display }}</dd>
-      <dt class="col-sm-3">{% trans "Status" %}</dt><dd class="col-sm-9">{{ role.get_status_display }}</dd>
-      <dt class="col-sm-3">{% trans "Mandatory" %}</dt><dd class="col-sm-9">{% if role.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
-      <dt class="col-sm-3">{% trans "Source standard" %}</dt><dd class="col-sm-9">{{ role.source_standard|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ role.description|default:"—"|linebreaksbr }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' role.scope.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ role.scope }}</a></dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ role.get_type_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt><dd class="col-sm-9">{{ role.get_status_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Mandatory" %}</dt><dd class="col-sm-9">{% if role.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Source standard" %}</dt><dd class="col-sm-9">{{ role.source_standard|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ role.description|default:"—"|linebreaksbr }}</dd>
+        </dl>
+      </div>
+    </div>
   </div>
   <div class="tab-pane fade" id="responsibilities">
     {% if role.responsibilities.all %}
-    <table class="table table-striped">
-      <thead><tr><th>{% trans "Description" %}</th><th>{% trans "RACI type" %}</th><th>{% trans "Activity" %}</th></tr></thead>
-      <tbody>
-        {% for resp in role.responsibilities.all %}
-        <tr>
-          <td>{{ resp.description }}</td>
-          <td><span class="badge text-bg-info">{{ resp.get_raci_type_display }}</span></td>
-          <td>{{ resp.related_activity|default:"—" }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>{% trans "Description" %}</th><th>{% trans "RACI type" %}</th><th>{% trans "Activity" %}</th></tr></thead>
+          <tbody>
+            {% for resp in role.responsibilities.all %}
+            <tr>
+              <td>{{ resp.description }}</td>
+              <td><span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ resp.get_raci_type_display }}</span></td>
+              <td>{{ resp.related_activity|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
     {% else %}
-    <p class="text-muted">{% trans "No responsibility defined." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No responsibility defined." %}</p>
     {% endif %}
   </div>
   <div class="tab-pane fade" id="users">
@@ -61,7 +69,7 @@
       {% endfor %}
     </ul>
     {% else %}
-    <p class="text-muted">{% trans "No assigned user." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No assigned user." %}</p>
     {% endif %}
   </div>
   <div class="tab-pane fade" id="history">

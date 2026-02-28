@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ activity.reference }} — {{ activity.name }}</h1>
-  <div>
+  <div class="d-flex gap-2">
     <a href="{% url 'context:activity-update' activity.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'context:activity-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
@@ -20,33 +20,37 @@
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="info">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' activity.scope.pk %}">{{ activity.scope }}</a></dd>
-      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ activity.get_type_display }}</dd>
-      <dt class="col-sm-3">{% trans "Criticality" %}</dt>
-      <dd class="col-sm-9">
-        <span class="badge text-bg-{% if activity.criticality == 'critical' %}danger{% elif activity.criticality == 'high' %}warning{% elif activity.criticality == 'medium' %}info{% else %}secondary{% endif %}">
-          {{ activity.get_criticality_display }}
-        </span>
-      </dd>
-      <dt class="col-sm-3">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ activity.owner }}</dd>
-      <dt class="col-sm-3">{% trans "Status" %}</dt><dd class="col-sm-9">{{ activity.get_status_display }}</dd>
-      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ activity.description|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">{% trans "Parent activity" %}</dt>
-      <dd class="col-sm-9">
-        {% if activity.parent_activity %}
-        <a href="{% url 'context:activity-detail' activity.parent_activity.pk %}">{{ activity.parent_activity }}</a>
-        {% else %}—{% endif %}
-      </dd>
-      <dt class="col-sm-3">{% trans "Created on" %}</dt><dd class="col-sm-9">{{ activity.created_at }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' activity.scope.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ activity.scope }}</a></dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ activity.get_type_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Criticality" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if activity.criticality == 'critical' %}danger{% elif activity.criticality == 'high' %}warning{% elif activity.criticality == 'medium' %}info{% else %}secondary{% endif %}">
+              {{ activity.get_criticality_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ activity.owner }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt><dd class="col-sm-9">{{ activity.get_status_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ activity.description|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Parent activity" %}</dt>
+          <dd class="col-sm-9">
+            {% if activity.parent_activity %}
+            <a href="{% url 'context:activity-detail' activity.parent_activity.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ activity.parent_activity }}</a>
+            {% else %}—{% endif %}
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Created on" %}</dt><dd class="col-sm-9">{{ activity.created_at }}</dd>
+        </dl>
+      </div>
+    </div>
 
     {% if activity.children.exists %}
     <h4 class="mt-4">{% trans "Sub-activities" %}</h4>
     <ul class="list-group">
       {% for child in activity.children.all %}
       <li class="list-group-item d-flex justify-content-between align-items-center">
-        <a href="{% url 'context:activity-detail' child.pk %}">{{ child.reference }} — {{ child.name }}</a>
+        <a href="{% url 'context:activity-detail' child.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ child.reference }} — {{ child.name }}</a>
         <span class="badge text-bg-{% if child.criticality == 'critical' %}danger{% elif child.criticality == 'high' %}warning{% else %}secondary{% endif %}">{{ child.get_criticality_display }}</span>
       </li>
       {% endfor %}

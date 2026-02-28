@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ objective.reference }} — {{ objective.name }}</h1>
-  <div>
+  <div class="d-flex gap-2">
     <a href="{% url 'context:objective-update' objective.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'context:objective-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
@@ -21,38 +21,46 @@
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' objective.scope.pk %}">{{ objective.scope }}</a></dd>
-      <dt class="col-sm-3">{% trans "Category" %}</dt><dd class="col-sm-9">{{ objective.get_category_display }}</dd>
-      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ objective.get_type_display }}</dd>
-      <dt class="col-sm-3">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ objective.owner }}</dd>
-      <dt class="col-sm-3">{% trans "Status" %}</dt>
-      <dd class="col-sm-9">
-        <span class="badge text-bg-{% if objective.status == 'achieved' %}success{% elif objective.status == 'active' %}primary{% elif objective.status == 'not_achieved' %}danger{% else %}secondary{% endif %}">
-          {{ objective.get_status_display }}
-        </span>
-      </dd>
-      <dt class="col-sm-3">{% trans "Progress" %}</dt>
-      <dd class="col-sm-9">
-        {% if objective.progress_percentage is not None %}
-        <div class="progress" style="width: 200px;">
-          <div class="progress-bar" style="width: {{ objective.progress_percentage }}%">{{ objective.progress_percentage }}%</div>
-        </div>
-        {% else %}—{% endif %}
-      </dd>
-      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ objective.description|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">{% trans "Parent objective" %}</dt><dd class="col-sm-9">{{ objective.parent_objective|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Target date" %}</dt><dd class="col-sm-9">{{ objective.target_date|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ objective.review_date|default:"—" }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' objective.scope.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ objective.scope }}</a></dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Category" %}</dt><dd class="col-sm-9">{{ objective.get_category_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ objective.get_type_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ objective.owner }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if objective.status == 'achieved' %}success{% elif objective.status == 'active' %}primary{% elif objective.status == 'not_achieved' %}danger{% else %}secondary{% endif %}">
+              {{ objective.get_status_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Progress" %}</dt>
+          <dd class="col-sm-9">
+            {% if objective.progress_percentage is not None %}
+            <div class="progress" style="width: 200px;">
+              <div class="progress-bar" style="width: {{ objective.progress_percentage }}%">{{ objective.progress_percentage }}%</div>
+            </div>
+            {% else %}—{% endif %}
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ objective.description|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Parent objective" %}</dt><dd class="col-sm-9">{{ objective.parent_objective|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Target date" %}</dt><dd class="col-sm-9">{{ objective.target_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ objective.review_date|default:"—" }}</dd>
+        </dl>
+      </div>
+    </div>
   </div>
   <div class="tab-pane fade" id="kpi">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Target value" %}</dt><dd class="col-sm-9">{{ objective.target_value|default:"—" }} {{ objective.unit }}</dd>
-      <dt class="col-sm-3">{% trans "Current value" %}</dt><dd class="col-sm-9">{{ objective.current_value|default:"—" }} {{ objective.unit }}</dd>
-      <dt class="col-sm-3">{% trans "Measurement method" %}</dt><dd class="col-sm-9">{{ objective.measurement_method|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Frequency" %}</dt><dd class="col-sm-9">{{ objective.get_measurement_frequency_display|default:"—" }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Target value" %}</dt><dd class="col-sm-9">{{ objective.target_value|default:"—" }} {{ objective.unit }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Current value" %}</dt><dd class="col-sm-9">{{ objective.current_value|default:"—" }} {{ objective.unit }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Measurement method" %}</dt><dd class="col-sm-9">{{ objective.measurement_method|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Frequency" %}</dt><dd class="col-sm-9">{{ objective.get_measurement_frequency_display|default:"—" }}</dd>
+        </dl>
+      </div>
+    </div>
   </div>
   <div class="tab-pane fade" id="history">
     {% include "includes/history_tab.html" %}
