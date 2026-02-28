@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ analysis.name }}</h1>
-  <div>
+  <div class="d-flex gap-2">
     <a href="{% url 'context:swot-update' analysis.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'context:swot-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
@@ -20,17 +20,21 @@
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="analysis">
-    <dl class="row mb-4">
-      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' analysis.scope.pk %}">{{ analysis.scope }}</a></dd>
-      <dt class="col-sm-3">{% trans "Analysis date" %}</dt><dd class="col-sm-9">{{ analysis.analysis_date }}</dd>
-      <dt class="col-sm-3">{% trans "Status" %}</dt>
-      <dd class="col-sm-9">
-        <span class="badge text-bg-{% if analysis.status == 'validated' %}success{% elif analysis.status == 'draft' %}secondary{% else %}dark{% endif %}">
-          {{ analysis.get_status_display }}
-        </span>
-      </dd>
-      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ analysis.description|default:"—"|linebreaksbr }}</dd>
-    </dl>
+    <div class="card mb-4">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' analysis.scope.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ analysis.scope }}</a></dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Analysis date" %}</dt><dd class="col-sm-9">{{ analysis.analysis_date }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if analysis.status == 'validated' %}success{% elif analysis.status == 'draft' %}secondary{% else %}dark{% endif %}">
+              {{ analysis.get_status_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ analysis.description|default:"—"|linebreaksbr }}</dd>
+        </dl>
+      </div>
+    </div>
 
     <div class="row g-3">
       <div class="col-md-6">
