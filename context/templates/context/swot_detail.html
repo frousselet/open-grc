@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}{{ analysis.name }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>{{ analysis.name }}</h1>
+  <div>
+    <a href="{% url 'context:swot-update' analysis.pk %}" class="btn btn-primary">Modifier</a>
+    <a href="{% url 'context:swot-list' %}" class="btn btn-outline-secondary">Retour</a>
+  </div>
+</div>
+{% include "includes/approval_badge.html" %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#analysis">Analyse</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="analysis">
+    <dl class="row mb-4">
+      <dt class="col-sm-3">Périmètre</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' analysis.scope.pk %}">{{ analysis.scope }}</a></dd>
+      <dt class="col-sm-3">Date d'analyse</dt><dd class="col-sm-9">{{ analysis.analysis_date }}</dd>
+      <dt class="col-sm-3">Statut</dt>
+      <dd class="col-sm-9">
+        <span class="badge text-bg-{% if analysis.status == 'validated' %}success{% elif analysis.status == 'draft' %}secondary{% else %}dark{% endif %}">
+          {{ analysis.get_status_display }}
+        </span>
+      </dd>
+      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ analysis.description|default:"—"|linebreaksbr }}</dd>
+    </dl>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="card border-success">
+          <div class="card-header text-bg-success">Forces (Strengths)</div>
+          <ul class="list-group list-group-flush">
+            {% for item in analysis.items.all %}{% if item.quadrant == "strength" %}
+            <li class="list-group-item">
+              <span class="badge text-bg-{% if item.impact_level == 'high' %}warning{% elif item.impact_level == 'medium' %}info{% else %}secondary{% endif %} me-1">{{ item.get_impact_level_display }}</span>
+              {{ item.description }}
+            </li>
+            {% endif %}{% endfor %}
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-danger">
+          <div class="card-header text-bg-danger">Faiblesses (Weaknesses)</div>
+          <ul class="list-group list-group-flush">
+            {% for item in analysis.items.all %}{% if item.quadrant == "weakness" %}
+            <li class="list-group-item">
+              <span class="badge text-bg-{% if item.impact_level == 'high' %}warning{% elif item.impact_level == 'medium' %}info{% else %}secondary{% endif %} me-1">{{ item.get_impact_level_display }}</span>
+              {{ item.description }}
+            </li>
+            {% endif %}{% endfor %}
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-primary">
+          <div class="card-header text-bg-primary">Opportunités (Opportunities)</div>
+          <ul class="list-group list-group-flush">
+            {% for item in analysis.items.all %}{% if item.quadrant == "opportunity" %}
+            <li class="list-group-item">
+              <span class="badge text-bg-{% if item.impact_level == 'high' %}warning{% elif item.impact_level == 'medium' %}info{% else %}secondary{% endif %} me-1">{{ item.get_impact_level_display }}</span>
+              {{ item.description }}
+            </li>
+            {% endif %}{% endfor %}
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-warning">
+          <div class="card-header text-bg-warning">Menaces (Threats)</div>
+          <ul class="list-group list-group-flush">
+            {% for item in analysis.items.all %}{% if item.quadrant == "threat" %}
+            <li class="list-group-item">
+              <span class="badge text-bg-{% if item.impact_level == 'high' %}warning{% elif item.impact_level == 'medium' %}info{% else %}secondary{% endif %} me-1">{{ item.get_impact_level_display }}</span>
+              {{ item.description }}
+            </li>
+            {% endif %}{% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

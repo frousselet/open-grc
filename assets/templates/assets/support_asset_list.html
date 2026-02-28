@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load dic_tags help_tags %}
+
+{% block title %}Biens supports — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">Biens supports</h1>
+  <a href="{% url 'assets:support-asset-create' %}" class="btn btn-primary ms-auto">Nouveau bien support</a>
+</div>
+{% help_modal "assets.support_asset_list" %}
+
+<div class="mb-3 d-flex gap-2 flex-wrap">
+  <a href="{% url 'assets:support-asset-list' %}" class="btn btn-sm {% if not request.GET.type %}btn-primary{% else %}btn-outline-primary{% endif %}">Tous</a>
+  <a href="?type=hardware" class="btn btn-sm {% if request.GET.type == 'hardware' %}btn-primary{% else %}btn-outline-primary{% endif %}">Matériel</a>
+  <a href="?type=software" class="btn btn-sm {% if request.GET.type == 'software' %}btn-primary{% else %}btn-outline-primary{% endif %}">Logiciel</a>
+  <a href="?type=network" class="btn btn-sm {% if request.GET.type == 'network' %}btn-primary{% else %}btn-outline-primary{% endif %}">Réseau</a>
+  <a href="?type=person" class="btn btn-sm {% if request.GET.type == 'person' %}btn-primary{% else %}btn-outline-primary{% endif %}">Personne</a>
+  <a href="?type=site" class="btn btn-sm {% if request.GET.type == 'site' %}btn-primary{% else %}btn-outline-primary{% endif %}">Site</a>
+  <a href="?type=service" class="btn btn-sm {% if request.GET.type == 'service' %}btn-primary{% else %}btn-outline-primary{% endif %}">Service</a>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Réf.</th>
+        <th>Nom</th>
+        <th>Type</th>
+        <th>Catégorie</th>
+        <th>Propriétaire</th>
+        <th class="text-center">C</th>
+        <th class="text-center">I</th>
+        <th class="text-center">D</th>
+        <th>Env.</th>
+        <th>Statut</th>
+        <th>Fin de vie</th>
+        <th>Approbation</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for asset in assets %}
+      <tr{% if asset.is_end_of_life %} class="table-danger"{% endif %}>
+        <td>{{ asset.reference }}</td>
+        <td><a href="{% url 'assets:support-asset-detail' asset.pk %}">{{ asset.name }}</a></td>
+        <td>{{ asset.get_type_display }}</td>
+        <td>{{ asset.get_category_display }}</td>
+        <td>{{ asset.owner }}</td>
+        <td class="text-center">{{ asset.inherited_confidentiality|dic_badge }}</td>
+        <td class="text-center">{{ asset.inherited_integrity|dic_badge }}</td>
+        <td class="text-center">{{ asset.inherited_availability|dic_badge }}</td>
+        <td>{{ asset.get_environment_display|default:"—" }}</td>
+        <td>
+          <span class="badge text-bg-{% if asset.status == 'active' %}success{% elif asset.status == 'deployed' %}primary{% elif asset.status == 'decommissioned' or asset.status == 'disposed' %}dark{% else %}secondary{% endif %}">
+            {{ asset.get_status_display }}
+          </span>
+        </td>
+        <td>
+          {% if asset.end_of_life_date %}
+            {{ asset.end_of_life_date }}
+            {% if asset.is_end_of_life %}<span class="badge text-bg-danger">EOL</span>{% endif %}
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          <span class="badge text-bg-{% if asset.is_approved %}success{% else %}warning{% endif %}">
+            {% if asset.is_approved %}Approuvé{% else %}En attente{% endif %}
+          </span>
+        </td>
+        <td>
+          <a href="{% url 'assets:support-asset-update' asset.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="13" class="text-center text-muted">Aucun bien support.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>{% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>{% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

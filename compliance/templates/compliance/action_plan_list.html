@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Plans d'action — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">Plans d'action de conformité</h1>
+  <a href="{% url 'compliance:action-plan-create' %}" class="btn btn-primary ms-auto">Nouveau plan d'action</a>
+</div>
+{% help_modal "compliance.action_plan_list" %}
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Référence</th>
+        <th>Nom</th>
+        <th>Exigence</th>
+        <th>Priorité</th>
+        <th>Responsable</th>
+        <th>Date cible</th>
+        <th>Avancement</th>
+        <th>Statut</th>
+        <th>Approbation</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ap in action_plans %}
+      <tr>
+        <td><a href="{% url 'compliance:action-plan-detail' ap.pk %}">{{ ap.reference }}</a></td>
+        <td>{{ ap.name|truncatechars:50 }}</td>
+        <td>
+          {% if ap.requirement %}
+          <a href="{% url 'compliance:requirement-detail' ap.requirement.pk %}">{{ ap.requirement.reference }}</a>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          <span class="badge text-bg-{% if ap.priority == 'critical' %}danger{% elif ap.priority == 'high' %}warning{% elif ap.priority == 'medium' %}info{% else %}secondary{% endif %}">
+            {{ ap.get_priority_display }}
+          </span>
+        </td>
+        <td>{{ ap.owner }}</td>
+        <td>{{ ap.target_date }}</td>
+        <td>
+          <div class="progress" style="min-width:60px">
+            <div class="progress-bar" style="width:{{ ap.progress_percentage }}%">{{ ap.progress_percentage }}%</div>
+          </div>
+        </td>
+        <td>
+          <span class="badge text-bg-{% if ap.status == 'completed' %}success{% elif ap.status == 'in_progress' %}info{% elif ap.status == 'overdue' %}danger{% elif ap.status == 'cancelled' %}secondary{% else %}warning{% endif %}">
+            {{ ap.get_status_display }}
+          </span>
+        </td>
+        <td>
+          <span class="badge text-bg-{% if ap.is_approved %}success{% else %}warning{% endif %}">
+            {% if ap.is_approved %}Approuvé{% else %}En attente{% endif %}
+          </span>
+        </td>
+        <td>
+          <a href="{% url 'compliance:action-plan-update' ap.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="10" class="text-center text-muted">Aucun plan d'action défini.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>
+    {% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

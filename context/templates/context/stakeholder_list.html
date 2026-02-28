@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Parties intéressées — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">Parties intéressées</h1>
+  <a href="{% url 'context:stakeholder-create' %}" class="btn btn-primary ms-auto">Nouvelle partie intéressée</a>
+</div>
+{% help_modal "context.stakeholder_list" %}
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Nom</th>
+        <th>Périmètre</th>
+        <th>Type</th>
+        <th>Catégorie</th>
+        <th>Influence</th>
+        <th>Intérêt</th>
+        <th>Statut</th>
+        <th>Approbation</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sh in stakeholders %}
+      <tr>
+        <td><a href="{% url 'context:stakeholder-detail' sh.pk %}">{{ sh.name }}</a></td>
+        <td>{{ sh.scope.full_path }}</td>
+        <td>{{ sh.get_type_display }}</td>
+        <td>{{ sh.get_category_display }}</td>
+        <td>{{ sh.get_influence_level_display }}</td>
+        <td>{{ sh.get_interest_level_display }}</td>
+        <td>
+          <span class="badge text-bg-{% if sh.status == 'active' %}success{% else %}secondary{% endif %}">
+            {{ sh.get_status_display }}
+          </span>
+        </td>
+        <td>
+          <span class="badge text-bg-{% if sh.is_approved %}success{% else %}warning{% endif %}">
+            {% if sh.is_approved %}Approuvé{% else %}En attente{% endif %}
+          </span>
+        </td>
+        <td>
+          <a href="{% url 'context:stakeholder-update' sh.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="9" class="text-center text-muted">Aucune partie intéressée définie.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>{% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>{% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

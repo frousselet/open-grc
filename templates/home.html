@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block extra_css %}
+<style>
+  .compliance-hero {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #fff;
+    border-radius: .5rem;
+    padding: 1.5rem 2rem;
+  }
+  .compliance-hero .progress {
+    height: 1.4rem;
+    border-radius: .5rem;
+    background: rgba(255,255,255,.15);
+  }
+  .compliance-hero .progress-bar {
+    border-radius: .5rem;
+    font-weight: 600;
+    font-size: .85rem;
+  }
+  .fw-bar .progress {
+    height: 1rem;
+    border-radius: .4rem;
+  }
+  .fw-bar .progress-bar {
+    border-radius: .4rem;
+    font-size: .75rem;
+    font-weight: 600;
+  }
+  .risk-matrix { table-layout: fixed; }
+  .risk-matrix-corner { width: 90px; background: #f8f9fa; }
+  .risk-matrix-header { font-size: .78rem; background: #f8f9fa; }
+  .risk-matrix-row-label { font-size: .78rem; white-space: nowrap; background: #f8f9fa; text-align: right; padding-right: .6rem !important; }
+  .risk-matrix-cell { position: relative; height: 60px; min-width: 60px; transition: transform .1s; cursor: default; border: 2px solid #fff !important; }
+  .risk-matrix-cell:hover { transform: scale(1.05); z-index: 1; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+  .risk-matrix-count { display: block; font-size: 1.3rem; font-weight: 700; line-height: 1.2; }
+  .risk-matrix-level-name { display: block; font-size: .65rem; color: inherit; text-transform: uppercase; letter-spacing: .03em; opacity: .85; }
+  .risk-matrix-axis-label { border: none !important; }
+
+  [data-bs-theme="dark"] .risk-matrix-corner,
+  [data-bs-theme="dark"] .risk-matrix-header,
+  [data-bs-theme="dark"] .risk-matrix-row-label { background: #2b3035; color: #dee2e6; }
+  [data-bs-theme="dark"] .risk-matrix-cell { border-color: #212529 !important; }
+  [data-bs-theme="dark"] .risk-matrix-cell:hover { box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <h1 class="mb-0">Tableau de bord</h1>
+</div>
+{% help_modal "home" %}
+
+{# ── Alertes globales ──────────────────────────────────────── #}
+{% if alerts %}
+<div class="alert alert-danger mb-4">
+  <div class="d-flex align-items-center mb-2">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong>Alertes ({{ alerts|length }})</strong>
+  </div>
+  <ul class="mb-0">
+    {% for alert in alerts %}
+    <li>{{ alert }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{# ── Conformité globale (hero) ─────────────────────────────── #}
+<div class="compliance-hero mb-4">
+  <div class="row align-items-center">
+    <div class="col-md-4">
+      <h2 class="mb-1" style="color:#fff"><i class="bi bi-shield-check me-2"></i>Conformité générale</h2>
+      <p class="mb-0 opacity-75">Moyenne des référentiels actifs — {{ requirement_count }} exigence{{ requirement_count|pluralize:"s" }} au total</p>
+    </div>
+    <div class="col-md-6">
+      <div class="progress">
+        <div class="progress-bar bg-{% if overall_compliance >= 80 %}success{% elif overall_compliance >= 50 %}warning{% else %}danger{% endif %}"
+             role="progressbar"
+             style="width: {{ overall_compliance }}%"
+             aria-valuenow="{{ overall_compliance }}"
+             aria-valuemin="0" aria-valuemax="100">
+          {{ overall_compliance }}%
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 text-end">
+      <span class="display-4" style="color:#fff">{{ overall_compliance }}%</span>
+    </div>
+  </div>
+</div>
+
+{# ── Barres par référentiel ────────────────────────────────── #}
+{% if active_frameworks %}
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3"><i class="bi bi-journal-bookmark me-1"></i> Conformité par référentiel</h5>
+    {% for fw in active_frameworks %}
+    <div class="fw-bar mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <div>
+          <a href="{% url 'compliance:framework-detail' fw.pk %}" class="fw-semibold text-decoration-none">{{ fw.short_name|default:fw.name }}</a>
+          <small class="text-muted ms-2">{{ fw.req_count }} exigence{{ fw.req_count|pluralize:"s" }}</small>
+          {% for s in fw.scopes.all %}
+          <span class="badge text-bg-secondary ms-1" style="font-size:.7rem">{{ s.full_path }}</span>
+          {% endfor %}
+        </div>
+        <span class="fw-semibold {% if fw.compliance_level >= 80 %}text-success{% elif fw.compliance_level >= 50 %}text-warning{% else %}text-danger{% endif %}">
+          {{ fw.compliance_level }}%
+        </span>
+      </div>
+      <div class="progress">
+        <div class="progress-bar bg-{% if fw.compliance_level >= 80 %}success{% elif fw.compliance_level >= 50 %}warning{% else %}danger{% endif %}"
+             role="progressbar"
+             style="width: {{ fw.compliance_level }}%"
+             aria-valuenow="{{ fw.compliance_level }}"
+             aria-valuemin="0" aria-valuemax="100">
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{# ── Gouvernance ───────────────────────────────────────────── #}
+<h2 class="mb-3">
+  <i class="bi bi-diagram-3 me-1"></i> Gouvernance
+</h2>
+<div class="row g-3 mb-4">
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-primary h-100">
+      <div class="card-body">
+        <h5 class="card-title">Périmètres</h5>
+        <p class="display-6">{{ scope_count }}</p>
+        <a href="{% url 'context:scope-list' %}" class="text-white">Voir tout</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-info h-100">
+      <div class="card-body">
+        <h5 class="card-title">Enjeux</h5>
+        <p class="display-6">{{ issue_count }}</p>
+        <a href="{% url 'context:issue-list' %}" class="text-white">Voir tout</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-success h-100">
+      <div class="card-body">
+        <h5 class="card-title">Parties intéressées</h5>
+        <p class="display-6">{{ stakeholder_count }}</p>
+        <a href="{% url 'context:stakeholder-list' %}" class="text-white">Voir tout</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-warning h-100">
+      <div class="card-body">
+        <h5 class="card-title">Objectifs</h5>
+        <p class="display-6">{{ objective_count }}</p>
+        <a href="{% url 'context:objective-list' %}" class="text-dark">Voir tout</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-4 col-sm-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Rôles</h5>
+        <p class="display-6">{{ role_count }}</p>
+        {% if mandatory_roles_no_user %}
+        <span class="badge text-bg-danger">{{ mandatory_roles_no_user }} rôle(s) obligatoire(s) sans utilisateur</span>
+        {% endif %}
+        <div class="mt-2"><a href="{% url 'context:role-list' %}" class="btn btn-outline-primary btn-sm">Voir tout</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 col-sm-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Sites</h5>
+        <p class="display-6">{{ site_count }}</p>
+        <div class="mt-2"><a href="{% url 'context:site-list' %}" class="btn btn-outline-primary btn-sm">Voir tout</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 col-sm-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Périmètres actifs</h5>
+        <div class="mt-2">
+          {% for s in active_scopes %}
+          <span class="badge bg-primary me-1 mb-1">{{ s.full_path }}</span>
+          {% empty %}
+          <span class="text-muted">Aucun périmètre actif</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="my-4">
+
+{# ── Actifs ────────────────────────────────────────────────── #}
+<h2 class="mb-3">
+  <i class="bi bi-box-seam me-1"></i> Actifs
+</h2>
+<div class="row g-3 mb-4">
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-primary h-100">
+      <div class="card-body">
+        <h5 class="card-title">Biens essentiels</h5>
+        <p class="display-6">{{ essential_count }}</p>
+        {% if personal_data_count %}
+        <span class="badge text-bg-warning text-dark">{{ personal_data_count }} avec données personnelles</span>
+        {% endif %}
+        <div class="mt-2"><a href="{% url 'assets:essential-asset-list' %}" class="text-white">Voir tout</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-info h-100">
+      <div class="card-body">
+        <h5 class="card-title">Biens supports</h5>
+        <p class="display-6">{{ support_count }}</p>
+        {% if eol_count %}
+        <span class="badge text-bg-danger">{{ eol_count }} en fin de vie</span>
+        {% endif %}
+        <div class="mt-2"><a href="{% url 'assets:support-asset-list' %}" class="text-white">Voir tout</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-success h-100">
+      <div class="card-body">
+        <h5 class="card-title">Dépendances</h5>
+        <p class="display-6">{{ dependency_count }}</p>
+        {% if spof_count %}
+        <span class="badge text-bg-danger">{{ spof_count }} SPOF</span>
+        {% endif %}
+        <div class="mt-2"><a href="{% url 'assets:dependency-list' %}" class="text-white">Voir tout</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card h-100 border-0" style="background: transparent;"></div>
+  </div>
+</div>
+
+<hr class="my-4">
+
+{# ── Gestion des risques ──────────────────────────────────── #}
+<h2 class="mb-3">
+  <i class="bi bi-shield-exclamation me-1"></i> Gestion des risques
+</h2>
+<div class="row g-3 mb-4">
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-primary h-100">
+      <div class="card-body">
+        <h5 class="card-title">Appréciations</h5>
+        <p class="display-6">{{ risk_assessment_count }}</p>
+        <a href="{% url 'risks:assessment-list' %}" class="text-white">Voir tout</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-danger h-100">
+      <div class="card-body">
+        <h5 class="card-title">Risques</h5>
+        <p class="display-6">{{ risk_count }}</p>
+        {% if critical_risk_count %}
+        <span class="badge text-bg-dark">{{ critical_risk_count }} critique(s)</span>
+        {% endif %}
+        <div class="mt-1"><a href="{% url 'risks:risk-list' %}" class="text-white">Voir tout</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-warning h-100">
+      <div class="card-body">
+        <h5 class="card-title">Plans de traitement</h5>
+        <p class="display-6">{{ treatment_plan_count }}</p>
+        {% if treatment_in_progress_count %}
+        <span class="badge text-bg-dark">{{ treatment_in_progress_count }} en cours</span>
+        {% endif %}
+        <div class="mt-1"><a href="{% url 'risks:treatment-plan-list' %}" class="text-dark">Voir tout</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-info h-100">
+      <div class="card-body">
+        <h5 class="card-title">Menaces</h5>
+        <p class="display-6">—</p>
+        <a href="{% url 'risks:threat-list' %}" class="text-white">Voir tout</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ── Matrices de risques ─────────────────────────────────── #}
+{% if matrix_current or matrix_residual %}
+<div class="d-flex align-items-center mb-3">
+  <h5 class="mb-0"><i class="bi bi-grid-3x3 me-1"></i> Matrices de risques</h5>
+  {% if matrix_criteria %}
+  <a href="{% url 'risks:criteria-update' matrix_criteria.pk %}" class="btn btn-outline-secondary btn-sm ms-3" title="Configurer les échelles"><i class="bi bi-gear me-1"></i>Configurer</a>
+  {% endif %}
+</div>
+<div class="row g-3 mb-4">
+  {% if matrix_current %}
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-body">
+        {% include "risks/includes/risk_matrix.html" with matrix=matrix_current title="Risques réels (avant traitement)" %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% if matrix_residual %}
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-body">
+        {% include "risks/includes/risk_matrix.html" with matrix=matrix_residual title="Risques résiduels (après traitement)" %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<hr class="my-4">
+
+{# ── Conformité — KPIs ─────────────────────────────────────── #}
+<h2 class="mb-3">
+  <i class="bi bi-journal-bookmark me-1"></i> Conformité
+</h2>
+<div class="row g-3 mb-4">
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-primary h-100">
+      <div class="card-body">
+        <h5 class="card-title">Référentiels</h5>
+        <p class="display-6">{{ framework_count }}</p>
+        <a href="{% url 'compliance:framework-list' %}" class="text-white">Voir tout</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-info h-100">
+      <div class="card-body">
+        <h5 class="card-title">Exigences</h5>
+        <p class="display-6">{{ requirement_count }}</p>
+        {% if non_compliant_count %}
+        <span class="badge text-bg-danger">{{ non_compliant_count }} non conforme(s)</span>
+        {% endif %}
+        <a href="{% url 'compliance:requirement-list' %}" class="text-white d-block mt-2">Voir tout</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-success h-100">
+      <div class="card-body">
+        <h5 class="card-title">Évaluations</h5>
+        <p class="display-6">{{ assessment_count }}</p>
+        <a href="{% url 'compliance:assessment-list' %}" class="text-white">Voir tout</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card text-bg-warning h-100">
+      <div class="card-body">
+        <h5 class="card-title">Plans d'action</h5>
+        <p class="display-6">{{ action_plan_count }}</p>
+        {% if overdue_plan_count %}
+        <span class="badge text-bg-danger">{{ overdue_plan_count }} en retard</span>
+        {% endif %}
+        <a href="{% url 'compliance:action-plan-list' %}" class="text-dark d-block mt-2">Voir tout</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Mappings inter-référentiels</h5>
+        <p class="display-6">{{ mapping_count }}</p>
+        <a href="{% url 'compliance:mapping-list' %}" class="btn btn-outline-primary btn-sm">Voir tout</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

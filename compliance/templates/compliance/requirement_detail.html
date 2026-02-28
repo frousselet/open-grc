@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}{{ requirement.reference }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>{{ requirement.reference }} — {{ requirement.name }}</h1>
+  <div>
+    <a href="{% url 'compliance:requirement-update' requirement.pk %}" class="btn btn-primary">Modifier</a>
+    <a href="{% url 'compliance:requirement-list' %}" class="btn btn-outline-secondary">Retour</a>
+  </div>
+</div>
+
+{% include "includes/approval_badge.html" %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#compliance_tab">Conformité</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#mappings">Mappings</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#plans">Plans d'action</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="general">
+    <dl class="row">
+      <dt class="col-sm-3">Référentiel</dt><dd class="col-sm-9"><a href="{% url 'compliance:framework-detail' requirement.framework.pk %}">{{ requirement.framework }}</a></dd>
+      <dt class="col-sm-3">Section</dt><dd class="col-sm-9">{{ requirement.section|default:"—" }}</dd>
+      <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ requirement.get_type_display }}</dd>
+      <dt class="col-sm-3">Catégorie</dt><dd class="col-sm-9">{{ requirement.get_category_display|default:"—" }}</dd>
+      <dt class="col-sm-3">Applicable</dt><dd class="col-sm-9">{% if requirement.is_applicable %}Oui{% else %}Non{% endif %}</dd>
+      {% if not requirement.is_applicable %}
+      <dt class="col-sm-3">Justification</dt><dd class="col-sm-9">{{ requirement.applicability_justification|default:"—" }}</dd>
+      {% endif %}
+      <dt class="col-sm-3">Priorité</dt><dd class="col-sm-9">{{ requirement.get_priority_display|default:"—" }}</dd>
+      <dt class="col-sm-3">Responsable</dt><dd class="col-sm-9">{{ requirement.owner|default:"—" }}</dd>
+      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ requirement.description|linebreaksbr }}</dd>
+      {% if requirement.guidance %}
+      <dt class="col-sm-3">Recommandations</dt><dd class="col-sm-9">{{ requirement.guidance|linebreaksbr }}</dd>
+      {% endif %}
+    </dl>
+  </div>
+
+  <div class="tab-pane fade" id="compliance_tab">
+    <dl class="row">
+      <dt class="col-sm-3">Statut de conformité</dt>
+      <dd class="col-sm-9">
+        <span class="badge text-bg-{% if requirement.compliance_status == 'compliant' %}success{% elif requirement.compliance_status == 'partially_compliant' %}warning{% elif requirement.compliance_status == 'non_compliant' %}danger{% else %}secondary{% endif %}">
+          {{ requirement.get_compliance_status_display }}
+        </span>
+      </dd>
+      <dt class="col-sm-3">Niveau</dt><dd class="col-sm-9">{{ requirement.compliance_level }}%</dd>
+      <dt class="col-sm-3">Dernière évaluation</dt><dd class="col-sm-9">{{ requirement.last_assessment_date|default:"—" }}</dd>
+      <dt class="col-sm-3">Preuves</dt><dd class="col-sm-9">{{ requirement.compliance_evidence|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">Écarts</dt><dd class="col-sm-9">{{ requirement.compliance_gaps|default:"—"|linebreaksbr }}</dd>
+    </dl>
+  </div>
+
+  <div class="tab-pane fade" id="mappings">
+    <h5>Exigences mappées</h5>
+    {% if mappings_source or mappings_target %}
+    <table class="table table-sm table-striped">
+      <thead><tr><th>Direction</th><th>Exigence</th><th>Référentiel</th><th>Type</th></tr></thead>
+      <tbody>
+        {% for m in mappings_source %}
+        <tr>
+          <td>Source →</td>
+          <td><a href="{% url 'compliance:requirement-detail' m.target_requirement.pk %}">{{ m.target_requirement.reference }}</a></td>
+          <td>{{ m.target_requirement.framework.name }}</td>
+          <td>{{ m.get_mapping_type_display }}</td>
+        </tr>
+        {% endfor %}
+        {% for m in mappings_target %}
+        <tr>
+          <td>← Cible</td>
+          <td><a href="{% url 'compliance:requirement-detail' m.source_requirement.pk %}">{{ m.source_requirement.reference }}</a></td>
+          <td>{{ m.source_requirement.framework.name }}</td>
+          <td>{{ m.get_mapping_type_display }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">Aucun mapping défini.</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="plans">
+    {% if action_plans %}
+    <table class="table table-sm table-striped">
+      <thead><tr><th>Référence</th><th>Nom</th><th>Priorité</th><th>Avancement</th><th>Statut</th></tr></thead>
+      <tbody>
+        {% for ap in action_plans %}
+        <tr>
+          <td><a href="{% url 'compliance:action-plan-detail' ap.pk %}">{{ ap.reference }}</a></td>
+          <td>{{ ap.name }}</td>
+          <td>{{ ap.get_priority_display }}</td>
+          <td>{{ ap.progress_percentage }}%</td>
+          <td>{{ ap.get_status_display }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">Aucun plan d'action associé.</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

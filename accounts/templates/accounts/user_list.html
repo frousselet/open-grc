@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load accounts_tags %}
+{% load help_tags %}
+{% block title %}Utilisateurs — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>Utilisateurs</h2>
+  {% has_perm "system.users.create" as can_create %}
+  {% if can_create %}
+  <a href="{% url 'accounts:user-create' %}" class="btn btn-primary">Créer un utilisateur</a>
+  {% endif %}
+</div>
+{% help_modal "accounts.user_list" %}
+
+<form method="get" class="row g-3 mb-4">
+  <div class="col-md-4">
+    <input type="text" name="q" class="form-control" placeholder="Rechercher..." value="{{ request.GET.q|default:'' }}">
+  </div>
+  <div class="col-md-3">
+    <select name="status" class="form-select">
+      <option value="">Tous les statuts</option>
+      <option value="active" {% if request.GET.status == "active" %}selected{% endif %}>Actifs</option>
+      <option value="inactive" {% if request.GET.status == "inactive" %}selected{% endif %}>Inactifs</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button type="submit" class="btn btn-outline-secondary w-100">Filtrer</button>
+  </div>
+</form>
+
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Fonction</th>
+        <th>Service</th>
+        <th>Statut</th>
+        <th>Dernière connexion</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td><a href="{% url 'accounts:user-detail' u.pk %}">{{ u.display_name }}</a></td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.job_title|default:"-" }}</td>
+        <td>{{ u.department|default:"-" }}</td>
+        <td>
+          {% if u.is_active %}
+            {% if u.is_locked %}
+            <span class="badge bg-warning text-dark">Verrouillé</span>
+            {% else %}
+            <span class="badge bg-success">Actif</span>
+            {% endif %}
+          {% else %}
+          <span class="badge bg-secondary">Inactif</span>
+          {% endif %}
+        </td>
+        <td>{{ u.last_login|date:"d/m/Y H:i"|default:"-" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="text-muted text-center">Aucun utilisateur trouvé.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">&laquo;</a></li>
+    {% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">&raquo;</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

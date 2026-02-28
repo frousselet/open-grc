@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Supprimer — Open GRC{% endblock %}
+
+{% block content %}
+<div class="card border-danger">
+  <div class="card-body">
+    <h4 class="card-title text-danger">Confirmer la suppression</h4>
+    <p>Voulez-vous vraiment supprimer <strong>{{ object }}</strong> ?</p>
+    <form method="post">
+      {% csrf_token %}
+      <a href="{{ request.META.HTTP_REFERER|default:'/' }}" class="btn btn-secondary">Annuler</a>
+      <button type="submit" class="btn btn-danger">Supprimer</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

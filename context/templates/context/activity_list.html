@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Activités — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">Activités et processus</h1>
+  <a href="{% url 'context:activity-create' %}" class="btn btn-primary ms-auto">Nouvelle activité</a>
+</div>
+{% help_modal "context.activity_list" %}
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Référence</th>
+        <th>Nom</th>
+        <th>Type</th>
+        <th>Criticité</th>
+        <th>Responsable</th>
+        <th>Statut</th>
+        <th>Approbation</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for activity in activities %}
+      <tr>
+        <td>{{ activity.reference }}</td>
+        <td><a href="{% url 'context:activity-detail' activity.pk %}">{{ activity.name }}</a></td>
+        <td>{{ activity.get_type_display }}</td>
+        <td>
+          <span class="badge text-bg-{% if activity.criticality == 'critical' %}danger{% elif activity.criticality == 'high' %}warning{% elif activity.criticality == 'medium' %}info{% else %}secondary{% endif %}">
+            {{ activity.get_criticality_display }}
+          </span>
+        </td>
+        <td>{{ activity.owner }}</td>
+        <td>
+          <span class="badge text-bg-{% if activity.status == 'active' %}success{% elif activity.status == 'planned' %}info{% else %}secondary{% endif %}">
+            {{ activity.get_status_display }}
+          </span>
+        </td>
+        <td>
+          <span class="badge text-bg-{% if activity.is_approved %}success{% else %}warning{% endif %}">
+            {% if activity.is_approved %}Approuvé{% else %}En attente{% endif %}
+          </span>
+        </td>
+        <td>
+          <a href="{% url 'context:activity-update' activity.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="text-center text-muted">Aucune activité définie.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>{% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>{% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

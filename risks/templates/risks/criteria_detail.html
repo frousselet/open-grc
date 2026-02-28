@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}{{ criteria.name }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>{{ criteria.name }}</h1>
+  <div>
+    <a href="{% url 'risks:criteria-update' criteria.pk %}" class="btn btn-primary">Modifier</a>
+    <a href="{% url 'risks:criteria-list' %}" class="btn btn-outline-secondary">Retour</a>
+  </div>
+</div>
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#scales">Échelles</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#levels">Niveaux de risque</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="general">
+    <dl class="row">
+      <dt class="col-sm-3">Périmètre</dt><dd class="col-sm-9">{{ criteria.scope }}</dd>
+      <dt class="col-sm-3">Seuil d'acceptation</dt><dd class="col-sm-9">{{ criteria.acceptance_threshold }}</dd>
+      <dt class="col-sm-3">Par défaut</dt><dd class="col-sm-9">{% if criteria.is_default %}Oui{% else %}Non{% endif %}</dd>
+      <dt class="col-sm-3">Statut</dt>
+      <dd class="col-sm-9">
+        <span class="badge text-bg-{% if criteria.status == 'active' %}success{% else %}secondary{% endif %}">
+          {{ criteria.get_status_display }}
+        </span>
+      </dd>
+      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ criteria.description|default:"—"|linebreaksbr }}</dd>
+    </dl>
+  </div>
+
+  <div class="tab-pane fade" id="scales">
+    <h5>Échelles de vraisemblance et d'impact</h5>
+    {% if scale_levels %}
+    <table class="table table-striped">
+      <thead><tr><th>Type</th><th>Niveau</th><th>Nom</th><th>Description</th><th>Couleur</th></tr></thead>
+      <tbody>
+        {% for sl in scale_levels %}
+        <tr>
+          <td>{{ sl.get_scale_type_display }}</td>
+          <td>{{ sl.level }}</td>
+          <td>{{ sl.name }}</td>
+          <td>{{ sl.description|default:"—" }}</td>
+          <td>{% if sl.color %}<span class="badge" style="background-color:{{ sl.color }}">{{ sl.color }}</span>{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">Aucune échelle définie.</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="levels">
+    <h5>Niveaux de risque</h5>
+    {% if risk_levels %}
+    <table class="table table-striped">
+      <thead><tr><th>Niveau</th><th>Nom</th><th>Description</th><th>Couleur</th><th>Traitement requis</th></tr></thead>
+      <tbody>
+        {% for rl in risk_levels %}
+        <tr>
+          <td>{{ rl.level }}</td>
+          <td>{{ rl.name }}</td>
+          <td>{{ rl.description|default:"—" }}</td>
+          <td>{% if rl.color %}<span class="badge" style="background-color:{{ rl.color }}">{{ rl.color }}</span>{% else %}—{% endif %}</td>
+          <td>{% if rl.requires_treatment %}<span class="badge text-bg-danger">Oui</span>{% else %}Non{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">Aucun niveau de risque défini.</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

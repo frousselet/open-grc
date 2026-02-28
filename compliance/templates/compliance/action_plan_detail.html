@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action_plan.reference }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>{{ action_plan.reference }} — {{ action_plan.name }}</h1>
+  <div>
+    <a href="{% url 'compliance:action-plan-update' action_plan.pk %}" class="btn btn-primary">Modifier</a>
+    <a href="{% url 'compliance:action-plan-list' %}" class="btn btn-outline-secondary">Retour</a>
+  </div>
+</div>
+
+{% include "includes/approval_badge.html" %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#remediation_tab">Remédiation</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#planning_tab">Planification</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="general">
+    <dl class="row">
+      <dt class="col-sm-3">Référence</dt><dd class="col-sm-9">{{ action_plan.reference }}</dd>
+      <dt class="col-sm-3">Nom</dt><dd class="col-sm-9">{{ action_plan.name }}</dd>
+      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ action_plan.description|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">Exigence concernée</dt>
+      <dd class="col-sm-9">
+        {% if action_plan.requirement %}
+        <a href="{% url 'compliance:requirement-detail' action_plan.requirement.pk %}">{{ action_plan.requirement.reference }}</a>
+        — {{ action_plan.requirement.name }}
+        {% else %}—{% endif %}
+      </dd>
+      <dt class="col-sm-3">Évaluation source</dt>
+      <dd class="col-sm-9">
+        {% if action_plan.assessment %}
+        <a href="{% url 'compliance:assessment-detail' action_plan.assessment.pk %}">{{ action_plan.assessment.name }}</a>
+        {% else %}—{% endif %}
+      </dd>
+      <dt class="col-sm-3">Priorité</dt>
+      <dd class="col-sm-9">
+        <span class="badge text-bg-{% if action_plan.priority == 'critical' %}danger{% elif action_plan.priority == 'high' %}warning{% elif action_plan.priority == 'medium' %}info{% else %}secondary{% endif %}">
+          {{ action_plan.get_priority_display }}
+        </span>
+      </dd>
+      <dt class="col-sm-3">Responsable</dt><dd class="col-sm-9">{{ action_plan.owner }}</dd>
+      <dt class="col-sm-3">Statut</dt>
+      <dd class="col-sm-9">
+        <span class="badge text-bg-{% if action_plan.status == 'completed' %}success{% elif action_plan.status == 'in_progress' %}info{% elif action_plan.status == 'overdue' %}danger{% elif action_plan.status == 'cancelled' %}secondary{% else %}warning{% endif %}">
+          {{ action_plan.get_status_display }}
+        </span>
+      </dd>
+    </dl>
+  </div>
+
+  <div class="tab-pane fade" id="remediation_tab">
+    <dl class="row">
+      <dt class="col-sm-3">Description de l'écart</dt><dd class="col-sm-9">{{ action_plan.gap_description|linebreaksbr }}</dd>
+      <dt class="col-sm-3">Plan de remédiation</dt><dd class="col-sm-9">{{ action_plan.remediation_plan|linebreaksbr }}</dd>
+    </dl>
+  </div>
+
+  <div class="tab-pane fade" id="planning_tab">
+    <dl class="row">
+      <dt class="col-sm-3">Date de début</dt><dd class="col-sm-9">{{ action_plan.start_date|default:"—" }}</dd>
+      <dt class="col-sm-3">Date cible</dt><dd class="col-sm-9">{{ action_plan.target_date }}</dd>
+      <dt class="col-sm-3">Date d'achèvement</dt><dd class="col-sm-9">{{ action_plan.completion_date|default:"—" }}</dd>
+      <dt class="col-sm-3">Avancement</dt>
+      <dd class="col-sm-9">
+        <div class="progress" style="max-width:300px">
+          <div class="progress-bar" style="width:{{ action_plan.progress_percentage }}%">{{ action_plan.progress_percentage }}%</div>
+        </div>
+      </dd>
+      <dt class="col-sm-3">Estimation du coût</dt>
+      <dd class="col-sm-9">{% if action_plan.cost_estimate %}{{ action_plan.cost_estimate|floatformat:2 }} €{% else %}—{% endif %}</dd>
+    </dl>
+  </div>
+
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+from django import forms
+from django.contrib.auth import password_validation
+from django.contrib.auth.forms import ReadOnlyPasswordHashField
+
+from accounts.models import Group, User
+
+
+class LoginForm(forms.Form):
+    email = forms.EmailField(
+        label="Adresse email",
+        widget=forms.EmailInput(attrs={"class": "form-control", "autofocus": True}),
+    )
+    password = forms.CharField(
+        label="Mot de passe",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+    )
+
+
+class UserCreateForm(forms.ModelForm):
+    password1 = forms.CharField(
+        label="Mot de passe",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        help_text=password_validation.password_validators_help_texts,
+    )
+    password2 = forms.CharField(
+        label="Confirmer le mot de passe",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+    )
+
+    class Meta:
+        model = User
+        fields = ("email", "first_name", "last_name", "job_title", "department", "phone", "language", "timezone", "is_active")
+        widgets = {
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "first_name": forms.TextInput(attrs={"class": "form-control"}),
+            "last_name": forms.TextInput(attrs={"class": "form-control"}),
+            "job_title": forms.TextInput(attrs={"class": "form-control"}),
+            "department": forms.TextInput(attrs={"class": "form-control"}),
+            "phone": forms.TextInput(attrs={"class": "form-control"}),
+            "language": forms.Select(attrs={"class": "form-select"}),
+            "timezone": forms.TextInput(attrs={"class": "form-control"}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+    def clean_password2(self):
+        p1 = self.cleaned_data.get("password1")
+        p2 = self.cleaned_data.get("password2")
+        if p1 and p2 and p1 != p2:
+            raise forms.ValidationError("Les mots de passe ne correspondent pas.")
+        return p2
+
+    def clean_password1(self):
+        p1 = self.cleaned_data.get("password1")
+        if p1:
+            password_validation.validate_password(p1)
+        return p1
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password1"])
+        if commit:
+            user.save()
+        return user
+
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ("email", "first_name", "last_name", "job_title", "department", "phone", "language", "timezone", "is_active")
+        widgets = {
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "first_name": forms.TextInput(attrs={"class": "form-control"}),
+            "last_name": forms.TextInput(attrs={"class": "form-control"}),
+            "job_title": forms.TextInput(attrs={"class": "form-control"}),
+            "department": forms.TextInput(attrs={"class": "form-control"}),
+            "phone": forms.TextInput(attrs={"class": "form-control"}),
+            "language": forms.Select(attrs={"class": "form-select"}),
+            "timezone": forms.TextInput(attrs={"class": "form-control"}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+
+class ProfileForm(forms.ModelForm):
+    """Form for users to edit their own profile (RU-04)."""
+
+    class Meta:
+        model = User
+        fields = ("first_name", "last_name", "phone", "language", "timezone")
+        widgets = {
+            "first_name": forms.TextInput(attrs={"class": "form-control"}),
+            "last_name": forms.TextInput(attrs={"class": "form-control"}),
+            "phone": forms.TextInput(attrs={"class": "form-control"}),
+            "language": forms.Select(attrs={"class": "form-select"}),
+            "timezone": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+
+class GroupForm(forms.ModelForm):
+    class Meta:
+        model = Group
+        fields = ("name", "description")
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }
+
+
+class PasswordChangeForm(forms.Form):
+    old_password = forms.CharField(
+        label="Mot de passe actuel",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+    )
+    new_password1 = forms.CharField(
+        label="Nouveau mot de passe",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        help_text=password_validation.password_validators_help_texts,
+    )
+    new_password2 = forms.CharField(
+        label="Confirmer le nouveau mot de passe",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean_old_password(self):
+        old = self.cleaned_data.get("old_password")
+        if not self.user.check_password(old):
+            raise forms.ValidationError("Le mot de passe actuel est incorrect.")
+        return old
+
+    def clean_new_password2(self):
+        p1 = self.cleaned_data.get("new_password1")
+        p2 = self.cleaned_data.get("new_password2")
+        if p1 and p2 and p1 != p2:
+            raise forms.ValidationError("Les mots de passe ne correspondent pas.")
+        if p1:
+            password_validation.validate_password(p1, self.user)
+        return p2
+
+    def save(self):
+        from django.utils import timezone
+
+        self.user.set_password(self.cleaned_data["new_password1"])
+        self.user.password_changed_at = timezone.now()
+        self.user.save()
+        return self.user

@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}{{ risk.reference }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>{{ risk.reference }} — {{ risk.name }}</h1>
+  <div>
+    <a href="{% url 'risks:risk-update' risk.pk %}" class="btn btn-primary">Modifier</a>
+    <a href="{% url 'risks:risk-list' %}" class="btn btn-outline-secondary">Retour</a>
+  </div>
+</div>
+{% include "includes/approval_badge.html" with object=risk %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#evaluation">Évaluation</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#treatment">Traitement</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#assets">Actifs affectés</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#sources">Sources ISO 27005</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="general">
+    <dl class="row">
+      <dt class="col-sm-3">Appréciation</dt><dd class="col-sm-9"><a href="{% url 'risks:assessment-detail' risk.assessment.pk %}">{{ risk.assessment }}</a></dd>
+      <dt class="col-sm-3">Source</dt><dd class="col-sm-9">{{ risk.get_risk_source_display }}</dd>
+      <dt class="col-sm-3">Propriétaire</dt><dd class="col-sm-9">{{ risk.risk_owner|default:"—" }}</dd>
+      <dt class="col-sm-3">Priorité</dt>
+      <dd class="col-sm-9">
+        <span class="badge text-bg-{% if risk.priority == 'critical' %}danger{% elif risk.priority == 'high' %}warning{% elif risk.priority == 'medium' %}info{% else %}secondary{% endif %}">
+          {{ risk.get_priority_display }}
+        </span>
+      </dd>
+      <dt class="col-sm-3">Statut</dt><dd class="col-sm-9">{{ risk.get_status_display }}</dd>
+      <dt class="col-sm-3">Impact C / I / D</dt>
+      <dd class="col-sm-9">
+        {% if risk.impact_confidentiality %}<span class="badge text-bg-info">C</span>{% endif %}
+        {% if risk.impact_integrity %}<span class="badge text-bg-warning">I</span>{% endif %}
+        {% if risk.impact_availability %}<span class="badge text-bg-danger">D</span>{% endif %}
+        {% if not risk.impact_confidentiality and not risk.impact_integrity and not risk.impact_availability %}—{% endif %}
+      </dd>
+      <dt class="col-sm-3">Date de revue</dt><dd class="col-sm-9">{{ risk.review_date|default:"—" }}</dd>
+      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ risk.description|default:"—"|linebreaksbr }}</dd>
+    </dl>
+  </div>
+
+  <div class="tab-pane fade" id="evaluation">
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h6>Risque initial</h6>
+            <p class="mb-1">Vraisemblance: <strong>{{ risk.initial_likelihood|default:"—" }}</strong></p>
+            <p class="mb-1">Impact: <strong>{{ risk.initial_impact|default:"—" }}</strong></p>
+            <p class="display-6">{{ risk.initial_risk_level|default:"—" }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h6>Risque réel</h6>
+            <p class="mb-1">Vraisemblance: <strong>{{ risk.current_likelihood|default:"—" }}</strong></p>
+            <p class="mb-1">Impact: <strong>{{ risk.current_impact|default:"—" }}</strong></p>
+            <p class="display-6">{{ risk.current_risk_level|default:"—" }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h6>Risque résiduel</h6>
+            <p class="mb-1">Vraisemblance: <strong>{{ risk.residual_likelihood|default:"—" }}</strong></p>
+            <p class="mb-1">Impact: <strong>{{ risk.residual_impact|default:"—" }}</strong></p>
+            <p class="display-6">{{ risk.residual_risk_level|default:"—" }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="treatment">
+    <dl class="row mb-3">
+      <dt class="col-sm-3">Décision de traitement</dt><dd class="col-sm-9">{{ risk.get_treatment_decision_display }}</dd>
+      <dt class="col-sm-3">Justification</dt><dd class="col-sm-9">{{ risk.treatment_justification|default:"—"|linebreaksbr }}</dd>
+    </dl>
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5>Plans de traitement</h5>
+      <a href="{% url 'risks:treatment-plan-create' %}" class="btn btn-sm btn-primary">Nouveau plan</a>
+    </div>
+    {% if treatment_plans %}
+    <table class="table table-striped">
+      <thead><tr><th>Réf.</th><th>Nom</th><th>Type</th><th>Progression</th><th>Statut</th></tr></thead>
+      <tbody>
+        {% for tp in treatment_plans %}
+        <tr>
+          <td>{{ tp.reference }}</td>
+          <td><a href="{% url 'risks:treatment-plan-detail' tp.pk %}">{{ tp.name }}</a></td>
+          <td>{{ tp.get_treatment_type_display }}</td>
+          <td>
+            <div class="progress" style="height:1rem">
+              <div class="progress-bar" style="width:{{ tp.progress_percentage }}%">{{ tp.progress_percentage }}%</div>
+            </div>
+          </td>
+          <td>{{ tp.get_status_display }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">Aucun plan de traitement.</p>
+    {% endif %}
+
+    <h5 class="mt-4">Acceptations de risque</h5>
+    {% if acceptances %}
+    <table class="table table-striped">
+      <thead><tr><th>Accepté par</th><th>Niveau</th><th>Statut</th><th>Valide jusqu'au</th></tr></thead>
+      <tbody>
+        {% for acc in acceptances %}
+        <tr>
+          <td><a href="{% url 'risks:acceptance-detail' acc.pk %}">{{ acc.accepted_by|default:"—" }}</a></td>
+          <td>{{ acc.risk_level_at_acceptance|default:"—" }}</td>
+          <td>{{ acc.get_status_display }}</td>
+          <td>{{ acc.valid_until|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">Aucune acceptation de risque.</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="assets">
+    <h5>Biens essentiels affectés</h5>
+    {% for ea in risk.affected_essential_assets.all %}
+    <span class="badge text-bg-primary me-1 mb-1">{{ ea }}</span>
+    {% empty %}
+    <p class="text-muted">Aucun bien essentiel affecté.</p>
+    {% endfor %}
+
+    <h5 class="mt-3">Biens supports affectés</h5>
+    {% for sa in risk.affected_support_assets.all %}
+    <span class="badge text-bg-info me-1 mb-1">{{ sa }}</span>
+    {% empty %}
+    <p class="text-muted">Aucun bien support affecté.</p>
+    {% endfor %}
+  </div>
+
+  <div class="tab-pane fade" id="sources">
+    <h5>Sources ISO 27005</h5>
+    {% if iso27005_sources %}
+    <table class="table table-striped">
+      <thead><tr><th>Menace</th><th>Vulnérabilité</th><th>Vraisemblance</th><th>Impact</th><th>Niveau</th></tr></thead>
+      <tbody>
+        {% for src in iso27005_sources %}
+        <tr>
+          <td><a href="{% url 'risks:iso27005-detail' src.pk %}">{{ src.threat.name }}</a></td>
+          <td>{{ src.vulnerability.name }}</td>
+          <td>{{ src.combined_likelihood|default:"—" }}</td>
+          <td>{{ src.max_impact|default:"—" }}</td>
+          <td>{{ src.risk_level|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">Aucune source ISO 27005.</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

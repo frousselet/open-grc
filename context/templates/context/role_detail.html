@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ role.name }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>{{ role.name }}</h1>
+  <div>
+    <a href="{% url 'context:role-update' role.pk %}" class="btn btn-primary">Modifier</a>
+    <a href="{% url 'context:role-list' %}" class="btn btn-outline-secondary">Retour</a>
+  </div>
+</div>
+{% include "includes/approval_badge.html" %}
+
+{% if role.compliance_alert %}
+<div class="alert alert-danger">{{ role.compliance_alert }}</div>
+{% endif %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#info">Informations</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#responsibilities">Responsabilités</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#users">Utilisateurs</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="info">
+    <dl class="row">
+      <dt class="col-sm-3">Périmètre</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' role.scope.pk %}">{{ role.scope }}</a></dd>
+      <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ role.get_type_display }}</dd>
+      <dt class="col-sm-3">Statut</dt><dd class="col-sm-9">{{ role.get_status_display }}</dd>
+      <dt class="col-sm-3">Obligatoire</dt><dd class="col-sm-9">{% if role.is_mandatory %}Oui{% else %}Non{% endif %}</dd>
+      <dt class="col-sm-3">Référentiel d'origine</dt><dd class="col-sm-9">{{ role.source_standard|default:"—" }}</dd>
+      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ role.description|default:"—"|linebreaksbr }}</dd>
+    </dl>
+  </div>
+  <div class="tab-pane fade" id="responsibilities">
+    {% if role.responsibilities.all %}
+    <table class="table table-striped">
+      <thead><tr><th>Description</th><th>Type RACI</th><th>Activité</th></tr></thead>
+      <tbody>
+        {% for resp in role.responsibilities.all %}
+        <tr>
+          <td>{{ resp.description }}</td>
+          <td><span class="badge text-bg-info">{{ resp.get_raci_type_display }}</span></td>
+          <td>{{ resp.related_activity|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">Aucune responsabilité définie.</p>
+    {% endif %}
+  </div>
+  <div class="tab-pane fade" id="users">
+    {% if role.assigned_users.all %}
+    <ul class="list-group">
+      {% for user in role.assigned_users.all %}
+      <li class="list-group-item">{{ user.get_full_name|default:user.username }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">Aucun utilisateur affecté.</p>
+    {% endif %}
+  </div>
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

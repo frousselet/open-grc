@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load accounts_tags %}
+{% block title %}{{ group.name }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>{{ group.name }}
+    {% if group.is_system %}<span class="badge bg-info fs-6">Système</span>{% endif %}
+  </h2>
+  <div>
+    {% if not group.is_system %}
+    {% has_perm "system.groups.update" as can_edit %}
+    {% if can_edit %}
+    <a href="{% url 'accounts:group-update' group.pk %}" class="btn btn-outline-primary">Modifier</a>
+    {% endif %}
+    {% endif %}
+    <a href="{% url 'accounts:group-list' %}" class="btn btn-outline-secondary">Retour à la liste</a>
+  </div>
+</div>
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show">
+  {{ message }}
+  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if group.description %}
+<p class="text-muted mb-4">{{ group.description }}</p>
+{% endif %}
+
+<ul class="nav nav-tabs mb-4" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#perms-tab">Permissions</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#users-tab">Utilisateurs ({{ group_users|length }})</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#scopes-tab">Périmètres</a></li>
+</ul>
+
+<div class="tab-content">
+  <!-- Permissions Matrix -->
+  <div class="tab-pane fade show active" id="perms-tab">
+    <form method="post" action="{% url 'accounts:group-permissions-update' group.pk %}">
+      {% csrf_token %}
+      {% regroup permission_matrix by module_label as module_groups %}
+      {% for module_group in module_groups %}
+      <div class="card mb-3">
+        <div class="card-header"><strong>{{ module_group.grouper }}</strong></div>
+        <div class="card-body p-0">
+          <table class="table table-sm mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width:35%">Feature</th>
+                <th class="text-center">Créer</th>
+                <th class="text-center">Lire</th>
+                <th class="text-center">Modifier</th>
+                <th class="text-center">Supprimer</th>
+                <th class="text-center">Accéder</th>
+                <th class="text-center">Approuver</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in module_group.list %}
+              <tr>
+                <td>{{ row.feature_label }}</td>
+                {% for cell in row.cells %}
+                <td class="text-center">
+                  {% if cell.has_action %}
+                  <input type="checkbox" name="permissions" value="{{ cell.codename }}"
+                    {% if cell.checked %}checked{% endif %}
+                    {% if group.is_system %}disabled{% endif %}
+                    class="form-check-input">
+                  {% else %}
+                  <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endfor %}
+      {% if not group.is_system %}
+      <button type="submit" class="btn btn-primary">Enregistrer les permissions</button>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- Users -->
+  <div class="tab-pane fade" id="users-tab">
+    <div class="card">
+      <div class="card-body">
+        {% if group_users %}
+        <table class="table table-sm">
+          <thead><tr><th>Nom</th><th>Email</th><th></th></tr></thead>
+          <tbody>
+            {% for u in group_users %}
+            <tr>
+              <td><a href="{% url 'accounts:user-detail' u.pk %}">{{ u.display_name }}</a></td>
+              <td>{{ u.email }}</td>
+              <td class="text-end">
+                {% if not group.is_system %}
+                {% has_perm "system.groups.update" as can_edit_group %}
+                {% if can_edit_group %}
+                <form method="post" action="{% url 'accounts:group-users-update' group.pk %}" class="d-inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="remove">
+                  <input type="hidden" name="user_id" value="{{ u.pk }}">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Retirer</button>
+                </form>
+                {% endif %}
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted mb-0">Aucun utilisateur dans ce groupe.</p>
+        {% endif %}
+
+        {% if not group.is_system %}
+        {% has_perm "system.groups.update" as can_edit_group %}
+        {% if can_edit_group and all_users %}
+        <hr>
+        <form method="post" action="{% url 'accounts:group-users-update' group.pk %}" class="row g-2">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="add">
+          <div class="col-auto">
+            <select name="user_id" class="form-select form-select-sm">
+              {% for u in all_users %}
+              <option value="{{ u.pk }}">{{ u.display_name }} ({{ u.email }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn btn-sm btn-primary">Ajouter</button>
+          </div>
+        </form>
+        {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Scopes -->
+  <div class="tab-pane fade" id="scopes-tab">
+    <div class="card">
+      <div class="card-body">
+        <p class="text-muted mb-3">
+          Si aucun périmètre n'est coché, les membres de ce groupe ont accès à tous les périmètres.
+        </p>
+        <form method="post" action="{% url 'accounts:group-scopes-update' group.pk %}">
+          {% csrf_token %}
+          {% if all_scopes %}
+          {% for s in all_scopes %}
+          <div class="form-check mb-2">
+            <input type="checkbox" name="scopes" value="{{ s.pk }}"
+              {% if s.pk in group_scope_ids %}checked{% endif %}
+              class="form-check-input" id="scope-{{ s.pk }}">
+            <label class="form-check-label" for="scope-{{ s.pk }}">
+              {{ s.name }} <span class="badge text-bg-{% if s.status == 'active' %}success{% elif s.status == 'draft' %}secondary{% else %}warning{% endif %}">{{ s.get_status_display }}</span>
+            </label>
+          </div>
+          {% endfor %}
+          {% else %}
+          <p class="text-muted">Aucun périmètre disponible.</p>
+          {% endif %}
+          {% has_perm "system.groups.update" as can_edit_group %}
+          {% if can_edit_group %}
+          <button type="submit" class="btn btn-primary mt-3">Enregistrer les périmètres</button>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

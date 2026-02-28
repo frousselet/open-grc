@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load dic_tags %}
+
+{% block title %}{{ asset.reference }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>{{ asset.reference }} — {{ asset.name }}</h1>
+  <div>
+    <a href="{% url 'assets:essential-asset-update' asset.pk %}" class="btn btn-primary">Modifier</a>
+    <a href="{% url 'assets:essential-asset-list' %}" class="btn btn-outline-secondary">Retour</a>
+  </div>
+</div>
+{% include "includes/approval_badge.html" %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#dic">Valorisation DIC</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#classification">Classification</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#relations">Relations</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#valuations">Valorisations</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="general">
+    <dl class="row">
+      <dt class="col-sm-3">Périmètre</dt><dd class="col-sm-9">{{ asset.scope }}</dd>
+      <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ asset.get_type_display }}</dd>
+      <dt class="col-sm-3">Catégorie</dt><dd class="col-sm-9">{{ asset.get_category_display }}</dd>
+      <dt class="col-sm-3">Propriétaire</dt><dd class="col-sm-9">{{ asset.owner }}</dd>
+      <dt class="col-sm-3">Dépositaire</dt><dd class="col-sm-9">{{ asset.custodian|default:"—" }}</dd>
+      <dt class="col-sm-3">Statut</dt>
+      <dd class="col-sm-9">
+        <span class="badge text-bg-{% if asset.status == 'active' %}success{% elif asset.status == 'identified' %}info{% else %}secondary{% endif %}">
+          {{ asset.get_status_display }}
+        </span>
+      </dd>
+      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ asset.description|default:"—"|linebreaksbr }}</dd>
+    </dl>
+  </div>
+
+  <div class="tab-pane fade" id="dic">
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h6>Confidentialité</h6>
+            <p class="display-6">{{ asset.confidentiality_level|dic_badge }}</p>
+            <small class="text-muted">{{ asset.confidentiality_justification|default:"—" }}</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h6>Intégrité</h6>
+            <p class="display-6">{{ asset.integrity_level|dic_badge }}</p>
+            <small class="text-muted">{{ asset.integrity_justification|default:"—" }}</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h6>Disponibilité</h6>
+            <p class="display-6">{{ asset.availability_level|dic_badge }}</p>
+            <small class="text-muted">{{ asset.availability_justification|default:"—" }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <dl class="row">
+      <dt class="col-sm-3">DMIT / MTD</dt><dd class="col-sm-9">{{ asset.max_tolerable_downtime|default:"—" }}</dd>
+      <dt class="col-sm-3">RTO</dt><dd class="col-sm-9">{{ asset.recovery_time_objective|default:"—" }}</dd>
+      <dt class="col-sm-3">RPO</dt><dd class="col-sm-9">{{ asset.recovery_point_objective|default:"—" }}</dd>
+    </dl>
+  </div>
+
+  <div class="tab-pane fade" id="classification">
+    <dl class="row">
+      <dt class="col-sm-3">Classification</dt><dd class="col-sm-9">{{ asset.get_data_classification_display|default:"—" }}</dd>
+      <dt class="col-sm-3">Données personnelles</dt><dd class="col-sm-9">{% if asset.personal_data %}Oui{% else %}Non{% endif %}</dd>
+      {% if asset.personal_data and asset.personal_data_categories %}
+      <dt class="col-sm-3">Catégories RGPD</dt><dd class="col-sm-9">{{ asset.personal_data_categories }}</dd>
+      {% endif %}
+      <dt class="col-sm-3">Contraintes réglementaires</dt><dd class="col-sm-9">{{ asset.regulatory_constraints|default:"—"|linebreaksbr }}</dd>
+    </dl>
+  </div>
+
+  <div class="tab-pane fade" id="relations">
+    <h5>Biens supports associés</h5>
+    {% if dependencies %}
+    <table class="table table-striped">
+      <thead><tr><th>Bien support</th><th>Type de dépendance</th><th>Criticité</th><th>SPOF</th></tr></thead>
+      <tbody>
+        {% for dep in dependencies %}
+        <tr>
+          <td><a href="{% url 'assets:support-asset-detail' dep.support_asset.pk %}">{{ dep.support_asset }}</a></td>
+          <td>{{ dep.get_dependency_type_display }}</td>
+          <td>{{ dep.get_criticality_display }}</td>
+          <td>{% if dep.is_single_point_of_failure %}<span class="badge text-bg-danger">SPOF</span>{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-warning">Aucun bien support associé (bien essentiel non supporté).</div>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="valuations">
+    <h5>Historique des valorisations DIC</h5>
+    {% if valuations %}
+    <table class="table table-striped">
+      <thead><tr><th>Date</th><th class="text-center">C</th><th class="text-center">I</th><th class="text-center">D</th><th>Évaluateur</th><th>Contexte</th></tr></thead>
+      <tbody>
+        {% for val in valuations %}
+        <tr>
+          <td>{{ val.evaluation_date }}</td>
+          <td class="text-center">{{ val.confidentiality_level|dic_badge }}</td>
+          <td class="text-center">{{ val.integrity_level|dic_badge }}</td>
+          <td class="text-center">{{ val.availability_level|dic_badge }}</td>
+          <td>{{ val.evaluated_by }}</td>
+          <td>{{ val.context|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">Aucune valorisation enregistrée.</p>
+    {% endif %}
+  </div>
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

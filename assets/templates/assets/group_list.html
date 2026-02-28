@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Groupes d'actifs — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">Groupes d'actifs</h1>
+  <a href="{% url 'assets:group-create' %}" class="btn btn-primary ms-auto">Nouveau groupe</a>
+</div>
+{% help_modal "assets.group_list" %}
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Nom</th>
+        <th>Type</th>
+        <th>Membres</th>
+        <th>Propriétaire</th>
+        <th>Statut</th>
+        <th>Approbation</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for group in groups %}
+      <tr>
+        <td><a href="{% url 'assets:group-detail' group.pk %}">{{ group.name }}</a></td>
+        <td>{{ group.get_type_display }}</td>
+        <td>{{ group.member_count }}</td>
+        <td>{{ group.owner|default:"—" }}</td>
+        <td>
+          <span class="badge text-bg-{% if group.status == 'active' %}success{% else %}secondary{% endif %}">
+            {{ group.get_status_display }}
+          </span>
+        </td>
+        <td>
+          <span class="badge text-bg-{% if group.is_approved %}success{% else %}warning{% endif %}">
+            {% if group.is_approved %}Approuvé{% else %}En attente{% endif %}
+          </span>
+        </td>
+        <td>
+          <a href="{% url 'assets:group-update' group.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="text-center text-muted">Aucun groupe défini.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>{% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>{% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}{{ framework.reference }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>{{ framework.reference }} — {{ framework.name }}</h1>
+  <div>
+    <a href="{% url 'compliance:framework-update' framework.pk %}" class="btn btn-primary">Modifier</a>
+    <a href="{% url 'compliance:framework-list' %}" class="btn btn-outline-secondary">Retour</a>
+  </div>
+</div>
+
+{% include "includes/approval_badge.html" %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#structure">Structure</a></li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#requirements_tab">
+      Exigences <span class="badge text-bg-secondary">{{ requirements|length }}</span>
+    </a>
+  </li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#compliance">Conformité</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#assessments_tab">Évaluations</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="general">
+    <dl class="row">
+      <dt class="col-sm-3">Périmètres</dt>
+      <dd class="col-sm-9">
+        {% for s in framework.scopes.all %}
+          <span class="badge text-bg-secondary">{{ s.full_path }}</span>
+        {% empty %}
+          —
+        {% endfor %}
+      </dd>
+      <dt class="col-sm-3">Abréviation</dt><dd class="col-sm-9">{{ framework.short_name|default:"—" }}</dd>
+      <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ framework.get_type_display }}</dd>
+      <dt class="col-sm-3">Catégorie</dt><dd class="col-sm-9">{{ framework.get_category_display }}</dd>
+      <dt class="col-sm-3">Version</dt><dd class="col-sm-9">{{ framework.framework_version|default:"—" }}</dd>
+      <dt class="col-sm-3">Organisme émetteur</dt><dd class="col-sm-9">{{ framework.issuing_body|default:"—" }}</dd>
+      <dt class="col-sm-3">Juridiction</dt><dd class="col-sm-9">{{ framework.jurisdiction|default:"—" }}</dd>
+      <dt class="col-sm-3">Obligatoire</dt><dd class="col-sm-9">{% if framework.is_mandatory %}Oui{% else %}Non{% endif %}</dd>
+      <dt class="col-sm-3">Applicable</dt><dd class="col-sm-9">{% if framework.is_applicable %}Oui{% else %}Non{% endif %}</dd>
+      <dt class="col-sm-3">Responsable</dt><dd class="col-sm-9">{{ framework.owner }}</dd>
+      <dt class="col-sm-3">Statut</dt><dd class="col-sm-9">{{ framework.get_status_display }}</dd>
+      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ framework.description|default:"—"|linebreaksbr }}</dd>
+    </dl>
+  </div>
+
+  <div class="tab-pane fade" id="structure">
+    <h5>Sections</h5>
+    {% if sections %}
+    <ul class="list-group mb-3">
+      {% for section in sections %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div><strong>{{ section.reference }}</strong> — {{ section.name }}</div>
+        <span class="badge text-bg-{% if section.compliance_level >= 80 %}success{% elif section.compliance_level >= 50 %}warning{% else %}danger{% endif %}">{{ section.compliance_level|floatformat:0 }}%</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">Aucune section définie.</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="requirements_tab">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">Exigences du référentiel</h5>
+      <a href="{% url 'compliance:requirement-create' %}?framework={{ framework.pk }}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg me-1"></i>Ajouter
+      </a>
+    </div>
+    {% if requirements %}
+    <div class="table-responsive">
+      <table class="table table-sm table-striped table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Référence</th>
+            <th>Intitulé</th>
+            <th>Section</th>
+            <th>Type</th>
+            <th>Statut</th>
+            <th style="min-width:120px">Conformité</th>
+            <th>Priorité</th>
+            <th>Responsable</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for req in requirements %}
+          <tr>
+            <td><a href="{% url 'compliance:requirement-detail' req.pk %}">{{ req.reference }}</a></td>
+            <td>{{ req.name|truncatechars:60 }}</td>
+            <td>{{ req.section.reference|default:"—" }}</td>
+            <td>{{ req.get_type_display }}</td>
+            <td>
+              <span class="badge text-bg-{% if req.compliance_status == 'compliant' %}success{% elif req.compliance_status == 'partially_compliant' %}warning{% elif req.compliance_status == 'non_compliant' %}danger{% elif req.compliance_status == 'not_applicable' %}dark{% else %}secondary{% endif %}">
+                {{ req.get_compliance_status_display }}
+              </span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="progress flex-grow-1" style="height:.5rem">
+                  <div class="progress-bar bg-{% if req.compliance_level >= 80 %}success{% elif req.compliance_level >= 50 %}warning{% else %}danger{% endif %}"
+                       style="width:{{ req.compliance_level }}%"></div>
+                </div>
+                <small class="text-nowrap">{{ req.compliance_level }}%</small>
+              </div>
+            </td>
+            <td>
+              {% if req.priority %}
+              <span class="badge text-bg-{% if req.priority == 'critical' %}danger{% elif req.priority == 'high' %}warning{% elif req.priority == 'medium' %}info{% else %}secondary{% endif %}">
+                {{ req.get_priority_display }}
+              </span>
+              {% else %}—{% endif %}
+            </td>
+            <td>{{ req.owner.display_name|default:"—" }}</td>
+            <td>
+              <a href="{% url 'compliance:requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted">Aucune exigence définie pour ce référentiel.</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="compliance">
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h6>Niveau de conformité global</h6>
+            <p class="display-4">{{ framework.compliance_level|floatformat:0 }}%</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="assessments_tab">
+    {% if assessments %}
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead><tr><th>Nom</th><th>Date</th><th>Évaluateur</th><th>Conformité</th><th>Statut</th></tr></thead>
+        <tbody>
+          {% for a in assessments %}
+          <tr>
+            <td><a href="{% url 'compliance:assessment-detail' a.pk %}">{{ a.name }}</a></td>
+            <td>{{ a.assessment_date }}</td>
+            <td>{{ a.assessor }}</td>
+            <td>{{ a.overall_compliance_level|floatformat:0 }}%</td>
+            <td>{{ a.get_status_display }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted">Aucune évaluation réalisée.</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Risques — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <h1 class="mb-0">Risques</h1>
+</div>
+{% help_modal "assets.dashboard" %}
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card text-bg-primary">
+      <div class="card-body">
+        <h5 class="card-title">Biens essentiels</h5>
+        <p class="display-6">{{ essential_count }}</p>
+        <a href="{% url 'assets:essential-asset-list' %}" class="text-white">Voir tout</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-bg-info">
+      <div class="card-body">
+        <h5 class="card-title">Biens supports</h5>
+        <p class="display-6">{{ support_count }}</p>
+        <a href="{% url 'assets:support-asset-list' %}" class="text-white">Voir tout</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-bg-success">
+      <div class="card-body">
+        <h5 class="card-title">Dépendances</h5>
+        <p class="display-6">{{ dependency_count }}</p>
+        <a href="{% url 'assets:dependency-list' %}" class="text-white">Voir tout</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-bg-secondary">
+      <div class="card-body">
+        <h5 class="card-title">Groupes</h5>
+        <p class="display-6">{{ group_count }}</p>
+        <a href="{% url 'assets:group-list' %}" class="text-white">Voir tout</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if unsupported_essentials or orphan_supports or spof_count or eol_assets %}
+<div class="alert alert-danger">
+  <h5>Alertes</h5>
+  <ul class="mb-0">
+    {% if unsupported_essentials %}
+    <li>{{ unsupported_essentials }} bien(s) essentiel(s) sans bien support associé</li>
+    {% endif %}
+    {% if orphan_supports %}
+    <li>{{ orphan_supports }} bien(s) support(s) orphelin(s) (sans bien essentiel)</li>
+    {% endif %}
+    {% if spof_count %}
+    <li>{{ spof_count }} point(s) unique(s) de défaillance (SPOF) détecté(s)</li>
+    {% endif %}
+    {% for sa in eol_assets %}
+    <li>{{ sa.reference }} — {{ sa.name }} : fin de vie dépassée ({{ sa.end_of_life_date }})</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Biens essentiels par type</h5>
+        {% for item in essential_by_type %}
+        <span class="badge text-bg-primary fs-6 me-1">{{ item.type }} : {{ item.count }}</span>
+        {% empty %}
+        <p class="text-muted">Aucun bien essentiel.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Biens supports par type</h5>
+        {% for item in support_by_type %}
+        <span class="badge text-bg-info fs-6 me-1">{{ item.type }} : {{ item.count }}</span>
+        {% empty %}
+        <p class="text-muted">Aucun bien support.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if personal_data_count %}
+<div class="alert alert-warning">
+  <strong>{{ personal_data_count }}</strong> bien(s) essentiel(s) contenant des données personnelles.
+</div>
+{% endif %}
+{% endblock %}
