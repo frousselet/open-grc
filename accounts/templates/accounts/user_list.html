@@ -1,31 +1,32 @@
 {% extends "base.html" %}
 {% load accounts_tags %}
 {% load help_tags %}
-{% block title %}Utilisateurs — Open GRC{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Users — Open GRC" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h2>Utilisateurs</h2>
+  <h2>{% trans "Users" %}</h2>
   {% has_perm "system.users.create" as can_create %}
   {% if can_create %}
-  <a href="{% url 'accounts:user-create' %}" class="btn btn-primary">Créer un utilisateur</a>
+  <a href="{% url 'accounts:user-create' %}" class="btn btn-primary">{% trans "Create a user" %}</a>
   {% endif %}
 </div>
 {% help_modal "accounts.user_list" %}
 
 <form method="get" class="row g-3 mb-4">
   <div class="col-md-4">
-    <input type="text" name="q" class="form-control" placeholder="Rechercher..." value="{{ request.GET.q|default:'' }}">
+    <input type="text" name="q" class="form-control" placeholder="{% trans "Search..." %}" value="{{ request.GET.q|default:'' }}">
   </div>
   <div class="col-md-3">
     <select name="status" class="form-select">
-      <option value="">Tous les statuts</option>
-      <option value="active" {% if request.GET.status == "active" %}selected{% endif %}>Actifs</option>
-      <option value="inactive" {% if request.GET.status == "inactive" %}selected{% endif %}>Inactifs</option>
+      <option value="">{% trans "All statuses" %}</option>
+      <option value="active" {% if request.GET.status == "active" %}selected{% endif %}>{% trans "Active" %}</option>
+      <option value="inactive" {% if request.GET.status == "inactive" %}selected{% endif %}>{% trans "Inactive" %}</option>
     </select>
   </div>
   <div class="col-md-2">
-    <button type="submit" class="btn btn-outline-secondary w-100">Filtrer</button>
+    <button type="submit" class="btn btn-outline-secondary w-100">{% trans "Filter" %}</button>
   </div>
 </form>
 
@@ -33,12 +34,12 @@
   <table class="table table-hover">
     <thead class="table-light">
       <tr>
-        <th>Nom</th>
-        <th>Email</th>
-        <th>Fonction</th>
-        <th>Service</th>
-        <th>Statut</th>
-        <th>Dernière connexion</th>
+        <th>{% trans "Name" %}</th>
+        <th>{% trans "Email" %}</th>
+        <th>{% trans "Job title" %}</th>
+        <th>{% trans "Department" %}</th>
+        <th>{% trans "Status" %}</th>
+        <th>{% trans "Last login" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -51,18 +52,18 @@
         <td>
           {% if u.is_active %}
             {% if u.is_locked %}
-            <span class="badge bg-warning text-dark">Verrouillé</span>
+            <span class="badge bg-warning text-dark">{% trans "Locked" %}</span>
             {% else %}
-            <span class="badge bg-success">Actif</span>
+            <span class="badge bg-success">{% trans "Active" %}</span>
             {% endif %}
           {% else %}
-          <span class="badge bg-secondary">Inactif</span>
+          <span class="badge bg-secondary">{% trans "Inactive" %}</span>
           {% endif %}
         </td>
         <td>{{ u.last_login|date:"d/m/Y H:i"|default:"-" }}</td>
       </tr>
       {% empty %}
-      <tr><td colspan="6" class="text-muted text-center">Aucun utilisateur trouvé.</td></tr>
+      <tr><td colspan="6" class="text-muted text-center">{% trans "No user found." %}</td></tr>
       {% endfor %}
     </tbody>
   </table>

@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}{% if form.instance.pk %}Modifier{% else %}Nouvel{% endif %} enjeu — Open GRC{% endblock %}
+{% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "issue" %} — Open GRC{% endblock %}
 
 {% block content %}
-<h1>{% if form.instance.pk %}Modifier l'enjeu{% else %}Nouvel enjeu{% endif %}</h1>
+<h1>{% if form.instance.pk %}{% trans "Edit issue" %}{% else %}{% trans "New issue" %}{% endif %}</h1>
 
 <form method="post" class="mt-3">
   {% csrf_token %}
@@ -18,8 +19,8 @@
   </div>
   {% endfor %}
   <div class="mt-4">
-    <button type="submit" class="btn btn-primary">Enregistrer</button>
-    <a href="{% url 'context:issue-list' %}" class="btn btn-secondary">Annuler</a>
+    <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+    <a href="{% url 'context:issue-list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
   </div>
 </form>
 {% endblock %}

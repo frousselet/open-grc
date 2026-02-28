@@ -1,13 +1,14 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Évaluations de conformité — Open GRC{% endblock %}
+{% block title %}{% trans "Compliance assessments" %} — Open GRC{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">Évaluations de conformité</h1>
-  <a href="{% url 'compliance:assessment-create' %}" class="btn btn-primary ms-auto">Nouvelle évaluation</a>
+  <h1 class="mb-0">{% trans "Compliance assessments" %}</h1>
+  <a href="{% url 'compliance:assessment-create' %}" class="btn btn-primary ms-auto">{% trans "New assessment" %}</a>
 </div>
 {% help_modal "compliance.assessment_list" %}
 
@@ -15,15 +16,15 @@
   <table class="table table-striped table-hover">
     <thead class="table-dark">
       <tr>
-        <th>Nom</th>
-        <th>Référentiel</th>
-        <th>Date</th>
-        <th>Évaluateur</th>
-        <th>Conformité</th>
-        <th>Exigences</th>
-        <th>Statut</th>
-        <th>Approbation</th>
-        <th>Actions</th>
+        <th>{% trans "Name" %}</th>
+        <th>{% trans "Framework" %}</th>
+        <th>{% trans "Date" %}</th>
+        <th>{% trans "Assessor" %}</th>
+        <th>{% trans "Compliance" %}</th>
+        <th>{% trans "Requirements" %}</th>
+        <th>{% trans "Status" %}</th>
+        <th>{% trans "Approval" %}</th>
+        <th>{% trans "Actions" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -49,15 +50,15 @@
         </td>
         <td>
           <span class="badge text-bg-{% if a.is_approved %}success{% else %}warning{% endif %}">
-            {% if a.is_approved %}Approuvé{% else %}En attente{% endif %}
+            {% if a.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
           </span>
         </td>
         <td>
-          <a href="{% url 'compliance:assessment-update' a.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+          <a href="{% url 'compliance:assessment-update' a.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="9" class="text-center text-muted">Aucune évaluation définie.</td></tr>
+      <tr><td colspan="9" class="text-center text-muted">{% trans "No assessment defined." %}</td></tr>
       {% endfor %}
     </tbody>
   </table>
@@ -67,11 +68,11 @@
 <nav>
   <ul class="pagination justify-content-center">
     {% if page_obj.has_previous %}
-    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Previous" %}</a></li>
     {% endif %}
     <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
     {% if page_obj.has_next %}
-    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Next" %}</a></li>
     {% endif %}
   </ul>
 </nav>

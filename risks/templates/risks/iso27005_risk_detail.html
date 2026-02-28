@@ -1,33 +1,34 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Analyse ISO 27005 — Open GRC{% endblock %}
+{% block title %}{% trans "ISO 27005 analysis" %} — Open GRC{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1>Analyse ISO 27005</h1>
+  <h1>{% trans "ISO 27005 analysis" %}</h1>
   <div>
-    <a href="{% url 'risks:iso27005-update' analysis.pk %}" class="btn btn-primary">Modifier</a>
-    <a href="{% url 'risks:iso27005-list' %}" class="btn btn-outline-secondary">Retour</a>
+    <a href="{% url 'risks:iso27005-update' analysis.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'risks:iso27005-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#calculation">Calcul</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#assets">Actifs</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#calculation">{% trans "Calculation" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#assets">{% trans "Assets" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
     <dl class="row">
-      <dt class="col-sm-3">Appréciation</dt><dd class="col-sm-9"><a href="{% url 'risks:assessment-detail' analysis.assessment.pk %}">{{ analysis.assessment }}</a></dd>
-      <dt class="col-sm-3">Menace</dt><dd class="col-sm-9"><a href="{% url 'risks:threat-detail' analysis.threat.pk %}">{{ analysis.threat }}</a></dd>
-      <dt class="col-sm-3">Vulnérabilité</dt><dd class="col-sm-9"><a href="{% url 'risks:vulnerability-detail' analysis.vulnerability.pk %}">{{ analysis.vulnerability }}</a></dd>
-      <dt class="col-sm-3">Risque consolidé</dt>
+      <dt class="col-sm-3">{% trans "Assessment" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:assessment-detail' analysis.assessment.pk %}">{{ analysis.assessment }}</a></dd>
+      <dt class="col-sm-3">{% trans "Threat" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:threat-detail' analysis.threat.pk %}">{{ analysis.threat }}</a></dd>
+      <dt class="col-sm-3">{% trans "Vulnerability" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:vulnerability-detail' analysis.vulnerability.pk %}">{{ analysis.vulnerability }}</a></dd>
+      <dt class="col-sm-3">{% trans "Consolidated risk" %}</dt>
       <dd class="col-sm-9">{% if analysis.risk %}<a href="{% url 'risks:risk-detail' analysis.risk.pk %}">{{ analysis.risk }}</a>{% else %}—{% endif %}</dd>
-      <dt class="col-sm-3">Mesures existantes</dt><dd class="col-sm-9">{{ analysis.existing_controls|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ analysis.description|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Existing controls" %}</dt><dd class="col-sm-9">{{ analysis.existing_controls|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ analysis.description|default:"—"|linebreaksbr }}</dd>
     </dl>
   </div>
 
@@ -36,30 +37,30 @@
       <div class="col-md-4">
         <div class="card">
           <div class="card-body text-center">
-            <h6>Vraisemblance</h6>
-            <p class="mb-1">Menace: <strong>{{ analysis.threat_likelihood|default:"—" }}</strong></p>
-            <p class="mb-1">Exposition vuln.: <strong>{{ analysis.vulnerability_exposure|default:"—" }}</strong></p>
+            <h6>{% trans "Likelihood" %}</h6>
+            <p class="mb-1">{% trans "Threat:" %} <strong>{{ analysis.threat_likelihood|default:"—" }}</strong></p>
+            <p class="mb-1">{% trans "Vuln. exposure:" %} <strong>{{ analysis.vulnerability_exposure|default:"—" }}</strong></p>
             <hr>
-            <p class="mb-0">Combinée: <strong class="display-6">{{ analysis.combined_likelihood|default:"—" }}</strong></p>
+            <p class="mb-0">{% trans "Combined:" %} <strong class="display-6">{{ analysis.combined_likelihood|default:"—" }}</strong></p>
           </div>
         </div>
       </div>
       <div class="col-md-4">
         <div class="card">
           <div class="card-body text-center">
-            <h6>Impact</h6>
-            <p class="mb-1">Confidentialité: <strong>{{ analysis.impact_confidentiality|default:"—" }}</strong></p>
-            <p class="mb-1">Intégrité: <strong>{{ analysis.impact_integrity|default:"—" }}</strong></p>
-            <p class="mb-1">Disponibilité: <strong>{{ analysis.impact_availability|default:"—" }}</strong></p>
+            <h6>{% trans "Impact" %}</h6>
+            <p class="mb-1">{% trans "Confidentiality:" %} <strong>{{ analysis.impact_confidentiality|default:"—" }}</strong></p>
+            <p class="mb-1">{% trans "Integrity:" %} <strong>{{ analysis.impact_integrity|default:"—" }}</strong></p>
+            <p class="mb-1">{% trans "Availability:" %} <strong>{{ analysis.impact_availability|default:"—" }}</strong></p>
             <hr>
-            <p class="mb-0">Max: <strong class="display-6">{{ analysis.max_impact|default:"—" }}</strong></p>
+            <p class="mb-0">{% trans "Max:" %} <strong class="display-6">{{ analysis.max_impact|default:"—" }}</strong></p>
           </div>
         </div>
       </div>
       <div class="col-md-4">
         <div class="card border-danger">
           <div class="card-body text-center">
-            <h6>Niveau de risque</h6>
+            <h6>{% trans "Risk level" %}</h6>
             <p class="display-4 text-danger mb-0">{{ analysis.risk_level|default:"—" }}</p>
           </div>
         </div>
@@ -68,18 +69,18 @@
   </div>
 
   <div class="tab-pane fade" id="assets">
-    <h5>Biens essentiels affectés</h5>
+    <h5>{% trans "Affected essential assets" %}</h5>
     {% for ea in analysis.affected_essential_assets.all %}
     <span class="badge text-bg-primary me-1 mb-1">{{ ea }}</span>
     {% empty %}
-    <p class="text-muted">Aucun bien essentiel.</p>
+    <p class="text-muted">{% trans "No essential assets." %}</p>
     {% endfor %}
 
-    <h5 class="mt-3">Biens supports affectés</h5>
+    <h5 class="mt-3">{% trans "Affected support assets" %}</h5>
     {% for sa in analysis.affected_support_assets.all %}
     <span class="badge text-bg-info me-1 mb-1">{{ sa }}</span>
     {% empty %}
-    <p class="text-muted">Aucun bien support.</p>
+    <p class="text-muted">{% trans "No support assets." %}</p>
     {% endfor %}
   </div>
 

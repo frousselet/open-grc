@@ -1,30 +1,31 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class PermissionAction(models.TextChoices):
-    CREATE = "create", "Créer"
-    READ = "read", "Lire"
-    UPDATE = "update", "Modifier"
-    DELETE = "delete", "Supprimer"
-    ACCESS = "access", "Accéder"
-    APPROVE = "approve", "Approuver"
+    CREATE = "create", _("Create")
+    READ = "read", _("Read")
+    UPDATE = "update", _("Update")
+    DELETE = "delete", _("Delete")
+    ACCESS = "access", _("Access")
+    APPROVE = "approve", _("Approve")
 
 
 class AccessEventType(models.TextChoices):
-    LOGIN_SUCCESS = "login_success", "Connexion réussie"
-    LOGIN_FAILED = "login_failed", "Connexion échouée"
-    LOGOUT = "logout", "Déconnexion"
-    TOKEN_REFRESH = "token_refresh", "Rafraîchissement de token"
-    PASSWORD_CHANGE = "password_change", "Changement de mot de passe"
-    ACCOUNT_LOCKED = "account_locked", "Compte verrouillé"
-    ACCOUNT_UNLOCKED = "account_unlocked", "Compte déverrouillé"
+    LOGIN_SUCCESS = "login_success", _("Successful login")
+    LOGIN_FAILED = "login_failed", _("Failed login")
+    LOGOUT = "logout", _("Logout")
+    TOKEN_REFRESH = "token_refresh", _("Token refresh")
+    PASSWORD_CHANGE = "password_change", _("Password change")
+    ACCOUNT_LOCKED = "account_locked", _("Account locked")
+    ACCOUNT_UNLOCKED = "account_unlocked", _("Account unlocked")
 
 
 class FailureReason(models.TextChoices):
-    INVALID_PASSWORD = "invalid_password", "Mot de passe invalide"
-    ACCOUNT_LOCKED = "account_locked", "Compte verrouillé"
-    ACCOUNT_INACTIVE = "account_inactive", "Compte inactif"
-    USER_NOT_FOUND = "user_not_found", "Utilisateur introuvable"
+    INVALID_PASSWORD = "invalid_password", _("Invalid password")
+    ACCOUNT_LOCKED = "account_locked", _("Account locked")
+    ACCOUNT_INACTIVE = "account_inactive", _("Inactive account")
+    USER_NOT_FOUND = "user_not_found", _("User not found")
 
 
 # Lockout settings
@@ -37,226 +38,226 @@ PERMISSION_REGISTRY = {
     "context": {
         "scope": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Périmètres",
+            "label": _("Scopes"),
         },
         "issue": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Enjeux",
+            "label": _("Issues"),
         },
         "stakeholder": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Parties intéressées",
+            "label": _("Stakeholders"),
         },
         "expectation": {
             "actions": ["create", "read", "update", "delete"],
-            "label": "Attentes",
+            "label": _("Expectations"),
         },
         "objective": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Objectifs",
+            "label": _("Objectives"),
         },
         "swot": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Analyses SWOT",
+            "label": _("SWOT analyses"),
         },
         "role": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Rôles",
+            "label": _("Roles"),
         },
         "role_assign": {
             "actions": ["update"],
-            "label": "Affectation des rôles",
+            "label": _("Role assignment"),
         },
         "activity": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Activités",
+            "label": _("Activities"),
         },
         "site": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Sites",
+            "label": _("Sites"),
         },
         "config": {
             "actions": ["read", "update"],
-            "label": "Configuration du contexte",
+            "label": _("Context configuration"),
         },
         "export": {
             "actions": ["read"],
-            "label": "Export du contexte",
+            "label": _("Context export"),
         },
         "audit_trail": {
             "actions": ["read"],
-            "label": "Journal d'audit du contexte",
+            "label": _("Context audit trail"),
         },
     },
     "assets": {
         "essential_asset": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Biens essentiels",
+            "label": _("Essential assets"),
         },
         "essential_asset_evaluate": {
             "actions": ["update"],
-            "label": "Évaluation des biens essentiels",
+            "label": _("Essential asset evaluation"),
         },
         "support_asset": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Biens supports",
+            "label": _("Support assets"),
         },
         "dependency": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Dépendances",
+            "label": _("Dependencies"),
         },
         "group": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Groupes d'actifs",
+            "label": _("Asset groups"),
         },
         "import": {
             "actions": ["create"],
-            "label": "Import des actifs",
+            "label": _("Asset import"),
         },
         "config": {
             "actions": ["read", "update"],
-            "label": "Configuration des actifs",
+            "label": _("Asset configuration"),
         },
         "export": {
             "actions": ["read"],
-            "label": "Export des actifs",
+            "label": _("Asset export"),
         },
         "audit_trail": {
             "actions": ["read"],
-            "label": "Journal d'audit des actifs",
+            "label": _("Asset audit trail"),
         },
     },
     "compliance": {
         "framework": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Référentiels",
+            "label": _("Frameworks"),
         },
         "section": {
             "actions": ["create", "read", "update", "delete"],
-            "label": "Sections",
+            "label": _("Sections"),
         },
         "requirement": {
             "actions": ["create", "read", "update", "delete", "approve", "assess"],
-            "label": "Exigences",
+            "label": _("Requirements"),
         },
         "assessment": {
             "actions": ["create", "read", "update", "delete", "approve", "validate"],
-            "label": "Évaluations de conformité",
+            "label": _("Compliance assessments"),
         },
         "mapping": {
             "actions": ["create", "read", "update", "delete"],
-            "label": "Mappings inter-référentiels",
+            "label": _("Inter-framework mappings"),
         },
         "action_plan": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Plans d'action",
+            "label": _("Action plans"),
         },
         "config": {
             "actions": ["read", "update"],
-            "label": "Configuration de la conformité",
+            "label": _("Compliance configuration"),
         },
         "export": {
             "actions": ["read"],
-            "label": "Export de la conformité",
+            "label": _("Compliance export"),
         },
         "audit_trail": {
             "actions": ["read"],
-            "label": "Journal d'audit de la conformité",
+            "label": _("Compliance audit trail"),
         },
     },
     "risks": {
         "assessment": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Appréciations des risques",
+            "label": _("Risk assessments"),
         },
         "criteria": {
             "actions": ["create", "read", "update", "delete"],
-            "label": "Critères de risque",
+            "label": _("Risk criteria"),
         },
         "risk": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Registre des risques",
+            "label": _("Risk register"),
         },
         "treatment": {
             "actions": ["create", "read", "update", "delete", "approve"],
-            "label": "Plans de traitement",
+            "label": _("Treatment plans"),
         },
         "acceptance": {
             "actions": ["create", "read", "update", "delete"],
-            "label": "Acceptations de risque",
+            "label": _("Risk acceptances"),
         },
         "threat": {
             "actions": ["create", "read", "update", "delete"],
-            "label": "Menaces",
+            "label": _("Threats"),
         },
         "vulnerability": {
             "actions": ["create", "read", "update", "delete"],
-            "label": "Vulnérabilités",
+            "label": _("Vulnerabilities"),
         },
         "iso27005": {
             "actions": ["create", "read", "update", "delete"],
-            "label": "Analyses ISO 27005",
+            "label": _("ISO 27005 analyses"),
         },
         "export": {
             "actions": ["read"],
-            "label": "Export des risques",
+            "label": _("Risk export"),
         },
         "audit_trail": {
             "actions": ["read"],
-            "label": "Journal d'audit des risques",
+            "label": _("Risk audit trail"),
         },
     },
     "system": {
         "admin_django": {
             "actions": ["access"],
-            "label": "Administration Django",
+            "label": _("Django administration"),
         },
         "users": {
             "actions": ["create", "read", "update", "delete"],
-            "label": "Utilisateurs",
+            "label": _("Users"),
         },
         "groups": {
             "actions": ["create", "read", "update", "delete"],
-            "label": "Groupes",
+            "label": _("Groups"),
         },
         "audit_trail": {
             "actions": ["read"],
-            "label": "Journal d'audit système",
+            "label": _("System audit trail"),
         },
         "config": {
             "actions": ["read", "update"],
-            "label": "Configuration système",
+            "label": _("System configuration"),
         },
         "webhooks": {
             "actions": ["create", "read", "update", "delete"],
-            "label": "Webhooks",
+            "label": _("Webhooks"),
         },
         "notifications": {
             "actions": ["read", "update"],
-            "label": "Notifications",
+            "label": _("Notifications"),
         },
     },
 }
 
 # Action labels for display
 ACTION_LABELS = {
-    "create": "Créer",
-    "read": "Lire",
-    "update": "Modifier",
-    "delete": "Supprimer",
-    "access": "Accéder",
-    "approve": "Approuver",
-    "assess": "Évaluer",
-    "validate": "Valider",
+    "create": _("Create"),
+    "read": _("Read"),
+    "update": _("Update"),
+    "delete": _("Delete"),
+    "access": _("Access"),
+    "approve": _("Approve"),
+    "assess": _("Assess"),
+    "validate": _("Validate"),
 }
 
 # Module labels for display
 MODULE_LABELS = {
-    "context": "Gouvernance",
-    "assets": "Actifs",
-    "risks": "Gestion des risques",
-    "compliance": "Conformité",
-    "system": "Système",
+    "context": _("Governance"),
+    "assets": _("Assets"),
+    "risks": _("Risk management"),
+    "compliance": _("Compliance"),
+    "system": _("System"),
 }
 
 
@@ -282,15 +283,15 @@ def get_all_permissions():
 # System groups definition: name -> description + permission filter function
 SYSTEM_GROUPS = {
     "Super Administrateur": {
-        "description": "Administration technique complète de la plateforme. Toutes les permissions.",
+        "description": _("Full technical administration of the platform. All permissions."),
         "filter": lambda codename: True,  # all permissions
     },
     "Administrateur": {
-        "description": "Administration fonctionnelle complète. Toutes les permissions sauf l'accès à l'admin Django.",
+        "description": _("Full functional administration. All permissions except Django admin access."),
         "filter": lambda codename: codename != "system.admin_django.access",
     },
     "RSSI / DPO": {
-        "description": "Pilotage du dispositif GRC. Lecture, création, modification, approbation. Pas de suppression ni de configuration système.",
+        "description": _("GRC system steering. Read, create, update, approve. No deletion or system configuration."),
         "filter": lambda codename: (
             codename.endswith(".read")
             or codename.endswith(".create")
@@ -302,11 +303,11 @@ SYSTEM_GROUPS = {
         and codename != "system.config.update",
     },
     "Auditeur": {
-        "description": "Consultation et audit de la plateforme. Lecture seule sur tous les modules.",
+        "description": _("Platform consultation and audit. Read-only access to all modules."),
         "filter": lambda codename: codename.endswith(".read"),
     },
     "Contributeur": {
-        "description": "Contribution au contenu GRC. Lecture, création, modification. Pas de suppression ni d'accès système.",
+        "description": _("GRC content contribution. Read, create, update. No deletion or system access."),
         "filter": lambda codename: (
             codename.endswith(".read")
             or codename.endswith(".create")
@@ -315,7 +316,7 @@ SYSTEM_GROUPS = {
         and not codename.startswith("system."),
     },
     "Lecteur": {
-        "description": "Consultation seule. Lecture sur tous les modules hors système.",
+        "description": _("Read-only access. Read on all modules except system."),
         "filter": lambda codename: codename.endswith(".read")
         and not codename.startswith("system."),
     },

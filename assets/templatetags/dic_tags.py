@@ -1,22 +1,23 @@
 from django import template
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 register = template.Library()
 
 DIC_COLORS = {
     0: ("secondary", "N"),
-    1: ("success", "F"),
+    1: ("success", "L"),
     2: ("info", "M"),
-    3: ("warning", "É"),
+    3: ("warning", "H"),
     4: ("danger", "C"),
 }
 
 DIC_LABELS = {
-    0: "Négligeable",
-    1: "Faible",
-    2: "Moyen",
-    3: "Élevé",
-    4: "Critique",
+    0: _("Negligible"),
+    1: _("Low"),
+    2: _("Medium"),
+    3: _("High"),
+    4: _("Critical"),
 }
 
 

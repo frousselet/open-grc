@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}{{ plan.reference }} — Open GRC{% endblock %}
 
@@ -6,51 +7,51 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ plan.reference }} — {{ plan.name }}</h1>
   <div>
-    <a href="{% url 'risks:treatment-plan-update' plan.pk %}" class="btn btn-primary">Modifier</a>
-    <a href="{% url 'risks:treatment-plan-list' %}" class="btn btn-outline-secondary">Retour</a>
+    <a href="{% url 'risks:treatment-plan-update' plan.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'risks:treatment-plan-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 {% include "includes/approval_badge.html" with object=plan %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#actions">Actions</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#actions">{% trans "Actions" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
     <dl class="row">
-      <dt class="col-sm-3">Risque</dt><dd class="col-sm-9"><a href="{% url 'risks:risk-detail' plan.risk.pk %}">{{ plan.risk }}</a></dd>
-      <dt class="col-sm-3">Type de traitement</dt><dd class="col-sm-9">{{ plan.get_treatment_type_display }}</dd>
-      <dt class="col-sm-3">Responsable</dt><dd class="col-sm-9">{{ plan.owner|default:"—" }}</dd>
-      <dt class="col-sm-3">Date de début</dt><dd class="col-sm-9">{{ plan.start_date|default:"—" }}</dd>
-      <dt class="col-sm-3">Date cible</dt><dd class="col-sm-9">{{ plan.target_date|default:"—" }}</dd>
-      <dt class="col-sm-3">Date de réalisation</dt><dd class="col-sm-9">{{ plan.completion_date|default:"—" }}</dd>
-      <dt class="col-sm-3">Coût estimé</dt><dd class="col-sm-9">{{ plan.cost_estimate|default:"—" }}</dd>
-      <dt class="col-sm-3">Progression</dt>
+      <dt class="col-sm-3">{% trans "Risk" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:risk-detail' plan.risk.pk %}">{{ plan.risk }}</a></dd>
+      <dt class="col-sm-3">{% trans "Treatment type" %}</dt><dd class="col-sm-9">{{ plan.get_treatment_type_display }}</dd>
+      <dt class="col-sm-3">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ plan.owner|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Start date" %}</dt><dd class="col-sm-9">{{ plan.start_date|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Target date" %}</dt><dd class="col-sm-9">{{ plan.target_date|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Completion date" %}</dt><dd class="col-sm-9">{{ plan.completion_date|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Estimated cost" %}</dt><dd class="col-sm-9">{{ plan.cost_estimate|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Progress" %}</dt>
       <dd class="col-sm-9">
         <div class="progress" style="height:1.2rem">
           <div class="progress-bar bg-{% if plan.progress_percentage == 100 %}success{% elif plan.progress_percentage >= 50 %}info{% else %}warning{% endif %}" style="width:{{ plan.progress_percentage }}%">{{ plan.progress_percentage }}%</div>
         </div>
       </dd>
-      <dt class="col-sm-3">Statut</dt>
+      <dt class="col-sm-3">{% trans "Status" %}</dt>
       <dd class="col-sm-9">
         <span class="badge text-bg-{% if plan.status == 'completed' %}success{% elif plan.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
           {{ plan.get_status_display }}
         </span>
       </dd>
-      <dt class="col-sm-3">Vraisemblance résiduelle attendue</dt><dd class="col-sm-9">{{ plan.expected_residual_likelihood|default:"—" }}</dd>
-      <dt class="col-sm-3">Impact résiduel attendu</dt><dd class="col-sm-9">{{ plan.expected_residual_impact|default:"—" }}</dd>
-      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ plan.description|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Expected residual likelihood" %}</dt><dd class="col-sm-9">{{ plan.expected_residual_likelihood|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Expected residual impact" %}</dt><dd class="col-sm-9">{{ plan.expected_residual_impact|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ plan.description|default:"—"|linebreaksbr }}</dd>
     </dl>
   </div>
 
   <div class="tab-pane fade" id="actions">
-    <h5>Actions de traitement</h5>
+    <h5>{% trans "Treatment actions" %}</h5>
     {% if actions %}
     <table class="table table-striped">
-      <thead><tr><th>#</th><th>Description</th><th>Responsable</th><th>Date cible</th><th>Statut</th></tr></thead>
+      <thead><tr><th>#</th><th>{% trans "Description" %}</th><th>{% trans "Owner" %}</th><th>{% trans "Target date" %}</th><th>{% trans "Status" %}</th></tr></thead>
       <tbody>
         {% for action in actions %}
         <tr>
@@ -68,7 +69,7 @@
       </tbody>
     </table>
     {% else %}
-    <p class="text-muted">Aucune action définie.</p>
+    <p class="text-muted">{% trans "No actions defined." %}</p>
     {% endif %}
   </div>
 

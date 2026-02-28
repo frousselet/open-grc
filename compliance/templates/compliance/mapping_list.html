@@ -1,13 +1,14 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Mappings inter-référentiels — Open GRC{% endblock %}
+{% block title %}{% trans "Cross-framework mappings" %} — Open GRC{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">Mappings inter-référentiels</h1>
-  <a href="{% url 'compliance:mapping-create' %}" class="btn btn-primary ms-auto">Nouveau mapping</a>
+  <h1 class="mb-0">{% trans "Cross-framework mappings" %}</h1>
+  <a href="{% url 'compliance:mapping-create' %}" class="btn btn-primary ms-auto">{% trans "New mapping" %}</a>
 </div>
 {% help_modal "compliance.mapping_list" %}
 
@@ -15,13 +16,13 @@
   <table class="table table-striped table-hover">
     <thead class="table-dark">
       <tr>
-        <th>Source</th>
-        <th>Référentiel source</th>
-        <th>Cible</th>
-        <th>Référentiel cible</th>
-        <th>Type</th>
-        <th>Couverture</th>
-        <th>Actions</th>
+        <th>{% trans "Source" %}</th>
+        <th>{% trans "Source framework" %}</th>
+        <th>{% trans "Target" %}</th>
+        <th>{% trans "Target framework" %}</th>
+        <th>{% trans "Type" %}</th>
+        <th>{% trans "Coverage" %}</th>
+        <th>{% trans "Actions" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -34,11 +35,11 @@
         <td>{{ m.get_mapping_type_display }}</td>
         <td>{{ m.get_coverage_level_display|default:"—" }}</td>
         <td>
-          <a href="{% url 'compliance:mapping-update' m.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+          <a href="{% url 'compliance:mapping-update' m.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="7" class="text-center text-muted">Aucun mapping défini.</td></tr>
+      <tr><td colspan="7" class="text-center text-muted">{% trans "No mapping defined." %}</td></tr>
       {% endfor %}
     </tbody>
   </table>
@@ -48,11 +49,11 @@
 <nav>
   <ul class="pagination justify-content-center">
     {% if page_obj.has_previous %}
-    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Previous" %}</a></li>
     {% endif %}
     <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
     {% if page_obj.has_next %}
-    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Next" %}</a></li>
     {% endif %}
   </ul>
 </nav>

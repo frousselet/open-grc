@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}{{ assessment.name }} — Open GRC{% endblock %}
 
@@ -6,38 +7,38 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ assessment.name }}</h1>
   <div>
-    <a href="{% url 'compliance:assessment-update' assessment.pk %}" class="btn btn-primary">Modifier</a>
-    <a href="{% url 'compliance:assessment-list' %}" class="btn btn-outline-secondary">Retour</a>
+    <a href="{% url 'compliance:assessment-update' assessment.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'compliance:assessment-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 
 {% include "includes/approval_badge.html" %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#results_tab">Résultats</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#summary_tab">Synthèse</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#results_tab">{% trans "Results" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#summary_tab">{% trans "Summary" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
     <dl class="row">
-      <dt class="col-sm-3">Référentiel</dt><dd class="col-sm-9"><a href="{% url 'compliance:framework-detail' assessment.framework.pk %}">{{ assessment.framework }}</a></dd>
-      <dt class="col-sm-3">Date de réalisation</dt><dd class="col-sm-9">{{ assessment.assessment_date }}</dd>
-      <dt class="col-sm-3">Évaluateur principal</dt><dd class="col-sm-9">{{ assessment.assessor }}</dd>
-      <dt class="col-sm-3">Méthodologie</dt><dd class="col-sm-9">{{ assessment.methodology|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">Statut</dt>
+      <dt class="col-sm-3">{% trans "Framework" %}</dt><dd class="col-sm-9"><a href="{% url 'compliance:framework-detail' assessment.framework.pk %}">{{ assessment.framework }}</a></dd>
+      <dt class="col-sm-3">{% trans "Assessment date" %}</dt><dd class="col-sm-9">{{ assessment.assessment_date }}</dd>
+      <dt class="col-sm-3">{% trans "Lead assessor" %}</dt><dd class="col-sm-9">{{ assessment.assessor }}</dd>
+      <dt class="col-sm-3">{% trans "Methodology" %}</dt><dd class="col-sm-9">{{ assessment.methodology|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Status" %}</dt>
       <dd class="col-sm-9">
         <span class="badge text-bg-{% if assessment.status == 'completed' or assessment.status == 'validated' %}success{% elif assessment.status == 'in_progress' %}info{% elif assessment.status == 'archived' %}secondary{% else %}warning{% endif %}">
           {{ assessment.get_status_display }}
         </span>
       </dd>
       {% if assessment.validated_by %}
-      <dt class="col-sm-3">Validé par</dt><dd class="col-sm-9">{{ assessment.validated_by }} — {{ assessment.validated_at|date:"d/m/Y H:i" }}</dd>
+      <dt class="col-sm-3">{% trans "Validated by" %}</dt><dd class="col-sm-9">{{ assessment.validated_by }} — {{ assessment.validated_at|date:"d/m/Y H:i" }}</dd>
       {% endif %}
-      <dt class="col-sm-3">Prochaine revue</dt><dd class="col-sm-9">{{ assessment.review_date|default:"—" }}</dd>
-      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ assessment.description|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ assessment.review_date|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ assessment.description|default:"—"|linebreaksbr }}</dd>
     </dl>
   </div>
 
@@ -45,7 +46,7 @@
     {% if results %}
     <div class="table-responsive">
       <table class="table table-sm table-striped">
-        <thead><tr><th>Exigence</th><th>Statut</th><th>Niveau</th><th>Évaluateur</th><th>Date</th></tr></thead>
+        <thead><tr><th>{% trans "Requirement" %}</th><th>{% trans "Status" %}</th><th>{% trans "Level" %}</th><th>{% trans "Assessor" %}</th><th>{% trans "Date" %}</th></tr></thead>
         <tbody>
           {% for r in results %}
           <tr>
@@ -64,7 +65,7 @@
       </table>
     </div>
     {% else %}
-    <p class="text-muted">Aucun résultat d'évaluation enregistré.</p>
+    <p class="text-muted">{% trans "No assessment result recorded." %}</p>
     {% endif %}
   </div>
 
@@ -73,7 +74,7 @@
       <div class="col-md-4">
         <div class="card">
           <div class="card-body text-center">
-            <h6>Conformité globale</h6>
+            <h6>{% trans "Overall compliance" %}</h6>
             <p class="display-4">{{ assessment.overall_compliance_level|floatformat:0 }}%</p>
           </div>
         </div>
@@ -81,13 +82,13 @@
       <div class="col-md-8">
         <div class="card">
           <div class="card-body">
-            <h6>Répartition des résultats</h6>
+            <h6>{% trans "Results breakdown" %}</h6>
             <table class="table table-sm mb-0">
-              <tr><td>Total exigences applicables</td><td class="fw-bold">{{ assessment.total_requirements }}</td></tr>
-              <tr><td><span class="badge text-bg-success">Conformes</span></td><td>{{ assessment.compliant_count }}</td></tr>
-              <tr><td><span class="badge text-bg-warning">Partiellement conformes</span></td><td>{{ assessment.partially_compliant_count }}</td></tr>
-              <tr><td><span class="badge text-bg-danger">Non conformes</span></td><td>{{ assessment.non_compliant_count }}</td></tr>
-              <tr><td><span class="badge text-bg-secondary">Non évaluées</span></td><td>{{ assessment.not_assessed_count }}</td></tr>
+              <tr><td>{% trans "Total applicable requirements" %}</td><td class="fw-bold">{{ assessment.total_requirements }}</td></tr>
+              <tr><td><span class="badge text-bg-success">{% trans "Compliant" %}</span></td><td>{{ assessment.compliant_count }}</td></tr>
+              <tr><td><span class="badge text-bg-warning">{% trans "Partially compliant" %}</span></td><td>{{ assessment.partially_compliant_count }}</td></tr>
+              <tr><td><span class="badge text-bg-danger">{% trans "Non-compliant" %}</span></td><td>{{ assessment.non_compliant_count }}</td></tr>
+              <tr><td><span class="badge text-bg-secondary">{% trans "Not assessed" %}</span></td><td>{{ assessment.not_assessed_count }}</td></tr>
             </table>
           </div>
         </div>

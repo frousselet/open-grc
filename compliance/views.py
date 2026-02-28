@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.views import View
 from django.views.generic import (
     CreateView,
@@ -80,13 +81,13 @@ class ApproveView(LoginRequiredMixin, View):
         feature = self.permission_feature or self.model._meta.model_name
         codename = f"compliance.{feature}.approve"
         if not request.user.is_superuser and not request.user.has_perm(codename):
-            messages.error(request, "Vous n'avez pas la permission d'approuver cet élément.")
+            messages.error(request, _("You do not have permission to approve this item."))
             return redirect(request.META.get("HTTP_REFERER", "/"))
         obj.is_approved = True
         obj.approved_by = request.user
         obj.approved_at = timezone.now()
         obj.save(update_fields=["is_approved", "approved_by", "approved_at"])
-        messages.success(request, "Élément approuvé.")
+        messages.success(request, _("Item approved."))
         return redirect(request.META.get("HTTP_REFERER", self.success_url or "/"))
 
 
@@ -218,11 +219,11 @@ class FrameworkImportView(LoginRequiredMixin, FormView):
             else:
                 parsed = parse_excel(uploaded)
         except json.JSONDecodeError as exc:
-            form.add_error("file", f"JSON invalide : {exc}")
+            form.add_error("file", _("Invalid JSON: %(error)s") % {"error": exc})
             return self.form_invalid(form)
         except Exception as exc:
-            logger.exception("Erreur lors du parsing du fichier d'import")
-            form.add_error("file", f"Erreur de lecture du fichier : {exc}")
+            logger.exception("Error while parsing the import file")
+            form.add_error("file", _("File reading error: %(error)s") % {"error": exc})
             return self.form_invalid(form)
 
         existing_fw = form.cleaned_data.get("existing_framework")
@@ -250,7 +251,7 @@ class FrameworkImportPreviewView(LoginRequiredMixin, TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         if "framework_import" not in request.session:
-            messages.warning(request, "Aucune donnée d'import en session. Veuillez d'abord charger un fichier.")
+            messages.warning(request, _("No import data in session. Please upload a file first."))
             return redirect(reverse("compliance:framework-import"))
         return super().dispatch(request, *args, **kwargs)
 
@@ -275,7 +276,7 @@ class FrameworkImportPreviewView(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         import_data = request.session.get("framework_import")
         if not import_data:
-            messages.warning(request, "Aucune donnée d'import en session.")
+            messages.warning(request, _("No import data in session."))
             return redirect(reverse("compliance:framework-import"))
 
         parsed = import_data["parsed"]
@@ -294,24 +295,34 @@ class FrameworkImportPreviewView(LoginRequiredMixin, TemplateView):
                 existing_framework=existing_fw,
             )
         except Exception as exc:
-            logger.exception("Erreur lors de l'import du référentiel")
-            messages.error(request, f"Erreur lors de l'import : {exc}")
+            logger.exception("Error during framework import")
+            messages.error(request, _("Import error: %(error)s") % {"error": exc})
             return redirect(reverse("compliance:framework-import"))
 
         del request.session["framework_import"]
 
         if existing_fw:
-            msg = (
-                f"Import dans \"{framework.reference} — {framework.name}\" effectué "
-                f"({parsed['stats']['section_count']} sections, "
-                f"{parsed['stats']['requirement_count']} exigences ajoutées)."
-            )
+            msg = _(
+                "Import into \"%(reference)s — %(name)s\" completed "
+                "(%(section_count)s sections, "
+                "%(requirement_count)s requirements added)."
+            ) % {
+                "reference": framework.reference,
+                "name": framework.name,
+                "section_count": parsed['stats']['section_count'],
+                "requirement_count": parsed['stats']['requirement_count'],
+            }
         else:
-            msg = (
-                f"Référentiel \"{framework.reference} — {framework.name}\" importé avec succès "
-                f"({parsed['stats']['section_count']} sections, "
-                f"{parsed['stats']['requirement_count']} exigences)."
-            )
+            msg = _(
+                "Framework \"%(reference)s — %(name)s\" imported successfully "
+                "(%(section_count)s sections, "
+                "%(requirement_count)s requirements)."
+            ) % {
+                "reference": framework.reference,
+                "name": framework.name,
+                "section_count": parsed['stats']['section_count'],
+                "requirement_count": parsed['stats']['requirement_count'],
+            }
         messages.success(request, msg)
         return redirect(reverse("compliance:framework-detail", args=[framework.pk]))
 
@@ -327,14 +338,14 @@ class FrameworkImportSampleView(LoginRequiredMixin, View):
                 buf.getvalue(),
                 content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             )
-            response["Content-Disposition"] = 'attachment; filename="exemple_referentiel.xlsx"'
+            response["Content-Disposition"] = 'attachment; filename="sample_framework.xlsx"'
         else:
             buf = generate_sample_json()
             response = HttpResponse(
                 buf.getvalue(),
                 content_type="application/json; charset=utf-8",
             )
-            response["Content-Disposition"] = 'attachment; filename="exemple_referentiel.json"'
+            response["Content-Disposition"] = 'attachment; filename="sample_framework.json"'
         return response
 
 

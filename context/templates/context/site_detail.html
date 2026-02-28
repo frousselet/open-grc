@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}{{ site.name }} — Open GRC{% endblock %}
 
@@ -16,44 +17,44 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ site.name }}</h1>
   <div>
-    <a href="{% url 'context:site-update' site.pk %}" class="btn btn-primary">Modifier</a>
-    <a href="{% url 'context:site-list' %}" class="btn btn-outline-secondary">Retour</a>
+    <a href="{% url 'context:site-update' site.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'context:site-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 {% include "includes/approval_badge.html" %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
     <dl class="row">
-      <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ site.get_type_display }}</dd>
-      <dt class="col-sm-3">Statut</dt>
+      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ site.get_type_display }}</dd>
+      <dt class="col-sm-3">{% trans "Status" %}</dt>
       <dd class="col-sm-9">
         <span class="badge text-bg-{% if site.status == 'active' %}success{% elif site.status == 'draft' %}secondary{% else %}dark{% endif %}">
           {{ site.get_status_display }}
         </span>
       </dd>
-      <dt class="col-sm-3">Adresse</dt><dd class="col-sm-9">{{ site.address|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ site.description|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">Site parent</dt>
+      <dt class="col-sm-3">{% trans "Address" %}</dt><dd class="col-sm-9">{{ site.address|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ site.description|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Parent site" %}</dt>
       <dd class="col-sm-9">
         {% if site.parent_site %}
         <a href="{% url 'context:site-detail' site.parent_site.pk %}">{{ site.parent_site.name }}</a>
         {% else %}—{% endif %}
       </dd>
-      <dt class="col-sm-3">Version</dt><dd class="col-sm-9">{{ site.version }}</dd>
-      <dt class="col-sm-3">Approuvé par</dt><dd class="col-sm-9">{{ site.approved_by|default:"—" }}</dd>
-      <dt class="col-sm-3">Date d'approbation</dt><dd class="col-sm-9">{{ site.approved_at|default:"—" }}</dd>
-      <dt class="col-sm-3">Créé par</dt><dd class="col-sm-9">{{ site.created_by|default:"—" }}</dd>
-      <dt class="col-sm-3">Créé le</dt><dd class="col-sm-9">{{ site.created_at }}</dd>
-      <dt class="col-sm-3">Modifié le</dt><dd class="col-sm-9">{{ site.updated_at }}</dd>
+      <dt class="col-sm-3">{% trans "Version" %}</dt><dd class="col-sm-9">{{ site.version }}</dd>
+      <dt class="col-sm-3">{% trans "Approved by" %}</dt><dd class="col-sm-9">{{ site.approved_by|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Approval date" %}</dt><dd class="col-sm-9">{{ site.approved_at|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Created by" %}</dt><dd class="col-sm-9">{{ site.created_by|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Created on" %}</dt><dd class="col-sm-9">{{ site.created_at }}</dd>
+      <dt class="col-sm-3">{% trans "Modified on" %}</dt><dd class="col-sm-9">{{ site.updated_at }}</dd>
     </dl>
     {% if children %}
-    <h5 class="mt-4">Sous-sites</h5>
+    <h5 class="mt-4">{% trans "Sub-sites" %}</h5>
     <ul class="list-group">
       {% for child in children %}
       <li class="list-group-item">

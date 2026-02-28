@@ -1,4 +1,5 @@
 {% load history_tags %}
+{% load i18n %}
 {% if history_records %}
 <style>
   .diff-block {
@@ -66,11 +67,11 @@
 <div class="diff-block">
   <div class="diff-header">
     <span class="badge text-bg-{% if result.is_approval %}info{% else %}{{ record.history_type|history_type_badge }}{% endif %}">
-      {% if result.is_approval %}Approbation{% else %}{{ record.history_type|history_type_label }}{% endif %}
+      {% if result.is_approval %}{% trans "Approval" %}{% else %}{{ record.history_type|history_type_label }}{% endif %}
     </span>
     <span class="badge text-bg-info">v{{ record.version }}</span>
     <span>{{ record.history_date|date:"d/m/Y H:i:s" }}</span>
-    <span class="text-muted">— {{ record.history_user|default:"Système" }}</span>
+    <span class="text-muted">— {{ record.history_user|default:"System" }}</span>
   </div>
   <div class="diff-body">
     {% if record.history_type == "+" %}
@@ -80,13 +81,13 @@
 <div class="diff-line diff-line-add">+ {{ f.field }}: {{ f.value }}</div>
         {% endfor %}
       {% else %}
-<div class="diff-line diff-line-context">  Enregistrement initial</div>
+<div class="diff-line diff-line-context">  {% trans "Initial record" %}</div>
       {% endif %}
     {% elif record.history_type == "-" %}
-<div class="diff-line diff-line-remove">- Enregistrement supprimé</div>
+<div class="diff-line diff-line-remove">- {% trans "Record deleted" %}</div>
     {% elif result.is_approval %}
       <div class="diff-line diff-line-{% if result.approved %}add{% else %}remove{% endif %}">
-        {% if result.approved %}+ Approbation accordée{% else %}- Approbation retirée{% endif %}
+        {% if result.approved %}+ {% trans "Approval granted" %}{% else %}- {% trans "Approval revoked" %}{% endif %}
       </div>
     {% elif result.changes %}
         {% for c in result.changes %}
@@ -95,12 +96,12 @@
 <div class="diff-line diff-line-add">+ {{ c.field }}: {{ c.new }}</div>
         {% endfor %}
     {% else %}
-<div class="diff-line diff-line-context">  Aucune modification détectée</div>
+<div class="diff-line diff-line-context">  {% trans "No changes detected" %}</div>
     {% endif %}
   </div>
 </div>
 {% endfor %}
 
 {% else %}
-<p class="text-muted">Aucun historique disponible.</p>
+<p class="text-muted">{% trans "No history available." %}</p>
 {% endif %}

@@ -14,25 +14,25 @@ class ComplexityValidator:
         errors = []
         if not re.search(r"[A-Z]", password):
             errors.append(
-                _("Le mot de passe doit contenir au moins une lettre majuscule.")
+                _("The password must contain at least one uppercase letter.")
             )
         if not re.search(r"[a-z]", password):
             errors.append(
-                _("Le mot de passe doit contenir au moins une lettre minuscule.")
+                _("The password must contain at least one lowercase letter.")
             )
         if not re.search(r"\d", password):
             errors.append(
-                _("Le mot de passe doit contenir au moins un chiffre.")
+                _("The password must contain at least one digit.")
             )
         if not re.search(r"[^A-Za-z0-9]", password):
             errors.append(
-                _("Le mot de passe doit contenir au moins un caractère spécial.")
+                _("The password must contain at least one special character.")
             )
         if errors:
             raise ValidationError(errors)
 
     def get_help_text(self):
         return _(
-            "Le mot de passe doit contenir au moins une majuscule, "
-            "une minuscule, un chiffre et un caractère spécial."
+            "The password must contain at least one uppercase letter, "
+            "one lowercase letter, one digit, and one special character."
         )

@@ -1,20 +1,21 @@
 {% extends "base.html" %}
 {% load accounts_tags %}
+{% load i18n %}
 {% block title %}{{ group.name }} — Open GRC{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h2>{{ group.name }}
-    {% if group.is_system %}<span class="badge bg-info fs-6">Système</span>{% endif %}
+    {% if group.is_system %}<span class="badge bg-info fs-6">{% trans "System" %}</span>{% endif %}
   </h2>
   <div>
     {% if not group.is_system %}
     {% has_perm "system.groups.update" as can_edit %}
     {% if can_edit %}
-    <a href="{% url 'accounts:group-update' group.pk %}" class="btn btn-outline-primary">Modifier</a>
+    <a href="{% url 'accounts:group-update' group.pk %}" class="btn btn-outline-primary">{% trans "Edit" %}</a>
     {% endif %}
     {% endif %}
-    <a href="{% url 'accounts:group-list' %}" class="btn btn-outline-secondary">Retour à la liste</a>
+    <a href="{% url 'accounts:group-list' %}" class="btn btn-outline-secondary">{% trans "Back to list" %}</a>
   </div>
 </div>
 
@@ -32,9 +33,9 @@
 {% endif %}
 
 <ul class="nav nav-tabs mb-4" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#perms-tab">Permissions</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#users-tab">Utilisateurs ({{ group_users|length }})</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#scopes-tab">Périmètres</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#perms-tab">{% trans "Permissions" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#users-tab">{% blocktrans with count=group_users|length %}Users ({{ count }}){% endblocktrans %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#scopes-tab">{% trans "Scopes" %}</a></li>
 </ul>
 
 <div class="tab-content">
@@ -50,13 +51,13 @@
           <table class="table table-sm mb-0">
             <thead class="table-light">
               <tr>
-                <th style="width:35%">Feature</th>
-                <th class="text-center">Créer</th>
-                <th class="text-center">Lire</th>
-                <th class="text-center">Modifier</th>
-                <th class="text-center">Supprimer</th>
-                <th class="text-center">Accéder</th>
-                <th class="text-center">Approuver</th>
+                <th style="width:35%">{% trans "Feature" %}</th>
+                <th class="text-center">{% trans "Create" %}</th>
+                <th class="text-center">{% trans "Read" %}</th>
+                <th class="text-center">{% trans "Edit" %}</th>
+                <th class="text-center">{% trans "Delete" %}</th>
+                <th class="text-center">{% trans "Access" %}</th>
+                <th class="text-center">{% trans "Approve" %}</th>
               </tr>
             </thead>
             <tbody>
@@ -83,7 +84,7 @@
       </div>
       {% endfor %}
       {% if not group.is_system %}
-      <button type="submit" class="btn btn-primary">Enregistrer les permissions</button>
+      <button type="submit" class="btn btn-primary">{% trans "Save permissions" %}</button>
       {% endif %}
     </form>
   </div>
@@ -94,7 +95,7 @@
       <div class="card-body">
         {% if group_users %}
         <table class="table table-sm">
-          <thead><tr><th>Nom</th><th>Email</th><th></th></tr></thead>
+          <thead><tr><th>{% trans "Name" %}</th><th>{% trans "Email" %}</th><th></th></tr></thead>
           <tbody>
             {% for u in group_users %}
             <tr>
@@ -108,7 +109,7 @@
                   {% csrf_token %}
                   <input type="hidden" name="action" value="remove">
                   <input type="hidden" name="user_id" value="{{ u.pk }}">
-                  <button type="submit" class="btn btn-sm btn-outline-danger">Retirer</button>
+                  <button type="submit" class="btn btn-sm btn-outline-danger">{% trans "Remove" %}</button>
                 </form>
                 {% endif %}
                 {% endif %}
@@ -118,7 +119,7 @@
           </tbody>
         </table>
         {% else %}
-        <p class="text-muted mb-0">Aucun utilisateur dans ce groupe.</p>
+        <p class="text-muted mb-0">{% trans "No users in this group." %}</p>
         {% endif %}
 
         {% if not group.is_system %}
@@ -136,7 +137,7 @@
             </select>
           </div>
           <div class="col-auto">
-            <button type="submit" class="btn btn-sm btn-primary">Ajouter</button>
+            <button type="submit" class="btn btn-sm btn-primary">{% trans "Add" %}</button>
           </div>
         </form>
         {% endif %}
@@ -150,7 +151,7 @@
     <div class="card">
       <div class="card-body">
         <p class="text-muted mb-3">
-          Si aucun périmètre n'est coché, les membres de ce groupe ont accès à tous les périmètres.
+          {% trans "If no scope is selected, members of this group have access to all scopes." %}
         </p>
         <form method="post" action="{% url 'accounts:group-scopes-update' group.pk %}">
           {% csrf_token %}
@@ -166,11 +167,11 @@
           </div>
           {% endfor %}
           {% else %}
-          <p class="text-muted">Aucun périmètre disponible.</p>
+          <p class="text-muted">{% trans "No scopes available." %}</p>
           {% endif %}
           {% has_perm "system.groups.update" as can_edit_group %}
           {% if can_edit_group %}
-          <button type="submit" class="btn btn-primary mt-3">Enregistrer les périmètres</button>
+          <button type="submit" class="btn btn-primary mt-3">{% trans "Save scopes" %}</button>
           {% endif %}
         </form>
       </div>

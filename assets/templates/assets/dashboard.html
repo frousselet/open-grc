@@ -1,12 +1,13 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Risques — Open GRC{% endblock %}
+{% block title %}{% trans "Assets" %} — Open GRC{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-4">
-  <h1 class="mb-0">Risques</h1>
+  <h1 class="mb-0">{% trans "Assets" %}</h1>
 </div>
 {% help_modal "assets.dashboard" %}
 
@@ -14,36 +15,36 @@
   <div class="col-md-3">
     <div class="card text-bg-primary">
       <div class="card-body">
-        <h5 class="card-title">Biens essentiels</h5>
+        <h5 class="card-title">{% trans "Essential assets" %}</h5>
         <p class="display-6">{{ essential_count }}</p>
-        <a href="{% url 'assets:essential-asset-list' %}" class="text-white">Voir tout</a>
+        <a href="{% url 'assets:essential-asset-list' %}" class="text-white">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-3">
     <div class="card text-bg-info">
       <div class="card-body">
-        <h5 class="card-title">Biens supports</h5>
+        <h5 class="card-title">{% trans "Support assets" %}</h5>
         <p class="display-6">{{ support_count }}</p>
-        <a href="{% url 'assets:support-asset-list' %}" class="text-white">Voir tout</a>
+        <a href="{% url 'assets:support-asset-list' %}" class="text-white">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-3">
     <div class="card text-bg-success">
       <div class="card-body">
-        <h5 class="card-title">Dépendances</h5>
+        <h5 class="card-title">{% trans "Dependencies" %}</h5>
         <p class="display-6">{{ dependency_count }}</p>
-        <a href="{% url 'assets:dependency-list' %}" class="text-white">Voir tout</a>
+        <a href="{% url 'assets:dependency-list' %}" class="text-white">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-3">
     <div class="card text-bg-secondary">
       <div class="card-body">
-        <h5 class="card-title">Groupes</h5>
+        <h5 class="card-title">{% trans "Groups" %}</h5>
         <p class="display-6">{{ group_count }}</p>
-        <a href="{% url 'assets:group-list' %}" class="text-white">Voir tout</a>
+        <a href="{% url 'assets:group-list' %}" class="text-white">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
@@ -51,19 +52,19 @@
 
 {% if unsupported_essentials or orphan_supports or spof_count or eol_assets %}
 <div class="alert alert-danger">
-  <h5>Alertes</h5>
+  <h5>{% trans "Alerts" %}</h5>
   <ul class="mb-0">
     {% if unsupported_essentials %}
-    <li>{{ unsupported_essentials }} bien(s) essentiel(s) sans bien support associé</li>
+    <li>{{ unsupported_essentials }} {% trans "essential asset(s) without an associated support asset" %}</li>
     {% endif %}
     {% if orphan_supports %}
-    <li>{{ orphan_supports }} bien(s) support(s) orphelin(s) (sans bien essentiel)</li>
+    <li>{{ orphan_supports }} {% trans "orphan support asset(s) (without essential asset)" %}</li>
     {% endif %}
     {% if spof_count %}
-    <li>{{ spof_count }} point(s) unique(s) de défaillance (SPOF) détecté(s)</li>
+    <li>{{ spof_count }} {% trans "single point(s) of failure (SPOF) detected" %}</li>
     {% endif %}
     {% for sa in eol_assets %}
-    <li>{{ sa.reference }} — {{ sa.name }} : fin de vie dépassée ({{ sa.end_of_life_date }})</li>
+    <li>{{ sa.reference }} — {{ sa.name }}: {% trans "end of life exceeded" %} ({{ sa.end_of_life_date }})</li>
     {% endfor %}
   </ul>
 </div>
@@ -73,11 +74,11 @@
   <div class="col-md-6">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Biens essentiels par type</h5>
+        <h5 class="card-title">{% trans "Essential assets by type" %}</h5>
         {% for item in essential_by_type %}
-        <span class="badge text-bg-primary fs-6 me-1">{{ item.type }} : {{ item.count }}</span>
+        <span class="badge text-bg-primary fs-6 me-1">{{ item.type }}: {{ item.count }}</span>
         {% empty %}
-        <p class="text-muted">Aucun bien essentiel.</p>
+        <p class="text-muted">{% trans "No essential assets." %}</p>
         {% endfor %}
       </div>
     </div>
@@ -85,11 +86,11 @@
   <div class="col-md-6">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Biens supports par type</h5>
+        <h5 class="card-title">{% trans "Support assets by type" %}</h5>
         {% for item in support_by_type %}
-        <span class="badge text-bg-info fs-6 me-1">{{ item.type }} : {{ item.count }}</span>
+        <span class="badge text-bg-info fs-6 me-1">{{ item.type }}: {{ item.count }}</span>
         {% empty %}
-        <p class="text-muted">Aucun bien support.</p>
+        <p class="text-muted">{% trans "No support assets." %}</p>
         {% endfor %}
       </div>
     </div>
@@ -98,7 +99,7 @@
 
 {% if personal_data_count %}
 <div class="alert alert-warning">
-  <strong>{{ personal_data_count }}</strong> bien(s) essentiel(s) contenant des données personnelles.
+  <strong>{{ personal_data_count }}</strong> {% trans "essential asset(s) containing personal data." %}
 </div>
 {% endif %}
 {% endblock %}

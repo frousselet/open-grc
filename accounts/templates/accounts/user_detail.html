@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load accounts_tags %}
+{% load i18n %}
 {% block title %}{{ account_user.display_name }} — Open GRC{% endblock %}
 
 {% block content %}
@@ -8,17 +9,17 @@
   <div>
     {% has_perm "system.users.update" as can_edit %}
     {% if can_edit %}
-    <a href="{% url 'accounts:user-update' account_user.pk %}" class="btn btn-outline-primary">Modifier</a>
+    <a href="{% url 'accounts:user-update' account_user.pk %}" class="btn btn-outline-primary">{% trans "Edit" %}</a>
     {% endif %}
-    <a href="{% url 'accounts:user-list' %}" class="btn btn-outline-secondary">Retour à la liste</a>
+    <a href="{% url 'accounts:user-list' %}" class="btn btn-outline-secondary">{% trans "Back to list" %}</a>
   </div>
 </div>
 
 <ul class="nav nav-tabs mb-4" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#info">Informations</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#groups-tab">Groupes</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#perms-tab">Permissions effectives</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#logs-tab">Journal des accès</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#info">{% trans "Information" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#groups-tab">{% trans "Groups" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#perms-tab">{% trans "Effective permissions" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#logs-tab">{% trans "Access log" %}</a></li>
 </ul>
 
 <div class="tab-content">
@@ -26,28 +27,28 @@
     <div class="card">
       <div class="card-body">
         <dl class="row mb-0">
-          <dt class="col-sm-3">Email</dt><dd class="col-sm-9">{{ account_user.email }}</dd>
-          <dt class="col-sm-3">Prénom</dt><dd class="col-sm-9">{{ account_user.first_name }}</dd>
-          <dt class="col-sm-3">Nom</dt><dd class="col-sm-9">{{ account_user.last_name }}</dd>
-          <dt class="col-sm-3">Fonction</dt><dd class="col-sm-9">{{ account_user.job_title|default:"-" }}</dd>
-          <dt class="col-sm-3">Service</dt><dd class="col-sm-9">{{ account_user.department|default:"-" }}</dd>
-          <dt class="col-sm-3">Téléphone</dt><dd class="col-sm-9">{{ account_user.phone|default:"-" }}</dd>
-          <dt class="col-sm-3">Langue</dt><dd class="col-sm-9">{{ account_user.get_language_display }}</dd>
-          <dt class="col-sm-3">Fuseau horaire</dt><dd class="col-sm-9">{{ account_user.timezone }}</dd>
-          <dt class="col-sm-3">Statut</dt>
+          <dt class="col-sm-3">{% trans "Email" %}</dt><dd class="col-sm-9">{{ account_user.email }}</dd>
+          <dt class="col-sm-3">{% trans "First name" %}</dt><dd class="col-sm-9">{{ account_user.first_name }}</dd>
+          <dt class="col-sm-3">{% trans "Last name" %}</dt><dd class="col-sm-9">{{ account_user.last_name }}</dd>
+          <dt class="col-sm-3">{% trans "Job title" %}</dt><dd class="col-sm-9">{{ account_user.job_title|default:"-" }}</dd>
+          <dt class="col-sm-3">{% trans "Department" %}</dt><dd class="col-sm-9">{{ account_user.department|default:"-" }}</dd>
+          <dt class="col-sm-3">{% trans "Phone" %}</dt><dd class="col-sm-9">{{ account_user.phone|default:"-" }}</dd>
+          <dt class="col-sm-3">{% trans "Language" %}</dt><dd class="col-sm-9">{{ account_user.get_language_display }}</dd>
+          <dt class="col-sm-3">{% trans "Timezone" %}</dt><dd class="col-sm-9">{{ account_user.timezone }}</dd>
+          <dt class="col-sm-3">{% trans "Status" %}</dt>
           <dd class="col-sm-9">
             {% if account_user.is_active %}
               {% if account_user.is_locked %}
-              <span class="badge bg-warning text-dark">Verrouillé</span>
+              <span class="badge bg-warning text-dark">{% trans "Locked" %}</span>
               {% else %}
-              <span class="badge bg-success">Actif</span>
+              <span class="badge bg-success">{% trans "Active" %}</span>
               {% endif %}
             {% else %}
-            <span class="badge bg-secondary">Inactif</span>
+            <span class="badge bg-secondary">{% trans "Inactive" %}</span>
             {% endif %}
           </dd>
-          <dt class="col-sm-3">Dernière connexion</dt><dd class="col-sm-9">{{ account_user.last_login|date:"d/m/Y H:i"|default:"-" }}</dd>
-          <dt class="col-sm-3">Créé le</dt><dd class="col-sm-9">{{ account_user.created_at|date:"d/m/Y H:i" }}</dd>
+          <dt class="col-sm-3">{% trans "Last login" %}</dt><dd class="col-sm-9">{{ account_user.last_login|date:"d/m/Y H:i"|default:"-" }}</dd>
+          <dt class="col-sm-3">{% trans "Created on" %}</dt><dd class="col-sm-9">{{ account_user.created_at|date:"d/m/Y H:i" }}</dd>
         </dl>
       </div>
     </div>
@@ -61,12 +62,12 @@
           {% for group in groups %}
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <a href="{% url 'accounts:group-detail' group.pk %}">{{ group.name }}</a>
-            {% if group.is_system %}<span class="badge bg-info">Système</span>{% endif %}
+            {% if group.is_system %}<span class="badge bg-info">{% trans "System" %}</span>{% endif %}
           </li>
           {% endfor %}
         </ul>
         {% else %}
-        <p class="text-muted mb-0">Aucun groupe assigné.</p>
+        <p class="text-muted mb-0">{% trans "No group assigned." %}</p>
         {% endif %}
       </div>
     </div>
@@ -82,7 +83,7 @@
           {% endfor %}
         </ul>
         {% else %}
-        <p class="text-muted mb-0">Aucune permission.</p>
+        <p class="text-muted mb-0">{% trans "No permissions." %}</p>
         {% endif %}
       </div>
     </div>
@@ -93,7 +94,7 @@
       <div class="card-body">
         {% if recent_access_logs %}
         <table class="table table-sm">
-          <thead><tr><th>Date</th><th>Événement</th><th>IP</th><th>Raison</th></tr></thead>
+          <thead><tr><th>{% trans "Date" %}</th><th>{% trans "Event" %}</th><th>{% trans "IP" %}</th><th>{% trans "Reason" %}</th></tr></thead>
           <tbody>
             {% for log in recent_access_logs %}
             <tr>
@@ -106,7 +107,7 @@
           </tbody>
         </table>
         {% else %}
-        <p class="text-muted mb-0">Aucun événement.</p>
+        <p class="text-muted mb-0">{% trans "No events." %}</p>
         {% endif %}
       </div>
     </div>

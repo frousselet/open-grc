@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from context.models.base import BaseModel
@@ -19,80 +20,80 @@ class Risk(BaseModel):
         "risks.RiskAssessment",
         on_delete=models.CASCADE,
         related_name="risks",
-        verbose_name="Appréciation",
+        verbose_name=_("Assessment"),
     )
-    reference = models.CharField("Référence", max_length=50, unique=True)
-    name = models.CharField("Nom", max_length=255)
-    description = models.TextField("Description", blank=True)
+    reference = models.CharField(_("Reference"), max_length=50, unique=True)
+    name = models.CharField(_("Name"), max_length=255)
+    description = models.TextField(_("Description"), blank=True)
     risk_source = models.CharField(
-        "Source du risque",
+        _("Risk source"),
         max_length=30,
         choices=RiskSourceType.choices,
         default=RiskSourceType.MANUAL,
     )
     source_entity_id = models.UUIDField(
-        "ID entité source", null=True, blank=True
+        _("Source entity ID"), null=True, blank=True
     )
     source_entity_type = models.CharField(
-        "Type entité source", max_length=100, blank=True
+        _("Source entity type"), max_length=100, blank=True
     )
     affected_essential_assets = models.ManyToManyField(
         "assets.EssentialAsset",
         blank=True,
         related_name="risks",
-        verbose_name="Biens essentiels affectés",
+        verbose_name=_("Affected essential assets"),
     )
     affected_support_assets = models.ManyToManyField(
         "assets.SupportAsset",
         blank=True,
         related_name="risks",
-        verbose_name="Biens supports affectés",
+        verbose_name=_("Affected support assets"),
     )
     impact_confidentiality = models.BooleanField(
-        "Impact confidentialité", default=False
+        _("Confidentiality impact"), default=False
     )
-    impact_integrity = models.BooleanField("Impact intégrité", default=False)
+    impact_integrity = models.BooleanField(_("Integrity impact"), default=False)
     impact_availability = models.BooleanField(
-        "Impact disponibilité", default=False
+        _("Availability impact"), default=False
     )
     # Initial risk levels
     initial_likelihood = models.PositiveIntegerField(
-        "Vraisemblance initiale", null=True, blank=True
+        _("Initial likelihood"), null=True, blank=True
     )
     initial_impact = models.PositiveIntegerField(
-        "Impact initial", null=True, blank=True
+        _("Initial impact"), null=True, blank=True
     )
     initial_risk_level = models.PositiveIntegerField(
-        "Niveau de risque initial", null=True, blank=True
+        _("Initial risk level"), null=True, blank=True
     )
     # Current risk levels
     current_likelihood = models.PositiveIntegerField(
-        "Vraisemblance actuelle", null=True, blank=True
+        _("Current likelihood"), null=True, blank=True
     )
     current_impact = models.PositiveIntegerField(
-        "Impact actuel", null=True, blank=True
+        _("Current impact"), null=True, blank=True
     )
     current_risk_level = models.PositiveIntegerField(
-        "Niveau de risque réel", null=True, blank=True
+        _("Current risk level"), null=True, blank=True
     )
     # Residual risk levels
     residual_likelihood = models.PositiveIntegerField(
-        "Vraisemblance résiduelle", null=True, blank=True
+        _("Residual likelihood"), null=True, blank=True
     )
     residual_impact = models.PositiveIntegerField(
-        "Impact résiduel", null=True, blank=True
+        _("Residual impact"), null=True, blank=True
     )
     residual_risk_level = models.PositiveIntegerField(
-        "Niveau de risque résiduel", null=True, blank=True
+        _("Residual risk level"), null=True, blank=True
     )
     treatment_decision = models.CharField(
-        "Décision de traitement",
+        _("Treatment decision"),
         max_length=20,
         choices=TreatmentDecision.choices,
         default=TreatmentDecision.NOT_DECIDED,
     )
     treatment_justification = models.TextField(
-        "Justification du traitement", blank=True
+        _("Treatment justification"), blank=True
     )
     risk_owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -100,22 +101,22 @@ class Risk(BaseModel):
         null=True,
         blank=True,
         related_name="owned_risks",
-        verbose_name="Propriétaire du risque",
+        verbose_name=_("Risk owner"),
     )
     priority = models.CharField(
-        "Priorité",
+        _("Priority"),
         max_length=20,
         choices=RiskPriority.choices,
         default=RiskPriority.LOW,
     )
     status = models.CharField(
-        "Statut",
+        _("Status"),
         max_length=30,
         choices=RiskStatus.choices,
         default=RiskStatus.IDENTIFIED,
     )
-    review_date = models.DateField("Date de revue", null=True, blank=True)
-    # FK vers modules non implémentés
+    review_date = models.DateField(_("Review date"), null=True, blank=True)
+    # FK to unimplemented modules
     # linked_measures = ...
     # linked_requirements = ...
     # linked_incidents = ...
@@ -123,8 +124,8 @@ class Risk(BaseModel):
 
     class Meta:
         ordering = ["-created_at"]
-        verbose_name = "Risque"
-        verbose_name_plural = "Risques"
+        verbose_name = _("Risk")
+        verbose_name_plural = _("Risks")
 
     def __str__(self):
         return f"{self.reference} — {self.name}"
@@ -165,13 +166,13 @@ class Risk(BaseModel):
             val = getattr(self, fname)
             if val is not None and val not in l_levels:
                 errors[fname] = (
-                    f"La valeur doit être parmi {sorted(l_levels)}."
+                    _("Value must be one of %(levels)s.") % {"levels": sorted(l_levels)}
                 )
         for fname in ("initial_impact", "current_impact", "residual_impact"):
             val = getattr(self, fname)
             if val is not None and val not in i_levels:
                 errors[fname] = (
-                    f"La valeur doit être parmi {sorted(i_levels)}."
+                    _("Value must be one of %(levels)s.") % {"levels": sorted(i_levels)}
                 )
         if errors:
             raise ValidationError(errors)

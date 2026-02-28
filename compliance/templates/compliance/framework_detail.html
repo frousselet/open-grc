@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}{{ framework.reference }} — Open GRC{% endblock %}
 
@@ -6,30 +7,30 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ framework.reference }} — {{ framework.name }}</h1>
   <div>
-    <a href="{% url 'compliance:framework-update' framework.pk %}" class="btn btn-primary">Modifier</a>
-    <a href="{% url 'compliance:framework-list' %}" class="btn btn-outline-secondary">Retour</a>
+    <a href="{% url 'compliance:framework-update' framework.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'compliance:framework-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 
 {% include "includes/approval_badge.html" %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#structure">Structure</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#structure">{% trans "Structure" %}</a></li>
   <li class="nav-item">
     <a class="nav-link" data-bs-toggle="tab" href="#requirements_tab">
-      Exigences <span class="badge text-bg-secondary">{{ requirements|length }}</span>
+      {% trans "Requirements" %} <span class="badge text-bg-secondary">{{ requirements|length }}</span>
     </a>
   </li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#compliance">Conformité</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#assessments_tab">Évaluations</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#compliance">{% trans "Compliance" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#assessments_tab">{% trans "Assessments" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
     <dl class="row">
-      <dt class="col-sm-3">Périmètres</dt>
+      <dt class="col-sm-3">{% trans "Scopes" %}</dt>
       <dd class="col-sm-9">
         {% for s in framework.scopes.all %}
           <span class="badge text-bg-secondary">{{ s.full_path }}</span>
@@ -37,22 +38,22 @@
           —
         {% endfor %}
       </dd>
-      <dt class="col-sm-3">Abréviation</dt><dd class="col-sm-9">{{ framework.short_name|default:"—" }}</dd>
-      <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ framework.get_type_display }}</dd>
-      <dt class="col-sm-3">Catégorie</dt><dd class="col-sm-9">{{ framework.get_category_display }}</dd>
-      <dt class="col-sm-3">Version</dt><dd class="col-sm-9">{{ framework.framework_version|default:"—" }}</dd>
-      <dt class="col-sm-3">Organisme émetteur</dt><dd class="col-sm-9">{{ framework.issuing_body|default:"—" }}</dd>
-      <dt class="col-sm-3">Juridiction</dt><dd class="col-sm-9">{{ framework.jurisdiction|default:"—" }}</dd>
-      <dt class="col-sm-3">Obligatoire</dt><dd class="col-sm-9">{% if framework.is_mandatory %}Oui{% else %}Non{% endif %}</dd>
-      <dt class="col-sm-3">Applicable</dt><dd class="col-sm-9">{% if framework.is_applicable %}Oui{% else %}Non{% endif %}</dd>
-      <dt class="col-sm-3">Responsable</dt><dd class="col-sm-9">{{ framework.owner }}</dd>
-      <dt class="col-sm-3">Statut</dt><dd class="col-sm-9">{{ framework.get_status_display }}</dd>
-      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ framework.description|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Abbreviation" %}</dt><dd class="col-sm-9">{{ framework.short_name|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ framework.get_type_display }}</dd>
+      <dt class="col-sm-3">{% trans "Category" %}</dt><dd class="col-sm-9">{{ framework.get_category_display }}</dd>
+      <dt class="col-sm-3">{% trans "Version" %}</dt><dd class="col-sm-9">{{ framework.framework_version|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Issuing body" %}</dt><dd class="col-sm-9">{{ framework.issuing_body|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Jurisdiction" %}</dt><dd class="col-sm-9">{{ framework.jurisdiction|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Mandatory" %}</dt><dd class="col-sm-9">{% if framework.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
+      <dt class="col-sm-3">{% trans "Applicable" %}</dt><dd class="col-sm-9">{% if framework.is_applicable %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
+      <dt class="col-sm-3">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ framework.owner }}</dd>
+      <dt class="col-sm-3">{% trans "Status" %}</dt><dd class="col-sm-9">{{ framework.get_status_display }}</dd>
+      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ framework.description|default:"—"|linebreaksbr }}</dd>
     </dl>
   </div>
 
   <div class="tab-pane fade" id="structure">
-    <h5>Sections</h5>
+    <h5>{% trans "Sections" %}</h5>
     {% if sections %}
     <ul class="list-group mb-3">
       {% for section in sections %}
@@ -63,15 +64,15 @@
       {% endfor %}
     </ul>
     {% else %}
-    <p class="text-muted">Aucune section définie.</p>
+    <p class="text-muted">{% trans "No section defined." %}</p>
     {% endif %}
   </div>
 
   <div class="tab-pane fade" id="requirements_tab">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5 class="mb-0">Exigences du référentiel</h5>
+      <h5 class="mb-0">{% trans "Framework requirements" %}</h5>
       <a href="{% url 'compliance:requirement-create' %}?framework={{ framework.pk }}" class="btn btn-primary btn-sm">
-        <i class="bi bi-plus-lg me-1"></i>Ajouter
+        <i class="bi bi-plus-lg me-1"></i>{% trans "Add" %}
       </a>
     </div>
     {% if requirements %}
@@ -79,15 +80,15 @@
       <table class="table table-sm table-striped table-hover align-middle">
         <thead class="table-dark">
           <tr>
-            <th>Référence</th>
-            <th>Intitulé</th>
-            <th>Section</th>
-            <th>Type</th>
-            <th>Statut</th>
-            <th style="min-width:120px">Conformité</th>
-            <th>Priorité</th>
-            <th>Responsable</th>
-            <th>Actions</th>
+            <th>{% trans "Reference" %}</th>
+            <th>{% trans "Title" %}</th>
+            <th>{% trans "Section" %}</th>
+            <th>{% trans "Type" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th style="min-width:120px">{% trans "Compliance" %}</th>
+            <th>{% trans "Priority" %}</th>
+            <th>{% trans "Owner" %}</th>
+            <th>{% trans "Actions" %}</th>
           </tr>
         </thead>
         <tbody>
@@ -120,7 +121,7 @@
             </td>
             <td>{{ req.owner.display_name|default:"—" }}</td>
             <td>
-              <a href="{% url 'compliance:requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+              <a href="{% url 'compliance:requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
             </td>
           </tr>
           {% endfor %}
@@ -128,7 +129,7 @@
       </table>
     </div>
     {% else %}
-    <p class="text-muted">Aucune exigence définie pour ce référentiel.</p>
+    <p class="text-muted">{% trans "No requirement defined for this framework." %}</p>
     {% endif %}
   </div>
 
@@ -137,7 +138,7 @@
       <div class="col-md-4">
         <div class="card">
           <div class="card-body text-center">
-            <h6>Niveau de conformité global</h6>
+            <h6>{% trans "Overall compliance level" %}</h6>
             <p class="display-4">{{ framework.compliance_level|floatformat:0 }}%</p>
           </div>
         </div>
@@ -149,7 +150,7 @@
     {% if assessments %}
     <div class="table-responsive">
       <table class="table table-striped">
-        <thead><tr><th>Nom</th><th>Date</th><th>Évaluateur</th><th>Conformité</th><th>Statut</th></tr></thead>
+        <thead><tr><th>{% trans "Name" %}</th><th>{% trans "Date" %}</th><th>{% trans "Assessor" %}</th><th>{% trans "Compliance" %}</th><th>{% trans "Status" %}</th></tr></thead>
         <tbody>
           {% for a in assessments %}
           <tr>
@@ -164,7 +165,7 @@
       </table>
     </div>
     {% else %}
-    <p class="text-muted">Aucune évaluation réalisée.</p>
+    <p class="text-muted">{% trans "No assessment performed." %}</p>
     {% endif %}
   </div>
 

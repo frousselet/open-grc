@@ -45,6 +45,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "accounts.middleware.UserLanguageMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
@@ -64,6 +65,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.i18n",
             ],
         },
     },
@@ -101,12 +103,14 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "accounts.validators.ComplexityValidator"},
 ]
 
-LANGUAGE_CODE = "fr"
+LANGUAGE_CODE = "en"
 
 LANGUAGES = [
-    ("fr", "Français"),
     ("en", "English"),
+    ("fr", "Français"),
 ]
+
+LOCALE_PATHS = [BASE_DIR / "locale"]
 
 TIME_ZONE = "Europe/Paris"
 

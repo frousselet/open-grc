@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}{{ objective.reference }} — Open GRC{% endblock %}
 
@@ -6,32 +7,32 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ objective.reference }} — {{ objective.name }}</h1>
   <div>
-    <a href="{% url 'context:objective-update' objective.pk %}" class="btn btn-primary">Modifier</a>
-    <a href="{% url 'context:objective-list' %}" class="btn btn-outline-secondary">Retour</a>
+    <a href="{% url 'context:objective-update' objective.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'context:objective-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 {% include "includes/approval_badge.html" %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#kpi">KPI</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#kpi">{% trans "KPI" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
     <dl class="row">
-      <dt class="col-sm-3">Périmètre</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' objective.scope.pk %}">{{ objective.scope }}</a></dd>
-      <dt class="col-sm-3">Catégorie</dt><dd class="col-sm-9">{{ objective.get_category_display }}</dd>
-      <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ objective.get_type_display }}</dd>
-      <dt class="col-sm-3">Responsable</dt><dd class="col-sm-9">{{ objective.owner }}</dd>
-      <dt class="col-sm-3">Statut</dt>
+      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' objective.scope.pk %}">{{ objective.scope }}</a></dd>
+      <dt class="col-sm-3">{% trans "Category" %}</dt><dd class="col-sm-9">{{ objective.get_category_display }}</dd>
+      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ objective.get_type_display }}</dd>
+      <dt class="col-sm-3">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ objective.owner }}</dd>
+      <dt class="col-sm-3">{% trans "Status" %}</dt>
       <dd class="col-sm-9">
         <span class="badge text-bg-{% if objective.status == 'achieved' %}success{% elif objective.status == 'active' %}primary{% elif objective.status == 'not_achieved' %}danger{% else %}secondary{% endif %}">
           {{ objective.get_status_display }}
         </span>
       </dd>
-      <dt class="col-sm-3">Avancement</dt>
+      <dt class="col-sm-3">{% trans "Progress" %}</dt>
       <dd class="col-sm-9">
         {% if objective.progress_percentage is not None %}
         <div class="progress" style="width: 200px;">
@@ -39,18 +40,18 @@
         </div>
         {% else %}—{% endif %}
       </dd>
-      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ objective.description|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">Objectif parent</dt><dd class="col-sm-9">{{ objective.parent_objective|default:"—" }}</dd>
-      <dt class="col-sm-3">Date cible</dt><dd class="col-sm-9">{{ objective.target_date|default:"—" }}</dd>
-      <dt class="col-sm-3">Prochaine revue</dt><dd class="col-sm-9">{{ objective.review_date|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ objective.description|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Parent objective" %}</dt><dd class="col-sm-9">{{ objective.parent_objective|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Target date" %}</dt><dd class="col-sm-9">{{ objective.target_date|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ objective.review_date|default:"—" }}</dd>
     </dl>
   </div>
   <div class="tab-pane fade" id="kpi">
     <dl class="row">
-      <dt class="col-sm-3">Valeur cible</dt><dd class="col-sm-9">{{ objective.target_value|default:"—" }} {{ objective.unit }}</dd>
-      <dt class="col-sm-3">Valeur actuelle</dt><dd class="col-sm-9">{{ objective.current_value|default:"—" }} {{ objective.unit }}</dd>
-      <dt class="col-sm-3">Méthode de mesure</dt><dd class="col-sm-9">{{ objective.measurement_method|default:"—" }}</dd>
-      <dt class="col-sm-3">Fréquence</dt><dd class="col-sm-9">{{ objective.get_measurement_frequency_display|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Target value" %}</dt><dd class="col-sm-9">{{ objective.target_value|default:"—" }} {{ objective.unit }}</dd>
+      <dt class="col-sm-3">{% trans "Current value" %}</dt><dd class="col-sm-9">{{ objective.current_value|default:"—" }} {{ objective.unit }}</dd>
+      <dt class="col-sm-3">{% trans "Measurement method" %}</dt><dd class="col-sm-9">{{ objective.measurement_method|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Frequency" %}</dt><dd class="col-sm-9">{{ objective.get_measurement_frequency_display|default:"—" }}</dd>
     </dl>
   </div>
   <div class="tab-pane fade" id="history">

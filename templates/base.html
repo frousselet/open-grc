@@ -1,7 +1,8 @@
 {% load static %}
 {% load accounts_tags %}
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -274,141 +275,141 @@
 
     <div class="sidebar-body">
       {# ── Gouvernance ─────────────────────────────────── #}
-      <div class="sidebar-section">Gouvernance</div>
+      <div class="sidebar-section">{% trans "Governance" %}</div>
       <a href="{% url 'context:dashboard' %}" class="sidebar-link">
-        <i class="bi bi-speedometer2"></i> Tableau de bord
+        <i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}
       </a>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navGouv" aria-expanded="true">
-        <i class="bi bi-diagram-3"></i> Organisation
+        <i class="bi bi-diagram-3"></i> {% trans "Organization" %}
         <i class="bi bi-chevron-down"></i>
       </button>
       <div class="collapse show" id="navGouv">
-        <a href="{% url 'context:scope-list' %}" class="sidebar-link sidebar-sub">Périmètres</a>
-        <a href="{% url 'context:issue-list' %}" class="sidebar-link sidebar-sub">Enjeux</a>
-        <a href="{% url 'context:stakeholder-list' %}" class="sidebar-link sidebar-sub">Parties intéressées</a>
-        <a href="{% url 'context:objective-list' %}" class="sidebar-link sidebar-sub">Objectifs</a>
-        <a href="{% url 'context:swot-list' %}" class="sidebar-link sidebar-sub">Analyses SWOT</a>
+        <a href="{% url 'context:scope-list' %}" class="sidebar-link sidebar-sub">{% trans "Scopes" %}</a>
+        <a href="{% url 'context:issue-list' %}" class="sidebar-link sidebar-sub">{% trans "Issues" %}</a>
+        <a href="{% url 'context:stakeholder-list' %}" class="sidebar-link sidebar-sub">{% trans "Stakeholders" %}</a>
+        <a href="{% url 'context:objective-list' %}" class="sidebar-link sidebar-sub">{% trans "Objectives" %}</a>
+        <a href="{% url 'context:swot-list' %}" class="sidebar-link sidebar-sub">{% trans "SWOT analyses" %}</a>
       </div>
       <a href="{% url 'context:role-list' %}" class="sidebar-link">
-        <i class="bi bi-person-badge"></i> Rôles
+        <i class="bi bi-person-badge"></i> {% trans "Roles" %}
       </a>
       <a href="{% url 'context:activity-list' %}" class="sidebar-link">
-        <i class="bi bi-activity"></i> Activités
+        <i class="bi bi-activity"></i> {% trans "Activities" %}
       </a>
       <a href="{% url 'context:site-list' %}" class="sidebar-link">
-        <i class="bi bi-building"></i> Sites
+        <i class="bi bi-building"></i> {% trans "Sites" %}
       </a>
 
       {# ── Actifs ──────────────────────────────────────── #}
-      <div class="sidebar-section">Actifs</div>
+      <div class="sidebar-section">{% trans "Assets" %}</div>
       <a href="{% url 'assets:dashboard' %}" class="sidebar-link">
-        <i class="bi bi-speedometer2"></i> Tableau de bord
+        <i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}
       </a>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navActifs" aria-expanded="true">
-        <i class="bi bi-box-seam"></i> Actifs
+        <i class="bi bi-box-seam"></i> {% trans "Assets" %}
         <i class="bi bi-chevron-down"></i>
       </button>
       <div class="collapse show" id="navActifs">
-        <a href="{% url 'assets:essential-asset-list' %}" class="sidebar-link sidebar-sub">Biens essentiels</a>
-        <a href="{% url 'assets:support-asset-list' %}" class="sidebar-link sidebar-sub">Biens supports</a>
-        <a href="{% url 'assets:group-list' %}" class="sidebar-link sidebar-sub">Groupes d'actifs</a>
+        <a href="{% url 'assets:essential-asset-list' %}" class="sidebar-link sidebar-sub">{% trans "Essential assets" %}</a>
+        <a href="{% url 'assets:support-asset-list' %}" class="sidebar-link sidebar-sub">{% trans "Support assets" %}</a>
+        <a href="{% url 'assets:group-list' %}" class="sidebar-link sidebar-sub">{% trans "Asset groups" %}</a>
       </div>
       <a href="{% url 'assets:dependency-list' %}" class="sidebar-link">
-        <i class="bi bi-share"></i> Dépendances
+        <i class="bi bi-share"></i> {% trans "Dependencies" %}
       </a>
 
       {# ── Gestion des risques ───────────────────────── #}
-      <div class="sidebar-section">Gestion des risques</div>
+      <div class="sidebar-section">{% trans "Risk management" %}</div>
       <a href="{% url 'risks:dashboard' %}" class="sidebar-link">
-        <i class="bi bi-speedometer2"></i> Tableau de bord
+        <i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}
       </a>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navRiskAssess" aria-expanded="true">
-        <i class="bi bi-clipboard-data"></i> Appréciations
+        <i class="bi bi-clipboard-data"></i> {% trans "Assessments" %}
         <i class="bi bi-chevron-down"></i>
       </button>
       <div class="collapse show" id="navRiskAssess">
-        <a href="{% url 'risks:assessment-list' %}" class="sidebar-link sidebar-sub">Appréciations</a>
-        <a href="{% url 'risks:criteria-list' %}" class="sidebar-link sidebar-sub">Critères</a>
+        <a href="{% url 'risks:assessment-list' %}" class="sidebar-link sidebar-sub">{% trans "Assessments" %}</a>
+        <a href="{% url 'risks:criteria-list' %}" class="sidebar-link sidebar-sub">{% trans "Criteria" %}</a>
       </div>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navRiskReg" aria-expanded="true">
-        <i class="bi bi-shield-exclamation"></i> Registre
+        <i class="bi bi-shield-exclamation"></i> {% trans "Register" %}
         <i class="bi bi-chevron-down"></i>
       </button>
       <div class="collapse show" id="navRiskReg">
-        <a href="{% url 'risks:risk-list' %}" class="sidebar-link sidebar-sub">Risques</a>
-        <a href="{% url 'risks:treatment-plan-list' %}" class="sidebar-link sidebar-sub">Plans de traitement</a>
-        <a href="{% url 'risks:acceptance-list' %}" class="sidebar-link sidebar-sub">Acceptations</a>
+        <a href="{% url 'risks:risk-list' %}" class="sidebar-link sidebar-sub">{% trans "Risks" %}</a>
+        <a href="{% url 'risks:treatment-plan-list' %}" class="sidebar-link sidebar-sub">{% trans "Treatment plans" %}</a>
+        <a href="{% url 'risks:acceptance-list' %}" class="sidebar-link sidebar-sub">{% trans "Acceptances" %}</a>
       </div>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navISO27005" aria-expanded="true">
         <i class="bi bi-diagram-2"></i> ISO 27005
         <i class="bi bi-chevron-down"></i>
       </button>
       <div class="collapse show" id="navISO27005">
-        <a href="{% url 'risks:threat-list' %}" class="sidebar-link sidebar-sub">Menaces</a>
-        <a href="{% url 'risks:vulnerability-list' %}" class="sidebar-link sidebar-sub">Vulnérabilités</a>
-        <a href="{% url 'risks:iso27005-list' %}" class="sidebar-link sidebar-sub">Analyses</a>
+        <a href="{% url 'risks:threat-list' %}" class="sidebar-link sidebar-sub">{% trans "Threats" %}</a>
+        <a href="{% url 'risks:vulnerability-list' %}" class="sidebar-link sidebar-sub">{% trans "Vulnerabilities" %}</a>
+        <a href="{% url 'risks:iso27005-list' %}" class="sidebar-link sidebar-sub">{% trans "Analyses" %}</a>
       </div>
 
       {# ── Conformité ──────────────────────────────────── #}
-      <div class="sidebar-section">Conformité</div>
+      <div class="sidebar-section">{% trans "Compliance" %}</div>
       <a href="{% url 'compliance:dashboard' %}" class="sidebar-link">
-        <i class="bi bi-speedometer2"></i> Tableau de bord
+        <i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}
       </a>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navReferentiels" aria-expanded="true">
-        <i class="bi bi-journal-bookmark"></i> Référentiels
+        <i class="bi bi-journal-bookmark"></i> {% trans "Frameworks" %}
         <i class="bi bi-chevron-down"></i>
       </button>
       <div class="collapse show" id="navReferentiels">
-        <a href="{% url 'compliance:framework-list' %}" class="sidebar-link sidebar-sub">Liste</a>
-        <a href="{% url 'compliance:framework-import' %}" class="sidebar-link sidebar-sub">Importer</a>
+        <a href="{% url 'compliance:framework-list' %}" class="sidebar-link sidebar-sub">{% trans "List" %}</a>
+        <a href="{% url 'compliance:framework-import' %}" class="sidebar-link sidebar-sub">{% trans "Import" %}</a>
       </div>
       <a href="{% url 'compliance:requirement-list' %}" class="sidebar-link">
-        <i class="bi bi-list-check"></i> Exigences
+        <i class="bi bi-list-check"></i> {% trans "Requirements" %}
       </a>
       <a href="{% url 'compliance:assessment-list' %}" class="sidebar-link">
-        <i class="bi bi-clipboard-data"></i> Évaluations
+        <i class="bi bi-clipboard-data"></i> {% trans "Assessments" %}
       </a>
       <a href="{% url 'compliance:mapping-list' %}" class="sidebar-link">
-        <i class="bi bi-arrow-left-right"></i> Mappings
+        <i class="bi bi-arrow-left-right"></i> {% trans "Mappings" %}
       </a>
       <a href="{% url 'compliance:action-plan-list' %}" class="sidebar-link">
-        <i class="bi bi-kanban"></i> Plans d'action
+        <i class="bi bi-kanban"></i> {% trans "Action plans" %}
       </a>
 
       {# ── Administration ──────────────────────────────── #}
       {% has_module_perms "system" as can_admin %}
       {% if can_admin %}
-      <div class="sidebar-section">Administration</div>
+      <div class="sidebar-section">{% trans "Administration" %}</div>
       {% has_perm "system.users.read" as can_users %}
       {% if can_users %}
       <a href="{% url 'accounts:user-list' %}" class="sidebar-link">
-        <i class="bi bi-people"></i> Utilisateurs
+        <i class="bi bi-people"></i> {% trans "Users" %}
       </a>
       {% endif %}
       {% has_perm "system.groups.read" as can_groups %}
       {% if can_groups %}
       <a href="{% url 'accounts:group-list' %}" class="sidebar-link">
-        <i class="bi bi-shield-lock"></i> Groupes
+        <i class="bi bi-shield-lock"></i> {% trans "Groups" %}
       </a>
       <a href="{% url 'accounts:permission-list' %}" class="sidebar-link">
-        <i class="bi bi-key"></i> Permissions
+        <i class="bi bi-key"></i> {% trans "Permissions" %}
       </a>
       {% endif %}
       {% has_perm "system.audit_trail.read" as can_audit %}
       {% if can_audit %}
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navLogs" aria-expanded="true">
-        <i class="bi bi-journal-text"></i> Journaux
+        <i class="bi bi-journal-text"></i> {% trans "Logs" %}
         <i class="bi bi-chevron-down"></i>
       </button>
       <div class="collapse show" id="navLogs">
-        <a href="{% url 'accounts:access-log-list' %}" class="sidebar-link sidebar-sub">Journal des accès</a>
-        <a href="{% url 'accounts:action-log-list' %}" class="sidebar-link sidebar-sub">Journal des actions</a>
+        <a href="{% url 'accounts:access-log-list' %}" class="sidebar-link sidebar-sub">{% trans "Access log" %}</a>
+        <a href="{% url 'accounts:action-log-list' %}" class="sidebar-link sidebar-sub">{% trans "Action log" %}</a>
       </div>
       {% endif %}
       {% has_perm "system.admin_django.access" as can_django_admin %}
       {% if can_django_admin %}
       <a href="{% url 'admin:index' %}" class="sidebar-link">
-        <i class="bi bi-gear"></i> Admin Django
+        <i class="bi bi-gear"></i> {% trans "Django admin" %}
       </a>
       {% endif %}
       {% endif %}
@@ -424,12 +425,12 @@
           <span class="text-truncate" style="max-width:140px">{{ user.display_name }}</span>
         </a>
         <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-          <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Mon profil</a></li>
+          <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">{% trans "My profile" %}</a></li>
           <li><hr class="dropdown-divider"></li>
           <li>
             <form method="post" action="{% url 'accounts:logout' %}">
               {% csrf_token %}
-              <button type="submit" class="dropdown-item">Déconnexion</button>
+              <button type="submit" class="dropdown-item">{% trans "Sign out" %}</button>
             </form>
           </li>
         </ul>

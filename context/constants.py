@@ -1,15 +1,16 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class Status(models.TextChoices):
-    DRAFT = "draft", "Brouillon"
-    ACTIVE = "active", "Actif"
-    ARCHIVED = "archived", "Archivé"
+    DRAFT = "draft", _("Draft")
+    ACTIVE = "active", _("Active")
+    ARCHIVED = "archived", _("Archived")
 
 
 class IssueType(models.TextChoices):
-    INTERNAL = "internal", "Interne"
-    EXTERNAL = "external", "Externe"
+    INTERNAL = "internal", _("Internal")
+    EXTERNAL = "external", _("External")
 
 
 INTERNAL_CATEGORIES = [
@@ -35,170 +36,170 @@ EXTERNAL_CATEGORIES = [
 
 class IssueCategory(models.TextChoices):
     # Internal
-    STRATEGIC = "strategic", "Stratégique"
-    ORGANIZATIONAL = "organizational", "Organisationnel"
-    HUMAN_RESOURCES = "human_resources", "Ressources humaines"
-    TECHNICAL = "technical", "Technique"
-    FINANCIAL = "financial", "Financier"
-    CULTURAL = "cultural", "Culturel"
+    STRATEGIC = "strategic", _("Strategic")
+    ORGANIZATIONAL = "organizational", _("Organizational")
+    HUMAN_RESOURCES = "human_resources", _("Human resources")
+    TECHNICAL = "technical", _("Technical")
+    FINANCIAL = "financial", _("Financial")
+    CULTURAL = "cultural", _("Cultural")
     # External
-    POLITICAL = "political", "Politique"
-    ECONOMIC = "economic", "Économique"
-    SOCIAL = "social", "Social"
-    TECHNOLOGICAL = "technological", "Technologique"
-    LEGAL = "legal", "Juridique"
-    ENVIRONMENTAL = "environmental", "Environnemental"
-    COMPETITIVE = "competitive", "Concurrentiel"
-    REGULATORY = "regulatory", "Réglementaire"
+    POLITICAL = "political", _("Political")
+    ECONOMIC = "economic", _("Economic")
+    SOCIAL = "social", _("Social")
+    TECHNOLOGICAL = "technological", _("Technological")
+    LEGAL = "legal", _("Legal")
+    ENVIRONMENTAL = "environmental", _("Environmental")
+    COMPETITIVE = "competitive", _("Competitive")
+    REGULATORY = "regulatory", _("Regulatory")
 
 
 class ImpactLevel(models.TextChoices):
-    LOW = "low", "Faible"
-    MEDIUM = "medium", "Moyen"
-    HIGH = "high", "Élevé"
-    CRITICAL = "critical", "Critique"
+    LOW = "low", _("Low")
+    MEDIUM = "medium", _("Medium")
+    HIGH = "high", _("High")
+    CRITICAL = "critical", _("Critical")
 
 
 class Trend(models.TextChoices):
-    IMPROVING = "improving", "En amélioration"
-    STABLE = "stable", "Stable"
-    DEGRADING = "degrading", "En dégradation"
+    IMPROVING = "improving", _("Improving")
+    STABLE = "stable", _("Stable")
+    DEGRADING = "degrading", _("Degrading")
 
 
 class IssueStatus(models.TextChoices):
-    IDENTIFIED = "identified", "Identifié"
-    ACTIVE = "active", "Actif"
-    MONITORED = "monitored", "Surveillé"
-    CLOSED = "closed", "Clôturé"
+    IDENTIFIED = "identified", _("Identified")
+    ACTIVE = "active", _("Active")
+    MONITORED = "monitored", _("Monitored")
+    CLOSED = "closed", _("Closed")
 
 
 class StakeholderCategory(models.TextChoices):
-    EXECUTIVE_MANAGEMENT = "executive_management", "Direction générale"
-    EMPLOYEES = "employees", "Employés"
-    CUSTOMERS = "customers", "Clients"
-    SUPPLIERS = "suppliers", "Fournisseurs"
-    PARTNERS = "partners", "Partenaires"
-    REGULATORS = "regulators", "Régulateurs"
-    SHAREHOLDERS = "shareholders", "Actionnaires"
-    INSURERS = "insurers", "Assureurs"
-    PUBLIC = "public", "Grand public"
-    COMPETITORS = "competitors", "Concurrents"
-    UNIONS = "unions", "Syndicats"
-    AUDITORS = "auditors", "Auditeurs"
-    OTHER = "other", "Autre"
+    EXECUTIVE_MANAGEMENT = "executive_management", _("Executive management")
+    EMPLOYEES = "employees", _("Employees")
+    CUSTOMERS = "customers", _("Customers")
+    SUPPLIERS = "suppliers", _("Suppliers")
+    PARTNERS = "partners", _("Partners")
+    REGULATORS = "regulators", _("Regulators")
+    SHAREHOLDERS = "shareholders", _("Shareholders")
+    INSURERS = "insurers", _("Insurers")
+    PUBLIC = "public", _("General public")
+    COMPETITORS = "competitors", _("Competitors")
+    UNIONS = "unions", _("Unions")
+    AUDITORS = "auditors", _("Auditors")
+    OTHER = "other", _("Other")
 
 
 class InfluenceLevel(models.TextChoices):
-    LOW = "low", "Faible"
-    MEDIUM = "medium", "Moyen"
-    HIGH = "high", "Élevé"
+    LOW = "low", _("Low")
+    MEDIUM = "medium", _("Medium")
+    HIGH = "high", _("High")
 
 
 class ExpectationType(models.TextChoices):
-    REQUIREMENT = "requirement", "Exigence"
-    EXPECTATION = "expectation", "Attente"
-    NEED = "need", "Besoin"
+    REQUIREMENT = "requirement", _("Requirement")
+    EXPECTATION = "expectation", _("Expectation")
+    NEED = "need", _("Need")
 
 
 class Priority(models.TextChoices):
-    LOW = "low", "Faible"
-    MEDIUM = "medium", "Moyen"
-    HIGH = "high", "Élevé"
-    CRITICAL = "critical", "Critique"
+    LOW = "low", _("Low")
+    MEDIUM = "medium", _("Medium")
+    HIGH = "high", _("High")
+    CRITICAL = "critical", _("Critical")
 
 
 class StakeholderStatus(models.TextChoices):
-    ACTIVE = "active", "Actif"
-    INACTIVE = "inactive", "Inactif"
+    ACTIVE = "active", _("Active")
+    INACTIVE = "inactive", _("Inactive")
 
 
 class ObjectiveCategory(models.TextChoices):
-    CONFIDENTIALITY = "confidentiality", "Confidentialité"
-    INTEGRITY = "integrity", "Intégrité"
-    AVAILABILITY = "availability", "Disponibilité"
-    COMPLIANCE = "compliance", "Conformité"
-    OPERATIONAL = "operational", "Opérationnel"
-    STRATEGIC = "strategic", "Stratégique"
+    CONFIDENTIALITY = "confidentiality", _("Confidentiality")
+    INTEGRITY = "integrity", _("Integrity")
+    AVAILABILITY = "availability", _("Availability")
+    COMPLIANCE = "compliance", _("Compliance")
+    OPERATIONAL = "operational", _("Operational")
+    STRATEGIC = "strategic", _("Strategic")
 
 
 class ObjectiveType(models.TextChoices):
-    SECURITY = "security", "Sécurité"
-    COMPLIANCE = "compliance", "Conformité"
-    BUSINESS = "business", "Métier"
-    OTHER = "other", "Autre"
+    SECURITY = "security", _("Security")
+    COMPLIANCE = "compliance", _("Compliance")
+    BUSINESS = "business", _("Business")
+    OTHER = "other", _("Other")
 
 
 class MeasurementFrequency(models.TextChoices):
-    MONTHLY = "monthly", "Mensuel"
-    QUARTERLY = "quarterly", "Trimestriel"
-    SEMI_ANNUAL = "semi_annual", "Semestriel"
-    ANNUAL = "annual", "Annuel"
+    MONTHLY = "monthly", _("Monthly")
+    QUARTERLY = "quarterly", _("Quarterly")
+    SEMI_ANNUAL = "semi_annual", _("Semi-annual")
+    ANNUAL = "annual", _("Annual")
 
 
 class ObjectiveStatus(models.TextChoices):
-    DRAFT = "draft", "Brouillon"
-    ACTIVE = "active", "Actif"
-    ACHIEVED = "achieved", "Atteint"
-    NOT_ACHIEVED = "not_achieved", "Non atteint"
-    CANCELLED = "cancelled", "Annulé"
+    DRAFT = "draft", _("Draft")
+    ACTIVE = "active", _("Active")
+    ACHIEVED = "achieved", _("Achieved")
+    NOT_ACHIEVED = "not_achieved", _("Not achieved")
+    CANCELLED = "cancelled", _("Cancelled")
 
 
 class SwotStatus(models.TextChoices):
-    DRAFT = "draft", "Brouillon"
-    VALIDATED = "validated", "Validé"
-    ARCHIVED = "archived", "Archivé"
+    DRAFT = "draft", _("Draft")
+    VALIDATED = "validated", _("Validated")
+    ARCHIVED = "archived", _("Archived")
 
 
 class SwotQuadrant(models.TextChoices):
-    STRENGTH = "strength", "Force"
-    WEAKNESS = "weakness", "Faiblesse"
-    OPPORTUNITY = "opportunity", "Opportunité"
-    THREAT = "threat", "Menace"
+    STRENGTH = "strength", _("Strength")
+    WEAKNESS = "weakness", _("Weakness")
+    OPPORTUNITY = "opportunity", _("Opportunity")
+    THREAT = "threat", _("Threat")
 
 
 class RoleType(models.TextChoices):
-    GOVERNANCE = "governance", "Gouvernance"
-    OPERATIONAL = "operational", "Opérationnel"
-    SUPPORT = "support", "Support"
-    CONTROL = "control", "Contrôle"
+    GOVERNANCE = "governance", _("Governance")
+    OPERATIONAL = "operational", _("Operational")
+    SUPPORT = "support", _("Support")
+    CONTROL = "control", _("Control")
 
 
 class RoleStatus(models.TextChoices):
-    ACTIVE = "active", "Actif"
-    INACTIVE = "inactive", "Inactif"
+    ACTIVE = "active", _("Active")
+    INACTIVE = "inactive", _("Inactive")
 
 
 class RaciType(models.TextChoices):
-    RESPONSIBLE = "responsible", "Responsable (R)"
-    ACCOUNTABLE = "accountable", "Approbateur (A)"
-    CONSULTED = "consulted", "Consulté (C)"
-    INFORMED = "informed", "Informé (I)"
+    RESPONSIBLE = "responsible", _("Responsible (R)")
+    ACCOUNTABLE = "accountable", _("Accountable (A)")
+    CONSULTED = "consulted", _("Consulted (C)")
+    INFORMED = "informed", _("Informed (I)")
 
 
 class ActivityType(models.TextChoices):
-    CORE_BUSINESS = "core_business", "Cœur de métier"
-    SUPPORT = "support", "Support"
-    MANAGEMENT = "management", "Management"
+    CORE_BUSINESS = "core_business", _("Core business")
+    SUPPORT = "support", _("Support")
+    MANAGEMENT = "management", _("Management")
 
 
 class Criticality(models.TextChoices):
-    LOW = "low", "Faible"
-    MEDIUM = "medium", "Moyen"
-    HIGH = "high", "Élevé"
-    CRITICAL = "critical", "Critique"
+    LOW = "low", _("Low")
+    MEDIUM = "medium", _("Medium")
+    HIGH = "high", _("High")
+    CRITICAL = "critical", _("Critical")
 
 
 class ActivityStatus(models.TextChoices):
-    ACTIVE = "active", "Actif"
-    INACTIVE = "inactive", "Inactif"
-    PLANNED = "planned", "Planifié"
+    ACTIVE = "active", _("Active")
+    INACTIVE = "inactive", _("Inactive")
+    PLANNED = "planned", _("Planned")
 
 
 class SiteType(models.TextChoices):
-    HEADQUARTERS = "siege", "Siège"
-    OFFICE = "bureau", "Bureau"
-    FACTORY = "usine", "Usine"
-    WAREHOUSE = "entrepot", "Entrepôt"
-    DATACENTER = "datacenter", "Datacenter"
-    REMOTE = "site_distant", "Site distant"
-    OTHER = "autre", "Autre"
+    HEADQUARTERS = "siege", _("Headquarters")
+    OFFICE = "bureau", _("Office")
+    FACTORY = "usine", _("Factory")
+    WAREHOUSE = "entrepot", _("Warehouse")
+    DATACENTER = "datacenter", _("Datacenter")
+    REMOTE = "site_distant", _("Remote site")
+    OTHER = "autre", _("Other")

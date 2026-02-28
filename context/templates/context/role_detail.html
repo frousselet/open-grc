@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}{{ role.name }} — Open GRC{% endblock %}
 
@@ -6,8 +7,8 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ role.name }}</h1>
   <div>
-    <a href="{% url 'context:role-update' role.pk %}" class="btn btn-primary">Modifier</a>
-    <a href="{% url 'context:role-list' %}" class="btn btn-outline-secondary">Retour</a>
+    <a href="{% url 'context:role-update' role.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'context:role-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 {% include "includes/approval_badge.html" %}
@@ -17,27 +18,27 @@
 {% endif %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#info">Informations</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#responsibilities">Responsabilités</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#users">Utilisateurs</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#info">{% trans "Information" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#responsibilities">{% trans "Responsibilities" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#users">{% trans "Users" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="info">
     <dl class="row">
-      <dt class="col-sm-3">Périmètre</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' role.scope.pk %}">{{ role.scope }}</a></dd>
-      <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ role.get_type_display }}</dd>
-      <dt class="col-sm-3">Statut</dt><dd class="col-sm-9">{{ role.get_status_display }}</dd>
-      <dt class="col-sm-3">Obligatoire</dt><dd class="col-sm-9">{% if role.is_mandatory %}Oui{% else %}Non{% endif %}</dd>
-      <dt class="col-sm-3">Référentiel d'origine</dt><dd class="col-sm-9">{{ role.source_standard|default:"—" }}</dd>
-      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ role.description|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' role.scope.pk %}">{{ role.scope }}</a></dd>
+      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ role.get_type_display }}</dd>
+      <dt class="col-sm-3">{% trans "Status" %}</dt><dd class="col-sm-9">{{ role.get_status_display }}</dd>
+      <dt class="col-sm-3">{% trans "Mandatory" %}</dt><dd class="col-sm-9">{% if role.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
+      <dt class="col-sm-3">{% trans "Source standard" %}</dt><dd class="col-sm-9">{{ role.source_standard|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ role.description|default:"—"|linebreaksbr }}</dd>
     </dl>
   </div>
   <div class="tab-pane fade" id="responsibilities">
     {% if role.responsibilities.all %}
     <table class="table table-striped">
-      <thead><tr><th>Description</th><th>Type RACI</th><th>Activité</th></tr></thead>
+      <thead><tr><th>{% trans "Description" %}</th><th>{% trans "RACI type" %}</th><th>{% trans "Activity" %}</th></tr></thead>
       <tbody>
         {% for resp in role.responsibilities.all %}
         <tr>
@@ -49,7 +50,7 @@
       </tbody>
     </table>
     {% else %}
-    <p class="text-muted">Aucune responsabilité définie.</p>
+    <p class="text-muted">{% trans "No responsibility defined." %}</p>
     {% endif %}
   </div>
   <div class="tab-pane fade" id="users">
@@ -60,7 +61,7 @@
       {% endfor %}
     </ul>
     {% else %}
-    <p class="text-muted">Aucun utilisateur affecté.</p>
+    <p class="text-muted">{% trans "No assigned user." %}</p>
     {% endif %}
   </div>
   <div class="tab-pane fade" id="history">

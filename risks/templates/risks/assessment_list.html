@@ -1,37 +1,38 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Appréciations des risques — Open GRC{% endblock %}
+{% block title %}{% trans "Risk assessments" %} — Open GRC{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">Appréciations des risques</h1>
-  <a href="{% url 'risks:assessment-create' %}" class="btn btn-primary ms-auto">Nouvelle appréciation</a>
+  <h1 class="mb-0">{% trans "Risk assessments" %}</h1>
+  <a href="{% url 'risks:assessment-create' %}" class="btn btn-primary ms-auto">{% trans "New assessment" %}</a>
 </div>
 {% help_modal "risks.assessment_list" %}
 
 <div class="mb-3 d-flex gap-2">
-  <a href="{% url 'risks:assessment-list' %}" class="btn btn-sm {% if not request.GET.status %}btn-primary{% else %}btn-outline-primary{% endif %}">Tous</a>
-  <a href="?status=draft" class="btn btn-sm {% if request.GET.status == 'draft' %}btn-primary{% else %}btn-outline-primary{% endif %}">Brouillon</a>
-  <a href="?status=in_progress" class="btn btn-sm {% if request.GET.status == 'in_progress' %}btn-primary{% else %}btn-outline-primary{% endif %}">En cours</a>
-  <a href="?status=completed" class="btn btn-sm {% if request.GET.status == 'completed' %}btn-primary{% else %}btn-outline-primary{% endif %}">Terminées</a>
-  <a href="?status=validated" class="btn btn-sm {% if request.GET.status == 'validated' %}btn-primary{% else %}btn-outline-primary{% endif %}">Validées</a>
+  <a href="{% url 'risks:assessment-list' %}" class="btn btn-sm {% if not request.GET.status %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "All" %}</a>
+  <a href="?status=draft" class="btn btn-sm {% if request.GET.status == 'draft' %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "Draft" %}</a>
+  <a href="?status=in_progress" class="btn btn-sm {% if request.GET.status == 'in_progress' %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "In progress" %}</a>
+  <a href="?status=completed" class="btn btn-sm {% if request.GET.status == 'completed' %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "Completed" %}</a>
+  <a href="?status=validated" class="btn btn-sm {% if request.GET.status == 'validated' %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "Validated" %}</a>
 </div>
 
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark">
       <tr>
-        <th>Réf.</th>
-        <th>Nom</th>
-        <th>Méthodologie</th>
-        <th>Périmètre</th>
-        <th>Appréciateur</th>
-        <th>Date</th>
-        <th>Statut</th>
-        <th>Approbation</th>
-        <th>Actions</th>
+        <th>{% trans "Ref." %}</th>
+        <th>{% trans "Name" %}</th>
+        <th>{% trans "Methodology" %}</th>
+        <th>{% trans "Scope" %}</th>
+        <th>{% trans "Assessor" %}</th>
+        <th>{% trans "Date" %}</th>
+        <th>{% trans "Status" %}</th>
+        <th>{% trans "Approval" %}</th>
+        <th>{% trans "Actions" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -50,15 +51,15 @@
         </td>
         <td>
           <span class="badge text-bg-{% if a.is_approved %}success{% else %}warning{% endif %}">
-            {% if a.is_approved %}Approuvé{% else %}En attente{% endif %}
+            {% if a.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
           </span>
         </td>
         <td>
-          <a href="{% url 'risks:assessment-update' a.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+          <a href="{% url 'risks:assessment-update' a.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="9" class="text-center text-muted">Aucune appréciation.</td></tr>
+      <tr><td colspan="9" class="text-center text-muted">{% trans "No assessment." %}</td></tr>
       {% endfor %}
     </tbody>
   </table>
@@ -67,9 +68,9 @@
 {% if is_paginated %}
 <nav>
   <ul class="pagination justify-content-center">
-    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>{% endif %}
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Previous" %}</a></li>{% endif %}
     <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>{% endif %}
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Next" %}</a></li>{% endif %}
   </ul>
 </nav>
 {% endif %}

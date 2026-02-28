@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Dépendances — Open GRC{% endblock %}
+{% block title %}{% load i18n %}{% trans "Dependencies" %} — Open GRC{% endblock %}
 
-{% load help_tags %}
+{% load help_tags i18n %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">Relations de dépendance</h1>
-  <a href="{% url 'assets:dependency-create' %}" class="btn btn-primary ms-auto">Nouvelle dépendance</a>
+  <h1 class="mb-0">{% trans "Dependency relationships" %}</h1>
+  <a href="{% url 'assets:dependency-create' %}" class="btn btn-primary ms-auto">{% trans "New dependency" %}</a>
 </div>
 {% help_modal "assets.dependency_list" %}
 
@@ -15,14 +15,14 @@
   <table class="table table-striped table-hover">
     <thead class="table-dark">
       <tr>
-        <th>Bien essentiel</th>
-        <th>Bien support</th>
-        <th>Type</th>
-        <th>Criticité</th>
-        <th>SPOF</th>
-        <th>Redondance</th>
-        <th>Approbation</th>
-        <th>Actions</th>
+        <th>{% trans "Essential asset" %}</th>
+        <th>{% trans "Support asset" %}</th>
+        <th>{% trans "Type" %}</th>
+        <th>{% trans "Criticality" %}</th>
+        <th>{% trans "SPOF" %}</th>
+        <th>{% trans "Redundancy" %}</th>
+        <th>{% trans "Approval" %}</th>
+        <th>{% trans "Actions" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -40,16 +40,16 @@
         <td>{{ dep.get_redundancy_level_display|default:"—" }}</td>
         <td>
           <span class="badge text-bg-{% if dep.is_approved %}success{% else %}warning{% endif %}">
-            {% if dep.is_approved %}Approuvé{% else %}En attente{% endif %}
+            {% if dep.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
           </span>
         </td>
         <td>
-          <a href="{% url 'assets:dependency-update' dep.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
-          <a href="{% url 'assets:dependency-delete' dep.pk %}" class="btn btn-sm btn-outline-danger">Supprimer</a>
+          <a href="{% url 'assets:dependency-update' dep.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+          <a href="{% url 'assets:dependency-delete' dep.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="8" class="text-center text-muted">Aucune dépendance définie.</td></tr>
+      <tr><td colspan="8" class="text-center text-muted">{% trans "No dependencies defined." %}</td></tr>
       {% endfor %}
     </tbody>
   </table>
@@ -58,9 +58,9 @@
 {% if is_paginated %}
 <nav>
   <ul class="pagination justify-content-center">
-    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>{% endif %}
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Previous" %}</a></li>{% endif %}
     <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>{% endif %}
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Next" %}</a></li>{% endif %}
   </ul>
 </nav>
 {% endif %}

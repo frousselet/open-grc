@@ -1,11 +1,12 @@
 from django import template
+from django.utils.translation import gettext_lazy as _
 
 register = template.Library()
 
 HISTORY_TYPE_LABELS = {
-    "+": "Création",
-    "~": "Modification",
-    "-": "Suppression",
+    "+": _("Creation"),
+    "~": _("Modification"),
+    "-": _("Deletion"),
 }
 
 HISTORY_TYPE_BADGES = {

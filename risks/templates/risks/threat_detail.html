@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}{{ threat.reference }} — Open GRC{% endblock %}
 
@@ -6,32 +7,32 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ threat.reference }} — {{ threat.name }}</h1>
   <div>
-    <a href="{% url 'risks:threat-update' threat.pk %}" class="btn btn-primary">Modifier</a>
-    <a href="{% url 'risks:threat-list' %}" class="btn btn-outline-secondary">Retour</a>
+    <a href="{% url 'risks:threat-update' threat.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'risks:threat-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
     <dl class="row">
-      <dt class="col-sm-3">Périmètre</dt><dd class="col-sm-9">{{ threat.scope }}</dd>
-      <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ threat.get_type_display }}</dd>
-      <dt class="col-sm-3">Origine</dt><dd class="col-sm-9">{{ threat.get_origin_display|default:"—" }}</dd>
-      <dt class="col-sm-3">Catégorie</dt><dd class="col-sm-9">{{ threat.get_category_display|default:"—" }}</dd>
-      <dt class="col-sm-3">Vraisemblance typique</dt><dd class="col-sm-9">{{ threat.typical_likelihood|default:"—" }}</dd>
-      <dt class="col-sm-3">Issue du catalogue</dt><dd class="col-sm-9">{% if threat.is_from_catalog %}Oui{% else %}Non{% endif %}</dd>
-      <dt class="col-sm-3">Statut</dt>
+      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ threat.scope }}</dd>
+      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ threat.get_type_display }}</dd>
+      <dt class="col-sm-3">{% trans "Origin" %}</dt><dd class="col-sm-9">{{ threat.get_origin_display|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Category" %}</dt><dd class="col-sm-9">{{ threat.get_category_display|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Typical likelihood" %}</dt><dd class="col-sm-9">{{ threat.typical_likelihood|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "From catalog" %}</dt><dd class="col-sm-9">{% if threat.is_from_catalog %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
+      <dt class="col-sm-3">{% trans "Status" %}</dt>
       <dd class="col-sm-9">
         <span class="badge text-bg-{% if threat.status == 'active' %}success{% else %}secondary{% endif %}">
           {{ threat.get_status_display }}
         </span>
       </dd>
-      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ threat.description|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ threat.description|default:"—"|linebreaksbr }}</dd>
     </dl>
   </div>
 

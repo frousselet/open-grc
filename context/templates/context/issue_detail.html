@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}{{ issue.name }} — Open GRC{% endblock %}
 
@@ -6,35 +7,35 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ issue.name }}</h1>
   <div>
-    <a href="{% url 'context:issue-update' issue.pk %}" class="btn btn-primary">Modifier</a>
-    <a href="{% url 'context:issue-list' %}" class="btn btn-outline-secondary">Retour</a>
+    <a href="{% url 'context:issue-update' issue.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'context:issue-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 {% include "includes/approval_badge.html" %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#info">Informations</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#info">{% trans "Information" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="info">
     <dl class="row">
-      <dt class="col-sm-3">Périmètre</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' issue.scope.pk %}">{{ issue.scope }}</a></dd>
-      <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ issue.get_type_display }}</dd>
-      <dt class="col-sm-3">Catégorie</dt><dd class="col-sm-9">{{ issue.get_category_display }}</dd>
-      <dt class="col-sm-3">Niveau d'impact</dt>
+      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' issue.scope.pk %}">{{ issue.scope }}</a></dd>
+      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ issue.get_type_display }}</dd>
+      <dt class="col-sm-3">{% trans "Category" %}</dt><dd class="col-sm-9">{{ issue.get_category_display }}</dd>
+      <dt class="col-sm-3">{% trans "Impact level" %}</dt>
       <dd class="col-sm-9">
         <span class="badge text-bg-{% if issue.impact_level == 'critical' %}danger{% elif issue.impact_level == 'high' %}warning{% elif issue.impact_level == 'medium' %}info{% else %}secondary{% endif %}">
           {{ issue.get_impact_level_display }}
         </span>
       </dd>
-      <dt class="col-sm-3">Tendance</dt><dd class="col-sm-9">{{ issue.get_trend_display|default:"—" }}</dd>
-      <dt class="col-sm-3">Source</dt><dd class="col-sm-9">{{ issue.source|default:"—" }}</dd>
-      <dt class="col-sm-3">Statut</dt><dd class="col-sm-9">{{ issue.get_status_display }}</dd>
-      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ issue.description|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">Prochaine revue</dt><dd class="col-sm-9">{{ issue.review_date|default:"—" }}</dd>
-      <dt class="col-sm-3">Créé le</dt><dd class="col-sm-9">{{ issue.created_at }}</dd>
+      <dt class="col-sm-3">{% trans "Trend" %}</dt><dd class="col-sm-9">{{ issue.get_trend_display|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Source" %}</dt><dd class="col-sm-9">{{ issue.source|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Status" %}</dt><dd class="col-sm-9">{{ issue.get_status_display }}</dd>
+      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ issue.description|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ issue.review_date|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Created on" %}</dt><dd class="col-sm-9">{{ issue.created_at }}</dd>
     </dl>
   </div>
   <div class="tab-pane fade" id="history">

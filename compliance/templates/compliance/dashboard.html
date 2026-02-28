@@ -1,12 +1,13 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Conformité — Open GRC{% endblock %}
+{% block title %}{% trans "Compliance" %} — Open GRC{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-4">
-  <h1 class="mb-0">Conformité</h1>
+  <h1 class="mb-0">{% trans "Compliance" %}</h1>
 </div>
 {% help_modal "compliance.dashboard" %}
 
@@ -14,36 +15,36 @@
   <div class="col-md-3">
     <div class="card text-bg-primary">
       <div class="card-body">
-        <h5 class="card-title">Référentiels</h5>
+        <h5 class="card-title">{% trans "Frameworks" %}</h5>
         <p class="display-6">{{ framework_count }}</p>
-        <div class="mt-2"><a href="{% url 'compliance:framework-list' %}" class="text-white">Voir tout</a></div>
+        <div class="mt-2"><a href="{% url 'compliance:framework-list' %}" class="text-white">{% trans "View all" %}</a></div>
       </div>
     </div>
   </div>
   <div class="col-md-3">
     <div class="card text-bg-info">
       <div class="card-body">
-        <h5 class="card-title">Exigences</h5>
+        <h5 class="card-title">{% trans "Requirements" %}</h5>
         <p class="display-6">{{ requirement_count }}</p>
-        <div class="mt-2"><a href="{% url 'compliance:requirement-list' %}" class="text-white">Voir tout</a></div>
+        <div class="mt-2"><a href="{% url 'compliance:requirement-list' %}" class="text-white">{% trans "View all" %}</a></div>
       </div>
     </div>
   </div>
   <div class="col-md-3">
     <div class="card text-bg-success">
       <div class="card-body">
-        <h5 class="card-title">Évaluations</h5>
+        <h5 class="card-title">{% trans "Assessments" %}</h5>
         <p class="display-6">{{ assessment_count }}</p>
-        <div class="mt-2"><a href="{% url 'compliance:assessment-list' %}" class="text-white">Voir tout</a></div>
+        <div class="mt-2"><a href="{% url 'compliance:assessment-list' %}" class="text-white">{% trans "View all" %}</a></div>
       </div>
     </div>
   </div>
   <div class="col-md-3">
     <div class="card text-bg-warning">
       <div class="card-body">
-        <h5 class="card-title">Plans d'action</h5>
+        <h5 class="card-title">{% trans "Action plans" %}</h5>
         <p class="display-6">{{ action_plan_count }}</p>
-        <div class="mt-2"><a href="{% url 'compliance:action-plan-list' %}" class="text-dark">Voir tout</a></div>
+        <div class="mt-2"><a href="{% url 'compliance:action-plan-list' %}" class="text-dark">{% trans "View all" %}</a></div>
       </div>
     </div>
   </div>
@@ -53,27 +54,27 @@
   <div class="col-md-4">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Mappings</h5>
+        <h5 class="card-title">{% trans "Mappings" %}</h5>
         <p class="display-6">{{ mapping_count }}</p>
-        <a href="{% url 'compliance:mapping-list' %}" class="btn btn-outline-primary btn-sm">Voir tout</a>
+        <a href="{% url 'compliance:mapping-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-4">
     <div class="card border-danger">
       <div class="card-body">
-        <h5 class="card-title">Non-conformités</h5>
+        <h5 class="card-title">{% trans "Non-compliances" %}</h5>
         <p class="display-6 text-danger">{{ non_compliant_count }}</p>
-        <a href="{% url 'compliance:requirement-list' %}?compliance_status=non_compliant" class="btn btn-outline-danger btn-sm">Voir</a>
+        <a href="{% url 'compliance:requirement-list' %}?compliance_status=non_compliant" class="btn btn-outline-danger btn-sm">{% trans "View" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-4">
     <div class="card border-warning">
       <div class="card-body">
-        <h5 class="card-title">Plans en retard</h5>
+        <h5 class="card-title">{% trans "Overdue plans" %}</h5>
         <p class="display-6 text-warning">{{ overdue_plans }}</p>
-        <a href="{% url 'compliance:action-plan-list' %}?status=overdue" class="btn btn-outline-warning btn-sm">Voir</a>
+        <a href="{% url 'compliance:action-plan-list' %}?status=overdue" class="btn btn-outline-warning btn-sm">{% trans "View" %}</a>
       </div>
     </div>
   </div>
@@ -82,10 +83,10 @@
 {% if frameworks %}
 <div class="card mb-4">
   <div class="card-body">
-    <h5 class="card-title">Référentiels actifs</h5>
+    <h5 class="card-title">{% trans "Active frameworks" %}</h5>
     <div class="table-responsive">
       <table class="table table-striped">
-        <thead><tr><th>Référence</th><th>Nom</th><th>Type</th><th>Conformité</th></tr></thead>
+        <thead><tr><th>{% trans "Reference" %}</th><th>{% trans "Name" %}</th><th>{% trans "Type" %}</th><th>{% trans "Compliance" %}</th></tr></thead>
         <tbody>
           {% for fw in frameworks %}
           <tr>

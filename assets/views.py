@@ -4,6 +4,7 @@ from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.views import View
 from django.views.generic import (
     CreateView,
@@ -56,13 +57,13 @@ class ApproveView(LoginRequiredMixin, View):
         feature = self.permission_feature or self.model._meta.model_name
         codename = f"assets.{feature}.approve"
         if not request.user.is_superuser and not request.user.has_perm(codename):
-            messages.error(request, "Vous n'avez pas la permission d'approuver cet élément.")
+            messages.error(request, _("You do not have permission to approve this item."))
             return redirect(request.META.get("HTTP_REFERER", "/"))
         obj.is_approved = True
         obj.approved_by = request.user
         obj.approved_at = timezone.now()
         obj.save(update_fields=["is_approved", "approved_by", "approved_at"])
-        messages.success(request, "Élément approuvé.")
+        messages.success(request, _("Item approved."))
         return redirect(request.META.get("HTTP_REFERER", self.success_url or "/"))
 
 
