@@ -7,6 +7,41 @@
 
 {% block extra_css %}
 <style>
+  /* ── Upcoming events ────────────────────────────── */
+  .upcoming-section { margin-bottom:1.5rem; }
+  .upcoming-header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:.75rem;
+  }
+  .upcoming-header h5 { margin:0; }
+  .upcoming-header .badge { font-size:.72rem; font-weight:500; }
+  .upcoming-list { display:flex; flex-direction:column; gap:.35rem; }
+  .upcoming-item {
+    display:flex; align-items:center; gap:.65rem; padding:.55rem .75rem;
+    border-radius:var(--radius-sm); background:var(--surface-raised);
+    border:1px solid var(--border-light); text-decoration:none; color:inherit;
+    transition:all var(--transition-fast);
+  }
+  .upcoming-item:hover { border-color:var(--accent); background:var(--accent-soft); color:inherit; }
+  .upcoming-item-dot { width:.5rem; height:.5rem; border-radius:50%; flex-shrink:0; }
+  .upcoming-item-date {
+    font-size:.75rem; font-weight:600; color:var(--text-muted);
+    min-width:5rem; flex-shrink:0;
+  }
+  .upcoming-item-date .upcoming-days {
+    display:inline-block; margin-left:.3rem; font-size:.68rem; font-weight:500;
+    color:var(--accent); background:var(--accent-soft); padding:0 .35rem;
+    border-radius:.75rem;
+  }
+  .upcoming-item-title { font-size:.82rem; font-weight:500; color:var(--text-primary); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .upcoming-item-cat { font-size:.7rem; color:var(--text-muted); flex-shrink:0; }
+  .upcoming-empty { text-align:center; padding:1rem; color:var(--text-muted); font-size:.82rem; }
+  .upcoming-toggle {
+    font-size:.78rem; color:var(--accent); background:none; border:none;
+    cursor:pointer; font-weight:500; padding:0;
+  }
+  .upcoming-toggle:hover { text-decoration:underline; }
+
   .fw-bar .progress {
     height: .85rem;
     border-radius: var(--radius-sm);
@@ -47,6 +82,16 @@
   </ul>
 </div>
 {% endif %}
+
+{# ── Upcoming events ──────────────────────────────────────── #}
+<div class="card upcoming-section" id="upcomingSection">
+  <div class="card-body" id="upcomingBody">
+    <div class="upcoming-header">
+      <h5 class="card-title mb-0"><i class="bi bi-clock-history me-1" style="color:var(--accent)"></i> {% trans "Upcoming events" %}</h5>
+    </div>
+    <div class="upcoming-empty"><i class="bi bi-arrow-repeat me-1"></i> {% trans "Loading..." %}</div>
+  </div>
+</div>
 
 {# ── Overall compliance (hero) ─────────────────────────────── #}
 <div class="hero-section mb-4">
@@ -359,4 +404,114 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  {% trans "Upcoming events" as t_upcoming %}
+  {% trans "next 30 days" as t_next30 %}
+  {% trans "No upcoming events" as t_noupcoming %}
+  {% trans "today" as t_todaylabel %}
+  {% trans "tomorrow" as t_tomorrow %}
+  {% trans "Show all" as t_showall %}
+  {% trans "in %(days)s days" as t_indays %}
+  {% trans "Risk assessments" as t_ra %}{% trans "Compliance assessments" as t_ca %}
+  {% trans "Action plans" as t_ap %}{% trans "Treatment plans" as t_tp %}
+  {% trans "Scopes" as t_sc %}{% trans "Objectives" as t_ob %}
+  {% trans "Frameworks" as t_fw %}{% trans "SWOT analyses" as t_sw %}
+  {% trans "Risk acceptances" as t_ac %}
+  {% trans "View calendar" as t_viewcal %}
+
+  var CAT = {
+    risk_assessment:'{{ t_ra|escapejs }}', compliance_assessment:'{{ t_ca|escapejs }}',
+    action_plan:'{{ t_ap|escapejs }}', treatment_plan:'{{ t_tp|escapejs }}',
+    scope:'{{ t_sc|escapejs }}', objective:'{{ t_ob|escapejs }}',
+    framework:'{{ t_fw|escapejs }}', swot:'{{ t_sw|escapejs }}',
+    acceptance:'{{ t_ac|escapejs }}'
+  };
+  var TXT_UPCOMING = '{{ t_upcoming|escapejs }}';
+  var TXT_NEXT30 = '{{ t_next30|escapejs }}';
+  var TXT_NOUPCOMING = '{{ t_noupcoming|escapejs }}';
+  var TXT_TODAYLABEL = '{{ t_todaylabel|escapejs }}';
+  var TXT_TOMORROW = '{{ t_tomorrow|escapejs }}';
+  var TXT_SHOWALL = '{{ t_showall|escapejs }}';
+  var TXT_INDAYS = '{{ t_indays|escapejs }}';
+  var TXT_VIEWCAL = '{{ t_viewcal|escapejs }}';
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function iso(d) { return d.toISOString().slice(0, 10); }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  var expanded = false;
+  var cachedEvents = [];
+
+  function renderUpcoming() {
+    var events = cachedEvents;
+    var body = document.getElementById('upcomingBody');
+    var todayStr = iso(new Date());
+    var count = events.length;
+    var collapsed = 5;
+    var shown = expanded ? events : events.slice(0, collapsed);
+
+    var h = '<div class="upcoming-header">'
+      + '<h5 class="card-title mb-0"><i class="bi bi-clock-history me-1" style="color:var(--accent)"></i> ' + TXT_UPCOMING
+      + ' <span class="badge bg-secondary">' + count + ' &mdash; ' + TXT_NEXT30 + '</span></h5>'
+      + '<div>';
+    if (count > collapsed) {
+      h += '<button class="upcoming-toggle" id="upcomingToggle">'
+        + (expanded ? '&#9650;' : '&#9660; ' + TXT_SHOWALL + ' (' + count + ')')
+        + '</button> ';
+    }
+    h += '<a href="{% url "calendar" %}" class="upcoming-toggle ms-3"><i class="bi bi-calendar3 me-1"></i>' + TXT_VIEWCAL + '</a>';
+    h += '</div></div>';
+
+    if (!count) {
+      h += '<div class="upcoming-empty"><i class="bi bi-calendar-check me-1"></i>' + TXT_NOUPCOMING + '</div>';
+    } else {
+      h += '<div class="upcoming-list">';
+      shown.forEach(function(ev) {
+        var evDate = new Date(ev.start + 'T00:00:00');
+        var diffDays = Math.round((evDate - new Date(todayStr + 'T00:00:00')) / 86400000);
+        var dayLabel;
+        if (diffDays === 0) dayLabel = TXT_TODAYLABEL;
+        else if (diffDays === 1) dayLabel = TXT_TOMORROW;
+        else dayLabel = TXT_INDAYS.replace('%(days)s', diffDays);
+
+        var ds = pad(evDate.getDate()) + '/' + pad(evDate.getMonth() + 1) + '/' + evDate.getFullYear();
+        var cat = CAT[ev.category] || ev.category;
+        var href = ev.url ? ' href="' + esc(ev.url) + '"' : '';
+        h += '<a class="upcoming-item"' + href + '>'
+          + '<span class="upcoming-item-dot" style="background:' + ev.color + '"></span>'
+          + '<span class="upcoming-item-date">' + ds + ' <span class="upcoming-days">' + esc(dayLabel) + '</span></span>'
+          + '<span class="upcoming-item-title" title="' + esc(ev.title) + '">' + esc(ev.title) + '</span>'
+          + '<span class="upcoming-item-cat">' + esc(cat) + '</span>'
+          + '</a>';
+      });
+      h += '</div>';
+    }
+    body.innerHTML = h;
+    var tog = document.getElementById('upcomingToggle');
+    if (tog) tog.onclick = function() { expanded = !expanded; renderUpcoming(); };
+  }
+
+  // Fetch upcoming events for next 30 days
+  var now = new Date();
+  var future = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  var p = new URLSearchParams();
+  p.set('start', iso(now));
+  p.set('end', iso(future));
+  fetch('{% url "calendar-events" %}?' + p.toString())
+    .then(function(r) { return r.json(); })
+    .then(function(events) {
+      events.sort(function(a, b) { return a.start.localeCompare(b.start); });
+      cachedEvents = events;
+      renderUpcoming();
+    })
+    .catch(function() {
+      document.getElementById('upcomingBody').innerHTML =
+        '<div class="upcoming-empty"><i class="bi bi-calendar-check me-1"></i>' + TXT_NOUPCOMING + '</div>';
+    });
+})();
+</script>
 {% endblock %}

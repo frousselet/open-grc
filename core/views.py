@@ -1,7 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Avg, Count, Prefetch, Q
+from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from django.views import View
 from django.views.generic import TemplateView
 
 from assets.models import AssetDependency, EssentialAsset, SupportAsset
@@ -12,8 +14,8 @@ from compliance.models import (
     Requirement,
     RequirementMapping,
 )
-from context.models import Issue, Objective, Role, Scope, Site, Stakeholder
-from risks.models import Risk, RiskAssessment, RiskCriteria, RiskTreatmentPlan
+from context.models import Issue, Objective, Role, Scope, Site, Stakeholder, SwotAnalysis
+from risks.models import Risk, RiskAcceptance, RiskAssessment, RiskCriteria, RiskTreatmentPlan
 from risks.views import build_default_risk_matrix, build_risk_matrix
 
 
@@ -182,3 +184,151 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
         ctx["alerts"] = alerts
 
         return ctx
+
+
+class CalendarView(LoginRequiredMixin, TemplateView):
+    template_name = "calendar.html"
+
+
+class CalendarEventsView(LoginRequiredMixin, View):
+    """Return calendar events as JSON for FullCalendar."""
+
+    def _scope_ids(self):
+        user = self.request.user
+        if user.is_superuser:
+            return None
+        return user.get_allowed_scope_ids()
+
+    def _filter_scoped(self, qs):
+        scope_ids = self._scope_ids()
+        if scope_ids is None:
+            return qs
+        model = qs.model
+        if hasattr(model, "scope"):
+            return qs.filter(scope_id__in=scope_ids)
+        if model._meta.many_to_many and any(
+            f.name == "scopes" for f in model._meta.many_to_many
+        ):
+            return qs.filter(scopes__id__in=scope_ids).distinct()
+        return qs
+
+    def get(self, request):
+        start = request.GET.get("start")
+        end = request.GET.get("end")
+        categories = request.GET.getlist("categories")
+
+        events = []
+        if not categories:
+            categories = [
+                "risk_assessment", "compliance_assessment", "action_plan",
+                "treatment_plan", "scope", "objective", "framework", "swot",
+                "acceptance",
+            ]
+
+        def add_events(queryset, date_field, category, color, url_name, label_prefix=""):
+            filters = {}
+            if start:
+                filters[f"{date_field}__gte"] = start
+            if end:
+                filters[f"{date_field}__lte"] = end
+            filters[f"{date_field}__isnull"] = False
+            qs = queryset.filter(**filters)
+            for obj in qs:
+                date_val = getattr(obj, date_field)
+                title = str(obj)
+                if label_prefix:
+                    title = f"{label_prefix}{title}"
+                events.append({
+                    "title": title,
+                    "start": date_val.isoformat(),
+                    "color": color,
+                    "category": category,
+                    "url": self._get_url(obj, url_name),
+                })
+
+        # ── Risk assessments ──────────────────────────────
+        if "risk_assessment" in categories:
+            qs = self._filter_scoped(RiskAssessment.objects.all())
+            add_events(qs, "assessment_date", "risk_assessment", "#ef4444",
+                       "risks:assessment-detail")
+            add_events(qs, "next_review_date", "risk_assessment", "#fca5a5",
+                       "risks:assessment-detail", _("Review: "))
+
+        # ── Compliance assessments ────────────────────────
+        if "compliance_assessment" in categories:
+            qs = self._filter_scoped(ComplianceAssessment.objects.all())
+            add_events(qs, "assessment_date", "compliance_assessment", "#6366f1",
+                       "compliance:assessment-detail")
+            add_events(qs, "review_date", "compliance_assessment", "#a5b4fc",
+                       "compliance:assessment-detail", _("Review: "))
+
+        # ── Compliance action plans ───────────────────────
+        if "action_plan" in categories:
+            qs = self._filter_scoped(ComplianceActionPlan.objects.all())
+            add_events(qs, "target_date", "action_plan", "#f59e0b",
+                       "compliance:action-plan-detail")
+            add_events(qs, "start_date", "action_plan", "#fcd34d",
+                       "compliance:action-plan-detail", _("Start: "))
+            add_events(qs, "completion_date", "action_plan", "#10b981",
+                       "compliance:action-plan-detail", _("Done: "))
+
+        # ── Risk treatment plans ──────────────────────────
+        if "treatment_plan" in categories:
+            qs = RiskTreatmentPlan.objects.all()
+            add_events(qs, "target_date", "treatment_plan", "#8b5cf6",
+                       "risks:treatment-plan-detail")
+            add_events(qs, "start_date", "treatment_plan", "#c4b5fd",
+                       "risks:treatment-plan-detail", _("Start: "))
+            add_events(qs, "completion_date", "treatment_plan", "#10b981",
+                       "risks:treatment-plan-detail", _("Done: "))
+
+        # ── Scopes ────────────────────────────────────────
+        if "scope" in categories:
+            qs = Scope.objects.all()
+            add_events(qs, "effective_date", "scope", "#06b6d4",
+                       "context:scope-detail")
+            add_events(qs, "review_date", "scope", "#67e8f9",
+                       "context:scope-detail", _("Review: "))
+
+        # ── Objectives ────────────────────────────────────
+        if "objective" in categories:
+            qs = self._filter_scoped(Objective.objects.all())
+            add_events(qs, "target_date", "objective", "#14b8a6",
+                       "context:objective-detail")
+            add_events(qs, "review_date", "objective", "#5eead4",
+                       "context:objective-detail", _("Review: "))
+
+        # ── Frameworks ────────────────────────────────────
+        if "framework" in categories:
+            qs = self._filter_scoped(Framework.objects.all())
+            add_events(qs, "effective_date", "framework", "#3b82f6",
+                       "compliance:framework-detail")
+            add_events(qs, "expiry_date", "framework", "#93c5fd",
+                       "compliance:framework-detail", _("Expiry: "))
+            add_events(qs, "review_date", "framework", "#bfdbfe",
+                       "compliance:framework-detail", _("Review: "))
+
+        # ── SWOT analyses ─────────────────────────────────
+        if "swot" in categories:
+            qs = self._filter_scoped(SwotAnalysis.objects.all())
+            add_events(qs, "analysis_date", "swot", "#ec4899",
+                       "context:swot-detail")
+            add_events(qs, "review_date", "swot", "#f9a8d4",
+                       "context:swot-detail", _("Review: "))
+
+        # ── Risk acceptances ──────────────────────────────
+        if "acceptance" in categories:
+            qs = RiskAcceptance.objects.all()
+            add_events(qs, "valid_until", "acceptance", "#f97316",
+                       "risks:acceptance-detail")
+            add_events(qs, "review_date", "acceptance", "#fdba74",
+                       "risks:acceptance-detail", _("Review: "))
+
+        return JsonResponse(events, safe=False)
+
+    def _get_url(self, obj, url_name):
+        from django.urls import reverse
+        try:
+            return reverse(url_name, kwargs={"pk": obj.pk})
+        except Exception:
+            return ""

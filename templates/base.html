@@ -688,6 +688,14 @@
     </div>
 
     <div class="sidebar-body">
+      {# ── General ───────────────────────────────────────── #}
+      <a href="{% url 'home' %}" class="sidebar-link">
+        <i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}
+      </a>
+      <a href="{% url 'calendar' %}" class="sidebar-link">
+        <i class="bi bi-calendar3"></i> {% trans "Calendar" %}
+      </a>
+
       {# ── Gouvernance ─────────────────────────────────── #}
       <div class="sidebar-section">{% trans "Governance" %}</div>
       <a href="{% url 'context:dashboard' %}" class="sidebar-link">

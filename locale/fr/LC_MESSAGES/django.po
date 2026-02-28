@@ -3509,3 +3509,130 @@ msgstr "Risque « %(ref)s » créé à partir de l'analyse ISO 27005."
 
 msgid "Consolidate as risk"
 msgstr "Consolider en risque"
+
+#: templates/base.html templates/calendar.html
+msgid "Calendar"
+msgstr "Calendrier"
+
+#: templates/calendar.html
+msgid "Today"
+msgstr "Aujourd'hui"
+
+#: templates/calendar.html
+msgid "Month"
+msgstr "Mois"
+
+#: templates/calendar.html
+msgid "Week"
+msgstr "Semaine"
+
+#: core/views.py — calendar
+msgid "Review: "
+msgstr "Revue : "
+
+msgid "Start: "
+msgstr "Début : "
+
+msgid "Done: "
+msgstr "Terminé : "
+
+msgid "Expiry: "
+msgstr "Expiration : "
+
+#: templates/calendar.html
+msgid "Timeline"
+msgstr "Chronologie"
+
+msgid "No events for this period"
+msgstr "Aucun événement pour cette période"
+
+msgid "January"
+msgstr "Janvier"
+
+msgid "February"
+msgstr "Février"
+
+msgid "March"
+msgstr "Mars"
+
+msgid "April"
+msgstr "Avril"
+
+msgid "May"
+msgstr "Mai"
+
+msgid "June"
+msgstr "Juin"
+
+msgid "July"
+msgstr "Juillet"
+
+msgid "August"
+msgstr "Août"
+
+msgid "September"
+msgstr "Septembre"
+
+msgid "October"
+msgstr "Octobre"
+
+msgid "November"
+msgstr "Novembre"
+
+msgid "December"
+msgstr "Décembre"
+
+#: templates/calendar.html — day abbreviations
+msgid "Mon"
+msgstr "Lun"
+
+msgid "Tue"
+msgstr "Mar"
+
+msgid "Wed"
+msgstr "Mer"
+
+msgid "Thu"
+msgstr "Jeu"
+
+msgid "Fri"
+msgstr "Ven"
+
+msgid "Sat"
+msgstr "Sam"
+
+msgid "Sun"
+msgstr "Dim"
+
+#: templates/calendar.html
+msgid "Year"
+msgstr "Année"
+
+#: templates/calendar.html — upcoming events
+msgid "Upcoming events"
+msgstr "Événements à venir"
+
+msgid "next 30 days"
+msgstr "30 prochains jours"
+
+msgid "No upcoming events"
+msgstr "Aucun événement à venir"
+
+msgid "today"
+msgstr "aujourd'hui"
+
+msgid "tomorrow"
+msgstr "demain"
+
+msgid "Show all"
+msgstr "Tout afficher"
+
+msgid "in %(days)s days"
+msgstr "dans %(days)s jours"
+
+#: templates/home.html
+msgid "View calendar"
+msgstr "Voir le calendrier"
+
+msgid "Loading..."
+msgstr "Chargement…"
