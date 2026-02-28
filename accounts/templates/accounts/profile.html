@@ -52,11 +52,11 @@
         {% if groups %}
         <ul class="list-unstyled mb-0">
           {% for group in groups %}
-          <li><span class="badge bg-secondary">{{ group.name }}</span></li>
+          <li><span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ group.name }}</span></li>
           {% endfor %}
         </ul>
         {% else %}
-        <p class="text-muted mb-0">{% trans "No group assigned." %}</p>
+        <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No group assigned." %}</p>
         {% endif %}
       </div>
     </div>
@@ -71,7 +71,7 @@
           {% endfor %}
         </ul>
         {% else %}
-        <p class="text-muted mb-0">{% trans "No permissions." %}</p>
+        <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No permissions." %}</p>
         {% endif %}
       </div>
     </div>
