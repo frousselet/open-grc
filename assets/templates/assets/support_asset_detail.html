@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ asset.reference }} — {{ asset.name }}</h1>
-  <div>
+  <div class="d-flex gap-2">
     <a href="{% url 'assets:support-asset-update' asset.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'assets:support-asset-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
@@ -29,44 +29,56 @@
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ asset.scope }}</dd>
-      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ asset.get_type_display }}</dd>
-      <dt class="col-sm-3">{% trans "Category" %}</dt><dd class="col-sm-9">{{ asset.get_category_display }}</dd>
-      <dt class="col-sm-3">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ asset.owner }}</dd>
-      <dt class="col-sm-3">{% trans "Custodian" %}</dt><dd class="col-sm-9">{{ asset.custodian|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Status" %}</dt><dd class="col-sm-9">{{ asset.get_status_display }}</dd>
-      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ asset.description|default:"—"|linebreaksbr }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ asset.scope }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ asset.get_type_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Category" %}</dt><dd class="col-sm-9">{{ asset.get_category_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ asset.owner }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Custodian" %}</dt><dd class="col-sm-9">{{ asset.custodian|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt><dd class="col-sm-9">{{ asset.get_status_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ asset.description|default:"—"|linebreaksbr }}</dd>
+        </dl>
+      </div>
+    </div>
   </div>
 
   <div class="tab-pane fade" id="technical">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Location" %}</dt><dd class="col-sm-9">{{ asset.location|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Manufacturer / vendor" %}</dt><dd class="col-sm-9">{{ asset.manufacturer|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Model / version" %}</dt><dd class="col-sm-9">{{ asset.model_name|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Serial number" %}</dt><dd class="col-sm-9">{{ asset.serial_number|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Software version" %}</dt><dd class="col-sm-9">{{ asset.software_version|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "IP address" %}</dt><dd class="col-sm-9">{{ asset.ip_address|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Hostname" %}</dt><dd class="col-sm-9">{{ asset.hostname|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "OS" %}</dt><dd class="col-sm-9">{{ asset.operating_system|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Exposure" %}</dt><dd class="col-sm-9">{{ asset.get_exposure_level_display|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Environment" %}</dt><dd class="col-sm-9">{{ asset.get_environment_display|default:"—" }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Location" %}</dt><dd class="col-sm-9">{{ asset.location|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Manufacturer / vendor" %}</dt><dd class="col-sm-9">{{ asset.manufacturer|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Model / version" %}</dt><dd class="col-sm-9">{{ asset.model_name|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Serial number" %}</dt><dd class="col-sm-9">{{ asset.serial_number|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Software version" %}</dt><dd class="col-sm-9">{{ asset.software_version|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "IP address" %}</dt><dd class="col-sm-9">{{ asset.ip_address|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Hostname" %}</dt><dd class="col-sm-9">{{ asset.hostname|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "OS" %}</dt><dd class="col-sm-9">{{ asset.operating_system|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Exposure" %}</dt><dd class="col-sm-9">{{ asset.get_exposure_level_display|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Environment" %}</dt><dd class="col-sm-9">{{ asset.get_environment_display|default:"—" }}</dd>
+        </dl>
+      </div>
+    </div>
   </div>
 
   <div class="tab-pane fade" id="lifecycle">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Acquisition date" %}</dt><dd class="col-sm-9">{{ asset.acquisition_date|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "End of life" %}</dt>
-      <dd class="col-sm-9">
-        {{ asset.end_of_life_date|default:"—" }}
-        {% if asset.is_end_of_life %}<span class="badge text-bg-danger">{% trans "Exceeded" %}</span>{% endif %}
-      </dd>
-      <dt class="col-sm-3">{% trans "Warranty expiry" %}</dt><dd class="col-sm-9">{{ asset.warranty_expiry_date|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Contract reference" %}</dt><dd class="col-sm-9">{{ asset.contract_reference|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Next review date" %}</dt><dd class="col-sm-9">{{ asset.review_date|default:"—" }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Acquisition date" %}</dt><dd class="col-sm-9">{{ asset.acquisition_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "End of life" %}</dt>
+          <dd class="col-sm-9">
+            {{ asset.end_of_life_date|default:"—" }}
+            {% if asset.is_end_of_life %}<span class="badge text-bg-danger">{% trans "Exceeded" %}</span>{% endif %}
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Warranty expiry" %}</dt><dd class="col-sm-9">{{ asset.warranty_expiry_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contract reference" %}</dt><dd class="col-sm-9">{{ asset.contract_reference|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Next review date" %}</dt><dd class="col-sm-9">{{ asset.review_date|default:"—" }}</dd>
+        </dl>
+      </div>
+    </div>
   </div>
 
   <div class="tab-pane fade" id="dic">
@@ -98,21 +110,25 @@
     </div>
     <h6>{% trans "Source (contributing essential assets)" %}</h6>
     {% if dependencies %}
-    <table class="table table-striped">
-      <thead><tr><th>{% trans "Essential asset" %}</th><th class="text-center">C</th><th class="text-center">I</th><th class="text-center">A</th></tr></thead>
-      <tbody>
-        {% for dep in dependencies %}
-        <tr>
-          <td><a href="{% url 'assets:essential-asset-detail' dep.essential_asset.pk %}">{{ dep.essential_asset }}</a></td>
-          <td class="text-center">{{ dep.essential_asset.confidentiality_level|dic_badge }}</td>
-          <td class="text-center">{{ dep.essential_asset.integrity_level|dic_badge }}</td>
-          <td class="text-center">{{ dep.essential_asset.availability_level|dic_badge }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>{% trans "Essential asset" %}</th><th class="text-center">C</th><th class="text-center">I</th><th class="text-center">A</th></tr></thead>
+          <tbody>
+            {% for dep in dependencies %}
+            <tr>
+              <td><a href="{% url 'assets:essential-asset-detail' dep.essential_asset.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ dep.essential_asset }}</a></td>
+              <td class="text-center">{{ dep.essential_asset.confidentiality_level|dic_badge }}</td>
+              <td class="text-center">{{ dep.essential_asset.integrity_level|dic_badge }}</td>
+              <td class="text-center">{{ dep.essential_asset.availability_level|dic_badge }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
     {% else %}
-    <p class="text-muted">{% trans "No associated essential asset (orphan support asset)." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No associated essential asset (orphan support asset)." %}</p>
     {% endif %}
   </div>
 
@@ -120,7 +136,7 @@
     <h5>{% trans "Parent support asset" %}</h5>
     <p>
       {% if asset.parent_asset %}
-      <a href="{% url 'assets:support-asset-detail' asset.parent_asset.pk %}">{{ asset.parent_asset }}</a>
+      <a href="{% url 'assets:support-asset-detail' asset.parent_asset.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ asset.parent_asset }}</a>
       {% else %}—{% endif %}
     </p>
 
@@ -129,7 +145,7 @@
     <ul class="list-group mb-3">
       {% for child in children %}
       <li class="list-group-item">
-        <a href="{% url 'assets:support-asset-detail' child.pk %}">{{ child.reference }} — {{ child.name }}</a>
+        <a href="{% url 'assets:support-asset-detail' child.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ child.reference }} — {{ child.name }}</a>
       </li>
       {% endfor %}
     </ul>

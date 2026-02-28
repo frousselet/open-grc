@@ -8,20 +8,14 @@
 {% block extra_css %}
 <style>
   .risk-matrix { table-layout: fixed; }
-  .risk-matrix-corner { width: 90px; background: #f8f9fa; }
-  .risk-matrix-header { font-size: .78rem; background: #f8f9fa; }
-  .risk-matrix-row-label { font-size: .78rem; white-space: nowrap; background: #f8f9fa; text-align: right; padding-right: .6rem !important; }
-  .risk-matrix-cell { position: relative; height: 60px; min-width: 60px; transition: transform .1s; cursor: default; border: 2px solid #fff !important; }
-  .risk-matrix-cell:hover { transform: scale(1.05); z-index: 1; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
-  .risk-matrix-count { display: block; font-size: 1.3rem; font-weight: 700; line-height: 1.2; }
-  .risk-matrix-level-name { display: block; font-size: .65rem; color: inherit; text-transform: uppercase; letter-spacing: .03em; opacity: .85; }
+  .risk-matrix-corner { width: 90px; background: var(--surface-muted); }
+  .risk-matrix-header { font-size: .72rem; background: var(--surface-muted); font-weight: 600; color: var(--text-secondary); }
+  .risk-matrix-row-label { font-size: .72rem; white-space: nowrap; background: var(--surface-muted); text-align: right; padding-right: .6rem !important; font-weight: 600; color: var(--text-secondary); }
+  .risk-matrix-cell { position: relative; height: 60px; min-width: 60px; transition: transform .15s cubic-bezier(.4,0,.2,1); cursor: default; border: 2px solid var(--surface-raised) !important; border-radius: .25rem; }
+  .risk-matrix-cell:hover { transform: scale(1.06); z-index: 1; box-shadow: var(--shadow-md); }
+  .risk-matrix-count { display: block; font-size: 1.25rem; font-weight: 700; line-height: 1.2; }
+  .risk-matrix-level-name { display: block; font-size: .6rem; text-transform: uppercase; letter-spacing: .04em; opacity: .8; }
   .risk-matrix-axis-label { border: none !important; }
-
-  [data-bs-theme="dark"] .risk-matrix-corner,
-  [data-bs-theme="dark"] .risk-matrix-header,
-  [data-bs-theme="dark"] .risk-matrix-row-label { background: #2b3035; color: #dee2e6; }
-  [data-bs-theme="dark"] .risk-matrix-cell { border-color: #212529 !important; }
-  [data-bs-theme="dark"] .risk-matrix-cell:hover { box-shadow: 0 2px 8px rgba(0,0,0,.4); }
 </style>
 {% endblock %}
 
@@ -33,76 +27,72 @@
 
 <div class="row g-3 mb-4">
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-primary h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Risk assessments" %}</h5>
-        <p class="display-6">{{ assessment_count }}</p>
-        <a href="{% url 'risks:assessment-list' %}" class="text-white">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon accent"><i class="bi bi-clipboard-data"></i></div>
+      <div class="stat-card-label">{% trans "Risk assessments" %}</div>
+      <div class="stat-card-value">{{ assessment_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'risks:assessment-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-danger h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Risks" %}</h5>
-        <p class="display-6">{{ risk_count }}</p>
-        <a href="{% url 'risks:risk-list' %}" class="text-white">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon danger"><i class="bi bi-exclamation-diamond"></i></div>
+      <div class="stat-card-label">{% trans "Risks" %}</div>
+      <div class="stat-card-value">{{ risk_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'risks:risk-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-warning h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Treatment plans" %}</h5>
-        <p class="display-6">{{ treatment_plan_count }}</p>
-        {% if treatment_in_progress %}
-        <span class="badge text-bg-dark">{% blocktrans with count=treatment_in_progress %}{{ count }} in progress{% endblocktrans %}</span>
-        {% endif %}
-        <div class="mt-1"><a href="{% url 'risks:treatment-plan-list' %}" class="text-dark">{% trans "View all" %}</a></div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon warning"><i class="bi bi-tools"></i></div>
+      <div class="stat-card-label">{% trans "Treatment plans" %}</div>
+      <div class="stat-card-value">{{ treatment_plan_count }}</div>
+      {% if treatment_in_progress %}
+      <span class="badge mt-2" style="background:var(--warning-soft);color:var(--warning);font-size:.72rem">{% blocktrans with count=treatment_in_progress %}{{ count }} in progress{% endblocktrans %}</span>
+      {% endif %}
+      <div class="stat-card-footer"><a href="{% url 'risks:treatment-plan-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-info h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Active acceptances" %}</h5>
-        <p class="display-6">{{ acceptance_count }}</p>
-        <a href="{% url 'risks:acceptance-list' %}" class="text-white">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon info"><i class="bi bi-check2-circle"></i></div>
+      <div class="stat-card-label">{% trans "Active acceptances" %}</div>
+      <div class="stat-card-value">{{ acceptance_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'risks:acceptance-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
 </div>
 
 <div class="row g-3 mb-4">
   <div class="col-md-3 col-sm-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Threats" %}</h5>
-        <p class="display-6">{{ threat_count }}</p>
-        <a href="{% url 'risks:threat-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon accent"><i class="bi bi-bug"></i></div>
+      <div class="stat-card-label">{% trans "Threats" %}</div>
+      <div class="stat-card-value">{{ threat_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'risks:threat-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Vulnerabilities" %}</h5>
-        <p class="display-6">{{ vulnerability_count }}</p>
-        <a href="{% url 'risks:vulnerability-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon info"><i class="bi bi-shield-x"></i></div>
+      <div class="stat-card-label">{% trans "Vulnerabilities" %}</div>
+      <div class="stat-card-value">{{ vulnerability_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'risks:vulnerability-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-6">
     <div class="card h-100">
       <div class="card-body">
-        <h5 class="card-title">{% trans "Risks by priority" %}</h5>
-        {% for item in risk_by_priority %}
-        <span class="badge text-bg-{% if item.priority == 'critical' %}danger{% elif item.priority == 'high' %}warning{% elif item.priority == 'medium' %}info{% else %}secondary{% endif %} me-1">
-          {{ item.priority|title }}: {{ item.count }}
-        </span>
-        {% empty %}
-        <span class="text-muted">{% trans "No risks recorded" %}</span>
-        {% endfor %}
+        <h5 class="card-title"><i class="bi bi-bar-chart me-1" style="color:var(--accent)"></i> {% trans "Risks by priority" %}</h5>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          {% for item in risk_by_priority %}
+          <span class="badge text-bg-{% if item.priority == 'critical' %}danger{% elif item.priority == 'high' %}warning{% elif item.priority == 'medium' %}info{% else %}secondary{% endif %}" style="font-size:.82rem;padding:.4em .8em">
+            {{ item.priority|title }}: {{ item.count }}
+          </span>
+          {% empty %}
+          <span style="color:var(--text-muted);font-size:.85rem">{% trans "No risks recorded" %}</span>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
@@ -111,10 +101,10 @@
 {% if risk_by_status %}
 <div class="card mb-4">
   <div class="card-body">
-    <h5 class="card-title">{% trans "Risks by status" %}</h5>
-    <div class="d-flex flex-wrap gap-2">
+    <h5 class="card-title"><i class="bi bi-pie-chart me-1" style="color:var(--accent)"></i> {% trans "Risks by status" %}</h5>
+    <div class="d-flex flex-wrap gap-2 mt-3">
       {% for item in risk_by_status %}
-      <span class="badge text-bg-secondary">{{ item.status }}: {{ item.count }}</span>
+      <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ item.status }}: {{ item.count }}</span>
       {% endfor %}
     </div>
   </div>
@@ -124,8 +114,8 @@
 {# ── Risk matrices ───────────────────────────────── #}
 {% if matrix_current or matrix_residual %}
 <div class="d-flex align-items-center mb-3">
-  <h5 class="mb-0"><i class="bi bi-grid-3x3 me-1"></i> {% trans "Risk matrices" %}
-    {% if matrix_criteria %}<small class="text-muted fw-normal ms-2">({{ matrix_criteria.name }})</small>{% endif %}
+  <h5 class="mb-0"><i class="bi bi-grid-3x3 me-1" style="color:var(--accent)"></i> {% trans "Risk matrices" %}
+    {% if matrix_criteria %}<small style="color:var(--text-muted)" class="fw-normal ms-2">({{ matrix_criteria.name }})</small>{% endif %}
   </h5>
   {% if matrix_criteria %}
   <a href="{% url 'risks:criteria-update' matrix_criteria.pk %}" class="btn btn-outline-secondary btn-sm ms-3" title="{% trans "Configure scales" %}"><i class="bi bi-gear me-1"></i>{% trans "Configure" %}</a>

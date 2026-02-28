@@ -30,43 +30,45 @@
   </div>
 </form>
 
-<div class="table-responsive">
-  <table class="table table-hover">
-    <thead class="table-light">
-      <tr>
-        <th>{% trans "Name" %}</th>
-        <th>{% trans "Email" %}</th>
-        <th>{% trans "Job title" %}</th>
-        <th>{% trans "Department" %}</th>
-        <th>{% trans "Status" %}</th>
-        <th>{% trans "Last login" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for u in users %}
-      <tr>
-        <td><a href="{% url 'accounts:user-detail' u.pk %}">{{ u.display_name }}</a></td>
-        <td>{{ u.email }}</td>
-        <td>{{ u.job_title|default:"-" }}</td>
-        <td>{{ u.department|default:"-" }}</td>
-        <td>
-          {% if u.is_active %}
-            {% if u.is_locked %}
-            <span class="badge bg-warning text-dark">{% trans "Locked" %}</span>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Name" %}</th>
+          <th>{% trans "Email" %}</th>
+          <th>{% trans "Job title" %}</th>
+          <th>{% trans "Department" %}</th>
+          <th>{% trans "Status" %}</th>
+          <th>{% trans "Last login" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td><a href="{% url 'accounts:user-detail' u.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ u.display_name }}</a></td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.job_title|default:"-" }}</td>
+          <td>{{ u.department|default:"-" }}</td>
+          <td>
+            {% if u.is_active %}
+              {% if u.is_locked %}
+              <span class="badge bg-warning text-dark">{% trans "Locked" %}</span>
+              {% else %}
+              <span class="badge bg-success">{% trans "Active" %}</span>
+              {% endif %}
             {% else %}
-            <span class="badge bg-success">{% trans "Active" %}</span>
+            <span class="badge bg-secondary">{% trans "Inactive" %}</span>
             {% endif %}
-          {% else %}
-          <span class="badge bg-secondary">{% trans "Inactive" %}</span>
-          {% endif %}
-        </td>
-        <td>{{ u.last_login|date:"d/m/Y H:i"|default:"-" }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="6" class="text-muted text-center">{% trans "No user found." %}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+          </td>
+          <td>{{ u.last_login|date:"d/m/Y H:i"|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted)">{% trans "No user found." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 {% if is_paginated %}

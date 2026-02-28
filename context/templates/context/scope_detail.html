@@ -16,7 +16,7 @@
 {% endif %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ scope.name }}</h1>
-  <div>
+  <div class="d-flex gap-2">
     <a href="{% url 'context:scope-update' scope.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'context:scope-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
@@ -32,35 +32,39 @@
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Version" %}</dt><dd class="col-sm-9">{{ scope.version }}</dd>
-      <dt class="col-sm-3">{% trans "Status" %}</dt>
-      <dd class="col-sm-9">
-        <span class="badge text-bg-{% if scope.status == 'active' %}success{% elif scope.status == 'draft' %}secondary{% else %}dark{% endif %}">
-          {{ scope.get_status_display }}
-        </span>
-      </dd>
-      <dt class="col-sm-3">{% trans "Parent scope" %}</dt>
-      <dd class="col-sm-9">
-        {% if scope.parent_scope %}
-        <a href="{% url 'context:scope-detail' scope.parent_scope.pk %}">{{ scope.parent_scope.name }}</a>
-        {% else %}—{% endif %}
-      </dd>
-      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ scope.description|linebreaksbr }}</dd>
-      <dt class="col-sm-3">{% trans "Approved by" %}</dt><dd class="col-sm-9">{{ scope.approved_by|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Approval date" %}</dt><dd class="col-sm-9">{{ scope.approved_at|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Effective date" %}</dt><dd class="col-sm-9">{{ scope.effective_date|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ scope.review_date|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Created by" %}</dt><dd class="col-sm-9">{{ scope.created_by|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Created on" %}</dt><dd class="col-sm-9">{{ scope.created_at }}</dd>
-      <dt class="col-sm-3">{% trans "Modified on" %}</dt><dd class="col-sm-9">{{ scope.updated_at }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Version" %}</dt><dd class="col-sm-9">{{ scope.version }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if scope.status == 'active' %}success{% elif scope.status == 'draft' %}secondary{% else %}dark{% endif %}">
+              {{ scope.get_status_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Parent scope" %}</dt>
+          <dd class="col-sm-9">
+            {% if scope.parent_scope %}
+            <a href="{% url 'context:scope-detail' scope.parent_scope.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ scope.parent_scope.name }}</a>
+            {% else %}—{% endif %}
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ scope.description|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Approved by" %}</dt><dd class="col-sm-9">{{ scope.approved_by|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Approval date" %}</dt><dd class="col-sm-9">{{ scope.approved_at|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Effective date" %}</dt><dd class="col-sm-9">{{ scope.effective_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ scope.review_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Created by" %}</dt><dd class="col-sm-9">{{ scope.created_by|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Created on" %}</dt><dd class="col-sm-9">{{ scope.created_at }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Modified on" %}</dt><dd class="col-sm-9">{{ scope.updated_at }}</dd>
+        </dl>
+      </div>
+    </div>
     {% if children %}
     <h5 class="mt-4">{% trans "Sub-scopes" %}</h5>
     <ul class="list-group">
       {% for child in children %}
       <li class="list-group-item">
-        <a href="{% url 'context:scope-detail' child.pk %}">{{ child.name }}</a>
+        <a href="{% url 'context:scope-detail' child.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ child.name }}</a>
         <span class="badge text-bg-{% if child.status == 'active' %}success{% elif child.status == 'draft' %}secondary{% else %}dark{% endif %} ms-2">
           {{ child.get_status_display }}
         </span>
@@ -70,33 +74,41 @@
     {% endif %}
   </div>
   <div class="tab-pane fade" id="perimeters">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Geographic" %}</dt><dd class="col-sm-9">{{ scope.geographic_scope|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">{% trans "Organizational" %}</dt><dd class="col-sm-9">{{ scope.organizational_scope|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">{% trans "Technical" %}</dt><dd class="col-sm-9">{{ scope.technical_scope|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">{% trans "Included sites" %}</dt>
-      <dd class="col-sm-9">
-        {% for site in scope.included_sites.all %}
-        <a href="{% url 'context:site-detail' site.pk %}"><span class="badge text-bg-success me-1 mb-1">{{ site.full_path }}</span></a>
-        {% empty %}
-        <span class="text-muted">—</span>
-        {% endfor %}
-      </dd>
-      <dt class="col-sm-3">{% trans "Excluded sites" %}</dt>
-      <dd class="col-sm-9">
-        {% for site in scope.excluded_sites.all %}
-        <a href="{% url 'context:site-detail' site.pk %}"><span class="badge text-bg-danger me-1 mb-1">{{ site.full_path }}</span></a>
-        {% empty %}
-        <span class="text-muted">—</span>
-        {% endfor %}
-      </dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Geographic" %}</dt><dd class="col-sm-9">{{ scope.geographic_scope|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Organizational" %}</dt><dd class="col-sm-9">{{ scope.organizational_scope|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Technical" %}</dt><dd class="col-sm-9">{{ scope.technical_scope|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Included sites" %}</dt>
+          <dd class="col-sm-9">
+            {% for site in scope.included_sites.all %}
+            <a href="{% url 'context:site-detail' site.pk %}"><span class="badge text-bg-success me-1 mb-1">{{ site.full_path }}</span></a>
+            {% empty %}
+            <span style="color:var(--text-muted)">—</span>
+            {% endfor %}
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Excluded sites" %}</dt>
+          <dd class="col-sm-9">
+            {% for site in scope.excluded_sites.all %}
+            <a href="{% url 'context:site-detail' site.pk %}"><span class="badge text-bg-danger me-1 mb-1">{{ site.full_path }}</span></a>
+            {% empty %}
+            <span style="color:var(--text-muted)">—</span>
+            {% endfor %}
+          </dd>
+        </dl>
+      </div>
+    </div>
   </div>
   <div class="tab-pane fade" id="exclusions">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Boundaries and exclusions" %}</dt><dd class="col-sm-9">{{ scope.boundaries|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ scope.justification_exclusions|default:"—"|linebreaksbr }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Boundaries and exclusions" %}</dt><dd class="col-sm-9">{{ scope.boundaries|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ scope.justification_exclusions|default:"—"|linebreaksbr }}</dd>
+        </dl>
+      </div>
+    </div>
   </div>
   <div class="tab-pane fade" id="history">
     {% include "includes/history_tab.html" %}

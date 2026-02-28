@@ -12,47 +12,46 @@
 {% help_modal "assets.dashboard" %}
 
 <div class="row g-3 mb-4">
-  <div class="col-md-3">
-    <div class="card text-bg-primary">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Essential assets" %}</h5>
-        <p class="display-6">{{ essential_count }}</p>
-        <a href="{% url 'assets:essential-asset-list' %}" class="text-white">{% trans "View all" %}</a>
-      </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon accent"><i class="bi bi-gem"></i></div>
+      <div class="stat-card-label">{% trans "Essential assets" %}</div>
+      <div class="stat-card-value">{{ essential_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'assets:essential-asset-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card text-bg-info">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Support assets" %}</h5>
-        <p class="display-6">{{ support_count }}</p>
-        <a href="{% url 'assets:support-asset-list' %}" class="text-white">{% trans "View all" %}</a>
-      </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon info"><i class="bi bi-hdd-stack"></i></div>
+      <div class="stat-card-label">{% trans "Support assets" %}</div>
+      <div class="stat-card-value">{{ support_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'assets:support-asset-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card text-bg-success">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Dependencies" %}</h5>
-        <p class="display-6">{{ dependency_count }}</p>
-        <a href="{% url 'assets:dependency-list' %}" class="text-white">{% trans "View all" %}</a>
-      </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon success"><i class="bi bi-share"></i></div>
+      <div class="stat-card-label">{% trans "Dependencies" %}</div>
+      <div class="stat-card-value">{{ dependency_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'assets:dependency-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card text-bg-secondary">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Groups" %}</h5>
-        <p class="display-6">{{ group_count }}</p>
-        <a href="{% url 'assets:group-list' %}" class="text-white">{% trans "View all" %}</a>
-      </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon warning"><i class="bi bi-collection"></i></div>
+      <div class="stat-card-label">{% trans "Groups" %}</div>
+      <div class="stat-card-value">{{ group_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'assets:group-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
 </div>
 
 {% if unsupported_essentials or orphan_supports or spof_count or eol_assets %}
 <div class="alert alert-danger">
-  <h5>{% trans "Alerts" %}</h5>
+  <div class="d-flex align-items-center mb-2">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong>{% trans "Alerts" %}</strong>
+  </div>
   <ul class="mb-0">
     {% if unsupported_essentials %}
     <li>{{ unsupported_essentials }} {% trans "essential asset(s) without an associated support asset" %}</li>
@@ -72,26 +71,30 @@
 
 <div class="row g-3 mb-4">
   <div class="col-md-6">
-    <div class="card">
+    <div class="card h-100">
       <div class="card-body">
-        <h5 class="card-title">{% trans "Essential assets by type" %}</h5>
-        {% for item in essential_by_type %}
-        <span class="badge text-bg-primary fs-6 me-1">{{ item.type }}: {{ item.count }}</span>
-        {% empty %}
-        <p class="text-muted">{% trans "No essential assets." %}</p>
-        {% endfor %}
+        <h5 class="card-title"><i class="bi bi-pie-chart me-1" style="color:var(--accent)"></i> {% trans "Essential assets by type" %}</h5>
+        <div class="d-flex gap-2 flex-wrap mt-3">
+          {% for item in essential_by_type %}
+          <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ item.type }}: {{ item.count }}</span>
+          {% empty %}
+          <p style="color:var(--text-muted);font-size:.85rem">{% trans "No essential assets." %}</p>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
   <div class="col-md-6">
-    <div class="card">
+    <div class="card h-100">
       <div class="card-body">
-        <h5 class="card-title">{% trans "Support assets by type" %}</h5>
-        {% for item in support_by_type %}
-        <span class="badge text-bg-info fs-6 me-1">{{ item.type }}: {{ item.count }}</span>
-        {% empty %}
-        <p class="text-muted">{% trans "No support assets." %}</p>
-        {% endfor %}
+        <h5 class="card-title"><i class="bi bi-pie-chart me-1" style="color:var(--info)"></i> {% trans "Support assets by type" %}</h5>
+        <div class="d-flex gap-2 flex-wrap mt-3">
+          {% for item in support_by_type %}
+          <span class="badge" style="background:var(--info-soft);color:var(--info);font-size:.82rem;padding:.4em .8em">{{ item.type }}: {{ item.count }}</span>
+          {% empty %}
+          <p style="color:var(--text-muted);font-size:.85rem">{% trans "No support assets." %}</p>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
@@ -99,6 +102,7 @@
 
 {% if personal_data_count %}
 <div class="alert alert-warning">
+  <i class="bi bi-shield-exclamation me-2"></i>
   <strong>{{ personal_data_count }}</strong> {% trans "essential asset(s) containing personal data." %}
 </div>
 {% endif %}

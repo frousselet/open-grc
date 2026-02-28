@@ -12,55 +12,57 @@
 </div>
 {% help_modal "compliance.requirement_list" %}
 
-<div class="table-responsive">
-  <table class="table table-striped table-hover">
-    <thead class="table-dark">
-      <tr>
-        <th>{% trans "Reference" %}</th>
-        <th>{% trans "Title" %}</th>
-        <th>{% trans "Framework" %}</th>
-        <th>{% trans "Type" %}</th>
-        <th>{% trans "Compliance" %}</th>
-        <th>{% trans "Level" %}</th>
-        <th>{% trans "Priority" %}</th>
-        <th>{% trans "Approval" %}</th>
-        <th>{% trans "Actions" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for req in requirements %}
-      <tr>
-        <td><a href="{% url 'compliance:requirement-detail' req.pk %}">{{ req.reference }}</a></td>
-        <td>{{ req.name|truncatechars:60 }}</td>
-        <td>{{ req.framework.short_name|default:req.framework.name }}</td>
-        <td>{{ req.get_type_display }}</td>
-        <td>
-          <span class="badge text-bg-{% if req.compliance_status == 'compliant' %}success{% elif req.compliance_status == 'partially_compliant' %}warning{% elif req.compliance_status == 'non_compliant' %}danger{% elif req.compliance_status == 'not_applicable' %}dark{% else %}secondary{% endif %}">
-            {{ req.get_compliance_status_display }}
-          </span>
-        </td>
-        <td>{{ req.compliance_level }}%</td>
-        <td>
-          {% if req.priority %}
-          <span class="badge text-bg-{% if req.priority == 'critical' %}danger{% elif req.priority == 'high' %}warning{% elif req.priority == 'medium' %}info{% else %}secondary{% endif %}">
-            {{ req.get_priority_display }}
-          </span>
-          {% else %}—{% endif %}
-        </td>
-        <td>
-          <span class="badge text-bg-{% if req.is_approved %}success{% else %}warning{% endif %}">
-            {% if req.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-          </span>
-        </td>
-        <td>
-          <a href="{% url 'compliance:requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="9" class="text-center text-muted">{% trans "No requirement defined." %}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Reference" %}</th>
+          <th>{% trans "Title" %}</th>
+          <th>{% trans "Framework" %}</th>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Compliance" %}</th>
+          <th>{% trans "Level" %}</th>
+          <th>{% trans "Priority" %}</th>
+          <th>{% trans "Approval" %}</th>
+          <th>{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for req in requirements %}
+        <tr>
+          <td><a href="{% url 'compliance:requirement-detail' req.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ req.reference }}</a></td>
+          <td>{{ req.name|truncatechars:60 }}</td>
+          <td>{{ req.framework.short_name|default:req.framework.name }}</td>
+          <td>{{ req.get_type_display }}</td>
+          <td>
+            <span class="badge text-bg-{% if req.compliance_status == 'compliant' %}success{% elif req.compliance_status == 'partially_compliant' %}warning{% elif req.compliance_status == 'non_compliant' %}danger{% elif req.compliance_status == 'not_applicable' %}dark{% else %}secondary{% endif %}">
+              {{ req.get_compliance_status_display }}
+            </span>
+          </td>
+          <td>{{ req.compliance_level }}%</td>
+          <td>
+            {% if req.priority %}
+            <span class="badge text-bg-{% if req.priority == 'critical' %}danger{% elif req.priority == 'high' %}warning{% elif req.priority == 'medium' %}info{% else %}secondary{% endif %}">
+              {{ req.get_priority_display }}
+            </span>
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            <span class="badge text-bg-{% if req.is_approved %}success{% else %}warning{% endif %}">
+              {% if req.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'compliance:requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No requirement defined." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 {% if is_paginated %}

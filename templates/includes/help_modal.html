@@ -1,10 +1,10 @@
 {% load i18n %}
 {% if help_content %}
-<div class="help-banner alert border d-flex align-items-start mb-3" role="alert">
-  <i class="bi bi-info-circle-fill text-primary me-3 mt-1" style="font-size:1.1rem"></i>
+<div class="help-banner alert border d-flex align-items-start mb-3" role="alert" style="background:var(--accent-soft);border-color:rgba(99,102,241,.15) !important;border-radius:var(--radius-md)">
+  <i class="bi bi-lightbulb me-3 mt-1" style="font-size:1rem;color:var(--accent)"></i>
   <div class="flex-grow-1">
-    <strong>{{ help_content.title }}</strong>
-    <div class="mt-1 text-body-secondary small">{{ help_content.body }}</div>
+    <strong style="color:var(--text-primary);font-size:.88rem">{{ help_content.title }}</strong>
+    <div class="mt-1 small" style="color:var(--text-secondary)">{{ help_content.body }}</div>
   </div>
   <button type="button" class="btn-close ms-3" data-bs-dismiss="alert" aria-label="{% trans "Close" %}"></button>
 </div>

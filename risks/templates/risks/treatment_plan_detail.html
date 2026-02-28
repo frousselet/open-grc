@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ plan.reference }} — {{ plan.name }}</h1>
-  <div>
+  <div class="d-flex gap-2">
     <a href="{% url 'risks:treatment-plan-update' plan.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'risks:treatment-plan-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
@@ -21,55 +21,63 @@
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Risk" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:risk-detail' plan.risk.pk %}">{{ plan.risk }}</a></dd>
-      <dt class="col-sm-3">{% trans "Treatment type" %}</dt><dd class="col-sm-9">{{ plan.get_treatment_type_display }}</dd>
-      <dt class="col-sm-3">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ plan.owner|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Start date" %}</dt><dd class="col-sm-9">{{ plan.start_date|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Target date" %}</dt><dd class="col-sm-9">{{ plan.target_date|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Completion date" %}</dt><dd class="col-sm-9">{{ plan.completion_date|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Estimated cost" %}</dt><dd class="col-sm-9">{{ plan.cost_estimate|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Progress" %}</dt>
-      <dd class="col-sm-9">
-        <div class="progress" style="height:1.2rem">
-          <div class="progress-bar bg-{% if plan.progress_percentage == 100 %}success{% elif plan.progress_percentage >= 50 %}info{% else %}warning{% endif %}" style="width:{{ plan.progress_percentage }}%">{{ plan.progress_percentage }}%</div>
-        </div>
-      </dd>
-      <dt class="col-sm-3">{% trans "Status" %}</dt>
-      <dd class="col-sm-9">
-        <span class="badge text-bg-{% if plan.status == 'completed' %}success{% elif plan.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
-          {{ plan.get_status_display }}
-        </span>
-      </dd>
-      <dt class="col-sm-3">{% trans "Expected residual likelihood" %}</dt><dd class="col-sm-9">{{ plan.expected_residual_likelihood|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Expected residual impact" %}</dt><dd class="col-sm-9">{{ plan.expected_residual_impact|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ plan.description|default:"—"|linebreaksbr }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Risk" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:risk-detail' plan.risk.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ plan.risk }}</a></dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Treatment type" %}</dt><dd class="col-sm-9">{{ plan.get_treatment_type_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ plan.owner|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Start date" %}</dt><dd class="col-sm-9">{{ plan.start_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Target date" %}</dt><dd class="col-sm-9">{{ plan.target_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Completion date" %}</dt><dd class="col-sm-9">{{ plan.completion_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Estimated cost" %}</dt><dd class="col-sm-9">{{ plan.cost_estimate|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Progress" %}</dt>
+          <dd class="col-sm-9">
+            <div class="progress" style="height:1.2rem">
+              <div class="progress-bar bg-{% if plan.progress_percentage == 100 %}success{% elif plan.progress_percentage >= 50 %}info{% else %}warning{% endif %}" style="width:{{ plan.progress_percentage }}%">{{ plan.progress_percentage }}%</div>
+            </div>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if plan.status == 'completed' %}success{% elif plan.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
+              {{ plan.get_status_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Expected residual likelihood" %}</dt><dd class="col-sm-9">{{ plan.expected_residual_likelihood|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Expected residual impact" %}</dt><dd class="col-sm-9">{{ plan.expected_residual_impact|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ plan.description|default:"—"|linebreaksbr }}</dd>
+        </dl>
+      </div>
+    </div>
   </div>
 
   <div class="tab-pane fade" id="actions">
     <h5>{% trans "Treatment actions" %}</h5>
     {% if actions %}
-    <table class="table table-striped">
-      <thead><tr><th>#</th><th>{% trans "Description" %}</th><th>{% trans "Owner" %}</th><th>{% trans "Target date" %}</th><th>{% trans "Status" %}</th></tr></thead>
-      <tbody>
-        {% for action in actions %}
-        <tr>
-          <td>{{ action.order }}</td>
-          <td>{{ action.description }}</td>
-          <td>{{ action.owner|default:"—" }}</td>
-          <td>{{ action.target_date|default:"—" }}</td>
-          <td>
-            <span class="badge text-bg-{% if action.status == 'completed' %}success{% elif action.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
-              {{ action.get_status_display }}
-            </span>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>#</th><th>{% trans "Description" %}</th><th>{% trans "Owner" %}</th><th>{% trans "Target date" %}</th><th>{% trans "Status" %}</th></tr></thead>
+          <tbody>
+            {% for action in actions %}
+            <tr>
+              <td>{{ action.order }}</td>
+              <td>{{ action.description }}</td>
+              <td>{{ action.owner|default:"—" }}</td>
+              <td>{{ action.target_date|default:"—" }}</td>
+              <td>
+                <span class="badge text-bg-{% if action.status == 'completed' %}success{% elif action.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
+                  {{ action.get_status_display }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
     {% else %}
-    <p class="text-muted">{% trans "No actions defined." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No actions defined." %}</p>
     {% endif %}
   </div>
 

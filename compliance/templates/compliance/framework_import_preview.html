@@ -17,7 +17,7 @@
 
 {# ── Metadata card ────────────────────────────────────── #}
 <div class="card mb-3">
-  <div class="card-header">{% if existing_framework %}{% trans "Imported data" %}{% else %}{% trans "Framework metadata" %}{% endif %}</div>
+  <div class="card-header" style="font-weight:600;font-size:.85rem;background:var(--surface-muted);border-bottom:1px solid var(--border-light)">{% if existing_framework %}{% trans "Imported data" %}{% else %}{% trans "Framework metadata" %}{% endif %}</div>
   <div class="card-body">
     <dl class="row mb-0">
       <dt class="col-sm-3">{% trans "Reference" %}</dt>
@@ -50,9 +50,9 @@
 
 {# ── Stats badges ─────────────────────────────────────── #}
 <div class="d-flex gap-2 mb-3">
-  <span class="badge text-bg-primary fs-6"><i class="bi bi-folder me-1"></i>{% blocktrans count count=stats.section_count %}{{ count }} section{% plural %}{{ count }} sections{% endblocktrans %}</span>
-  <span class="badge text-bg-info fs-6"><i class="bi bi-list-check me-1"></i>{% blocktrans count count=stats.requirement_count %}{{ count }} requirement{% plural %}{{ count }} requirements{% endblocktrans %}</span>
-  <span class="badge text-bg-secondary fs-6"><i class="bi bi-diagram-3 me-1"></i>{% blocktrans with depth=stats.max_depth %}Max depth: {{ depth }}{% endblocktrans %}</span>
+  <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.88rem;padding:.4em .8em"><i class="bi bi-folder me-1"></i>{% blocktrans count count=stats.section_count %}{{ count }} section{% plural %}{{ count }} sections{% endblocktrans %}</span>
+  <span class="badge" style="background:var(--info-soft);color:var(--info);font-size:.88rem;padding:.4em .8em"><i class="bi bi-list-check me-1"></i>{% blocktrans count count=stats.requirement_count %}{{ count }} requirement{% plural %}{{ count }} requirements{% endblocktrans %}</span>
+  <span class="badge" style="background:var(--surface-muted);color:var(--text-secondary);font-size:.88rem;padding:.4em .8em"><i class="bi bi-diagram-3 me-1"></i>{% blocktrans with depth=stats.max_depth %}Max depth: {{ depth }}{% endblocktrans %}</span>
 </div>
 
 {# ── Warnings ─────────────────────────────────────────── #}
@@ -110,9 +110,15 @@
 </div>
 
 {# ── Actions ──────────────────────────────────────────── #}
-<form method="post">
-  {% csrf_token %}
-  <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{% if existing_framework %}{% trans "Confirm addition" %}{% else %}{% trans "Confirm import" %}{% endif %}</button>
-  <a href="{% url 'compliance:framework-import' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
-</form>
+<div class="card">
+  <div class="card-body">
+    <form method="post" class="mt-0">
+      {% csrf_token %}
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{% if existing_framework %}{% trans "Confirm addition" %}{% else %}{% trans "Confirm import" %}{% endif %}</button>
+        <a href="{% url 'compliance:framework-import' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

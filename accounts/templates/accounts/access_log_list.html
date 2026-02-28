@@ -34,41 +34,43 @@
   </div>
 </form>
 
-<div class="table-responsive">
-  <table class="table table-hover table-sm">
-    <thead class="table-light">
-      <tr>
-        <th>{% trans "Date" %}</th>
-        <th>{% trans "Email" %}</th>
-        <th>{% trans "Event" %}</th>
-        <th>{% trans "IP" %}</th>
-        <th>{% trans "Reason" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for log in logs %}
-      <tr>
-        <td>{{ log.timestamp|date:"d/m/Y H:i:s" }}</td>
-        <td>{{ log.email_attempted }}</td>
-        <td>
-          {% if log.event_type == "login_success" %}
-          <span class="badge bg-success">{{ log.get_event_type_display }}</span>
-          {% elif log.event_type == "login_failed" %}
-          <span class="badge bg-danger">{{ log.get_event_type_display }}</span>
-          {% elif log.event_type == "account_locked" %}
-          <span class="badge bg-warning text-dark">{{ log.get_event_type_display }}</span>
-          {% else %}
-          <span class="badge bg-secondary">{{ log.get_event_type_display }}</span>
-          {% endif %}
-        </td>
-        <td>{{ log.ip_address|default:"-" }}</td>
-        <td>{{ log.get_failure_reason_display|default:"-" }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="5" class="text-muted text-center">{% trans "No events." %}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover table-sm mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Date" %}</th>
+          <th>{% trans "Email" %}</th>
+          <th>{% trans "Event" %}</th>
+          <th>{% trans "IP" %}</th>
+          <th>{% trans "Reason" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td>{{ log.timestamp|date:"d/m/Y H:i:s" }}</td>
+          <td>{{ log.email_attempted }}</td>
+          <td>
+            {% if log.event_type == "login_success" %}
+            <span class="badge bg-success">{{ log.get_event_type_display }}</span>
+            {% elif log.event_type == "login_failed" %}
+            <span class="badge bg-danger">{{ log.get_event_type_display }}</span>
+            {% elif log.event_type == "account_locked" %}
+            <span class="badge bg-warning text-dark">{{ log.get_event_type_display }}</span>
+            {% else %}
+            <span class="badge bg-secondary">{{ log.get_event_type_display }}</span>
+            {% endif %}
+          </td>
+          <td>{{ log.ip_address|default:"-" }}</td>
+          <td>{{ log.get_failure_reason_display|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center py-4" style="color:var(--text-muted)">{% trans "No events." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 {% if is_paginated %}

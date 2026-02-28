@@ -12,51 +12,53 @@
 </div>
 {% help_modal "context.activity_list" %}
 
-<div class="table-responsive">
-  <table class="table table-striped table-hover">
-    <thead class="table-dark">
-      <tr>
-        <th>{% trans "Reference" %}</th>
-        <th>{% trans "Name" %}</th>
-        <th>{% trans "Type" %}</th>
-        <th>{% trans "Criticality" %}</th>
-        <th>{% trans "Owner" %}</th>
-        <th>{% trans "Status" %}</th>
-        <th>{% trans "Approval" %}</th>
-        <th>{% trans "Actions" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for activity in activities %}
-      <tr>
-        <td>{{ activity.reference }}</td>
-        <td><a href="{% url 'context:activity-detail' activity.pk %}">{{ activity.name }}</a></td>
-        <td>{{ activity.get_type_display }}</td>
-        <td>
-          <span class="badge text-bg-{% if activity.criticality == 'critical' %}danger{% elif activity.criticality == 'high' %}warning{% elif activity.criticality == 'medium' %}info{% else %}secondary{% endif %}">
-            {{ activity.get_criticality_display }}
-          </span>
-        </td>
-        <td>{{ activity.owner }}</td>
-        <td>
-          <span class="badge text-bg-{% if activity.status == 'active' %}success{% elif activity.status == 'planned' %}info{% else %}secondary{% endif %}">
-            {{ activity.get_status_display }}
-          </span>
-        </td>
-        <td>
-          <span class="badge text-bg-{% if activity.is_approved %}success{% else %}warning{% endif %}">
-            {% if activity.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-          </span>
-        </td>
-        <td>
-          <a href="{% url 'context:activity-update' activity.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="8" class="text-center text-muted">{% trans "No activity defined." %}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Reference" %}</th>
+          <th>{% trans "Name" %}</th>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Criticality" %}</th>
+          <th>{% trans "Owner" %}</th>
+          <th>{% trans "Status" %}</th>
+          <th>{% trans "Approval" %}</th>
+          <th>{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for activity in activities %}
+        <tr>
+          <td>{{ activity.reference }}</td>
+          <td><a href="{% url 'context:activity-detail' activity.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ activity.name }}</a></td>
+          <td>{{ activity.get_type_display }}</td>
+          <td>
+            <span class="badge text-bg-{% if activity.criticality == 'critical' %}danger{% elif activity.criticality == 'high' %}warning{% elif activity.criticality == 'medium' %}info{% else %}secondary{% endif %}">
+              {{ activity.get_criticality_display }}
+            </span>
+          </td>
+          <td>{{ activity.owner }}</td>
+          <td>
+            <span class="badge text-bg-{% if activity.status == 'active' %}success{% elif activity.status == 'planned' %}info{% else %}secondary{% endif %}">
+              {{ activity.get_status_display }}
+            </span>
+          </td>
+          <td>
+            <span class="badge text-bg-{% if activity.is_approved %}success{% else %}warning{% endif %}">
+              {% if activity.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'context:activity-update' activity.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted)">{% trans "No activity defined." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 {% if is_paginated %}

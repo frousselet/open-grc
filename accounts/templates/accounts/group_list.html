@@ -14,36 +14,38 @@
 </div>
 {% help_modal "accounts.group_list" %}
 
-<div class="table-responsive">
-  <table class="table table-hover">
-    <thead class="table-light">
-      <tr>
-        <th>{% trans "Name" %}</th>
-        <th>{% trans "Description" %}</th>
-        <th>{% trans "Type" %}</th>
-        <th>{% trans "Users" %}</th>
-        <th>{% trans "Permissions" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for group in groups %}
-      <tr>
-        <td><a href="{% url 'accounts:group-detail' group.pk %}">{{ group.name }}</a></td>
-        <td>{{ group.description|truncatewords:15|default:"-" }}</td>
-        <td>
-          {% if group.is_system %}
-          <span class="badge bg-info">{% trans "System" %}</span>
-          {% else %}
-          <span class="badge bg-light text-dark">{% trans "Custom" %}</span>
-          {% endif %}
-        </td>
-        <td>{{ group.user_count }}</td>
-        <td>{{ group.permission_count }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="5" class="text-muted text-center">{% trans "No groups." %}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Name" %}</th>
+          <th>{% trans "Description" %}</th>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Users" %}</th>
+          <th>{% trans "Permissions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for group in groups %}
+        <tr>
+          <td><a href="{% url 'accounts:group-detail' group.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ group.name }}</a></td>
+          <td>{{ group.description|truncatewords:15|default:"-" }}</td>
+          <td>
+            {% if group.is_system %}
+            <span class="badge bg-info">{% trans "System" %}</span>
+            {% else %}
+            <span class="badge bg-light text-dark">{% trans "Custom" %}</span>
+            {% endif %}
+          </td>
+          <td>{{ group.user_count }}</td>
+          <td>{{ group.permission_count }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center py-4" style="color:var(--text-muted)">{% trans "No groups." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

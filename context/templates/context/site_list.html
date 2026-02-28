@@ -12,47 +12,49 @@
 </div>
 {% help_modal "context.site_list" %}
 
-<div class="table-responsive">
-  <table class="table table-striped table-hover">
-    <thead class="table-dark">
-      <tr>
-        <th>{% trans "Name" %}</th>
-        <th>{% trans "Type" %}</th>
-        <th>{% trans "Status" %}</th>
-        <th>{% trans "Approval" %}</th>
-        <th>{% trans "Actions" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for site in sites %}
-      <tr>
-        <td>
-          <div style="padding-left: {{ site.tree_indent }}px;">
-            {% if site.tree_level > 0 %}<span class="text-muted me-1">&boxur;</span>{% endif %}
-            <a href="{% url 'context:site-detail' site.pk %}">{{ site.name }}</a>
-          </div>
-        </td>
-        <td>{{ site.get_type_display }}</td>
-        <td>
-          <span class="badge text-bg-{% if site.status == 'active' %}success{% elif site.status == 'draft' %}secondary{% else %}dark{% endif %}">
-            {{ site.get_status_display }}
-          </span>
-        </td>
-        <td>
-          <span class="badge text-bg-{% if site.is_approved %}success{% else %}warning{% endif %}">
-            {% if site.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-          </span>
-        </td>
-        <td>
-          <a href="{% url 'context:site-update' site.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-          <a href="{% url 'context:site-delete' site.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="5" class="text-center text-muted">{% trans "No site defined." %}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Name" %}</th>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Status" %}</th>
+          <th>{% trans "Approval" %}</th>
+          <th>{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for site in sites %}
+        <tr>
+          <td>
+            <div style="padding-left: {{ site.tree_indent }}px;">
+              {% if site.tree_level > 0 %}<span class="text-muted me-1">&boxur;</span>{% endif %}
+              <a href="{% url 'context:site-detail' site.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ site.name }}</a>
+            </div>
+          </td>
+          <td>{{ site.get_type_display }}</td>
+          <td>
+            <span class="badge text-bg-{% if site.status == 'active' %}success{% elif site.status == 'draft' %}secondary{% else %}dark{% endif %}">
+              {{ site.get_status_display }}
+            </span>
+          </td>
+          <td>
+            <span class="badge text-bg-{% if site.is_approved %}success{% else %}warning{% endif %}">
+              {% if site.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'context:site-update' site.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+            <a href="{% url 'context:site-delete' site.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center py-4" style="color:var(--text-muted)">{% trans "No site defined." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 {% endblock %}

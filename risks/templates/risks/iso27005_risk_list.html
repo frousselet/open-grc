@@ -12,39 +12,41 @@
 </div>
 {% help_modal "risks.iso27005_risk_list" %}
 
-<div class="table-responsive">
-  <table class="table table-striped table-hover">
-    <thead class="table-dark">
-      <tr>
-        <th>{% trans "Assessment" %}</th>
-        <th>{% trans "Threat" %}</th>
-        <th>{% trans "Vulnerability" %}</th>
-        <th>{% trans "Combined likelihood" %}</th>
-        <th>{% trans "Max impact" %}</th>
-        <th>{% trans "Risk level" %}</th>
-        <th>{% trans "Consolidated risk" %}</th>
-        <th>{% trans "Actions" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for a in analyses %}
-      <tr>
-        <td>{{ a.assessment.reference }}</td>
-        <td><a href="{% url 'risks:iso27005-detail' a.pk %}">{{ a.threat.name }}</a></td>
-        <td>{{ a.vulnerability.name }}</td>
-        <td>{{ a.combined_likelihood|default:"—" }}</td>
-        <td>{{ a.max_impact|default:"—" }}</td>
-        <td>{{ a.risk_level|default:"—" }}</td>
-        <td>{% if a.risk %}<a href="{% url 'risks:risk-detail' a.risk.pk %}">{{ a.risk.reference }}</a>{% else %}—{% endif %}</td>
-        <td>
-          <a href="{% url 'risks:iso27005-update' a.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="8" class="text-center text-muted">{% trans "No ISO 27005 analyses." %}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Assessment" %}</th>
+          <th>{% trans "Threat" %}</th>
+          <th>{% trans "Vulnerability" %}</th>
+          <th>{% trans "Combined likelihood" %}</th>
+          <th>{% trans "Max impact" %}</th>
+          <th>{% trans "Risk level" %}</th>
+          <th>{% trans "Consolidated risk" %}</th>
+          <th>{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in analyses %}
+        <tr>
+          <td>{{ a.assessment.reference }}</td>
+          <td><a href="{% url 'risks:iso27005-detail' a.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ a.threat.name }}</a></td>
+          <td>{{ a.vulnerability.name }}</td>
+          <td>{{ a.combined_likelihood|default:"—" }}</td>
+          <td>{{ a.max_impact|default:"—" }}</td>
+          <td>{{ a.risk_level|default:"—" }}</td>
+          <td>{% if a.risk %}<a href="{% url 'risks:risk-detail' a.risk.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ a.risk.reference }}</a>{% else %}—{% endif %}</td>
+          <td>
+            <a href="{% url 'risks:iso27005-update' a.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted)">{% trans "No ISO 27005 analyses." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 {% if is_paginated %}

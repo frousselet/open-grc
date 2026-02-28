@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ threat.reference }} — {{ threat.name }}</h1>
-  <div>
+  <div class="d-flex gap-2">
     <a href="{% url 'risks:threat-update' threat.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'risks:threat-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
@@ -19,21 +19,25 @@
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ threat.scope }}</dd>
-      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ threat.get_type_display }}</dd>
-      <dt class="col-sm-3">{% trans "Origin" %}</dt><dd class="col-sm-9">{{ threat.get_origin_display|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Category" %}</dt><dd class="col-sm-9">{{ threat.get_category_display|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Typical likelihood" %}</dt><dd class="col-sm-9">{{ threat.typical_likelihood|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "From catalog" %}</dt><dd class="col-sm-9">{% if threat.is_from_catalog %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
-      <dt class="col-sm-3">{% trans "Status" %}</dt>
-      <dd class="col-sm-9">
-        <span class="badge text-bg-{% if threat.status == 'active' %}success{% else %}secondary{% endif %}">
-          {{ threat.get_status_display }}
-        </span>
-      </dd>
-      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ threat.description|default:"—"|linebreaksbr }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ threat.scope }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ threat.get_type_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Origin" %}</dt><dd class="col-sm-9">{{ threat.get_origin_display|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Category" %}</dt><dd class="col-sm-9">{{ threat.get_category_display|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Typical likelihood" %}</dt><dd class="col-sm-9">{{ threat.typical_likelihood|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "From catalog" %}</dt><dd class="col-sm-9">{% if threat.is_from_catalog %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if threat.status == 'active' %}success{% else %}secondary{% endif %}">
+              {{ threat.get_status_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ threat.description|default:"—"|linebreaksbr }}</dd>
+        </dl>
+      </div>
+    </div>
   </div>
 
   <div class="tab-pane fade" id="history">

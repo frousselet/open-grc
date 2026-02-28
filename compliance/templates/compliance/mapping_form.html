@@ -6,21 +6,25 @@
 {% block content %}
 <h1>{% if form.instance.pk %}{% trans "Edit mapping" %}{% else %}{% trans "New mapping" %}{% endif %}</h1>
 
-<form method="post" class="mt-3">
-  {% csrf_token %}
-  {% for field in form %}
-  <div class="mb-3">
-    <label for="{{ field.id_for_label }}" class="form-label">
-      {{ field.label }}{% if field.field.required %} *{% endif %}
-    </label>
-    {{ field }}
-    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-    {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+<div class="card">
+  <div class="card-body">
+    <form method="post" class="mt-0">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="mb-3">
+        <label for="{{ field.id_for_label }}" class="form-label">
+          {{ field.label }}{% if field.field.required %} *{% endif %}
+        </label>
+        {{ field }}
+        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+        {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+      </div>
+      {% endfor %}
+      <div class="d-flex gap-2 mt-4 pt-3" style="border-top:1px solid var(--border-light)">
+        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+        <a href="{% url 'compliance:mapping-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+      </div>
+    </form>
   </div>
-  {% endfor %}
-  <div class="mt-4">
-    <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
-    <a href="{% url 'compliance:mapping-list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
-  </div>
-</form>
+</div>
 {% endblock %}

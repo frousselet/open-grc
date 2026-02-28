@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ criteria.name }}</h1>
-  <div>
+  <div class="d-flex gap-2">
     <a href="{% url 'risks:criteria-update' criteria.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'risks:criteria-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
@@ -21,61 +21,73 @@
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ criteria.scope }}</dd>
-      <dt class="col-sm-3">{% trans "Acceptance threshold" %}</dt><dd class="col-sm-9">{{ criteria.acceptance_threshold }}</dd>
-      <dt class="col-sm-3">{% trans "Default" %}</dt><dd class="col-sm-9">{% if criteria.is_default %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
-      <dt class="col-sm-3">{% trans "Status" %}</dt>
-      <dd class="col-sm-9">
-        <span class="badge text-bg-{% if criteria.status == 'active' %}success{% else %}secondary{% endif %}">
-          {{ criteria.get_status_display }}
-        </span>
-      </dd>
-      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ criteria.description|default:"—"|linebreaksbr }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ criteria.scope }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Acceptance threshold" %}</dt><dd class="col-sm-9">{{ criteria.acceptance_threshold }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Default" %}</dt><dd class="col-sm-9">{% if criteria.is_default %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if criteria.status == 'active' %}success{% else %}secondary{% endif %}">
+              {{ criteria.get_status_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ criteria.description|default:"—"|linebreaksbr }}</dd>
+        </dl>
+      </div>
+    </div>
   </div>
 
   <div class="tab-pane fade" id="scales">
     <h5>{% trans "Likelihood and impact scales" %}</h5>
     {% if scale_levels %}
-    <table class="table table-striped">
-      <thead><tr><th>{% trans "Type" %}</th><th>{% trans "Level" %}</th><th>{% trans "Name" %}</th><th>{% trans "Description" %}</th><th>{% trans "Color" %}</th></tr></thead>
-      <tbody>
-        {% for sl in scale_levels %}
-        <tr>
-          <td>{{ sl.get_scale_type_display }}</td>
-          <td>{{ sl.level }}</td>
-          <td>{{ sl.name }}</td>
-          <td>{{ sl.description|default:"—" }}</td>
-          <td>{% if sl.color %}<span class="badge" style="background-color:{{ sl.color }}">{{ sl.color }}</span>{% else %}—{% endif %}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>{% trans "Type" %}</th><th>{% trans "Level" %}</th><th>{% trans "Name" %}</th><th>{% trans "Description" %}</th><th>{% trans "Color" %}</th></tr></thead>
+          <tbody>
+            {% for sl in scale_levels %}
+            <tr>
+              <td>{{ sl.get_scale_type_display }}</td>
+              <td>{{ sl.level }}</td>
+              <td>{{ sl.name }}</td>
+              <td>{{ sl.description|default:"—" }}</td>
+              <td>{% if sl.color %}<span class="badge" style="background-color:{{ sl.color }}">{{ sl.color }}</span>{% else %}—{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
     {% else %}
-    <p class="text-muted">{% trans "No scales defined." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No scales defined." %}</p>
     {% endif %}
   </div>
 
   <div class="tab-pane fade" id="levels">
     <h5>{% trans "Risk levels" %}</h5>
     {% if risk_levels %}
-    <table class="table table-striped">
-      <thead><tr><th>{% trans "Level" %}</th><th>{% trans "Name" %}</th><th>{% trans "Description" %}</th><th>{% trans "Color" %}</th><th>{% trans "Treatment required" %}</th></tr></thead>
-      <tbody>
-        {% for rl in risk_levels %}
-        <tr>
-          <td>{{ rl.level }}</td>
-          <td>{{ rl.name }}</td>
-          <td>{{ rl.description|default:"—" }}</td>
-          <td>{% if rl.color %}<span class="badge" style="background-color:{{ rl.color }}">{{ rl.color }}</span>{% else %}—{% endif %}</td>
-          <td>{% if rl.requires_treatment %}<span class="badge text-bg-danger">{% trans "Yes" %}</span>{% else %}{% trans "No" %}{% endif %}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>{% trans "Level" %}</th><th>{% trans "Name" %}</th><th>{% trans "Description" %}</th><th>{% trans "Color" %}</th><th>{% trans "Treatment required" %}</th></tr></thead>
+          <tbody>
+            {% for rl in risk_levels %}
+            <tr>
+              <td>{{ rl.level }}</td>
+              <td>{{ rl.name }}</td>
+              <td>{{ rl.description|default:"—" }}</td>
+              <td>{% if rl.color %}<span class="badge" style="background-color:{{ rl.color }}">{{ rl.color }}</span>{% else %}—{% endif %}</td>
+              <td>{% if rl.requires_treatment %}<span class="badge text-bg-danger">{% trans "Yes" %}</span>{% else %}{% trans "No" %}{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
     {% else %}
-    <p class="text-muted">{% trans "No risk levels defined." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No risk levels defined." %}</p>
     {% endif %}
   </div>
 

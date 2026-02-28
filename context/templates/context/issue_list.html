@@ -13,54 +13,56 @@
 {% help_modal "context.issue_list" %}
 
 <div class="mb-3 d-flex gap-2">
-  <a href="{% url 'context:issue-list' %}" class="btn btn-sm {% if not request.GET.type %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "All" %}</a>
-  <a href="?type=internal" class="btn btn-sm {% if request.GET.type == 'internal' %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "Internal" %}</a>
-  <a href="?type=external" class="btn btn-sm {% if request.GET.type == 'external' %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "External" %}</a>
+  <a href="{% url 'context:issue-list' %}" class="filter-chip {% if not request.GET.type %}active{% endif %}">{% trans "All" %}</a>
+  <a href="?type=internal" class="filter-chip {% if request.GET.type == 'internal' %}active{% endif %}">{% trans "Internal" %}</a>
+  <a href="?type=external" class="filter-chip {% if request.GET.type == 'external' %}active{% endif %}">{% trans "External" %}</a>
 </div>
 
-<div class="table-responsive">
-  <table class="table table-striped table-hover">
-    <thead class="table-dark">
-      <tr>
-        <th>{% trans "Title" %}</th>
-        <th>{% trans "Scope" %}</th>
-        <th>{% trans "Type" %}</th>
-        <th>{% trans "Category" %}</th>
-        <th>{% trans "Impact" %}</th>
-        <th>{% trans "Trend" %}</th>
-        <th>{% trans "Status" %}</th>
-        <th>{% trans "Approval" %}</th>
-        <th>{% trans "Actions" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for issue in issues %}
-      <tr>
-        <td><a href="{% url 'context:issue-detail' issue.pk %}">{{ issue.name }}</a></td>
-        <td>{{ issue.scope.full_path }}</td>
-        <td>{{ issue.get_type_display }}</td>
-        <td>{{ issue.get_category_display }}</td>
-        <td>
-          <span class="badge text-bg-{% if issue.impact_level == 'critical' %}danger{% elif issue.impact_level == 'high' %}warning{% elif issue.impact_level == 'medium' %}info{% else %}secondary{% endif %}">
-            {{ issue.get_impact_level_display }}
-          </span>
-        </td>
-        <td>{{ issue.get_trend_display|default:"—" }}</td>
-        <td>{{ issue.get_status_display }}</td>
-        <td>
-          <span class="badge text-bg-{% if issue.is_approved %}success{% else %}warning{% endif %}">
-            {% if issue.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-          </span>
-        </td>
-        <td>
-          <a href="{% url 'context:issue-update' issue.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="9" class="text-center text-muted">{% trans "No issue defined." %}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Title" %}</th>
+          <th>{% trans "Scope" %}</th>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Category" %}</th>
+          <th>{% trans "Impact" %}</th>
+          <th>{% trans "Trend" %}</th>
+          <th>{% trans "Status" %}</th>
+          <th>{% trans "Approval" %}</th>
+          <th>{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for issue in issues %}
+        <tr>
+          <td><a href="{% url 'context:issue-detail' issue.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ issue.name }}</a></td>
+          <td>{{ issue.scope.full_path }}</td>
+          <td>{{ issue.get_type_display }}</td>
+          <td>{{ issue.get_category_display }}</td>
+          <td>
+            <span class="badge text-bg-{% if issue.impact_level == 'critical' %}danger{% elif issue.impact_level == 'high' %}warning{% elif issue.impact_level == 'medium' %}info{% else %}secondary{% endif %}">
+              {{ issue.get_impact_level_display }}
+            </span>
+          </td>
+          <td>{{ issue.get_trend_display|default:"—" }}</td>
+          <td>{{ issue.get_status_display }}</td>
+          <td>
+            <span class="badge text-bg-{% if issue.is_approved %}success{% else %}warning{% endif %}">
+              {% if issue.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'context:issue-update' issue.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No issue defined." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 {% if is_paginated %}
