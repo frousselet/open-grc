@@ -11,58 +11,60 @@
 {% help_modal "assets.essential_asset_list" %}
 
 <div class="mb-3 d-flex gap-2">
-  <a href="{% url 'assets:essential-asset-list' %}" class="btn btn-sm {% if not request.GET.type %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "All" %}</a>
-  <a href="?type=business_process" class="btn btn-sm {% if request.GET.type == 'business_process' %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "Business process" %}</a>
-  <a href="?type=information" class="btn btn-sm {% if request.GET.type == 'information' %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "Information" %}</a>
+  <a href="{% url 'assets:essential-asset-list' %}" class="filter-chip {% if not request.GET.type %}active{% endif %}">{% trans "All" %}</a>
+  <a href="?type=business_process" class="filter-chip {% if request.GET.type == 'business_process' %}active{% endif %}">{% trans "Business process" %}</a>
+  <a href="?type=information" class="filter-chip {% if request.GET.type == 'information' %}active{% endif %}">{% trans "Information" %}</a>
 </div>
 
-<div class="table-responsive">
-  <table class="table table-striped table-hover">
-    <thead class="table-dark">
-      <tr>
-        <th>{% trans "Ref." %}</th>
-        <th>{% trans "Name" %}</th>
-        <th>{% trans "Type" %}</th>
-        <th>{% trans "Category" %}</th>
-        <th>{% trans "Owner" %}</th>
-        <th class="text-center">C</th>
-        <th class="text-center">I</th>
-        <th class="text-center">A</th>
-        <th>{% trans "Status" %}</th>
-        <th>{% trans "Approval" %}</th>
-        <th>{% trans "Actions" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for asset in assets %}
-      <tr>
-        <td>{{ asset.reference }}</td>
-        <td><a href="{% url 'assets:essential-asset-detail' asset.pk %}">{{ asset.name }}</a></td>
-        <td>{{ asset.get_type_display }}</td>
-        <td>{{ asset.get_category_display }}</td>
-        <td>{{ asset.owner }}</td>
-        <td class="text-center">{{ asset.confidentiality_level|dic_badge }}</td>
-        <td class="text-center">{{ asset.integrity_level|dic_badge }}</td>
-        <td class="text-center">{{ asset.availability_level|dic_badge }}</td>
-        <td>
-          <span class="badge text-bg-{% if asset.status == 'active' %}success{% elif asset.status == 'identified' %}info{% elif asset.status == 'under_review' %}warning{% else %}secondary{% endif %}">
-            {{ asset.get_status_display }}
-          </span>
-        </td>
-        <td>
-          <span class="badge text-bg-{% if asset.is_approved %}success{% else %}warning{% endif %}">
-            {% if asset.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-          </span>
-        </td>
-        <td>
-          <a href="{% url 'assets:essential-asset-update' asset.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="11" class="text-center text-muted">{% trans "No essential assets." %}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Ref." %}</th>
+          <th>{% trans "Name" %}</th>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Category" %}</th>
+          <th>{% trans "Owner" %}</th>
+          <th class="text-center">C</th>
+          <th class="text-center">I</th>
+          <th class="text-center">A</th>
+          <th>{% trans "Status" %}</th>
+          <th>{% trans "Approval" %}</th>
+          <th>{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asset in assets %}
+        <tr>
+          <td>{{ asset.reference }}</td>
+          <td><a href="{% url 'assets:essential-asset-detail' asset.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ asset.name }}</a></td>
+          <td>{{ asset.get_type_display }}</td>
+          <td>{{ asset.get_category_display }}</td>
+          <td>{{ asset.owner }}</td>
+          <td class="text-center">{{ asset.confidentiality_level|dic_badge }}</td>
+          <td class="text-center">{{ asset.integrity_level|dic_badge }}</td>
+          <td class="text-center">{{ asset.availability_level|dic_badge }}</td>
+          <td>
+            <span class="badge text-bg-{% if asset.status == 'active' %}success{% elif asset.status == 'identified' %}info{% elif asset.status == 'under_review' %}warning{% else %}secondary{% endif %}">
+              {{ asset.get_status_display }}
+            </span>
+          </td>
+          <td>
+            <span class="badge text-bg-{% if asset.is_approved %}success{% else %}warning{% endif %}">
+              {% if asset.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'assets:essential-asset-update' asset.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No essential assets." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 {% if is_paginated %}

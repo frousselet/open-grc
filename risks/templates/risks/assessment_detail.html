@@ -20,7 +20,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ assessment.reference }} — {{ assessment.name }}</h1>
-  <div>
+  <div class="d-flex gap-2">
     <a href="{% url 'risks:assessment-update' assessment.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'risks:assessment-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
@@ -39,22 +39,26 @@
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ assessment.scope }}</dd>
-      <dt class="col-sm-3">{% trans "Methodology" %}</dt><dd class="col-sm-9">{{ assessment.get_methodology_display }}</dd>
-      <dt class="col-sm-3">{% trans "Assessor" %}</dt><dd class="col-sm-9">{{ assessment.assessor|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Assessment date" %}</dt><dd class="col-sm-9">{{ assessment.assessment_date|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Risk criteria" %}</dt><dd class="col-sm-9">{{ assessment.risk_criteria|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Status" %}</dt>
-      <dd class="col-sm-9">
-        <span class="badge text-bg-{% if assessment.status == 'validated' %}success{% elif assessment.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
-          {{ assessment.get_status_display }}
-        </span>
-      </dd>
-      <dt class="col-sm-3">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ assessment.next_review_date|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ assessment.description|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">{% trans "Summary" %}</dt><dd class="col-sm-9">{{ assessment.summary|default:"—"|linebreaksbr }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ assessment.scope }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Methodology" %}</dt><dd class="col-sm-9">{{ assessment.get_methodology_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Assessor" %}</dt><dd class="col-sm-9">{{ assessment.assessor|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Assessment date" %}</dt><dd class="col-sm-9">{{ assessment.assessment_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Risk criteria" %}</dt><dd class="col-sm-9">{{ assessment.risk_criteria|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if assessment.status == 'validated' %}success{% elif assessment.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
+              {{ assessment.get_status_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ assessment.next_review_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ assessment.description|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Summary" %}</dt><dd class="col-sm-9">{{ assessment.summary|default:"—"|linebreaksbr }}</dd>
+        </dl>
+      </div>
+    </div>
   </div>
 
   <div class="tab-pane fade" id="risks">
@@ -63,22 +67,26 @@
       <a href="{% url 'risks:risk-create' %}?assessment={{ assessment.pk }}" class="btn btn-sm btn-primary">{% trans "Add a risk" %}</a>
     </div>
     {% if risks %}
-    <table class="table table-striped">
-      <thead><tr><th>{% trans "Ref." %}</th><th>{% trans "Name" %}</th><th>{% trans "Priority" %}</th><th>{% trans "Status" %}</th><th>{% trans "Current level" %}</th></tr></thead>
-      <tbody>
-        {% for r in risks %}
-        <tr>
-          <td>{{ r.reference }}</td>
-          <td><a href="{% url 'risks:risk-detail' r.pk %}">{{ r.name }}</a></td>
-          <td><span class="badge text-bg-{% if r.priority == 'critical' %}danger{% elif r.priority == 'high' %}warning{% elif r.priority == 'medium' %}info{% else %}secondary{% endif %}">{{ r.get_priority_display }}</span></td>
-          <td>{{ r.get_status_display }}</td>
-          <td>{{ r.current_risk_level|default:"—" }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>{% trans "Ref." %}</th><th>{% trans "Name" %}</th><th>{% trans "Priority" %}</th><th>{% trans "Status" %}</th><th>{% trans "Current level" %}</th></tr></thead>
+          <tbody>
+            {% for r in risks %}
+            <tr>
+              <td>{{ r.reference }}</td>
+              <td><a href="{% url 'risks:risk-detail' r.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ r.name }}</a></td>
+              <td><span class="badge text-bg-{% if r.priority == 'critical' %}danger{% elif r.priority == 'high' %}warning{% elif r.priority == 'medium' %}info{% else %}secondary{% endif %}">{{ r.get_priority_display }}</span></td>
+              <td>{{ r.get_status_display }}</td>
+              <td>{{ r.current_risk_level|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
     {% else %}
-    <p class="text-muted">{% trans "No associated risk." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No associated risk." %}</p>
     {% endif %}
   </div>
 
@@ -110,22 +118,26 @@
       <a href="{% url 'risks:iso27005-create' %}?assessment={{ assessment.pk }}" class="btn btn-sm btn-primary">{% trans "New analysis" %}</a>
     </div>
     {% if iso27005_risks %}
-    <table class="table table-striped">
-      <thead><tr><th>{% trans "Threat" %}</th><th>{% trans "Vulnerability" %}</th><th>{% trans "Likelihood" %}</th><th>{% trans "Max impact" %}</th><th>{% trans "Level" %}</th></tr></thead>
-      <tbody>
-        {% for a in iso27005_risks %}
-        <tr>
-          <td><a href="{% url 'risks:iso27005-detail' a.pk %}">{{ a.threat.name }}</a></td>
-          <td>{{ a.vulnerability.name }}</td>
-          <td>{{ a.combined_likelihood|default:"—" }}</td>
-          <td>{{ a.max_impact|default:"—" }}</td>
-          <td>{{ a.risk_level|default:"—" }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>{% trans "Threat" %}</th><th>{% trans "Vulnerability" %}</th><th>{% trans "Likelihood" %}</th><th>{% trans "Max impact" %}</th><th>{% trans "Level" %}</th></tr></thead>
+          <tbody>
+            {% for a in iso27005_risks %}
+            <tr>
+              <td><a href="{% url 'risks:iso27005-detail' a.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ a.threat.name }}</a></td>
+              <td>{{ a.vulnerability.name }}</td>
+              <td>{{ a.combined_likelihood|default:"—" }}</td>
+              <td>{{ a.max_impact|default:"—" }}</td>
+              <td>{{ a.risk_level|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
     {% else %}
-    <p class="text-muted">{% trans "No ISO 27005 analysis." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No ISO 27005 analysis." %}</p>
     {% endif %}
   </div>
 

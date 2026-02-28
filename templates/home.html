@@ -7,46 +7,23 @@
 
 {% block extra_css %}
 <style>
-  .compliance-hero {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-    color: #fff;
-    border-radius: .5rem;
-    padding: 1.5rem 2rem;
-  }
-  .compliance-hero .progress {
-    height: 1.4rem;
-    border-radius: .5rem;
-    background: rgba(255,255,255,.15);
-  }
-  .compliance-hero .progress-bar {
-    border-radius: .5rem;
-    font-weight: 600;
-    font-size: .85rem;
-  }
   .fw-bar .progress {
-    height: 1rem;
-    border-radius: .4rem;
+    height: .85rem;
+    border-radius: var(--radius-sm);
   }
   .fw-bar .progress-bar {
-    border-radius: .4rem;
-    font-size: .75rem;
+    font-size: .68rem;
     font-weight: 600;
   }
   .risk-matrix { table-layout: fixed; }
-  .risk-matrix-corner { width: 90px; background: #f8f9fa; }
-  .risk-matrix-header { font-size: .78rem; background: #f8f9fa; }
-  .risk-matrix-row-label { font-size: .78rem; white-space: nowrap; background: #f8f9fa; text-align: right; padding-right: .6rem !important; }
-  .risk-matrix-cell { position: relative; height: 60px; min-width: 60px; transition: transform .1s; cursor: default; border: 2px solid #fff !important; }
-  .risk-matrix-cell:hover { transform: scale(1.05); z-index: 1; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
-  .risk-matrix-count { display: block; font-size: 1.3rem; font-weight: 700; line-height: 1.2; }
-  .risk-matrix-level-name { display: block; font-size: .65rem; color: inherit; text-transform: uppercase; letter-spacing: .03em; opacity: .85; }
+  .risk-matrix-corner { width: 90px; background: var(--surface-muted); }
+  .risk-matrix-header { font-size: .72rem; background: var(--surface-muted); font-weight: 600; color: var(--text-secondary); }
+  .risk-matrix-row-label { font-size: .72rem; white-space: nowrap; background: var(--surface-muted); text-align: right; padding-right: .6rem !important; font-weight: 600; color: var(--text-secondary); }
+  .risk-matrix-cell { position: relative; height: 60px; min-width: 60px; transition: transform .15s cubic-bezier(.4,0,.2,1); cursor: default; border: 2px solid var(--surface-raised) !important; border-radius: .25rem; }
+  .risk-matrix-cell:hover { transform: scale(1.06); z-index: 1; box-shadow: var(--shadow-md); }
+  .risk-matrix-count { display: block; font-size: 1.25rem; font-weight: 700; line-height: 1.2; }
+  .risk-matrix-level-name { display: block; font-size: .6rem; text-transform: uppercase; letter-spacing: .04em; opacity: .8; }
   .risk-matrix-axis-label { border: none !important; }
-
-  [data-bs-theme="dark"] .risk-matrix-corner,
-  [data-bs-theme="dark"] .risk-matrix-header,
-  [data-bs-theme="dark"] .risk-matrix-row-label { background: #2b3035; color: #dee2e6; }
-  [data-bs-theme="dark"] .risk-matrix-cell { border-color: #212529 !important; }
-  [data-bs-theme="dark"] .risk-matrix-cell:hover { box-shadow: 0 2px 8px rgba(0,0,0,.4); }
 </style>
 {% endblock %}
 
@@ -72,11 +49,11 @@
 {% endif %}
 
 {# ── Overall compliance (hero) ─────────────────────────────── #}
-<div class="compliance-hero mb-4">
+<div class="hero-section mb-4">
   <div class="row align-items-center">
     <div class="col-md-4">
       <h2 class="mb-1" style="color:#fff"><i class="bi bi-shield-check me-2"></i>{% trans "Overall compliance" %}</h2>
-      <p class="mb-0 opacity-75">{% blocktrans with count=requirement_count %}Average of active frameworks — {{ count }} requirement{{ count|pluralize:"s" }} total{% endblocktrans %}</p>
+      <p class="mb-0 opacity-75" style="font-size:.85rem">{% blocktrans with count=requirement_count %}Average of active frameworks — {{ count }} requirement{{ count|pluralize:"s" }} total{% endblocktrans %}</p>
     </div>
     <div class="col-md-6">
       <div class="progress">
@@ -99,15 +76,15 @@
 {% if active_frameworks %}
 <div class="card mb-4">
   <div class="card-body">
-    <h5 class="card-title mb-3"><i class="bi bi-journal-bookmark me-1"></i> {% trans "Compliance by framework" %}</h5>
+    <h5 class="card-title mb-3"><i class="bi bi-journal-bookmark me-1" style="color:var(--accent)"></i> {% trans "Compliance by framework" %}</h5>
     {% for fw in active_frameworks %}
     <div class="fw-bar mb-3">
       <div class="d-flex justify-content-between align-items-center mb-1">
         <div>
-          <a href="{% url 'compliance:framework-detail' fw.pk %}" class="fw-semibold text-decoration-none">{{ fw.short_name|default:fw.name }}</a>
-          <small class="text-muted ms-2">{% blocktrans with count=fw.req_count %}{{ count }} requirement{{ count|pluralize:"s" }}{% endblocktrans %}</small>
+          <a href="{% url 'compliance:framework-detail' fw.pk %}" class="fw-semibold text-decoration-none" style="color:var(--text-primary)">{{ fw.short_name|default:fw.name }}</a>
+          <small class="ms-2" style="color:var(--text-muted)">{% blocktrans with count=fw.req_count %}{{ count }} requirement{{ count|pluralize:"s" }}{% endblocktrans %}</small>
           {% for s in fw.scopes.all %}
-          <span class="badge text-bg-secondary ms-1" style="font-size:.7rem">{{ s.full_path }}</span>
+          <span class="badge ms-1" style="font-size:.65rem;background:var(--accent-soft);color:var(--accent)">{{ s.full_path }}</span>
           {% endfor %}
         </div>
         <span class="fw-semibold {% if fw.compliance_level >= 80 %}text-success{% elif fw.compliance_level >= 50 %}text-warning{% else %}text-danger{% endif %}">
@@ -129,180 +106,166 @@
 {% endif %}
 
 {# ── Governance ───────────────────────────────────────────── #}
-<h2 class="mb-3">
-  <i class="bi bi-diagram-3 me-1"></i> {% trans "Governance" %}
-</h2>
+<div class="section-header">
+  <span class="section-header-icon" style="background:var(--accent-soft);color:var(--accent)"><i class="bi bi-diagram-3"></i></span>
+  <h2 class="mb-0">{% trans "Governance" %}</h2>
+</div>
 <div class="row g-3 mb-4">
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-primary h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Scopes" %}</h5>
-        <p class="display-6">{{ scope_count }}</p>
-        <a href="{% url 'context:scope-list' %}" class="text-white">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon accent"><i class="bi bi-bullseye"></i></div>
+      <div class="stat-card-label">{% trans "Scopes" %}</div>
+      <div class="stat-card-value">{{ scope_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'context:scope-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-info h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Issues" %}</h5>
-        <p class="display-6">{{ issue_count }}</p>
-        <a href="{% url 'context:issue-list' %}" class="text-white">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon info"><i class="bi bi-flag"></i></div>
+      <div class="stat-card-label">{% trans "Issues" %}</div>
+      <div class="stat-card-value">{{ issue_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'context:issue-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-success h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Stakeholders" %}</h5>
-        <p class="display-6">{{ stakeholder_count }}</p>
-        <a href="{% url 'context:stakeholder-list' %}" class="text-white">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon success"><i class="bi bi-people"></i></div>
+      <div class="stat-card-label">{% trans "Stakeholders" %}</div>
+      <div class="stat-card-value">{{ stakeholder_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'context:stakeholder-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-warning h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Objectives" %}</h5>
-        <p class="display-6">{{ objective_count }}</p>
-        <a href="{% url 'context:objective-list' %}" class="text-dark">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon warning"><i class="bi bi-trophy"></i></div>
+      <div class="stat-card-label">{% trans "Objectives" %}</div>
+      <div class="stat-card-value">{{ objective_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'context:objective-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
 </div>
 <div class="row g-3 mb-4">
   <div class="col-md-4 col-sm-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Roles" %}</h5>
-        <p class="display-6">{{ role_count }}</p>
-        {% if mandatory_roles_no_user %}
-        <span class="badge text-bg-danger">{% blocktrans with count=mandatory_roles_no_user %}{{ count }} mandatory role(s) with no user{% endblocktrans %}</span>
-        {% endif %}
-        <div class="mt-2"><a href="{% url 'context:role-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a></div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon accent"><i class="bi bi-person-badge"></i></div>
+      <div class="stat-card-label">{% trans "Roles" %}</div>
+      <div class="stat-card-value">{{ role_count }}</div>
+      {% if mandatory_roles_no_user %}
+      <span class="badge text-bg-danger mt-2" style="font-size:.72rem">{% blocktrans with count=mandatory_roles_no_user %}{{ count }} mandatory role(s) with no user{% endblocktrans %}</span>
+      {% endif %}
+      <div class="stat-card-footer"><a href="{% url 'context:role-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-4 col-sm-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Sites" %}</h5>
-        <p class="display-6">{{ site_count }}</p>
-        <div class="mt-2"><a href="{% url 'context:site-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a></div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon info"><i class="bi bi-building"></i></div>
+      <div class="stat-card-label">{% trans "Sites" %}</div>
+      <div class="stat-card-value">{{ site_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'context:site-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-4 col-sm-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Active scopes" %}</h5>
-        <div class="mt-2">
-          {% for s in active_scopes %}
-          <span class="badge bg-primary me-1 mb-1">{{ s.full_path }}</span>
-          {% empty %}
-          <span class="text-muted">{% trans "No active scope" %}</span>
-          {% endfor %}
-        </div>
+    <div class="stat-card">
+      <div class="stat-card-icon success"><i class="bi bi-bullseye"></i></div>
+      <div class="stat-card-label">{% trans "Active scopes" %}</div>
+      <div class="mt-2">
+        {% for s in active_scopes %}
+        <span class="badge me-1 mb-1" style="background:var(--accent-soft);color:var(--accent);font-size:.72rem">{{ s.full_path }}</span>
+        {% empty %}
+        <span style="color:var(--text-muted);font-size:.85rem">{% trans "No active scope" %}</span>
+        {% endfor %}
       </div>
     </div>
   </div>
 </div>
 
-<hr class="my-4">
+<hr>
 
 {# ── Assets ────────────────────────────────────────────────── #}
-<h2 class="mb-3">
-  <i class="bi bi-box-seam me-1"></i> {% trans "Assets" %}
-</h2>
+<div class="section-header">
+  <span class="section-header-icon" style="background:var(--info-soft);color:var(--info)"><i class="bi bi-box-seam"></i></span>
+  <h2 class="mb-0">{% trans "Assets" %}</h2>
+</div>
 <div class="row g-3 mb-4">
-  <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-primary h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Essential assets" %}</h5>
-        <p class="display-6">{{ essential_count }}</p>
-        {% if personal_data_count %}
-        <span class="badge text-bg-warning text-dark">{% blocktrans with count=personal_data_count %}{{ count }} with personal data{% endblocktrans %}</span>
-        {% endif %}
-        <div class="mt-2"><a href="{% url 'assets:essential-asset-list' %}" class="text-white">{% trans "View all" %}</a></div>
-      </div>
+  <div class="col-md-4 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon accent"><i class="bi bi-gem"></i></div>
+      <div class="stat-card-label">{% trans "Essential assets" %}</div>
+      <div class="stat-card-value">{{ essential_count }}</div>
+      {% if personal_data_count %}
+      <span class="badge mt-2" style="background:var(--warning-soft);color:var(--warning);font-size:.72rem">{% blocktrans with count=personal_data_count %}{{ count }} with personal data{% endblocktrans %}</span>
+      {% endif %}
+      <div class="stat-card-footer"><a href="{% url 'assets:essential-asset-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
-  <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-info h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Support assets" %}</h5>
-        <p class="display-6">{{ support_count }}</p>
-        {% if eol_count %}
-        <span class="badge text-bg-danger">{% blocktrans with count=eol_count %}{{ count }} past end of life{% endblocktrans %}</span>
-        {% endif %}
-        <div class="mt-2"><a href="{% url 'assets:support-asset-list' %}" class="text-white">{% trans "View all" %}</a></div>
-      </div>
+  <div class="col-md-4 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon info"><i class="bi bi-hdd-stack"></i></div>
+      <div class="stat-card-label">{% trans "Support assets" %}</div>
+      <div class="stat-card-value">{{ support_count }}</div>
+      {% if eol_count %}
+      <span class="badge mt-2" style="background:var(--danger-soft);color:var(--danger);font-size:.72rem">{% blocktrans with count=eol_count %}{{ count }} past end of life{% endblocktrans %}</span>
+      {% endif %}
+      <div class="stat-card-footer"><a href="{% url 'assets:support-asset-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
-  <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-success h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Dependencies" %}</h5>
-        <p class="display-6">{{ dependency_count }}</p>
-        {% if spof_count %}
-        <span class="badge text-bg-danger">{{ spof_count }} SPOF</span>
-        {% endif %}
-        <div class="mt-2"><a href="{% url 'assets:dependency-list' %}" class="text-white">{% trans "View all" %}</a></div>
-      </div>
+  <div class="col-md-4 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon success"><i class="bi bi-share"></i></div>
+      <div class="stat-card-label">{% trans "Dependencies" %}</div>
+      <div class="stat-card-value">{{ dependency_count }}</div>
+      {% if spof_count %}
+      <span class="badge mt-2" style="background:var(--danger-soft);color:var(--danger);font-size:.72rem">{{ spof_count }} SPOF</span>
+      {% endif %}
+      <div class="stat-card-footer"><a href="{% url 'assets:dependency-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
-  </div>
-  <div class="col-md-3 col-sm-6">
-    <div class="card h-100 border-0" style="background: transparent;"></div>
   </div>
 </div>
 
-<hr class="my-4">
+<hr>
 
 {# ── Risk management ──────────────────────────────────── #}
-<h2 class="mb-3">
-  <i class="bi bi-shield-exclamation me-1"></i> {% trans "Risk management" %}
-</h2>
+<div class="section-header">
+  <span class="section-header-icon" style="background:var(--danger-soft);color:var(--danger)"><i class="bi bi-shield-exclamation"></i></span>
+  <h2 class="mb-0">{% trans "Risk management" %}</h2>
+</div>
 <div class="row g-3 mb-4">
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-primary h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Assessments" %}</h5>
-        <p class="display-6">{{ risk_assessment_count }}</p>
-        <a href="{% url 'risks:assessment-list' %}" class="text-white">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon accent"><i class="bi bi-clipboard-data"></i></div>
+      <div class="stat-card-label">{% trans "Assessments" %}</div>
+      <div class="stat-card-value">{{ risk_assessment_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'risks:assessment-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-danger h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Risks" %}</h5>
-        <p class="display-6">{{ risk_count }}</p>
-        {% if critical_risk_count %}
-        <span class="badge text-bg-dark">{% blocktrans with count=critical_risk_count %}{{ count }} critical{% endblocktrans %}</span>
-        {% endif %}
-        <div class="mt-1"><a href="{% url 'risks:risk-list' %}" class="text-white">{% trans "View all" %}</a></div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon danger"><i class="bi bi-exclamation-diamond"></i></div>
+      <div class="stat-card-label">{% trans "Risks" %}</div>
+      <div class="stat-card-value">{{ risk_count }}</div>
+      {% if critical_risk_count %}
+      <span class="badge mt-2" style="background:var(--danger-soft);color:var(--danger);font-size:.72rem">{% blocktrans with count=critical_risk_count %}{{ count }} critical{% endblocktrans %}</span>
+      {% endif %}
+      <div class="stat-card-footer"><a href="{% url 'risks:risk-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-warning h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Treatment plans" %}</h5>
-        <p class="display-6">{{ treatment_plan_count }}</p>
-        {% if treatment_in_progress_count %}
-        <span class="badge text-bg-dark">{% blocktrans with count=treatment_in_progress_count %}{{ count }} in progress{% endblocktrans %}</span>
-        {% endif %}
-        <div class="mt-1"><a href="{% url 'risks:treatment-plan-list' %}" class="text-dark">{% trans "View all" %}</a></div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon warning"><i class="bi bi-tools"></i></div>
+      <div class="stat-card-label">{% trans "Treatment plans" %}</div>
+      <div class="stat-card-value">{{ treatment_plan_count }}</div>
+      {% if treatment_in_progress_count %}
+      <span class="badge mt-2" style="background:var(--warning-soft);color:var(--warning);font-size:.72rem">{% blocktrans with count=treatment_in_progress_count %}{{ count }} in progress{% endblocktrans %}</span>
+      {% endif %}
+      <div class="stat-card-footer"><a href="{% url 'risks:treatment-plan-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-info h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Threats" %}</h5>
-        <p class="display-6">—</p>
-        <a href="{% url 'risks:threat-list' %}" class="text-white">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon info"><i class="bi bi-bug"></i></div>
+      <div class="stat-card-label">{% trans "Threats" %}</div>
+      <div class="stat-card-value">—</div>
+      <div class="stat-card-footer"><a href="{% url 'risks:threat-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
 </div>
@@ -310,7 +273,7 @@
 {# ── Risk matrices ─────────────────────────────────── #}
 {% if matrix_current or matrix_residual %}
 <div class="d-flex align-items-center mb-3">
-  <h5 class="mb-0"><i class="bi bi-grid-3x3 me-1"></i> {% trans "Risk matrices" %}</h5>
+  <h5 class="mb-0"><i class="bi bi-grid-3x3 me-1" style="color:var(--accent)"></i> {% trans "Risk matrices" %}</h5>
   {% if matrix_criteria %}
   <a href="{% url 'risks:criteria-update' matrix_criteria.pk %}" class="btn btn-outline-secondary btn-sm ms-3" title="{% trans "Configure scales" %}"><i class="bi bi-gear me-1"></i>{% trans "Configure" %}</a>
   {% endif %}
@@ -339,64 +302,60 @@
 </div>
 {% endif %}
 
-<hr class="my-4">
+<hr>
 
 {# ── Compliance — KPIs ─────────────────────────────────────── #}
-<h2 class="mb-3">
-  <i class="bi bi-journal-bookmark me-1"></i> {% trans "Compliance" %}
-</h2>
+<div class="section-header">
+  <span class="section-header-icon" style="background:var(--success-soft);color:var(--success)"><i class="bi bi-journal-bookmark"></i></span>
+  <h2 class="mb-0">{% trans "Compliance" %}</h2>
+</div>
 <div class="row g-3 mb-4">
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-primary h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Frameworks" %}</h5>
-        <p class="display-6">{{ framework_count }}</p>
-        <a href="{% url 'compliance:framework-list' %}" class="text-white">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon accent"><i class="bi bi-journal-bookmark"></i></div>
+      <div class="stat-card-label">{% trans "Frameworks" %}</div>
+      <div class="stat-card-value">{{ framework_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'compliance:framework-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-info h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Requirements" %}</h5>
-        <p class="display-6">{{ requirement_count }}</p>
-        {% if non_compliant_count %}
-        <span class="badge text-bg-danger">{% blocktrans with count=non_compliant_count %}{{ count }} non-compliant{% endblocktrans %}</span>
-        {% endif %}
-        <a href="{% url 'compliance:requirement-list' %}" class="text-white d-block mt-2">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon info"><i class="bi bi-list-check"></i></div>
+      <div class="stat-card-label">{% trans "Requirements" %}</div>
+      <div class="stat-card-value">{{ requirement_count }}</div>
+      {% if non_compliant_count %}
+      <span class="badge mt-2" style="background:var(--danger-soft);color:var(--danger);font-size:.72rem">{% blocktrans with count=non_compliant_count %}{{ count }} non-compliant{% endblocktrans %}</span>
+      {% endif %}
+      <div class="stat-card-footer"><a href="{% url 'compliance:requirement-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-success h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Assessments" %}</h5>
-        <p class="display-6">{{ assessment_count }}</p>
-        <a href="{% url 'compliance:assessment-list' %}" class="text-white">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon success"><i class="bi bi-clipboard-check"></i></div>
+      <div class="stat-card-label">{% trans "Assessments" %}</div>
+      <div class="stat-card-value">{{ assessment_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'compliance:assessment-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
-    <div class="card text-bg-warning h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Action plans" %}</h5>
-        <p class="display-6">{{ action_plan_count }}</p>
-        {% if overdue_plan_count %}
-        <span class="badge text-bg-danger">{% blocktrans with count=overdue_plan_count %}{{ count }} overdue{% endblocktrans %}</span>
-        {% endif %}
-        <a href="{% url 'compliance:action-plan-list' %}" class="text-dark d-block mt-2">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon warning"><i class="bi bi-kanban"></i></div>
+      <div class="stat-card-label">{% trans "Action plans" %}</div>
+      <div class="stat-card-value">{{ action_plan_count }}</div>
+      {% if overdue_plan_count %}
+      <span class="badge mt-2" style="background:var(--danger-soft);color:var(--danger);font-size:.72rem">{% blocktrans with count=overdue_plan_count %}{{ count }} overdue{% endblocktrans %}</span>
+      {% endif %}
+      <div class="stat-card-footer"><a href="{% url 'compliance:action-plan-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
 </div>
 <div class="row g-3 mb-4">
   <div class="col-md-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Inter-framework mappings" %}</h5>
-        <p class="display-6">{{ mapping_count }}</p>
-        <a href="{% url 'compliance:mapping-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a>
-      </div>
+    <div class="stat-card">
+      <div class="stat-card-icon accent"><i class="bi bi-arrow-left-right"></i></div>
+      <div class="stat-card-label">{% trans "Inter-framework mappings" %}</div>
+      <div class="stat-card-value">{{ mapping_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'compliance:mapping-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
 </div>

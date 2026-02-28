@@ -6,10 +6,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% trans "Sign in — Open GRC" %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
         crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet">
   <script>
     (function(){
       var m = window.matchMedia('(prefers-color-scheme: dark)');
@@ -21,56 +26,162 @@
     })();
   </script>
   <style>
+    :root {
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-soft: #eef2ff;
+      --surface: #ffffff;
+      --border-light: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --radius-lg: 1rem;
+      --radius-md: .75rem;
+      --radius-sm: .5rem;
+    }
+    [data-bs-theme="dark"] {
+      --surface: #1e293b;
+      --border-light: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-soft: rgba(99,102,241,.12);
+    }
     body {
-      background-color: var(--bs-body-bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 1.5rem;
     }
-    .login-card {
+    [data-bs-theme="dark"] body {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+    }
+    .login-wrapper {
       max-width: 420px;
       width: 100%;
+    }
+    .login-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+      box-shadow: 0 20px 60px rgba(0,0,0,.15);
+      padding: 2.5rem 2rem;
+    }
+    [data-bs-theme="dark"] .login-card {
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    }
+    .login-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .6rem;
+      margin-bottom: .5rem;
+    }
+    .login-brand-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      color: #fff;
+      font-size: 1.1rem;
+    }
+    .login-brand-text {
+      font-weight: 700;
+      font-size: 1.35rem;
+      color: var(--text-primary);
+      letter-spacing: -.02em;
+    }
+    .login-subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: .88rem;
+      margin-bottom: 2rem;
+    }
+    .form-label {
+      font-size: .82rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: .35rem;
+    }
+    .form-control {
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-light);
+      padding: .6rem .85rem;
+      font-size: .9rem;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-control:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+    }
+    .btn-login {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      border-radius: var(--radius-sm);
+      padding: .6rem;
+      font-weight: 600;
+      font-size: .9rem;
+      width: 100%;
+      transition: background .15s, transform .15s, box-shadow .15s;
+    }
+    .btn-login:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(99,102,241,.35);
+      color: #fff;
+    }
+    .alert {
+      border-radius: var(--radius-sm);
+      font-size: .85rem;
     }
   </style>
 </head>
 <body>
-  <div class="login-card">
-    <div class="card shadow">
-      <div class="card-body p-4">
-        <h3 class="text-center mb-4">Open GRC</h3>
-        <h5 class="text-center text-muted mb-4">{% trans "Sign in" %}</h5>
-
-        {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endfor %}
-        {% endif %}
-
-        <form method="post">
-          {% csrf_token %}
-          <div class="mb-3">
-            <label for="id_email" class="form-label">{% trans "Email address" %}</label>
-            {{ form.email }}
-            {% if form.email.errors %}
-            <div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>
-            {% endif %}
-          </div>
-          <div class="mb-3">
-            <label for="id_password" class="form-label">{% trans "Password" %}</label>
-            {{ form.password }}
-            {% if form.password.errors %}
-            <div class="invalid-feedback d-block">{{ form.password.errors.0 }}</div>
-            {% endif %}
-          </div>
-          <div class="d-grid">
-            <button type="submit" class="btn btn-primary">{% trans "Sign in" %}</button>
-          </div>
-        </form>
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="login-brand">
+        <span class="login-brand-icon"><i class="bi bi-shield-check"></i></span>
+        <span class="login-brand-text">Open GRC</span>
       </div>
+      <p class="login-subtitle">{% trans "Sign in to your account" %}</p>
+
+      {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="id_email" class="form-label">{% trans "Email address" %}</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+          <div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div class="mb-3">
+          <label for="id_password" class="form-label">{% trans "Password" %}</label>
+          {{ form.password }}
+          {% if form.password.errors %}
+          <div class="invalid-feedback d-block">{{ form.password.errors.0 }}</div>
+          {% endif %}
+        </div>
+        <div class="mt-4">
+          <button type="submit" class="btn btn-login">{% trans "Sign in" %}</button>
+        </div>
+      </form>
     </div>
   </div>
 

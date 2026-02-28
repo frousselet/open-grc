@@ -11,48 +11,50 @@
 </div>
 {% help_modal "assets.dependency_list" %}
 
-<div class="table-responsive">
-  <table class="table table-striped table-hover">
-    <thead class="table-dark">
-      <tr>
-        <th>{% trans "Essential asset" %}</th>
-        <th>{% trans "Support asset" %}</th>
-        <th>{% trans "Type" %}</th>
-        <th>{% trans "Criticality" %}</th>
-        <th>{% trans "SPOF" %}</th>
-        <th>{% trans "Redundancy" %}</th>
-        <th>{% trans "Approval" %}</th>
-        <th>{% trans "Actions" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for dep in dependencies %}
-      <tr{% if dep.is_single_point_of_failure %} class="table-danger"{% endif %}>
-        <td><a href="{% url 'assets:essential-asset-detail' dep.essential_asset.pk %}">{{ dep.essential_asset }}</a></td>
-        <td><a href="{% url 'assets:support-asset-detail' dep.support_asset.pk %}">{{ dep.support_asset }}</a></td>
-        <td>{{ dep.get_dependency_type_display }}</td>
-        <td>
-          <span class="badge text-bg-{% if dep.criticality == 'critical' %}danger{% elif dep.criticality == 'high' %}warning{% elif dep.criticality == 'medium' %}info{% else %}secondary{% endif %}">
-            {{ dep.get_criticality_display }}
-          </span>
-        </td>
-        <td>{% if dep.is_single_point_of_failure %}<span class="badge text-bg-danger">SPOF</span>{% else %}—{% endif %}</td>
-        <td>{{ dep.get_redundancy_level_display|default:"—" }}</td>
-        <td>
-          <span class="badge text-bg-{% if dep.is_approved %}success{% else %}warning{% endif %}">
-            {% if dep.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-          </span>
-        </td>
-        <td>
-          <a href="{% url 'assets:dependency-update' dep.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-          <a href="{% url 'assets:dependency-delete' dep.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="8" class="text-center text-muted">{% trans "No dependencies defined." %}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Essential asset" %}</th>
+          <th>{% trans "Support asset" %}</th>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Criticality" %}</th>
+          <th>{% trans "SPOF" %}</th>
+          <th>{% trans "Redundancy" %}</th>
+          <th>{% trans "Approval" %}</th>
+          <th>{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dep in dependencies %}
+        <tr{% if dep.is_single_point_of_failure %} class="table-danger"{% endif %}>
+          <td><a href="{% url 'assets:essential-asset-detail' dep.essential_asset.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ dep.essential_asset }}</a></td>
+          <td><a href="{% url 'assets:support-asset-detail' dep.support_asset.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ dep.support_asset }}</a></td>
+          <td>{{ dep.get_dependency_type_display }}</td>
+          <td>
+            <span class="badge text-bg-{% if dep.criticality == 'critical' %}danger{% elif dep.criticality == 'high' %}warning{% elif dep.criticality == 'medium' %}info{% else %}secondary{% endif %}">
+              {{ dep.get_criticality_display }}
+            </span>
+          </td>
+          <td>{% if dep.is_single_point_of_failure %}<span class="badge text-bg-danger">SPOF</span>{% else %}—{% endif %}</td>
+          <td>{{ dep.get_redundancy_level_display|default:"—" }}</td>
+          <td>
+            <span class="badge text-bg-{% if dep.is_approved %}success{% else %}warning{% endif %}">
+              {% if dep.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'assets:dependency-update' dep.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+            <a href="{% url 'assets:dependency-delete' dep.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted)">{% trans "No dependencies defined." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 {% if is_paginated %}

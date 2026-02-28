@@ -12,45 +12,47 @@
 </div>
 {% help_modal "assets.group_list" %}
 
-<div class="table-responsive">
-  <table class="table table-striped table-hover">
-    <thead class="table-dark">
-      <tr>
-        <th>{% trans "Name" %}</th>
-        <th>{% trans "Type" %}</th>
-        <th>{% trans "Members" %}</th>
-        <th>{% trans "Owner" %}</th>
-        <th>{% trans "Status" %}</th>
-        <th>{% trans "Approval" %}</th>
-        <th>{% trans "Actions" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for group in groups %}
-      <tr>
-        <td><a href="{% url 'assets:group-detail' group.pk %}">{{ group.name }}</a></td>
-        <td>{{ group.get_type_display }}</td>
-        <td>{{ group.member_count }}</td>
-        <td>{{ group.owner|default:"—" }}</td>
-        <td>
-          <span class="badge text-bg-{% if group.status == 'active' %}success{% else %}secondary{% endif %}">
-            {{ group.get_status_display }}
-          </span>
-        </td>
-        <td>
-          <span class="badge text-bg-{% if group.is_approved %}success{% else %}warning{% endif %}">
-            {% if group.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-          </span>
-        </td>
-        <td>
-          <a href="{% url 'assets:group-update' group.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="7" class="text-center text-muted">{% trans "No groups defined." %}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Name" %}</th>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Members" %}</th>
+          <th>{% trans "Owner" %}</th>
+          <th>{% trans "Status" %}</th>
+          <th>{% trans "Approval" %}</th>
+          <th>{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for group in groups %}
+        <tr>
+          <td><a href="{% url 'assets:group-detail' group.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ group.name }}</a></td>
+          <td>{{ group.get_type_display }}</td>
+          <td>{{ group.member_count }}</td>
+          <td>{{ group.owner|default:"—" }}</td>
+          <td>
+            <span class="badge text-bg-{% if group.status == 'active' %}success{% else %}secondary{% endif %}">
+              {{ group.get_status_display }}
+            </span>
+          </td>
+          <td>
+            <span class="badge text-bg-{% if group.is_approved %}success{% else %}warning{% endif %}">
+              {% if group.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'assets:group-update' group.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted)">{% trans "No groups defined." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 {% if is_paginated %}

@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ framework.reference }} — {{ framework.name }}</h1>
-  <div>
+  <div class="d-flex gap-2">
     <a href="{% url 'compliance:framework-update' framework.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'compliance:framework-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
@@ -19,7 +19,7 @@
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#structure">{% trans "Structure" %}</a></li>
   <li class="nav-item">
     <a class="nav-link" data-bs-toggle="tab" href="#requirements_tab">
-      {% trans "Requirements" %} <span class="badge text-bg-secondary">{{ requirements|length }}</span>
+      {% trans "Requirements" %} <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ requirements|length }}</span>
     </a>
   </li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#compliance">{% trans "Compliance" %}</a></li>
@@ -29,27 +29,31 @@
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Scopes" %}</dt>
-      <dd class="col-sm-9">
-        {% for s in framework.scopes.all %}
-          <span class="badge text-bg-secondary">{{ s.full_path }}</span>
-        {% empty %}
-          —
-        {% endfor %}
-      </dd>
-      <dt class="col-sm-3">{% trans "Abbreviation" %}</dt><dd class="col-sm-9">{{ framework.short_name|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ framework.get_type_display }}</dd>
-      <dt class="col-sm-3">{% trans "Category" %}</dt><dd class="col-sm-9">{{ framework.get_category_display }}</dd>
-      <dt class="col-sm-3">{% trans "Version" %}</dt><dd class="col-sm-9">{{ framework.framework_version|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Issuing body" %}</dt><dd class="col-sm-9">{{ framework.issuing_body|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Jurisdiction" %}</dt><dd class="col-sm-9">{{ framework.jurisdiction|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Mandatory" %}</dt><dd class="col-sm-9">{% if framework.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
-      <dt class="col-sm-3">{% trans "Applicable" %}</dt><dd class="col-sm-9">{% if framework.is_applicable %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
-      <dt class="col-sm-3">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ framework.owner }}</dd>
-      <dt class="col-sm-3">{% trans "Status" %}</dt><dd class="col-sm-9">{{ framework.get_status_display }}</dd>
-      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ framework.description|default:"—"|linebreaksbr }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt>
+          <dd class="col-sm-9">
+            {% for s in framework.scopes.all %}
+              <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ s.full_path }}</span>
+            {% empty %}
+              —
+            {% endfor %}
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Abbreviation" %}</dt><dd class="col-sm-9">{{ framework.short_name|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ framework.get_type_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Category" %}</dt><dd class="col-sm-9">{{ framework.get_category_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Version" %}</dt><dd class="col-sm-9">{{ framework.framework_version|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Issuing body" %}</dt><dd class="col-sm-9">{{ framework.issuing_body|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Jurisdiction" %}</dt><dd class="col-sm-9">{{ framework.jurisdiction|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Mandatory" %}</dt><dd class="col-sm-9">{% if framework.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Applicable" %}</dt><dd class="col-sm-9">{% if framework.is_applicable %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ framework.owner }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt><dd class="col-sm-9">{{ framework.get_status_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ framework.description|default:"—"|linebreaksbr }}</dd>
+        </dl>
+      </div>
+    </div>
   </div>
 
   <div class="tab-pane fade" id="structure">
@@ -64,7 +68,7 @@
       {% endfor %}
     </ul>
     {% else %}
-    <p class="text-muted">{% trans "No section defined." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No section defined." %}</p>
     {% endif %}
   </div>
 
@@ -76,60 +80,62 @@
       </a>
     </div>
     {% if requirements %}
-    <div class="table-responsive">
-      <table class="table table-sm table-striped table-hover align-middle">
-        <thead class="table-dark">
-          <tr>
-            <th>{% trans "Reference" %}</th>
-            <th>{% trans "Title" %}</th>
-            <th>{% trans "Section" %}</th>
-            <th>{% trans "Type" %}</th>
-            <th>{% trans "Status" %}</th>
-            <th style="min-width:120px">{% trans "Compliance" %}</th>
-            <th>{% trans "Priority" %}</th>
-            <th>{% trans "Owner" %}</th>
-            <th>{% trans "Actions" %}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for req in requirements %}
-          <tr>
-            <td><a href="{% url 'compliance:requirement-detail' req.pk %}">{{ req.reference }}</a></td>
-            <td>{{ req.name|truncatechars:60 }}</td>
-            <td>{{ req.section.reference|default:"—" }}</td>
-            <td>{{ req.get_type_display }}</td>
-            <td>
-              <span class="badge text-bg-{% if req.compliance_status == 'compliant' %}success{% elif req.compliance_status == 'partially_compliant' %}warning{% elif req.compliance_status == 'non_compliant' %}danger{% elif req.compliance_status == 'not_applicable' %}dark{% else %}secondary{% endif %}">
-                {{ req.get_compliance_status_display }}
-              </span>
-            </td>
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <div class="progress flex-grow-1" style="height:.5rem">
-                  <div class="progress-bar bg-{% if req.compliance_level >= 80 %}success{% elif req.compliance_level >= 50 %}warning{% else %}danger{% endif %}"
-                       style="width:{{ req.compliance_level }}%"></div>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>{% trans "Reference" %}</th>
+              <th>{% trans "Title" %}</th>
+              <th>{% trans "Section" %}</th>
+              <th>{% trans "Type" %}</th>
+              <th>{% trans "Status" %}</th>
+              <th style="min-width:120px">{% trans "Compliance" %}</th>
+              <th>{% trans "Priority" %}</th>
+              <th>{% trans "Owner" %}</th>
+              <th>{% trans "Actions" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for req in requirements %}
+            <tr>
+              <td><a href="{% url 'compliance:requirement-detail' req.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ req.reference }}</a></td>
+              <td>{{ req.name|truncatechars:60 }}</td>
+              <td>{{ req.section.reference|default:"—" }}</td>
+              <td>{{ req.get_type_display }}</td>
+              <td>
+                <span class="badge text-bg-{% if req.compliance_status == 'compliant' %}success{% elif req.compliance_status == 'partially_compliant' %}warning{% elif req.compliance_status == 'non_compliant' %}danger{% elif req.compliance_status == 'not_applicable' %}dark{% else %}secondary{% endif %}">
+                  {{ req.get_compliance_status_display }}
+                </span>
+              </td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="progress flex-grow-1" style="height:.5rem">
+                    <div class="progress-bar bg-{% if req.compliance_level >= 80 %}success{% elif req.compliance_level >= 50 %}warning{% else %}danger{% endif %}"
+                         style="width:{{ req.compliance_level }}%"></div>
+                  </div>
+                  <small class="text-nowrap">{{ req.compliance_level }}%</small>
                 </div>
-                <small class="text-nowrap">{{ req.compliance_level }}%</small>
-              </div>
-            </td>
-            <td>
-              {% if req.priority %}
-              <span class="badge text-bg-{% if req.priority == 'critical' %}danger{% elif req.priority == 'high' %}warning{% elif req.priority == 'medium' %}info{% else %}secondary{% endif %}">
-                {{ req.get_priority_display }}
-              </span>
-              {% else %}—{% endif %}
-            </td>
-            <td>{{ req.owner.display_name|default:"—" }}</td>
-            <td>
-              <a href="{% url 'compliance:requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+              </td>
+              <td>
+                {% if req.priority %}
+                <span class="badge text-bg-{% if req.priority == 'critical' %}danger{% elif req.priority == 'high' %}warning{% elif req.priority == 'medium' %}info{% else %}secondary{% endif %}">
+                  {{ req.get_priority_display }}
+                </span>
+                {% else %}—{% endif %}
+              </td>
+              <td>{{ req.owner.display_name|default:"—" }}</td>
+              <td>
+                <a href="{% url 'compliance:requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
     {% else %}
-    <p class="text-muted">{% trans "No requirement defined for this framework." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No requirement defined for this framework." %}</p>
     {% endif %}
   </div>
 
@@ -148,24 +154,26 @@
 
   <div class="tab-pane fade" id="assessments_tab">
     {% if assessments %}
-    <div class="table-responsive">
-      <table class="table table-striped">
-        <thead><tr><th>{% trans "Name" %}</th><th>{% trans "Date" %}</th><th>{% trans "Assessor" %}</th><th>{% trans "Compliance" %}</th><th>{% trans "Status" %}</th></tr></thead>
-        <tbody>
-          {% for a in assessments %}
-          <tr>
-            <td><a href="{% url 'compliance:assessment-detail' a.pk %}">{{ a.name }}</a></td>
-            <td>{{ a.assessment_date }}</td>
-            <td>{{ a.assessor }}</td>
-            <td>{{ a.overall_compliance_level|floatformat:0 }}%</td>
-            <td>{{ a.get_status_display }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>{% trans "Name" %}</th><th>{% trans "Date" %}</th><th>{% trans "Assessor" %}</th><th>{% trans "Compliance" %}</th><th>{% trans "Status" %}</th></tr></thead>
+          <tbody>
+            {% for a in assessments %}
+            <tr>
+              <td><a href="{% url 'compliance:assessment-detail' a.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ a.name }}</a></td>
+              <td>{{ a.assessment_date }}</td>
+              <td>{{ a.assessor }}</td>
+              <td>{{ a.overall_compliance_level|floatformat:0 }}%</td>
+              <td>{{ a.get_status_display }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
     {% else %}
-    <p class="text-muted">{% trans "No assessment performed." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No assessment performed." %}</p>
     {% endif %}
   </div>
 

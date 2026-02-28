@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ requirement.reference }} — {{ requirement.name }}</h1>
-  <div>
+  <div class="d-flex gap-2">
     <a href="{% url 'compliance:requirement-update' requirement.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'compliance:requirement-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
@@ -24,86 +24,102 @@
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Framework" %}</dt><dd class="col-sm-9"><a href="{% url 'compliance:framework-detail' requirement.framework.pk %}">{{ requirement.framework }}</a></dd>
-      <dt class="col-sm-3">{% trans "Section" %}</dt><dd class="col-sm-9">{{ requirement.section|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ requirement.get_type_display }}</dd>
-      <dt class="col-sm-3">{% trans "Category" %}</dt><dd class="col-sm-9">{{ requirement.get_category_display|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Applicable" %}</dt><dd class="col-sm-9">{% if requirement.is_applicable %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
-      {% if not requirement.is_applicable %}
-      <dt class="col-sm-3">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ requirement.applicability_justification|default:"—" }}</dd>
-      {% endif %}
-      <dt class="col-sm-3">{% trans "Priority" %}</dt><dd class="col-sm-9">{{ requirement.get_priority_display|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Responsible" %}</dt><dd class="col-sm-9">{{ requirement.owner|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ requirement.description|linebreaksbr }}</dd>
-      {% if requirement.guidance %}
-      <dt class="col-sm-3">{% trans "Guidance" %}</dt><dd class="col-sm-9">{{ requirement.guidance|linebreaksbr }}</dd>
-      {% endif %}
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Framework" %}</dt><dd class="col-sm-9"><a href="{% url 'compliance:framework-detail' requirement.framework.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ requirement.framework }}</a></dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Section" %}</dt><dd class="col-sm-9">{{ requirement.section|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ requirement.get_type_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Category" %}</dt><dd class="col-sm-9">{{ requirement.get_category_display|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Applicable" %}</dt><dd class="col-sm-9">{% if requirement.is_applicable %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
+          {% if not requirement.is_applicable %}
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ requirement.applicability_justification|default:"—" }}</dd>
+          {% endif %}
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Priority" %}</dt><dd class="col-sm-9">{{ requirement.get_priority_display|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Responsible" %}</dt><dd class="col-sm-9">{{ requirement.owner|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ requirement.description|linebreaksbr }}</dd>
+          {% if requirement.guidance %}
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Guidance" %}</dt><dd class="col-sm-9">{{ requirement.guidance|linebreaksbr }}</dd>
+          {% endif %}
+        </dl>
+      </div>
+    </div>
   </div>
 
   <div class="tab-pane fade" id="compliance_tab">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Compliance status" %}</dt>
-      <dd class="col-sm-9">
-        <span class="badge text-bg-{% if requirement.compliance_status == 'compliant' %}success{% elif requirement.compliance_status == 'partially_compliant' %}warning{% elif requirement.compliance_status == 'non_compliant' %}danger{% else %}secondary{% endif %}">
-          {{ requirement.get_compliance_status_display }}
-        </span>
-      </dd>
-      <dt class="col-sm-3">{% trans "Level" %}</dt><dd class="col-sm-9">{{ requirement.compliance_level }}%</dd>
-      <dt class="col-sm-3">{% trans "Last assessment" %}</dt><dd class="col-sm-9">{{ requirement.last_assessment_date|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Evidence" %}</dt><dd class="col-sm-9">{{ requirement.compliance_evidence|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">{% trans "Gaps" %}</dt><dd class="col-sm-9">{{ requirement.compliance_gaps|default:"—"|linebreaksbr }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Compliance status" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if requirement.compliance_status == 'compliant' %}success{% elif requirement.compliance_status == 'partially_compliant' %}warning{% elif requirement.compliance_status == 'non_compliant' %}danger{% else %}secondary{% endif %}">
+              {{ requirement.get_compliance_status_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Level" %}</dt><dd class="col-sm-9">{{ requirement.compliance_level }}%</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Last assessment" %}</dt><dd class="col-sm-9">{{ requirement.last_assessment_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Evidence" %}</dt><dd class="col-sm-9">{{ requirement.compliance_evidence|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Gaps" %}</dt><dd class="col-sm-9">{{ requirement.compliance_gaps|default:"—"|linebreaksbr }}</dd>
+        </dl>
+      </div>
+    </div>
   </div>
 
   <div class="tab-pane fade" id="mappings">
     <h5>{% trans "Mapped requirements" %}</h5>
     {% if mappings_source or mappings_target %}
-    <table class="table table-sm table-striped">
-      <thead><tr><th>{% trans "Direction" %}</th><th>{% trans "Requirement" %}</th><th>{% trans "Framework" %}</th><th>{% trans "Type" %}</th></tr></thead>
-      <tbody>
-        {% for m in mappings_source %}
-        <tr>
-          <td>{% trans "Source" %} →</td>
-          <td><a href="{% url 'compliance:requirement-detail' m.target_requirement.pk %}">{{ m.target_requirement.reference }}</a></td>
-          <td>{{ m.target_requirement.framework.name }}</td>
-          <td>{{ m.get_mapping_type_display }}</td>
-        </tr>
-        {% endfor %}
-        {% for m in mappings_target %}
-        <tr>
-          <td>← {% trans "Target" %}</td>
-          <td><a href="{% url 'compliance:requirement-detail' m.source_requirement.pk %}">{{ m.source_requirement.reference }}</a></td>
-          <td>{{ m.source_requirement.framework.name }}</td>
-          <td>{{ m.get_mapping_type_display }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>{% trans "Direction" %}</th><th>{% trans "Requirement" %}</th><th>{% trans "Framework" %}</th><th>{% trans "Type" %}</th></tr></thead>
+          <tbody>
+            {% for m in mappings_source %}
+            <tr>
+              <td>{% trans "Source" %} →</td>
+              <td><a href="{% url 'compliance:requirement-detail' m.target_requirement.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ m.target_requirement.reference }}</a></td>
+              <td>{{ m.target_requirement.framework.name }}</td>
+              <td>{{ m.get_mapping_type_display }}</td>
+            </tr>
+            {% endfor %}
+            {% for m in mappings_target %}
+            <tr>
+              <td>← {% trans "Target" %}</td>
+              <td><a href="{% url 'compliance:requirement-detail' m.source_requirement.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ m.source_requirement.reference }}</a></td>
+              <td>{{ m.source_requirement.framework.name }}</td>
+              <td>{{ m.get_mapping_type_display }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
     {% else %}
-    <p class="text-muted">{% trans "No mapping defined." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No mapping defined." %}</p>
     {% endif %}
   </div>
 
   <div class="tab-pane fade" id="plans">
     {% if action_plans %}
-    <table class="table table-sm table-striped">
-      <thead><tr><th>{% trans "Reference" %}</th><th>{% trans "Name" %}</th><th>{% trans "Priority" %}</th><th>{% trans "Progress" %}</th><th>{% trans "Status" %}</th></tr></thead>
-      <tbody>
-        {% for ap in action_plans %}
-        <tr>
-          <td><a href="{% url 'compliance:action-plan-detail' ap.pk %}">{{ ap.reference }}</a></td>
-          <td>{{ ap.name }}</td>
-          <td>{{ ap.get_priority_display }}</td>
-          <td>{{ ap.progress_percentage }}%</td>
-          <td>{{ ap.get_status_display }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>{% trans "Reference" %}</th><th>{% trans "Name" %}</th><th>{% trans "Priority" %}</th><th>{% trans "Progress" %}</th><th>{% trans "Status" %}</th></tr></thead>
+          <tbody>
+            {% for ap in action_plans %}
+            <tr>
+              <td><a href="{% url 'compliance:action-plan-detail' ap.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ ap.reference }}</a></td>
+              <td>{{ ap.name }}</td>
+              <td>{{ ap.get_priority_display }}</td>
+              <td>{{ ap.progress_percentage }}%</td>
+              <td>{{ ap.get_status_display }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
     {% else %}
-    <p class="text-muted">{% trans "No action plan associated." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No action plan associated." %}</p>
     {% endif %}
   </div>
 

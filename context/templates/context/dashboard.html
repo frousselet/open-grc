@@ -12,91 +12,88 @@
 {% help_modal "context.dashboard" %}
 
 <div class="row g-3 mb-4">
-  <div class="col-md-3">
-    <div class="card text-bg-primary">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Scopes" %}</h5>
-        <p class="display-6">{{ scope_count }}</p>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon accent"><i class="bi bi-bullseye"></i></div>
+      <div class="stat-card-label">{% trans "Scopes" %}</div>
+      <div class="stat-card-value">{{ scope_count }}</div>
+      <div class="mt-2">
         {% for s in active_scopes %}
-        <span class="badge bg-light text-dark me-1">{{ s.full_path }}</span>
+        <span class="badge me-1" style="background:var(--accent-soft);color:var(--accent);font-size:.65rem">{{ s.full_path }}</span>
         {% empty %}
-        <small class="text-white-50">{% trans "No active scope" %}</small>
+        <small style="color:var(--text-muted)">{% trans "No active scope" %}</small>
         {% endfor %}
-        <div class="mt-2"><a href="{% url 'context:scope-list' %}" class="text-white">{% trans "View all" %}</a></div>
       </div>
+      <div class="stat-card-footer"><a href="{% url 'context:scope-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card text-bg-info">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Issues" %}</h5>
-        <p class="display-6">{{ issue_count }}</p>
-        <div class="mt-2"><a href="{% url 'context:issue-list' %}" class="text-white">{% trans "View all" %}</a></div>
-      </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon info"><i class="bi bi-flag"></i></div>
+      <div class="stat-card-label">{% trans "Issues" %}</div>
+      <div class="stat-card-value">{{ issue_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'context:issue-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card text-bg-success">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Stakeholders" %}</h5>
-        <p class="display-6">{{ stakeholder_count }}</p>
-        <div class="mt-2"><a href="{% url 'context:stakeholder-list' %}" class="text-white">{% trans "View all" %}</a></div>
-      </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon success"><i class="bi bi-people"></i></div>
+      <div class="stat-card-label">{% trans "Stakeholders" %}</div>
+      <div class="stat-card-value">{{ stakeholder_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'context:stakeholder-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card text-bg-warning">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Objectives" %}</h5>
-        <p class="display-6">{{ objective_count }}</p>
-        <div class="mt-2"><a href="{% url 'context:objective-list' %}" class="text-dark">{% trans "View all" %}</a></div>
-      </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon warning"><i class="bi bi-trophy"></i></div>
+      <div class="stat-card-label">{% trans "Objectives" %}</div>
+      <div class="stat-card-value">{{ objective_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'context:objective-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
 </div>
 
 <div class="row g-3 mb-4">
-  <div class="col-md-3">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "SWOT analyses" %}</h5>
-        <p class="display-6">{{ swot_count }}</p>
-        <a href="{% url 'context:swot-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a>
-      </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon accent"><i class="bi bi-grid-3x3-gap"></i></div>
+      <div class="stat-card-label">{% trans "SWOT analyses" %}</div>
+      <div class="stat-card-value">{{ swot_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'context:swot-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Roles" %}</h5>
-        <p class="display-6">{{ role_count }}</p>
-        <a href="{% url 'context:role-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a>
-      </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon info"><i class="bi bi-person-badge"></i></div>
+      <div class="stat-card-label">{% trans "Roles" %}</div>
+      <div class="stat-card-value">{{ role_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'context:role-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Activities" %}</h5>
-        <p class="display-6">{{ activity_count }}</p>
-        <a href="{% url 'context:activity-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a>
-      </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon success"><i class="bi bi-activity"></i></div>
+      <div class="stat-card-label">{% trans "Activities" %}</div>
+      <div class="stat-card-value">{{ activity_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'context:activity-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
-  <div class="col-md-3">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Sites" %}</h5>
-        <p class="display-6">{{ site_count }}</p>
-        <a href="{% url 'context:site-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a>
-      </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon warning"><i class="bi bi-building"></i></div>
+      <div class="stat-card-label">{% trans "Sites" %}</div>
+      <div class="stat-card-value">{{ site_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'context:site-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
 </div>
 
 {% if mandatory_roles_without_users %}
 <div class="alert alert-danger">
-  <h5>{% trans "Compliance alerts" %}</h5>
+  <div class="d-flex align-items-center mb-2">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong>{% trans "Compliance alerts" %}</strong>
+  </div>
   <ul class="mb-0">
     {% for role in mandatory_roles_without_users %}
     <li>{% blocktrans with name=role.name %}Mandatory role <strong>{{ name }}</strong> with no assigned user{% endblocktrans %}</li>
@@ -108,11 +105,11 @@
 {% if issues_by_impact %}
 <div class="card mb-4">
   <div class="card-body">
-    <h5 class="card-title">{% trans "Issues by impact level" %}</h5>
-    <div class="d-flex gap-3">
+    <h5 class="card-title"><i class="bi bi-bar-chart me-1" style="color:var(--accent)"></i> {% trans "Issues by impact level" %}</h5>
+    <div class="d-flex gap-2 flex-wrap mt-3">
       {% for item in issues_by_impact %}
-      <span class="badge text-bg-{% if item.impact_level == 'critical' %}danger{% elif item.impact_level == 'high' %}warning{% elif item.impact_level == 'medium' %}info{% else %}secondary{% endif %} fs-6">
-        {{ item.impact_level|title }} : {{ item.count }}
+      <span class="badge text-bg-{% if item.impact_level == 'critical' %}danger{% elif item.impact_level == 'high' %}warning{% elif item.impact_level == 'medium' %}info{% else %}secondary{% endif %}" style="font-size:.82rem;padding:.4em .8em">
+        {{ item.impact_level|title }}: {{ item.count }}
       </span>
       {% endfor %}
     </div>

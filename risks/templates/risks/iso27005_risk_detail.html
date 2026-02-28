@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{% trans "ISO 27005 analysis" %}</h1>
-  <div>
+  <div class="d-flex gap-2">
     <a href="{% url 'risks:iso27005-update' analysis.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'risks:iso27005-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
@@ -21,15 +21,19 @@
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
-    <dl class="row">
-      <dt class="col-sm-3">{% trans "Assessment" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:assessment-detail' analysis.assessment.pk %}">{{ analysis.assessment }}</a></dd>
-      <dt class="col-sm-3">{% trans "Threat" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:threat-detail' analysis.threat.pk %}">{{ analysis.threat }}</a></dd>
-      <dt class="col-sm-3">{% trans "Vulnerability" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:vulnerability-detail' analysis.vulnerability.pk %}">{{ analysis.vulnerability }}</a></dd>
-      <dt class="col-sm-3">{% trans "Consolidated risk" %}</dt>
-      <dd class="col-sm-9">{% if analysis.risk %}<a href="{% url 'risks:risk-detail' analysis.risk.pk %}">{{ analysis.risk }}</a>{% else %}—{% endif %}</dd>
-      <dt class="col-sm-3">{% trans "Existing controls" %}</dt><dd class="col-sm-9">{{ analysis.existing_controls|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ analysis.description|default:"—"|linebreaksbr }}</dd>
-    </dl>
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Assessment" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:assessment-detail' analysis.assessment.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ analysis.assessment }}</a></dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Threat" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:threat-detail' analysis.threat.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ analysis.threat }}</a></dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Vulnerability" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:vulnerability-detail' analysis.vulnerability.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ analysis.vulnerability }}</a></dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Consolidated risk" %}</dt>
+          <dd class="col-sm-9">{% if analysis.risk %}<a href="{% url 'risks:risk-detail' analysis.risk.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ analysis.risk }}</a>{% else %}—{% endif %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Existing controls" %}</dt><dd class="col-sm-9">{{ analysis.existing_controls|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ analysis.description|default:"—"|linebreaksbr }}</dd>
+        </dl>
+      </div>
+    </div>
   </div>
 
   <div class="tab-pane fade" id="calculation">
@@ -71,16 +75,16 @@
   <div class="tab-pane fade" id="assets">
     <h5>{% trans "Affected essential assets" %}</h5>
     {% for ea in analysis.affected_essential_assets.all %}
-    <span class="badge text-bg-primary me-1 mb-1">{{ ea }}</span>
+    <span class="badge me-1 mb-1" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ ea }}</span>
     {% empty %}
-    <p class="text-muted">{% trans "No essential assets." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No essential assets." %}</p>
     {% endfor %}
 
     <h5 class="mt-3">{% trans "Affected support assets" %}</h5>
     {% for sa in analysis.affected_support_assets.all %}
-    <span class="badge text-bg-info me-1 mb-1">{{ sa }}</span>
+    <span class="badge me-1 mb-1" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ sa }}</span>
     {% empty %}
-    <p class="text-muted">{% trans "No support assets." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No support assets." %}</p>
     {% endfor %}
   </div>
 

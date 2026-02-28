@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ group.name }}</h1>
-  <div>
+  <div class="d-flex gap-2">
     <a href="{% url 'assets:group-update' group.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'assets:group-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
@@ -20,32 +20,40 @@
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="info">
-    <dl class="row mb-4">
-      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ group.scope }}</dd>
-      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ group.get_type_display }}</dd>
-      <dt class="col-sm-3">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ group.owner|default:"—" }}</dd>
-      <dt class="col-sm-3">{% trans "Status" %}</dt><dd class="col-sm-9">{{ group.get_status_display }}</dd>
-      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ group.description|default:"—"|linebreaksbr }}</dd>
-    </dl>
+    <div class="card mb-4">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ group.scope }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ group.get_type_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ group.owner|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt><dd class="col-sm-9">{{ group.get_status_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ group.description|default:"—"|linebreaksbr }}</dd>
+        </dl>
+      </div>
+    </div>
 
     <h4>{% trans "Members" %} ({{ group.members.count }})</h4>
     {% if group.members.all %}
-    <table class="table table-striped">
-      <thead><tr><th>{% trans "Ref." %}</th><th>{% trans "Name" %}</th><th>{% trans "Type" %}</th><th>{% trans "Category" %}</th><th>{% trans "Status" %}</th></tr></thead>
-      <tbody>
-        {% for member in group.members.all %}
-        <tr>
-          <td>{{ member.reference }}</td>
-          <td><a href="{% url 'assets:support-asset-detail' member.pk %}">{{ member.name }}</a></td>
-          <td>{{ member.get_type_display }}</td>
-          <td>{{ member.get_category_display }}</td>
-          <td>{{ member.get_status_display }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>{% trans "Ref." %}</th><th>{% trans "Name" %}</th><th>{% trans "Type" %}</th><th>{% trans "Category" %}</th><th>{% trans "Status" %}</th></tr></thead>
+          <tbody>
+            {% for member in group.members.all %}
+            <tr>
+              <td>{{ member.reference }}</td>
+              <td><a href="{% url 'assets:support-asset-detail' member.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ member.name }}</a></td>
+              <td>{{ member.get_type_display }}</td>
+              <td>{{ member.get_category_display }}</td>
+              <td>{{ member.get_status_display }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
     {% else %}
-    <p class="text-muted">{% trans "No members in this group." %}</p>
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No members in this group." %}</p>
     {% endif %}
   </div>
   <div class="tab-pane fade" id="history">

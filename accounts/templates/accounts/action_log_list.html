@@ -46,35 +46,37 @@
   </div>
 </form>
 
-<div class="table-responsive">
-  <table class="table table-hover table-sm">
-    <thead class="table-light">
-      <tr>
-        <th>{% trans "Date" %}</th>
-        <th>{% trans "User" %}</th>
-        <th>{% trans "Module" %}</th>
-        <th>{% trans "Object" %}</th>
-        <th>{% trans "Action" %}</th>
-        <th>{% trans "Item" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for entry in entries %}
-      <tr>
-        <td>{{ entry.history_date|date:"d/m/Y H:i:s" }}</td>
-        <td>{% if entry.history_user %}{{ entry.history_user }}{% else %}{% trans "System" %}{% endif %}</td>
-        <td><span class="badge text-bg-secondary">{{ entry.app_label }}</span></td>
-        <td>{{ entry.model_label }}</td>
-        <td>
-          <span class="badge text-bg-{{ entry.action_badge }}">{{ entry.action_label }}</span>
-        </td>
-        <td>{{ entry.object_repr|truncatechars:80 }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="6" class="text-muted text-center">{% trans "No actions recorded." %}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover table-sm mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Date" %}</th>
+          <th>{% trans "User" %}</th>
+          <th>{% trans "Module" %}</th>
+          <th>{% trans "Object" %}</th>
+          <th>{% trans "Action" %}</th>
+          <th>{% trans "Item" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in entries %}
+        <tr>
+          <td>{{ entry.history_date|date:"d/m/Y H:i:s" }}</td>
+          <td>{% if entry.history_user %}{{ entry.history_user }}{% else %}{% trans "System" %}{% endif %}</td>
+          <td><span class="badge text-bg-secondary">{{ entry.app_label }}</span></td>
+          <td>{{ entry.model_label }}</td>
+          <td>
+            <span class="badge text-bg-{{ entry.action_badge }}">{{ entry.action_label }}</span>
+          </td>
+          <td>{{ entry.object_repr|truncatechars:80 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted)">{% trans "No actions recorded." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 {% if is_paginated %}
