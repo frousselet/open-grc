@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h2>{{ account_user.display_name }}</h2>
-  <div>
+  <div class="d-flex gap-2">
     {% has_perm "system.users.update" as can_edit %}
     {% if can_edit %}
     <a href="{% url 'accounts:user-update' account_user.pk %}" class="btn btn-outline-primary">{% trans "Edit" %}</a>
@@ -27,15 +27,15 @@
     <div class="card">
       <div class="card-body">
         <dl class="row mb-0">
-          <dt class="col-sm-3">{% trans "Email" %}</dt><dd class="col-sm-9">{{ account_user.email }}</dd>
-          <dt class="col-sm-3">{% trans "First name" %}</dt><dd class="col-sm-9">{{ account_user.first_name }}</dd>
-          <dt class="col-sm-3">{% trans "Last name" %}</dt><dd class="col-sm-9">{{ account_user.last_name }}</dd>
-          <dt class="col-sm-3">{% trans "Job title" %}</dt><dd class="col-sm-9">{{ account_user.job_title|default:"-" }}</dd>
-          <dt class="col-sm-3">{% trans "Department" %}</dt><dd class="col-sm-9">{{ account_user.department|default:"-" }}</dd>
-          <dt class="col-sm-3">{% trans "Phone" %}</dt><dd class="col-sm-9">{{ account_user.phone|default:"-" }}</dd>
-          <dt class="col-sm-3">{% trans "Language" %}</dt><dd class="col-sm-9">{{ account_user.get_language_display }}</dd>
-          <dt class="col-sm-3">{% trans "Timezone" %}</dt><dd class="col-sm-9">{{ account_user.timezone }}</dd>
-          <dt class="col-sm-3">{% trans "Status" %}</dt>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Email" %}</dt><dd class="col-sm-9">{{ account_user.email }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "First name" %}</dt><dd class="col-sm-9">{{ account_user.first_name }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Last name" %}</dt><dd class="col-sm-9">{{ account_user.last_name }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Job title" %}</dt><dd class="col-sm-9">{{ account_user.job_title|default:"-" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Department" %}</dt><dd class="col-sm-9">{{ account_user.department|default:"-" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Phone" %}</dt><dd class="col-sm-9">{{ account_user.phone|default:"-" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Language" %}</dt><dd class="col-sm-9">{{ account_user.get_language_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Timezone" %}</dt><dd class="col-sm-9">{{ account_user.timezone }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
           <dd class="col-sm-9">
             {% if account_user.is_active %}
               {% if account_user.is_locked %}
@@ -47,8 +47,8 @@
             <span class="badge bg-secondary">{% trans "Inactive" %}</span>
             {% endif %}
           </dd>
-          <dt class="col-sm-3">{% trans "Last login" %}</dt><dd class="col-sm-9">{{ account_user.last_login|date:"d/m/Y H:i"|default:"-" }}</dd>
-          <dt class="col-sm-3">{% trans "Created on" %}</dt><dd class="col-sm-9">{{ account_user.created_at|date:"d/m/Y H:i" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Last login" %}</dt><dd class="col-sm-9">{{ account_user.last_login|date:"d/m/Y H:i"|default:"-" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Created on" %}</dt><dd class="col-sm-9">{{ account_user.created_at|date:"d/m/Y H:i" }}</dd>
         </dl>
       </div>
     </div>
@@ -61,13 +61,13 @@
         <ul class="list-group list-group-flush">
           {% for group in groups %}
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            <a href="{% url 'accounts:group-detail' group.pk %}">{{ group.name }}</a>
-            {% if group.is_system %}<span class="badge bg-info">{% trans "System" %}</span>{% endif %}
+            <a href="{% url 'accounts:group-detail' group.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ group.name }}</a>
+            {% if group.is_system %}<span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{% trans "System" %}</span>{% endif %}
           </li>
           {% endfor %}
         </ul>
         {% else %}
-        <p class="text-muted mb-0">{% trans "No group assigned." %}</p>
+        <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No group assigned." %}</p>
         {% endif %}
       </div>
     </div>
@@ -83,7 +83,7 @@
           {% endfor %}
         </ul>
         {% else %}
-        <p class="text-muted mb-0">{% trans "No permissions." %}</p>
+        <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No permissions." %}</p>
         {% endif %}
       </div>
     </div>
@@ -93,21 +93,23 @@
     <div class="card">
       <div class="card-body">
         {% if recent_access_logs %}
-        <table class="table table-sm">
-          <thead><tr><th>{% trans "Date" %}</th><th>{% trans "Event" %}</th><th>{% trans "IP" %}</th><th>{% trans "Reason" %}</th></tr></thead>
-          <tbody>
-            {% for log in recent_access_logs %}
-            <tr>
-              <td>{{ log.timestamp|date:"d/m/Y H:i:s" }}</td>
-              <td>{{ log.get_event_type_display }}</td>
-              <td>{{ log.ip_address|default:"-" }}</td>
-              <td>{{ log.get_failure_reason_display|default:"-" }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>{% trans "Date" %}</th><th>{% trans "Event" %}</th><th>{% trans "IP" %}</th><th>{% trans "Reason" %}</th></tr></thead>
+            <tbody>
+              {% for log in recent_access_logs %}
+              <tr>
+                <td>{{ log.timestamp|date:"d/m/Y H:i:s" }}</td>
+                <td>{{ log.get_event_type_display }}</td>
+                <td>{{ log.ip_address|default:"-" }}</td>
+                <td>{{ log.get_failure_reason_display|default:"-" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
         {% else %}
-        <p class="text-muted mb-0">{% trans "No events." %}</p>
+        <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No events." %}</p>
         {% endif %}
       </div>
     </div>
