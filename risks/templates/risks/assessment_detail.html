@@ -15,6 +15,7 @@
   .risk-matrix-level-name { display: block; font-size: .65rem; color: #495057; text-transform: uppercase; letter-spacing: .03em; }
   .risk-matrix-axis-label { border: none !important; }
   .workflow-step { display: flex; align-items: center; gap: .75rem; padding: .75rem 1rem; border-radius: .5rem; margin-bottom: .5rem; }
+  .workflow-step:last-child { margin-bottom: 0; }
   .workflow-step .step-number { width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; flex-shrink: 0; }
   .workflow-step-done .step-number { background: #198754; color: #fff; }
   .workflow-step-active .step-number { background: #0d6efd; color: #fff; }
@@ -32,7 +33,7 @@
 </div>
 {% include "includes/approval_badge.html" with object=assessment %}
 
-<div class="mb-3">
+<div class="mb-4">
   <span class="badge text-bg-{% if assessment.methodology == 'iso27005' %}primary{% elif assessment.methodology == 'ebios_rm' %}info{% else %}secondary{% endif %} fs-6">
     <i class="bi bi-diagram-2 me-1"></i>{{ assessment.get_methodology_display }}
   </span>
@@ -41,92 +42,131 @@
   </span>
 </div>
 
+{# ══════════════════════════════════════════════════════════ #}
+{# ── Methodology workflow — always visible ─────────────── #}
+{# ══════════════════════════════════════════════════════════ #}
+
+{% if assessment.methodology == 'iso27005' %}
+<div class="card mb-4" style="border-left:4px solid var(--accent)">
+  <div class="card-header d-flex align-items-center">
+    <h5 class="mb-0"><i class="bi bi-signpost-2 me-2"></i>{% trans "ISO 27005 workflow" %}</h5>
+  </div>
+  <div class="card-body">
+    <div class="workflow-step {% if threat_count > 0 %}workflow-step-done{% else %}workflow-step-active{% endif %}">
+      <span class="step-number">1</span>
+      <div>
+        <strong>{% trans "Identify threats" %}</strong>
+        <div class="text-muted small">{% trans "Define or select threats from the catalog that apply to your scope." %}</div>
+      </div>
+      <span class="ms-auto badge text-bg-{% if threat_count > 0 %}success{% else %}secondary{% endif %}">{{ threat_count }} {% trans "threat(s)" %}</span>
+      <a href="{% url 'risks:threat-list' %}" class="btn btn-sm btn-outline-primary ms-2">{% trans "Manage" %}</a>
+    </div>
+    <div class="workflow-step {% if vulnerability_count > 0 %}workflow-step-done{% elif threat_count > 0 %}workflow-step-active{% else %}workflow-step-pending{% endif %}">
+      <span class="step-number">2</span>
+      <div>
+        <strong>{% trans "Identify vulnerabilities" %}</strong>
+        <div class="text-muted small">{% trans "Define or select vulnerabilities from the catalog." %}</div>
+      </div>
+      <span class="ms-auto badge text-bg-{% if vulnerability_count > 0 %}success{% else %}secondary{% endif %}">{{ vulnerability_count }} {% trans "vulnerability(ies)" %}</span>
+      <a href="{% url 'risks:vulnerability-list' %}" class="btn btn-sm btn-outline-primary ms-2">{% trans "Manage" %}</a>
+    </div>
+    <div class="workflow-step {% if iso27005_risks %}workflow-step-done{% elif vulnerability_count > 0 %}workflow-step-active{% else %}workflow-step-pending{% endif %}">
+      <span class="step-number">3</span>
+      <div>
+        <strong>{% trans "Analyze risk scenarios" %}</strong>
+        <div class="text-muted small">{% trans "Create threat × vulnerability scenarios and evaluate their likelihood and impact." %}</div>
+      </div>
+      <span class="ms-auto badge text-bg-{% if iso27005_risks %}success{% else %}secondary{% endif %}">{{ iso27005_risks|length }} {% trans "analysis(es)" %}</span>
+      <a href="{% url 'risks:iso27005-create' %}?assessment={{ assessment.pk }}" class="btn btn-sm btn-primary ms-2">{% trans "New analysis" %}</a>
+    </div>
+    <div class="workflow-step {% if risks %}workflow-step-done{% elif iso27005_risks %}workflow-step-active{% else %}workflow-step-pending{% endif %}">
+      <span class="step-number">4</span>
+      <div>
+        <strong>{% trans "Consolidate risks" %}</strong>
+        <div class="text-muted small">{% trans "Promote analyses to the risk register for treatment planning." %}</div>
+      </div>
+      <span class="ms-auto badge text-bg-{% if risks %}success{% else %}secondary{% endif %}">{{ risks|length }} {% trans "risk(s)" %}</span>
+    </div>
+  </div>
+</div>
+
+{% elif assessment.methodology == 'ebios_rm' %}
+<div class="card mb-4" style="border-left:4px solid var(--info)">
+  <div class="card-header d-flex align-items-center">
+    <h5 class="mb-0"><i class="bi bi-signpost-2 me-2"></i>{% trans "EBIOS RM workflow" %}</h5>
+  </div>
+  <div class="card-body">
+    <div class="alert alert-warning mb-3">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      {% trans "The EBIOS RM methodology is not yet implemented. It will be available in a future version." %}
+    </div>
+    <div class="workflow-step workflow-step-pending">
+      <span class="step-number">1</span>
+      <div>
+        <strong>{% trans "Define scope and security baseline" %}</strong>
+        <div class="text-muted small">{% trans "Workshop 1 — Identify essential assets, business values and the security baseline." %}</div>
+      </div>
+    </div>
+    <div class="workflow-step workflow-step-pending">
+      <span class="step-number">2</span>
+      <div>
+        <strong>{% trans "Identify risk origins" %}</strong>
+        <div class="text-muted small">{% trans "Workshop 2 — Identify threat sources and their objectives." %}</div>
+      </div>
+    </div>
+    <div class="workflow-step workflow-step-pending">
+      <span class="step-number">3</span>
+      <div>
+        <strong>{% trans "Build strategic scenarios" %}</strong>
+        <div class="text-muted small">{% trans "Workshop 3 — Define attack paths from threat source to essential assets." %}</div>
+      </div>
+    </div>
+    <div class="workflow-step workflow-step-pending">
+      <span class="step-number">4</span>
+      <div>
+        <strong>{% trans "Build operational scenarios" %}</strong>
+        <div class="text-muted small">{% trans "Workshop 4 — Detail technical attack sequences on support assets." %}</div>
+      </div>
+    </div>
+    <div class="workflow-step workflow-step-pending">
+      <span class="step-number">5</span>
+      <div>
+        <strong>{% trans "Treat risks" %}</strong>
+        <div class="text-muted small">{% trans "Workshop 5 — Define and track risk treatment measures." %}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<div class="alert alert-warning mb-4">
+  <i class="bi bi-exclamation-triangle me-2"></i>
+  {% trans "Unknown methodology. Please edit this assessment and select a valid methodology." %}
+</div>
+{% endif %}
+
+{# ══════════════════════════════════════════════════════════ #}
+{# ── Tabs ──────────────────────────────────────────────── #}
+{# ══════════════════════════════════════════════════════════ #}
+
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#methodology">{% trans "Methodology" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#risks">{% trans "Risks" %}</a></li>
+  {% if assessment.methodology == 'iso27005' %}
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#analyses">{% trans "Analyses" %}</a></li>
+  {% endif %}
+  <li class="nav-item"><a class="nav-link {% if assessment.methodology != 'iso27005' %}active{% endif %}" data-bs-toggle="tab" href="#risks">{% trans "Risks" %}</a></li>
   {% if matrix_current or matrix_residual %}
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#matrices">{% trans "Matrices" %}</a></li>
   {% endif %}
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
-  {# ── General tab ────────────────────────────────────── #}
-  <div class="tab-pane fade show active" id="general">
-    <div class="card">
-      <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ assessment.scope }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Methodology" %}</dt><dd class="col-sm-9">{{ assessment.get_methodology_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Assessor" %}</dt><dd class="col-sm-9">{{ assessment.assessor|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Assessment date" %}</dt><dd class="col-sm-9">{{ assessment.assessment_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Risk criteria" %}</dt><dd class="col-sm-9">{{ assessment.risk_criteria|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
-          <dd class="col-sm-9">
-            <span class="badge text-bg-{% if assessment.status == 'validated' %}success{% elif assessment.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
-              {{ assessment.get_status_display }}
-            </span>
-          </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ assessment.next_review_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ assessment.description|default:"—"|linebreaksbr }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Summary" %}</dt><dd class="col-sm-9">{{ assessment.summary|default:"—"|linebreaksbr }}</dd>
-        </dl>
-      </div>
-    </div>
-  </div>
-
-  {# ── Methodology tab ────────────────────────────────── #}
-  <div class="tab-pane fade" id="methodology">
-
-    {% if assessment.methodology == 'iso27005' %}
-    {# ── ISO 27005 Workflow ──────────────────────────── #}
-    <div class="card mb-4">
-      <div class="card-header">
-        <h5 class="mb-0"><i class="bi bi-signpost-2 me-2"></i>{% trans "ISO 27005 workflow" %}</h5>
-      </div>
-      <div class="card-body">
-        <div class="workflow-step {% if threat_count > 0 %}workflow-step-done{% else %}workflow-step-active{% endif %}">
-          <span class="step-number">1</span>
-          <div>
-            <strong>{% trans "Identify threats" %}</strong>
-            <div class="text-muted small">{% trans "Define or select threats from the catalog that apply to your scope." %}</div>
-          </div>
-          <span class="ms-auto badge text-bg-{% if threat_count > 0 %}success{% else %}secondary{% endif %}">{{ threat_count }} {% trans "threat(s)" %}</span>
-          <a href="{% url 'risks:threat-list' %}" class="btn btn-sm btn-outline-primary ms-2">{% trans "Manage" %}</a>
-        </div>
-        <div class="workflow-step {% if vulnerability_count > 0 %}workflow-step-done{% elif threat_count > 0 %}workflow-step-active{% else %}workflow-step-pending{% endif %}">
-          <span class="step-number">2</span>
-          <div>
-            <strong>{% trans "Identify vulnerabilities" %}</strong>
-            <div class="text-muted small">{% trans "Define or select vulnerabilities from the catalog." %}</div>
-          </div>
-          <span class="ms-auto badge text-bg-{% if vulnerability_count > 0 %}success{% else %}secondary{% endif %}">{{ vulnerability_count }} {% trans "vulnerability(ies)" %}</span>
-          <a href="{% url 'risks:vulnerability-list' %}" class="btn btn-sm btn-outline-primary ms-2">{% trans "Manage" %}</a>
-        </div>
-        <div class="workflow-step {% if iso27005_risks %}workflow-step-done{% elif vulnerability_count > 0 %}workflow-step-active{% else %}workflow-step-pending{% endif %}">
-          <span class="step-number">3</span>
-          <div>
-            <strong>{% trans "Analyze risk scenarios" %}</strong>
-            <div class="text-muted small">{% trans "Create threat × vulnerability scenarios and evaluate their likelihood and impact." %}</div>
-          </div>
-          <span class="ms-auto badge text-bg-{% if iso27005_risks %}success{% else %}secondary{% endif %}">{{ iso27005_risks|length }} {% trans "analysis(es)" %}</span>
-          <a href="{% url 'risks:iso27005-create' %}?assessment={{ assessment.pk }}" class="btn btn-sm btn-primary ms-2">{% trans "New analysis" %}</a>
-        </div>
-        <div class="workflow-step {% if risks %}workflow-step-done{% elif iso27005_risks %}workflow-step-active{% else %}workflow-step-pending{% endif %}">
-          <span class="step-number">4</span>
-          <div>
-            <strong>{% trans "Consolidate risks" %}</strong>
-            <div class="text-muted small">{% trans "Promote analyses to the risk register for treatment planning." %}</div>
-          </div>
-          <span class="ms-auto badge text-bg-{% if risks %}success{% else %}secondary{% endif %}">{{ risks|length }} {% trans "risk(s)" %}</span>
-        </div>
-      </div>
-    </div>
-
-    {# ── ISO 27005 Analyses table ────────────────────── #}
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <h5>{% trans "ISO 27005 analyses" %}</h5>
+  {# ── ISO 27005 Analyses tab ──────────────────────────── #}
+  {% if assessment.methodology == 'iso27005' %}
+  <div class="tab-pane fade show active" id="analyses">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">{% trans "ISO 27005 analyses" %}</h5>
       <a href="{% url 'risks:iso27005-create' %}?assessment={{ assessment.pk }}" class="btn btn-sm btn-primary">{% trans "New analysis" %}</a>
     </div>
     {% if iso27005_risks %}
@@ -180,71 +220,16 @@
       {% trans "No analyses yet. Start by creating threat × vulnerability scenarios to identify risks." %}
     </div>
     {% endif %}
-
-    {% elif assessment.methodology == 'ebios_rm' %}
-    {# ── EBIOS RM Workflow ───────────────────────────── #}
-    <div class="card mb-4">
-      <div class="card-header">
-        <h5 class="mb-0"><i class="bi bi-signpost-2 me-2"></i>{% trans "EBIOS RM workflow" %}</h5>
-      </div>
-      <div class="card-body">
-        <div class="alert alert-warning mb-3">
-          <i class="bi bi-exclamation-triangle me-2"></i>
-          {% trans "The EBIOS RM methodology is not yet implemented. It will be available in a future version." %}
-        </div>
-        <div class="workflow-step workflow-step-pending">
-          <span class="step-number">1</span>
-          <div>
-            <strong>{% trans "Define scope and security baseline" %}</strong>
-            <div class="text-muted small">{% trans "Workshop 1 — Identify essential assets, business values and the security baseline." %}</div>
-          </div>
-        </div>
-        <div class="workflow-step workflow-step-pending">
-          <span class="step-number">2</span>
-          <div>
-            <strong>{% trans "Identify risk origins" %}</strong>
-            <div class="text-muted small">{% trans "Workshop 2 — Identify threat sources and their objectives." %}</div>
-          </div>
-        </div>
-        <div class="workflow-step workflow-step-pending">
-          <span class="step-number">3</span>
-          <div>
-            <strong>{% trans "Build strategic scenarios" %}</strong>
-            <div class="text-muted small">{% trans "Workshop 3 — Define attack paths from threat source to essential assets." %}</div>
-          </div>
-        </div>
-        <div class="workflow-step workflow-step-pending">
-          <span class="step-number">4</span>
-          <div>
-            <strong>{% trans "Build operational scenarios" %}</strong>
-            <div class="text-muted small">{% trans "Workshop 4 — Detail technical attack sequences on support assets." %}</div>
-          </div>
-        </div>
-        <div class="workflow-step workflow-step-pending">
-          <span class="step-number">5</span>
-          <div>
-            <strong>{% trans "Treat risks" %}</strong>
-            <div class="text-muted small">{% trans "Workshop 5 — Define and track risk treatment measures." %}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {% else %}
-    <div class="alert alert-warning">
-      <i class="bi bi-exclamation-triangle me-2"></i>
-      {% trans "Unknown methodology. Please edit this assessment and select a valid methodology." %}
-    </div>
-    {% endif %}
   </div>
+  {% endif %}
 
   {# ── Risks tab ─────────────────────────────────────── #}
-  <div class="tab-pane fade" id="risks">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <h5>{% trans "Associated risks" %}</h5>
+  <div class="tab-pane fade {% if assessment.methodology != 'iso27005' %}show active{% endif %}" id="risks">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">{% trans "Associated risks" %}</h5>
       {% if assessment.methodology == 'iso27005' %}
       <span class="text-muted small">
-        <i class="bi bi-info-circle me-1"></i>{% trans "Risks are created by consolidating ISO 27005 analyses from the Methodology tab." %}
+        <i class="bi bi-info-circle me-1"></i>{% trans "Risks are created by consolidating ISO 27005 analyses." %}
       </span>
       {% endif %}
     </div>
@@ -304,6 +289,30 @@
     </div>
   </div>
   {% endif %}
+
+  {# ── General tab ────────────────────────────────────── #}
+  <div class="tab-pane fade" id="general">
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ assessment.scope }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Methodology" %}</dt><dd class="col-sm-9">{{ assessment.get_methodology_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Assessor" %}</dt><dd class="col-sm-9">{{ assessment.assessor|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Assessment date" %}</dt><dd class="col-sm-9">{{ assessment.assessment_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Risk criteria" %}</dt><dd class="col-sm-9">{{ assessment.risk_criteria|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if assessment.status == 'validated' %}success{% elif assessment.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
+              {{ assessment.get_status_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ assessment.next_review_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ assessment.description|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Summary" %}</dt><dd class="col-sm-9">{{ assessment.summary|default:"—"|linebreaksbr }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
 
   {# ── History tab ───────────────────────────────────── #}
   <div class="tab-pane fade" id="history">
