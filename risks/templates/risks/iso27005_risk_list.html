@@ -8,7 +8,13 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "ISO 27005 analyses" %}</h1>
-  <a href="{% url 'risks:iso27005-create' %}" class="btn btn-primary ms-auto">{% trans "New analysis" %}</a>
+  <a href="{% url 'risks:assessment-list' %}" class="btn btn-primary ms-auto">
+    <i class="bi bi-clipboard-data me-1"></i>{% trans "Go to assessments" %}
+  </a>
+</div>
+<div class="alert alert-info mb-3">
+  <i class="bi bi-info-circle me-2"></i>
+  {% trans "ISO 27005 analyses are created from within an assessment's methodology workflow. Open an ISO 27005 assessment to create new analyses." %}
 </div>
 {% help_modal "risks.iso27005_risk_list" %}
 

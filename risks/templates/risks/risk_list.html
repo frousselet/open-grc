@@ -8,7 +8,13 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Risk register" %}</h1>
-  <a href="{% url 'risks:risk-create' %}" class="btn btn-primary ms-auto">{% trans "New risk" %}</a>
+  <a href="{% url 'risks:assessment-list' %}" class="btn btn-primary ms-auto">
+    <i class="bi bi-clipboard-data me-1"></i>{% trans "Go to assessments" %}
+  </a>
+</div>
+<div class="alert alert-info mb-3">
+  <i class="bi bi-info-circle me-2"></i>
+  {% trans "Risks are identified through methodology-driven assessments. Open an assessment and use its methodology workflow to create risks." %}
 </div>
 {% help_modal "risks.risk_list" %}
 

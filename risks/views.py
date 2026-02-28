@@ -304,7 +304,13 @@ class RiskAssessmentDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalCon
         ctx = super().get_context_data(**kwargs)
         assessment_risks = self.object.risks.all()
         ctx["risks"] = assessment_risks[:20]
-        ctx["iso27005_risks"] = self.object.iso27005_risks.select_related("threat", "vulnerability").all()[:20]
+        ctx["iso27005_risks"] = self.object.iso27005_risks.select_related(
+            "threat", "vulnerability", "risk"
+        ).all()[:50]
+
+        # Catalog counts for methodology workflow steps
+        ctx["threat_count"] = Threat.objects.count()
+        ctx["vulnerability_count"] = Vulnerability.objects.count()
 
         # Risk matrices for this assessment
         criteria = self.object.risk_criteria
@@ -532,6 +538,16 @@ class RiskCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
     form_class = RiskForm
     template_name = "risks/risk_form.html"
     success_url = reverse_lazy("risks:risk-list")
+
+    def dispatch(self, request, *args, **kwargs):
+        # Redirect to assessment list if no assessment context is provided
+        if not request.GET.get("assessment"):
+            messages.info(
+                request,
+                _("Please select an assessment and use its methodology workflow to create risks."),
+            )
+            return redirect("risks:assessment-list")
+        return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self):
         initial = super().get_initial()
@@ -813,17 +829,89 @@ class ISO27005RiskCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
     model = ISO27005Risk
     form_class = ISO27005RiskForm
     template_name = "risks/iso27005_risk_form.html"
-    success_url = reverse_lazy("risks:iso27005-list")
+
+    def get_initial(self):
+        initial = super().get_initial()
+        assessment_id = self.request.GET.get("assessment")
+        if assessment_id:
+            initial["assessment"] = assessment_id
+        return initial
+
+    def get_success_url(self):
+        if self.object and self.object.assessment_id:
+            return reverse_lazy(
+                "risks:assessment-detail", kwargs={"pk": self.object.assessment_id}
+            )
+        return reverse_lazy("risks:iso27005-list")
 
 
 class ISO27005RiskUpdateView(LoginRequiredMixin, UpdateView):
     model = ISO27005Risk
     form_class = ISO27005RiskForm
     template_name = "risks/iso27005_risk_form.html"
-    success_url = reverse_lazy("risks:iso27005-list")
+
+    def get_success_url(self):
+        if self.object and self.object.assessment_id:
+            return reverse_lazy(
+                "risks:assessment-detail", kwargs={"pk": self.object.assessment_id}
+            )
+        return reverse_lazy("risks:iso27005-list")
 
 
 class ISO27005RiskDeleteView(LoginRequiredMixin, DeleteView):
     model = ISO27005Risk
     template_name = "risks/confirm_delete.html"
     success_url = reverse_lazy("risks:iso27005-list")
+
+
+class ISO27005ConsolidateView(LoginRequiredMixin, View):
+    """Create or update a Risk entry from an ISO 27005 analysis."""
+
+    def post(self, request, pk):
+        analysis = get_object_or_404(
+            ISO27005Risk.objects.select_related("assessment", "threat", "vulnerability"),
+            pk=pk,
+        )
+        if analysis.risk:
+            messages.info(request, _("This analysis is already linked to a risk."))
+            return redirect("risks:assessment-detail", pk=analysis.assessment_id)
+
+        # Generate a unique reference
+        assessment_ref = analysis.assessment.reference
+        existing_count = Risk.objects.filter(assessment=analysis.assessment).count()
+        reference = f"{assessment_ref}-R{existing_count + 1:03d}"
+        # Ensure uniqueness
+        while Risk.objects.filter(reference=reference).exists():
+            existing_count += 1
+            reference = f"{assessment_ref}-R{existing_count + 1:03d}"
+
+        risk = Risk.objects.create(
+            assessment=analysis.assessment,
+            reference=reference,
+            name=f"{analysis.threat.name} × {analysis.vulnerability.name}",
+            description=analysis.description,
+            risk_source="iso27005_analysis",
+            source_entity_id=analysis.pk,
+            source_entity_type="ISO27005Risk",
+            impact_confidentiality=bool(analysis.impact_confidentiality),
+            impact_integrity=bool(analysis.impact_integrity),
+            impact_availability=bool(analysis.impact_availability),
+            initial_likelihood=analysis.combined_likelihood,
+            initial_impact=analysis.max_impact,
+            current_likelihood=analysis.combined_likelihood,
+            current_impact=analysis.max_impact,
+            created_by=request.user,
+        )
+        # Copy affected assets
+        risk.affected_essential_assets.set(analysis.affected_essential_assets.all())
+        risk.affected_support_assets.set(analysis.affected_support_assets.all())
+
+        # Link analysis to the new risk
+        analysis.risk = risk
+        analysis.save(update_fields=["risk"])
+
+        messages.success(
+            request,
+            _("Risk \"%(ref)s\" created from the ISO 27005 analysis.") % {"ref": reference},
+        )
+        return redirect("risks:assessment-detail", pk=analysis.assessment_id)

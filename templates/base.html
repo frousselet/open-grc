@@ -754,14 +754,13 @@
         <a href="{% url 'risks:treatment-plan-list' %}" class="sidebar-link sidebar-sub">{% trans "Treatment plans" %}</a>
         <a href="{% url 'risks:acceptance-list' %}" class="sidebar-link sidebar-sub">{% trans "Acceptances" %}</a>
       </div>
-      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navISO27005" aria-expanded="true">
-        <i class="bi bi-diagram-2"></i> ISO 27005
+      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navRiskCatalogs" aria-expanded="true">
+        <i class="bi bi-journal-bookmark"></i> {% trans "Catalogs" %}
         <i class="bi bi-chevron-down"></i>
       </button>
-      <div class="collapse show" id="navISO27005">
+      <div class="collapse show" id="navRiskCatalogs">
         <a href="{% url 'risks:threat-list' %}" class="sidebar-link sidebar-sub">{% trans "Threats" %}</a>
         <a href="{% url 'risks:vulnerability-list' %}" class="sidebar-link sidebar-sub">{% trans "Vulnerabilities" %}</a>
-        <a href="{% url 'risks:iso27005-list' %}" class="sidebar-link sidebar-sub">{% trans "Analyses" %}</a>
       </div>
 
       {# ── Conformité ──────────────────────────────────── #}
