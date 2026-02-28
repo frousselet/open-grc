@@ -1,6 +1,26 @@
 #!/bin/sh
 set -e
 
+echo "Waiting for database to be ready…"
+max_retries=30
+retry_count=0
+until python -c "
+import django, os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+django.setup()
+from django.db import connection
+connection.ensure_connection()
+" 2>/dev/null; do
+    retry_count=$((retry_count + 1))
+    if [ "$retry_count" -ge "$max_retries" ]; then
+        echo "Error: Database not available after $max_retries attempts, exiting."
+        exit 1
+    fi
+    echo "Database not ready yet (attempt $retry_count/$max_retries), waiting 1s…"
+    sleep 1
+done
+echo "Database is ready."
+
 echo "Applying database migrations…"
 python manage.py migrate --noinput
 
