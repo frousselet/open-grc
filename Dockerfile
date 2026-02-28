@@ -29,5 +29,6 @@ CMD ["gunicorn", "core.wsgi:application", \
      "--worker-tmp-dir", "/dev/shm", \
      "--workers", "3", \
      "--timeout", "120", \
+     "--preload", \
      "--forwarded-allow-ips", "*", \
      "--access-logfile", "-"]
