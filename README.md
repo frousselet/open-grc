@@ -119,6 +119,57 @@ docker compose exec web python manage.py createsuperuser
 The application is available at [http://localhost:8000](http://localhost:8000).
 The admin interface is at [http://localhost:8000/admin/](http://localhost:8000/admin/).
 
+### Using the Docker Hub Image
+
+You can run Open GRC directly from the published image without cloning the repository.
+
+Create a `docker-compose.yml` file:
+
+```yaml
+services:
+  web:
+    image: frousselet/open-grc:latest
+    ports:
+      - "8000:8000"
+    environment:
+      SECRET_KEY: change-me-to-a-random-secret-key
+      DEBUG: "False"
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      POSTGRES_DB: open_grc
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: open_grc
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+```
+
+Then start the stack:
+
+```bash
+docker compose up -d
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py createsuperuser
+```
+
 ## Licence
 
 MIT
