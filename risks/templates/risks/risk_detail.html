@@ -18,7 +18,7 @@
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#evaluation">{% trans "Evaluation" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#treatment">{% trans "Treatment" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#assets">{% trans "Affected assets" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#sources">{% trans "ISO 27005 sources" %}</a></li>
+  {% if iso27005_sources %}<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#sources">{% trans "Methodology sources" %}</a></li>{% endif %}
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
@@ -172,9 +172,13 @@
     </div>
   </div>
 
+  {% if iso27005_sources %}
   <div class="tab-pane fade" id="sources">
-    <h5 class="mb-3">{% trans "ISO 27005 sources" %}</h5>
-    {% if iso27005_sources %}
+    <h5 class="mb-3">{% trans "Methodology sources" %}</h5>
+    <p class="small" style="color:var(--text-muted)">
+      <i class="bi bi-diagram-2 me-1"></i>
+      {% trans "This risk was identified through ISO 27005 analyses (threat × vulnerability)." %}
+    </p>
     <div class="card">
       <div class="table-responsive">
         <table class="table table-hover mb-0">
@@ -193,10 +197,8 @@
         </table>
       </div>
     </div>
-    {% else %}
-    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No ISO 27005 sources." %}</p>
-    {% endif %}
   </div>
+  {% endif %}
 
   <div class="tab-pane fade" id="history">
     {% include "includes/history_tab.html" %}

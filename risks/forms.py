@@ -180,6 +180,10 @@ class RiskForm(forms.ModelForm):
                 empty_value=None, label=self.fields[fname].label,
                 widget=forms.Select(attrs=SELECT_ATTRS),
             )
+        # When editing an existing risk, lock the assessment and source fields
+        if self.instance and self.instance.pk:
+            self.fields["assessment"].disabled = True
+            self.fields["risk_source"].disabled = True
 
     def _resolve_criteria(self):
         """Find the best RiskCriteria for populating scale choices."""
@@ -362,7 +366,7 @@ class ISO27005RiskForm(forms.ModelForm):
             "affected_essential_assets", "affected_support_assets",
             "threat_likelihood", "vulnerability_exposure",
             "impact_confidentiality", "impact_integrity", "impact_availability",
-            "existing_controls", "risk", "description",
+            "existing_controls", "description",
         ]
         widgets = {
             "assessment": forms.Select(attrs=SELECT_ATTRS),
@@ -376,9 +380,15 @@ class ISO27005RiskForm(forms.ModelForm):
             "impact_integrity": forms.NumberInput(attrs=FORM_WIDGET_ATTRS),
             "impact_availability": forms.NumberInput(attrs=FORM_WIDGET_ATTRS),
             "existing_controls": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
-            "risk": forms.Select(attrs=SELECT_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Only show ISO 27005 assessments
+        self.fields["assessment"].queryset = RiskAssessment.objects.filter(
+            methodology="iso27005"
+        )
 
 
 class TreatmentActionForm(forms.ModelForm):

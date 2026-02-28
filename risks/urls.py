@@ -61,4 +61,5 @@ urlpatterns = [
     path("iso27005/<uuid:pk>/", views.ISO27005RiskDetailView.as_view(), name="iso27005-detail"),
     path("iso27005/<uuid:pk>/edit/", views.ISO27005RiskUpdateView.as_view(), name="iso27005-update"),
     path("iso27005/<uuid:pk>/delete/", views.ISO27005RiskDeleteView.as_view(), name="iso27005-delete"),
+    path("iso27005/<uuid:pk>/consolidate/", views.ISO27005ConsolidateView.as_view(), name="iso27005-consolidate"),
 ]
