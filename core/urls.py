@@ -3,11 +3,13 @@
 from django.contrib import admin
 from django.urls import include, path
 
-from .views import GeneralDashboardView
+from .views import CalendarEventsView, CalendarView, GeneralDashboardView
 
 urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     path("", GeneralDashboardView.as_view(), name="home"),
+    path("calendar/", CalendarView.as_view(), name="calendar"),
+    path("api/calendar-events/", CalendarEventsView.as_view(), name="calendar-events"),
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("context/", include("context.urls")),

@@ -1,0 +1,549 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Calendar" %} — Open GRC{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Filters ──────────────────────────────────────── */
+  .calendar-filters { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1.5rem; }
+  .calendar-filter {
+    display:inline-flex; align-items:center; gap:.35rem;
+    padding:.3rem .85rem; font-size:.8rem; font-weight:500;
+    border-radius:2rem; border:1px solid var(--border-light);
+    color:var(--text-secondary); background:var(--surface);
+    cursor:pointer; transition:all var(--transition-fast); user-select:none;
+  }
+  .calendar-filter:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-soft); }
+  .calendar-filter.active { color:#fff; border-color:transparent; }
+  .calendar-filter .dot { width:.55rem; height:.55rem; border-radius:50%; display:inline-block; }
+
+  /* ── View toggle ──────────────────────────────────── */
+  .view-toggle { display:inline-flex; border:1px solid var(--border-light); border-radius:var(--radius-sm); overflow:hidden; }
+  .view-toggle button {
+    border:none; background:var(--surface); color:var(--text-secondary);
+    font-size:.82rem; font-weight:500; padding:.4rem .85rem;
+    cursor:pointer; transition:all var(--transition-fast);
+  }
+  .view-toggle button:not(:last-child) { border-right:1px solid var(--border-light); }
+  .view-toggle button.active { background:var(--accent); color:#fff; }
+  .view-toggle button:hover:not(.active) { background:var(--accent-soft); color:var(--accent); }
+
+  /* ── Nav bar ──────────────────────────────────────── */
+  .cal-nav { display:flex; align-items:center; gap:.75rem; margin-bottom:1.25rem; }
+  .cal-nav-title { font-size:1.1rem; font-weight:600; color:var(--text-primary); min-width:14rem; text-align:center; }
+
+  /* ── Month grid ───────────────────────────────────── */
+  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); border:1px solid var(--border-light); border-radius:var(--radius-md); overflow:hidden; }
+  .cal-grid-head {
+    padding:.55rem .4rem; font-size:.72rem; font-weight:600;
+    text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted);
+    text-align:center; background:var(--surface-muted); border-bottom:1px solid var(--border-light);
+  }
+  .cal-day {
+    min-height:6.5rem; padding:.35rem .45rem; border-right:1px solid var(--border-light);
+    border-bottom:1px solid var(--border-light); background:var(--surface-raised);
+    transition:background var(--transition-fast); position:relative;
+  }
+  .cal-day:nth-child(7n) { border-right:none; }
+  .cal-day:hover { background:var(--accent-soft); }
+  .cal-day.other-month { background:var(--surface-muted); opacity:.5; }
+  .cal-day.today { background:var(--accent-soft); }
+  .cal-day-num { font-size:.82rem; font-weight:500; color:var(--text-secondary); margin-bottom:.25rem; }
+  .cal-day.today .cal-day-num { color:var(--accent); font-weight:700; }
+  .cal-ev {
+    display:block; padding:1px 4px; margin-bottom:2px; font-size:.7rem; font-weight:500;
+    border-radius:.2rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    text-decoration:none; cursor:pointer; line-height:1.4;
+  }
+  .cal-ev:hover { opacity:.85; color:#fff; }
+  .cal-more { font-size:.68rem; color:var(--text-muted); cursor:pointer; font-weight:500; }
+  .cal-more:hover { color:var(--accent); }
+
+  /* ── Year grid ────────────────────────────────────── */
+  .year-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.25rem; }
+  @media(max-width:991px) { .year-grid { grid-template-columns:repeat(3,1fr); } }
+  @media(max-width:575px) { .year-grid { grid-template-columns:repeat(2,1fr); } }
+  .year-month { border:1px solid var(--border-light); border-radius:var(--radius-md); overflow:hidden; }
+  .year-month-head {
+    padding:.5rem .65rem; font-size:.78rem; font-weight:600; color:var(--text-primary);
+    background:var(--surface-muted); border-bottom:1px solid var(--border-light); text-align:center;
+  }
+  .year-mini { display:grid; grid-template-columns:repeat(7,1fr); }
+  .year-mini-head { font-size:.6rem; font-weight:600; color:var(--text-muted); text-align:center; padding:.25rem 0; }
+  .year-mini-day {
+    font-size:.68rem; text-align:center; padding:.2rem 0;
+    color:var(--text-secondary); position:relative;
+  }
+  .year-mini-day.other { color:var(--border-light); }
+  .year-mini-day.today { color:var(--accent); font-weight:700; }
+  .year-mini-day.has-events { cursor:pointer; }
+  .year-mini-day .year-dot-row { display:flex; justify-content:center; gap:1px; margin-top:1px; }
+  .year-mini-dot { width:4px; height:4px; border-radius:50%; }
+
+  /* ── Timeline ─────────────────────────────────────── */
+  .tl-month-group { margin-bottom:1.5rem; }
+  .tl-month-label {
+    font-size:.82rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--text-muted); margin-bottom:.75rem; padding-bottom:.5rem; border-bottom:2px solid var(--border-light);
+  }
+  .tl-event {
+    display:flex; align-items:flex-start; gap:.75rem; padding:.65rem .85rem;
+    border-radius:var(--radius-sm); transition:background var(--transition-fast);
+    text-decoration:none; color:inherit; cursor:pointer;
+  }
+  .tl-event:hover { background:var(--accent-soft); color:inherit; }
+  .tl-event-dot { width:.6rem; height:.6rem; border-radius:50%; margin-top:.35rem; flex-shrink:0; }
+  .tl-event-date { font-size:.78rem; font-weight:600; color:var(--text-muted); min-width:5.5rem; flex-shrink:0; }
+  .tl-event-title { font-size:.85rem; font-weight:500; color:var(--text-primary); }
+  .tl-event-cat { font-size:.72rem; color:var(--text-muted); }
+  .tl-empty { text-align:center; padding:3rem 1rem; color:var(--text-muted); font-size:.9rem; }
+
+  /* ── Upcoming events ────────────────────────────── */
+  .upcoming-section { margin-bottom:1.5rem; }
+  .upcoming-header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:.75rem;
+  }
+  .upcoming-header h6 { margin:0; font-size:.92rem; font-weight:600; color:var(--text-primary); }
+  .upcoming-header .badge { font-size:.72rem; font-weight:500; }
+  .upcoming-list { display:flex; flex-direction:column; gap:.35rem; }
+  .upcoming-item {
+    display:flex; align-items:center; gap:.65rem; padding:.55rem .75rem;
+    border-radius:var(--radius-sm); background:var(--surface-raised);
+    border:1px solid var(--border-light); text-decoration:none; color:inherit;
+    transition:all var(--transition-fast);
+  }
+  .upcoming-item:hover { border-color:var(--accent); background:var(--accent-soft); color:inherit; }
+  .upcoming-item-dot { width:.5rem; height:.5rem; border-radius:50%; flex-shrink:0; }
+  .upcoming-item-date {
+    font-size:.75rem; font-weight:600; color:var(--text-muted);
+    min-width:5rem; flex-shrink:0;
+  }
+  .upcoming-item-date .upcoming-days {
+    display:inline-block; margin-left:.3rem; font-size:.68rem; font-weight:500;
+    color:var(--accent); background:var(--accent-soft); padding:0 .35rem;
+    border-radius:.75rem;
+  }
+  .upcoming-item-title { font-size:.82rem; font-weight:500; color:var(--text-primary); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .upcoming-item-cat { font-size:.7rem; color:var(--text-muted); flex-shrink:0; }
+  .upcoming-empty { text-align:center; padding:1rem; color:var(--text-muted); font-size:.82rem; }
+  .upcoming-toggle {
+    font-size:.78rem; color:var(--accent); background:none; border:none;
+    cursor:pointer; font-weight:500; padding:0;
+  }
+  .upcoming-toggle:hover { text-decoration:underline; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0"><i class="bi bi-calendar3 me-2" style="color:var(--accent);"></i>{% trans "Calendar" %}</h1>
+  <div class="view-toggle" id="viewToggle">
+    <button data-view="month" class="active"><i class="bi bi-calendar-month me-1"></i>{% trans "Month" %}</button>
+    <button data-view="year"><i class="bi bi-calendar4 me-1"></i>{% trans "Year" %}</button>
+    <button data-view="timeline"><i class="bi bi-list-ul me-1"></i>{% trans "Timeline" %}</button>
+  </div>
+</div>
+
+<div class="card upcoming-section" id="upcomingSection">
+  <div class="card-body" id="upcomingBody">
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <div class="calendar-filters" id="calendarFilters">
+      <button type="button" class="calendar-filter active" data-category="risk_assessment" style="background:#ef4444;border-color:#ef4444;" data-color="#ef4444">
+        <span class="dot" style="background:#fff;"></span> {% trans "Risk assessments" %}
+      </button>
+      <button type="button" class="calendar-filter active" data-category="compliance_assessment" style="background:#6366f1;border-color:#6366f1;" data-color="#6366f1">
+        <span class="dot" style="background:#fff;"></span> {% trans "Compliance assessments" %}
+      </button>
+      <button type="button" class="calendar-filter active" data-category="action_plan" style="background:#f59e0b;border-color:#f59e0b;" data-color="#f59e0b">
+        <span class="dot" style="background:#fff;"></span> {% trans "Action plans" %}
+      </button>
+      <button type="button" class="calendar-filter active" data-category="treatment_plan" style="background:#8b5cf6;border-color:#8b5cf6;" data-color="#8b5cf6">
+        <span class="dot" style="background:#fff;"></span> {% trans "Treatment plans" %}
+      </button>
+      <button type="button" class="calendar-filter active" data-category="scope" style="background:#06b6d4;border-color:#06b6d4;" data-color="#06b6d4">
+        <span class="dot" style="background:#fff;"></span> {% trans "Scopes" %}
+      </button>
+      <button type="button" class="calendar-filter active" data-category="objective" style="background:#14b8a6;border-color:#14b8a6;" data-color="#14b8a6">
+        <span class="dot" style="background:#fff;"></span> {% trans "Objectives" %}
+      </button>
+      <button type="button" class="calendar-filter active" data-category="framework" style="background:#3b82f6;border-color:#3b82f6;" data-color="#3b82f6">
+        <span class="dot" style="background:#fff;"></span> {% trans "Frameworks" %}
+      </button>
+      <button type="button" class="calendar-filter active" data-category="swot" style="background:#ec4899;border-color:#ec4899;" data-color="#ec4899">
+        <span class="dot" style="background:#fff;"></span> {% trans "SWOT analyses" %}
+      </button>
+      <button type="button" class="calendar-filter active" data-category="acceptance" style="background:#f97316;border-color:#f97316;" data-color="#f97316">
+        <span class="dot" style="background:#fff;"></span> {% trans "Risk acceptances" %}
+      </button>
+    </div>
+    <div id="calendarView"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  // ── i18n ────────────────────────────────────────────
+  {% trans "Risk assessments" as t_ra %}{% trans "Compliance assessments" as t_ca %}
+  {% trans "Action plans" as t_ap %}{% trans "Treatment plans" as t_tp %}
+  {% trans "Scopes" as t_sc %}{% trans "Objectives" as t_ob %}
+  {% trans "Frameworks" as t_fw %}{% trans "SWOT analyses" as t_sw %}
+  {% trans "Risk acceptances" as t_ac %}
+  {% trans "January" as t_jan %}{% trans "February" as t_feb %}{% trans "March" as t_mar %}
+  {% trans "April" as t_apr %}{% trans "May" as t_may %}{% trans "June" as t_jun %}
+  {% trans "July" as t_jul %}{% trans "August" as t_aug %}{% trans "September" as t_sep %}
+  {% trans "October" as t_oct %}{% trans "November" as t_nov %}{% trans "December" as t_dec %}
+  {% trans "Mon" as t_d1 %}{% trans "Tue" as t_d2 %}{% trans "Wed" as t_d3 %}
+  {% trans "Thu" as t_d4 %}{% trans "Fri" as t_d5 %}{% trans "Sat" as t_d6 %}{% trans "Sun" as t_d0 %}
+  {% trans "Today" as t_today %}{% trans "No events for this period" as t_noev %}
+  {% trans "Upcoming events" as t_upcoming %}{% trans "next 30 days" as t_next30 %}
+  {% trans "No upcoming events" as t_noupcoming %}{% trans "today" as t_todaylabel %}
+  {% trans "tomorrow" as t_tomorrow %}{% trans "Show all" as t_showall %}
+  {% trans "in %(days)s days" as t_indays %}
+
+  var CAT = {
+    risk_assessment:'{{ t_ra|escapejs }}', compliance_assessment:'{{ t_ca|escapejs }}',
+    action_plan:'{{ t_ap|escapejs }}', treatment_plan:'{{ t_tp|escapejs }}',
+    scope:'{{ t_sc|escapejs }}', objective:'{{ t_ob|escapejs }}',
+    framework:'{{ t_fw|escapejs }}', swot:'{{ t_sw|escapejs }}',
+    acceptance:'{{ t_ac|escapejs }}'
+  };
+  var MONTHS = ['{{ t_jan|escapejs }}','{{ t_feb|escapejs }}','{{ t_mar|escapejs }}','{{ t_apr|escapejs }}','{{ t_may|escapejs }}','{{ t_jun|escapejs }}','{{ t_jul|escapejs }}','{{ t_aug|escapejs }}','{{ t_sep|escapejs }}','{{ t_oct|escapejs }}','{{ t_nov|escapejs }}','{{ t_dec|escapejs }}'];
+  var DAYS = ['{{ t_d1|escapejs }}','{{ t_d2|escapejs }}','{{ t_d3|escapejs }}','{{ t_d4|escapejs }}','{{ t_d5|escapejs }}','{{ t_d6|escapejs }}','{{ t_d0|escapejs }}'];
+  var TXT_TODAY = '{{ t_today|escapejs }}';
+  var TXT_NOEV = '{{ t_noev|escapejs }}';
+  var TXT_UPCOMING = '{{ t_upcoming|escapejs }}';
+  var TXT_NEXT30 = '{{ t_next30|escapejs }}';
+  var TXT_NOUPCOMING = '{{ t_noupcoming|escapejs }}';
+  var TXT_TODAYLABEL = '{{ t_todaylabel|escapejs }}';
+  var TXT_TOMORROW = '{{ t_tomorrow|escapejs }}';
+  var TXT_SHOWALL = '{{ t_showall|escapejs }}';
+  var TXT_INDAYS = '{{ t_indays|escapejs }}';
+
+  // ── State ───────────────────────────────────────────
+  var view = 'month';
+  var navDate = new Date();
+  var eventsCache = [];
+  var el = document.getElementById('calendarView');
+
+  // ── Helpers ─────────────────────────────────────────
+  function iso(d) { return d.toISOString().slice(0,10); }
+  function todayISO() { return iso(new Date()); }
+  function esc(s) { var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+  function pad(n) { return n<10?'0'+n:''+n; }
+
+  function getActiveCats() {
+    var c=[]; document.querySelectorAll('.calendar-filter.active').forEach(function(b){ c.push(b.dataset.category); }); return c;
+  }
+
+  function fetchEvents(cb) {
+    var cats=getActiveCats(), p=new URLSearchParams();
+    var y=navDate.getFullYear();
+    p.set('start',(y-1)+'-01-01'); p.set('end',(y+1)+'-12-31');
+    cats.forEach(function(c){ p.append('categories',c); });
+    fetch('{% url "calendar-events" %}?'+p.toString())
+      .then(function(r){return r.json();})
+      .then(function(d){ eventsCache=d; cb(d); })
+      .catch(function(){ eventsCache=[]; cb([]); });
+  }
+
+  function eventsByDate(events) {
+    var m={}; events.forEach(function(e){ if(!m[e.start])m[e.start]=[]; m[e.start].push(e); }); return m;
+  }
+
+  // ── Nav bar builder ─────────────────────────────────
+  function navHTML(title) {
+    return '<div class="cal-nav">'
+      +'<button class="btn btn-sm btn-outline-secondary" id="calPrev"><i class="bi bi-chevron-left"></i></button>'
+      +'<button class="btn btn-sm btn-outline-secondary" id="calToday">'+TXT_TODAY+'</button>'
+      +'<span class="cal-nav-title">'+esc(title)+'</span>'
+      +'<button class="btn btn-sm btn-outline-secondary" id="calNext"><i class="bi bi-chevron-right"></i></button>'
+      +'</div>';
+  }
+  function bindNav(prevFn, nextFn, todayFn) {
+    document.getElementById('calPrev').onclick=prevFn;
+    document.getElementById('calNext').onclick=nextFn;
+    document.getElementById('calToday').onclick=todayFn;
+  }
+
+  // ── MONTH VIEW ──────────────────────────────────────
+  function renderMonth() {
+    fetchEvents(function(events) {
+      var y=navDate.getFullYear(), m=navDate.getMonth();
+      var title = MONTHS[m]+' '+y;
+      var byDate = eventsByDate(events);
+      var first = new Date(y,m,1);
+      var startDay = (first.getDay()+6)%7; // Monday=0
+      var daysInMonth = new Date(y,m+1,0).getDate();
+      var prevDays = new Date(y,m,0).getDate();
+      var today = todayISO();
+
+      var h = navHTML(title);
+      h += '<div class="cal-grid">';
+      DAYS.forEach(function(d){ h+='<div class="cal-grid-head">'+d+'</div>'; });
+
+      var totalCells = Math.ceil((startDay+daysInMonth)/7)*7;
+      for(var i=0;i<totalCells;i++) {
+        var dayNum, dateStr, cls='cal-day';
+        if(i<startDay) {
+          dayNum = prevDays-startDay+i+1;
+          var pd=new Date(y,m-1,dayNum);
+          dateStr=iso(pd); cls+=' other-month';
+        } else if(i>=startDay+daysInMonth) {
+          dayNum = i-startDay-daysInMonth+1;
+          var nd=new Date(y,m+1,dayNum);
+          dateStr=iso(nd); cls+=' other-month';
+        } else {
+          dayNum = i-startDay+1;
+          dateStr = y+'-'+pad(m+1)+'-'+pad(dayNum);
+          if(dateStr===today) cls+=' today';
+        }
+        var dayEvents = byDate[dateStr]||[];
+        h += '<div class="'+cls+'">';
+        h += '<div class="cal-day-num">'+dayNum+'</div>';
+        var max=3;
+        for(var j=0;j<Math.min(dayEvents.length,max);j++) {
+          var ev=dayEvents[j];
+          var href=ev.url?' href="'+esc(ev.url)+'"':'';
+          h += '<a class="cal-ev" style="background:'+ev.color+'"'+href+' title="'+esc(ev.title)+'">'+esc(ev.title)+'</a>';
+        }
+        if(dayEvents.length>max) h+='<span class="cal-more">+'+(dayEvents.length-max)+'</span>';
+        h += '</div>';
+      }
+      h += '</div>';
+
+      el.innerHTML = h;
+      bindNav(
+        function(){ navDate.setMonth(navDate.getMonth()-1); renderMonth(); },
+        function(){ navDate.setMonth(navDate.getMonth()+1); renderMonth(); },
+        function(){ navDate=new Date(); renderMonth(); }
+      );
+    });
+  }
+
+  // ── YEAR VIEW ───────────────────────────────────────
+  function renderYear() {
+    fetchEvents(function(events) {
+      var y=navDate.getFullYear();
+      var byDate=eventsByDate(events);
+      var today=todayISO();
+
+      var h = navHTML(String(y));
+      h += '<div class="year-grid">';
+
+      for(var m=0;m<12;m++) {
+        h += '<div class="year-month">';
+        h += '<div class="year-month-head">'+MONTHS[m]+'</div>';
+        h += '<div class="year-mini">';
+        DAYS.forEach(function(d){ h+='<div class="year-mini-head">'+d.charAt(0)+'</div>'; });
+
+        var first=new Date(y,m,1);
+        var startDay=(first.getDay()+6)%7;
+        var dim=new Date(y,m+1,0).getDate();
+        var prevDim=new Date(y,m,0).getDate();
+        var totalCells=Math.ceil((startDay+dim)/7)*7;
+
+        for(var i=0;i<totalCells;i++) {
+          var dayNum, dateStr, cls='year-mini-day';
+          if(i<startDay) {
+            dayNum=prevDim-startDay+i+1; cls+=' other';
+            dateStr=y+'-'+pad(m)+'-'+pad(dayNum);
+          } else if(i>=startDay+dim) {
+            dayNum=i-startDay-dim+1; cls+=' other';
+            dateStr=y+'-'+pad(m+2)+'-'+pad(dayNum);
+          } else {
+            dayNum=i-startDay+1;
+            dateStr=y+'-'+pad(m+1)+'-'+pad(dayNum);
+            if(dateStr===today) cls+=' today';
+          }
+          var dayEv=byDate[dateStr]||[];
+          if(dayEv.length) cls+=' has-events';
+          h += '<div class="'+cls+'"';
+          if(dayEv.length) h+=' title="'+dayEv.length+' event(s)" onclick="window._calGoMonth('+m+')"';
+          h += '>'+dayNum;
+          if(dayEv.length) {
+            h += '<div class="year-dot-row">';
+            var colors={};
+            dayEv.forEach(function(e){ colors[e.color]=1; });
+            var ck=Object.keys(colors);
+            for(var j=0;j<Math.min(ck.length,4);j++) h+='<span class="year-mini-dot" style="background:'+ck[j]+'"></span>';
+            h += '</div>';
+          }
+          h += '</div>';
+        }
+        h += '</div></div>';
+      }
+      h += '</div>';
+
+      el.innerHTML = h;
+      bindNav(
+        function(){ navDate.setFullYear(navDate.getFullYear()-1); renderYear(); },
+        function(){ navDate.setFullYear(navDate.getFullYear()+1); renderYear(); },
+        function(){ navDate=new Date(); renderYear(); }
+      );
+    });
+  }
+
+  window._calGoMonth = function(m) {
+    navDate.setMonth(m); view='month'; setActiveBtn('month'); render();
+  };
+
+  // ── TIMELINE VIEW ───────────────────────────────────
+  function renderTimeline() {
+    fetchEvents(function(events) {
+      events.sort(function(a,b){ return a.start.localeCompare(b.start); });
+      var groups={};
+      events.forEach(function(ev) {
+        var d=new Date(ev.start+'T00:00:00');
+        var key=d.getFullYear()+'-'+pad(d.getMonth()+1);
+        if(!groups[key]) groups[key]={year:d.getFullYear(),month:d.getMonth(),events:[]};
+        groups[key].events.push(ev);
+      });
+
+      var title=MONTHS[navDate.getMonth()]+' '+navDate.getFullYear();
+      var h = navHTML(title);
+
+      var viewStart=new Date(navDate.getFullYear(),navDate.getMonth(),1);
+      var viewEnd=new Date(navDate.getFullYear(),navDate.getMonth()+3,0);
+      var keys=Object.keys(groups).sort();
+      var has=false;
+
+      keys.forEach(function(key) {
+        var g=groups[key];
+        var gd=new Date(g.year,g.month,1);
+        if(gd<viewStart||gd>viewEnd) return;
+        has=true;
+        h+='<div class="tl-month-group"><div class="tl-month-label">'+MONTHS[g.month]+' '+g.year+'</div>';
+        g.events.forEach(function(ev) {
+          var d=new Date(ev.start+'T00:00:00');
+          var ds=pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear();
+          var cat=CAT[ev.category]||ev.category;
+          var href=ev.url?' href="'+esc(ev.url)+'"':'';
+          h+='<a class="tl-event"'+href+'><span class="tl-event-dot" style="background:'+(ev.color||'#6366f1')+'"></span>'
+            +'<span class="tl-event-date">'+ds+'</span>'
+            +'<span><span class="tl-event-title">'+esc(ev.title)+'</span><br><span class="tl-event-cat">'+esc(cat)+'</span></span></a>';
+        });
+        h+='</div>';
+      });
+      if(!has) h+='<div class="tl-empty"><i class="bi bi-calendar-x" style="font-size:2rem;display:block;margin-bottom:.5rem;"></i>'+TXT_NOEV+'</div>';
+
+      el.innerHTML=h;
+      bindNav(
+        function(){ navDate.setMonth(navDate.getMonth()-1); renderTimeline(); },
+        function(){ navDate.setMonth(navDate.getMonth()+1); renderTimeline(); },
+        function(){ navDate=new Date(); renderTimeline(); }
+      );
+    });
+  }
+
+  // ── UPCOMING EVENTS ─────────────────────────────────
+  var upcomingExpanded = false;
+  function renderUpcoming() {
+    var cats=getActiveCats(), p=new URLSearchParams();
+    var now=new Date();
+    var todayStr=iso(now);
+    var future=new Date(now.getTime()+30*24*60*60*1000);
+    p.set('start',todayStr); p.set('end',iso(future));
+    cats.forEach(function(c){ p.append('categories',c); });
+    fetch('{% url "calendar-events" %}?'+p.toString())
+      .then(function(r){return r.json();})
+      .then(function(events){
+        events.sort(function(a,b){ return a.start.localeCompare(b.start); });
+        var body=document.getElementById('upcomingBody');
+        var count=events.length;
+        var collapsed=5;
+        var shown=upcomingExpanded?events:events.slice(0,collapsed);
+
+        var h='<div class="upcoming-header">'
+          +'<h6><i class="bi bi-clock-history me-1"></i>'+TXT_UPCOMING
+          +' <span class="badge bg-secondary">'+count+' &mdash; '+TXT_NEXT30+'</span></h6>';
+        if(count>collapsed){
+          h+='<button class="upcoming-toggle" id="upcomingToggle">'
+            +(upcomingExpanded?'&#9650;':'&#9660; '+TXT_SHOWALL+' ('+count+')')
+            +'</button>';
+        }
+        h+='</div>';
+
+        if(!count){
+          h+='<div class="upcoming-empty"><i class="bi bi-calendar-check me-1"></i>'+TXT_NOUPCOMING+'</div>';
+        } else {
+          h+='<div class="upcoming-list">';
+          shown.forEach(function(ev){
+            var evDate=new Date(ev.start+'T00:00:00');
+            var diffDays=Math.round((evDate-new Date(todayStr+'T00:00:00'))/(86400000));
+            var dayLabel;
+            if(diffDays===0) dayLabel=TXT_TODAYLABEL;
+            else if(diffDays===1) dayLabel=TXT_TOMORROW;
+            else dayLabel=TXT_INDAYS.replace('%(days)s',diffDays);
+
+            var d=evDate;
+            var ds=pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear();
+            var cat=CAT[ev.category]||ev.category;
+            var href=ev.url?' href="'+esc(ev.url)+'"':'';
+            h+='<a class="upcoming-item"'+href+'>'
+              +'<span class="upcoming-item-dot" style="background:'+ev.color+'"></span>'
+              +'<span class="upcoming-item-date">'+ds+' <span class="upcoming-days">'+esc(dayLabel)+'</span></span>'
+              +'<span class="upcoming-item-title" title="'+esc(ev.title)+'">'+esc(ev.title)+'</span>'
+              +'<span class="upcoming-item-cat">'+esc(cat)+'</span>'
+              +'</a>';
+          });
+          h+='</div>';
+        }
+        body.innerHTML=h;
+        var tog=document.getElementById('upcomingToggle');
+        if(tog) tog.onclick=function(){ upcomingExpanded=!upcomingExpanded; renderUpcoming(); };
+      })
+      .catch(function(){
+        document.getElementById('upcomingBody').innerHTML='';
+      });
+  }
+
+  // ── Render dispatcher ───────────────────────────────
+  function render() {
+    renderUpcoming();
+    if(view==='month') renderMonth();
+    else if(view==='year') renderYear();
+    else renderTimeline();
+  }
+
+  // ── View toggle ─────────────────────────────────────
+  function setActiveBtn(v) {
+    document.querySelectorAll('#viewToggle button').forEach(function(b){
+      b.classList.toggle('active',b.dataset.view===v);
+    });
+  }
+  document.querySelectorAll('#viewToggle button').forEach(function(btn) {
+    btn.addEventListener('click',function(){
+      view=btn.dataset.view; setActiveBtn(view); render();
+    });
+  });
+
+  // ── Filter toggle ──────────────────────────────────
+  document.querySelectorAll('.calendar-filter').forEach(function(btn) {
+    btn.addEventListener('click',function(){
+      var color=btn.dataset.color;
+      if(btn.classList.contains('active')){
+        btn.classList.remove('active');
+        btn.style.background='var(--surface)'; btn.style.borderColor='var(--border-light)'; btn.style.color='var(--text-secondary)';
+        btn.querySelector('.dot').style.background=color;
+      } else {
+        btn.classList.add('active');
+        btn.style.background=color; btn.style.borderColor=color; btn.style.color='#fff';
+        btn.querySelector('.dot').style.background='#fff';
+      }
+      render();
+    });
+  });
+
+  // ── Boot ────────────────────────────────────────────
+  render();
+})();
+</script>
+{% endblock %}
