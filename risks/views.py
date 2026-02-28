@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.views import View
 from django.views.generic import (
     CreateView,
@@ -131,7 +132,7 @@ def build_risk_matrix(risks_qs, criteria, likelihood_field, impact_field):
 
 def build_default_risk_matrix(risks_qs=None, likelihood_field="current_likelihood",
                               impact_field="current_impact"):
-    """Matrice 5x5 par défaut (ISO 27005) quand aucun RiskCriteria n'est configuré."""
+    """Default 5x5 matrix (ISO 27005) when no RiskCriteria is configured."""
 
     likelihood_scales = DEFAULT_LIKELIHOOD_SCALES
     impact_scales = DEFAULT_IMPACT_SCALES
@@ -206,13 +207,13 @@ class ApproveView(LoginRequiredMixin, View):
         feature = self.permission_feature or self.model._meta.model_name
         codename = f"risks.{feature}.approve"
         if not request.user.is_superuser and not request.user.has_perm(codename):
-            messages.error(request, "Vous n'avez pas la permission d'approuver cet élément.")
+            messages.error(request, _("You do not have permission to approve this item."))
             return redirect(request.META.get("HTTP_REFERER", "/"))
         obj.is_approved = True
         obj.approved_by = request.user
         obj.approved_at = timezone.now()
         obj.save(update_fields=["is_approved", "approved_by", "approved_at"])
-        messages.success(request, "Élément approuvé.")
+        messages.success(request, _("Item approved."))
         return redirect(request.META.get("HTTP_REFERER", self.success_url or "/"))
 
 

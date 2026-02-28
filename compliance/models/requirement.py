@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from compliance.constants import (
@@ -17,7 +18,7 @@ class Requirement(BaseModel):
         "compliance.Framework",
         on_delete=models.CASCADE,
         related_name="requirements",
-        verbose_name="Référentiel",
+        verbose_name=_("Framework"),
     )
     section = models.ForeignKey(
         "compliance.Section",
@@ -25,41 +26,41 @@ class Requirement(BaseModel):
         null=True,
         blank=True,
         related_name="requirements",
-        verbose_name="Section",
+        verbose_name=_("Section"),
     )
-    reference = models.CharField("Référence", max_length=100)
-    name = models.CharField("Intitulé", max_length=500)
-    description = models.TextField("Description")
+    reference = models.CharField(_("Reference"), max_length=100)
+    name = models.CharField(_("Title"), max_length=500)
+    description = models.TextField(_("Description"))
     guidance = models.TextField(
-        "Recommandations de mise en œuvre", blank=True, default=""
+        _("Implementation guidance"), blank=True, default=""
     )
     type = models.CharField(
-        "Type", max_length=20, choices=RequirementType.choices
+        _("Type"), max_length=20, choices=RequirementType.choices
     )
     category = models.CharField(
-        "Catégorie",
+        _("Category"),
         max_length=20,
         choices=RequirementCategory.choices,
         blank=True,
         default="",
     )
-    is_applicable = models.BooleanField("Applicable", default=True)
+    is_applicable = models.BooleanField(_("Applicable"), default=True)
     applicability_justification = models.TextField(
-        "Justification d'applicabilité", blank=True, default=""
+        _("Applicability justification"), blank=True, default=""
     )
     compliance_status = models.CharField(
-        "Statut de conformité",
+        _("Compliance status"),
         max_length=25,
         choices=ComplianceStatus.choices,
         default=ComplianceStatus.NOT_ASSESSED,
     )
     compliance_level = models.PositiveIntegerField(
-        "Niveau de conformité (%)", default=0
+        _("Compliance level (%)"), default=0
     )
-    compliance_evidence = models.TextField("Preuves de conformité", blank=True, default="")
-    compliance_gaps = models.TextField("Écarts constatés", blank=True, default="")
+    compliance_evidence = models.TextField(_("Compliance evidence"), blank=True, default="")
+    compliance_gaps = models.TextField(_("Identified gaps"), blank=True, default="")
     last_assessment_date = models.DateField(
-        "Dernière évaluation", null=True, blank=True
+        _("Last assessment"), null=True, blank=True
     )
     last_assessed_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -67,7 +68,7 @@ class Requirement(BaseModel):
         null=True,
         blank=True,
         related_name="assessed_requirements",
-        verbose_name="Dernier évaluateur",
+        verbose_name=_("Last assessor"),
     )
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -75,34 +76,34 @@ class Requirement(BaseModel):
         null=True,
         blank=True,
         related_name="owned_requirements",
-        verbose_name="Responsable",
+        verbose_name=_("Owner"),
     )
     priority = models.CharField(
-        "Priorité",
+        _("Priority"),
         max_length=20,
         choices=Priority.choices,
         blank=True,
         default="",
     )
-    target_date = models.DateField("Date cible", null=True, blank=True)
+    target_date = models.DateField(_("Target date"), null=True, blank=True)
     # M2M relations (some to modules not yet implemented — commented out)
     # linked_measures = models.ManyToManyField("measures.Measure", blank=True)
     linked_assets = models.ManyToManyField(
         "assets.EssentialAsset",
         blank=True,
         related_name="linked_requirements",
-        verbose_name="Biens essentiels liés",
+        verbose_name=_("Linked essential assets"),
     )
     # linked_risks = models.ManyToManyField("risks.Risk", blank=True)
     linked_stakeholder_expectations = models.ManyToManyField(
         "context.StakeholderExpectation",
         blank=True,
         related_name="linked_requirements",
-        verbose_name="Attentes de PI liées",
+        verbose_name=_("Linked stakeholder expectations"),
     )
-    order = models.PositiveIntegerField("Ordre", default=0)
+    order = models.PositiveIntegerField(_("Order"), default=0)
     status = models.CharField(
-        "Statut",
+        _("Status"),
         max_length=20,
         choices=RequirementStatus.choices,
         default=RequirementStatus.ACTIVE,
@@ -111,8 +112,8 @@ class Requirement(BaseModel):
     history = HistoricalRecords()
 
     class Meta(BaseModel.Meta):
-        verbose_name = "Exigence"
-        verbose_name_plural = "Exigences"
+        verbose_name = _("Requirement")
+        verbose_name_plural = _("Requirements")
         constraints = [
             models.UniqueConstraint(
                 fields=["framework", "reference"],

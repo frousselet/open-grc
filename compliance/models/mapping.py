@@ -3,6 +3,7 @@ import uuid
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from compliance.constants import CoverageLevel, MappingType
@@ -14,42 +15,42 @@ class RequirementMapping(models.Model):
         "compliance.Requirement",
         on_delete=models.CASCADE,
         related_name="mappings_as_source",
-        verbose_name="Exigence source",
+        verbose_name=_("Source requirement"),
     )
     target_requirement = models.ForeignKey(
         "compliance.Requirement",
         on_delete=models.CASCADE,
         related_name="mappings_as_target",
-        verbose_name="Exigence cible",
+        verbose_name=_("Target requirement"),
     )
     mapping_type = models.CharField(
-        "Type de mapping", max_length=20, choices=MappingType.choices
+        _("Mapping type"), max_length=20, choices=MappingType.choices
     )
     coverage_level = models.CharField(
-        "Niveau de couverture",
+        _("Coverage level"),
         max_length=10,
         choices=CoverageLevel.choices,
         blank=True,
         default="",
     )
-    description = models.TextField("Description", blank=True, default="")
-    justification = models.TextField("Justification", blank=True, default="")
+    description = models.TextField(_("Description"), blank=True, default="")
+    justification = models.TextField(_("Justification"), blank=True, default="")
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="created_mappings",
-        verbose_name="Créé par",
+        verbose_name=_("Created by"),
     )
-    created_at = models.DateTimeField("Date de création", auto_now_add=True)
-    updated_at = models.DateTimeField("Date de modification", auto_now=True)
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
 
     history = HistoricalRecords()
 
     class Meta:
-        verbose_name = "Mapping inter-référentiels"
-        verbose_name_plural = "Mappings inter-référentiels"
+        verbose_name = _("Cross-framework mapping")
+        verbose_name_plural = _("Cross-framework mappings")
         ordering = ["-created_at"]
         constraints = [
             models.UniqueConstraint(
@@ -70,7 +71,7 @@ class RequirementMapping(models.Model):
             and self.source_requirement.framework_id == self.target_requirement.framework_id
         ):
             raise ValidationError(
-                "Un mapping ne peut exister qu'entre des exigences de référentiels différents."
+                _("A mapping can only exist between requirements from different frameworks.")
             )
 
     def save(self, *args, **kwargs):

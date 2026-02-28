@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from accounts.constants import LOCKOUT_DURATION_MINUTES, MAX_FAILED_ATTEMPTS
 from accounts.managers import UserManager
@@ -11,37 +12,38 @@ from accounts.managers import UserManager
 
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField("Adresse email", unique=True)
-    first_name = models.CharField("Prénom", max_length=150)
-    last_name = models.CharField("Nom", max_length=150)
-    job_title = models.CharField("Fonction", max_length=255, blank=True, default="")
-    department = models.CharField("Service", max_length=255, blank=True, default="")
-    phone = models.CharField("Téléphone", max_length=50, blank=True, default="")
+    email = models.EmailField(_("Email address"), unique=True)
+    first_name = models.CharField(_("First name"), max_length=150)
+    last_name = models.CharField(_("Last name"), max_length=150)
+    job_title = models.CharField(_("Job title"), max_length=255, blank=True, default="")
+    department = models.CharField(_("Department"), max_length=255, blank=True, default="")
+    phone = models.CharField(_("Phone"), max_length=50, blank=True, default="")
     language = models.CharField(
-        "Langue",
+        _("Language"),
         max_length=10,
-        choices=[("fr", "Français"), ("en", "English")],
-        default="fr",
+        choices=[("", _("Auto (browser)")), ("fr", "Français"), ("en", "English")],
+        default="",
+        blank=True,
     )
     timezone = models.CharField(
-        "Fuseau horaire",
+        _("Timezone"),
         max_length=50,
         default="Europe/Paris",
     )
-    is_active = models.BooleanField("Actif", default=True)
-    is_staff = models.BooleanField("Accès admin Django", default=False)
+    is_active = models.BooleanField(_("Active"), default=True)
+    is_staff = models.BooleanField(_("Django admin access"), default=False)
 
     password_changed_at = models.DateTimeField(
-        "Dernier changement de mot de passe",
+        _("Last password change"),
         null=True,
         blank=True,
     )
     failed_login_attempts = models.PositiveIntegerField(
-        "Tentatives échouées",
+        _("Failed attempts"),
         default=0,
     )
     locked_until = models.DateTimeField(
-        "Verrouillé jusqu'au",
+        _("Locked until"),
         null=True,
         blank=True,
     )
@@ -52,10 +54,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         null=True,
         blank=True,
         related_name="created_users",
-        verbose_name="Créé par",
+        verbose_name=_("Created by"),
     )
-    created_at = models.DateTimeField("Date de création", auto_now_add=True)
-    updated_at = models.DateTimeField("Date de modification", auto_now=True)
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
 
     objects = UserManager()
 
@@ -64,8 +66,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         ordering = ["last_name", "first_name"]
-        verbose_name = "Utilisateur"
-        verbose_name_plural = "Utilisateurs"
+        verbose_name = _("User")
+        verbose_name_plural = _("Users")
 
     def __str__(self):
         return self.display_name

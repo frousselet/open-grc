@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}{{ scope.name }} — Open GRC{% endblock %}
 
@@ -16,46 +17,46 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ scope.name }}</h1>
   <div>
-    <a href="{% url 'context:scope-update' scope.pk %}" class="btn btn-primary">Modifier</a>
-    <a href="{% url 'context:scope-list' %}" class="btn btn-outline-secondary">Retour</a>
+    <a href="{% url 'context:scope-update' scope.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'context:scope-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 {% include "includes/approval_badge.html" %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#perimeters">Périmètres</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#exclusions">Exclusions</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#perimeters">{% trans "Scopes" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#exclusions">{% trans "Exclusions" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
     <dl class="row">
-      <dt class="col-sm-3">Version</dt><dd class="col-sm-9">{{ scope.version }}</dd>
-      <dt class="col-sm-3">Statut</dt>
+      <dt class="col-sm-3">{% trans "Version" %}</dt><dd class="col-sm-9">{{ scope.version }}</dd>
+      <dt class="col-sm-3">{% trans "Status" %}</dt>
       <dd class="col-sm-9">
         <span class="badge text-bg-{% if scope.status == 'active' %}success{% elif scope.status == 'draft' %}secondary{% else %}dark{% endif %}">
           {{ scope.get_status_display }}
         </span>
       </dd>
-      <dt class="col-sm-3">Périmètre parent</dt>
+      <dt class="col-sm-3">{% trans "Parent scope" %}</dt>
       <dd class="col-sm-9">
         {% if scope.parent_scope %}
         <a href="{% url 'context:scope-detail' scope.parent_scope.pk %}">{{ scope.parent_scope.name }}</a>
         {% else %}—{% endif %}
       </dd>
-      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ scope.description|linebreaksbr }}</dd>
-      <dt class="col-sm-3">Approuvé par</dt><dd class="col-sm-9">{{ scope.approved_by|default:"—" }}</dd>
-      <dt class="col-sm-3">Date d'approbation</dt><dd class="col-sm-9">{{ scope.approved_at|default:"—" }}</dd>
-      <dt class="col-sm-3">Date d'entrée en vigueur</dt><dd class="col-sm-9">{{ scope.effective_date|default:"—" }}</dd>
-      <dt class="col-sm-3">Prochaine revue</dt><dd class="col-sm-9">{{ scope.review_date|default:"—" }}</dd>
-      <dt class="col-sm-3">Créé par</dt><dd class="col-sm-9">{{ scope.created_by|default:"—" }}</dd>
-      <dt class="col-sm-3">Créé le</dt><dd class="col-sm-9">{{ scope.created_at }}</dd>
-      <dt class="col-sm-3">Modifié le</dt><dd class="col-sm-9">{{ scope.updated_at }}</dd>
+      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ scope.description|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Approved by" %}</dt><dd class="col-sm-9">{{ scope.approved_by|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Approval date" %}</dt><dd class="col-sm-9">{{ scope.approved_at|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Effective date" %}</dt><dd class="col-sm-9">{{ scope.effective_date|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ scope.review_date|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Created by" %}</dt><dd class="col-sm-9">{{ scope.created_by|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Created on" %}</dt><dd class="col-sm-9">{{ scope.created_at }}</dd>
+      <dt class="col-sm-3">{% trans "Modified on" %}</dt><dd class="col-sm-9">{{ scope.updated_at }}</dd>
     </dl>
     {% if children %}
-    <h5 class="mt-4">Sous-périmètres</h5>
+    <h5 class="mt-4">{% trans "Sub-scopes" %}</h5>
     <ul class="list-group">
       {% for child in children %}
       <li class="list-group-item">
@@ -70,10 +71,10 @@
   </div>
   <div class="tab-pane fade" id="perimeters">
     <dl class="row">
-      <dt class="col-sm-3">Géographique</dt><dd class="col-sm-9">{{ scope.geographic_scope|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">Organisationnel</dt><dd class="col-sm-9">{{ scope.organizational_scope|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">Technique</dt><dd class="col-sm-9">{{ scope.technical_scope|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">Sites inclus</dt>
+      <dt class="col-sm-3">{% trans "Geographic" %}</dt><dd class="col-sm-9">{{ scope.geographic_scope|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Organizational" %}</dt><dd class="col-sm-9">{{ scope.organizational_scope|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Technical" %}</dt><dd class="col-sm-9">{{ scope.technical_scope|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Included sites" %}</dt>
       <dd class="col-sm-9">
         {% for site in scope.included_sites.all %}
         <a href="{% url 'context:site-detail' site.pk %}"><span class="badge text-bg-success me-1 mb-1">{{ site.full_path }}</span></a>
@@ -81,7 +82,7 @@
         <span class="text-muted">—</span>
         {% endfor %}
       </dd>
-      <dt class="col-sm-3">Sites exclus</dt>
+      <dt class="col-sm-3">{% trans "Excluded sites" %}</dt>
       <dd class="col-sm-9">
         {% for site in scope.excluded_sites.all %}
         <a href="{% url 'context:site-detail' site.pk %}"><span class="badge text-bg-danger me-1 mb-1">{{ site.full_path }}</span></a>
@@ -93,8 +94,8 @@
   </div>
   <div class="tab-pane fade" id="exclusions">
     <dl class="row">
-      <dt class="col-sm-3">Limites et exclusions</dt><dd class="col-sm-9">{{ scope.boundaries|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">Justification</dt><dd class="col-sm-9">{{ scope.justification_exclusions|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Boundaries and exclusions" %}</dt><dd class="col-sm-9">{{ scope.boundaries|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ scope.justification_exclusions|default:"—"|linebreaksbr }}</dd>
     </dl>
   </div>
   <div class="tab-pane fade" id="history">

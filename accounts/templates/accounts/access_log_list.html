@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% load help_tags %}
-{% block title %}Journal des accès — Open GRC{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Access log — Open GRC" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h2>Journal des accès</h2>
+  <h2>{% trans "Access log" %}</h2>
 </div>
 {% help_modal "accounts.access_log_list" %}
 
@@ -14,22 +15,22 @@
   </div>
   <div class="col-md-2">
     <select name="event_type" class="form-select">
-      <option value="">Tous les types</option>
-      <option value="login_success" {% if request.GET.event_type == "login_success" %}selected{% endif %}>Connexion réussie</option>
-      <option value="login_failed" {% if request.GET.event_type == "login_failed" %}selected{% endif %}>Connexion échouée</option>
-      <option value="logout" {% if request.GET.event_type == "logout" %}selected{% endif %}>Déconnexion</option>
-      <option value="account_locked" {% if request.GET.event_type == "account_locked" %}selected{% endif %}>Compte verrouillé</option>
-      <option value="password_change" {% if request.GET.event_type == "password_change" %}selected{% endif %}>Changement MDP</option>
+      <option value="">{% trans "All types" %}</option>
+      <option value="login_success" {% if request.GET.event_type == "login_success" %}selected{% endif %}>{% trans "Successful login" %}</option>
+      <option value="login_failed" {% if request.GET.event_type == "login_failed" %}selected{% endif %}>{% trans "Failed login" %}</option>
+      <option value="logout" {% if request.GET.event_type == "logout" %}selected{% endif %}>{% trans "Logout" %}</option>
+      <option value="account_locked" {% if request.GET.event_type == "account_locked" %}selected{% endif %}>{% trans "Account locked" %}</option>
+      <option value="password_change" {% if request.GET.event_type == "password_change" %}selected{% endif %}>{% trans "Password change" %}</option>
     </select>
   </div>
   <div class="col-md-2">
-    <input type="date" name="date_from" class="form-control" value="{{ request.GET.date_from|default:'' }}" placeholder="Du">
+    <input type="date" name="date_from" class="form-control" value="{{ request.GET.date_from|default:'' }}" placeholder="{% trans "From" %}">
   </div>
   <div class="col-md-2">
-    <input type="date" name="date_to" class="form-control" value="{{ request.GET.date_to|default:'' }}" placeholder="Au">
+    <input type="date" name="date_to" class="form-control" value="{{ request.GET.date_to|default:'' }}" placeholder="{% trans "To" %}">
   </div>
   <div class="col-md-2">
-    <button type="submit" class="btn btn-outline-secondary w-100">Filtrer</button>
+    <button type="submit" class="btn btn-outline-secondary w-100">{% trans "Filter" %}</button>
   </div>
 </form>
 
@@ -37,11 +38,11 @@
   <table class="table table-hover table-sm">
     <thead class="table-light">
       <tr>
-        <th>Date</th>
-        <th>Email</th>
-        <th>Événement</th>
-        <th>IP</th>
-        <th>Raison</th>
+        <th>{% trans "Date" %}</th>
+        <th>{% trans "Email" %}</th>
+        <th>{% trans "Event" %}</th>
+        <th>{% trans "IP" %}</th>
+        <th>{% trans "Reason" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -64,7 +65,7 @@
         <td>{{ log.get_failure_reason_display|default:"-" }}</td>
       </tr>
       {% empty %}
-      <tr><td colspan="5" class="text-muted text-center">Aucun événement.</td></tr>
+      <tr><td colspan="5" class="text-muted text-center">{% trans "No events." %}</td></tr>
       {% endfor %}
     </tbody>
   </table>

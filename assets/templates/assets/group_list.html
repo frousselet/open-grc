@@ -1,13 +1,14 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Groupes d'actifs — Open GRC{% endblock %}
+{% block title %}{% trans "Asset groups" %} — Open GRC{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">Groupes d'actifs</h1>
-  <a href="{% url 'assets:group-create' %}" class="btn btn-primary ms-auto">Nouveau groupe</a>
+  <h1 class="mb-0">{% trans "Asset groups" %}</h1>
+  <a href="{% url 'assets:group-create' %}" class="btn btn-primary ms-auto">{% trans "New group" %}</a>
 </div>
 {% help_modal "assets.group_list" %}
 
@@ -15,13 +16,13 @@
   <table class="table table-striped table-hover">
     <thead class="table-dark">
       <tr>
-        <th>Nom</th>
-        <th>Type</th>
-        <th>Membres</th>
-        <th>Propriétaire</th>
-        <th>Statut</th>
-        <th>Approbation</th>
-        <th>Actions</th>
+        <th>{% trans "Name" %}</th>
+        <th>{% trans "Type" %}</th>
+        <th>{% trans "Members" %}</th>
+        <th>{% trans "Owner" %}</th>
+        <th>{% trans "Status" %}</th>
+        <th>{% trans "Approval" %}</th>
+        <th>{% trans "Actions" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -38,15 +39,15 @@
         </td>
         <td>
           <span class="badge text-bg-{% if group.is_approved %}success{% else %}warning{% endif %}">
-            {% if group.is_approved %}Approuvé{% else %}En attente{% endif %}
+            {% if group.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
           </span>
         </td>
         <td>
-          <a href="{% url 'assets:group-update' group.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+          <a href="{% url 'assets:group-update' group.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="7" class="text-center text-muted">Aucun groupe défini.</td></tr>
+      <tr><td colspan="7" class="text-center text-muted">{% trans "No groups defined." %}</td></tr>
       {% endfor %}
     </tbody>
   </table>
@@ -55,9 +56,9 @@
 {% if is_paginated %}
 <nav>
   <ul class="pagination justify-content-center">
-    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>{% endif %}
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Previous" %}</a></li>{% endif %}
     <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>{% endif %}
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Next" %}</a></li>{% endif %}
   </ul>
 </nav>
 {% endif %}

@@ -139,7 +139,7 @@ class TestEssentialAssetValidation:
             type=EssentialAssetType.BUSINESS_PROCESS,
             category=EssentialAssetCategory.STRATEGIC_DATA,
         )
-        with pytest.raises(ValidationError, match="catégorie de processus"):
+        with pytest.raises(ValidationError, match="process category"):
             ea.clean()
 
     def test_info_with_info_category_ok(self):
@@ -154,7 +154,7 @@ class TestEssentialAssetValidation:
             type=EssentialAssetType.INFORMATION,
             category=EssentialAssetCategory.CORE_PROCESS,
         )
-        with pytest.raises(ValidationError, match="catégorie d'information"):
+        with pytest.raises(ValidationError, match="information category"):
             ea.clean()
 
 
@@ -171,7 +171,7 @@ class TestSupportAssetValidation:
             type=SupportAssetType.SOFTWARE,
             category=SupportAssetCategory.SERVER,
         )
-        with pytest.raises(ValidationError, match="Catégorie invalide"):
+        with pytest.raises(ValidationError, match="Invalid category"):
             sa.clean()
 
 
@@ -180,5 +180,5 @@ class TestDependencyValidation:
         sa = SupportAssetFactory(status=SupportAssetStatus.DECOMMISSIONED)
         ea = EssentialAssetFactory()
         dep = DependencyFactory.build(essential_asset=ea, support_asset=sa)
-        with pytest.raises(ValidationError, match="décommissionné"):
+        with pytest.raises(ValidationError, match="decommissioned"):
             dep.clean()

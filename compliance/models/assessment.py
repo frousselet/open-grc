@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from compliance.constants import AssessmentStatus, ComplianceStatus
@@ -13,35 +14,35 @@ class ComplianceAssessment(ScopedModel):
         "compliance.Framework",
         on_delete=models.CASCADE,
         related_name="assessments",
-        verbose_name="Référentiel",
+        verbose_name=_("Framework"),
     )
-    name = models.CharField("Nom", max_length=255)
-    description = models.TextField("Description", blank=True, default="")
-    assessment_date = models.DateField("Date de réalisation")
+    name = models.CharField(_("Name"), max_length=255)
+    description = models.TextField(_("Description"), blank=True, default="")
+    assessment_date = models.DateField(_("Assessment date"))
     assessor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name="led_assessments",
-        verbose_name="Évaluateur principal",
+        verbose_name=_("Lead assessor"),
     )
-    methodology = models.TextField("Méthodologie", blank=True, default="")
+    methodology = models.TextField(_("Methodology"), blank=True, default="")
     overall_compliance_level = models.DecimalField(
-        "Niveau de conformité global (%)",
+        _("Overall compliance level (%)"),
         max_digits=5,
         decimal_places=2,
         default=0,
     )
     total_requirements = models.PositiveIntegerField(
-        "Total exigences applicables", default=0
+        _("Total applicable requirements"), default=0
     )
-    compliant_count = models.PositiveIntegerField("Conformes", default=0)
+    compliant_count = models.PositiveIntegerField(_("Compliant"), default=0)
     partially_compliant_count = models.PositiveIntegerField(
-        "Partiellement conformes", default=0
+        _("Partially compliant"), default=0
     )
-    non_compliant_count = models.PositiveIntegerField("Non conformes", default=0)
-    not_assessed_count = models.PositiveIntegerField("Non évaluées", default=0)
+    non_compliant_count = models.PositiveIntegerField(_("Non-compliant"), default=0)
+    not_assessed_count = models.PositiveIntegerField(_("Not assessed"), default=0)
     status = models.CharField(
-        "Statut",
+        _("Status"),
         max_length=20,
         choices=AssessmentStatus.choices,
         default=AssessmentStatus.DRAFT,
@@ -52,16 +53,16 @@ class ComplianceAssessment(ScopedModel):
         null=True,
         blank=True,
         related_name="validated_assessments",
-        verbose_name="Validé par",
+        verbose_name=_("Validated by"),
     )
-    validated_at = models.DateTimeField("Date de validation", null=True, blank=True)
-    review_date = models.DateField("Prochaine date de revue", null=True, blank=True)
+    validated_at = models.DateTimeField(_("Validation date"), null=True, blank=True)
+    review_date = models.DateField(_("Next review date"), null=True, blank=True)
 
     history = HistoricalRecords()
 
     class Meta(ScopedModel.Meta):
-        verbose_name = "Évaluation de conformité"
-        verbose_name_plural = "Évaluations de conformité"
+        verbose_name = _("Compliance assessment")
+        verbose_name_plural = _("Compliance assessments")
 
     def __str__(self):
         return f"{self.name} — {self.framework.short_name or self.framework.name}"
@@ -110,41 +111,41 @@ class AssessmentResult(models.Model):
         ComplianceAssessment,
         on_delete=models.CASCADE,
         related_name="results",
-        verbose_name="Évaluation",
+        verbose_name=_("Assessment"),
     )
     requirement = models.ForeignKey(
         "compliance.Requirement",
         on_delete=models.CASCADE,
         related_name="assessment_results",
-        verbose_name="Exigence",
+        verbose_name=_("Requirement"),
     )
     compliance_status = models.CharField(
-        "Statut de conformité",
+        _("Compliance status"),
         max_length=25,
         choices=ComplianceStatus.choices,
         default=ComplianceStatus.NOT_ASSESSED,
     )
     compliance_level = models.PositiveIntegerField(
-        "Niveau de conformité (%)", default=0
+        _("Compliance level (%)"), default=0
     )
-    evidence = models.TextField("Preuves", blank=True, default="")
-    gaps = models.TextField("Écarts", blank=True, default="")
-    observations = models.TextField("Observations", blank=True, default="")
+    evidence = models.TextField(_("Evidence"), blank=True, default="")
+    gaps = models.TextField(_("Gaps"), blank=True, default="")
+    observations = models.TextField(_("Observations"), blank=True, default="")
     assessed_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name="assessment_results",
-        verbose_name="Évaluateur",
+        verbose_name=_("Assessor"),
     )
-    assessed_at = models.DateTimeField("Date d'évaluation")
-    created_at = models.DateTimeField("Date de création", auto_now_add=True)
-    updated_at = models.DateTimeField("Date de modification", auto_now=True)
+    assessed_at = models.DateTimeField(_("Assessment date"))
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
 
     history = HistoricalRecords()
 
     class Meta:
-        verbose_name = "Résultat d'évaluation"
-        verbose_name_plural = "Résultats d'évaluation"
+        verbose_name = _("Assessment result")
+        verbose_name_plural = _("Assessment results")
         ordering = ["requirement__order"]
         constraints = [
             models.UniqueConstraint(

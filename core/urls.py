@@ -6,6 +6,7 @@ from django.urls import include, path
 from .views import GeneralDashboardView
 
 urlpatterns = [
+    path("i18n/", include("django.conf.urls.i18n")),
     path("", GeneralDashboardView.as_view(), name="home"),
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),

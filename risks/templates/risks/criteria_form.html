@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}{% if form.instance.pk %}Modifier{% else %}Nouveaux{% endif %} critères — Open GRC{% endblock %}
+{% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "criteria" %} — Open GRC{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -13,14 +14,14 @@
 {% endblock %}
 
 {% block content %}
-<h1>{% if form.instance.pk %}Modifier les critères de risque{% else %}Nouveaux critères de risque{% endif %}</h1>
+<h1>{% if form.instance.pk %}{% trans "Edit risk criteria" %}{% else %}{% trans "New risk criteria" %}{% endif %}</h1>
 
 <form method="post" class="mt-3">
   {% csrf_token %}
 
-  {# ── Informations générales ──────────────────────────── #}
+  {# ── General information ──────────────────────────── #}
   <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0">Informations générales</h5></div>
+    <div class="card-header"><h5 class="mb-0">{% trans "General information" %}</h5></div>
     <div class="card-body">
       {% for field in form %}
       <div class="mb-3">
@@ -42,20 +43,20 @@
     </div>
   </div>
 
-  {# ── Échelle de vraisemblance ────────────────────────── #}
+  {# ── Likelihood scale ────────────────────────────── #}
   <div class="card mb-4">
     <div class="card-header">
-      <h5 class="mb-0"><i class="bi bi-arrow-up-right me-1"></i> Échelle de vraisemblance</h5>
+      <h5 class="mb-0"><i class="bi bi-arrow-up-right me-1"></i> {% trans "Likelihood scale" %}</h5>
     </div>
     <div class="card-body">
       {{ likelihood_fs.management_form }}
       <table class="table table-sm formset-table mb-0" id="likelihood-table">
         <thead>
           <tr>
-            <th style="width:80px">Niveau</th>
-            <th>Libellé</th>
-            <th>Description</th>
-            <th style="width:60px" class="text-center">Suppr.</th>
+            <th style="width:80px">{% trans "Level" %}</th>
+            <th>{% trans "Label" %}</th>
+            <th>{% trans "Description" %}</th>
+            <th style="width:60px" class="text-center">{% trans "Del." %}</th>
           </tr>
         </thead>
         <tbody>
@@ -74,25 +75,25 @@
         </tbody>
       </table>
       <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addFormsetRow('likelihood', 4)">
-        <i class="bi bi-plus-circle me-1"></i>Ajouter un niveau
+        <i class="bi bi-plus-circle me-1"></i>{% trans "Add a level" %}
       </button>
     </div>
   </div>
 
-  {# ── Échelle d'impact ────────────────────────────────── #}
+  {# ── Impact scale ──────────────────────────────────── #}
   <div class="card mb-4">
     <div class="card-header">
-      <h5 class="mb-0"><i class="bi bi-bullseye me-1"></i> Échelle d'impact</h5>
+      <h5 class="mb-0"><i class="bi bi-bullseye me-1"></i> {% trans "Impact scale" %}</h5>
     </div>
     <div class="card-body">
       {{ impact_fs.management_form }}
       <table class="table table-sm formset-table mb-0" id="impact-table">
         <thead>
           <tr>
-            <th style="width:80px">Niveau</th>
-            <th>Libellé</th>
-            <th>Description</th>
-            <th style="width:60px" class="text-center">Suppr.</th>
+            <th style="width:80px">{% trans "Level" %}</th>
+            <th>{% trans "Label" %}</th>
+            <th>{% trans "Description" %}</th>
+            <th style="width:60px" class="text-center">{% trans "Del." %}</th>
           </tr>
         </thead>
         <tbody>
@@ -111,26 +112,26 @@
         </tbody>
       </table>
       <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addFormsetRow('impact', 4)">
-        <i class="bi bi-plus-circle me-1"></i>Ajouter un niveau
+        <i class="bi bi-plus-circle me-1"></i>{% trans "Add a level" %}
       </button>
     </div>
   </div>
 
-  {# ── Niveaux de risque ───────────────────────────────── #}
+  {# ── Risk levels ───────────────────────────────────── #}
   <div class="card mb-4">
     <div class="card-header">
-      <h5 class="mb-0"><i class="bi bi-thermometer-half me-1"></i> Niveaux de risque</h5>
+      <h5 class="mb-0"><i class="bi bi-thermometer-half me-1"></i> {% trans "Risk levels" %}</h5>
     </div>
     <div class="card-body">
       {{ risklevel_fs.management_form }}
       <table class="table table-sm formset-table mb-0" id="risklevel-table">
         <thead>
           <tr>
-            <th style="width:80px">Niveau</th>
-            <th>Libellé</th>
-            <th style="width:80px">Couleur</th>
-            <th style="width:140px" class="text-center">Traitement requis</th>
-            <th style="width:60px" class="text-center">Suppr.</th>
+            <th style="width:80px">{% trans "Level" %}</th>
+            <th>{% trans "Label" %}</th>
+            <th style="width:80px">{% trans "Color" %}</th>
+            <th style="width:140px" class="text-center">{% trans "Treatment required" %}</th>
+            <th style="width:60px" class="text-center">{% trans "Del." %}</th>
           </tr>
         </thead>
         <tbody>
@@ -150,14 +151,14 @@
         </tbody>
       </table>
       <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addFormsetRow('risklevel', 5)">
-        <i class="bi bi-plus-circle me-1"></i>Ajouter un niveau
+        <i class="bi bi-plus-circle me-1"></i>{% trans "Add a level" %}
       </button>
     </div>
   </div>
 
   <div class="mt-4">
-    <button type="submit" class="btn btn-primary">Enregistrer</button>
-    <a href="{% url 'risks:criteria-list' %}" class="btn btn-secondary">Annuler</a>
+    <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+    <a href="{% url 'risks:criteria-list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
   </div>
 </form>
 {% endblock %}

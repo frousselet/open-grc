@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from assets.constants import DICLevel
@@ -13,33 +14,33 @@ class AssetValuation(models.Model):
         "assets.EssentialAsset",
         on_delete=models.CASCADE,
         related_name="valuations",
-        verbose_name="Bien essentiel",
+        verbose_name=_("Essential asset"),
     )
-    evaluation_date = models.DateField("Date d'évaluation")
+    evaluation_date = models.DateField(_("Evaluation date"))
     confidentiality_level = models.IntegerField(
-        "Confidentialité", choices=DICLevel.choices
+        _("Confidentiality"), choices=DICLevel.choices
     )
     integrity_level = models.IntegerField(
-        "Intégrité", choices=DICLevel.choices
+        _("Integrity"), choices=DICLevel.choices
     )
     availability_level = models.IntegerField(
-        "Disponibilité", choices=DICLevel.choices
+        _("Availability"), choices=DICLevel.choices
     )
     evaluated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name="asset_valuations",
-        verbose_name="Évaluateur",
+        verbose_name=_("Evaluator"),
     )
-    justification = models.TextField("Justification", blank=True, default="")
-    context = models.TextField("Contexte", blank=True, default="")
-    created_at = models.DateTimeField("Date de création", auto_now_add=True)
+    justification = models.TextField(_("Justification"), blank=True, default="")
+    context = models.TextField(_("Context"), blank=True, default="")
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
 
     history = HistoricalRecords()
 
     class Meta:
-        verbose_name = "Valorisation DIC"
-        verbose_name_plural = "Valorisations DIC"
+        verbose_name = _("DIC valuation")
+        verbose_name_plural = _("DIC valuations")
         ordering = ["-evaluation_date", "-created_at"]
 
     def __str__(self):

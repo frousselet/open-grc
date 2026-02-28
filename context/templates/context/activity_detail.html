@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}{{ activity.reference }} — Open GRC{% endblock %}
 
@@ -6,42 +7,42 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ activity.reference }} — {{ activity.name }}</h1>
   <div>
-    <a href="{% url 'context:activity-update' activity.pk %}" class="btn btn-primary">Modifier</a>
-    <a href="{% url 'context:activity-list' %}" class="btn btn-outline-secondary">Retour</a>
+    <a href="{% url 'context:activity-update' activity.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'context:activity-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 {% include "includes/approval_badge.html" %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#info">Informations</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#info">{% trans "Information" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="info">
     <dl class="row">
-      <dt class="col-sm-3">Périmètre</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' activity.scope.pk %}">{{ activity.scope }}</a></dd>
-      <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ activity.get_type_display }}</dd>
-      <dt class="col-sm-3">Criticité</dt>
+      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' activity.scope.pk %}">{{ activity.scope }}</a></dd>
+      <dt class="col-sm-3">{% trans "Type" %}</dt><dd class="col-sm-9">{{ activity.get_type_display }}</dd>
+      <dt class="col-sm-3">{% trans "Criticality" %}</dt>
       <dd class="col-sm-9">
         <span class="badge text-bg-{% if activity.criticality == 'critical' %}danger{% elif activity.criticality == 'high' %}warning{% elif activity.criticality == 'medium' %}info{% else %}secondary{% endif %}">
           {{ activity.get_criticality_display }}
         </span>
       </dd>
-      <dt class="col-sm-3">Responsable</dt><dd class="col-sm-9">{{ activity.owner }}</dd>
-      <dt class="col-sm-3">Statut</dt><dd class="col-sm-9">{{ activity.get_status_display }}</dd>
-      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ activity.description|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">Activité parente</dt>
+      <dt class="col-sm-3">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ activity.owner }}</dd>
+      <dt class="col-sm-3">{% trans "Status" %}</dt><dd class="col-sm-9">{{ activity.get_status_display }}</dd>
+      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ activity.description|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Parent activity" %}</dt>
       <dd class="col-sm-9">
         {% if activity.parent_activity %}
         <a href="{% url 'context:activity-detail' activity.parent_activity.pk %}">{{ activity.parent_activity }}</a>
         {% else %}—{% endif %}
       </dd>
-      <dt class="col-sm-3">Créé le</dt><dd class="col-sm-9">{{ activity.created_at }}</dd>
+      <dt class="col-sm-3">{% trans "Created on" %}</dt><dd class="col-sm-9">{{ activity.created_at }}</dd>
     </dl>
 
     {% if activity.children.exists %}
-    <h4 class="mt-4">Sous-activités</h4>
+    <h4 class="mt-4">{% trans "Sub-activities" %}</h4>
     <ul class="list-group">
       {% for child in activity.children.all %}
       <li class="list-group-item d-flex justify-content-between align-items-center">

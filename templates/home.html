@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Tableau de bord — Open GRC{% endblock %}
+{% block title %}{% trans "Dashboard" %} — Open GRC{% endblock %}
 
 {% load help_tags %}
 
@@ -51,16 +52,16 @@
 
 {% block content %}
 <div class="d-flex align-items-center mb-4">
-  <h1 class="mb-0">Tableau de bord</h1>
+  <h1 class="mb-0">{% trans "Dashboard" %}</h1>
 </div>
 {% help_modal "home" %}
 
-{# ── Alertes globales ──────────────────────────────────────── #}
+{# ── Global alerts ──────────────────────────────────────── #}
 {% if alerts %}
 <div class="alert alert-danger mb-4">
   <div class="d-flex align-items-center mb-2">
     <i class="bi bi-exclamation-triangle-fill me-2"></i>
-    <strong>Alertes ({{ alerts|length }})</strong>
+    <strong>{% trans "Alerts" %} ({{ alerts|length }})</strong>
   </div>
   <ul class="mb-0">
     {% for alert in alerts %}
@@ -70,12 +71,12 @@
 </div>
 {% endif %}
 
-{# ── Conformité globale (hero) ─────────────────────────────── #}
+{# ── Overall compliance (hero) ─────────────────────────────── #}
 <div class="compliance-hero mb-4">
   <div class="row align-items-center">
     <div class="col-md-4">
-      <h2 class="mb-1" style="color:#fff"><i class="bi bi-shield-check me-2"></i>Conformité générale</h2>
-      <p class="mb-0 opacity-75">Moyenne des référentiels actifs — {{ requirement_count }} exigence{{ requirement_count|pluralize:"s" }} au total</p>
+      <h2 class="mb-1" style="color:#fff"><i class="bi bi-shield-check me-2"></i>{% trans "Overall compliance" %}</h2>
+      <p class="mb-0 opacity-75">{% blocktrans with count=requirement_count %}Average of active frameworks — {{ count }} requirement{{ count|pluralize:"s" }} total{% endblocktrans %}</p>
     </div>
     <div class="col-md-6">
       <div class="progress">
@@ -94,17 +95,17 @@
   </div>
 </div>
 
-{# ── Barres par référentiel ────────────────────────────────── #}
+{# ── Bars per framework ────────────────────────────────── #}
 {% if active_frameworks %}
 <div class="card mb-4">
   <div class="card-body">
-    <h5 class="card-title mb-3"><i class="bi bi-journal-bookmark me-1"></i> Conformité par référentiel</h5>
+    <h5 class="card-title mb-3"><i class="bi bi-journal-bookmark me-1"></i> {% trans "Compliance by framework" %}</h5>
     {% for fw in active_frameworks %}
     <div class="fw-bar mb-3">
       <div class="d-flex justify-content-between align-items-center mb-1">
         <div>
           <a href="{% url 'compliance:framework-detail' fw.pk %}" class="fw-semibold text-decoration-none">{{ fw.short_name|default:fw.name }}</a>
-          <small class="text-muted ms-2">{{ fw.req_count }} exigence{{ fw.req_count|pluralize:"s" }}</small>
+          <small class="text-muted ms-2">{% blocktrans with count=fw.req_count %}{{ count }} requirement{{ count|pluralize:"s" }}{% endblocktrans %}</small>
           {% for s in fw.scopes.all %}
           <span class="badge text-bg-secondary ms-1" style="font-size:.7rem">{{ s.full_path }}</span>
           {% endfor %}
@@ -127,44 +128,44 @@
 </div>
 {% endif %}
 
-{# ── Gouvernance ───────────────────────────────────────────── #}
+{# ── Governance ───────────────────────────────────────────── #}
 <h2 class="mb-3">
-  <i class="bi bi-diagram-3 me-1"></i> Gouvernance
+  <i class="bi bi-diagram-3 me-1"></i> {% trans "Governance" %}
 </h2>
 <div class="row g-3 mb-4">
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-primary h-100">
       <div class="card-body">
-        <h5 class="card-title">Périmètres</h5>
+        <h5 class="card-title">{% trans "Scopes" %}</h5>
         <p class="display-6">{{ scope_count }}</p>
-        <a href="{% url 'context:scope-list' %}" class="text-white">Voir tout</a>
+        <a href="{% url 'context:scope-list' %}" class="text-white">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-info h-100">
       <div class="card-body">
-        <h5 class="card-title">Enjeux</h5>
+        <h5 class="card-title">{% trans "Issues" %}</h5>
         <p class="display-6">{{ issue_count }}</p>
-        <a href="{% url 'context:issue-list' %}" class="text-white">Voir tout</a>
+        <a href="{% url 'context:issue-list' %}" class="text-white">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-success h-100">
       <div class="card-body">
-        <h5 class="card-title">Parties intéressées</h5>
+        <h5 class="card-title">{% trans "Stakeholders" %}</h5>
         <p class="display-6">{{ stakeholder_count }}</p>
-        <a href="{% url 'context:stakeholder-list' %}" class="text-white">Voir tout</a>
+        <a href="{% url 'context:stakeholder-list' %}" class="text-white">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-warning h-100">
       <div class="card-body">
-        <h5 class="card-title">Objectifs</h5>
+        <h5 class="card-title">{% trans "Objectives" %}</h5>
         <p class="display-6">{{ objective_count }}</p>
-        <a href="{% url 'context:objective-list' %}" class="text-dark">Voir tout</a>
+        <a href="{% url 'context:objective-list' %}" class="text-dark">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
@@ -173,33 +174,33 @@
   <div class="col-md-4 col-sm-6">
     <div class="card h-100">
       <div class="card-body">
-        <h5 class="card-title">Rôles</h5>
+        <h5 class="card-title">{% trans "Roles" %}</h5>
         <p class="display-6">{{ role_count }}</p>
         {% if mandatory_roles_no_user %}
-        <span class="badge text-bg-danger">{{ mandatory_roles_no_user }} rôle(s) obligatoire(s) sans utilisateur</span>
+        <span class="badge text-bg-danger">{% blocktrans with count=mandatory_roles_no_user %}{{ count }} mandatory role(s) with no user{% endblocktrans %}</span>
         {% endif %}
-        <div class="mt-2"><a href="{% url 'context:role-list' %}" class="btn btn-outline-primary btn-sm">Voir tout</a></div>
+        <div class="mt-2"><a href="{% url 'context:role-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a></div>
       </div>
     </div>
   </div>
   <div class="col-md-4 col-sm-6">
     <div class="card h-100">
       <div class="card-body">
-        <h5 class="card-title">Sites</h5>
+        <h5 class="card-title">{% trans "Sites" %}</h5>
         <p class="display-6">{{ site_count }}</p>
-        <div class="mt-2"><a href="{% url 'context:site-list' %}" class="btn btn-outline-primary btn-sm">Voir tout</a></div>
+        <div class="mt-2"><a href="{% url 'context:site-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a></div>
       </div>
     </div>
   </div>
   <div class="col-md-4 col-sm-6">
     <div class="card h-100">
       <div class="card-body">
-        <h5 class="card-title">Périmètres actifs</h5>
+        <h5 class="card-title">{% trans "Active scopes" %}</h5>
         <div class="mt-2">
           {% for s in active_scopes %}
           <span class="badge bg-primary me-1 mb-1">{{ s.full_path }}</span>
           {% empty %}
-          <span class="text-muted">Aucun périmètre actif</span>
+          <span class="text-muted">{% trans "No active scope" %}</span>
           {% endfor %}
         </div>
       </div>
@@ -209,44 +210,44 @@
 
 <hr class="my-4">
 
-{# ── Actifs ────────────────────────────────────────────────── #}
+{# ── Assets ────────────────────────────────────────────────── #}
 <h2 class="mb-3">
-  <i class="bi bi-box-seam me-1"></i> Actifs
+  <i class="bi bi-box-seam me-1"></i> {% trans "Assets" %}
 </h2>
 <div class="row g-3 mb-4">
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-primary h-100">
       <div class="card-body">
-        <h5 class="card-title">Biens essentiels</h5>
+        <h5 class="card-title">{% trans "Essential assets" %}</h5>
         <p class="display-6">{{ essential_count }}</p>
         {% if personal_data_count %}
-        <span class="badge text-bg-warning text-dark">{{ personal_data_count }} avec données personnelles</span>
+        <span class="badge text-bg-warning text-dark">{% blocktrans with count=personal_data_count %}{{ count }} with personal data{% endblocktrans %}</span>
         {% endif %}
-        <div class="mt-2"><a href="{% url 'assets:essential-asset-list' %}" class="text-white">Voir tout</a></div>
+        <div class="mt-2"><a href="{% url 'assets:essential-asset-list' %}" class="text-white">{% trans "View all" %}</a></div>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-info h-100">
       <div class="card-body">
-        <h5 class="card-title">Biens supports</h5>
+        <h5 class="card-title">{% trans "Support assets" %}</h5>
         <p class="display-6">{{ support_count }}</p>
         {% if eol_count %}
-        <span class="badge text-bg-danger">{{ eol_count }} en fin de vie</span>
+        <span class="badge text-bg-danger">{% blocktrans with count=eol_count %}{{ count }} past end of life{% endblocktrans %}</span>
         {% endif %}
-        <div class="mt-2"><a href="{% url 'assets:support-asset-list' %}" class="text-white">Voir tout</a></div>
+        <div class="mt-2"><a href="{% url 'assets:support-asset-list' %}" class="text-white">{% trans "View all" %}</a></div>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-success h-100">
       <div class="card-body">
-        <h5 class="card-title">Dépendances</h5>
+        <h5 class="card-title">{% trans "Dependencies" %}</h5>
         <p class="display-6">{{ dependency_count }}</p>
         {% if spof_count %}
         <span class="badge text-bg-danger">{{ spof_count }} SPOF</span>
         {% endif %}
-        <div class="mt-2"><a href="{% url 'assets:dependency-list' %}" class="text-white">Voir tout</a></div>
+        <div class="mt-2"><a href="{% url 'assets:dependency-list' %}" class="text-white">{% trans "View all" %}</a></div>
       </div>
     </div>
   </div>
@@ -257,61 +258,61 @@
 
 <hr class="my-4">
 
-{# ── Gestion des risques ──────────────────────────────────── #}
+{# ── Risk management ──────────────────────────────────── #}
 <h2 class="mb-3">
-  <i class="bi bi-shield-exclamation me-1"></i> Gestion des risques
+  <i class="bi bi-shield-exclamation me-1"></i> {% trans "Risk management" %}
 </h2>
 <div class="row g-3 mb-4">
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-primary h-100">
       <div class="card-body">
-        <h5 class="card-title">Appréciations</h5>
+        <h5 class="card-title">{% trans "Assessments" %}</h5>
         <p class="display-6">{{ risk_assessment_count }}</p>
-        <a href="{% url 'risks:assessment-list' %}" class="text-white">Voir tout</a>
+        <a href="{% url 'risks:assessment-list' %}" class="text-white">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-danger h-100">
       <div class="card-body">
-        <h5 class="card-title">Risques</h5>
+        <h5 class="card-title">{% trans "Risks" %}</h5>
         <p class="display-6">{{ risk_count }}</p>
         {% if critical_risk_count %}
-        <span class="badge text-bg-dark">{{ critical_risk_count }} critique(s)</span>
+        <span class="badge text-bg-dark">{% blocktrans with count=critical_risk_count %}{{ count }} critical{% endblocktrans %}</span>
         {% endif %}
-        <div class="mt-1"><a href="{% url 'risks:risk-list' %}" class="text-white">Voir tout</a></div>
+        <div class="mt-1"><a href="{% url 'risks:risk-list' %}" class="text-white">{% trans "View all" %}</a></div>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-warning h-100">
       <div class="card-body">
-        <h5 class="card-title">Plans de traitement</h5>
+        <h5 class="card-title">{% trans "Treatment plans" %}</h5>
         <p class="display-6">{{ treatment_plan_count }}</p>
         {% if treatment_in_progress_count %}
-        <span class="badge text-bg-dark">{{ treatment_in_progress_count }} en cours</span>
+        <span class="badge text-bg-dark">{% blocktrans with count=treatment_in_progress_count %}{{ count }} in progress{% endblocktrans %}</span>
         {% endif %}
-        <div class="mt-1"><a href="{% url 'risks:treatment-plan-list' %}" class="text-dark">Voir tout</a></div>
+        <div class="mt-1"><a href="{% url 'risks:treatment-plan-list' %}" class="text-dark">{% trans "View all" %}</a></div>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-info h-100">
       <div class="card-body">
-        <h5 class="card-title">Menaces</h5>
+        <h5 class="card-title">{% trans "Threats" %}</h5>
         <p class="display-6">—</p>
-        <a href="{% url 'risks:threat-list' %}" class="text-white">Voir tout</a>
+        <a href="{% url 'risks:threat-list' %}" class="text-white">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
 </div>
 
-{# ── Matrices de risques ─────────────────────────────────── #}
+{# ── Risk matrices ─────────────────────────────────── #}
 {% if matrix_current or matrix_residual %}
 <div class="d-flex align-items-center mb-3">
-  <h5 class="mb-0"><i class="bi bi-grid-3x3 me-1"></i> Matrices de risques</h5>
+  <h5 class="mb-0"><i class="bi bi-grid-3x3 me-1"></i> {% trans "Risk matrices" %}</h5>
   {% if matrix_criteria %}
-  <a href="{% url 'risks:criteria-update' matrix_criteria.pk %}" class="btn btn-outline-secondary btn-sm ms-3" title="Configurer les échelles"><i class="bi bi-gear me-1"></i>Configurer</a>
+  <a href="{% url 'risks:criteria-update' matrix_criteria.pk %}" class="btn btn-outline-secondary btn-sm ms-3" title="{% trans "Configure scales" %}"><i class="bi bi-gear me-1"></i>{% trans "Configure" %}</a>
   {% endif %}
 </div>
 <div class="row g-3 mb-4">
@@ -319,7 +320,8 @@
   <div class="col-lg-6">
     <div class="card h-100">
       <div class="card-body">
-        {% include "risks/includes/risk_matrix.html" with matrix=matrix_current title="Risques réels (avant traitement)" %}
+        {% trans "Current risks (before treatment)" as current_risks_title %}
+        {% include "risks/includes/risk_matrix.html" with matrix=matrix_current title=current_risks_title %}
       </div>
     </div>
   </div>
@@ -328,7 +330,8 @@
   <div class="col-lg-6">
     <div class="card h-100">
       <div class="card-body">
-        {% include "risks/includes/risk_matrix.html" with matrix=matrix_residual title="Risques résiduels (après traitement)" %}
+        {% trans "Residual risks (after treatment)" as residual_risks_title %}
+        {% include "risks/includes/risk_matrix.html" with matrix=matrix_residual title=residual_risks_title %}
       </div>
     </div>
   </div>
@@ -338,50 +341,50 @@
 
 <hr class="my-4">
 
-{# ── Conformité — KPIs ─────────────────────────────────────── #}
+{# ── Compliance — KPIs ─────────────────────────────────────── #}
 <h2 class="mb-3">
-  <i class="bi bi-journal-bookmark me-1"></i> Conformité
+  <i class="bi bi-journal-bookmark me-1"></i> {% trans "Compliance" %}
 </h2>
 <div class="row g-3 mb-4">
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-primary h-100">
       <div class="card-body">
-        <h5 class="card-title">Référentiels</h5>
+        <h5 class="card-title">{% trans "Frameworks" %}</h5>
         <p class="display-6">{{ framework_count }}</p>
-        <a href="{% url 'compliance:framework-list' %}" class="text-white">Voir tout</a>
+        <a href="{% url 'compliance:framework-list' %}" class="text-white">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-info h-100">
       <div class="card-body">
-        <h5 class="card-title">Exigences</h5>
+        <h5 class="card-title">{% trans "Requirements" %}</h5>
         <p class="display-6">{{ requirement_count }}</p>
         {% if non_compliant_count %}
-        <span class="badge text-bg-danger">{{ non_compliant_count }} non conforme(s)</span>
+        <span class="badge text-bg-danger">{% blocktrans with count=non_compliant_count %}{{ count }} non-compliant{% endblocktrans %}</span>
         {% endif %}
-        <a href="{% url 'compliance:requirement-list' %}" class="text-white d-block mt-2">Voir tout</a>
+        <a href="{% url 'compliance:requirement-list' %}" class="text-white d-block mt-2">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-success h-100">
       <div class="card-body">
-        <h5 class="card-title">Évaluations</h5>
+        <h5 class="card-title">{% trans "Assessments" %}</h5>
         <p class="display-6">{{ assessment_count }}</p>
-        <a href="{% url 'compliance:assessment-list' %}" class="text-white">Voir tout</a>
+        <a href="{% url 'compliance:assessment-list' %}" class="text-white">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-warning h-100">
       <div class="card-body">
-        <h5 class="card-title">Plans d'action</h5>
+        <h5 class="card-title">{% trans "Action plans" %}</h5>
         <p class="display-6">{{ action_plan_count }}</p>
         {% if overdue_plan_count %}
-        <span class="badge text-bg-danger">{{ overdue_plan_count }} en retard</span>
+        <span class="badge text-bg-danger">{% blocktrans with count=overdue_plan_count %}{{ count }} overdue{% endblocktrans %}</span>
         {% endif %}
-        <a href="{% url 'compliance:action-plan-list' %}" class="text-dark d-block mt-2">Voir tout</a>
+        <a href="{% url 'compliance:action-plan-list' %}" class="text-dark d-block mt-2">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
@@ -390,9 +393,9 @@
   <div class="col-md-6">
     <div class="card h-100">
       <div class="card-body">
-        <h5 class="card-title">Mappings inter-référentiels</h5>
+        <h5 class="card-title">{% trans "Inter-framework mappings" %}</h5>
         <p class="display-6">{{ mapping_count }}</p>
-        <a href="{% url 'compliance:mapping-list' %}" class="btn btn-outline-primary btn-sm">Voir tout</a>
+        <a href="{% url 'compliance:mapping-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a>
       </div>
     </div>
   </div>

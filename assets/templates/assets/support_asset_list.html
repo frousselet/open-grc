@@ -1,42 +1,42 @@
 {% extends "base.html" %}
-{% load dic_tags help_tags %}
+{% load dic_tags help_tags i18n %}
 
-{% block title %}Biens supports — Open GRC{% endblock %}
+{% block title %}{% trans "Support assets" %} — Open GRC{% endblock %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">Biens supports</h1>
-  <a href="{% url 'assets:support-asset-create' %}" class="btn btn-primary ms-auto">Nouveau bien support</a>
+  <h1 class="mb-0">{% trans "Support assets" %}</h1>
+  <a href="{% url 'assets:support-asset-create' %}" class="btn btn-primary ms-auto">{% trans "New support asset" %}</a>
 </div>
 {% help_modal "assets.support_asset_list" %}
 
 <div class="mb-3 d-flex gap-2 flex-wrap">
-  <a href="{% url 'assets:support-asset-list' %}" class="btn btn-sm {% if not request.GET.type %}btn-primary{% else %}btn-outline-primary{% endif %}">Tous</a>
-  <a href="?type=hardware" class="btn btn-sm {% if request.GET.type == 'hardware' %}btn-primary{% else %}btn-outline-primary{% endif %}">Matériel</a>
-  <a href="?type=software" class="btn btn-sm {% if request.GET.type == 'software' %}btn-primary{% else %}btn-outline-primary{% endif %}">Logiciel</a>
-  <a href="?type=network" class="btn btn-sm {% if request.GET.type == 'network' %}btn-primary{% else %}btn-outline-primary{% endif %}">Réseau</a>
-  <a href="?type=person" class="btn btn-sm {% if request.GET.type == 'person' %}btn-primary{% else %}btn-outline-primary{% endif %}">Personne</a>
-  <a href="?type=site" class="btn btn-sm {% if request.GET.type == 'site' %}btn-primary{% else %}btn-outline-primary{% endif %}">Site</a>
-  <a href="?type=service" class="btn btn-sm {% if request.GET.type == 'service' %}btn-primary{% else %}btn-outline-primary{% endif %}">Service</a>
+  <a href="{% url 'assets:support-asset-list' %}" class="btn btn-sm {% if not request.GET.type %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "All" %}</a>
+  <a href="?type=hardware" class="btn btn-sm {% if request.GET.type == 'hardware' %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "Hardware" %}</a>
+  <a href="?type=software" class="btn btn-sm {% if request.GET.type == 'software' %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "Software" %}</a>
+  <a href="?type=network" class="btn btn-sm {% if request.GET.type == 'network' %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "Network" %}</a>
+  <a href="?type=person" class="btn btn-sm {% if request.GET.type == 'person' %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "Person" %}</a>
+  <a href="?type=site" class="btn btn-sm {% if request.GET.type == 'site' %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "Site" %}</a>
+  <a href="?type=service" class="btn btn-sm {% if request.GET.type == 'service' %}btn-primary{% else %}btn-outline-primary{% endif %}">{% trans "Service" %}</a>
 </div>
 
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark">
       <tr>
-        <th>Réf.</th>
-        <th>Nom</th>
-        <th>Type</th>
-        <th>Catégorie</th>
-        <th>Propriétaire</th>
+        <th>{% trans "Ref." %}</th>
+        <th>{% trans "Name" %}</th>
+        <th>{% trans "Type" %}</th>
+        <th>{% trans "Category" %}</th>
+        <th>{% trans "Owner" %}</th>
         <th class="text-center">C</th>
         <th class="text-center">I</th>
-        <th class="text-center">D</th>
-        <th>Env.</th>
-        <th>Statut</th>
-        <th>Fin de vie</th>
-        <th>Approbation</th>
-        <th>Actions</th>
+        <th class="text-center">A</th>
+        <th>{% trans "Env." %}</th>
+        <th>{% trans "Status" %}</th>
+        <th>{% trans "End of life" %}</th>
+        <th>{% trans "Approval" %}</th>
+        <th>{% trans "Actions" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -64,15 +64,15 @@
         </td>
         <td>
           <span class="badge text-bg-{% if asset.is_approved %}success{% else %}warning{% endif %}">
-            {% if asset.is_approved %}Approuvé{% else %}En attente{% endif %}
+            {% if asset.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
           </span>
         </td>
         <td>
-          <a href="{% url 'assets:support-asset-update' asset.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+          <a href="{% url 'assets:support-asset-update' asset.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="13" class="text-center text-muted">Aucun bien support.</td></tr>
+      <tr><td colspan="13" class="text-center text-muted">{% trans "No support assets." %}</td></tr>
       {% endfor %}
     </tbody>
   </table>
@@ -81,9 +81,9 @@
 {% if is_paginated %}
 <nav>
   <ul class="pagination justify-content-center">
-    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a></li>{% endif %}
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Previous" %}</a></li>{% endif %}
     <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a></li>{% endif %}
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Next" %}</a></li>{% endif %}
   </ul>
 </nav>
 {% endif %}

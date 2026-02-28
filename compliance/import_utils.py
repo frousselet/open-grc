@@ -2,6 +2,7 @@ import io
 import json
 
 from django.db import transaction
+from django.utils.translation import gettext as _
 from openpyxl import load_workbook
 from openpyxl import Workbook as XlWorkbook
 from openpyxl.styles import Alignment, Font, PatternFill
@@ -20,38 +21,38 @@ from .models import Framework, Requirement, Section
 SAMPLE_DATA = {
     "framework": {
         "reference": "EXAMPLE-001",
-        "name": "Exemple de référentiel",
-        "short_name": "Exemple",
+        "name": "Sample framework",
+        "short_name": "Sample",
         "framework_version": "1.0",
         "type": "standard",
         "category": "information_security",
-        "issuing_body": "Mon organisation",
-        "description": "Ceci est un exemple de référentiel pour illustrer le format d'import.",
+        "issuing_body": "My organization",
+        "description": "This is a sample framework to illustrate the import format.",
     },
     "sections": [
         {
             "reference": "SEC.1",
-            "name": "Gouvernance",
-            "description": "Mesures de gouvernance de la sécurité de l'information.",
+            "name": "Governance",
+            "description": "Information security governance measures.",
             "sections": [
                 {
                     "reference": "SEC.1.1",
-                    "name": "Politiques de sécurité",
-                    "description": "Définition et revue des politiques.",
+                    "name": "Security policies",
+                    "description": "Definition and review of policies.",
                     "requirements": [
                         {
                             "reference": "REQ.1.1.1",
-                            "name": "Politique générale de sécurité",
-                            "description": "Une politique de sécurité de l'information doit être définie et approuvée par la direction.",
-                            "guidance": "La politique doit être communiquée à l'ensemble du personnel et revue à intervalles réguliers.",
+                            "name": "General security policy",
+                            "description": "An information security policy must be defined and approved by management.",
+                            "guidance": "The policy must be communicated to all staff and reviewed at regular intervals.",
                             "type": "mandatory",
                             "category": "organizational",
                         },
                         {
                             "reference": "REQ.1.1.2",
-                            "name": "Revue des politiques",
-                            "description": "Les politiques de sécurité doivent être revues à intervalles planifiés.",
-                            "guidance": "La revue doit avoir lieu au moins une fois par an ou lors de changements significatifs.",
+                            "name": "Policy review",
+                            "description": "Security policies must be reviewed at planned intervals.",
+                            "guidance": "The review must take place at least once a year or upon significant changes.",
                             "type": "mandatory",
                             "category": "organizational",
                         },
@@ -61,21 +62,21 @@ SAMPLE_DATA = {
         },
         {
             "reference": "SEC.2",
-            "name": "Gestion des actifs",
-            "description": "Mesures relatives à la gestion des actifs informationnels.",
+            "name": "Asset management",
+            "description": "Measures related to the management of information assets.",
             "requirements": [
                 {
                     "reference": "REQ.2.1",
-                    "name": "Inventaire des actifs",
-                    "description": "Un inventaire des actifs informationnels doit être établi et maintenu.",
-                    "guidance": "L'inventaire doit identifier le propriétaire de chaque actif.",
+                    "name": "Asset inventory",
+                    "description": "An inventory of information assets must be established and maintained.",
+                    "guidance": "The inventory must identify the owner of each asset.",
                     "type": "mandatory",
                     "category": "organizational",
                 },
                 {
                     "reference": "REQ.2.2",
-                    "name": "Classification de l'information",
-                    "description": "L'information doit être classifiée en fonction de sa sensibilité.",
+                    "name": "Information classification",
+                    "description": "Information must be classified according to its sensitivity.",
                     "guidance": "",
                     "type": "recommended",
                     "category": "organizational",
@@ -98,7 +99,7 @@ def generate_sample_excel():
     """Return a BytesIO containing the sample Excel (.xlsx) file."""
     wb = XlWorkbook()
     ws = wb.active
-    ws.title = "Referentiel"
+    ws.title = "Framework"
 
     headers = [
         "type", "reference", "name", "description", "guidance",
@@ -322,7 +323,7 @@ def parse_excel(file_obj):
             req["order"] = i
         section_list.append({
             "reference": "",
-            "name": "(Exigences sans section)",
+            "name": _("(Requirements without section)"),
             "description": "",
             "parent_reference": None,
             "order": stats["section_count"] + 1,
@@ -379,30 +380,38 @@ def validate_parsed_data(parsed, existing_framework=None):
     # Framework required fields — name is always required (used to rename)
     if not existing_framework:
         if not fw.get("reference"):
-            errors.append("Le champ 'reference' du référentiel est obligatoire.")
+            errors.append(_("The framework 'reference' field is required."))
     if not fw.get("name"):
-        errors.append("Le champ 'name' du référentiel est obligatoire.")
+        errors.append(_("The framework 'name' field is required."))
 
     # Framework type/category validation (only relevant for new frameworks)
     if not existing_framework:
         valid_fw_types = {c.value for c in FrameworkType}
         if fw.get("type") and fw["type"] not in valid_fw_types:
             errors.append(
-                f"Type de référentiel inconnu : '{fw['type']}'. "
-                f"Valeurs acceptées : {', '.join(sorted(valid_fw_types))}"
+                _("Unknown framework type: '%(type)s'. "
+                  "Accepted values: %(values)s") % {
+                    "type": fw["type"],
+                    "values": ", ".join(sorted(valid_fw_types)),
+                }
             )
 
         valid_fw_categories = {c.value for c in FrameworkCategory}
         if fw.get("category") and fw["category"] not in valid_fw_categories:
             errors.append(
-                f"Catégorie de référentiel inconnue : '{fw['category']}'. "
-                f"Valeurs acceptées : {', '.join(sorted(valid_fw_categories))}"
+                _("Unknown framework category: '%(category)s'. "
+                  "Accepted values: %(values)s") % {
+                    "category": fw["category"],
+                    "values": ", ".join(sorted(valid_fw_categories)),
+                }
             )
 
         # Check for existing framework with same reference
         if fw.get("reference") and Framework.objects.filter(reference=fw["reference"]).exists():
             errors.append(
-                f"Un référentiel avec la référence '{fw['reference']}' existe déjà en base."
+                _("A framework with the reference '%(reference)s' already exists in the database.") % {
+                    "reference": fw["reference"],
+                }
             )
 
     # Collect existing refs when importing into existing framework
@@ -423,19 +432,22 @@ def validate_parsed_data(parsed, existing_framework=None):
             continue
         ref = sec.get("reference", "")
         if not ref:
-            errors.append("Une section n'a pas de référence.")
+            errors.append(_("A section has no reference."))
         elif ref in section_refs:
-            errors.append(f"Référence de section dupliquée : '{ref}'.")
+            errors.append(_("Duplicate section reference: '%(ref)s'.") % {"ref": ref})
         else:
             section_refs.add(ref)
             if ref in existing_section_refs:
                 errors.append(
-                    f"La section '{ref}' existe déjà dans le référentiel "
-                    f"'{existing_framework.reference}'."
+                    _("Section '%(ref)s' already exists in framework "
+                      "'%(framework_ref)s'.") % {
+                        "ref": ref,
+                        "framework_ref": existing_framework.reference,
+                    }
                 )
 
         if not sec.get("name"):
-            errors.append(f"La section '{ref}' n'a pas de nom.")
+            errors.append(_("Section '%(ref)s' has no name.") % {"ref": ref})
 
     # Requirement validation
     valid_req_types = {c.value for c in RequirementType}
@@ -446,40 +458,53 @@ def validate_parsed_data(parsed, existing_framework=None):
         for req in sec.get("requirements", []):
             ref = req.get("reference", "")
             if not ref:
-                errors.append("Une exigence n'a pas de référence.")
+                errors.append(_("A requirement has no reference."))
             elif ref in req_refs:
-                errors.append(f"Référence d'exigence dupliquée : '{ref}'.")
+                errors.append(_("Duplicate requirement reference: '%(ref)s'.") % {"ref": ref})
             else:
                 req_refs.add(ref)
                 if ref in existing_req_refs:
                     errors.append(
-                        f"L'exigence '{ref}' existe déjà dans le référentiel "
-                        f"'{existing_framework.reference}'."
+                        _("Requirement '%(ref)s' already exists in framework "
+                          "'%(framework_ref)s'.") % {
+                            "ref": ref,
+                            "framework_ref": existing_framework.reference,
+                        }
                     )
 
             if not req.get("name"):
-                errors.append(f"L'exigence '{ref}' n'a pas de nom.")
+                errors.append(_("Requirement '%(ref)s' has no name.") % {"ref": ref})
 
             if req.get("type") and req["type"] not in valid_req_types:
                 errors.append(
-                    f"Type d'exigence inconnu pour '{ref}' : '{req['type']}'. "
-                    f"Valeurs acceptées : {', '.join(sorted(valid_req_types))}"
+                    _("Unknown requirement type for '%(ref)s': '%(type)s'. "
+                      "Accepted values: %(values)s") % {
+                        "ref": ref,
+                        "type": req["type"],
+                        "values": ", ".join(sorted(valid_req_types)),
+                    }
                 )
 
             if req.get("category") and req["category"] not in valid_req_categories:
                 errors.append(
-                    f"Catégorie d'exigence inconnue pour '{ref}' : '{req['category']}'. "
-                    f"Valeurs acceptées : {', '.join(sorted(valid_req_categories))}"
+                    _("Unknown requirement category for '%(ref)s': '%(category)s'. "
+                      "Accepted values: %(values)s") % {
+                        "ref": ref,
+                        "category": req["category"],
+                        "values": ", ".join(sorted(valid_req_categories)),
+                    }
                 )
 
         # Warn about orphan sections
         if sec.get("is_virtual"):
             warnings.append(
-                f"{len(sec['requirements'])} exigence(s) sans section parente identifiée."
+                _("%(count)s requirement(s) without an identified parent section.") % {
+                    "count": len(sec["requirements"]),
+                }
             )
 
     if not parsed.get("sections"):
-        warnings.append("Aucune section trouvée dans le fichier.")
+        warnings.append(_("No sections found in the file."))
 
     return errors, warnings
 

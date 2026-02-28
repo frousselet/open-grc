@@ -1,18 +1,19 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Importer un référentiel — Open GRC{% endblock %}
+{% block title %}{% trans "Import a framework" %} — Open GRC{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">Importer un référentiel</h1>
+  <h1 class="mb-0">{% trans "Import a framework" %}</h1>
 </div>
 {% help_modal "compliance.framework_import" %}
 
 {% if form.non_field_errors %}
 <div class="alert alert-danger">
-  <strong>Erreurs de validation :</strong>
+  <strong>{% trans "Validation errors:" %}</strong>
   <ul class="mb-0 mt-1">
     {% for error in form.non_field_errors %}
     <li>{{ error }}</li>
@@ -38,8 +39,8 @@
           </div>
           {% endfor %}
           <div class="mt-4">
-            <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>Analyser</button>
-            <a href="{% url 'compliance:framework-list' %}" class="btn btn-secondary">Annuler</a>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>{% trans "Analyze" %}</button>
+            <a href="{% url 'compliance:framework-list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
           </div>
         </form>
       </div>
@@ -47,24 +48,24 @@
   </div>
   <div class="col-lg-4">
     <div class="card mb-3">
-      <div class="card-header"><i class="bi bi-info-circle me-1"></i>Formats acceptés</div>
+      <div class="card-header"><i class="bi bi-info-circle me-1"></i>{% trans "Accepted formats" %}</div>
       <div class="card-body">
         <h6>JSON</h6>
-        <p class="small text-muted">Structure arborescente avec <code>framework</code>, <code>sections</code> (imbriquées) et <code>requirements</code> dans chaque section.</p>
+        <p class="small text-muted">{% trans "Tree structure with <code>framework</code>, <code>sections</code> (nested) and <code>requirements</code> in each section." %}</p>
         <h6>Excel (.xlsx)</h6>
-        <p class="small text-muted mb-0">Une seule feuille avec les colonnes : <code>type</code>, <code>reference</code>, <code>name</code>, <code>description</code>, <code>guidance</code>, <code>req_type</code>, <code>req_category</code>. La hiérarchie est déduite des préfixes de références.</p>
+        <p class="small text-muted mb-0">{% trans "A single sheet with columns: <code>type</code>, <code>reference</code>, <code>name</code>, <code>description</code>, <code>guidance</code>, <code>req_type</code>, <code>req_category</code>. Hierarchy is inferred from reference prefixes." %}</p>
       </div>
     </div>
     <div class="card">
-      <div class="card-header"><i class="bi bi-download me-1"></i>Templates d'exemple</div>
+      <div class="card-header"><i class="bi bi-download me-1"></i>{% trans "Sample templates" %}</div>
       <div class="card-body">
-        <p class="small text-muted">Téléchargez un fichier d'exemple pré-rempli pour vous aider à préparer votre import.</p>
+        <p class="small text-muted">{% trans "Download a pre-filled sample file to help you prepare your import." %}</p>
         <div class="d-grid gap-2">
           <a href="{% url 'compliance:framework-import-sample' %}?format=json" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-filetype-json me-1"></i>Exemple JSON
+            <i class="bi bi-filetype-json me-1"></i>{% trans "JSON sample" %}
           </a>
           <a href="{% url 'compliance:framework-import-sample' %}?format=xlsx" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-file-earmark-spreadsheet me-1"></i>Exemple Excel
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i>{% trans "Excel sample" %}
           </a>
         </div>
       </div>

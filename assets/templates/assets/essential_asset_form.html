@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}{% if form.instance.pk %}Modifier{% else %}Nouveau{% endif %} bien essentiel — Open GRC{% endblock %}
+{% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "essential asset" %} — Open GRC{% endblock %}
 
 {% block content %}
-<h1>{% if form.instance.pk %}Modifier le bien essentiel{% else %}Nouveau bien essentiel{% endif %}</h1>
+<h1>{% if form.instance.pk %}{% trans "Edit essential asset" %}{% else %}{% trans "New essential asset" %}{% endif %}</h1>
 
 <form method="post" class="mt-3">
   {% csrf_token %}
@@ -25,8 +26,8 @@
   </div>
   {% endfor %}
   <div class="mt-4">
-    <button type="submit" class="btn btn-primary">Enregistrer</button>
-    <a href="{% url 'assets:essential-asset-list' %}" class="btn btn-secondary">Annuler</a>
+    <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+    <a href="{% url 'assets:essential-asset-list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
   </div>
 </form>
 {% endblock %}

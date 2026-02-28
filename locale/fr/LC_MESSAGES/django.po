@@ -1,0 +1,3384 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-28 16:11+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "User management"
+msgstr "Gestion des utilisateurs"
+
+msgid "Create"
+msgstr "Créer"
+
+msgid "Read"
+msgstr "Lire"
+
+msgid "Update"
+msgstr "Modifier"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+msgid "Access"
+msgstr "Accès"
+
+msgid "Approve"
+msgstr "Approuver"
+
+msgid "Successful login"
+msgstr "Connexion réussie"
+
+msgid "Failed login"
+msgstr "Connexion échouée"
+
+msgid "Logout"
+msgstr "Déconnexion"
+
+msgid "Token refresh"
+msgstr "Renouvellement du jeton"
+
+msgid "Password change"
+msgstr "Changement de mot de passe"
+
+msgid "Account locked"
+msgstr "Compte verrouillé"
+
+msgid "Account unlocked"
+msgstr "Compte déverrouillé"
+
+msgid "Invalid password"
+msgstr "Mot de passe invalide"
+
+msgid "Inactive account"
+msgstr "Compte inactif"
+
+msgid "User not found"
+msgstr "Utilisateur non trouvé"
+
+msgid "Scopes"
+msgstr "Périmètres"
+
+msgid "Issues"
+msgstr "Enjeux"
+
+msgid "Stakeholders"
+msgstr "Parties prenantes"
+
+msgid "Expectations"
+msgstr "Attentes"
+
+msgid "Objectives"
+msgstr "Objectifs"
+
+msgid "SWOT analyses"
+msgstr "Analyses SWOT"
+
+msgid "Roles"
+msgstr "Rôles"
+
+msgid "Role assignment"
+msgstr "Attribution de rôle"
+
+msgid "Activities"
+msgstr "Activités"
+
+msgid "Sites"
+msgstr "Sites"
+
+msgid "Context configuration"
+msgstr "Configuration du contexte"
+
+msgid "Context export"
+msgstr "Export du contexte"
+
+msgid "Context audit trail"
+msgstr "Piste d'audit du contexte"
+
+msgid "Essential assets"
+msgstr "Biens essentiels"
+
+msgid "Essential asset evaluation"
+msgstr "Évaluation des biens essentiels"
+
+msgid "Support assets"
+msgstr "Biens supports"
+
+msgid "Dependencies"
+msgstr "Dépendances"
+
+msgid "Asset groups"
+msgstr "Groupes d'actifs"
+
+msgid "Asset import"
+msgstr "Import d'actifs"
+
+msgid "Asset configuration"
+msgstr "Configuration des actifs"
+
+msgid "Asset export"
+msgstr "Export des actifs"
+
+msgid "Asset audit trail"
+msgstr "Piste d'audit des actifs"
+
+msgid "Frameworks"
+msgstr "Référentiels"
+
+msgid "Sections"
+msgstr "Sections"
+
+msgid "Requirements"
+msgstr "Exigences"
+
+msgid "Compliance assessments"
+msgstr "Évaluations de conformité"
+
+msgid "Inter-framework mappings"
+msgstr "Correspondances inter-référentiels"
+
+msgid "Action plans"
+msgstr "Plans d'action"
+
+msgid "Compliance configuration"
+msgstr "Configuration de la conformité"
+
+msgid "Compliance export"
+msgstr "Export de la conformité"
+
+msgid "Compliance audit trail"
+msgstr "Piste d'audit de la conformité"
+
+msgid "Risk assessments"
+msgstr "Appréciations des risques"
+
+msgid "Risk criteria"
+msgstr "Critères de risque"
+
+msgid "Risk register"
+msgstr "Registre des risques"
+
+msgid "Treatment plans"
+msgstr "Plans de traitement"
+
+msgid "Risk acceptances"
+msgstr "Acceptations de risque"
+
+msgid "Threats"
+msgstr "Menaces"
+
+msgid "Vulnerabilities"
+msgstr "Vulnérabilités"
+
+msgid "ISO 27005 analyses"
+msgstr "Analyses ISO 27005"
+
+msgid "Risk export"
+msgstr "Export des risques"
+
+msgid "Risk audit trail"
+msgstr "Piste d'audit des risques"
+
+msgid "Django administration"
+msgstr "Administration Django"
+
+msgid "Users"
+msgstr "Utilisateurs"
+
+msgid "Groups"
+msgstr "Groupes"
+
+msgid "System audit trail"
+msgstr "Piste d'audit du système"
+
+msgid "System configuration"
+msgstr "Configuration du système"
+
+msgid "Webhooks"
+msgstr "Webhooks"
+
+msgid "Notifications"
+msgstr "Notifications"
+
+msgid "Assess"
+msgstr "Évaluer"
+
+msgid "Validate"
+msgstr "Valider"
+
+msgid "Governance"
+msgstr "Gouvernance"
+
+msgid "Assets"
+msgstr "Actifs"
+
+msgid "Risk management"
+msgstr "Gestion des risques"
+
+msgid "Compliance"
+msgstr "Conformité"
+
+msgid "System"
+msgstr "Système"
+
+msgid "Full technical administration of the platform. All permissions."
+msgstr "Administration technique complète de la plateforme. Toutes les permissions."
+
+msgid ""
+"Full functional administration. All permissions except Django admin access."
+msgstr "Administration fonctionnelle complète. Toutes les permissions sauf l'accès admin Django."
+
+msgid ""
+"GRC system steering. Read, create, update, approve. No deletion or system "
+"configuration."
+msgstr "Pilotage du système GRC. Lecture, création, modification, approbation. Pas de suppression ni de configuration système."
+
+msgid "Platform consultation and audit. Read-only access to all modules."
+msgstr "Consultation et audit de la plateforme. Accès en lecture seule à tous les modules."
+
+msgid ""
+"GRC content contribution. Read, create, update. No deletion or system access."
+msgstr "Contribution au contenu GRC. Lecture, création, modification. Pas de suppression ni d'accès système."
+
+msgid "Read-only access. Read on all modules except system."
+msgstr "Accès en lecture seule. Lecture sur tous les modules sauf système."
+
+msgid "Email address"
+msgstr "Adresse email"
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Confirm password"
+msgstr "Confirmer le mot de passe"
+
+msgid "The two password fields didn't match."
+msgstr "Les deux champs de mot de passe ne correspondent pas."
+
+msgid "Current password"
+msgstr "Mot de passe actuel"
+
+msgid "New password"
+msgstr "Nouveau mot de passe"
+
+msgid "Confirm new password"
+msgstr "Confirmer le nouveau mot de passe"
+
+msgid "The current password is incorrect."
+msgstr "Le mot de passe actuel est incorrect."
+
+msgid "The email address is required."
+msgstr "L'adresse email est requise."
+
+msgid "A superuser must have is_staff=True."
+msgstr "Un superutilisateur doit avoir is_staff=True."
+
+msgid "A superuser must have is_superuser=True."
+msgstr "Un superutilisateur doit avoir is_superuser=True."
+
+msgid "Timestamp"
+msgstr "Horodatage"
+
+msgid "User"
+msgstr "Utilisateur"
+
+msgid "Email used"
+msgstr "Email utilisé"
+
+msgid "Event type"
+msgstr "Type d'événement"
+
+msgid "IP address"
+msgstr "Adresse IP"
+
+msgid "User-Agent"
+msgstr "User-Agent"
+
+msgid "Failure reason"
+msgstr "Raison de l'échec"
+
+msgid "Metadata"
+msgstr "Métadonnées"
+
+msgid "Access log"
+msgstr "Journal d'accès"
+
+msgid "Access logs"
+msgstr "Journaux d'accès"
+
+msgid "Name"
+msgstr "Nom"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "System group"
+msgstr "Groupe système"
+
+msgid "Permissions"
+msgstr "Permissions"
+
+msgid "Allowed scopes"
+msgstr "Périmètres autorisés"
+
+msgid "Created by"
+msgstr "Créé par"
+
+msgid "Created at"
+msgstr "Créé le"
+
+msgid "Updated at"
+msgstr "Mis à jour le"
+
+msgid "Group"
+msgstr "Groupe"
+
+msgid "Codename"
+msgstr "Nom de code"
+
+msgid "Format: module.feature.action"
+msgstr "Format : module.fonctionnalité.action"
+
+msgid "Label"
+msgstr "Libellé"
+
+msgid "Module"
+msgstr "Module"
+
+msgid "Feature"
+msgstr "Fonctionnalité"
+
+msgid "Action"
+msgstr "Action"
+
+msgid "System permission"
+msgstr "Permission système"
+
+msgid "Permission"
+msgstr "Permission"
+
+msgid "First name"
+msgstr "Prénom"
+
+msgid "Last name"
+msgstr "Nom de famille"
+
+msgid "Job title"
+msgstr "Fonction"
+
+msgid "Department"
+msgstr "Département"
+
+msgid "Phone"
+msgstr "Téléphone"
+
+msgid "Language"
+msgstr "Langue"
+
+msgid "Auto (browser)"
+msgstr "Auto (navigateur)"
+
+msgid "Timezone"
+msgstr "Fuseau horaire"
+
+msgid "Active"
+msgstr "Actif"
+
+msgid "Django admin access"
+msgstr "Accès admin Django"
+
+msgid "Last password change"
+msgstr "Dernier changement de mot de passe"
+
+msgid "Failed attempts"
+msgstr "Tentatives échouées"
+
+msgid "Locked until"
+msgstr "Verrouillé jusqu'au"
+
+msgid "Access log — Open GRC"
+msgstr "Journal d'accès — Open GRC"
+
+msgid "All types"
+msgstr "Tous les types"
+
+msgid "From"
+msgstr "De"
+
+msgid "To"
+msgstr "À"
+
+msgid "Filter"
+msgstr "Filtrer"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Event"
+msgstr "Événement"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "Reason"
+msgstr "Raison"
+
+msgid "No events."
+msgstr "Aucun événement."
+
+msgid "Action log — Open GRC"
+msgstr "Journal des actions — Open GRC"
+
+msgid "Action log"
+msgstr "Journal des actions"
+
+msgid "All modules"
+msgstr "Tous les modules"
+
+msgid "All actions"
+msgstr "Toutes les actions"
+
+msgid "Creation"
+msgstr "Création"
+
+msgid "Modification"
+msgstr "Modification"
+
+msgid "Deletion"
+msgstr "Suppression"
+
+msgid "Approval"
+msgstr "Approbation"
+
+msgid "All users"
+msgstr "Tous les utilisateurs"
+
+msgid "Object"
+msgstr "Objet"
+
+msgid "Item"
+msgstr "Élément"
+
+msgid "No actions recorded."
+msgstr "Aucune action enregistrée."
+
+msgid "Edit"
+msgstr "Modifier"
+
+msgid "Back to list"
+msgstr "Retour à la liste"
+
+#, python-format
+msgid "Users (%(count)s)"
+msgstr "Utilisateurs (%(count)s)"
+
+msgid "Save permissions"
+msgstr "Enregistrer les permissions"
+
+msgid "Remove"
+msgstr "Retirer"
+
+msgid "No users in this group."
+msgstr "Aucun utilisateur dans ce groupe."
+
+msgid "Add"
+msgstr "Ajouter"
+
+msgid ""
+"If no scope is selected, members of this group have access to all scopes."
+msgstr "Si aucun périmètre n'est sélectionné, les membres de ce groupe ont accès à tous les périmètres."
+
+msgid "No scopes available."
+msgstr "Aucun périmètre disponible."
+
+msgid "Save scopes"
+msgstr "Enregistrer les périmètres"
+
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Groups — Open GRC"
+msgstr "Groupes — Open GRC"
+
+msgid "Create a group"
+msgstr "Créer un groupe"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Custom"
+msgstr "Personnalisé"
+
+msgid "No groups."
+msgstr "Aucun groupe."
+
+msgid "Sign in — Open GRC"
+msgstr "Se connecter — Open GRC"
+
+msgid "Sign in"
+msgstr "Se connecter"
+
+msgid "Change password — Open GRC"
+msgstr "Changer le mot de passe — Open GRC"
+
+msgid "Change password"
+msgstr "Changer le mot de passe"
+
+msgid "Permissions — Open GRC"
+msgstr "Permissions — Open GRC"
+
+msgid "No permissions defined."
+msgstr "Aucune permission définie."
+
+msgid "My profile — Open GRC"
+msgstr "Mon profil — Open GRC"
+
+msgid "My profile"
+msgstr "Mon profil"
+
+msgid "Personal information"
+msgstr "Informations personnelles"
+
+msgid "Security"
+msgstr "Sécurité"
+
+msgid "My groups"
+msgstr "Mes groupes"
+
+msgid "No group assigned."
+msgstr "Aucun groupe assigné."
+
+msgid "Effective permissions"
+msgstr "Permissions effectives"
+
+msgid "No permissions."
+msgstr "Aucune permission."
+
+msgid "Information"
+msgstr "Information"
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "Locked"
+msgstr "Verrouillé"
+
+msgid "Inactive"
+msgstr "Inactif"
+
+msgid "Last login"
+msgstr "Dernière connexion"
+
+msgid "Created on"
+msgstr "Créé le"
+
+msgid "Users — Open GRC"
+msgstr "Utilisateurs — Open GRC"
+
+msgid "Create a user"
+msgstr "Créer un utilisateur"
+
+msgid "Search..."
+msgstr "Rechercher..."
+
+msgid "All statuses"
+msgstr "Tous les statuts"
+
+msgid "No user found."
+msgstr "Aucun utilisateur trouvé."
+
+msgid "The password must contain at least one uppercase letter."
+msgstr "Le mot de passe doit contenir au moins une lettre majuscule."
+
+msgid "The password must contain at least one lowercase letter."
+msgstr "Le mot de passe doit contenir au moins une lettre minuscule."
+
+msgid "The password must contain at least one digit."
+msgstr "Le mot de passe doit contenir au moins un chiffre."
+
+msgid "The password must contain at least one special character."
+msgstr "Le mot de passe doit contenir au moins un caractère spécial."
+
+msgid ""
+"The password must contain at least one uppercase letter, one lowercase "
+"letter, one digit, and one special character."
+msgstr "Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial."
+
+msgid "You do not have the required permissions."
+msgstr "Vous n'avez pas les permissions requises."
+
+msgid "This account is temporarily locked due to multiple failed attempts."
+msgstr "Ce compte est temporairement verrouillé suite à plusieurs tentatives échouées."
+
+msgid "Invalid credentials."
+msgstr "Identifiants invalides."
+
+msgid "Profile updated."
+msgstr "Profil mis à jour."
+
+msgid "Password changed successfully."
+msgstr "Mot de passe changé avec succès."
+
+#, python-format
+msgid "User %(name)s created."
+msgstr "Utilisateur %(name)s créé."
+
+#, python-format
+msgid "Edit %(name)s"
+msgstr "Modifier %(name)s"
+
+msgid "User updated."
+msgstr "Utilisateur mis à jour."
+
+#, python-format
+msgid "Group '%(name)s' created."
+msgstr "Groupe « %(name)s » créé."
+
+msgid "System groups cannot be modified."
+msgstr "Les groupes système ne peuvent pas être modifiés."
+
+#, python-format
+msgid "Edit '%(name)s'"
+msgstr "Modifier « %(name)s »"
+
+msgid "Group updated."
+msgstr "Groupe mis à jour."
+
+msgid "Permissions updated."
+msgstr "Permissions mises à jour."
+
+#, python-format
+msgid "%(name)s added to the group."
+msgstr "%(name)s ajouté au groupe."
+
+#, python-format
+msgid "%(name)s removed from the group."
+msgstr "%(name)s retiré du groupe."
+
+msgid "Allowed scopes updated."
+msgstr "Périmètres autorisés mis à jour."
+
+msgid "Approval withdrawn"
+msgstr "Approbation retirée"
+
+msgid "Negligible"
+msgstr "Négligeable"
+
+msgid "Low"
+msgstr "Faible"
+
+msgid "Medium"
+msgstr "Moyen"
+
+msgid "High"
+msgstr "Élevé"
+
+msgid "Critical"
+msgstr "Critique"
+
+msgid "Business process"
+msgstr "Processus métier"
+
+msgid "Core business process"
+msgstr "Processus cœur de métier"
+
+msgid "Support process"
+msgstr "Processus de support"
+
+msgid "Management process"
+msgstr "Processus de gestion"
+
+msgid "Strategic data"
+msgstr "Données stratégiques"
+
+msgid "Operational data"
+msgstr "Données opérationnelles"
+
+msgid "Personal data"
+msgstr "Données personnelles"
+
+msgid "Financial data"
+msgstr "Données financières"
+
+msgid "Technical data"
+msgstr "Données techniques"
+
+msgid "Legal data"
+msgstr "Données juridiques"
+
+msgid "Research data"
+msgstr "Données de recherche"
+
+msgid "Commercial data"
+msgstr "Données commerciales"
+
+msgid "Public"
+msgstr "Public"
+
+msgid "Internal"
+msgstr "Interne"
+
+msgid "Confidential"
+msgstr "Confidentiel"
+
+msgid "Restricted"
+msgstr "Restreint"
+
+msgid "Secret"
+msgstr "Secret"
+
+msgid "Identified"
+msgstr "Identifié"
+
+msgid "Under review"
+msgstr "En cours de revue"
+
+msgid "Decommissioned"
+msgstr "Décommissionné"
+
+msgid "Hardware"
+msgstr "Matériel"
+
+msgid "Software"
+msgstr "Logiciel"
+
+msgid "Network"
+msgstr "Réseau"
+
+msgid "Person"
+msgstr "Personne"
+
+msgid "Site"
+msgstr "Site"
+
+msgid "Service"
+msgstr "Service"
+
+msgid "Paper"
+msgstr "Papier"
+
+msgid "Server"
+msgstr "Serveur"
+
+msgid "Workstation"
+msgstr "Poste de travail"
+
+msgid "Laptop"
+msgstr "Ordinateur portable"
+
+msgid "Mobile device"
+msgstr "Appareil mobile"
+
+msgid "Network equipment"
+msgstr "Équipement réseau"
+
+msgid "Storage"
+msgstr "Stockage"
+
+msgid "Peripheral"
+msgstr "Périphérique"
+
+msgid "IoT device"
+msgstr "Appareil IoT"
+
+msgid "Removable media"
+msgstr "Support amovible"
+
+msgid "Other hardware"
+msgstr "Autre matériel"
+
+msgid "Operating system"
+msgstr "Système d'exploitation"
+
+msgid "Database"
+msgstr "Base de données"
+
+msgid "Application"
+msgstr "Application"
+
+msgid "Middleware"
+msgstr "Middleware"
+
+msgid "Security tool"
+msgstr "Outil de sécurité"
+
+msgid "Development tool"
+msgstr "Outil de développement"
+
+msgid "SaaS application"
+msgstr "Application SaaS"
+
+msgid "Other software"
+msgstr "Autre logiciel"
+
+msgid "Local area network (LAN)"
+msgstr "Réseau local (LAN)"
+
+msgid "Wide area network (WAN)"
+msgstr "Réseau étendu (WAN)"
+
+msgid "Wi-Fi"
+msgstr "Wi-Fi"
+
+msgid "VPN"
+msgstr "VPN"
+
+msgid "Internet link"
+msgstr "Liaison Internet"
+
+msgid "Firewall zone"
+msgstr "Zone pare-feu"
+
+msgid "DMZ"
+msgstr "DMZ"
+
+msgid "Other network"
+msgstr "Autre réseau"
+
+msgid "Internal staff"
+msgstr "Personnel interne"
+
+msgid "Contractor"
+msgstr "Sous-traitant"
+
+msgid "External provider"
+msgstr "Prestataire externe"
+
+msgid "Administrator"
+msgstr "Administrateur"
+
+msgid "Developer"
+msgstr "Développeur"
+
+msgid "Other person"
+msgstr "Autre personne"
+
+msgid "Datacenter"
+msgstr "Centre de données"
+
+msgid "Office"
+msgstr "Bureau"
+
+msgid "Remote site"
+msgstr "Site distant"
+
+msgid "Cloud region"
+msgstr "Région cloud"
+
+msgid "Other site"
+msgstr "Autre site"
+
+msgid "Cloud service"
+msgstr "Service cloud"
+
+msgid "Hosting service"
+msgstr "Service d'hébergement"
+
+msgid "Managed service"
+msgstr "Service managé"
+
+msgid "Telecom service"
+msgstr "Service télécom"
+
+msgid "Outsourced service"
+msgstr "Service externalisé"
+
+msgid "Other service"
+msgstr "Autre service"
+
+msgid "Archive"
+msgstr "Archiver"
+
+msgid "Printed document"
+msgstr "Document imprimé"
+
+msgid "Form"
+msgstr "Formulaire"
+
+msgid "Other paper"
+msgstr "Autre papier"
+
+msgid "Exposed"
+msgstr "Exposé"
+
+msgid "Internet-facing"
+msgstr "Exposé à Internet"
+
+msgid "Production"
+msgstr "Production"
+
+msgid "Staging"
+msgstr "Pré-production"
+
+msgid "Development"
+msgstr "Développement"
+
+msgid "Test"
+msgstr "Test"
+
+msgid "Disaster recovery"
+msgstr "Reprise après sinistre"
+
+msgid "In stock"
+msgstr "En stock"
+
+msgid "Deployed"
+msgstr "Déployé"
+
+msgid "Under maintenance"
+msgstr "En maintenance"
+
+msgid "Disposed"
+msgstr "Éliminé"
+
+msgid "Runs on"
+msgstr "S'exécute sur"
+
+msgid "Stored in"
+msgstr "Stocké dans"
+
+msgid "Transmitted by"
+msgstr "Transmis par"
+
+msgid "Managed by"
+msgstr "Géré par"
+
+msgid "Hosted at"
+msgstr "Hébergé sur"
+
+msgid "Protected by"
+msgstr "Protégé par"
+
+msgid "Other"
+msgstr "Autre"
+
+msgid "None"
+msgstr "Aucun"
+
+msgid "Partial"
+msgstr "Partiel"
+
+msgid "Full"
+msgstr "Complet"
+
+msgid "Essential asset"
+msgstr "Bien essentiel"
+
+msgid "Support asset"
+msgstr "Bien support"
+
+msgid "Dependency type"
+msgstr "Type de dépendance"
+
+msgid "Criticality"
+msgstr "Criticité"
+
+msgid "Single point of failure (SPOF)"
+msgstr "Point de défaillance unique (SPOF)"
+
+msgid "Redundancy level"
+msgstr "Niveau de redondance"
+
+msgid "Approved"
+msgstr "Approuvé"
+
+msgid "Approved by"
+msgstr "Approuvé par"
+
+msgid "Approval date"
+msgstr "Date d'approbation"
+
+msgid "Version"
+msgstr "Version"
+
+msgid "Dependency relationship"
+msgstr "Relation de dépendance"
+
+msgid "Dependency relationships"
+msgstr "Relations de dépendance"
+
+msgid ""
+"Cannot create a dependency to a decommissioned or disposed support asset."
+msgstr "Impossible de créer une dépendance vers un bien support décommissionné ou éliminé."
+
+msgid "Reference"
+msgstr "Référence"
+
+msgid "Category"
+msgstr "Catégorie"
+
+msgid "Owner"
+msgstr "Propriétaire"
+
+msgid "Custodian"
+msgstr "Dépositaire"
+
+msgid "Confidentiality"
+msgstr "Confidentialité"
+
+msgid "Integrity"
+msgstr "Intégrité"
+
+msgid "Availability"
+msgstr "Disponibilité"
+
+msgid "Confidentiality justification"
+msgstr "Justification de la confidentialité"
+
+msgid "Integrity justification"
+msgstr "Justification de l'intégrité"
+
+msgid "Availability justification"
+msgstr "Justification de la disponibilité"
+
+msgid "MTD / Max tolerable downtime"
+msgstr "DMT / Durée maximale tolérable d'interruption"
+
+msgid "RTO"
+msgstr "RTO"
+
+msgid "RPO"
+msgstr "RPO"
+
+msgid "Classification"
+msgstr "Classification"
+
+msgid "GDPR categories"
+msgstr "Catégories RGPD"
+
+msgid "Regulatory constraints"
+msgstr "Contraintes réglementaires"
+
+msgid "Business activities"
+msgstr "Activités métier"
+
+msgid "Next review date"
+msgstr "Prochaine date de revue"
+
+msgid "A business process can only have a process category."
+msgstr "Un processus métier ne peut avoir qu'une catégorie processus."
+
+msgid "An information asset can only have an information category."
+msgstr "Un actif informationnel ne peut avoir qu'une catégorie informationnelle."
+
+msgid "Members"
+msgstr "Membres"
+
+msgid "Asset group"
+msgstr "Groupe d'actifs"
+
+msgid "Location"
+msgstr "Emplacement"
+
+msgid "Manufacturer / vendor"
+msgstr "Fabricant / fournisseur"
+
+msgid "Model / version"
+msgstr "Modèle / version"
+
+msgid "Serial number"
+msgstr "Numéro de série"
+
+msgid "Software version"
+msgstr "Version logicielle"
+
+msgid "Hostname"
+msgstr "Nom d'hôte"
+
+msgid "Acquisition date"
+msgstr "Date d'acquisition"
+
+msgid "End of life date"
+msgstr "Date de fin de vie"
+
+msgid "Warranty expiry"
+msgstr "Expiration de la garantie"
+
+msgid "Contract reference"
+msgstr "Référence du contrat"
+
+msgid "Inherited confidentiality"
+msgstr "Confidentialité héritée"
+
+msgid "Inherited integrity"
+msgstr "Intégrité héritée"
+
+msgid "Inherited availability"
+msgstr "Disponibilité héritée"
+
+msgid "Exposure level"
+msgstr "Niveau d'exposition"
+
+msgid "Environment"
+msgstr "Environnement"
+
+msgid "Parent support asset"
+msgstr "Bien support parent"
+
+#, python-format
+msgid "Invalid category for type '%(type)s'."
+msgstr "Catégorie invalide pour le type « %(type)s »."
+
+msgid "The child support asset must belong to the same scope as its parent."
+msgstr "Le bien support enfant doit appartenir au même périmètre que son parent."
+
+msgid "Evaluation date"
+msgstr "Date d'évaluation"
+
+msgid "Evaluator"
+msgstr "Évaluateur"
+
+msgid "Justification"
+msgstr "Justification"
+
+msgid "Context"
+msgstr "Contexte"
+
+msgid "DIC valuation"
+msgstr "Évaluation DIC"
+
+msgid "DIC valuations"
+msgstr "Évaluations DIC"
+
+msgid "Confirm deletion"
+msgstr "Confirmer la suppression"
+
+msgid "Are you sure you want to delete"
+msgstr "Êtes-vous sûr de vouloir supprimer"
+
+msgid "View all"
+msgstr "Voir tout"
+
+msgid "Alerts"
+msgstr "Alertes"
+
+msgid "essential asset(s) without an associated support asset"
+msgstr "bien(s) essentiel(s) sans bien support associé"
+
+msgid "orphan support asset(s) (without essential asset)"
+msgstr "bien(s) support(s) orphelin(s) (sans bien essentiel)"
+
+msgid "single point(s) of failure (SPOF) detected"
+msgstr "point(s) de défaillance unique (SPOF) détecté(s)"
+
+msgid "end of life exceeded"
+msgstr "fin de vie dépassée"
+
+msgid "Essential assets by type"
+msgstr "Biens essentiels par type"
+
+msgid "No essential assets."
+msgstr "Aucun bien essentiel."
+
+msgid "Support assets by type"
+msgstr "Biens supports par type"
+
+msgid "No support assets."
+msgstr "Aucun bien support."
+
+msgid "essential asset(s) containing personal data."
+msgstr "bien(s) essentiel(s) contenant des données personnelles."
+
+msgid "New"
+msgstr "Nouveau"
+
+msgid "dependency"
+msgstr "dépendance"
+
+msgid "Edit dependency"
+msgstr "Modifier la dépendance"
+
+msgid "New dependency"
+msgstr "Nouvelle dépendance"
+
+msgid "SPOF"
+msgstr "SPOF"
+
+msgid "Redundancy"
+msgstr "Redondance"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "Pending"
+msgstr "En attente"
+
+msgid "No dependencies defined."
+msgstr "Aucune dépendance définie."
+
+msgid "Previous"
+msgstr "Précédent"
+
+msgid "Next"
+msgstr "Suivant"
+
+msgid "Back"
+msgstr "Retour"
+
+msgid "General"
+msgstr "Général"
+
+msgid "CIA valuation"
+msgstr "Évaluation CIA"
+
+msgid "Relations"
+msgstr "Relations"
+
+msgid "Valuations"
+msgstr "Évaluations"
+
+msgid "History"
+msgstr "Historique"
+
+msgid "Scope"
+msgstr "Périmètre"
+
+msgid "Yes"
+msgstr "Oui"
+
+msgid "No"
+msgstr "Non"
+
+msgid "Associated support assets"
+msgstr "Biens supports associés"
+
+msgid "No associated support asset (unsupported essential asset)."
+msgstr "Aucun bien support associé (bien essentiel non supporté)."
+
+msgid "CIA valuation history"
+msgstr "Historique des évaluations CIA"
+
+msgid "No valuation recorded."
+msgstr "Aucune évaluation enregistrée."
+
+msgid "essential asset"
+msgstr "bien essentiel"
+
+msgid "Edit essential asset"
+msgstr "Modifier le bien essentiel"
+
+msgid "New essential asset"
+msgstr "Nouveau bien essentiel"
+
+msgid "All"
+msgstr "Tous"
+
+msgid "Ref."
+msgstr "Réf."
+
+msgid "No members in this group."
+msgstr "Aucun membre dans ce groupe."
+
+msgid "group"
+msgstr "groupe"
+
+msgid "Edit group"
+msgstr "Modifier le groupe"
+
+msgid "New group"
+msgstr "Nouveau groupe"
+
+msgid "No groups defined."
+msgstr "Aucun groupe défini."
+
+msgid "This support asset has exceeded its end of life date"
+msgstr "Ce bien support a dépassé sa date de fin de vie"
+
+msgid "Technical specifications"
+msgstr "Spécifications techniques"
+
+msgid "Lifecycle"
+msgstr "Cycle de vie"
+
+msgid "Inherited CIA"
+msgstr "CIA hérité"
+
+msgid "OS"
+msgstr "OS"
+
+msgid "Exposure"
+msgstr "Exposition"
+
+msgid "End of life"
+msgstr "Fin de vie"
+
+msgid "Exceeded"
+msgstr "Dépassé"
+
+msgid "Source (contributing essential assets)"
+msgstr "Source (biens essentiels contribuant)"
+
+msgid "No associated essential asset (orphan support asset)."
+msgstr "Aucun bien essentiel associé (bien support orphelin)."
+
+msgid "Child support assets"
+msgstr "Biens supports enfants"
+
+msgid "support asset"
+msgstr "bien support"
+
+msgid "Edit support asset"
+msgstr "Modifier le bien support"
+
+msgid "New support asset"
+msgstr "Nouveau bien support"
+
+msgid "Env."
+msgstr "Env."
+
+msgid "You do not have permission to approve this item."
+msgstr "Vous n'avez pas la permission d'approuver cet élément."
+
+msgid "Item approved."
+msgstr "Élément approuvé."
+
+msgid "Standard"
+msgstr "Norme"
+
+msgid "Law"
+msgstr "Loi"
+
+msgid "Regulation"
+msgstr "Réglementation"
+
+msgid "Contract"
+msgstr "Contrat"
+
+msgid "Internal policy"
+msgstr "Politique interne"
+
+msgid "Industry framework"
+msgstr "Référentiel sectoriel"
+
+msgid "Information security"
+msgstr "Sécurité de l'information"
+
+msgid "Data protection"
+msgstr "Protection des données"
+
+msgid "Business continuity"
+msgstr "Continuité d'activité"
+
+msgid "Cloud security"
+msgstr "Sécurité cloud"
+
+msgid "Sector-specific regulations"
+msgstr "Réglementations sectorielles"
+
+msgid "IT governance"
+msgstr "Gouvernance IT"
+
+msgid "Quality"
+msgstr "Qualité"
+
+msgid "Contractual requirements"
+msgstr "Exigences contractuelles"
+
+msgid "Internal policies"
+msgstr "Politiques internes"
+
+msgid "Draft"
+msgstr "Brouillon"
+
+msgid "Deprecated"
+msgstr "Obsolète"
+
+msgid "Archived"
+msgstr "Archivé"
+
+msgid "Mandatory"
+msgstr "Obligatoire"
+
+msgid "Recommended"
+msgstr "Recommandé"
+
+msgid "Optional"
+msgstr "Optionnel"
+
+msgid "Organizational"
+msgstr "Organisationnel"
+
+msgid "Technical"
+msgstr "Technique"
+
+msgid "Physical"
+msgstr "Physique"
+
+msgid "Legal"
+msgstr "Juridique"
+
+msgid "Human"
+msgstr "Humain"
+
+msgid "Not assessed"
+msgstr "Non évalué"
+
+msgid "Non-compliant"
+msgstr "Non conforme"
+
+msgid "Partially compliant"
+msgstr "Partiellement conforme"
+
+msgid "Compliant"
+msgstr "Conforme"
+
+msgid "Not applicable"
+msgstr "Non applicable"
+
+msgid "Superseded"
+msgstr "Remplacé"
+
+msgid "In progress"
+msgstr "En cours"
+
+msgid "Completed"
+msgstr "Terminé"
+
+msgid "Validated"
+msgstr "Validé"
+
+msgid "Equivalent"
+msgstr "Équivalent"
+
+msgid "Partial overlap"
+msgstr "Chevauchement partiel"
+
+msgid "Includes"
+msgstr "Inclut"
+
+msgid "Included by"
+msgstr "Inclus par"
+
+msgid "Related"
+msgstr "Associé"
+
+msgid "Minimal"
+msgstr "Minimal"
+
+msgid "Planned"
+msgstr "Planifié"
+
+msgid "Cancelled"
+msgstr "Annulé"
+
+msgid "Overdue"
+msgstr "En retard"
+
+msgid "File"
+msgstr "Fichier"
+
+msgid "JSON or Excel (.xlsx) format"
+msgstr "Format JSON ou Excel (.xlsx)"
+
+msgid "Existing framework"
+msgstr "Référentiel existant"
+
+msgid "Leave blank to create a new framework."
+msgstr "Laisser vide pour créer un nouveau référentiel."
+
+msgid "— New framework —"
+msgstr "— Nouveau référentiel —"
+
+msgid "Framework owner"
+msgstr "Propriétaire du référentiel"
+
+msgid "Required only for a new framework."
+msgstr "Requis uniquement pour un nouveau référentiel."
+
+msgid "Unsupported format. Please provide a .json or .xlsx file."
+msgstr "Format non supporté. Veuillez fournir un fichier .json ou .xlsx."
+
+msgid "The file exceeds the maximum allowed size (10 MB)."
+msgstr "Le fichier dépasse la taille maximale autorisée (10 Mo)."
+
+msgid "The owner is required to create a new framework."
+msgstr "Le propriétaire est requis pour créer un nouveau référentiel."
+
+msgid "(Requirements without section)"
+msgstr "(Exigences sans section)"
+
+msgid "The framework 'reference' field is required."
+msgstr "Le champ 'référence' du référentiel est requis."
+
+msgid "The framework 'name' field is required."
+msgstr "Le champ 'nom' du référentiel est requis."
+
+#, python-format
+msgid "Unknown framework type: '%(type)s'. Accepted values: %(values)s"
+msgstr "Type de référentiel inconnu : « %(type)s ». Valeurs acceptées : %(values)s"
+
+#, python-format
+msgid "Unknown framework category: '%(category)s'. Accepted values: %(values)s"
+msgstr "Catégorie de référentiel inconnue : « %(category)s ». Valeurs acceptées : %(values)s"
+
+#, python-format
+msgid ""
+"A framework with the reference '%(reference)s' already exists in the "
+"database."
+msgstr "Un référentiel avec la référence « %(reference)s » existe déjà dans la base de données."
+
+msgid "A section has no reference."
+msgstr "Une section n'a pas de référence."
+
+#, python-format
+msgid "Duplicate section reference: '%(ref)s'."
+msgstr "Référence de section dupliquée : « %(ref)s »."
+
+#, python-format
+msgid "Section '%(ref)s' already exists in framework '%(framework_ref)s'."
+msgstr "La section « %(ref)s » existe déjà dans le référentiel « %(framework_ref)s »."
+
+#, python-format
+msgid "Section '%(ref)s' has no name."
+msgstr "La section « %(ref)s » n'a pas de nom."
+
+msgid "A requirement has no reference."
+msgstr "Une exigence n'a pas de référence."
+
+#, python-format
+msgid "Duplicate requirement reference: '%(ref)s'."
+msgstr "Référence d'exigence dupliquée : « %(ref)s »."
+
+#, python-format
+msgid "Requirement '%(ref)s' already exists in framework '%(framework_ref)s'."
+msgstr "L'exigence « %(ref)s » existe déjà dans le référentiel « %(framework_ref)s »."
+
+#, python-format
+msgid "Requirement '%(ref)s' has no name."
+msgstr "L'exigence « %(ref)s » n'a pas de nom."
+
+#, python-format
+msgid ""
+"Unknown requirement type for '%(ref)s': '%(type)s'. Accepted values: "
+"%(values)s"
+msgstr "Type d'exigence inconnu pour « %(ref)s » : « %(type)s ». Valeurs acceptées : %(values)s"
+
+#, python-format
+msgid ""
+"Unknown requirement category for '%(ref)s': '%(category)s'. Accepted values: "
+"%(values)s"
+msgstr "Catégorie d'exigence inconnue pour « %(ref)s » : « %(category)s ». Valeurs acceptées : %(values)s"
+
+#, python-format
+msgid "%(count)s requirement(s) without an identified parent section."
+msgstr "%(count)s exigence(s) sans section parente identifiée."
+
+msgid "No sections found in the file."
+msgstr "Aucune section trouvée dans le fichier."
+
+msgid "Source assessment"
+msgstr "Évaluation source"
+
+msgid "Related requirement"
+msgstr "Exigence associée"
+
+msgid "Gap description"
+msgstr "Description de l'écart"
+
+msgid "Remediation plan"
+msgstr "Plan de remédiation"
+
+msgid "Priority"
+msgstr "Priorité"
+
+msgid "Start date"
+msgstr "Date de début"
+
+msgid "Target date"
+msgstr "Date cible"
+
+msgid "Completion date"
+msgstr "Date de réalisation"
+
+msgid "Progress (%)"
+msgstr "Progression (%)"
+
+msgid "Cost estimate"
+msgstr "Coût estimé"
+
+msgid "Compliance action plan"
+msgstr "Plan d'action de conformité"
+
+msgid "Compliance action plans"
+msgstr "Plans d'action de conformité"
+
+msgid "Framework"
+msgstr "Référentiel"
+
+msgid "Assessment date"
+msgstr "Date d'évaluation"
+
+msgid "Lead assessor"
+msgstr "Évaluateur principal"
+
+msgid "Methodology"
+msgstr "Méthodologie"
+
+msgid "Overall compliance level (%)"
+msgstr "Niveau de conformité global (%)"
+
+msgid "Total applicable requirements"
+msgstr "Total des exigences applicables"
+
+msgid "Validated by"
+msgstr "Validé par"
+
+msgid "Validation date"
+msgstr "Date de validation"
+
+msgid "Compliance assessment"
+msgstr "Évaluation de conformité"
+
+msgid "Assessment"
+msgstr "Évaluation"
+
+msgid "Requirement"
+msgstr "Exigence"
+
+msgid "Compliance status"
+msgstr "Statut de conformité"
+
+msgid "Compliance level (%)"
+msgstr "Niveau de conformité (%)"
+
+msgid "Evidence"
+msgstr "Preuves"
+
+msgid "Gaps"
+msgstr "Écarts"
+
+msgid "Observations"
+msgstr "Observations"
+
+msgid "Assessor"
+msgstr "Évaluateur"
+
+msgid "Assessment result"
+msgstr "Résultat d'évaluation"
+
+msgid "Assessment results"
+msgstr "Résultats d'évaluation"
+
+msgid "Abbreviation"
+msgstr "Abréviation"
+
+msgid "Framework version"
+msgstr "Version du référentiel"
+
+msgid "Publication date"
+msgstr "Date de publication"
+
+msgid "Effective date"
+msgstr "Date d'effet"
+
+msgid "Expiry date"
+msgstr "Date d'expiration"
+
+msgid "Issuing body"
+msgstr "Organisme émetteur"
+
+msgid "Jurisdiction"
+msgstr "Juridiction"
+
+msgid "Official link"
+msgstr "Lien officiel"
+
+msgid "Applicable"
+msgstr "Applicable"
+
+msgid "Applicability justification"
+msgstr "Justification de l'applicabilité"
+
+msgid "Interested parties"
+msgstr "Parties intéressées"
+
+msgid "Last assessment"
+msgstr "Dernière évaluation"
+
+msgid "Source requirement"
+msgstr "Exigence source"
+
+msgid "Target requirement"
+msgstr "Exigence cible"
+
+msgid "Mapping type"
+msgstr "Type de correspondance"
+
+msgid "Coverage level"
+msgstr "Niveau de couverture"
+
+msgid "Cross-framework mapping"
+msgstr "Correspondance inter-référentiel"
+
+msgid "Cross-framework mappings"
+msgstr "Correspondances inter-référentiels"
+
+msgid ""
+"A mapping can only exist between requirements from different frameworks."
+msgstr "Une correspondance ne peut exister qu'entre des exigences de référentiels différents."
+
+msgid "Section"
+msgstr "Section"
+
+msgid "Title"
+msgstr "Titre"
+
+msgid "Implementation guidance"
+msgstr "Guide de mise en œuvre"
+
+msgid "Compliance evidence"
+msgstr "Preuves de conformité"
+
+msgid "Identified gaps"
+msgstr "Écarts identifiés"
+
+msgid "Last assessor"
+msgstr "Dernier évaluateur"
+
+msgid "Linked essential assets"
+msgstr "Biens essentiels liés"
+
+msgid "Linked stakeholder expectations"
+msgstr "Attentes des parties prenantes liées"
+
+msgid "Order"
+msgstr "Ordre"
+
+msgid "Parent section"
+msgstr "Section parente"
+
+msgid "Remediation"
+msgstr "Remédiation"
+
+msgid "Planning"
+msgstr "Planification"
+
+msgid "Responsible"
+msgstr "Responsable"
+
+msgid "Progress"
+msgstr "Progression"
+
+msgid "action plan"
+msgstr "plan d'action"
+
+msgid "Edit action plan"
+msgstr "Modifier le plan d'action"
+
+msgid "New action plan"
+msgstr "Nouveau plan d'action"
+
+msgid "No action plan defined."
+msgstr "Aucun plan d'action défini."
+
+msgid "Results"
+msgstr "Résultats"
+
+msgid "Summary"
+msgstr "Synthèse"
+
+msgid "Next review"
+msgstr "Prochaine revue"
+
+msgid "Level"
+msgstr "Niveau"
+
+msgid "No assessment result recorded."
+msgstr "Aucun résultat d'évaluation enregistré."
+
+msgid "Overall compliance"
+msgstr "Conformité globale"
+
+msgid "Results breakdown"
+msgstr "Répartition des résultats"
+
+msgid "assessment"
+msgstr "appréciation"
+
+msgid "Edit assessment"
+msgstr "Modifier l'évaluation"
+
+msgid "New assessment"
+msgstr "Nouvelle évaluation"
+
+msgid "No assessment defined."
+msgstr "Aucune évaluation définie."
+
+#, python-format
+msgid "Do you really want to delete <strong>%(object)s</strong>?"
+msgstr "Voulez-vous vraiment supprimer <strong>%(object)s</strong> ?"
+
+msgid "Assessments"
+msgstr "Appréciations"
+
+msgid "Mappings"
+msgstr "Correspondances"
+
+msgid "Non-compliances"
+msgstr "Non-conformités"
+
+msgid "View"
+msgstr "Voir"
+
+msgid "Overdue plans"
+msgstr "Plans en retard"
+
+msgid "Active frameworks"
+msgstr "Référentiels actifs"
+
+msgid "Structure"
+msgstr "Structure"
+
+msgid "No section defined."
+msgstr "Aucune section définie."
+
+msgid "Framework requirements"
+msgstr "Exigences du référentiel"
+
+msgid "No requirement defined for this framework."
+msgstr "Aucune exigence définie pour ce référentiel."
+
+msgid "Overall compliance level"
+msgstr "Niveau de conformité global"
+
+msgid "No assessment performed."
+msgstr "Aucune évaluation effectuée."
+
+msgid "framework"
+msgstr "référentiel"
+
+msgid "Edit framework"
+msgstr "Modifier le référentiel"
+
+msgid "New framework"
+msgstr "Nouveau référentiel"
+
+msgid "Import a framework"
+msgstr "Importer un référentiel"
+
+msgid "Validation errors:"
+msgstr "Erreurs de validation :"
+
+msgid "Analyze"
+msgstr "Analyser"
+
+msgid "Accepted formats"
+msgstr "Formats acceptés"
+
+msgid ""
+"Tree structure with <code>framework</code>, <code>sections</code> (nested) "
+"and <code>requirements</code> in each section."
+msgstr "Structure arborescente avec <code>framework</code>, <code>sections</code> (imbriquées) et <code>requirements</code> dans chaque section."
+
+msgid ""
+"A single sheet with columns: <code>type</code>, <code>reference</code>, "
+"<code>name</code>, <code>description</code>, <code>guidance</code>, "
+"<code>req_type</code>, <code>req_category</code>. Hierarchy is inferred from "
+"reference prefixes."
+msgstr "Une feuille unique avec les colonnes : <code>type</code>, <code>reference</code>, <code>name</code>, <code>description</code>, <code>guidance</code>, <code>req_type</code>, <code>req_category</code>. La hiérarchie est déduite des préfixes de référence."
+
+msgid "Sample templates"
+msgstr "Modèles d'exemple"
+
+msgid "Download a pre-filled sample file to help you prepare your import."
+msgstr "Téléchargez un fichier exemple pré-rempli pour vous aider à préparer votre import."
+
+msgid "JSON sample"
+msgstr "Exemple JSON"
+
+msgid "Excel sample"
+msgstr "Exemple Excel"
+
+msgid "Import preview"
+msgstr "Aperçu de l'import"
+
+#, python-format
+msgid ""
+"Import into existing framework <strong>%(ref)s — %(name)s</strong>. The name "
+"will be replaced by <strong>%(new_name)s</strong>."
+msgstr "Import dans le référentiel existant <strong>%(ref)s — %(name)s</strong>. Le nom sera remplacé par <strong>%(new_name)s</strong>."
+
+msgid "Imported data"
+msgstr "Données importées"
+
+msgid "Framework metadata"
+msgstr "Métadonnées du référentiel"
+
+#, python-format
+msgid "%(count)s section"
+msgid_plural "%(count)s sections"
+msgstr[0] "%(count)s section"
+msgstr[1] "%(count)s sections"
+
+#, python-format
+msgid "%(count)s requirement"
+msgid_plural "%(count)s requirements"
+msgstr[0] "%(count)s exigence"
+msgstr[1] "%(count)s exigences"
+
+#, python-format
+msgid "Max depth: %(depth)s"
+msgstr "Profondeur max : %(depth)s"
+
+msgid "Warnings:"
+msgstr "Avertissements :"
+
+msgid "Tree view"
+msgstr "Vue arborescente"
+
+msgid "Requirements without section:"
+msgstr "Exigences sans section :"
+
+msgid "Confirm addition"
+msgstr "Confirmer l'ajout"
+
+msgid "Confirm import"
+msgstr "Confirmer l'import"
+
+msgid "No framework defined."
+msgstr "Aucun référentiel défini."
+
+#, python-format
+msgid "Mapping: %(mapping)s"
+msgstr "Correspondance : %(mapping)s"
+
+msgid "Creation date"
+msgstr "Date de création"
+
+msgid "mapping"
+msgstr "correspondance"
+
+msgid "Edit mapping"
+msgstr "Modifier la correspondance"
+
+msgid "New mapping"
+msgstr "Nouvelle correspondance"
+
+msgid "Source"
+msgstr "Source"
+
+msgid "Source framework"
+msgstr "Référentiel source"
+
+msgid "Target"
+msgstr "Cible"
+
+msgid "Target framework"
+msgstr "Référentiel cible"
+
+msgid "Coverage"
+msgstr "Couverture"
+
+msgid "No mapping defined."
+msgstr "Aucune correspondance définie."
+
+msgid "Guidance"
+msgstr "Guide"
+
+msgid "Mapped requirements"
+msgstr "Exigences correspondantes"
+
+msgid "Direction"
+msgstr "Direction"
+
+msgid "No action plan associated."
+msgstr "Aucun plan d'action associé."
+
+msgid "requirement"
+msgstr "exigence"
+
+msgid "Edit requirement"
+msgstr "Modifier l'exigence"
+
+msgid "New requirement"
+msgstr "Nouvelle exigence"
+
+msgid "No requirement defined."
+msgstr "Aucune exigence définie."
+
+#, python-format
+msgid "Invalid JSON: %(error)s"
+msgstr "JSON invalide : %(error)s"
+
+#, python-format
+msgid "File reading error: %(error)s"
+msgstr "Erreur de lecture du fichier : %(error)s"
+
+msgid "No import data in session. Please upload a file first."
+msgstr "Aucune donnée d'import en session. Veuillez d'abord télécharger un fichier."
+
+msgid "No import data in session."
+msgstr "Aucune donnée d'import en session."
+
+#, python-format
+msgid "Import error: %(error)s"
+msgstr "Erreur d'import : %(error)s"
+
+#, python-format
+msgid ""
+"Import into \"%(reference)s — %(name)s\" completed (%(section_count)s "
+"sections, %(requirement_count)s requirements added)."
+msgstr ""
+"Import dans « %(reference)s — %(name)s » terminé (%(section_count)s "
+"sections, %(requirement_count)s exigences ajoutées)."
+
+#, python-format
+msgid ""
+"Framework \"%(reference)s — %(name)s\" imported successfully "
+"(%(section_count)s sections, %(requirement_count)s requirements)."
+msgstr ""
+"Référentiel « %(reference)s — %(name)s » importé avec succès "
+"(%(section_count)s sections, %(requirement_count)s exigences)."
+
+msgid "External"
+msgstr "Externe"
+
+msgid "Strategic"
+msgstr "Stratégique"
+
+msgid "Human resources"
+msgstr "Ressources humaines"
+
+msgid "Financial"
+msgstr "Financier"
+
+msgid "Cultural"
+msgstr "Culturel"
+
+msgid "Political"
+msgstr "Politique"
+
+msgid "Economic"
+msgstr "Économique"
+
+msgid "Social"
+msgstr "Social"
+
+msgid "Technological"
+msgstr "Technologique"
+
+msgid "Environmental"
+msgstr "Environnemental"
+
+msgid "Competitive"
+msgstr "Concurrentiel"
+
+msgid "Regulatory"
+msgstr "Réglementaire"
+
+msgid "Improving"
+msgstr "En amélioration"
+
+msgid "Stable"
+msgstr "Stable"
+
+msgid "Degrading"
+msgstr "En dégradation"
+
+msgid "Monitored"
+msgstr "Surveillé"
+
+msgid "Closed"
+msgstr "Fermé"
+
+msgid "Executive management"
+msgstr "Direction générale"
+
+msgid "Employees"
+msgstr "Employés"
+
+msgid "Customers"
+msgstr "Clients"
+
+msgid "Suppliers"
+msgstr "Fournisseurs"
+
+msgid "Partners"
+msgstr "Partenaires"
+
+msgid "Regulators"
+msgstr "Régulateurs"
+
+msgid "Shareholders"
+msgstr "Actionnaires"
+
+msgid "Insurers"
+msgstr "Assureurs"
+
+msgid "General public"
+msgstr "Grand public"
+
+msgid "Competitors"
+msgstr "Concurrents"
+
+msgid "Unions"
+msgstr "Syndicats"
+
+msgid "Auditors"
+msgstr "Auditeurs"
+
+msgid "Expectation"
+msgstr "Attente"
+
+msgid "Need"
+msgstr "Besoin"
+
+msgid "Operational"
+msgstr "Opérationnel"
+
+msgid "Business"
+msgstr "Métier"
+
+msgid "Monthly"
+msgstr "Mensuel"
+
+msgid "Quarterly"
+msgstr "Trimestriel"
+
+msgid "Semi-annual"
+msgstr "Semestriel"
+
+msgid "Annual"
+msgstr "Annuel"
+
+msgid "Achieved"
+msgstr "Atteint"
+
+msgid "Not achieved"
+msgstr "Non atteint"
+
+msgid "Strength"
+msgstr "Force"
+
+msgid "Weakness"
+msgstr "Faiblesse"
+
+msgid "Opportunity"
+msgstr "Opportunité"
+
+msgid "Threat"
+msgstr "Menace"
+
+msgid "Support"
+msgstr "Support"
+
+msgid "Control"
+msgstr "Contrôler"
+
+msgid "Responsible (R)"
+msgstr "Responsable (R)"
+
+msgid "Accountable (A)"
+msgstr "Approbateur (A)"
+
+msgid "Consulted (C)"
+msgstr "Consulté (C)"
+
+msgid "Informed (I)"
+msgstr "Informé (I)"
+
+msgid "Core business"
+msgstr "Cœur de métier"
+
+msgid "Management"
+msgstr "Gestion"
+
+msgid "Headquarters"
+msgstr "Siège social"
+
+msgid "Factory"
+msgstr "Usine"
+
+msgid "Warehouse"
+msgstr "Entrepôt"
+
+msgid "Parent activity"
+msgstr "Activité parente"
+
+msgid "Contributing objectives"
+msgstr "Objectifs contribuant"
+
+msgid "Activity"
+msgstr "Activité"
+
+msgid "The child activity must belong to the same scope as its parent."
+msgstr "L'activité enfant doit appartenir au même périmètre que son parent."
+
+msgid "Impact level"
+msgstr "Niveau d'impact"
+
+msgid "Trend"
+msgstr "Tendance"
+
+msgid "Related stakeholders"
+msgstr "Parties prenantes associées"
+
+msgid "Issue"
+msgstr "Enjeu"
+
+msgid "An internal issue can only have an internal category."
+msgstr "Un enjeu interne ne peut avoir qu'une catégorie interne."
+
+msgid "An external issue can only have an external category."
+msgstr "Un enjeu externe ne peut avoir qu'une catégorie externe."
+
+msgid "Target value"
+msgstr "Valeur cible"
+
+msgid "Current value"
+msgstr "Valeur actuelle"
+
+msgid "Unit of measure"
+msgstr "Unité de mesure"
+
+msgid "Measurement method"
+msgstr "Méthode de mesure"
+
+msgid "Measurement frequency"
+msgstr "Fréquence de mesure"
+
+msgid "Addressed issues"
+msgstr "Enjeux adressés"
+
+msgid "Parent objective"
+msgstr "Objectif parent"
+
+msgid "Objective"
+msgstr "Objectif"
+
+msgid "An achieved objective must have 100% progress."
+msgstr "Un objectif atteint doit avoir une progression de 100 %."
+
+msgid "The child objective must belong to the same scope as its parent."
+msgstr "L'objectif enfant doit appartenir au même périmètre que son parent."
+
+msgid "Assigned users"
+msgstr "Utilisateurs assignés"
+
+msgid "Mandatory role"
+msgstr "Rôle obligatoire"
+
+msgid "Source standard"
+msgstr "Norme source"
+
+msgid "Role"
+msgstr "Rôle"
+
+msgid "Mandatory role without assigned user"
+msgstr "Rôle obligatoire sans utilisateur assigné"
+
+msgid "RACI type"
+msgstr "Type RACI"
+
+msgid "Related activity"
+msgstr "Activité associée"
+
+msgid "Responsibility"
+msgstr "Responsabilité"
+
+msgid "Responsibilities"
+msgstr "Responsabilités"
+
+msgid "Parent scope"
+msgstr "Périmètre parent"
+
+msgid "Boundaries and exclusions"
+msgstr "Limites et exclusions"
+
+msgid "Justification for exclusions"
+msgstr "Justification des exclusions"
+
+msgid "Geographic scope"
+msgstr "Périmètre géographique"
+
+msgid "Organizational scope"
+msgstr "Périmètre organisationnel"
+
+msgid "Technical scope"
+msgstr "Périmètre technique"
+
+msgid "Included sites"
+msgstr "Sites inclus"
+
+msgid "Excluded sites"
+msgstr "Sites exclus"
+
+msgid "Circular reference detected."
+msgstr "Référence circulaire détectée."
+
+msgid "Address"
+msgstr "Adresse"
+
+msgid "Parent site"
+msgstr "Site parent"
+
+msgid "Contact name"
+msgstr "Nom du contact"
+
+msgid "Contact email"
+msgstr "Email du contact"
+
+msgid "Contact phone"
+msgstr "Téléphone du contact"
+
+msgid "Influence level"
+msgstr "Niveau d'influence"
+
+msgid "Interest level"
+msgstr "Niveau d'intérêt"
+
+msgid "Stakeholder"
+msgstr "Partie prenante"
+
+msgid "Analysis date"
+msgstr "Date d'analyse"
+
+msgid "SWOT analysis"
+msgstr "Analyse SWOT"
+
+msgid "Quadrant"
+msgstr "Quadrant"
+
+msgid "Related issues"
+msgstr "Enjeux associés"
+
+msgid "Related objectives"
+msgstr "Objectifs associés"
+
+msgid "SWOT item"
+msgstr "Élément SWOT"
+
+msgid "SWOT items"
+msgstr "Éléments SWOT"
+
+msgid "Sub-activities"
+msgstr "Sous-activités"
+
+msgid "activity"
+msgstr "activité"
+
+msgid "Edit activity"
+msgstr "Modifier l'activité"
+
+msgid "New activity"
+msgstr "Nouvelle activité"
+
+msgid "Activities and processes"
+msgstr "Activités et processus"
+
+msgid "No activity defined."
+msgstr "Aucune activité définie."
+
+#, python-format
+msgid "Are you sure you want to delete <strong>%(object)s</strong>?"
+msgstr "Êtes-vous sûr de vouloir supprimer <strong>%(object)s</strong> ?"
+
+msgid "No active scope"
+msgstr "Aucun périmètre actif"
+
+msgid "Compliance alerts"
+msgstr "Alertes de conformité"
+
+#, python-format
+msgid "Mandatory role <strong>%(name)s</strong> with no assigned user"
+msgstr "Rôle obligatoire <strong>%(name)s</strong> sans utilisateur assigné"
+
+msgid "Issues by impact level"
+msgstr "Enjeux par niveau d'impact"
+
+msgid "issue"
+msgstr "enjeu"
+
+msgid "Edit issue"
+msgstr "Modifier l'enjeu"
+
+msgid "New issue"
+msgstr "Nouvel enjeu"
+
+msgid "Impact"
+msgstr "Impact"
+
+msgid "No issue defined."
+msgstr "Aucun enjeu défini."
+
+msgid "KPI"
+msgstr "KPI"
+
+msgid "Frequency"
+msgstr "Fréquence"
+
+msgid "objective"
+msgstr "objectif"
+
+msgid "Edit objective"
+msgstr "Modifier l'objectif"
+
+msgid "New objective"
+msgstr "Nouvel objectif"
+
+msgid "No objective defined."
+msgstr "Aucun objectif défini."
+
+msgid "No responsibility defined."
+msgstr "Aucune responsabilité définie."
+
+msgid "No assigned user."
+msgstr "Aucun utilisateur assigné."
+
+msgid "role"
+msgstr "rôle"
+
+msgid "Edit role"
+msgstr "Modifier le rôle"
+
+msgid "New role"
+msgstr "Nouveau rôle"
+
+msgid "Roles and responsibilities"
+msgstr "Rôles et responsabilités"
+
+msgid "No role defined."
+msgstr "Aucun rôle défini."
+
+msgid "Exclusions"
+msgstr "Exclusions"
+
+msgid "Modified on"
+msgstr "Modifié le"
+
+msgid "Sub-scopes"
+msgstr "Sous-périmètres"
+
+msgid "Geographic"
+msgstr "Géographique"
+
+msgid "scope"
+msgstr "périmètre"
+
+msgid "Edit scope"
+msgstr "Modifier le périmètre"
+
+msgid "New scope"
+msgstr "Nouveau périmètre"
+
+msgid "Review date"
+msgstr "Date de revue"
+
+msgid "No scope defined."
+msgstr "Aucun périmètre défini."
+
+msgid "Sub-sites"
+msgstr "Sous-sites"
+
+msgid "site"
+msgstr "site"
+
+msgid "Edit site"
+msgstr "Modifier le site"
+
+msgid "New site"
+msgstr "Nouveau site"
+
+msgid "No site defined."
+msgstr "Aucun site défini."
+
+msgid "Expectations & Requirements"
+msgstr "Attentes et exigences"
+
+msgid "Contact"
+msgstr "Contact"
+
+msgid "Influence"
+msgstr "Influence"
+
+msgid "Interest"
+msgstr "Intérêt"
+
+msgid "No expectation defined."
+msgstr "Aucune attente définie."
+
+msgid "stakeholder"
+msgstr "partie prenante"
+
+msgid "Edit stakeholder"
+msgstr "Modifier la partie prenante"
+
+msgid "New stakeholder"
+msgstr "Nouvelle partie prenante"
+
+msgid "No stakeholder defined."
+msgstr "Aucune partie prenante définie."
+
+msgid "Analysis"
+msgstr "Analyse"
+
+msgid "Strengths"
+msgstr "Forces"
+
+msgid "Weaknesses"
+msgstr "Faiblesses"
+
+msgid "Opportunities"
+msgstr "Opportunités"
+
+msgid "Edit SWOT analysis"
+msgstr "Modifier l'analyse SWOT"
+
+msgid "New SWOT analysis"
+msgstr "Nouvelle analyse SWOT"
+
+msgid "New analysis"
+msgstr "Nouvelle analyse"
+
+msgid "No SWOT analysis."
+msgstr "Aucune analyse SWOT."
+
+#, python-format
+msgid "%(count)d mandatory role(s) with no assigned user"
+msgstr "%(count)d rôle(s) obligatoire(s) sans utilisateur assigné"
+
+#, python-format
+msgid "%(count)d single point(s) of failure (SPOF)"
+msgstr "%(count)d point(s) de défaillance unique (SPOF)"
+
+#, python-format
+msgid "%(count)d support asset(s) past end of life"
+msgstr "%(count)d bien(s) support(s) en fin de vie"
+
+#, python-format
+msgid "%(count)d non-compliant requirement(s)"
+msgstr "%(count)d exigence(s) non conforme(s)"
+
+#, python-format
+msgid "%(count)d overdue action plan(s)"
+msgstr "%(count)d plan(s) d'action en retard"
+
+#, python-format
+msgid "%(count)d critical risk(s)"
+msgstr "%(count)d risque(s) critique(s)"
+
+msgid "Key"
+msgstr "Clé"
+
+msgid "Unique identifier of the page or feature (e.g. context.scope_list)."
+msgstr "Identifiant unique de la page ou fonctionnalité (ex. : context.scope_list)."
+
+msgid "ISO 639-1 language code (e.g. fr, en)."
+msgstr "Code de langue ISO 639-1 (ex. : fr, en)."
+
+msgid "Content"
+msgstr "Contenu"
+
+msgid "Last modified"
+msgstr "Dernière modification"
+
+msgid "Help content"
+msgstr "Contenu d'aide"
+
+msgid "Help contents"
+msgstr "Contenus d'aide"
+
+msgid "ISO 27005"
+msgstr "ISO 27005"
+
+msgid "EBIOS RM"
+msgstr "EBIOS RM"
+
+msgid "Likelihood"
+msgstr "Vraisemblance"
+
+msgid "ISO 27005 analysis"
+msgstr "Analyse ISO 27005"
+
+msgid "EBIOS strategic scenario"
+msgstr "Scénario stratégique EBIOS"
+
+msgid "EBIOS operational scenario"
+msgstr "Scénario opérationnel EBIOS"
+
+msgid "Incident"
+msgstr "Incident"
+
+msgid "Audit"
+msgstr "Audit"
+
+msgid "Manual entry"
+msgstr "Saisie manuelle"
+
+msgid "Accept"
+msgstr "Accepter"
+
+msgid "Mitigate"
+msgstr "Atténuer"
+
+msgid "Transfer"
+msgstr "Transférer"
+
+msgid "Avoid"
+msgstr "Éviter"
+
+msgid "Not decided"
+msgstr "Non décidé"
+
+msgid "Analyzed"
+msgstr "Analysé"
+
+msgid "Evaluated"
+msgstr "Évalué"
+
+msgid "Treatment planned"
+msgstr "Traitement planifié"
+
+msgid "Treatment in progress"
+msgstr "Traitement en cours"
+
+msgid "Treated"
+msgstr "Traité"
+
+msgid "Accepted"
+msgstr "Accepté"
+
+msgid "Monitoring"
+msgstr "Surveillance"
+
+msgid "Expired"
+msgstr "Expiré"
+
+msgid "Revoked"
+msgstr "Révoqué"
+
+msgid "Renewed"
+msgstr "Renouvelé"
+
+msgid "Deliberate"
+msgstr "Délibéré"
+
+msgid "Accidental"
+msgstr "Accidentel"
+
+msgid "Human internal"
+msgstr "Humain interne"
+
+msgid "Human external"
+msgstr "Humain externe"
+
+msgid "Natural"
+msgstr "Naturel"
+
+msgid "Malware"
+msgstr "Maliciel"
+
+msgid "Social engineering"
+msgstr "Ingénierie sociale"
+
+msgid "Unauthorized access"
+msgstr "Accès non autorisé"
+
+msgid "Denial of service"
+msgstr "Déni de service"
+
+msgid "Data breach"
+msgstr "Violation de données"
+
+msgid "Physical attack"
+msgstr "Attaque physique"
+
+msgid "Espionage"
+msgstr "Espionnage"
+
+msgid "Fraud"
+msgstr "Fraude"
+
+msgid "Sabotage"
+msgstr "Sabotage"
+
+msgid "Human error"
+msgstr "Erreur humaine"
+
+msgid "System failure"
+msgstr "Défaillance système"
+
+msgid "Network failure"
+msgstr "Défaillance réseau"
+
+msgid "Power failure"
+msgstr "Panne de courant"
+
+msgid "Natural disaster"
+msgstr "Catastrophe naturelle"
+
+msgid "Fire"
+msgstr "Incendie"
+
+msgid "Water damage"
+msgstr "Dégât des eaux"
+
+msgid "Theft"
+msgstr "Vol"
+
+msgid "Vandalism"
+msgstr "Vandalisme"
+
+msgid "Supply chain"
+msgstr "Chaîne d'approvisionnement"
+
+msgid "Insider threat"
+msgstr "Menace interne"
+
+msgid "Ransomware"
+msgstr "Rançongiciel"
+
+msgid "Advanced persistent threat (APT)"
+msgstr "Menace persistante avancée (APT)"
+
+msgid "Configuration weakness"
+msgstr "Faiblesse de configuration"
+
+msgid "Missing patch"
+msgstr "Correctif manquant"
+
+msgid "Design flaw"
+msgstr "Défaut de conception"
+
+msgid "Coding error"
+msgstr "Erreur de programmation"
+
+msgid "Weak authentication"
+msgstr "Authentification faible"
+
+msgid "Insufficient logging"
+msgstr "Journalisation insuffisante"
+
+msgid "Lack of encryption"
+msgstr "Absence de chiffrement"
+
+msgid "Physical vulnerability"
+msgstr "Vulnérabilité physique"
+
+msgid "Organizational weakness"
+msgstr "Faiblesse organisationnelle"
+
+msgid "Human factor"
+msgstr "Facteur humain"
+
+msgid "Obsolescence"
+msgstr "Obsolescence"
+
+msgid "Insufficient backup"
+msgstr "Sauvegarde insuffisante"
+
+msgid "Network exposure"
+msgstr "Exposition réseau"
+
+msgid "Third-party dependency"
+msgstr "Dépendance tierce"
+
+msgid "Confirmed"
+msgstr "Confirmé"
+
+msgid "Mitigated"
+msgstr "Atténué"
+
+msgid "Very unlikely"
+msgstr "Très improbable"
+
+msgid "Unlikely"
+msgstr "Improbable"
+
+msgid "Possible"
+msgstr "Possible"
+
+msgid "Likely"
+msgstr "Probable"
+
+msgid "Very likely"
+msgstr "Très probable"
+
+msgid "Minor"
+msgstr "Mineur"
+
+msgid "Moderate"
+msgstr "Modéré"
+
+msgid "Major"
+msgstr "Majeur"
+
+msgid "Severe"
+msgstr "Sévère"
+
+msgid "Moderate-Low"
+msgstr "Modéré-Faible"
+
+msgid "Moderate-High"
+msgstr "Modéré-Élevé"
+
+msgid "Risk"
+msgstr "Risque"
+
+msgid "Accepted by"
+msgstr "Accepté par"
+
+msgid "Acceptance date"
+msgstr "Date d'acceptation"
+
+msgid "Risk level at acceptance"
+msgstr "Niveau de risque à l'acceptation"
+
+msgid "Conditions"
+msgstr "Conditions"
+
+msgid "Valid until"
+msgstr "Valide jusqu'au"
+
+msgid "Risk acceptance"
+msgstr "Acceptation de risque"
+
+msgid "Vulnerability"
+msgstr "Vulnérabilité"
+
+msgid "Affected essential assets"
+msgstr "Biens essentiels affectés"
+
+msgid "Affected support assets"
+msgstr "Biens supports affectés"
+
+msgid "Threat likelihood"
+msgstr "Vraisemblance de la menace"
+
+msgid "Vulnerability exposure"
+msgstr "Exposition de la vulnérabilité"
+
+msgid "Combined likelihood"
+msgstr "Vraisemblance combinée"
+
+msgid "Confidentiality impact"
+msgstr "Impact sur la confidentialité"
+
+msgid "Integrity impact"
+msgstr "Impact sur l'intégrité"
+
+msgid "Availability impact"
+msgstr "Impact sur la disponibilité"
+
+msgid "Maximum impact"
+msgstr "Impact maximum"
+
+msgid "Risk level"
+msgstr "Niveau de risque"
+
+msgid "Existing controls"
+msgstr "Mesures existantes"
+
+msgid "Consolidated risk"
+msgstr "Risque consolidé"
+
+msgid "Risk source"
+msgstr "Source du risque"
+
+msgid "Source entity ID"
+msgstr "ID de l'entité source"
+
+msgid "Source entity type"
+msgstr "Type de l'entité source"
+
+msgid "Initial likelihood"
+msgstr "Vraisemblance initiale"
+
+msgid "Initial impact"
+msgstr "Impact initial"
+
+msgid "Initial risk level"
+msgstr "Niveau de risque initial"
+
+msgid "Current likelihood"
+msgstr "Vraisemblance actuelle"
+
+msgid "Current impact"
+msgstr "Impact actuel"
+
+msgid "Current risk level"
+msgstr "Niveau de risque actuel"
+
+msgid "Residual likelihood"
+msgstr "Vraisemblance résiduelle"
+
+msgid "Residual impact"
+msgstr "Impact résiduel"
+
+msgid "Residual risk level"
+msgstr "Niveau de risque résiduel"
+
+msgid "Treatment decision"
+msgstr "Décision de traitement"
+
+msgid "Treatment justification"
+msgstr "Justification du traitement"
+
+msgid "Risk owner"
+msgstr "Propriétaire du risque"
+
+msgid "Risks"
+msgstr "Risques"
+
+#, python-format
+msgid "Value must be one of %(levels)s."
+msgstr "La valeur doit être parmi %(levels)s."
+
+msgid "Risk assessment"
+msgstr "Appréciation des risques"
+
+msgid "Risk matrix"
+msgstr "Matrice de risques"
+
+msgid "Acceptance threshold"
+msgstr "Seuil d'acceptation"
+
+msgid "Default"
+msgstr "Par défaut"
+
+msgid "Criteria"
+msgstr "Critères"
+
+msgid "Scale type"
+msgstr "Type d'échelle"
+
+msgid "Color"
+msgstr "Couleur"
+
+msgid "Scale level"
+msgstr "Niveau d'échelle"
+
+msgid "Scale levels"
+msgstr "Niveaux d'échelle"
+
+msgid "Requires treatment"
+msgstr "Nécessite un traitement"
+
+msgid "Risk levels"
+msgstr "Niveaux de risque"
+
+msgid "Origin"
+msgstr "Origine"
+
+msgid "Typical likelihood"
+msgstr "Vraisemblance typique"
+
+msgid "From catalog"
+msgstr "Issue du catalogue"
+
+msgid "Treatment type"
+msgstr "Type de traitement"
+
+msgid "Expected residual likelihood"
+msgstr "Vraisemblance résiduelle attendue"
+
+msgid "Expected residual impact"
+msgstr "Impact résiduel attendu"
+
+msgid "Estimated cost"
+msgstr "Coût estimé"
+
+msgid "Treatment plan"
+msgstr "Plan de traitement"
+
+msgid "Treatment action"
+msgstr "Action de traitement"
+
+msgid "Treatment actions"
+msgstr "Actions de traitement"
+
+msgid "Severity"
+msgstr "Sévérité"
+
+msgid "Affected asset types"
+msgstr "Types d'actifs affectés"
+
+msgid "Affected assets"
+msgstr "Actifs affectés"
+
+msgid "CVE references"
+msgstr "Références CVE"
+
+msgid "Remediation guidance"
+msgstr "Guide de remédiation"
+
+#, python-format
+msgid "Acceptance — %(risk)s"
+msgstr "Acceptation — %(risk)s"
+
+msgid "Level at acceptance"
+msgstr "Niveau à l'acceptation"
+
+msgid "acceptance"
+msgstr "acceptation"
+
+msgid "Edit the risk acceptance"
+msgstr "Modifier l'acceptation de risque"
+
+msgid "New risk acceptance"
+msgstr "Nouvelle acceptation de risque"
+
+msgid "New acceptance"
+msgstr "Nouvelle acceptation"
+
+msgid "No risk acceptances."
+msgstr "Aucune acceptation de risque."
+
+msgid "Matrices"
+msgstr "Matrices"
+
+msgid "Associated risks"
+msgstr "Risques associés"
+
+msgid "Add a risk"
+msgstr "Ajouter un risque"
+
+msgid "Current level"
+msgstr "Niveau actuel"
+
+msgid "No associated risk."
+msgstr "Aucun risque associé."
+
+msgid "Risk matrices"
+msgstr "Matrices de risques"
+
+msgid "Current risks (before treatment)"
+msgstr "Risques réels (avant traitement)"
+
+msgid "Residual risks (after treatment)"
+msgstr "Risques résiduels (après traitement)"
+
+msgid "Max impact"
+msgstr "Impact max"
+
+msgid "No ISO 27005 analysis."
+msgstr "Aucune analyse ISO 27005."
+
+msgid "Edit the assessment"
+msgstr "Modifier l'appréciation"
+
+msgid "New risk assessment"
+msgstr "Nouvelle appréciation des risques"
+
+msgid "No assessment."
+msgstr "Aucune appréciation."
+
+msgid "Scales"
+msgstr "Échelles"
+
+msgid "Likelihood and impact scales"
+msgstr "Échelles de vraisemblance et d'impact"
+
+msgid "No scales defined."
+msgstr "Aucune échelle définie."
+
+msgid "Treatment required"
+msgstr "Traitement requis"
+
+msgid "No risk levels defined."
+msgstr "Aucun niveau de risque défini."
+
+msgid "criteria"
+msgstr "critères"
+
+msgid "Edit risk criteria"
+msgstr "Modifier les critères de risque"
+
+msgid "New risk criteria"
+msgstr "Nouveaux critères de risque"
+
+msgid "General information"
+msgstr "Informations générales"
+
+msgid "Likelihood scale"
+msgstr "Échelle de vraisemblance"
+
+msgid "Del."
+msgstr "Suppr."
+
+msgid "Add a level"
+msgstr "Ajouter un niveau"
+
+msgid "Impact scale"
+msgstr "Échelle d'impact"
+
+msgid "New criteria"
+msgstr "Nouveaux critères"
+
+msgid "Drafts"
+msgstr "Brouillons"
+
+msgid "No risk criteria."
+msgstr "Aucun critère de risque."
+
+#, python-format
+msgid "%(count)s in progress"
+msgstr "%(count)s en cours"
+
+msgid "Active acceptances"
+msgstr "Acceptations actives"
+
+msgid "Risks by priority"
+msgstr "Risques par priorité"
+
+msgid "No risks recorded"
+msgstr "Aucun risque enregistré"
+
+msgid "Risks by status"
+msgstr "Risques par statut"
+
+msgid "Configure scales"
+msgstr "Configurer les échelles"
+
+msgid "Configure"
+msgstr "Configurer"
+
+msgid "Calculation"
+msgstr "Calcul"
+
+msgid "Threat:"
+msgstr "Menace :"
+
+msgid "Vuln. exposure:"
+msgstr "Exposition vuln. :"
+
+msgid "Combined:"
+msgstr "Combinée :"
+
+msgid "Confidentiality:"
+msgstr "Confidentialité :"
+
+msgid "Integrity:"
+msgstr "Intégrité :"
+
+msgid "Availability:"
+msgstr "Disponibilité :"
+
+msgid "Max:"
+msgstr "Max :"
+
+msgid "Edit the ISO 27005 analysis"
+msgstr "Modifier l'analyse ISO 27005"
+
+msgid "New ISO 27005 analysis"
+msgstr "Nouvelle analyse ISO 27005"
+
+msgid "No ISO 27005 analyses."
+msgstr "Aucune analyse ISO 27005."
+
+msgid "Evaluation"
+msgstr "Évaluation"
+
+msgid "Treatment"
+msgstr "Traitement"
+
+msgid "ISO 27005 sources"
+msgstr "Sources ISO 27005"
+
+msgid "Impact C / I / A"
+msgstr "Impact C / I / D"
+
+msgid "Initial risk"
+msgstr "Risque initial"
+
+msgid "Likelihood:"
+msgstr "Vraisemblance :"
+
+msgid "Impact:"
+msgstr "Impact :"
+
+msgid "Current risk"
+msgstr "Risque réel"
+
+msgid "Residual risk"
+msgstr "Risque résiduel"
+
+msgid "New plan"
+msgstr "Nouveau plan"
+
+msgid "No treatment plans."
+msgstr "Aucun plan de traitement."
+
+msgid "No affected essential assets."
+msgstr "Aucun bien essentiel affecté."
+
+msgid "No affected support assets."
+msgstr "Aucun bien support affecté."
+
+msgid "No ISO 27005 sources."
+msgstr "Aucune source ISO 27005."
+
+msgid "risk"
+msgstr "risque"
+
+msgid "Edit the risk"
+msgstr "Modifier le risque"
+
+msgid "New risk"
+msgstr "Nouveau risque"
+
+msgid "No risks recorded."
+msgstr "Aucun risque enregistré."
+
+msgid "threat"
+msgstr "menace"
+
+msgid "Edit the threat"
+msgstr "Modifier la menace"
+
+msgid "New threat"
+msgstr "Nouvelle menace"
+
+msgid "Catalog"
+msgstr "Catalogue"
+
+msgid "No threats."
+msgstr "Aucune menace."
+
+msgid "No actions defined."
+msgstr "Aucune action définie."
+
+msgid "treatment plan"
+msgstr "plan de traitement"
+
+msgid "Edit the treatment plan"
+msgstr "Modifier le plan de traitement"
+
+msgid "New treatment plan"
+msgstr "Nouveau plan de traitement"
+
+msgid "No affected assets."
+msgstr "Aucun actif affecté."
+
+msgid "vulnerability"
+msgstr "vulnérabilité"
+
+msgid "Edit the vulnerability"
+msgstr "Modifier la vulnérabilité"
+
+msgid "New vulnerability"
+msgstr "Nouvelle vulnérabilité"
+
+msgid "No vulnerabilities."
+msgstr "Aucune vulnérabilité."
+
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+msgid "Organization"
+msgstr "Organisation"
+
+msgid "Register"
+msgstr "Registre"
+
+msgid "Acceptances"
+msgstr "Acceptations"
+
+msgid "Analyses"
+msgstr "Analyses"
+
+msgid "List"
+msgstr "Liste"
+
+msgid "Import"
+msgstr "Importer"
+
+msgid "Administration"
+msgstr "Administration"
+
+msgid "Logs"
+msgstr "Journaux"
+
+msgid "Django admin"
+msgstr "Admin Django"
+
+msgid "Sign out"
+msgstr "Déconnexion"
+
+#, python-format
+msgid ""
+"Average of active frameworks — %(count)s "
+"requirement%(count|pluralize:\"s\")s total"
+msgstr ""
+"Moyenne des référentiels actifs — %(count)s "
+"exigence%(count|pluralize:\"s\")s au total"
+
+msgid "Compliance by framework"
+msgstr "Conformité par référentiel"
+
+#, python-format
+msgid "%(count)s requirement%(count|pluralize:\"s\")s"
+msgstr "%(count)s exigence%(count|pluralize:\"s\")s"
+
+#, python-format
+msgid "%(count)s mandatory role(s) with no user"
+msgstr "%(count)s rôle(s) obligatoire(s) sans utilisateur"
+
+msgid "Active scopes"
+msgstr "Périmètres actifs"
+
+#, python-format
+msgid "%(count)s with personal data"
+msgstr "%(count)s avec données personnelles"
+
+#, python-format
+msgid "%(count)s past end of life"
+msgstr "%(count)s en fin de vie"
+
+#, python-format
+msgid "%(count)s critical"
+msgstr "%(count)s critique(s)"
+
+#, python-format
+msgid "%(count)s non-compliant"
+msgstr "%(count)s non conforme(s)"
+
+#, python-format
+msgid "%(count)s overdue"
+msgstr "%(count)s en retard"
+
+#, python-format
+msgid "by %(user)s on %(date)s"
+msgstr "par %(user)s le %(date)s"
+
+msgid "Pending approval"
+msgstr "En attente d'approbation"
+
+msgid "Close"
+msgstr "Fermer"
+
+msgid "Initial record"
+msgstr "Enregistrement initial"
+
+msgid "Record deleted"
+msgstr "Enregistrement supprimé"
+
+msgid "Approval granted"
+msgstr "Approbation accordée"
+
+msgid "Approval revoked"
+msgstr "Approbation révoquée"
+
+msgid "No changes detected"
+msgstr "Aucun changement détecté"
+
+msgid "No history available."
+msgstr "Aucun historique disponible."

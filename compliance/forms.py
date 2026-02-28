@@ -1,6 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.utils.translation import gettext_lazy as _
 
 from context.models import Scope
 from .models import (
@@ -172,28 +173,28 @@ class RequirementMappingForm(forms.ModelForm):
         }
 
 
-MAX_IMPORT_FILE_SIZE = 10 * 1024 * 1024  # 10 Mo
+MAX_IMPORT_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 
 
 class FrameworkImportForm(forms.Form):
     file = forms.FileField(
-        label="Fichier",
-        help_text="Format JSON ou Excel (.xlsx)",
+        label=_("File"),
+        help_text=_("JSON or Excel (.xlsx) format"),
         widget=forms.ClearableFileInput(attrs=FORM_WIDGET_ATTRS),
     )
     existing_framework = forms.ModelChoiceField(
         queryset=Framework.objects.all(),
         required=False,
-        label="Référentiel existant",
-        help_text="Laisser vide pour créer un nouveau référentiel.",
+        label=_("Existing framework"),
+        help_text=_("Leave blank to create a new framework."),
         widget=forms.Select(attrs={**SELECT_ATTRS, "class": "form-select"}),
-        empty_label="— Nouveau référentiel —",
+        empty_label=_("— New framework —"),
     )
     owner = forms.ModelChoiceField(
         queryset=User.objects.filter(is_active=True),
         required=False,
-        label="Propriétaire du référentiel",
-        help_text="Obligatoire uniquement pour un nouveau référentiel.",
+        label=_("Framework owner"),
+        help_text=_("Required only for a new framework."),
         widget=forms.Select(attrs=SELECT_ATTRS),
     )
 
@@ -202,11 +203,11 @@ class FrameworkImportForm(forms.Form):
         ext = f.name.rsplit(".", 1)[-1].lower() if "." in f.name else ""
         if ext not in ("json", "xlsx"):
             raise forms.ValidationError(
-                "Format non supporté. Veuillez fournir un fichier .json ou .xlsx."
+                _("Unsupported format. Please provide a .json or .xlsx file.")
             )
         if f.size > MAX_IMPORT_FILE_SIZE:
             raise forms.ValidationError(
-                "Le fichier dépasse la taille maximale autorisée (10 Mo)."
+                _("The file exceeds the maximum allowed size (10 MB).")
             )
         return f
 
@@ -215,7 +216,7 @@ class FrameworkImportForm(forms.Form):
         if not cleaned.get("existing_framework") and not cleaned.get("owner"):
             self.add_error(
                 "owner",
-                "Le propriétaire est obligatoire pour créer un nouveau référentiel.",
+                _("The owner is required to create a new framework."),
             )
         return cleaned
 

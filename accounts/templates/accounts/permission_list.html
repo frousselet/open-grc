@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% load help_tags %}
-{% block title %}Permissions — Open GRC{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Permissions — Open GRC" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h2>Permissions</h2>
+  <h2>{% trans "Permissions" %}</h2>
 </div>
 {% help_modal "accounts.permission_list" %}
 
@@ -25,6 +26,6 @@
   </div>
 </div>
 {% empty %}
-<div class="alert alert-info">Aucune permission définie.</div>
+<div class="alert alert-info">{% trans "No permissions defined." %}</div>
 {% endfor %}
 {% endblock %}

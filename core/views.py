@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Avg, Count, Prefetch, Q
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.views.generic import TemplateView
 
 from assets.models import AssetDependency, EssentialAsset, SupportAsset
@@ -146,31 +147,37 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
         ).count()
         ctx["mapping_count"] = RequirementMapping.objects.count()
 
-        # ── Alertes globales ─────────────────────────────
+        # ── Global alerts ─────────────────────────────
         alerts = []
         if ctx["mandatory_roles_no_user"]:
             alerts.append(
-                f"{ctx['mandatory_roles_no_user']} rôle(s) obligatoire(s) sans utilisateur affecté"
+                _("%(count)d mandatory role(s) with no assigned user")
+                % {"count": ctx["mandatory_roles_no_user"]}
             )
         if ctx["spof_count"]:
             alerts.append(
-                f"{ctx['spof_count']} point(s) unique(s) de défaillance (SPOF)"
+                _("%(count)d single point(s) of failure (SPOF)")
+                % {"count": ctx["spof_count"]}
             )
         if ctx["eol_count"]:
             alerts.append(
-                f"{ctx['eol_count']} bien(s) support(s) en fin de vie"
+                _("%(count)d support asset(s) past end of life")
+                % {"count": ctx["eol_count"]}
             )
         if ctx["non_compliant_count"]:
             alerts.append(
-                f"{ctx['non_compliant_count']} exigence(s) non conforme(s)"
+                _("%(count)d non-compliant requirement(s)")
+                % {"count": ctx["non_compliant_count"]}
             )
         if ctx["overdue_plan_count"]:
             alerts.append(
-                f"{ctx['overdue_plan_count']} plan(s) d'action en retard"
+                _("%(count)d overdue action plan(s)")
+                % {"count": ctx["overdue_plan_count"]}
             )
         if ctx["critical_risk_count"]:
             alerts.append(
-                f"{ctx['critical_risk_count']} risque(s) critique(s)"
+                _("%(count)d critical risk(s)")
+                % {"count": ctx["critical_risk_count"]}
             )
         ctx["alerts"] = alerts
 

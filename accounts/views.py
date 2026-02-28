@@ -2,12 +2,15 @@ from itertools import chain
 from operator import attrgetter
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.utils import translation
+from django.utils.translation import gettext as _, gettext_lazy as _lazy
 from django.views import View
 from django.views.generic import DetailView, ListView
 
@@ -38,7 +41,7 @@ class PermissionRequiredMixin:
                 codenames = [codenames]
             for codename in codenames:
                 if not request.user.has_perm(codename):
-                    messages.error(request, "Vous n'avez pas les droits nécessaires.")
+                    messages.error(request, _("You do not have the required permissions."))
                     return redirect("/")
         return super().dispatch(request, *args, **kwargs)
 
@@ -67,13 +70,13 @@ class LoginView(View):
                 try:
                     u = User.objects.get(email__iexact=email)
                     if u.is_locked:
-                        messages.error(request, "Ce compte est temporairement verrouillé suite à plusieurs tentatives échouées.")
+                        messages.error(request, _("This account is temporarily locked due to multiple failed attempts."))
                     elif not u.is_active:
-                        messages.error(request, "Identifiants invalides.")
+                        messages.error(request, _("Invalid credentials."))
                     else:
-                        messages.error(request, "Identifiants invalides.")
+                        messages.error(request, _("Invalid credentials."))
                 except User.DoesNotExist:
-                    messages.error(request, "Identifiants invalides.")
+                    messages.error(request, _("Invalid credentials."))
         return render(request, "accounts/login.html", {"form": form})
 
 
@@ -106,8 +109,16 @@ class ProfileView(LoginRequiredMixin, View):
         form = ProfileForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            messages.success(request, "Profil mis à jour.")
-            return redirect("accounts:profile")
+            lang = form.cleaned_data.get("language", "")
+            if lang:
+                translation.activate(lang)
+            messages.success(request, _("Profile updated."))
+            response = redirect("accounts:profile")
+            if lang:
+                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang)
+            else:
+                response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
+            return response
         groups = request.user.custom_groups.all()
         permissions = sorted(
             Permission.objects.filter(groups__users=request.user).values_list("codename", flat=True).distinct()
@@ -129,7 +140,7 @@ class PasswordChangeView(LoginRequiredMixin, View):
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, request.user)
-            messages.success(request, "Mot de passe modifié avec succès.")
+            messages.success(request, _("Password changed successfully."))
             return redirect("accounts:profile")
         return render(request, "accounts/password_change.html", {"form": form})
 
@@ -182,7 +193,7 @@ class UserCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
     def get(self, request):
         form = UserCreateForm()
-        return render(request, "accounts/user_form.html", {"form": form, "title": "Créer un utilisateur"})
+        return render(request, "accounts/user_form.html", {"form": form, "title": _("Create a user")})
 
     def post(self, request):
         form = UserCreateForm(request.POST)
@@ -190,9 +201,9 @@ class UserCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
             user = form.save(commit=False)
             user.created_by = request.user
             user.save()
-            messages.success(request, f"Utilisateur {user.display_name} créé.")
+            messages.success(request, _("User %(name)s created.") % {"name": user.display_name})
             return redirect("accounts:user-detail", pk=user.pk)
-        return render(request, "accounts/user_form.html", {"form": form, "title": "Créer un utilisateur"})
+        return render(request, "accounts/user_form.html", {"form": form, "title": _("Create a user")})
 
 
 class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, View):
@@ -201,16 +212,16 @@ class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, View):
     def get(self, request, pk):
         user = get_object_or_404(User, pk=pk)
         form = UserUpdateForm(instance=user)
-        return render(request, "accounts/user_form.html", {"form": form, "title": f"Modifier {user.display_name}", "object": user})
+        return render(request, "accounts/user_form.html", {"form": form, "title": _("Edit %(name)s") % {"name": user.display_name}, "object": user})
 
     def post(self, request, pk):
         user = get_object_or_404(User, pk=pk)
         form = UserUpdateForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
-            messages.success(request, "Utilisateur mis à jour.")
+            messages.success(request, _("User updated."))
             return redirect("accounts:user-detail", pk=user.pk)
-        return render(request, "accounts/user_form.html", {"form": form, "title": f"Modifier {user.display_name}", "object": user})
+        return render(request, "accounts/user_form.html", {"form": form, "title": _("Edit %(name)s") % {"name": user.display_name}, "object": user})
 
 
 # ── Groups ──────────────────────────────────────────────────
@@ -277,7 +288,7 @@ class GroupCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
     def get(self, request):
         form = GroupForm()
-        return render(request, "accounts/group_form.html", {"form": form, "title": "Créer un groupe"})
+        return render(request, "accounts/group_form.html", {"form": form, "title": _("Create a group")})
 
     def post(self, request):
         form = GroupForm(request.POST)
@@ -285,9 +296,9 @@ class GroupCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
             group = form.save(commit=False)
             group.created_by = request.user
             group.save()
-            messages.success(request, f"Groupe « {group.name} » créé.")
+            messages.success(request, _("Group '%(name)s' created.") % {"name": group.name})
             return redirect("accounts:group-detail", pk=group.pk)
-        return render(request, "accounts/group_form.html", {"form": form, "title": "Créer un groupe"})
+        return render(request, "accounts/group_form.html", {"form": form, "title": _("Create a group")})
 
 
 class GroupUpdateView(LoginRequiredMixin, PermissionRequiredMixin, View):
@@ -296,22 +307,22 @@ class GroupUpdateView(LoginRequiredMixin, PermissionRequiredMixin, View):
     def get(self, request, pk):
         group = get_object_or_404(Group, pk=pk)
         if group.is_system:
-            messages.error(request, "Les groupes système ne peuvent pas être modifiés.")
+            messages.error(request, _("System groups cannot be modified."))
             return redirect("accounts:group-detail", pk=group.pk)
         form = GroupForm(instance=group)
-        return render(request, "accounts/group_form.html", {"form": form, "title": f"Modifier « {group.name} »", "object": group})
+        return render(request, "accounts/group_form.html", {"form": form, "title": _("Edit '%(name)s'") % {"name": group.name}, "object": group})
 
     def post(self, request, pk):
         group = get_object_or_404(Group, pk=pk)
         if group.is_system:
-            messages.error(request, "Les groupes système ne peuvent pas être modifiés.")
+            messages.error(request, _("System groups cannot be modified."))
             return redirect("accounts:group-detail", pk=group.pk)
         form = GroupForm(request.POST, instance=group)
         if form.is_valid():
             form.save()
-            messages.success(request, "Groupe mis à jour.")
+            messages.success(request, _("Group updated."))
             return redirect("accounts:group-detail", pk=group.pk)
-        return render(request, "accounts/group_form.html", {"form": form, "title": f"Modifier « {group.name} »", "object": group})
+        return render(request, "accounts/group_form.html", {"form": form, "title": _("Edit '%(name)s'") % {"name": group.name}, "object": group})
 
 
 class GroupPermissionsUpdateView(LoginRequiredMixin, PermissionRequiredMixin, View):
@@ -322,14 +333,14 @@ class GroupPermissionsUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Vi
     def post(self, request, pk):
         group = get_object_or_404(Group, pk=pk)
         if group.is_system:
-            messages.error(request, "Les groupes système ne peuvent pas être modifiés.")
+            messages.error(request, _("System groups cannot be modified."))
             return redirect("accounts:group-detail", pk=group.pk)
 
         # Collect selected permission codenames from POST
         selected = request.POST.getlist("permissions")
         perms = Permission.objects.filter(codename__in=selected)
         group.permissions.set(perms)
-        messages.success(request, "Permissions mises à jour.")
+        messages.success(request, _("Permissions updated."))
         return redirect("accounts:group-detail", pk=group.pk)
 
 
@@ -346,11 +357,11 @@ class GroupUsersUpdateView(LoginRequiredMixin, PermissionRequiredMixin, View):
         if action == "add" and user_id:
             user = get_object_or_404(User, pk=user_id)
             group.users.add(user)
-            messages.success(request, f"{user.display_name} ajouté au groupe.")
+            messages.success(request, _("%(name)s added to the group.") % {"name": user.display_name})
         elif action == "remove" and user_id:
             user = get_object_or_404(User, pk=user_id)
             group.users.remove(user)
-            messages.success(request, f"{user.display_name} retiré du groupe.")
+            messages.success(request, _("%(name)s removed from the group.") % {"name": user.display_name})
 
         return redirect("accounts:group-detail", pk=group.pk)
 
@@ -365,7 +376,7 @@ class GroupScopesUpdateView(LoginRequiredMixin, PermissionRequiredMixin, View):
         selected = request.POST.getlist("scopes")
         scopes = Scope.objects.filter(id__in=selected)
         group.allowed_scopes.set(scopes)
-        messages.success(request, "Périmètres autorisés mis à jour.")
+        messages.success(request, _("Allowed scopes updated."))
         return redirect("accounts:group-detail", pk=group.pk)
 
 
@@ -424,7 +435,7 @@ class AccessLogListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 # ── Action Log (history) ────────────────────────────────────
 
-HISTORY_TYPE_LABELS = {"+": "Création", "~": "Modification", "-": "Suppression"}
+HISTORY_TYPE_LABELS = {"+": _lazy("Creation"), "~": _lazy("Modification"), "-": _lazy("Deletion")}
 APPROVAL_FIELDS = {"is_approved", "approved_by", "approved_by_id", "approved_at"}
 
 MODEL_LABELS = {}
@@ -541,10 +552,10 @@ class ActionLogListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             # Detect approval
             approval_status = _detect_approval(entry)
             if approval_status == "approved":
-                entry.action_label = "Approbation"
+                entry.action_label = _("Approval")
                 entry.action_badge = "info"
             elif approval_status == "rejected":
-                entry.action_label = "Approbation retirée"
+                entry.action_label = _("Approval withdrawn")
                 entry.action_badge = "dark"
             else:
                 entry.action_label = HISTORY_TYPE_LABELS.get(entry.history_type, "?")

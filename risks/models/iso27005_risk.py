@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from context.models.base import BaseModel
@@ -9,58 +10,58 @@ class ISO27005Risk(BaseModel):
         "risks.RiskAssessment",
         on_delete=models.CASCADE,
         related_name="iso27005_risks",
-        verbose_name="Appréciation",
+        verbose_name=_("Assessment"),
     )
     threat = models.ForeignKey(
         "risks.Threat",
         on_delete=models.CASCADE,
         related_name="iso27005_risks",
-        verbose_name="Menace",
+        verbose_name=_("Threat"),
     )
     vulnerability = models.ForeignKey(
         "risks.Vulnerability",
         on_delete=models.CASCADE,
         related_name="iso27005_risks",
-        verbose_name="Vulnérabilité",
+        verbose_name=_("Vulnerability"),
     )
     affected_essential_assets = models.ManyToManyField(
         "assets.EssentialAsset",
         blank=True,
         related_name="iso27005_risks",
-        verbose_name="Biens essentiels affectés",
+        verbose_name=_("Affected essential assets"),
     )
     affected_support_assets = models.ManyToManyField(
         "assets.SupportAsset",
         blank=True,
         related_name="iso27005_risks",
-        verbose_name="Biens supports affectés",
+        verbose_name=_("Affected support assets"),
     )
     threat_likelihood = models.PositiveIntegerField(
-        "Vraisemblance de la menace", null=True, blank=True
+        _("Threat likelihood"), null=True, blank=True
     )
     vulnerability_exposure = models.PositiveIntegerField(
-        "Exposition de la vulnérabilité", null=True, blank=True
+        _("Vulnerability exposure"), null=True, blank=True
     )
     combined_likelihood = models.PositiveIntegerField(
-        "Vraisemblance combinée", null=True, blank=True
+        _("Combined likelihood"), null=True, blank=True
     )
     impact_confidentiality = models.PositiveIntegerField(
-        "Impact confidentialité", null=True, blank=True
+        _("Confidentiality impact"), null=True, blank=True
     )
     impact_integrity = models.PositiveIntegerField(
-        "Impact intégrité", null=True, blank=True
+        _("Integrity impact"), null=True, blank=True
     )
     impact_availability = models.PositiveIntegerField(
-        "Impact disponibilité", null=True, blank=True
+        _("Availability impact"), null=True, blank=True
     )
     max_impact = models.PositiveIntegerField(
-        "Impact maximal", null=True, blank=True
+        _("Maximum impact"), null=True, blank=True
     )
     risk_level = models.PositiveIntegerField(
-        "Niveau de risque", null=True, blank=True
+        _("Risk level"), null=True, blank=True
     )
     existing_controls = models.TextField(
-        "Mesures existantes", blank=True
+        _("Existing controls"), blank=True
     )
     risk = models.ForeignKey(
         "risks.Risk",
@@ -68,15 +69,15 @@ class ISO27005Risk(BaseModel):
         null=True,
         blank=True,
         related_name="iso27005_sources",
-        verbose_name="Risque consolidé",
+        verbose_name=_("Consolidated risk"),
     )
-    description = models.TextField("Description", blank=True)
+    description = models.TextField(_("Description"), blank=True)
     history = HistoricalRecords()
 
     class Meta:
         ordering = ["-created_at"]
-        verbose_name = "Analyse ISO 27005"
-        verbose_name_plural = "Analyses ISO 27005"
+        verbose_name = _("ISO 27005 analysis")
+        verbose_name_plural = _("ISO 27005 analyses")
 
     def __str__(self):
         return f"{self.threat} × {self.vulnerability}"

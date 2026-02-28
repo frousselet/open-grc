@@ -1,36 +1,37 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}{{ mapping }} — Open GRC{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1>Mapping : {{ mapping }}</h1>
+  <h1>{% blocktrans with mapping=mapping %}Mapping: {{ mapping }}{% endblocktrans %}</h1>
   <div>
-    <a href="{% url 'compliance:mapping-update' mapping.pk %}" class="btn btn-primary">Modifier</a>
-    <a href="{% url 'compliance:mapping-list' %}" class="btn btn-outline-secondary">Retour</a>
+    <a href="{% url 'compliance:mapping-update' mapping.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'compliance:mapping-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 
 <dl class="row">
-  <dt class="col-sm-3">Exigence source</dt>
+  <dt class="col-sm-3">{% trans "Source requirement" %}</dt>
   <dd class="col-sm-9">
     <a href="{% url 'compliance:requirement-detail' mapping.source_requirement.pk %}">{{ mapping.source_requirement.reference }}</a>
     — {{ mapping.source_requirement.name }}
     <span class="text-muted">({{ mapping.source_requirement.framework.short_name|default:mapping.source_requirement.framework.name }})</span>
   </dd>
 
-  <dt class="col-sm-3">Exigence cible</dt>
+  <dt class="col-sm-3">{% trans "Target requirement" %}</dt>
   <dd class="col-sm-9">
     <a href="{% url 'compliance:requirement-detail' mapping.target_requirement.pk %}">{{ mapping.target_requirement.reference }}</a>
     — {{ mapping.target_requirement.name }}
     <span class="text-muted">({{ mapping.target_requirement.framework.short_name|default:mapping.target_requirement.framework.name }})</span>
   </dd>
 
-  <dt class="col-sm-3">Type de mapping</dt><dd class="col-sm-9">{{ mapping.get_mapping_type_display }}</dd>
-  <dt class="col-sm-3">Niveau de couverture</dt><dd class="col-sm-9">{{ mapping.get_coverage_level_display|default:"—" }}</dd>
-  <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ mapping.description|default:"—"|linebreaksbr }}</dd>
-  <dt class="col-sm-3">Justification</dt><dd class="col-sm-9">{{ mapping.justification|default:"—"|linebreaksbr }}</dd>
-  <dt class="col-sm-3">Créé par</dt><dd class="col-sm-9">{{ mapping.created_by|default:"—" }}</dd>
-  <dt class="col-sm-3">Date de création</dt><dd class="col-sm-9">{{ mapping.created_at|date:"d/m/Y H:i" }}</dd>
+  <dt class="col-sm-3">{% trans "Mapping type" %}</dt><dd class="col-sm-9">{{ mapping.get_mapping_type_display }}</dd>
+  <dt class="col-sm-3">{% trans "Coverage level" %}</dt><dd class="col-sm-9">{{ mapping.get_coverage_level_display|default:"—" }}</dd>
+  <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ mapping.description|default:"—"|linebreaksbr }}</dd>
+  <dt class="col-sm-3">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ mapping.justification|default:"—"|linebreaksbr }}</dd>
+  <dt class="col-sm-3">{% trans "Created by" %}</dt><dd class="col-sm-9">{{ mapping.created_by|default:"—" }}</dd>
+  <dt class="col-sm-3">{% trans "Creation date" %}</dt><dd class="col-sm-9">{{ mapping.created_at|date:"d/m/Y H:i" }}</dd>
 </dl>
 {% endblock %}

@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from context.models.base import BaseModel
@@ -21,24 +22,24 @@ class RiskTreatmentPlan(BaseModel):
         "risks.Risk",
         on_delete=models.CASCADE,
         related_name="treatment_plans",
-        verbose_name="Risque",
+        verbose_name=_("Risk"),
     )
-    reference = models.CharField("Référence", max_length=50, unique=True)
-    name = models.CharField("Nom", max_length=255)
-    description = models.TextField("Description", blank=True)
+    reference = models.CharField(_("Reference"), max_length=50, unique=True)
+    name = models.CharField(_("Name"), max_length=255)
+    description = models.TextField(_("Description"), blank=True)
     treatment_type = models.CharField(
-        "Type de traitement",
+        _("Treatment type"),
         max_length=20,
         choices=TreatmentType.choices,
     )
     expected_residual_likelihood = models.PositiveIntegerField(
-        "Vraisemblance résiduelle attendue", null=True, blank=True
+        _("Expected residual likelihood"), null=True, blank=True
     )
     expected_residual_impact = models.PositiveIntegerField(
-        "Impact résiduel attendu", null=True, blank=True
+        _("Expected residual impact"), null=True, blank=True
     )
     cost_estimate = models.DecimalField(
-        "Estimation du coût",
+        _("Estimated cost"),
         max_digits=12,
         decimal_places=2,
         null=True,
@@ -50,18 +51,18 @@ class RiskTreatmentPlan(BaseModel):
         null=True,
         blank=True,
         related_name="owned_treatment_plans",
-        verbose_name="Responsable",
+        verbose_name=_("Owner"),
     )
-    start_date = models.DateField("Date de début", null=True, blank=True)
-    target_date = models.DateField("Date cible", null=True, blank=True)
-    completion_date = models.DateField("Date de réalisation", null=True, blank=True)
+    start_date = models.DateField(_("Start date"), null=True, blank=True)
+    target_date = models.DateField(_("Target date"), null=True, blank=True)
+    completion_date = models.DateField(_("Completion date"), null=True, blank=True)
     progress_percentage = models.PositiveIntegerField(
-        "Progression (%)",
+        _("Progress (%)"),
         default=0,
         validators=[MaxValueValidator(100)],
     )
     status = models.CharField(
-        "Statut",
+        _("Status"),
         max_length=20,
         choices=TreatmentPlanStatus.choices,
         default=TreatmentPlanStatus.PLANNED,
@@ -70,8 +71,8 @@ class RiskTreatmentPlan(BaseModel):
 
     class Meta:
         ordering = ["-created_at"]
-        verbose_name = "Plan de traitement"
-        verbose_name_plural = "Plans de traitement"
+        verbose_name = _("Treatment plan")
+        verbose_name_plural = _("Treatment plans")
 
     def __str__(self):
         return f"{self.reference} — {self.name}"
@@ -109,12 +110,12 @@ class RiskTreatmentPlan(BaseModel):
         val = self.expected_residual_likelihood
         if val is not None and val not in l_levels:
             errors["expected_residual_likelihood"] = (
-                f"La valeur doit être parmi {sorted(l_levels)}."
+                _("Value must be one of %(levels)s.") % {"levels": sorted(l_levels)}
             )
         val = self.expected_residual_impact
         if val is not None and val not in i_levels:
             errors["expected_residual_impact"] = (
-                f"La valeur doit être parmi {sorted(i_levels)}."
+                _("Value must be one of %(levels)s.") % {"levels": sorted(i_levels)}
             )
         if errors:
             raise ValidationError(errors)
@@ -126,33 +127,33 @@ class TreatmentAction(models.Model):
         RiskTreatmentPlan,
         on_delete=models.CASCADE,
         related_name="actions",
-        verbose_name="Plan de traitement",
+        verbose_name=_("Treatment plan"),
     )
-    description = models.TextField("Description")
+    description = models.TextField(_("Description"))
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="treatment_actions",
-        verbose_name="Responsable",
+        verbose_name=_("Owner"),
     )
-    target_date = models.DateField("Date cible", null=True, blank=True)
-    completion_date = models.DateField("Date de réalisation", null=True, blank=True)
+    target_date = models.DateField(_("Target date"), null=True, blank=True)
+    completion_date = models.DateField(_("Completion date"), null=True, blank=True)
     status = models.CharField(
-        "Statut",
+        _("Status"),
         max_length=20,
         choices=ActionStatus.choices,
         default=ActionStatus.PLANNED,
     )
-    order = models.PositiveIntegerField("Ordre", default=0)
-    created_at = models.DateTimeField("Date de création", auto_now_add=True)
-    updated_at = models.DateTimeField("Date de modification", auto_now=True)
+    order = models.PositiveIntegerField(_("Order"), default=0)
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
 
     class Meta:
         ordering = ["order"]
-        verbose_name = "Action de traitement"
-        verbose_name_plural = "Actions de traitement"
+        verbose_name = _("Treatment action")
+        verbose_name_plural = _("Treatment actions")
 
     def __str__(self):
         return f"Action {self.order} — {self.description[:50]}"

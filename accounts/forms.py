@@ -1,29 +1,30 @@
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Group, User
 
 
 class LoginForm(forms.Form):
     email = forms.EmailField(
-        label="Adresse email",
+        label=_("Email address"),
         widget=forms.EmailInput(attrs={"class": "form-control", "autofocus": True}),
     )
     password = forms.CharField(
-        label="Mot de passe",
+        label=_("Password"),
         widget=forms.PasswordInput(attrs={"class": "form-control"}),
     )
 
 
 class UserCreateForm(forms.ModelForm):
     password1 = forms.CharField(
-        label="Mot de passe",
+        label=_("Password"),
         widget=forms.PasswordInput(attrs={"class": "form-control"}),
         help_text=password_validation.password_validators_help_texts,
     )
     password2 = forms.CharField(
-        label="Confirmer le mot de passe",
+        label=_("Confirm password"),
         widget=forms.PasswordInput(attrs={"class": "form-control"}),
     )
 
@@ -46,7 +47,7 @@ class UserCreateForm(forms.ModelForm):
         p1 = self.cleaned_data.get("password1")
         p2 = self.cleaned_data.get("password2")
         if p1 and p2 and p1 != p2:
-            raise forms.ValidationError("Les mots de passe ne correspondent pas.")
+            raise forms.ValidationError(_("The two password fields didn't match."))
         return p2
 
     def clean_password1(self):
@@ -107,16 +108,16 @@ class GroupForm(forms.ModelForm):
 
 class PasswordChangeForm(forms.Form):
     old_password = forms.CharField(
-        label="Mot de passe actuel",
+        label=_("Current password"),
         widget=forms.PasswordInput(attrs={"class": "form-control"}),
     )
     new_password1 = forms.CharField(
-        label="Nouveau mot de passe",
+        label=_("New password"),
         widget=forms.PasswordInput(attrs={"class": "form-control"}),
         help_text=password_validation.password_validators_help_texts,
     )
     new_password2 = forms.CharField(
-        label="Confirmer le nouveau mot de passe",
+        label=_("Confirm new password"),
         widget=forms.PasswordInput(attrs={"class": "form-control"}),
     )
 
@@ -127,14 +128,14 @@ class PasswordChangeForm(forms.Form):
     def clean_old_password(self):
         old = self.cleaned_data.get("old_password")
         if not self.user.check_password(old):
-            raise forms.ValidationError("Le mot de passe actuel est incorrect.")
+            raise forms.ValidationError(_("The current password is incorrect."))
         return old
 
     def clean_new_password2(self):
         p1 = self.cleaned_data.get("new_password1")
         p2 = self.cleaned_data.get("new_password2")
         if p1 and p2 and p1 != p2:
-            raise forms.ValidationError("Les mots de passe ne correspondent pas.")
+            raise forms.ValidationError(_("The two password fields didn't match."))
         if p1:
             password_validation.validate_password(p1, self.user)
         return p2

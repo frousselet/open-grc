@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 {% load accounts_tags %}
 {% load help_tags %}
-{% block title %}Groupes — Open GRC{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Groups — Open GRC" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h2>Groupes</h2>
+  <h2>{% trans "Groups" %}</h2>
   {% has_perm "system.groups.create" as can_create %}
   {% if can_create %}
-  <a href="{% url 'accounts:group-create' %}" class="btn btn-primary">Créer un groupe</a>
+  <a href="{% url 'accounts:group-create' %}" class="btn btn-primary">{% trans "Create a group" %}</a>
   {% endif %}
 </div>
 {% help_modal "accounts.group_list" %}
@@ -17,11 +18,11 @@
   <table class="table table-hover">
     <thead class="table-light">
       <tr>
-        <th>Nom</th>
-        <th>Description</th>
-        <th>Type</th>
-        <th>Utilisateurs</th>
-        <th>Permissions</th>
+        <th>{% trans "Name" %}</th>
+        <th>{% trans "Description" %}</th>
+        <th>{% trans "Type" %}</th>
+        <th>{% trans "Users" %}</th>
+        <th>{% trans "Permissions" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -31,16 +32,16 @@
         <td>{{ group.description|truncatewords:15|default:"-" }}</td>
         <td>
           {% if group.is_system %}
-          <span class="badge bg-info">Système</span>
+          <span class="badge bg-info">{% trans "System" %}</span>
           {% else %}
-          <span class="badge bg-light text-dark">Personnalisé</span>
+          <span class="badge bg-light text-dark">{% trans "Custom" %}</span>
           {% endif %}
         </td>
         <td>{{ group.user_count }}</td>
         <td>{{ group.permission_count }}</td>
       </tr>
       {% empty %}
-      <tr><td colspan="5" class="text-muted text-center">Aucun groupe.</td></tr>
+      <tr><td colspan="5" class="text-muted text-center">{% trans "No groups." %}</td></tr>
       {% endfor %}
     </tbody>
   </table>

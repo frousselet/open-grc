@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from context.constants import (
@@ -15,40 +16,40 @@ from .base import ScopedModel
 
 
 class Stakeholder(ScopedModel):
-    name = models.CharField("Nom", max_length=255)
+    name = models.CharField(_("Name"), max_length=255)
     type = models.CharField(
-        "Type", max_length=20, choices=IssueType.choices
+        _("Type"), max_length=20, choices=IssueType.choices
     )
     category = models.CharField(
-        "Catégorie", max_length=30, choices=StakeholderCategory.choices
+        _("Category"), max_length=30, choices=StakeholderCategory.choices
     )
-    description = models.TextField("Description", blank=True, default="")
+    description = models.TextField(_("Description"), blank=True, default="")
     contact_name = models.CharField(
-        "Nom du contact", max_length=255, blank=True, default=""
+        _("Contact name"), max_length=255, blank=True, default=""
     )
-    contact_email = models.EmailField("Email du contact", blank=True, default="")
+    contact_email = models.EmailField(_("Contact email"), blank=True, default="")
     contact_phone = models.CharField(
-        "Téléphone du contact", max_length=50, blank=True, default=""
+        _("Contact phone"), max_length=50, blank=True, default=""
     )
     influence_level = models.CharField(
-        "Niveau d'influence", max_length=20, choices=InfluenceLevel.choices
+        _("Influence level"), max_length=20, choices=InfluenceLevel.choices
     )
     interest_level = models.CharField(
-        "Niveau d'intérêt", max_length=20, choices=InfluenceLevel.choices
+        _("Interest level"), max_length=20, choices=InfluenceLevel.choices
     )
     status = models.CharField(
-        "Statut",
+        _("Status"),
         max_length=20,
         choices=StakeholderStatus.choices,
         default=StakeholderStatus.ACTIVE,
     )
-    review_date = models.DateField("Prochaine date de revue", null=True, blank=True)
+    review_date = models.DateField(_("Next review date"), null=True, blank=True)
 
     history = HistoricalRecords()
 
     class Meta(ScopedModel.Meta):
-        verbose_name = "Partie intéressée"
-        verbose_name_plural = "Parties intéressées"
+        verbose_name = _("Stakeholder")
+        verbose_name_plural = _("Stakeholders")
 
     def __str__(self):
         return self.name
@@ -60,22 +61,22 @@ class StakeholderExpectation(models.Model):
         Stakeholder,
         on_delete=models.CASCADE,
         related_name="expectations",
-        verbose_name="Partie intéressée",
+        verbose_name=_("Stakeholder"),
     )
-    description = models.TextField("Description")
-    type = models.CharField("Type", max_length=20, choices=ExpectationType.choices)
-    priority = models.CharField("Priorité", max_length=20, choices=Priority.choices)
-    is_applicable = models.BooleanField("Applicable", default=True)
-    # M2M vers Requirement omis — module non encore implémenté
+    description = models.TextField(_("Description"))
+    type = models.CharField(_("Type"), max_length=20, choices=ExpectationType.choices)
+    priority = models.CharField(_("Priority"), max_length=20, choices=Priority.choices)
+    is_applicable = models.BooleanField(_("Applicable"), default=True)
+    # M2M to Requirement omitted — module not yet implemented
     # linked_requirements = models.ManyToManyField("compliance.Requirement", ...)
-    created_at = models.DateTimeField("Date de création", auto_now_add=True)
-    updated_at = models.DateTimeField("Date de modification", auto_now=True)
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
 
     history = HistoricalRecords()
 
     class Meta:
-        verbose_name = "Attente"
-        verbose_name_plural = "Attentes"
+        verbose_name = _("Expectation")
+        verbose_name_plural = _("Expectations")
         ordering = ["-created_at"]
 
     def __str__(self):

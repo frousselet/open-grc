@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Gestion des risques — Open GRC{% endblock %}
+{% block title %}{% trans "Risk management" %} — Open GRC{% endblock %}
 
 {% load help_tags %}
 
@@ -26,7 +27,7 @@
 
 {% block content %}
 <div class="d-flex align-items-center mb-4">
-  <h1 class="mb-0">Gestion des risques</h1>
+  <h1 class="mb-0">{% trans "Risk management" %}</h1>
 </div>
 {% help_modal "risks.dashboard" %}
 
@@ -34,39 +35,39 @@
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-primary h-100">
       <div class="card-body">
-        <h5 class="card-title">Appréciations</h5>
+        <h5 class="card-title">{% trans "Risk assessments" %}</h5>
         <p class="display-6">{{ assessment_count }}</p>
-        <a href="{% url 'risks:assessment-list' %}" class="text-white">Voir tout</a>
+        <a href="{% url 'risks:assessment-list' %}" class="text-white">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-danger h-100">
       <div class="card-body">
-        <h5 class="card-title">Risques</h5>
+        <h5 class="card-title">{% trans "Risks" %}</h5>
         <p class="display-6">{{ risk_count }}</p>
-        <a href="{% url 'risks:risk-list' %}" class="text-white">Voir tout</a>
+        <a href="{% url 'risks:risk-list' %}" class="text-white">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-warning h-100">
       <div class="card-body">
-        <h5 class="card-title">Plans de traitement</h5>
+        <h5 class="card-title">{% trans "Treatment plans" %}</h5>
         <p class="display-6">{{ treatment_plan_count }}</p>
         {% if treatment_in_progress %}
-        <span class="badge text-bg-dark">{{ treatment_in_progress }} en cours</span>
+        <span class="badge text-bg-dark">{% blocktrans with count=treatment_in_progress %}{{ count }} in progress{% endblocktrans %}</span>
         {% endif %}
-        <div class="mt-1"><a href="{% url 'risks:treatment-plan-list' %}" class="text-dark">Voir tout</a></div>
+        <div class="mt-1"><a href="{% url 'risks:treatment-plan-list' %}" class="text-dark">{% trans "View all" %}</a></div>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card text-bg-info h-100">
       <div class="card-body">
-        <h5 class="card-title">Acceptations actives</h5>
+        <h5 class="card-title">{% trans "Active acceptances" %}</h5>
         <p class="display-6">{{ acceptance_count }}</p>
-        <a href="{% url 'risks:acceptance-list' %}" class="text-white">Voir tout</a>
+        <a href="{% url 'risks:acceptance-list' %}" class="text-white">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
@@ -76,31 +77,31 @@
   <div class="col-md-3 col-sm-6">
     <div class="card h-100">
       <div class="card-body">
-        <h5 class="card-title">Menaces</h5>
+        <h5 class="card-title">{% trans "Threats" %}</h5>
         <p class="display-6">{{ threat_count }}</p>
-        <a href="{% url 'risks:threat-list' %}" class="btn btn-outline-primary btn-sm">Voir tout</a>
+        <a href="{% url 'risks:threat-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="card h-100">
       <div class="card-body">
-        <h5 class="card-title">Vulnérabilités</h5>
+        <h5 class="card-title">{% trans "Vulnerabilities" %}</h5>
         <p class="display-6">{{ vulnerability_count }}</p>
-        <a href="{% url 'risks:vulnerability-list' %}" class="btn btn-outline-primary btn-sm">Voir tout</a>
+        <a href="{% url 'risks:vulnerability-list' %}" class="btn btn-outline-primary btn-sm">{% trans "View all" %}</a>
       </div>
     </div>
   </div>
   <div class="col-md-6">
     <div class="card h-100">
       <div class="card-body">
-        <h5 class="card-title">Risques par priorité</h5>
+        <h5 class="card-title">{% trans "Risks by priority" %}</h5>
         {% for item in risk_by_priority %}
         <span class="badge text-bg-{% if item.priority == 'critical' %}danger{% elif item.priority == 'high' %}warning{% elif item.priority == 'medium' %}info{% else %}secondary{% endif %} me-1">
           {{ item.priority|title }}: {{ item.count }}
         </span>
         {% empty %}
-        <span class="text-muted">Aucun risque enregistré</span>
+        <span class="text-muted">{% trans "No risks recorded" %}</span>
         {% endfor %}
       </div>
     </div>
@@ -110,7 +111,7 @@
 {% if risk_by_status %}
 <div class="card mb-4">
   <div class="card-body">
-    <h5 class="card-title">Risques par statut</h5>
+    <h5 class="card-title">{% trans "Risks by status" %}</h5>
     <div class="d-flex flex-wrap gap-2">
       {% for item in risk_by_status %}
       <span class="badge text-bg-secondary">{{ item.status }}: {{ item.count }}</span>
@@ -120,14 +121,14 @@
 </div>
 {% endif %}
 
-{# ── Matrices de risques ───────────────────────────────── #}
+{# ── Risk matrices ───────────────────────────────── #}
 {% if matrix_current or matrix_residual %}
 <div class="d-flex align-items-center mb-3">
-  <h5 class="mb-0"><i class="bi bi-grid-3x3 me-1"></i> Matrices de risques
+  <h5 class="mb-0"><i class="bi bi-grid-3x3 me-1"></i> {% trans "Risk matrices" %}
     {% if matrix_criteria %}<small class="text-muted fw-normal ms-2">({{ matrix_criteria.name }})</small>{% endif %}
   </h5>
   {% if matrix_criteria %}
-  <a href="{% url 'risks:criteria-update' matrix_criteria.pk %}" class="btn btn-outline-secondary btn-sm ms-3" title="Configurer les échelles"><i class="bi bi-gear me-1"></i>Configurer</a>
+  <a href="{% url 'risks:criteria-update' matrix_criteria.pk %}" class="btn btn-outline-secondary btn-sm ms-3" title="{% trans "Configure scales" %}"><i class="bi bi-gear me-1"></i>{% trans "Configure" %}</a>
   {% endif %}
 </div>
 <div class="row g-3 mb-4">
@@ -135,7 +136,8 @@
   <div class="col-lg-6">
     <div class="card h-100">
       <div class="card-body">
-        {% include "risks/includes/risk_matrix.html" with matrix=matrix_current title="Risques réels (avant traitement)" %}
+        {% trans "Current risks (before treatment)" as matrix_title %}
+        {% include "risks/includes/risk_matrix.html" with matrix=matrix_current title=matrix_title %}
       </div>
     </div>
   </div>
@@ -144,7 +146,8 @@
   <div class="col-lg-6">
     <div class="card h-100">
       <div class="card-body">
-        {% include "risks/includes/risk_matrix.html" with matrix=matrix_residual title="Risques résiduels (après traitement)" %}
+        {% trans "Residual risks (after treatment)" as matrix_title %}
+        {% include "risks/includes/risk_matrix.html" with matrix=matrix_residual title=matrix_title %}
       </div>
     </div>
   </div>

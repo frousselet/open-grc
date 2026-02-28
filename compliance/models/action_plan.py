@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from compliance.constants import ActionPlanStatus, Priority
@@ -7,16 +8,16 @@ from context.models.base import ScopedModel
 
 
 class ComplianceActionPlan(ScopedModel):
-    reference = models.CharField("Référence", max_length=50, unique=True)
-    name = models.CharField("Nom", max_length=255)
-    description = models.TextField("Description", blank=True, default="")
+    reference = models.CharField(_("Reference"), max_length=50, unique=True)
+    name = models.CharField(_("Name"), max_length=255)
+    description = models.TextField(_("Description"), blank=True, default="")
     assessment = models.ForeignKey(
         "compliance.ComplianceAssessment",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="action_plans",
-        verbose_name="Évaluation source",
+        verbose_name=_("Source assessment"),
     )
     requirement = models.ForeignKey(
         "compliance.Requirement",
@@ -24,27 +25,27 @@ class ComplianceActionPlan(ScopedModel):
         null=True,
         blank=True,
         related_name="action_plans",
-        verbose_name="Exigence concernée",
+        verbose_name=_("Related requirement"),
     )
-    gap_description = models.TextField("Description de l'écart")
-    remediation_plan = models.TextField("Plan de remédiation")
+    gap_description = models.TextField(_("Gap description"))
+    remediation_plan = models.TextField(_("Remediation plan"))
     priority = models.CharField(
-        "Priorité", max_length=20, choices=Priority.choices
+        _("Priority"), max_length=20, choices=Priority.choices
     )
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name="owned_action_plans",
-        verbose_name="Responsable",
+        verbose_name=_("Owner"),
     )
-    start_date = models.DateField("Date de début", null=True, blank=True)
-    target_date = models.DateField("Date cible")
-    completion_date = models.DateField("Date d'achèvement", null=True, blank=True)
+    start_date = models.DateField(_("Start date"), null=True, blank=True)
+    target_date = models.DateField(_("Target date"))
+    completion_date = models.DateField(_("Completion date"), null=True, blank=True)
     progress_percentage = models.PositiveIntegerField(
-        "Avancement (%)", default=0
+        _("Progress (%)"), default=0
     )
     cost_estimate = models.DecimalField(
-        "Estimation du coût",
+        _("Cost estimate"),
         max_digits=12,
         decimal_places=2,
         null=True,
@@ -52,7 +53,7 @@ class ComplianceActionPlan(ScopedModel):
     )
     # linked_measures = models.ManyToManyField("measures.Measure", blank=True)
     status = models.CharField(
-        "Statut",
+        _("Status"),
         max_length=20,
         choices=ActionPlanStatus.choices,
         default=ActionPlanStatus.PLANNED,
@@ -61,8 +62,8 @@ class ComplianceActionPlan(ScopedModel):
     history = HistoricalRecords()
 
     class Meta(ScopedModel.Meta):
-        verbose_name = "Plan d'action de conformité"
-        verbose_name_plural = "Plans d'action de conformité"
+        verbose_name = _("Compliance action plan")
+        verbose_name_plural = _("Compliance action plans")
 
     def __str__(self):
         return f"{self.reference} — {self.name}"

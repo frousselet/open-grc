@@ -1,38 +1,39 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Acceptation de risque — Open GRC{% endblock %}
+{% block title %}{% trans "Risk acceptance" %} — Open GRC{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1>Acceptation — {{ acceptance.risk }}</h1>
+  <h1>{% blocktrans with risk=acceptance.risk %}Acceptance — {{ risk }}{% endblocktrans %}</h1>
   <div>
-    <a href="{% url 'risks:acceptance-update' acceptance.pk %}" class="btn btn-primary">Modifier</a>
-    <a href="{% url 'risks:acceptance-list' %}" class="btn btn-outline-secondary">Retour</a>
+    <a href="{% url 'risks:acceptance-update' acceptance.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'risks:acceptance-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
     <dl class="row">
-      <dt class="col-sm-3">Risque</dt><dd class="col-sm-9"><a href="{% url 'risks:risk-detail' acceptance.risk.pk %}">{{ acceptance.risk }}</a></dd>
-      <dt class="col-sm-3">Accepté par</dt><dd class="col-sm-9">{{ acceptance.accepted_by|default:"—" }}</dd>
-      <dt class="col-sm-3">Date d'acceptation</dt><dd class="col-sm-9">{{ acceptance.accepted_at|default:"—" }}</dd>
-      <dt class="col-sm-3">Niveau à l'acceptation</dt><dd class="col-sm-9">{{ acceptance.risk_level_at_acceptance|default:"—" }}</dd>
-      <dt class="col-sm-3">Statut</dt>
+      <dt class="col-sm-3">{% trans "Risk" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:risk-detail' acceptance.risk.pk %}">{{ acceptance.risk }}</a></dd>
+      <dt class="col-sm-3">{% trans "Accepted by" %}</dt><dd class="col-sm-9">{{ acceptance.accepted_by|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Acceptance date" %}</dt><dd class="col-sm-9">{{ acceptance.accepted_at|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Level at acceptance" %}</dt><dd class="col-sm-9">{{ acceptance.risk_level_at_acceptance|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Status" %}</dt>
       <dd class="col-sm-9">
         <span class="badge text-bg-{% if acceptance.status == 'active' %}success{% elif acceptance.status == 'expired' %}danger{% else %}secondary{% endif %}">
           {{ acceptance.get_status_display }}
         </span>
       </dd>
-      <dt class="col-sm-3">Valide jusqu'au</dt><dd class="col-sm-9">{{ acceptance.valid_until|default:"—" }}</dd>
-      <dt class="col-sm-3">Date de revue</dt><dd class="col-sm-9">{{ acceptance.review_date|default:"—" }}</dd>
-      <dt class="col-sm-3">Justification</dt><dd class="col-sm-9">{{ acceptance.justification|linebreaksbr }}</dd>
-      <dt class="col-sm-3">Conditions</dt><dd class="col-sm-9">{{ acceptance.conditions|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Valid until" %}</dt><dd class="col-sm-9">{{ acceptance.valid_until|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Review date" %}</dt><dd class="col-sm-9">{{ acceptance.review_date|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ acceptance.justification|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Conditions" %}</dt><dd class="col-sm-9">{{ acceptance.conditions|default:"—"|linebreaksbr }}</dd>
     </dl>
   </div>
 

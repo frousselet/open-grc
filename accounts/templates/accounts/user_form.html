@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block title %}{{ title }} — Open GRC{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h2>{{ title }}</h2>
-  <a href="{% url 'accounts:user-list' %}" class="btn btn-outline-secondary">Retour à la liste</a>
+  <a href="{% url 'accounts:user-list' %}" class="btn btn-outline-secondary">{% trans "Back to list" %}</a>
 </div>
 
 <div class="card">
@@ -31,8 +32,8 @@
       </div>
       {% endfor %}
       <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
-        <a href="{% url 'accounts:user-list' %}" class="btn btn-outline-secondary">Annuler</a>
+        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+        <a href="{% url 'accounts:user-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
       </div>
     </form>
   </div>

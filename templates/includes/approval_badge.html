@@ -1,16 +1,17 @@
+{% load i18n %}
 <div class="mb-3">
   {% if object.is_approved %}
-    <span class="badge text-bg-success">Approuvé</span>
+    <span class="badge text-bg-success">{% trans "Approved" %}</span>
     {% if object.approved_by %}
-      <small class="text-muted ms-2">par {{ object.approved_by }} le {{ object.approved_at|date:"d/m/Y H:i" }}</small>
+      <small class="text-muted ms-2">{% blocktrans with user=object.approved_by date=object.approved_at|date:"d/m/Y H:i" %}by {{ user }} on {{ date }}{% endblocktrans %}</small>
     {% endif %}
   {% else %}
-    <span class="badge text-bg-warning">En attente d'approbation</span>
+    <span class="badge text-bg-warning">{% trans "Pending approval" %}</span>
   {% endif %}
   {% if can_approve and not object.is_approved %}
     <form method="post" action="{{ approve_url }}" class="d-inline ms-2">
       {% csrf_token %}
-      <button type="submit" class="btn btn-sm btn-success">Approuver</button>
+      <button type="submit" class="btn btn-sm btn-success">{% trans "Approve" %}</button>
     </form>
   {% endif %}
 </div>

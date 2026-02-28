@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from context.constants import (
@@ -15,52 +16,52 @@ from .base import ScopedModel
 
 
 class Issue(ScopedModel):
-    name = models.CharField("Intitulé", max_length=255)
-    description = models.TextField("Description", blank=True, default="")
-    type = models.CharField("Type", max_length=20, choices=IssueType.choices)
+    name = models.CharField(_("Title"), max_length=255)
+    description = models.TextField(_("Description"), blank=True, default="")
+    type = models.CharField(_("Type"), max_length=20, choices=IssueType.choices)
     category = models.CharField(
-        "Catégorie", max_length=30, choices=IssueCategory.choices
+        _("Category"), max_length=30, choices=IssueCategory.choices
     )
     impact_level = models.CharField(
-        "Niveau d'impact", max_length=20, choices=ImpactLevel.choices
+        _("Impact level"), max_length=20, choices=ImpactLevel.choices
     )
     trend = models.CharField(
-        "Tendance", max_length=20, choices=Trend.choices, blank=True, default=""
+        _("Trend"), max_length=20, choices=Trend.choices, blank=True, default=""
     )
-    source = models.CharField("Source", max_length=255, blank=True, default="")
+    source = models.CharField(_("Source"), max_length=255, blank=True, default="")
     related_stakeholders = models.ManyToManyField(
         "context.Stakeholder",
         blank=True,
         related_name="related_issues",
-        verbose_name="Parties intéressées liées",
+        verbose_name=_("Related stakeholders"),
     )
-    review_date = models.DateField("Prochaine date de revue", null=True, blank=True)
+    review_date = models.DateField(_("Next review date"), null=True, blank=True)
     status = models.CharField(
-        "Statut", max_length=20, choices=IssueStatus.choices, default=IssueStatus.IDENTIFIED
+        _("Status"), max_length=20, choices=IssueStatus.choices, default=IssueStatus.IDENTIFIED
     )
 
     history = HistoricalRecords()
 
     class Meta(ScopedModel.Meta):
-        verbose_name = "Enjeu"
-        verbose_name_plural = "Enjeux"
+        verbose_name = _("Issue")
+        verbose_name_plural = _("Issues")
 
     def __str__(self):
         return self.name
 
     def clean(self):
         super().clean()
-        # RS-01: cohérence type / catégorie
+        # RS-01: type / category consistency
         if self.type == IssueType.INTERNAL and self.category not in INTERNAL_CATEGORIES:
             raise ValidationError(
                 {
-                    "category": "Un enjeu interne ne peut avoir qu'une catégorie interne."
+                    "category": _("An internal issue can only have an internal category.")
                 }
             )
         if self.type == IssueType.EXTERNAL and self.category not in EXTERNAL_CATEGORIES:
             raise ValidationError(
                 {
-                    "category": "Un enjeu externe ne peut avoir qu'une catégorie externe."
+                    "category": _("An external issue can only have an external category.")
                 }
             )
 

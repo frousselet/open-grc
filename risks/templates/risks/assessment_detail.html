@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}{{ assessment.reference }} — Open GRC{% endblock %}
 
@@ -20,50 +21,50 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1>{{ assessment.reference }} — {{ assessment.name }}</h1>
   <div>
-    <a href="{% url 'risks:assessment-update' assessment.pk %}" class="btn btn-primary">Modifier</a>
-    <a href="{% url 'risks:assessment-list' %}" class="btn btn-outline-secondary">Retour</a>
+    <a href="{% url 'risks:assessment-update' assessment.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'risks:assessment-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 {% include "includes/approval_badge.html" with object=assessment %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Général</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#risks">Risques</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#risks">{% trans "Risks" %}</a></li>
   {% if matrix_current or matrix_residual %}
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#matrices">Matrices</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#matrices">{% trans "Matrices" %}</a></li>
   {% endif %}
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#iso27005">Analyses ISO 27005</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">Historique</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#iso27005">{% trans "ISO 27005 analyses" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
     <dl class="row">
-      <dt class="col-sm-3">Périmètre</dt><dd class="col-sm-9">{{ assessment.scope }}</dd>
-      <dt class="col-sm-3">Méthodologie</dt><dd class="col-sm-9">{{ assessment.get_methodology_display }}</dd>
-      <dt class="col-sm-3">Appréciateur</dt><dd class="col-sm-9">{{ assessment.assessor|default:"—" }}</dd>
-      <dt class="col-sm-3">Date d'appréciation</dt><dd class="col-sm-9">{{ assessment.assessment_date|default:"—" }}</dd>
-      <dt class="col-sm-3">Critères de risque</dt><dd class="col-sm-9">{{ assessment.risk_criteria|default:"—" }}</dd>
-      <dt class="col-sm-3">Statut</dt>
+      <dt class="col-sm-3">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ assessment.scope }}</dd>
+      <dt class="col-sm-3">{% trans "Methodology" %}</dt><dd class="col-sm-9">{{ assessment.get_methodology_display }}</dd>
+      <dt class="col-sm-3">{% trans "Assessor" %}</dt><dd class="col-sm-9">{{ assessment.assessor|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Assessment date" %}</dt><dd class="col-sm-9">{{ assessment.assessment_date|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Risk criteria" %}</dt><dd class="col-sm-9">{{ assessment.risk_criteria|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Status" %}</dt>
       <dd class="col-sm-9">
         <span class="badge text-bg-{% if assessment.status == 'validated' %}success{% elif assessment.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
           {{ assessment.get_status_display }}
         </span>
       </dd>
-      <dt class="col-sm-3">Prochaine revue</dt><dd class="col-sm-9">{{ assessment.next_review_date|default:"—" }}</dd>
-      <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ assessment.description|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3">Synthèse</dt><dd class="col-sm-9">{{ assessment.summary|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ assessment.next_review_date|default:"—" }}</dd>
+      <dt class="col-sm-3">{% trans "Description" %}</dt><dd class="col-sm-9">{{ assessment.description|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3">{% trans "Summary" %}</dt><dd class="col-sm-9">{{ assessment.summary|default:"—"|linebreaksbr }}</dd>
     </dl>
   </div>
 
   <div class="tab-pane fade" id="risks">
     <div class="d-flex justify-content-between align-items-center mb-2">
-      <h5>Risques associés</h5>
-      <a href="{% url 'risks:risk-create' %}?assessment={{ assessment.pk }}" class="btn btn-sm btn-primary">Ajouter un risque</a>
+      <h5>{% trans "Associated risks" %}</h5>
+      <a href="{% url 'risks:risk-create' %}?assessment={{ assessment.pk }}" class="btn btn-sm btn-primary">{% trans "Add a risk" %}</a>
     </div>
     {% if risks %}
     <table class="table table-striped">
-      <thead><tr><th>Réf.</th><th>Nom</th><th>Priorité</th><th>Statut</th><th>Niveau actuel</th></tr></thead>
+      <thead><tr><th>{% trans "Ref." %}</th><th>{% trans "Name" %}</th><th>{% trans "Priority" %}</th><th>{% trans "Status" %}</th><th>{% trans "Current level" %}</th></tr></thead>
       <tbody>
         {% for r in risks %}
         <tr>
@@ -77,24 +78,26 @@
       </tbody>
     </table>
     {% else %}
-    <p class="text-muted">Aucun risque associé.</p>
+    <p class="text-muted">{% trans "No associated risk." %}</p>
     {% endif %}
   </div>
 
   {% if matrix_current or matrix_residual %}
   <div class="tab-pane fade" id="matrices">
-    <h5 class="mb-3">Matrices de risques
+    <h5 class="mb-3">{% trans "Risk matrices" %}
       {% if matrix_criteria %}<small class="text-muted fw-normal ms-2">({{ matrix_criteria.name }})</small>{% endif %}
     </h5>
     <div class="row g-3">
       {% if matrix_current %}
       <div class="col-lg-6">
-        {% include "risks/includes/risk_matrix.html" with matrix=matrix_current title="Risques réels (avant traitement)" %}
+        {% trans "Current risks (before treatment)" as matrix_title %}
+        {% include "risks/includes/risk_matrix.html" with matrix=matrix_current title=matrix_title %}
       </div>
       {% endif %}
       {% if matrix_residual %}
       <div class="col-lg-6">
-        {% include "risks/includes/risk_matrix.html" with matrix=matrix_residual title="Risques résiduels (après traitement)" %}
+        {% trans "Residual risks (after treatment)" as matrix_title %}
+        {% include "risks/includes/risk_matrix.html" with matrix=matrix_residual title=matrix_title %}
       </div>
       {% endif %}
     </div>
@@ -103,12 +106,12 @@
 
   <div class="tab-pane fade" id="iso27005">
     <div class="d-flex justify-content-between align-items-center mb-2">
-      <h5>Analyses ISO 27005</h5>
-      <a href="{% url 'risks:iso27005-create' %}?assessment={{ assessment.pk }}" class="btn btn-sm btn-primary">Nouvelle analyse</a>
+      <h5>{% trans "ISO 27005 analyses" %}</h5>
+      <a href="{% url 'risks:iso27005-create' %}?assessment={{ assessment.pk }}" class="btn btn-sm btn-primary">{% trans "New analysis" %}</a>
     </div>
     {% if iso27005_risks %}
     <table class="table table-striped">
-      <thead><tr><th>Menace</th><th>Vulnérabilité</th><th>Vraisemblance</th><th>Impact max</th><th>Niveau</th></tr></thead>
+      <thead><tr><th>{% trans "Threat" %}</th><th>{% trans "Vulnerability" %}</th><th>{% trans "Likelihood" %}</th><th>{% trans "Max impact" %}</th><th>{% trans "Level" %}</th></tr></thead>
       <tbody>
         {% for a in iso27005_risks %}
         <tr>
@@ -122,7 +125,7 @@
       </tbody>
     </table>
     {% else %}
-    <p class="text-muted">Aucune analyse ISO 27005.</p>
+    <p class="text-muted">{% trans "No ISO 27005 analysis." %}</p>
     {% endif %}
   </div>
 

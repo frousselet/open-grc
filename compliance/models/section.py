@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 
@@ -10,7 +11,7 @@ class Section(models.Model):
         "compliance.Framework",
         on_delete=models.CASCADE,
         related_name="sections",
-        verbose_name="Référentiel",
+        verbose_name=_("Framework"),
     )
     parent_section = models.ForeignKey(
         "self",
@@ -18,26 +19,26 @@ class Section(models.Model):
         null=True,
         blank=True,
         related_name="children",
-        verbose_name="Section parente",
+        verbose_name=_("Parent section"),
     )
-    reference = models.CharField("Référence", max_length=50)
-    name = models.CharField("Nom", max_length=255)
-    description = models.TextField("Description", blank=True, default="")
-    order = models.PositiveIntegerField("Ordre", default=0)
+    reference = models.CharField(_("Reference"), max_length=50)
+    name = models.CharField(_("Name"), max_length=255)
+    description = models.TextField(_("Description"), blank=True, default="")
+    order = models.PositiveIntegerField(_("Order"), default=0)
     compliance_level = models.DecimalField(
-        "Niveau de conformité (%)",
+        _("Compliance level (%)"),
         max_digits=5,
         decimal_places=2,
         default=0,
     )
-    created_at = models.DateTimeField("Date de création", auto_now_add=True)
-    updated_at = models.DateTimeField("Date de modification", auto_now=True)
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
 
     history = HistoricalRecords()
 
     class Meta:
-        verbose_name = "Section"
-        verbose_name_plural = "Sections"
+        verbose_name = _("Section")
+        verbose_name_plural = _("Sections")
         ordering = ["order"]
         constraints = [
             models.UniqueConstraint(
