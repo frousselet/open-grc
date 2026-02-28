@@ -42,7 +42,7 @@ class TestScopeHierarchy:
         a = ScopeFactory()
         b = ScopeFactory(parent_scope=a)
         a.parent_scope = b
-        with pytest.raises(ValidationError, match="circulaire"):
+        with pytest.raises(ValidationError, match="Circular reference"):
             a.clean()
 
 
@@ -55,7 +55,7 @@ class TestIssueValidation:
 
     def test_internal_with_external_category_rejected(self):
         issue = IssueFactory.build(type=IssueType.INTERNAL, category=IssueCategory.POLITICAL)
-        with pytest.raises(ValidationError, match="catégorie interne"):
+        with pytest.raises(ValidationError, match="internal category"):
             issue.clean()
 
     def test_external_with_external_category_ok(self):
@@ -65,7 +65,7 @@ class TestIssueValidation:
 
     def test_external_with_internal_category_rejected(self):
         issue = IssueFactory.build(type=IssueType.EXTERNAL, category=IssueCategory.TECHNICAL)
-        with pytest.raises(ValidationError, match="catégorie externe"):
+        with pytest.raises(ValidationError, match="external category"):
             issue.clean()
 
 
@@ -92,7 +92,7 @@ class TestObjectiveValidation:
         scope_b = ScopeFactory()
         parent = ObjectiveFactory(scope=scope_a)
         child = ObjectiveFactory.build(scope=scope_b, parent_objective=parent)
-        with pytest.raises(ValidationError, match="même périmètre"):
+        with pytest.raises(ValidationError, match="same scope"):
             child.clean()
 
     def test_parent_same_scope_ok(self):

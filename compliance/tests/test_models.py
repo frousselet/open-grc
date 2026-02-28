@@ -66,5 +66,5 @@ class TestRequirementMapping:
         req1 = RequirementFactory(framework=fw)
         req2 = RequirementFactory(framework=fw)
         mapping = MappingFactory.build(source_requirement=req1, target_requirement=req2)
-        with pytest.raises(ValidationError, match="référentiels différents"):
+        with pytest.raises(ValidationError, match="different frameworks"):
             mapping.clean()
