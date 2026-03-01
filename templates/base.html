@@ -1176,9 +1176,8 @@
     {# ── Sidebar footer (user) ─────────────────────────── #}
     {% if user.is_authenticated %}
     <div class="sidebar-footer">
-      <div class="dropdown">
-        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
-           data-bs-toggle="dropdown" aria-expanded="false">
+      <div class="d-flex align-items-center gap-2">
+        <a href="{% url 'accounts:profile' %}" class="d-flex align-items-center text-decoration-none" style="min-width:0;flex:1">
           {% if user.avatar %}
           <img src="{{ user.avatar.url }}" alt="" style="width:1.75rem;height:1.75rem;border-radius:var(--radius-sm);object-fit:cover" class="me-2">
           {% else %}
@@ -1188,16 +1187,12 @@
           {% endif %}
           <span class="text-truncate" style="max-width:140px;font-size:.8125rem">{{ user.display_name }}</span>
         </a>
-        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-          <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person me-2"></i>{% trans "My profile" %}</a></li>
-          <li><hr class="dropdown-divider"></li>
-          <li>
-            <form method="post" action="{% url 'accounts:logout' %}">
-              {% csrf_token %}
-              <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-2"></i>{% trans "Sign out" %}</button>
-            </form>
-          </li>
-        </ul>
+        <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-link p-0 d-flex align-items-center" style="color:var(--text-muted);font-size:1rem" title="{% trans 'Sign out' %}">
+            <i class="bi bi-box-arrow-right"></i>
+          </button>
+        </form>
       </div>
     </div>
     {% endif %}
