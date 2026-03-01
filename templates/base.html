@@ -716,50 +716,34 @@
       color: var(--text-secondary);
       padding: .35rem .55rem;
     }
-    /* Mobile top bar */
-    .mobile-topbar {
+    /* Mobile menu toggle button */
+    .mobile-menu-toggle {
       display: none;
-      height: 3.25rem;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border-light);
+      position: fixed;
+      top: .75rem;
+      left: .75rem;
       z-index: 1040;
-      align-items: center;
-      padding: 0 .75rem;
-      gap: .5rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      background: var(--surface);
       box-shadow: var(--shadow-sm);
-    }
-    .mobile-topbar-toggle {
-      background: transparent;
-      border: none;
-      font-size: 1.35rem;
       color: var(--text-secondary);
-      padding: .25rem .4rem;
-      border-radius: var(--radius-sm);
-      display: inline-flex;
+      font-size: 1.25rem;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
     }
-    .mobile-topbar-toggle:active {
+    .mobile-menu-toggle:active {
       background: var(--surface-muted);
-    }
-    .mobile-topbar-brand {
-      font-weight: 600;
-      font-size: .95rem;
-      color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      gap: .4rem;
-    }
-    .mobile-topbar-brand i {
-      color: var(--accent);
-      font-size: 1.1rem;
     }
     @media (max-width: 991.98px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.show { transform: translateX(0); }
       .sidebar-backdrop.show { display: block; }
       .sidebar .sidebar-toggle { display: inline-flex; }
-      .mobile-topbar { display: flex; }
+      .mobile-menu-toggle { display: flex; }
       .main-content { margin-left: 0; padding: 1rem 1rem 4rem; }
       .main-content h1 { font-size: 1.25rem; }
       .main-content h2 { font-size: 1.1rem; }
@@ -1029,15 +1013,10 @@
     {% endif %}
   </aside>
 
-  {# ── Mobile top bar ───────────────────────────────────── #}
-  <div class="mobile-topbar">
-    <button class="mobile-topbar-toggle" onclick="toggleSidebar()">
-      <i class="bi bi-list"></i>
-    </button>
-    <span class="mobile-topbar-brand">
-      <i class="bi bi-shield-check"></i> Open GRC
-    </span>
-  </div>
+  {# ── Mobile menu toggle ──────────────────────────────── #}
+  <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+    <i class="bi bi-list"></i>
+  </button>
 
   {# ── Main content ─────────────────────────────────────── #}
   <main class="main-content">
