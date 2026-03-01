@@ -114,11 +114,13 @@
           <tbody>
             {% for req in type_requirements %}
             <tr>
-              <td><a href="{% url 'assets:supplier-type-requirement-update' req.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ req.title }}</a></td>
+              <td style="font-weight:500">{{ req.title }}</td>
               <td>{{ req.description|default:"—"|truncatewords:20 }}</td>
-              <td class="d-flex gap-1">
-                <a href="{% url 'assets:supplier-type-requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-                <a href="{% url 'assets:supplier-type-requirement-delete' req.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+              <td>
+                <form method="post" action="{% url 'assets:instantiate-type-requirement-review' supplier.pk req.pk %}" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-primary">{% trans "Add review" %}</button>
+                </form>
               </td>
             </tr>
             {% empty %}

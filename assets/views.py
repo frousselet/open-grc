@@ -641,6 +641,27 @@ class SupplierRequirementReviewDeleteView(LoginRequiredMixin, DeleteView):
         )
 
 
+class InstantiateTypeRequirementReviewView(LoginRequiredMixin, View):
+    """Get-or-create a SupplierRequirement from a type requirement, then redirect to the review form."""
+
+    def post(self, request, supplier_pk, type_req_pk):
+        supplier = get_object_or_404(Supplier, pk=supplier_pk)
+        type_req = get_object_or_404(SupplierTypeRequirement, pk=type_req_pk)
+
+        req, _created = SupplierRequirement.objects.get_or_create(
+            supplier=supplier,
+            source_type_requirement=type_req,
+            defaults={
+                "title": type_req.title,
+                "description": type_req.description,
+            },
+        )
+        return redirect(
+            "assets:supplier-requirement-review-create",
+            requirement_pk=req.pk,
+        )
+
+
 # ── Supplier Dependencies ─────────────────────────────────
 
 class SupplierDependencyListView(LoginRequiredMixin, ListView):
