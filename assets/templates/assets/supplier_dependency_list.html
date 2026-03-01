@@ -26,7 +26,16 @@
         {% for dep in dependencies %}
         <tr>
           <td><a href="{% url 'assets:support-asset-detail' dep.support_asset.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ dep.support_asset }}</a></td>
-          <td><a href="{% url 'assets:supplier-detail' dep.supplier.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ dep.supplier }}</a></td>
+          <td>
+            <a href="{% url 'assets:supplier-detail' dep.supplier.pk %}" class="d-inline-flex align-items-center gap-2" style="color:var(--accent);text-decoration:none;font-weight:500">
+              {% if dep.supplier.logo %}
+                <img src="{{ dep.supplier.logo.url }}" alt="" style="width:24px;height:24px;object-fit:contain;border-radius:4px">
+              {% else %}
+                <span class="d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;border-radius:4px;background:#f59e0b;color:#fff;font-size:.7rem"><i class="bi bi-truck"></i></span>
+              {% endif %}
+              {{ dep.supplier.name }}
+            </a>
+          </td>
           <td>{{ dep.get_dependency_type_display }}</td>
           <td>
             <span class="badge text-bg-{% if dep.criticality == 'critical' %}danger{% elif dep.criticality == 'high' %}warning{% elif dep.criticality == 'medium' %}info{% else %}secondary{% endif %}">
