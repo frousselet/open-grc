@@ -20,7 +20,7 @@
           <th>{% trans "Description" %}</th>
           <th>{% trans "Requirements" %}</th>
           <th>{% trans "Suppliers" %}</th>
-          <th>{% trans "Actions" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -30,9 +30,9 @@
           <td>{{ st.description|truncatewords:15|default:"—" }}</td>
           <td><span class="badge text-bg-secondary">{{ st.requirements.count }}</span></td>
           <td><span class="badge text-bg-secondary">{{ st.suppliers.count }}</span></td>
-          <td class="d-flex gap-1">
-            <a href="{% url 'assets:supplier-type-update' st.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-            <a href="{% url 'assets:supplier-type-delete' st.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+          <td class="text-end">
+            <a href="{% url 'assets:supplier-type-update' st.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+            <a href="{% url 'assets:supplier-type-delete' st.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
           </td>
         </tr>
         {% empty %}

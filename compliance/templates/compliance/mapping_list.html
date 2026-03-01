@@ -23,7 +23,7 @@
           <th>{% trans "Target framework" %}</th>
           <th>{% trans "Type" %}</th>
           <th>{% trans "Coverage" %}</th>
-          <th>{% trans "Actions" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -35,8 +35,8 @@
           <td>{{ m.target_requirement.framework.short_name|default:m.target_requirement.framework.name }}</td>
           <td>{{ m.get_mapping_type_display }}</td>
           <td>{{ m.get_coverage_level_display|default:"—" }}</td>
-          <td>
-            <a href="{% url 'compliance:mapping-update' m.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+          <td class="text-end">
+            <a href="{% url 'compliance:mapping-update' m.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}

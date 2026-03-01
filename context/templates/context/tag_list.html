@@ -19,7 +19,7 @@
           <th>{% trans "Color" %}</th>
           <th>{% trans "Linked items" %}</th>
           <th>{% trans "Created at" %}</th>
-          <th>{% trans "Actions" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -42,9 +42,9 @@
             {% endif %}
           </td>
           <td style="color:var(--text-secondary);font-size:.85rem">{{ tag.created_at|date:"d/m/Y H:i" }}</td>
-          <td>
-            <a href="{% url 'context:tag-update' tag.pk %}" class="btn btn-sm btn-outline-primary me-1">{% trans "Edit" %}</a>
-            <a href="{% url 'context:tag-delete' tag.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+          <td class="text-end">
+            <a href="{% url 'context:tag-update' tag.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+            <a href="{% url 'context:tag-delete' tag.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
           </td>
         </tr>
         {% empty %}

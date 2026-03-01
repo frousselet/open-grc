@@ -23,7 +23,7 @@
           <th>{% trans "Status" %}</th>
           <th>{% trans "Tags" %}</th>
           <th>{% trans "Approval" %}</th>
-          <th>{% trans "Actions" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -48,9 +48,9 @@
               {% if site.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
             </span>
           </td>
-          <td>
-            <a href="{% url 'assets:site-update' site.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-            <a href="{% url 'assets:site-delete' site.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+          <td class="text-end">
+            <a href="{% url 'assets:site-update' site.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+            <a href="{% url 'assets:site-delete' site.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
           </td>
         </tr>
         {% empty %}

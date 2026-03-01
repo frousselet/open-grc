@@ -65,7 +65,7 @@
         <span style="color:var(--text-muted);font-size:.85rem">— {{ review.reviewer }}</span>
         {% endif %}
       </div>
-      <a href="{% url 'assets:supplier-requirement-review-delete' review.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('{% trans "Delete this review?" %}')">{% trans "Delete" %}</a>
+      <a href="{% url 'assets:supplier-requirement-review-delete' review.pk %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Delete' %}" onclick="return confirm('{% trans "Delete this review?" %}')"><i class="bi bi-trash"></i></a>
     </div>
     {% if review.comment %}
     <div class="mb-2">

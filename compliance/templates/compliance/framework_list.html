@@ -26,7 +26,7 @@
           <th>{% trans "Status" %}</th>
           <th>{% trans "Tags" %}</th>
           <th>{% trans "Approval" %}</th>
-          <th>{% trans "Actions" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -53,8 +53,8 @@
               {% if fw.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
             </span>
           </td>
-          <td>
-            <a href="{% url 'compliance:framework-update' fw.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+          <td class="text-end">
+            <a href="{% url 'compliance:framework-update' fw.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}

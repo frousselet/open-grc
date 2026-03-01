@@ -33,7 +33,7 @@
           <th>{% trans "Status" %}</th>
           <th>{% trans "Catalog" %}</th>
           <th>{% trans "Tags" %}</th>
-          <th>{% trans "Actions" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -52,8 +52,8 @@
           </td>
           <td>{% if t.is_from_catalog %}<span class="badge text-bg-info">{% trans "Catalog" %}</span>{% else %}—{% endif %}</td>
           <td>{% for tag in t.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          <td>
-            <a href="{% url 'risks:threat-update' t.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+          <td class="text-end">
+            <a href="{% url 'risks:threat-update' t.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}
