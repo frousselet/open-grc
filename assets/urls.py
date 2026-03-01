@@ -41,6 +41,10 @@ urlpatterns = [
     path("supplier-types/<int:pk>/", views.SupplierTypeDetailView.as_view(), name="supplier-type-detail"),
     path("supplier-types/<int:pk>/edit/", views.SupplierTypeUpdateView.as_view(), name="supplier-type-update"),
     path("supplier-types/<int:pk>/delete/", views.SupplierTypeDeleteView.as_view(), name="supplier-type-delete"),
+    # Supplier Type Requirements
+    path("supplier-types/<int:type_pk>/requirements/create/", views.SupplierTypeRequirementCreateView.as_view(), name="supplier-type-requirement-create"),
+    path("supplier-type-requirements/<int:pk>/edit/", views.SupplierTypeRequirementUpdateView.as_view(), name="supplier-type-requirement-update"),
+    path("supplier-type-requirements/<int:pk>/delete/", views.SupplierTypeRequirementDeleteView.as_view(), name="supplier-type-requirement-delete"),
     # Suppliers
     path("suppliers/", views.SupplierListView.as_view(), name="supplier-list"),
     path("suppliers/create/", views.SupplierCreateView.as_view(), name="supplier-create"),

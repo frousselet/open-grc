@@ -24,27 +24,37 @@
   </div>
 </div>
 
-<h4>{% trans "Default requirements" %} ({{ supplier_type.requirements.count }})</h4>
-{% if supplier_type.requirements.all %}
+<div class="d-flex align-items-center mb-3">
+  <h4 class="mb-0">{% trans "Requirements" %} ({{ requirements|length }})</h4>
+  <a href="{% url 'assets:supplier-type-requirement-create' supplier_type.pk %}" class="btn btn-sm btn-primary ms-auto">{% trans "Add requirement" %}</a>
+</div>
 <div class="card mb-4">
   <div class="table-responsive">
     <table class="table table-hover mb-0">
-      <thead><tr><th>{% trans "Ref." %}</th><th>{% trans "Name" %}</th><th>{% trans "Framework" %}</th></tr></thead>
-      <tbody>
-        {% for req in supplier_type.requirements.all %}
+      <thead>
         <tr>
-          <td><span class="ref">{{ req.reference }}</span></td>
-          <td>{{ req.name }}</td>
-          <td>{{ req.framework|default:"—" }}</td>
+          <th>{% trans "Title" %}</th>
+          <th>{% trans "Description" %}</th>
+          <th>{% trans "Actions" %}</th>
         </tr>
+      </thead>
+      <tbody>
+        {% for req in requirements %}
+        <tr>
+          <td style="font-weight:500">{{ req.title }}</td>
+          <td>{{ req.description|default:"—"|truncatewords:20 }}</td>
+          <td class="d-flex gap-1">
+            <a href="{% url 'assets:supplier-type-requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+            <a href="{% url 'assets:supplier-type-requirement-delete' req.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="text-center py-4" style="color:var(--text-muted)">{% trans "No requirements for this type." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
-{% else %}
-<p style="color:var(--text-muted);font-size:.85rem">{% trans "No default requirements for this type." %}</p>
-{% endif %}
 
 <h4>{% trans "Suppliers of this type" %} ({{ suppliers|length }})</h4>
 {% if suppliers %}

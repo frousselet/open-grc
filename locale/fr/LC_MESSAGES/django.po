@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-01 11:57+0100\n"
+"POT-Creation-Date: 2026-03-01 12:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,7 +41,8 @@ msgstr "Modifier"
 #: assets/templates/assets/confirm_delete.html:14
 #: assets/templates/assets/dependency_list.html:49
 #: assets/templates/assets/supplier_dependency_list.html:56
-#: assets/templates/assets/supplier_detail.html:192
+#: assets/templates/assets/supplier_detail.html:190
+#: assets/templates/assets/supplier_type_detail.html:48
 #: assets/templates/assets/supplier_type_list.html:33
 #: compliance/templates/compliance/confirm_delete.html:4
 #: compliance/templates/compliance/confirm_delete.html:14
@@ -227,7 +228,7 @@ msgstr "Dépendances"
 msgid "Asset groups"
 msgstr "Groupes d'actifs"
 
-#: accounts/constants.py:115 assets/models/supplier.py:107
+#: accounts/constants.py:115 assets/models/supplier.py:125
 #: assets/templates/assets/supplier_list.html:4
 #: assets/templates/assets/supplier_list.html:8
 #: assets/templates/assets/supplier_type_list.html:20 context/constants.py:80
@@ -235,7 +236,7 @@ msgstr "Groupes d'actifs"
 msgid "Suppliers"
 msgstr "Fournisseurs"
 
-#: accounts/constants.py:119 assets/models/supplier.py:250
+#: accounts/constants.py:119 assets/models/supplier.py:268
 #: assets/templates/assets/dependency_graph.html:75
 #: assets/templates/assets/supplier_dependency_list.html:4
 #: assets/templates/assets/supplier_dependency_list.html:8
@@ -274,6 +275,7 @@ msgid "Sections"
 msgstr "Sections"
 
 #: accounts/constants.py:149 assets/templates/assets/supplier_detail.html:37
+#: assets/templates/assets/supplier_type_detail.html:28
 #: assets/templates/assets/supplier_type_list.html:19
 #: compliance/models/requirement.py:116
 #: compliance/templates/compliance/assessment_list.html:26
@@ -594,15 +596,13 @@ msgstr "Journaux d'accès"
 #: accounts/templates/accounts/group_list.html:22
 #: accounts/templates/accounts/user_list.html:38
 #: assets/models/essential_asset.py:23 assets/models/group.py:13
-#: assets/models/supplier.py:23 assets/models/supplier.py:47
+#: assets/models/supplier.py:23 assets/models/supplier.py:65
 #: assets/models/support_asset.py:24
 #: assets/templates/assets/essential_asset_list.html:25
 #: assets/templates/assets/group_detail.html:45
 #: assets/templates/assets/group_list.html:21
-#: assets/templates/assets/supplier_detail.html:110
 #: assets/templates/assets/supplier_list.html:26
-#: assets/templates/assets/supplier_type_detail.html:32
-#: assets/templates/assets/supplier_type_detail.html:54
+#: assets/templates/assets/supplier_type_detail.html:64
 #: assets/templates/assets/supplier_type_list.html:17
 #: assets/templates/assets/support_asset_list.html:29
 #: compliance/models/action_plan.py:14 compliance/models/assessment.py:21
@@ -643,12 +643,15 @@ msgstr "Nom"
 #: accounts/templates/accounts/group_list.html:23
 #: assets/models/dependency.py:37 assets/models/essential_asset.py:24
 #: assets/models/group.py:14 assets/models/supplier.py:24
-#: assets/models/supplier.py:48 assets/models/supplier.py:159
-#: assets/models/supplier.py:213 assets/models/support_asset.py:25
+#: assets/models/supplier.py:48 assets/models/supplier.py:66
+#: assets/models/supplier.py:177 assets/models/supplier.py:231
+#: assets/models/support_asset.py:25
 #: assets/templates/assets/essential_asset_detail.html:44
 #: assets/templates/assets/group_detail.html:33
 #: assets/templates/assets/supplier_detail.html:61
+#: assets/templates/assets/supplier_detail.html:110
 #: assets/templates/assets/supplier_type_detail.html:21
+#: assets/templates/assets/supplier_type_detail.html:37
 #: assets/templates/assets/supplier_type_list.html:18
 #: assets/templates/assets/support_asset_detail.html:44
 #: compliance/models/action_plan.py:15 compliance/models/assessment.py:22
@@ -711,7 +714,7 @@ msgid "Allowed scopes"
 msgstr "Périmètres autorisés"
 
 #: accounts/models/group.py:37 accounts/models/user.py:57
-#: assets/models/dependency.py:54 assets/models/supplier.py:230
+#: assets/models/dependency.py:54 assets/models/supplier.py:248
 #: compliance/models/mapping.py:44
 #: compliance/templates/compliance/mapping_detail.html:34
 #: context/models/base.py:32 context/templates/context/scope_detail.html:59
@@ -720,24 +723,25 @@ msgid "Created by"
 msgstr "Créé par"
 
 #: accounts/models/group.py:39 accounts/models/user.py:59
-#: assets/models/dependency.py:56 assets/models/supplier.py:31
-#: assets/models/supplier.py:177 assets/models/supplier.py:232
-#: assets/models/valuation.py:37 compliance/models/assessment.py:143
-#: compliance/models/mapping.py:46 compliance/models/section.py:34
-#: context/models/base.py:24 context/models/role.py:67
-#: context/models/stakeholder.py:74 context/models/swot.py:76
-#: context/models/tag.py:16 context/templates/context/tag_list.html:19
-#: risks/models/treatment.py:152
+#: assets/models/dependency.py:56 assets/models/supplier.py:25
+#: assets/models/supplier.py:49 assets/models/supplier.py:195
+#: assets/models/supplier.py:250 assets/models/valuation.py:37
+#: compliance/models/assessment.py:143 compliance/models/mapping.py:46
+#: compliance/models/section.py:34 context/models/base.py:24
+#: context/models/role.py:67 context/models/stakeholder.py:74
+#: context/models/swot.py:76 context/models/tag.py:16
+#: context/templates/context/tag_list.html:19 risks/models/treatment.py:152
 msgid "Created at"
 msgstr "Créé le"
 
 #: accounts/models/group.py:40 accounts/models/user.py:60
-#: assets/models/dependency.py:57 assets/models/supplier.py:32
-#: assets/models/supplier.py:178 assets/models/supplier.py:233
-#: compliance/models/assessment.py:144 compliance/models/mapping.py:47
-#: compliance/models/section.py:35 context/models/base.py:25
-#: context/models/role.py:68 context/models/stakeholder.py:75
-#: context/models/swot.py:77 risks/models/treatment.py:153
+#: assets/models/dependency.py:57 assets/models/supplier.py:26
+#: assets/models/supplier.py:50 assets/models/supplier.py:196
+#: assets/models/supplier.py:251 compliance/models/assessment.py:144
+#: compliance/models/mapping.py:47 compliance/models/section.py:35
+#: context/models/base.py:25 context/models/role.py:68
+#: context/models/stakeholder.py:75 context/models/swot.py:77
+#: risks/models/treatment.py:153
 msgid "Updated at"
 msgstr "Mis à jour le"
 
@@ -995,13 +999,15 @@ msgstr "Aucune action enregistrée."
 #: assets/templates/assets/supplier_dependency_form.html:4
 #: assets/templates/assets/supplier_dependency_list.html:55
 #: assets/templates/assets/supplier_detail.html:16
-#: assets/templates/assets/supplier_detail.html:191
+#: assets/templates/assets/supplier_detail.html:189
 #: assets/templates/assets/supplier_form.html:4
 #: assets/templates/assets/supplier_list.html:72
 #: assets/templates/assets/supplier_requirement_form.html:4
 #: assets/templates/assets/supplier_type_detail.html:13
+#: assets/templates/assets/supplier_type_detail.html:47
 #: assets/templates/assets/supplier_type_form.html:4
 #: assets/templates/assets/supplier_type_list.html:32
+#: assets/templates/assets/supplier_type_requirement_form.html:4
 #: assets/templates/assets/support_asset_detail.html:13
 #: assets/templates/assets/support_asset_form.html:4
 #: assets/templates/assets/support_asset_list.html:74
@@ -1127,6 +1133,7 @@ msgstr "Enregistrer les périmètres"
 #: assets/templates/assets/supplier_form.html:24
 #: assets/templates/assets/supplier_requirement_form.html:25
 #: assets/templates/assets/supplier_type_form.html:24
+#: assets/templates/assets/supplier_type_requirement_form.html:25
 #: assets/templates/assets/support_asset_form.html:24
 #: compliance/templates/compliance/action_plan_form.html:24
 #: compliance/templates/compliance/assessment_form.html:24
@@ -1164,6 +1171,7 @@ msgstr "Enregistrer"
 #: assets/templates/assets/supplier_form.html:25
 #: assets/templates/assets/supplier_requirement_form.html:26
 #: assets/templates/assets/supplier_type_form.html:25
+#: assets/templates/assets/supplier_type_requirement_form.html:26
 #: assets/templates/assets/support_asset_form.html:25
 #: compliance/templates/compliance/action_plan_form.html:25
 #: compliance/templates/compliance/assessment_form.html:25
@@ -1208,7 +1216,7 @@ msgstr "Créer un groupe"
 
 #: accounts/templates/accounts/group_list.html:24
 #: assets/models/essential_asset.py:26 assets/models/group.py:16
-#: assets/models/supplier.py:56 assets/models/support_asset.py:27
+#: assets/models/supplier.py:74 assets/models/support_asset.py:27
 #: assets/templates/assets/dependency_list.html:21
 #: assets/templates/assets/essential_asset_detail.html:34
 #: assets/templates/assets/essential_asset_list.html:26
@@ -1340,16 +1348,16 @@ msgstr "Information"
 #: accounts/templates/accounts/user_detail.html:38
 #: accounts/templates/accounts/user_list.html:42
 #: assets/models/essential_asset.py:95 assets/models/group.py:33
-#: assets/models/supplier.py:96 assets/models/support_asset.py:112
+#: assets/models/supplier.py:114 assets/models/support_asset.py:112
 #: assets/templates/assets/essential_asset_detail.html:38
 #: assets/templates/assets/essential_asset_list.html:32
 #: assets/templates/assets/group_detail.html:32
 #: assets/templates/assets/group_detail.html:45
 #: assets/templates/assets/group_list.html:25
 #: assets/templates/assets/supplier_detail.html:55
-#: assets/templates/assets/supplier_detail.html:172
+#: assets/templates/assets/supplier_detail.html:170
 #: assets/templates/assets/supplier_list.html:31
-#: assets/templates/assets/supplier_type_detail.html:54
+#: assets/templates/assets/supplier_type_detail.html:64
 #: assets/templates/assets/support_asset_detail.html:43
 #: assets/templates/assets/support_asset_list.html:37
 #: compliance/models/action_plan.py:58 compliance/models/assessment.py:47
@@ -2012,13 +2020,13 @@ msgstr "Suspendu"
 msgid "Archived"
 msgstr "Archivé"
 
-#: assets/constants.py:245 assets/templates/assets/supplier_detail.html:158
+#: assets/constants.py:245 assets/templates/assets/supplier_detail.html:156
 #: compliance/constants.py:57 compliance/models/assessment.py:45
 #: compliance/templates/compliance/assessment_detail.html:102
 msgid "Not assessed"
 msgstr "Non évalué"
 
-#: assets/constants.py:246 assets/templates/assets/supplier_detail.html:144
+#: assets/constants.py:246 assets/templates/assets/supplier_detail.html:142
 #: compliance/constants.py:60 compliance/models/assessment.py:40
 #: compliance/templates/compliance/assessment_detail.html:99
 msgid "Compliant"
@@ -2030,7 +2038,7 @@ msgstr "Conforme"
 msgid "Partially compliant"
 msgstr "Partiellement conforme"
 
-#: assets/constants.py:248 assets/templates/assets/supplier_detail.html:151
+#: assets/constants.py:248 assets/templates/assets/supplier_detail.html:149
 #: compliance/constants.py:58 compliance/models/assessment.py:44
 #: compliance/templates/compliance/assessment_detail.html:101
 msgid "Non-compliant"
@@ -2044,7 +2052,7 @@ msgstr "Non conforme"
 msgid "Essential asset"
 msgstr "Bien essentiel"
 
-#: assets/models/dependency.py:29 assets/models/supplier.py:197
+#: assets/models/dependency.py:29 assets/models/supplier.py:215
 #: assets/models/support_asset.py:122
 #: assets/templates/assets/dependency_graph.html:84
 #: assets/templates/assets/dependency_list.html:20
@@ -2053,34 +2061,34 @@ msgstr "Bien essentiel"
 msgid "Support asset"
 msgstr "Bien support"
 
-#: assets/models/dependency.py:32 assets/models/supplier.py:206
+#: assets/models/dependency.py:32 assets/models/supplier.py:224
 #: assets/templates/assets/essential_asset_detail.html:114
 msgid "Dependency type"
 msgstr "Type de dépendance"
 
-#: assets/models/dependency.py:35 assets/models/supplier.py:61
-#: assets/models/supplier.py:211
+#: assets/models/dependency.py:35 assets/models/supplier.py:79
+#: assets/models/supplier.py:229
 #: assets/templates/assets/dependency_list.html:22
 #: assets/templates/assets/essential_asset_detail.html:114
 #: assets/templates/assets/supplier_dependency_list.html:20
 #: assets/templates/assets/supplier_detail.html:48
 #: assets/templates/assets/supplier_list.html:28
-#: assets/templates/assets/supplier_type_detail.html:54
+#: assets/templates/assets/supplier_type_detail.html:64
 #: context/models/activity.py:19
 #: context/templates/context/activity_detail.html:31
 #: context/templates/context/activity_list.html:23
 msgid "Criticality"
 msgstr "Criticité"
 
-#: assets/models/dependency.py:39 assets/models/supplier.py:215
+#: assets/models/dependency.py:39 assets/models/supplier.py:233
 msgid "Single point of failure (SPOF)"
 msgstr "Point de défaillance unique (SPOF)"
 
-#: assets/models/dependency.py:42 assets/models/supplier.py:218
+#: assets/models/dependency.py:42 assets/models/supplier.py:236
 msgid "Redundancy level"
 msgstr "Niveau de redondance"
 
-#: assets/models/dependency.py:58 assets/models/supplier.py:234
+#: assets/models/dependency.py:58 assets/models/supplier.py:252
 #: assets/templates/assets/dependency_list.html:44
 #: assets/templates/assets/essential_asset_list.html:57
 #: assets/templates/assets/group_list.html:47
@@ -2104,19 +2112,19 @@ msgstr "Niveau de redondance"
 msgid "Approved"
 msgstr "Approuvé"
 
-#: assets/models/dependency.py:65 assets/models/supplier.py:241
+#: assets/models/dependency.py:65 assets/models/supplier.py:259
 #: context/models/base.py:41 context/templates/context/scope_detail.html:55
 #: context/templates/context/site_detail.html:55
 msgid "Approved by"
 msgstr "Approuvé par"
 
-#: assets/models/dependency.py:67 assets/models/supplier.py:243
+#: assets/models/dependency.py:67 assets/models/supplier.py:261
 #: context/models/base.py:43 context/templates/context/scope_detail.html:56
 #: context/templates/context/site_detail.html:56
 msgid "Approval date"
 msgstr "Date d'approbation"
 
-#: assets/models/dependency.py:68 assets/models/supplier.py:244
+#: assets/models/dependency.py:68 assets/models/supplier.py:262
 #: compliance/templates/compliance/framework_detail.html:49
 #: context/models/base.py:44 context/templates/context/scope_detail.html:41
 #: context/templates/context/scope_list.html:22
@@ -2137,7 +2145,7 @@ msgstr "Relations de dépendance"
 msgid "Cannot create a dependency to a decommissioned or disposed support asset."
 msgstr "Impossible de créer une dépendance vers un bien support décommissionné ou éliminé."
 
-#: assets/models/essential_asset.py:22 assets/models/supplier.py:46
+#: assets/models/essential_asset.py:22 assets/models/supplier.py:64
 #: assets/models/support_asset.py:23 compliance/models/action_plan.py:13
 #: compliance/models/framework.py:18 compliance/models/requirement.py:31
 #: compliance/models/section.py:24
@@ -2185,7 +2193,7 @@ msgid "Category"
 msgstr "Catégorie"
 
 #: assets/models/essential_asset.py:35 assets/models/group.py:30
-#: assets/models/supplier.py:93 assets/models/support_asset.py:36
+#: assets/models/supplier.py:111 assets/models/support_asset.py:36
 #: assets/templates/assets/essential_asset_detail.html:36
 #: assets/templates/assets/essential_asset_list.html:28
 #: assets/templates/assets/group_detail.html:31
@@ -2309,88 +2317,22 @@ msgstr "Membres"
 msgid "Asset group"
 msgstr "Groupe d'actifs"
 
-#: assets/models/supplier.py:29
-#: assets/templates/assets/supplier_type_detail.html:27
-msgid "Default requirements"
-msgstr "Exigences par défaut"
-
-#: assets/models/supplier.py:36
+#: assets/models/supplier.py:30 assets/models/supplier.py:45
 #: assets/templates/assets/supplier_type_detail.html:10
+#: assets/templates/assets/supplier_type_requirement_form.html:8
 msgid "Supplier type"
 msgstr "Type de fournisseur"
 
-#: assets/models/supplier.py:37
+#: assets/models/supplier.py:31
 #: assets/templates/assets/supplier_type_list.html:4
 #: assets/templates/assets/supplier_type_list.html:8 templates/base.html:824
 msgid "Supplier types"
 msgstr "Types de fournisseurs"
 
-#: assets/models/supplier.py:50
-msgid "Logo"
-msgstr "Logo"
-
-#: assets/models/supplier.py:67 assets/templates/assets/supplier_detail.html:74
-#: context/models/stakeholder.py:30
-msgid "Contact name"
-msgstr "Nom du contact"
-
-#: assets/models/supplier.py:70 assets/templates/assets/supplier_detail.html:75
-#: context/models/stakeholder.py:32
-msgid "Contact email"
-msgstr "Email du contact"
-
-#: assets/models/supplier.py:73 assets/templates/assets/supplier_detail.html:76
-#: context/models/stakeholder.py:34
-msgid "Contact phone"
-msgstr "Téléphone du contact"
-
-#: assets/models/supplier.py:75 assets/templates/assets/supplier_detail.html:77
-msgid "Website"
-msgstr "Site web"
-
-#: assets/models/supplier.py:76 assets/templates/assets/supplier_detail.html:78
-#: context/models/site.py:17 context/templates/context/site_detail.html:46
-msgid "Address"
-msgstr "Adresse"
-
-#: assets/models/supplier.py:78 assets/templates/assets/supplier_detail.html:79
-msgid "Country"
-msgstr "Pays"
-
-#: assets/models/supplier.py:81 assets/models/support_asset.py:70
-#: assets/templates/assets/supplier_detail.html:89
-#: assets/templates/assets/support_asset_detail.html:82
-msgid "Contract reference"
-msgstr "Référence du contrat"
-
-#: assets/models/supplier.py:84 assets/templates/assets/supplier_detail.html:90
-msgid "Contract start date"
-msgstr "Date de début du contrat"
-
-#: assets/models/supplier.py:87 assets/templates/assets/supplier_detail.html:91
-msgid "Contract end date"
-msgstr "Date de fin du contrat"
-
-#: assets/models/supplier.py:101
-#: assets/templates/assets/supplier_detail.html:62
-msgid "Notes"
-msgstr "Notes"
-
-#: assets/models/supplier.py:106 assets/models/supplier.py:144
-#: assets/models/supplier.py:203
-#: assets/templates/assets/dependency_graph.html:85
-#: assets/templates/assets/supplier_dependency_list.html:18
-#: assets/templates/assets/supplier_requirement_form.html:8
-msgid "Supplier"
-msgstr "Fournisseur"
-
-#: assets/models/supplier.py:152
-#: assets/templates/assets/supplier_detail.html:171
-msgid "Linked requirement"
-msgstr "Exigence liée"
-
-#: assets/models/supplier.py:155
-#: assets/templates/assets/supplier_detail.html:170
+#: assets/models/supplier.py:47 assets/models/supplier.py:173
+#: assets/templates/assets/supplier_detail.html:109
+#: assets/templates/assets/supplier_detail.html:168
+#: assets/templates/assets/supplier_type_detail.html:36
 #: compliance/models/requirement.py:32
 #: compliance/templates/compliance/framework_detail.html:94
 #: compliance/templates/compliance/requirement_list.html:21
@@ -2402,44 +2344,118 @@ msgstr "Exigence liée"
 msgid "Title"
 msgstr "Titre"
 
-#: assets/models/supplier.py:157
+#: assets/models/supplier.py:54
+msgid "Supplier type requirement"
+msgstr "Exigence de type fournisseur"
+
+#: assets/models/supplier.py:55
+msgid "Supplier type requirements"
+msgstr "Exigences de type fournisseur"
+
+#: assets/models/supplier.py:68
+msgid "Logo"
+msgstr "Logo"
+
+#: assets/models/supplier.py:85 assets/templates/assets/supplier_detail.html:74
+#: context/models/stakeholder.py:30
+msgid "Contact name"
+msgstr "Nom du contact"
+
+#: assets/models/supplier.py:88 assets/templates/assets/supplier_detail.html:75
+#: context/models/stakeholder.py:32
+msgid "Contact email"
+msgstr "Email du contact"
+
+#: assets/models/supplier.py:91 assets/templates/assets/supplier_detail.html:76
+#: context/models/stakeholder.py:34
+msgid "Contact phone"
+msgstr "Téléphone du contact"
+
+#: assets/models/supplier.py:93 assets/templates/assets/supplier_detail.html:77
+msgid "Website"
+msgstr "Site web"
+
+#: assets/models/supplier.py:94 assets/templates/assets/supplier_detail.html:78
+#: context/models/site.py:17 context/templates/context/site_detail.html:46
+msgid "Address"
+msgstr "Adresse"
+
+#: assets/models/supplier.py:96 assets/templates/assets/supplier_detail.html:79
+msgid "Country"
+msgstr "Pays"
+
+#: assets/models/supplier.py:99 assets/models/support_asset.py:70
+#: assets/templates/assets/supplier_detail.html:89
+#: assets/templates/assets/support_asset_detail.html:82
+msgid "Contract reference"
+msgstr "Référence du contrat"
+
+#: assets/models/supplier.py:102
+#: assets/templates/assets/supplier_detail.html:90
+msgid "Contract start date"
+msgstr "Date de début du contrat"
+
+#: assets/models/supplier.py:105
+#: assets/templates/assets/supplier_detail.html:91
+msgid "Contract end date"
+msgstr "Date de fin du contrat"
+
+#: assets/models/supplier.py:119
+#: assets/templates/assets/supplier_detail.html:62
+msgid "Notes"
+msgstr "Notes"
+
+#: assets/models/supplier.py:124 assets/models/supplier.py:162
+#: assets/models/supplier.py:221
+#: assets/templates/assets/dependency_graph.html:85
+#: assets/templates/assets/supplier_dependency_list.html:18
+#: assets/templates/assets/supplier_requirement_form.html:8
+msgid "Supplier"
+msgstr "Fournisseur"
+
+#: assets/models/supplier.py:170
+#: assets/templates/assets/supplier_detail.html:169
+msgid "Linked requirement"
+msgstr "Exigence liée"
+
+#: assets/models/supplier.py:175
 msgid "Custom title when not linked to a compliance requirement."
 msgstr "Titre personnalisé lorsque non lié à une exigence de conformité."
 
-#: assets/models/supplier.py:161 compliance/models/assessment.py:125
+#: assets/models/supplier.py:179 compliance/models/assessment.py:125
 #: compliance/models/requirement.py:52
 #: compliance/templates/compliance/requirement_detail.html:58
 msgid "Compliance status"
 msgstr "Statut de conformité"
 
-#: assets/models/supplier.py:166 compliance/models/assessment.py:133
+#: assets/models/supplier.py:184 compliance/models/assessment.py:133
 #: compliance/templates/compliance/requirement_detail.html:66
 msgid "Evidence"
 msgstr "Preuves"
 
-#: assets/models/supplier.py:167
-#: assets/templates/assets/supplier_detail.html:173
+#: assets/models/supplier.py:185
+#: assets/templates/assets/supplier_detail.html:171
 msgid "Due date"
 msgstr "Date d'échéance"
 
-#: assets/models/supplier.py:168
+#: assets/models/supplier.py:186
 msgid "Verified at"
 msgstr "Vérifié le"
 
-#: assets/models/supplier.py:175
-#: assets/templates/assets/supplier_detail.html:174
+#: assets/models/supplier.py:193
+#: assets/templates/assets/supplier_detail.html:172
 msgid "Verified by"
 msgstr "Vérifié par"
 
-#: assets/models/supplier.py:182
+#: assets/models/supplier.py:200
 msgid "Supplier requirement"
 msgstr "Exigence fournisseur"
 
-#: assets/models/supplier.py:183
+#: assets/models/supplier.py:201
 msgid "Supplier requirements"
 msgstr "Exigences fournisseurs"
 
-#: assets/models/supplier.py:249
+#: assets/models/supplier.py:267
 msgid "Supplier dependency"
 msgstr "Dépendance fournisseur"
 
@@ -2650,6 +2666,7 @@ msgstr "bien(s) essentiel(s) contenant des données personnelles."
 #: assets/templates/assets/supplier_dependency_form.html:4
 #: assets/templates/assets/supplier_form.html:4
 #: assets/templates/assets/supplier_type_form.html:4
+#: assets/templates/assets/supplier_type_requirement_form.html:4
 #: assets/templates/assets/support_asset_form.html:4
 #: compliance/templates/compliance/action_plan_form.html:4
 #: compliance/templates/compliance/assessment_form.html:4
@@ -2733,8 +2750,9 @@ msgstr "Redondance"
 #: assets/templates/assets/essential_asset_list.html:35
 #: assets/templates/assets/group_list.html:28
 #: assets/templates/assets/supplier_dependency_list.html:24
-#: assets/templates/assets/supplier_detail.html:175
+#: assets/templates/assets/supplier_detail.html:173
 #: assets/templates/assets/supplier_list.html:34
+#: assets/templates/assets/supplier_type_detail.html:38
 #: assets/templates/assets/supplier_type_list.html:21
 #: assets/templates/assets/support_asset_list.html:41
 #: compliance/templates/compliance/action_plan_list.html:30
@@ -3094,10 +3112,8 @@ msgstr "Tous"
 #: assets/templates/assets/essential_asset_list.html:24
 #: assets/templates/assets/group_detail.html:45
 #: assets/templates/assets/group_list.html:20
-#: assets/templates/assets/supplier_detail.html:109
 #: assets/templates/assets/supplier_list.html:25
-#: assets/templates/assets/supplier_type_detail.html:32
-#: assets/templates/assets/supplier_type_detail.html:54
+#: assets/templates/assets/supplier_type_detail.html:64
 #: assets/templates/assets/support_asset_list.html:28
 #: compliance/templates/compliance/assessment_list.html:20
 #: context/templates/context/issue_list.html:26
@@ -3187,32 +3203,22 @@ msgstr "Exigences du type"
 msgid "inherited from"
 msgstr "hérité de"
 
-#: assets/templates/assets/supplier_detail.html:111
-#: assets/templates/assets/supplier_type_detail.html:32
-#: compliance/models/assessment.py:19 compliance/models/framework.py:76
-#: compliance/models/requirement.py:21 compliance/models/section.py:14
-#: compliance/templates/compliance/assessment_detail.html:32
-#: compliance/templates/compliance/assessment_list.html:22
-#: compliance/templates/compliance/requirement_detail.html:33
-#: compliance/templates/compliance/requirement_detail.html:79
-#: compliance/templates/compliance/requirement_list.html:22
-msgid "Framework"
-msgstr "Référentiel"
-
-#: assets/templates/assets/supplier_detail.html:129
+#: assets/templates/assets/supplier_detail.html:127
 msgid "Specific requirements"
 msgstr "Exigences spécifiques"
 
-#: assets/templates/assets/supplier_detail.html:130
+#: assets/templates/assets/supplier_detail.html:128
 #: assets/templates/assets/supplier_requirement_form.html:7
+#: assets/templates/assets/supplier_type_detail.html:29
+#: assets/templates/assets/supplier_type_requirement_form.html:7
 msgid "Add requirement"
 msgstr "Ajouter une exigence"
 
-#: assets/templates/assets/supplier_detail.html:137
+#: assets/templates/assets/supplier_detail.html:135
 msgid "Total"
 msgstr "Total"
 
-#: assets/templates/assets/supplier_detail.html:196
+#: assets/templates/assets/supplier_detail.html:194
 msgid "No specific requirements for this supplier."
 msgstr "Aucune exigence spécifique pour ce fournisseur."
 
@@ -3238,24 +3244,26 @@ msgid "No suppliers."
 msgstr "Aucun fournisseur."
 
 #: assets/templates/assets/supplier_requirement_form.html:4
+#: assets/templates/assets/supplier_type_requirement_form.html:4
 #: compliance/templates/compliance/requirement_form.html:4
 msgid "requirement"
 msgstr "exigence"
 
 #: assets/templates/assets/supplier_requirement_form.html:7
+#: assets/templates/assets/supplier_type_requirement_form.html:7
 #: compliance/templates/compliance/requirement_form.html:7
 msgid "Edit requirement"
 msgstr "Modifier l'exigence"
 
-#: assets/templates/assets/supplier_type_detail.html:46
-msgid "No default requirements for this type."
-msgstr "Aucune exigence par défaut pour ce type."
+#: assets/templates/assets/supplier_type_detail.html:52
+msgid "No requirements for this type."
+msgstr "Aucune exigence pour ce type."
 
-#: assets/templates/assets/supplier_type_detail.html:49
+#: assets/templates/assets/supplier_type_detail.html:59
 msgid "Suppliers of this type"
 msgstr "Fournisseurs de ce type"
 
-#: assets/templates/assets/supplier_type_detail.html:84
+#: assets/templates/assets/supplier_type_detail.html:94
 msgid "No suppliers of this type."
 msgstr "Aucun fournisseur de ce type."
 
@@ -3338,17 +3346,17 @@ msgstr "Nouveau bien support"
 msgid "Env."
 msgstr "Env."
 
-#: assets/views.py:68 compliance/views.py:84 context/views.py:76
+#: assets/views.py:70 compliance/views.py:84 context/views.py:76
 #: risks/views.py:210
 msgid "You do not have permission to approve this item."
 msgstr "Vous n'avez pas la permission d'approuver cet élément."
 
-#: assets/views.py:74 compliance/views.py:90 context/views.py:82
+#: assets/views.py:76 compliance/views.py:90 context/views.py:82
 #: risks/views.py:216
 msgid "Item approved."
 msgstr "Élément approuvé."
 
-#: assets/views.py:415
+#: assets/views.py:417
 msgid "Supplier archived."
 msgstr "Fournisseur archivé."
 
@@ -3725,6 +3733,16 @@ msgstr "Plan d'action de conformité"
 #: compliance/templates/compliance/action_plan_list.html:10
 msgid "Compliance action plans"
 msgstr "Plans d'action de conformité"
+
+#: compliance/models/assessment.py:19 compliance/models/framework.py:76
+#: compliance/models/requirement.py:21 compliance/models/section.py:14
+#: compliance/templates/compliance/assessment_detail.html:32
+#: compliance/templates/compliance/assessment_list.html:22
+#: compliance/templates/compliance/requirement_detail.html:33
+#: compliance/templates/compliance/requirement_detail.html:79
+#: compliance/templates/compliance/requirement_list.html:22
+msgid "Framework"
+msgstr "Référentiel"
 
 #: compliance/models/assessment.py:23 compliance/models/assessment.py:142
 #: compliance/templates/compliance/assessment_detail.html:33
@@ -6531,6 +6549,9 @@ msgstr "Aucun changement détecté"
 #: templates/includes/history_tab.html:100
 msgid "No history available."
 msgstr "Aucun historique disponible."
+
+#~ msgid "Default requirements"
+#~ msgstr "Exigences par défaut"
 
 #~ msgid "Cloud provider"
 #~ msgstr "Fournisseur cloud"

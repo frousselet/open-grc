@@ -3,7 +3,7 @@ from .support_asset import SupportAsset
 from .dependency import AssetDependency
 from .group import AssetGroup
 from .valuation import AssetValuation
-from .supplier import Supplier, SupplierDependency, SupplierRequirement, SupplierType
+from .supplier import Supplier, SupplierDependency, SupplierRequirement, SupplierType, SupplierTypeRequirement
 
 __all__ = [
     "EssentialAsset",
@@ -15,4 +15,5 @@ __all__ = [
     "SupplierDependency",
     "SupplierRequirement",
     "SupplierType",
+    "SupplierTypeRequirement",
 ]
