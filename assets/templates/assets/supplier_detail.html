@@ -108,6 +108,7 @@
             <tr>
               <th>{% trans "Title" %}</th>
               <th>{% trans "Description" %}</th>
+              <th>{% trans "Actions" %}</th>
             </tr>
           </thead>
           <tbody>
@@ -115,7 +116,13 @@
             <tr>
               <td><a href="{% url 'assets:supplier-type-requirement-update' req.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ req.title }}</a></td>
               <td>{{ req.description|default:"—"|truncatewords:20 }}</td>
+              <td class="d-flex gap-1">
+                <a href="{% url 'assets:supplier-type-requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+                <a href="{% url 'assets:supplier-type-requirement-delete' req.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+              </td>
             </tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-center py-4" style="color:var(--text-muted)">{% trans "No type requirements." %}</td></tr>
             {% endfor %}
           </tbody>
         </table>
