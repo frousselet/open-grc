@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load accounts_tags %}
 {% load i18n %}
+{% load help_tags %}
 {% block title %}{{ group.name }} — Open GRC{% endblock %}
 
 {% block content %}
@@ -17,6 +18,7 @@
     {% endif %}
     <a href="{% url 'accounts:group-list' %}" class="btn btn-outline-secondary">{% trans "Back to list" %}</a>
   </div>
+{{% help_modal "accounts.group_detail" %}}
 </div>
 
 {% if messages %}

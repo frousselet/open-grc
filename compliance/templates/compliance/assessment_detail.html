@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load help_tags %}
 
 {% block title %}{{ assessment.name }} — Open GRC{% endblock %}
 
@@ -9,6 +10,7 @@
     <h1 class="mb-0">{{ assessment.name }}</h1>
     <small class="ref">{{ assessment.reference }}</small>
   </div>
+{{% help_modal "compliance.assessment_detail" %}}
   <div class="d-flex gap-2">
     <a href="{% url 'compliance:assessment-update' assessment.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'compliance:assessment-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>

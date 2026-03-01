@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load help_tags %}
 
 {% block title %}{% trans "Risk acceptance" %} — Open GRC{% endblock %}
 
@@ -9,6 +10,7 @@
     <h1 class="mb-0">{% blocktrans with risk=acceptance.risk %}Acceptance — {{ risk }}{% endblocktrans %}</h1>
     <small class="ref">{{ acceptance.reference }}</small>
   </div>
+{{% help_modal "risks.acceptance_detail" %}}
   <div class="d-flex gap-2">
     <a href="{% url 'risks:acceptance-update' acceptance.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'risks:acceptance-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>

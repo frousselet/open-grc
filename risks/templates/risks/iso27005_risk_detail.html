@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load help_tags %}
 
 {% block title %}{% trans "ISO 27005 analysis" %} — Open GRC{% endblock %}
 
@@ -9,6 +10,7 @@
     <h1 class="mb-0">{% trans "ISO 27005 analysis" %}</h1>
     <small class="ref">{{ analysis.reference }}</small>
   </div>
+{{% help_modal "risks.iso27005_risk_detail" %}}
   <div class="d-flex gap-2">
     <a href="{% url 'risks:iso27005-update' analysis.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'risks:iso27005-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>

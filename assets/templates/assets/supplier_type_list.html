@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load help_tags %}
 
 {% block title %}{% trans "Supplier types" %} — Open GRC{% endblock %}
 
@@ -8,6 +9,7 @@
   <h1 class="mb-0">{% trans "Supplier types" %}</h1>
   <a href="{% url 'assets:supplier-type-create' %}" class="btn btn-primary ms-auto">{% trans "New supplier type" %}</a>
 </div>
+{{% help_modal "assets.supplier_type_list" %}}
 
 <div class="card">
   <div class="table-responsive">

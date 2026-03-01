@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load help_tags %}
 
 {% block title %}{{ supplier_type.name }} — Open GRC{% endblock %}
 
@@ -9,6 +10,7 @@
     <h1 class="mb-0">{{ supplier_type.name }}</h1>
     <small style="color:var(--text-muted)">{% trans "Supplier type" %}</small>
   </div>
+{{% help_modal "assets.supplier_type_detail" %}}
   <div class="d-flex gap-2">
     <a href="{% url 'assets:supplier-type-update' supplier_type.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'assets:supplier-type-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>

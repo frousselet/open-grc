@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load help_tags %}
 
 {% block title %}{{ plan.name }} — Open GRC{% endblock %}
 
@@ -9,6 +10,7 @@
     <h1 class="mb-0">{{ plan.name }}</h1>
     <small class="ref">{{ plan.reference }}</small>
   </div>
+{{% help_modal "risks.treatment_plan_detail" %}}
   <div class="d-flex gap-2">
     <a href="{% url 'risks:treatment-plan-update' plan.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'risks:treatment-plan-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
