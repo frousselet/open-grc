@@ -32,7 +32,7 @@
       <tbody>
         {% for req in requirements %}
         <tr>
-          <td><a href="{% url 'compliance:requirement-detail' req.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ req.reference }}</a></td>
+          <td><a href="{% url 'compliance:requirement-detail' req.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ req.reference }}</a></td>
           <td>{{ req.name|truncatechars:60 }}</td>
           <td>{{ req.framework.short_name|default:req.framework.name }}</td>
           <td>{{ req.get_type_display }}</td>

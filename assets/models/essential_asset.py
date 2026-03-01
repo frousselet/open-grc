@@ -106,7 +106,7 @@ class EssentialAsset(ScopedModel):
         verbose_name_plural = _("Essential assets")
 
     def __str__(self):
-        return f"{self.reference} — {self.name}"
+        return f"{self.reference} : {self.name}"
 
     def clean(self):
         super().clean()

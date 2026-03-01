@@ -35,8 +35,7 @@
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Related requirement" %}</dt>
           <dd class="col-sm-9">
             {% if action_plan.requirement %}
-            <a href="{% url 'compliance:requirement-detail' action_plan.requirement.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ action_plan.requirement.reference }}</a>
-            — {{ action_plan.requirement.name }}
+            <a href="{% url 'compliance:requirement-detail' action_plan.requirement.pk %}" style="text-decoration:none"><span style="color:var(--text-muted);font-size:.82rem;font-weight:500">{{ action_plan.requirement.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ action_plan.requirement.name }}</span></a>
             {% else %}—{% endif %}
           </dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Source assessment" %}</dt>

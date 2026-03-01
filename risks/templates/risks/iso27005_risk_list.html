@@ -37,9 +37,9 @@
       <tbody>
         {% for a in analyses %}
         <tr>
-          <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ a.reference }}</td>
+          <td><a href="{% url 'risks:iso27005-detail' a.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ a.reference }}</a></td>
           <td>{{ a.assessment.reference }}</td>
-          <td><a href="{% url 'risks:iso27005-detail' a.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ a.threat.name }}</a></td>
+          <td>{{ a.threat.name }}</td>
           <td>{{ a.vulnerability.name }}</td>
           <td>{{ a.combined_likelihood|default:"—" }}</td>
           <td>{{ a.max_impact|default:"—" }}</td>

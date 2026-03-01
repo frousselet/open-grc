@@ -54,7 +54,7 @@ class Stakeholder(ScopedModel):
         verbose_name_plural = _("Stakeholders")
 
     def __str__(self):
-        return f"{self.reference} — {self.name}"
+        return f"{self.reference} : {self.name}"
 
 
 class StakeholderExpectation(models.Model):

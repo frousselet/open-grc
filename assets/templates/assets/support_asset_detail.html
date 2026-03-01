@@ -150,7 +150,7 @@
     <ul class="list-group mb-3">
       {% for child in children %}
       <li class="list-group-item">
-        <a href="{% url 'assets:support-asset-detail' child.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ child.reference }} — {{ child.name }}</a>
+        <a href="{% url 'assets:support-asset-detail' child.pk %}" style="text-decoration:none"><span style="color:var(--text-muted);font-size:.82rem;font-weight:500">{{ child.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ child.name }}</span></a>
       </li>
       {% endfor %}
     </ul>

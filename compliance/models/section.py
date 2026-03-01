@@ -48,7 +48,7 @@ class Section(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.reference} — {self.name}"
+        return f"{self.reference} : {self.name}"
 
     def recalculate_compliance(self):
         """RC-02: section compliance = average of applicable requirements + subsections."""

@@ -39,8 +39,8 @@
       <tbody>
         {% for issue in issues %}
         <tr>
-          <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ issue.reference }}</td>
-          <td><a href="{% url 'context:issue-detail' issue.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ issue.name }}</a></td>
+          <td><a href="{% url 'context:issue-detail' issue.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ issue.reference }}</a></td>
+          <td>{{ issue.name }}</td>
           <td>{{ issue.scope.full_path }}</td>
           <td>{{ issue.get_type_display }}</td>
           <td>{{ issue.get_category_display }}</td>

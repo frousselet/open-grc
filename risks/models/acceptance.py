@@ -46,4 +46,4 @@ class RiskAcceptance(BaseModel):
         verbose_name_plural = _("Risk acceptances")
 
     def __str__(self):
-        return f"{self.reference} — {self.risk}"
+        return f"{self.reference} : {self.risk}"

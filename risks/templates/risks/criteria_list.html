@@ -36,8 +36,8 @@
       <tbody>
         {% for c in criteria_list %}
         <tr>
-          <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ c.reference }}</td>
-          <td><a href="{% url 'risks:criteria-detail' c.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ c.name }}</a></td>
+          <td><a href="{% url 'risks:criteria-detail' c.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ c.reference }}</a></td>
+          <td>{{ c.name }}</td>
           <td>{{ c.scope }}</td>
           <td>{{ c.acceptance_threshold }}</td>
           <td>{% if c.is_default %}<span class="badge text-bg-success">{% trans "Yes" %}</span>{% else %}—{% endif %}</td>

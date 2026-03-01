@@ -82,7 +82,7 @@ class ISO27005Risk(BaseModel):
         verbose_name_plural = _("ISO 27005 analyses")
 
     def __str__(self):
-        return f"{self.reference} — {self.threat} × {self.vulnerability}"
+        return f"{self.reference} : {self.threat} × {self.vulnerability}"
 
     def save(self, *args, **kwargs):
         # Calculate combined_likelihood = max(threat_likelihood, vulnerability_exposure)
