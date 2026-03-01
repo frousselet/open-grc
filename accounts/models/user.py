@@ -18,6 +18,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     job_title = models.CharField(_("Job title"), max_length=255, blank=True, default="")
     department = models.CharField(_("Department"), max_length=255, blank=True, default="")
     phone = models.CharField(_("Phone"), max_length=50, blank=True, default="")
+    avatar = models.ImageField(_("Profile photo"), upload_to="avatars/", blank=True, default="")
     language = models.CharField(
         _("Language"),
         max_length=10,

@@ -106,7 +106,7 @@ class ProfileView(LoginRequiredMixin, View):
         })
 
     def post(self, request):
-        form = ProfileForm(request.POST, instance=request.user)
+        form = ProfileForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
             lang = form.cleaned_data.get("language", "")
@@ -196,7 +196,7 @@ class UserCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
         return render(request, "accounts/user_form.html", {"form": form, "title": _("Create a user")})
 
     def post(self, request):
-        form = UserCreateForm(request.POST)
+        form = UserCreateForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save(commit=False)
             user.created_by = request.user
@@ -216,7 +216,7 @@ class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
     def post(self, request, pk):
         user = get_object_or_404(User, pk=pk)
-        form = UserUpdateForm(request.POST, instance=user)
+        form = UserUpdateForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
             messages.success(request, _("User updated."))

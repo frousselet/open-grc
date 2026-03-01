@@ -21,8 +21,24 @@
     <div class="card mb-4">
       <div class="card-header">{% trans "Personal information" %}</div>
       <div class="card-body">
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
           {% csrf_token %}
+
+          {# ── Avatar preview ─────────────────────────── #}
+          <div class="mb-4 d-flex align-items-center gap-3">
+            {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--border-light)">
+            {% else %}
+            <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent-soft),rgba(99,102,241,.15));color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:650;">
+              {{ user.display_name|truncatechars:1 }}
+            </div>
+            {% endif %}
+            <div>
+              <div style="font-weight:600;font-size:.9375rem">{{ user.display_name }}</div>
+              <div style="color:var(--text-muted);font-size:.8125rem">{{ user.email }}</div>
+            </div>
+          </div>
+
           {% for field in form %}
           <div class="mb-3">
             <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>

@@ -67,7 +67,7 @@ class UserCreateForm(forms.ModelForm):
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ("email", "first_name", "last_name", "job_title", "department", "phone", "language", "timezone", "is_active")
+        fields = ("email", "first_name", "last_name", "job_title", "department", "phone", "avatar", "language", "timezone", "is_active")
         widgets = {
             "email": forms.EmailInput(attrs={"class": "form-control"}),
             "first_name": forms.TextInput(attrs={"class": "form-control"}),
@@ -75,6 +75,7 @@ class UserUpdateForm(forms.ModelForm):
             "job_title": forms.TextInput(attrs={"class": "form-control"}),
             "department": forms.TextInput(attrs={"class": "form-control"}),
             "phone": forms.TextInput(attrs={"class": "form-control"}),
+            "avatar": forms.ClearableFileInput(attrs={"class": "form-control", "accept": "image/*"}),
             "language": forms.Select(attrs={"class": "form-select"}),
             "timezone": forms.TextInput(attrs={"class": "form-control"}),
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
@@ -86,11 +87,12 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ("first_name", "last_name", "phone", "language", "timezone")
+        fields = ("first_name", "last_name", "phone", "avatar", "language", "timezone")
         widgets = {
             "first_name": forms.TextInput(attrs={"class": "form-control"}),
             "last_name": forms.TextInput(attrs={"class": "form-control"}),
             "phone": forms.TextInput(attrs={"class": "form-control"}),
+            "avatar": forms.ClearableFileInput(attrs={"class": "form-control", "accept": "image/*"}),
             "language": forms.Select(attrs={"class": "form-select"}),
             "timezone": forms.TextInput(attrs={"class": "form-control"}),
         }

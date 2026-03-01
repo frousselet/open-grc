@@ -46,7 +46,16 @@
       <tbody>
         {% for u in users %}
         <tr>
-          <td><a href="{% url 'accounts:user-detail' u.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ u.display_name }}</a></td>
+          <td>
+            <a href="{% url 'accounts:user-detail' u.pk %}" class="d-inline-flex align-items-center gap-2" style="color:var(--accent);text-decoration:none;font-weight:500">
+              {% if u.avatar %}
+              <img src="{{ u.avatar.url }}" alt="" style="width:24px;height:24px;border-radius:50%;object-fit:cover">
+              {% else %}
+              <span class="d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--accent-soft),rgba(99,102,241,.15));color:var(--accent);font-size:.6875rem;font-weight:650">{{ u.display_name|truncatechars:1 }}</span>
+              {% endif %}
+              {{ u.display_name }}
+            </a>
+          </td>
           <td>{{ u.email }}</td>
           <td>{{ u.job_title|default:"-" }}</td>
           <td>{{ u.department|default:"-" }}</td>
