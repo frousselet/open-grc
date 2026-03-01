@@ -806,6 +806,14 @@
         <a href="{% url 'assets:support-asset-list' %}" class="sidebar-link sidebar-sub">{% trans "Support assets" %}</a>
         <a href="{% url 'assets:group-list' %}" class="sidebar-link sidebar-sub">{% trans "Asset groups" %}</a>
       </div>
+      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navSuppliers" aria-expanded="true">
+        <i class="bi bi-truck"></i> {% trans "Suppliers" %}
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      <div class="collapse show" id="navSuppliers">
+        <a href="{% url 'assets:supplier-list' %}" class="sidebar-link sidebar-sub">{% trans "Suppliers" %}</a>
+        <a href="{% url 'assets:supplier-type-list' %}" class="sidebar-link sidebar-sub">{% trans "Supplier types" %}</a>
+      </div>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navDeps" aria-expanded="true">
         <i class="bi bi-share"></i> {% trans "Dependencies" %}
         <i class="bi bi-chevron-down"></i>
@@ -814,14 +822,6 @@
         <a href="{% url 'assets:dependency-list' %}" class="sidebar-link sidebar-sub">{% trans "Asset dependencies" %}</a>
         <a href="{% url 'assets:supplier-dependency-list' %}" class="sidebar-link sidebar-sub">{% trans "Supplier dependencies" %}</a>
         <a href="{% url 'assets:dependency-graph' %}" class="sidebar-link sidebar-sub">{% trans "Graph view" %}</a>
-      </div>
-      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navSuppliers" aria-expanded="true">
-        <i class="bi bi-truck"></i> {% trans "Suppliers" %}
-        <i class="bi bi-chevron-down"></i>
-      </button>
-      <div class="collapse show" id="navSuppliers">
-        <a href="{% url 'assets:supplier-list' %}" class="sidebar-link sidebar-sub">{% trans "Suppliers" %}</a>
-        <a href="{% url 'assets:supplier-type-list' %}" class="sidebar-link sidebar-sub">{% trans "Supplier types" %}</a>
       </div>
 
       {# ── Gestion des risques ───────────────────────── #}
