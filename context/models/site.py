@@ -8,6 +8,8 @@ from .base import BaseModel
 
 
 class Site(BaseModel):
+    REFERENCE_PREFIX = "SITE"
+
     name = models.CharField(_("Name"), max_length=255)
     type = models.CharField(
         _("Type"), max_length=20, choices=SiteType.choices, default=SiteType.OTHER
@@ -34,7 +36,7 @@ class Site(BaseModel):
         verbose_name_plural = _("Sites")
 
     def __str__(self):
-        return self.name
+        return f"{self.reference} — {self.name}"
 
     def clean(self):
         super().clean()

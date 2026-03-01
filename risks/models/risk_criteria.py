@@ -10,6 +10,8 @@ from risks.constants import CriteriaStatus, ScaleType
 
 
 class RiskCriteria(ScopedModel):
+    REFERENCE_PREFIX = "RC"
+
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"), blank=True)
     risk_matrix = models.JSONField(_("Risk matrix"), default=dict)
@@ -28,7 +30,7 @@ class RiskCriteria(ScopedModel):
         verbose_name_plural = _("Risk criteria")
 
     def __str__(self):
-        return self.name
+        return f"{self.reference} — {self.name}"
 
     def rebuild_risk_matrix(self):
         """Recompute risk_matrix JSON from current scales and risk levels.

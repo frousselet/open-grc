@@ -10,6 +10,8 @@ from .base import ScopedModel
 
 
 class SwotAnalysis(ScopedModel):
+    REFERENCE_PREFIX = "SWOT"
+
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"), blank=True, default="")
     analysis_date = models.DateField(_("Analysis date"))
@@ -34,7 +36,7 @@ class SwotAnalysis(ScopedModel):
         verbose_name_plural = _("SWOT analyses")
 
     def __str__(self):
-        return self.name
+        return f"{self.reference} — {self.name}"
 
 
 class SwotItem(models.Model):

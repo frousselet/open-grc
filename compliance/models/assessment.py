@@ -10,6 +10,8 @@ from context.models.base import ScopedModel
 
 
 class ComplianceAssessment(ScopedModel):
+    REFERENCE_PREFIX = "CA"
+
     framework = models.ForeignKey(
         "compliance.Framework",
         on_delete=models.CASCADE,
@@ -65,7 +67,7 @@ class ComplianceAssessment(ScopedModel):
         verbose_name_plural = _("Compliance assessments")
 
     def __str__(self):
-        return f"{self.name} — {self.framework.short_name or self.framework.name}"
+        return f"{self.reference} — {self.name}"
 
     def recalculate_counts(self):
         """Recompute summary counts from results."""

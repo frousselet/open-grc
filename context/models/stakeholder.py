@@ -16,6 +16,8 @@ from .base import ScopedModel
 
 
 class Stakeholder(ScopedModel):
+    REFERENCE_PREFIX = "STKH"
+
     name = models.CharField(_("Name"), max_length=255)
     type = models.CharField(
         _("Type"), max_length=20, choices=IssueType.choices
@@ -52,7 +54,7 @@ class Stakeholder(ScopedModel):
         verbose_name_plural = _("Stakeholders")
 
     def __str__(self):
-        return self.name
+        return f"{self.reference} — {self.name}"
 
 
 class StakeholderExpectation(models.Model):

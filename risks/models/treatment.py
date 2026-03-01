@@ -18,6 +18,8 @@ from risks.constants import (
 
 
 class RiskTreatmentPlan(BaseModel):
+    REFERENCE_PREFIX = "RTP"
+
     risk = models.ForeignKey(
         "risks.Risk",
         on_delete=models.CASCADE,

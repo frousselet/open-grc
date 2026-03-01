@@ -16,6 +16,8 @@ from .base import ScopedModel
 
 
 class Issue(ScopedModel):
+    REFERENCE_PREFIX = "ISSUE"
+
     name = models.CharField(_("Title"), max_length=255)
     description = models.TextField(_("Description"), blank=True, default="")
     type = models.CharField(_("Type"), max_length=20, choices=IssueType.choices)
@@ -47,7 +49,7 @@ class Issue(ScopedModel):
         verbose_name_plural = _("Issues")
 
     def __str__(self):
-        return self.name
+        return f"{self.reference} — {self.name}"
 
     def clean(self):
         super().clean()

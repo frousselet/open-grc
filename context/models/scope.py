@@ -8,6 +8,8 @@ from .base import BaseModel
 
 
 class Scope(BaseModel):
+    REFERENCE_PREFIX = "SCOPE"
+
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"))
     parent_scope = models.ForeignKey(
@@ -59,7 +61,7 @@ class Scope(BaseModel):
         verbose_name_plural = _("Scopes")
 
     def __str__(self):
-        return f"{self.name} (v{self.version})"
+        return f"{self.reference} — {self.name}"
 
     def clean(self):
         super().clean()

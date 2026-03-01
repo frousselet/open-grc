@@ -6,6 +6,8 @@ from context.models.base import BaseModel
 
 
 class ISO27005Risk(BaseModel):
+    REFERENCE_PREFIX = "I27R"
+
     assessment = models.ForeignKey(
         "risks.RiskAssessment",
         on_delete=models.CASCADE,
@@ -80,7 +82,7 @@ class ISO27005Risk(BaseModel):
         verbose_name_plural = _("ISO 27005 analyses")
 
     def __str__(self):
-        return f"{self.threat} × {self.vulnerability}"
+        return f"{self.reference} — {self.threat} × {self.vulnerability}"
 
     def save(self, *args, **kwargs):
         # Calculate combined_likelihood = max(threat_likelihood, vulnerability_exposure)

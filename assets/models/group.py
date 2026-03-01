@@ -8,6 +8,8 @@ from context.models.base import ScopedModel
 
 
 class AssetGroup(ScopedModel):
+    REFERENCE_PREFIX = "AG"
+
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"), blank=True, default="")
     type = models.CharField(
@@ -41,4 +43,4 @@ class AssetGroup(ScopedModel):
         verbose_name_plural = _("Asset groups")
 
     def __str__(self):
-        return self.name
+        return f"{self.reference} — {self.name}"

@@ -16,6 +16,8 @@ from risks.constants import (
 
 
 class Risk(BaseModel):
+    REFERENCE_PREFIX = "RISK"
+
     assessment = models.ForeignKey(
         "risks.RiskAssessment",
         on_delete=models.CASCADE,
