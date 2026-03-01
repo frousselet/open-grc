@@ -192,6 +192,20 @@
     .sidebar-link.active i { color: var(--accent); }
     .sidebar-sub { padding-left: 3.1rem; font-size: .82rem; color: var(--text-sidebar-sub); }
 
+    .sidebar-body .collapse {
+      position: relative;
+    }
+    .sidebar-body .collapse::before {
+      content: '';
+      position: absolute;
+      left: 1.85rem;
+      top: .25rem;
+      bottom: .25rem;
+      width: 1px;
+      background: var(--border-light);
+      border-radius: 1px;
+    }
+
     .sidebar-collapse-btn {
       display: flex;
       align-items: center;
