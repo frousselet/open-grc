@@ -1179,9 +1179,13 @@
       <div class="dropdown">
         <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
            data-bs-toggle="dropdown" aria-expanded="false">
+          {% if user.avatar %}
+          <img src="{{ user.avatar.url }}" alt="" style="width:1.75rem;height:1.75rem;border-radius:var(--radius-sm);object-fit:cover" class="me-2">
+          {% else %}
           <div style="width:1.75rem;height:1.75rem;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--accent-soft),rgba(99,102,241,.15));color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:650;letter-spacing:-.01em;" class="me-2">
             {{ user.display_name|truncatechars:1 }}
           </div>
+          {% endif %}
           <span class="text-truncate" style="max-width:140px;font-size:.8125rem">{{ user.display_name }}</span>
         </a>
         <ul class="dropdown-menu dropdown-menu-end shadow-sm">

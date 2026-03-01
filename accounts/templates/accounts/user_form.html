@@ -10,7 +10,7 @@
 
 <div class="card">
   <div class="card-body">
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       {% for field in form %}
       <div class="mb-3{% if field.field.widget.input_type == 'checkbox' %} form-check{% endif %}">
