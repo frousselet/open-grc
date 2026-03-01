@@ -9,6 +9,7 @@ from .models import (
     Supplier,
     SupplierDependency,
     SupplierRequirement,
+    SupplierRequirementReview,
     SupplierType,
     SupplierTypeRequirement,
     SupportAsset,
@@ -137,6 +138,12 @@ class SupplierAdmin(SimpleHistoryAdmin):
     inlines = [SupplierRequirementInline]
 
 
+class SupplierRequirementReviewInline(admin.TabularInline):
+    model = SupplierRequirementReview
+    extra = 0
+    readonly_fields = ("created_at", "updated_at")
+
+
 @admin.register(SupplierRequirement)
 class SupplierRequirementAdmin(admin.ModelAdmin):
     list_display = (
@@ -145,6 +152,7 @@ class SupplierRequirementAdmin(admin.ModelAdmin):
     list_filter = ("compliance_status",)
     search_fields = ("title", "supplier__name", "supplier__reference")
     readonly_fields = ("created_at", "updated_at")
+    inlines = [SupplierRequirementReviewInline]
 
 
 @admin.register(SupplierDependency)

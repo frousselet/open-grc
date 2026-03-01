@@ -13,7 +13,13 @@ from assets.constants import (
 )
 from assets.models.dependency import AssetDependency
 from assets.models.essential_asset import EssentialAsset
-from assets.models.supplier import Supplier, SupplierDependency, SupplierRequirement, SupplierType
+from assets.models.supplier import (
+    Supplier,
+    SupplierDependency,
+    SupplierRequirement,
+    SupplierRequirementReview,
+    SupplierType,
+)
 from assets.models.support_asset import SupportAsset
 from context.constants import Criticality
 from context.tests.factories import ScopeFactory
@@ -82,6 +88,17 @@ class SupplierRequirementFactory(factory.django.DjangoModelFactory):
     supplier = factory.SubFactory(SupplierFactory)
     title = factory.Sequence(lambda n: f"Requirement {n}")
     description = "Test requirement description"
+
+
+class SupplierRequirementReviewFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SupplierRequirementReview
+
+    supplier_requirement = factory.SubFactory(SupplierRequirementFactory)
+    review_date = factory.LazyFunction(lambda: __import__("datetime").date.today())
+    reviewer = factory.SubFactory(UserFactory)
+    result = "compliant"
+    comment = "Reviewed and found compliant."
 
 
 class SupplierDependencyFactory(factory.django.DjangoModelFactory):

@@ -23,6 +23,7 @@ from .forms import (
     SupplierDependencyForm,
     SupplierForm,
     SupplierRequirementForm,
+    SupplierRequirementReviewForm,
     SupplierTypeForm,
     SupplierTypeRequirementForm,
     SupplierTypeRequirementFormSet,
@@ -35,6 +36,7 @@ from .models import (
     Supplier,
     SupplierDependency,
     SupplierRequirement,
+    SupplierRequirementReview,
     SupplierType,
     SupplierTypeRequirement,
     SupportAsset,
@@ -576,6 +578,67 @@ class SupplierRequirementDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy("assets:supplier-detail", kwargs={"pk": self.object.supplier.pk})
+
+
+class SupplierRequirementDetailView(LoginRequiredMixin, DetailView):
+    model = SupplierRequirement
+    template_name = "assets/supplier_requirement_detail.html"
+    context_object_name = "req"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["supplier"] = self.object.supplier
+        ctx["reviews"] = self.object.reviews.select_related("reviewer")
+        return ctx
+
+
+# ── Supplier Requirement Reviews ──────────────────────────
+
+class SupplierRequirementReviewCreateView(LoginRequiredMixin, CreateView):
+    model = SupplierRequirementReview
+    form_class = SupplierRequirementReviewForm
+    template_name = "assets/supplier_requirement_review_form.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.supplier_requirement = get_object_or_404(
+            SupplierRequirement, pk=kwargs["requirement_pk"]
+        )
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.supplier_requirement = self.supplier_requirement
+        form.instance.reviewer = self.request.user
+        response = super().form_valid(form)
+        # Update the requirement's compliance status from the review
+        req = self.supplier_requirement
+        req.compliance_status = form.instance.result
+        req.verified_at = timezone.now()
+        req.verified_by = self.request.user
+        req.save(update_fields=["compliance_status", "verified_at", "verified_by"])
+        return response
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["supplier_requirement"] = self.supplier_requirement
+        ctx["supplier"] = self.supplier_requirement.supplier
+        return ctx
+
+    def get_success_url(self):
+        return reverse_lazy(
+            "assets:supplier-requirement-detail",
+            kwargs={"pk": self.supplier_requirement.pk},
+        )
+
+
+class SupplierRequirementReviewDeleteView(LoginRequiredMixin, DeleteView):
+    model = SupplierRequirementReview
+    template_name = "assets/confirm_delete.html"
+
+    def get_success_url(self):
+        return reverse_lazy(
+            "assets:supplier-requirement-detail",
+            kwargs={"pk": self.object.supplier_requirement.pk},
+        )
 
 
 # ── Supplier Dependencies ─────────────────────────────────
