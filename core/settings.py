@@ -15,6 +15,8 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get("DEBUG", "True").lower() in ("true", "1", "yes")
 
+APP_VERSION = os.environ.get("APP_VERSION", "dev")
+
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 INSTALLED_APPS = [
@@ -66,6 +68,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.i18n",
+                "core.context_processors.app_version",
             ],
         },
     },
