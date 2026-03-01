@@ -11,10 +11,33 @@ from assets.constants import (
     SupplierDependencyType,
     SupplierRequirementStatus,
     SupplierStatus,
-    SupplierType,
 )
 from context.constants import Criticality
 from context.models.base import ScopedModel
+
+
+class SupplierType(models.Model):
+    """Configurable supplier type with default requirements."""
+
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(_("Name"), max_length=255, unique=True)
+    description = models.TextField(_("Description"), blank=True, default="")
+    requirements = models.ManyToManyField(
+        "compliance.Requirement",
+        blank=True,
+        related_name="supplier_types",
+        verbose_name=_("Default requirements"),
+    )
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = _("Supplier type")
+        verbose_name_plural = _("Supplier types")
+
+    def __str__(self):
+        return self.name
 
 
 class Supplier(ScopedModel):
@@ -26,8 +49,13 @@ class Supplier(ScopedModel):
     logo = models.ImageField(
         _("Logo"), upload_to="suppliers/logos/", blank=True, default=""
     )
-    type = models.CharField(
-        _("Type"), max_length=30, choices=SupplierType.choices
+    type = models.ForeignKey(
+        SupplierType,
+        on_delete=models.PROTECT,
+        related_name="suppliers",
+        verbose_name=_("Type"),
+        null=True,
+        blank=True,
     )
     criticality = models.CharField(
         _("Criticality"),

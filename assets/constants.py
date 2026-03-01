@@ -227,17 +227,6 @@ class AssetGroupStatus(models.TextChoices):
 
 # ── Supplier ───────────────────────────────────────────────
 
-class SupplierType(models.TextChoices):
-    CLOUD_PROVIDER = "cloud_provider", _("Cloud provider")
-    SOFTWARE_VENDOR = "software_vendor", _("Software vendor")
-    HARDWARE_VENDOR = "hardware_vendor", _("Hardware vendor")
-    CONSULTING = "consulting", _("Consulting")
-    MANAGED_SERVICES = "managed_services", _("Managed services")
-    TELECOMMUNICATIONS = "telecommunications", _("Telecommunications")
-    OUTSOURCING = "outsourcing", _("Outsourcing")
-    OTHER = "other", _("Other")
-
-
 class SupplierStatus(models.TextChoices):
     ACTIVE = "active", _("Active")
     UNDER_EVALUATION = "under_evaluation", _("Under evaluation")

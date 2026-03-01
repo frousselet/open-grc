@@ -44,7 +44,7 @@
               {{ supplier.name }}
             </span>
           </td>
-          <td>{{ supplier.get_type_display }}</td>
+          <td>{% if supplier.type %}<a href="{% url 'assets:supplier-type-detail' supplier.type.pk %}" style="color:var(--accent);text-decoration:none">{{ supplier.type.name }}</a>{% else %}—{% endif %}</td>
           <td>
             <span class="badge text-bg-{% if supplier.criticality == 'critical' %}danger{% elif supplier.criticality == 'high' %}warning{% elif supplier.criticality == 'medium' %}info{% else %}secondary{% endif %}">
               {{ supplier.get_criticality_display }}

@@ -35,6 +35,12 @@ urlpatterns = [
     path("groups/<uuid:pk>/edit/", views.GroupUpdateView.as_view(), name="group-update"),
     path("groups/<uuid:pk>/delete/", views.GroupDeleteView.as_view(), name="group-delete"),
     path("groups/<uuid:pk>/approve/", views.ApproveView.as_view(model=AssetGroup, permission_feature="group", success_url=reverse_lazy("assets:group-list")), name="group-approve"),
+    # Supplier Types
+    path("supplier-types/", views.SupplierTypeListView.as_view(), name="supplier-type-list"),
+    path("supplier-types/create/", views.SupplierTypeCreateView.as_view(), name="supplier-type-create"),
+    path("supplier-types/<int:pk>/", views.SupplierTypeDetailView.as_view(), name="supplier-type-detail"),
+    path("supplier-types/<int:pk>/edit/", views.SupplierTypeUpdateView.as_view(), name="supplier-type-update"),
+    path("supplier-types/<int:pk>/delete/", views.SupplierTypeDeleteView.as_view(), name="supplier-type-delete"),
     # Suppliers
     path("suppliers/", views.SupplierListView.as_view(), name="supplier-list"),
     path("suppliers/create/", views.SupplierCreateView.as_view(), name="supplier-create"),
