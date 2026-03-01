@@ -31,7 +31,7 @@
           <td>
             <a href="{% url 'assets:supplier-detail' dep.supplier.pk %}" class="d-inline-flex align-items-center gap-2" style="color:var(--accent);text-decoration:none;font-weight:500">
               {% if dep.supplier.logo %}
-                <img src="{{ dep.supplier.logo.url }}" alt="" style="width:24px;height:24px;object-fit:contain;border-radius:4px">
+                <img src="{{ dep.supplier.logo.url }}" alt="" style="width:24px;height:24px;object-fit:cover;border-radius:4px">
               {% else %}
                 <span class="d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;border-radius:4px;background:#f59e0b;color:#fff;font-size:.6875rem"><i class="bi bi-truck"></i></span>
               {% endif %}
