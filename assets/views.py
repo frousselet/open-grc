@@ -101,9 +101,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ctx["orphan_supports"] = SupportAsset.objects.filter(
             dependencies_as_support__isnull=True
         ).count()
-        ctx["spof_count"] = AssetDependency.objects.filter(
-            is_single_point_of_failure=True,
-        ).count()
+        ctx["spof_count"] = (
+            AssetDependency.objects.filter(is_single_point_of_failure=True).count()
+            + SupplierDependency.objects.filter(is_single_point_of_failure=True).count()
+        )
         ctx["eol_assets"] = SupportAsset.objects.filter(
             end_of_life_date__lte=today,
             status="active",
@@ -557,7 +558,7 @@ class DependencyGraphView(LoginRequiredMixin, TemplateView):
                 "target": sup_id,
                 "label": dep.get_dependency_type_display(),
                 "criticality": dep.criticality,
-                "is_spof": False,
+                "is_spof": dep.is_single_point_of_failure,
                 "kind": "supplier",
             })
 

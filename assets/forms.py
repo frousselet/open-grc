@@ -208,6 +208,7 @@ class SupplierDependencyForm(forms.ModelForm):
         fields = [
             "support_asset", "supplier",
             "dependency_type", "criticality", "description",
+            "is_single_point_of_failure", "redundancy_level",
         ]
         widgets = {
             "support_asset": forms.Select(attrs=SELECT_ATTRS),
@@ -215,6 +216,8 @@ class SupplierDependencyForm(forms.ModelForm):
             "dependency_type": forms.Select(attrs=SELECT_ATTRS),
             "criticality": forms.Select(attrs=SELECT_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "is_single_point_of_failure": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
+            "redundancy_level": forms.Select(attrs=SELECT_ATTRS),
         }
 
 
