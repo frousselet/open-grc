@@ -50,9 +50,9 @@
 
 {# ── Stats badges ─────────────────────────────────────── #}
 <div class="d-flex gap-2 mb-3">
-  <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.88rem;padding:.4em .8em"><i class="bi bi-folder me-1"></i>{% blocktrans count count=stats.section_count %}{{ count }} section{% plural %}{{ count }} sections{% endblocktrans %}</span>
-  <span class="badge" style="background:var(--info-soft);color:var(--info);font-size:.88rem;padding:.4em .8em"><i class="bi bi-list-check me-1"></i>{% blocktrans count count=stats.requirement_count %}{{ count }} requirement{% plural %}{{ count }} requirements{% endblocktrans %}</span>
-  <span class="badge" style="background:var(--surface-muted);color:var(--text-secondary);font-size:.88rem;padding:.4em .8em"><i class="bi bi-diagram-3 me-1"></i>{% blocktrans with depth=stats.max_depth %}Max depth: {{ depth }}{% endblocktrans %}</span>
+  <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.8125rem;padding:.4em .8em"><i class="bi bi-folder me-1"></i>{% blocktrans count count=stats.section_count %}{{ count }} section{% plural %}{{ count }} sections{% endblocktrans %}</span>
+  <span class="badge" style="background:var(--info-soft);color:var(--info);font-size:.8125rem;padding:.4em .8em"><i class="bi bi-list-check me-1"></i>{% blocktrans count count=stats.requirement_count %}{{ count }} requirement{% plural %}{{ count }} requirements{% endblocktrans %}</span>
+  <span class="badge" style="background:var(--surface-muted);color:var(--text-secondary);font-size:.8125rem;padding:.4em .8em"><i class="bi bi-diagram-3 me-1"></i>{% blocktrans with depth=stats.max_depth %}Max depth: {{ depth }}{% endblocktrans %}</span>
 </div>
 
 {# ── Warnings ─────────────────────────────────────────── #}

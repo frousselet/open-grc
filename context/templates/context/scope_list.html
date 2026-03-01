@@ -46,7 +46,7 @@
           </td>
           <td>{{ scope.effective_date|default:"—" }}</td>
           <td>{{ scope.review_date|default:"—" }}</td>
-          <td>{% for tag in scope.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.7rem">{{ tag.name }}</span>{% endfor %}</td>
+          <td>{% for tag in scope.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
           <td>
             <span class="badge text-bg-{% if scope.is_approved %}success{% else %}warning{% endif %}">
               {% if scope.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}

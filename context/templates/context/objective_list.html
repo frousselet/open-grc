@@ -50,7 +50,7 @@
             </span>
           </td>
           <td>{{ obj.target_date|default:"—" }}</td>
-          <td>{% for tag in obj.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.7rem">{{ tag.name }}</span>{% endfor %}</td>
+          <td>{% for tag in obj.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
           <td>
             <span class="badge text-bg-{% if obj.is_approved %}success{% else %}warning{% endif %}">
               {% if obj.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
