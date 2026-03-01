@@ -17,6 +17,7 @@
     <table class="table table-hover mb-0">
       <thead>
         <tr>
+          <th>{% trans "Ref." %}</th>
           <th>{% trans "Title" %}</th>
           <th>{% trans "Analysis date" %}</th>
           <th>{% trans "Status" %}</th>
@@ -29,6 +30,7 @@
       <tbody>
         {% for analysis in analyses %}
         <tr>
+          <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ analysis.reference }}</td>
           <td><a href="{% url 'context:swot-detail' analysis.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ analysis.name }}</a></td>
           <td>{{ analysis.analysis_date }}</td>
           <td>
@@ -48,7 +50,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted)">{% trans "No SWOT analysis." %}</td></tr>
+        <tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted)">{% trans "No SWOT analysis." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>

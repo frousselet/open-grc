@@ -17,6 +17,7 @@
     <table class="table table-hover mb-0">
       <thead>
         <tr>
+          <th>{% trans "Ref." %}</th>
           <th>{% trans "Name" %}</th>
           <th>{% trans "Framework" %}</th>
           <th>{% trans "Date" %}</th>
@@ -32,6 +33,7 @@
       <tbody>
         {% for a in assessments %}
         <tr>
+          <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ a.reference }}</td>
           <td><a href="{% url 'compliance:assessment-detail' a.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ a.name }}</a></td>
           <td>{{ a.framework.short_name|default:a.framework.name }}</td>
           <td>{{ a.assessment_date }}</td>
@@ -61,7 +63,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)">{% trans "No assessment defined." %}</td></tr>
+        <tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No assessment defined." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>
