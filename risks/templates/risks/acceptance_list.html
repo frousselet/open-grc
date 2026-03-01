@@ -23,6 +23,7 @@
     <table class="table table-hover mb-0">
       <thead>
         <tr>
+          <th>{% trans "Ref." %}</th>
           <th>{% trans "Risk" %}</th>
           <th>{% trans "Accepted by" %}</th>
           <th>{% trans "Level at acceptance" %}</th>
@@ -35,6 +36,7 @@
       <tbody>
         {% for acc in acceptances %}
         <tr>
+          <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ acc.reference }}</td>
           <td><a href="{% url 'risks:acceptance-detail' acc.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ acc.risk }}</a></td>
           <td>{{ acc.accepted_by|default:"—" }}</td>
           <td>{{ acc.risk_level_at_acceptance|default:"—" }}</td>
@@ -50,7 +52,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted)">{% trans "No risk acceptances." %}</td></tr>
+        <tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted)">{% trans "No risk acceptances." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>

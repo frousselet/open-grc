@@ -23,6 +23,7 @@
     <table class="table table-hover mb-0">
       <thead>
         <tr>
+          <th>{% trans "Ref." %}</th>
           <th>{% trans "Assessment" %}</th>
           <th>{% trans "Threat" %}</th>
           <th>{% trans "Vulnerability" %}</th>
@@ -36,6 +37,7 @@
       <tbody>
         {% for a in analyses %}
         <tr>
+          <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ a.reference }}</td>
           <td>{{ a.assessment.reference }}</td>
           <td><a href="{% url 'risks:iso27005-detail' a.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ a.threat.name }}</a></td>
           <td>{{ a.vulnerability.name }}</td>
@@ -48,7 +50,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted)">{% trans "No ISO 27005 analyses." %}</td></tr>
+        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No ISO 27005 analyses." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>
