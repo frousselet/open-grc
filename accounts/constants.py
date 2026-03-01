@@ -114,6 +114,10 @@ PERMISSION_REGISTRY = {
             "actions": ["create", "read", "update", "delete", "approve"],
             "label": _("Suppliers"),
         },
+        "supplier_dependency": {
+            "actions": ["create", "read", "update", "delete", "approve"],
+            "label": _("Supplier dependencies"),
+        },
         "import": {
             "actions": ["create"],
             "label": _("Asset import"),

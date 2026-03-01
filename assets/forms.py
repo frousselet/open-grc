@@ -7,6 +7,7 @@ from .models import (
     AssetValuation,
     EssentialAsset,
     Supplier,
+    SupplierDependency,
     SupplierRequirement,
     SupportAsset,
 )
@@ -200,6 +201,22 @@ class SupplierRequirementForm(forms.ModelForm):
             "compliance_status": forms.Select(attrs=SELECT_ATTRS),
             "evidence": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "due_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+        }
+
+
+class SupplierDependencyForm(forms.ModelForm):
+    class Meta:
+        model = SupplierDependency
+        fields = [
+            "support_asset", "supplier",
+            "dependency_type", "criticality", "description",
+        ]
+        widgets = {
+            "support_asset": forms.Select(attrs=SELECT_ATTRS),
+            "supplier": forms.Select(attrs=SELECT_ATTRS),
+            "dependency_type": forms.Select(attrs=SELECT_ATTRS),
+            "criticality": forms.Select(attrs=SELECT_ATTRS),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
         }
 
 

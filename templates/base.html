@@ -806,9 +806,15 @@
         <a href="{% url 'assets:support-asset-list' %}" class="sidebar-link sidebar-sub">{% trans "Support assets" %}</a>
         <a href="{% url 'assets:group-list' %}" class="sidebar-link sidebar-sub">{% trans "Asset groups" %}</a>
       </div>
-      <a href="{% url 'assets:dependency-list' %}" class="sidebar-link">
+      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navDeps" aria-expanded="true">
         <i class="bi bi-share"></i> {% trans "Dependencies" %}
-      </a>
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      <div class="collapse show" id="navDeps">
+        <a href="{% url 'assets:dependency-list' %}" class="sidebar-link sidebar-sub">{% trans "Asset dependencies" %}</a>
+        <a href="{% url 'assets:supplier-dependency-list' %}" class="sidebar-link sidebar-sub">{% trans "Supplier dependencies" %}</a>
+        <a href="{% url 'assets:dependency-graph' %}" class="sidebar-link sidebar-sub">{% trans "Graph view" %}</a>
+      </div>
       <a href="{% url 'assets:supplier-list' %}" class="sidebar-link">
         <i class="bi bi-truck"></i> {% trans "Suppliers" %}
       </a>

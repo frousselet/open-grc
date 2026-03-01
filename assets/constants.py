@@ -206,6 +206,18 @@ class RedundancyLevel(models.TextChoices):
     FULL = "full", _("Full")
 
 
+# ── Supplier Dependency ────────────────────────────────────
+
+class SupplierDependencyType(models.TextChoices):
+    HOSTED_BY = "hosted_by", _("Hosted by")
+    PROVIDED_BY = "provided_by", _("Provided by")
+    MAINTAINED_BY = "maintained_by", _("Maintained by")
+    DEVELOPED_BY = "developed_by", _("Developed by")
+    OPERATED_BY = "operated_by", _("Operated by")
+    MONITORED_BY = "monitored_by", _("Monitored by")
+    OTHER = "other", _("Other")
+
+
 # ── Asset Group ─────────────────────────────────────────────
 
 class AssetGroupStatus(models.TextChoices):

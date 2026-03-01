@@ -7,6 +7,7 @@ from .models import (
     AssetValuation,
     EssentialAsset,
     Supplier,
+    SupplierDependency,
     SupplierRequirement,
     SupportAsset,
 )
@@ -129,3 +130,16 @@ class SupplierRequirementAdmin(admin.ModelAdmin):
     list_filter = ("compliance_status",)
     search_fields = ("title", "supplier__name", "supplier__reference")
     readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(SupplierDependency)
+class SupplierDependencyAdmin(SimpleHistoryAdmin):
+    list_display = (
+        "support_asset", "supplier", "dependency_type", "criticality",
+    )
+    list_filter = ("dependency_type", "criticality")
+    search_fields = (
+        "support_asset__reference", "support_asset__name",
+        "supplier__reference", "supplier__name",
+    )
+    readonly_fields = ("id", "created_at", "updated_at")

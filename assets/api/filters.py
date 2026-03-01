@@ -5,6 +5,7 @@ from assets.models import (
     AssetGroup,
     EssentialAsset,
     Supplier,
+    SupplierDependency,
     SupportAsset,
 )
 
@@ -113,4 +114,16 @@ class SupplierFilter(django_filters.FilterSet):
             "type": ["exact"],
             "criticality": ["exact"],
             "status": ["exact"],
+        }
+
+
+class SupplierDependencyFilter(django_filters.FilterSet):
+    support_asset = django_filters.UUIDFilter(field_name="support_asset_id")
+    supplier = django_filters.UUIDFilter(field_name="supplier_id")
+
+    class Meta:
+        model = SupplierDependency
+        fields = {
+            "dependency_type": ["exact"],
+            "criticality": ["exact"],
         }
