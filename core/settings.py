@@ -3,6 +3,7 @@ Django settings for open-grc project.
 """
 
 import os
+import subprocess
 from datetime import timedelta
 from pathlib import Path
 
@@ -15,7 +16,27 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get("DEBUG", "True").lower() in ("true", "1", "yes")
 
-APP_VERSION = os.environ.get("APP_VERSION", "dev")
+
+def _detect_version():
+    """Return app version from APP_VERSION env var, git tag, or 'dev'."""
+    version = os.environ.get("APP_VERSION", "").strip()
+    if version:
+        return version
+    try:
+        return (
+            subprocess.check_output(
+                ["git", "describe", "--tags", "--abbrev=0"],
+                stderr=subprocess.DEVNULL,
+                cwd=BASE_DIR,
+            )
+            .decode()
+            .strip()
+        )
+    except Exception:
+        return "dev"
+
+
+APP_VERSION = _detect_version()
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
