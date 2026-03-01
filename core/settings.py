@@ -22,9 +22,12 @@ def _detect_version():
     if version:
         return version
     try:
-        return (BASE_DIR / "version.txt").read_text().strip()
+        version = (BASE_DIR / "version.txt").read_text().strip()
+        if version:
+            return version
     except Exception:
-        return "dev"
+        pass
+    return "dev"
 
 
 APP_VERSION = _detect_version()
