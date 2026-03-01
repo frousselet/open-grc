@@ -652,6 +652,16 @@ class TagListView(LoginRequiredMixin, ListView):
         return tags
 
 
+class TagUpdateView(LoginRequiredMixin, UpdateView):
+    model = Tag
+    template_name = "context/tag_form.html"
+    success_url = reverse_lazy("context:tag-list")
+
+    def get_form_class(self):
+        from .forms import TagForm
+        return TagForm
+
+
 class TagDeleteView(LoginRequiredMixin, DeleteView):
     model = Tag
     template_name = "context/confirm_delete.html"
