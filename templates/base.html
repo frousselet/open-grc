@@ -714,24 +714,13 @@
       backdrop-filter: blur(4px);
       z-index: 1035;
     }
-    .sidebar-toggle {
-      display: none;
-    }
-    /* Close button inside sidebar on mobile */
-    .sidebar .sidebar-toggle {
-      background: transparent;
-      border: none;
-      font-size: 1.2rem;
-      color: var(--text-secondary);
-      padding: .35rem .55rem;
-    }
     /* Mobile menu toggle button */
     .mobile-menu-toggle {
       display: none;
       position: fixed;
       top: .75rem;
       left: .75rem;
-      z-index: 1040;
+      z-index: 1045;
       width: 2.5rem;
       height: 2.5rem;
       border-radius: var(--radius-md);
@@ -741,19 +730,53 @@
       -webkit-backdrop-filter: blur(20px) saturate(1.5);
       box-shadow: var(--shadow-md);
       color: var(--text-secondary);
-      font-size: 1.25rem;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      transition: background var(--transition-fast);
+      padding: 0;
     }
     .mobile-menu-toggle:active {
       background: var(--surface-muted);
     }
+    /* Animated hamburger icon */
+    .hamburger-icon {
+      width: 18px;
+      height: 14px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .hamburger-icon span {
+      display: block;
+      height: 2px;
+      width: 100%;
+      background: currentColor;
+      border-radius: 1px;
+      transition: transform var(--transition-normal), opacity var(--transition-normal);
+      transform-origin: center;
+    }
+    body.sidebar-open .hamburger-icon span:nth-child(1) {
+      transform: translateY(6px) rotate(45deg);
+    }
+    body.sidebar-open .hamburger-icon span:nth-child(2) {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+    body.sidebar-open .hamburger-icon span:nth-child(3) {
+      transform: translateY(-6px) rotate(-45deg);
+    }
     @media (max-width: 991.98px) {
-      .sidebar { transform: translateX(-100%); }
+      html { overflow-x: hidden; }
+      .sidebar {
+        transform: translateX(calc(-100% - var(--sidebar-inset)));
+        width: calc(100vw - var(--sidebar-inset) * 2);
+        max-width: var(--sidebar-w);
+      }
       .sidebar.show { transform: translateX(0); }
+      .sidebar.show .sidebar-brand { padding-left: 3.25rem; }
       .sidebar-backdrop.show { display: block; }
-      .sidebar .sidebar-toggle { display: inline-flex; }
       .mobile-menu-toggle { display: flex; }
       .main-content { margin-left: 0; padding: 1rem 1rem 4rem; }
       .main-content h1 { font-size: 1.25rem; }
@@ -821,9 +844,6 @@
         <span class="sidebar-brand-icon"><i class="bi bi-shield-check"></i></span>
         Open GRC {% if APP_VERSION %}<small style="font-size:.7em;opacity:.45">{{ APP_VERSION }}</small>{% endif %}
       </a>
-      <button class="sidebar-toggle d-lg-none" onclick="toggleSidebar()">
-        <i class="bi bi-x-lg"></i>
-      </button>
     </div>
 
     <div class="sidebar-body">
@@ -1026,7 +1046,11 @@
 
   {# ── Mobile menu toggle ──────────────────────────────── #}
   <button class="mobile-menu-toggle" onclick="toggleSidebar()">
-    <i class="bi bi-list"></i>
+    <div class="hamburger-icon">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
   </button>
 
   {# ── Main content ─────────────────────────────────────── #}
@@ -1111,21 +1135,41 @@
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('show');
       document.getElementById('sidebarBackdrop').classList.toggle('show');
+      document.body.classList.toggle('sidebar-open');
     }
-    /* Auto-expand and highlight the active sidebar link */
+    /* Auto-expand and highlight the active sidebar link;
+       on mobile, collapse all sections except the one containing the active link */
     (function() {
       var path = location.pathname;
+      var isMobile = window.matchMedia('(max-width: 991.98px)').matches;
+      var activeCollapse = null;
+
       document.querySelectorAll('.sidebar-link').forEach(function(link) {
         if (link.getAttribute('href') === path) {
           link.classList.add('active');
           var collapse = link.closest('.collapse');
           if (collapse) {
-            collapse.classList.add('show');
-            var btn = document.querySelector('[data-bs-target="#' + collapse.id + '"]');
-            if (btn) btn.setAttribute('aria-expanded', 'true');
+            activeCollapse = collapse;
           }
         }
       });
+
+      /* On mobile, collapse all sections by default, then expand only the active one */
+      if (isMobile) {
+        document.querySelectorAll('.sidebar-body .collapse.show').forEach(function(el) {
+          if (el !== activeCollapse) {
+            el.classList.remove('show');
+            var btn = document.querySelector('[data-bs-target="#' + el.id + '"]');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
+
+      if (activeCollapse) {
+        activeCollapse.classList.add('show');
+        var btn = document.querySelector('[data-bs-target="#' + activeCollapse.id + '"]');
+        if (btn) btn.setAttribute('aria-expanded', 'true');
+      }
     })();
   </script>
   {% block extra_js %}{% endblock %}
