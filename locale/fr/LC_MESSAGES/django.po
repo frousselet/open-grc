@@ -3644,8 +3644,5 @@ msgstr "Tag"
 msgid "Tags"
 msgstr "Tags"
 
-msgid "Color"
-msgstr "Couleur"
-
 msgid "Hex color code, e.g. #ff5733"
 msgstr "Code couleur hexadécimal, ex. #ff5733"
