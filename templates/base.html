@@ -863,6 +863,9 @@
       {% has_module_perms "system" as can_admin %}
       {% if can_admin %}
       <div class="sidebar-section">{% trans "Administration" %}</div>
+      <a href="{% url 'context:tag-list' %}" class="sidebar-link">
+        <i class="bi bi-tags"></i> {% trans "Tags" %}
+      </a>
       {% has_perm "system.users.read" as can_users %}
       {% if can_users %}
       <a href="{% url 'accounts:user-list' %}" class="sidebar-link">

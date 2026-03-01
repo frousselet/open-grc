@@ -3646,3 +3646,9 @@ msgstr "Tags"
 
 msgid "Hex color code, e.g. #ff5733"
 msgstr "Code couleur hexadécimal, ex. #ff5733"
+
+msgid "Linked items"
+msgstr "Éléments liés"
+
+msgid "No tag created yet."
+msgstr "Aucun tag créé pour le moment."
