@@ -1,7 +1,16 @@
+import base64
+
 from django import forms
 from django.forms import inlineformset_factory
+from django.utils.translation import gettext_lazy as _
 
 from context.models import Scope, Site
+
+
+def _file_to_data_uri(uploaded_file):
+    """Convert an uploaded file to a base64 data URI string."""
+    data = base64.b64encode(uploaded_file.read()).decode()
+    return f"data:{uploaded_file.content_type};base64,{data}"
 from .models import (
     AssetDependency,
     AssetGroup,
@@ -158,10 +167,16 @@ class AssetGroupForm(ScopedFormMixin, forms.ModelForm):
 
 
 class SupplierForm(ScopedFormMixin, forms.ModelForm):
+    logo = forms.ImageField(
+        label=_("Logo"),
+        required=False,
+        widget=forms.FileInput(attrs={**FORM_WIDGET_ATTRS, "accept": "image/*"}),
+    )
+
     class Meta:
         model = Supplier
         fields = [
-            "scope", "name", "description", "logo",
+            "scope", "name", "description",
             "type", "criticality", "owner",
             "contact_name", "contact_email", "contact_phone",
             "website", "address", "country",
@@ -172,7 +187,6 @@ class SupplierForm(ScopedFormMixin, forms.ModelForm):
             "scope": forms.Select(attrs=SELECT_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
-            "logo": forms.FileInput(attrs={**FORM_WIDGET_ATTRS, "accept": "image/*"}),
             "type": forms.Select(attrs=SELECT_ATTRS),
             "criticality": forms.Select(attrs=SELECT_ATTRS),
             "owner": forms.Select(attrs=SELECT_ATTRS),
@@ -189,6 +203,15 @@ class SupplierForm(ScopedFormMixin, forms.ModelForm):
             "notes": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+
+    def save(self, commit=True):
+        supplier = super().save(commit=False)
+        if self.files.get("logo"):
+            supplier.logo = _file_to_data_uri(self.files["logo"])
+        if commit:
+            supplier.save()
+            self.save_m2m()
+        return supplier
 
 
 class SupplierTypeForm(forms.ModelForm):
@@ -238,15 +261,31 @@ class SupplierRequirementForm(forms.ModelForm):
 
 
 class SupplierRequirementReviewForm(forms.ModelForm):
+    evidence_file = forms.FileField(
+        label=_("Supporting evidence"),
+        required=False,
+        widget=forms.ClearableFileInput(attrs=FORM_WIDGET_ATTRS),
+        help_text=_("Upload a supporting document (certificate, report, etc.)."),
+    )
+
     class Meta:
         model = SupplierRequirementReview
-        fields = ["review_date", "result", "comment", "evidence_file"]
+        fields = ["review_date", "result", "comment"]
         widgets = {
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "result": forms.Select(attrs=SELECT_ATTRS),
             "comment": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
-            "evidence_file": forms.ClearableFileInput(attrs=FORM_WIDGET_ATTRS),
         }
+
+    def save(self, commit=True):
+        review = super().save(commit=False)
+        if self.files.get("evidence_file"):
+            f = self.files["evidence_file"]
+            review.evidence_file = _file_to_data_uri(f)
+            review.evidence_filename = f.name
+        if commit:
+            review.save()
+        return review
 
 
 class SupplierDependencyForm(forms.ModelForm):

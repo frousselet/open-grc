@@ -1,9 +1,17 @@
+import base64
+
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Group, User
+
+
+def _file_to_data_uri(uploaded_file):
+    """Convert an uploaded file to a base64 data URI string."""
+    data = base64.b64encode(uploaded_file.read()).decode()
+    return f"data:{uploaded_file.content_type};base64,{data}"
 
 
 class LoginForm(forms.Form):
@@ -65,9 +73,15 @@ class UserCreateForm(forms.ModelForm):
 
 
 class UserUpdateForm(forms.ModelForm):
+    avatar = forms.ImageField(
+        label=_("Profile photo"),
+        required=False,
+        widget=forms.FileInput(attrs={"class": "form-control", "accept": "image/*"}),
+    )
+
     class Meta:
         model = User
-        fields = ("email", "first_name", "last_name", "job_title", "department", "phone", "avatar", "language", "timezone", "is_active")
+        fields = ("email", "first_name", "last_name", "job_title", "department", "phone", "language", "timezone", "is_active")
         widgets = {
             "email": forms.EmailInput(attrs={"class": "form-control"}),
             "first_name": forms.TextInput(attrs={"class": "form-control"}),
@@ -75,34 +89,47 @@ class UserUpdateForm(forms.ModelForm):
             "job_title": forms.TextInput(attrs={"class": "form-control"}),
             "department": forms.TextInput(attrs={"class": "form-control"}),
             "phone": forms.TextInput(attrs={"class": "form-control"}),
-            "avatar": forms.FileInput(attrs={"class": "form-control", "accept": "image/*"}),
             "language": forms.Select(attrs={"class": "form-select"}),
             "timezone": forms.TextInput(attrs={"class": "form-control"}),
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if self.files.get("avatar"):
+            user.avatar = _file_to_data_uri(self.files["avatar"])
+        if commit:
+            user.save()
+        return user
+
 
 class ProfileForm(forms.ModelForm):
     """Form for users to edit their own profile (RU-04)."""
 
+    avatar = forms.ImageField(
+        label=_("Profile photo"),
+        required=False,
+        widget=forms.FileInput(attrs={"class": "form-control", "accept": "image/*"}),
+    )
     remove_avatar = forms.BooleanField(required=False, widget=forms.HiddenInput())
 
     class Meta:
         model = User
-        fields = ("first_name", "last_name", "phone", "avatar", "language", "timezone")
+        fields = ("first_name", "last_name", "phone", "language", "timezone")
         widgets = {
             "first_name": forms.TextInput(attrs={"class": "form-control"}),
             "last_name": forms.TextInput(attrs={"class": "form-control"}),
             "phone": forms.TextInput(attrs={"class": "form-control"}),
-            "avatar": forms.FileInput(attrs={"class": "form-control", "accept": "image/*"}),
             "language": forms.Select(attrs={"class": "form-select"}),
             "timezone": forms.TextInput(attrs={"class": "form-control"}),
         }
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        if self.cleaned_data.get("remove_avatar") and not self.cleaned_data.get("avatar"):
+        if self.cleaned_data.get("remove_avatar") and not self.files.get("avatar"):
             user.avatar = ""
+        elif self.files.get("avatar"):
+            user.avatar = _file_to_data_uri(self.files["avatar"])
         if commit:
             user.save()
         return user

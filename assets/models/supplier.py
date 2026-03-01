@@ -64,9 +64,7 @@ class Supplier(ScopedModel):
     reference = models.CharField(_("Reference"), max_length=50, unique=True)
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"), blank=True, default="")
-    logo = models.ImageField(
-        _("Logo"), upload_to="suppliers/logos/", blank=True, default=""
-    )
+    logo = models.TextField(_("Logo"), blank=True, default="")
     type = models.ForeignKey(
         SupplierType,
         on_delete=models.PROTECT,
@@ -247,12 +245,17 @@ class SupplierRequirementReview(models.Model):
         default="",
         help_text=_("Written justification for the compliance assessment."),
     )
-    evidence_file = models.FileField(
+    evidence_file = models.TextField(
         _("Supporting evidence"),
-        upload_to="supplier_requirements/evidence/",
         blank=True,
         default="",
         help_text=_("Upload a supporting document (certificate, report, etc.)."),
+    )
+    evidence_filename = models.CharField(
+        _("Evidence filename"),
+        max_length=255,
+        blank=True,
+        default="",
     )
     created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated at"), auto_now=True)

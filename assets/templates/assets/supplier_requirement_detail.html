@@ -77,8 +77,8 @@
     <div>
       <strong style="font-size:.82rem;color:var(--text-muted)">{% trans "Supporting evidence" %}</strong>
       <p class="mb-0 mt-1">
-        <a href="{{ review.evidence_file.url }}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">
-          <i class="bi bi-file-earmark-arrow-down"></i> {{ review.evidence_file.name|cut:"supplier_requirements/evidence/" }}
+        <a href="{{ review.evidence_file }}" download="{{ review.evidence_filename }}" style="color:var(--accent);text-decoration:none">
+          <i class="bi bi-file-earmark-arrow-down"></i> {{ review.evidence_filename }}
         </a>
       </p>
     </div>

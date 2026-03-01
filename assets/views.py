@@ -911,7 +911,7 @@ class DependencyGraphView(LoginRequiredMixin, TemplateView):
                     "id": sup_id,
                     "label": f"{sup.reference} - {sup.name}",
                     "type": "supplier",
-                    "logo": sup.logo.url if sup.logo else "",
+                    "logo": sup.logo or "",
                 }
             edges.append({
                 "source": sa_id,
@@ -964,7 +964,7 @@ class DependencyGraphView(LoginRequiredMixin, TemplateView):
                     "id": sup_id,
                     "label": f"{sup.reference} - {sup.name}",
                     "type": "supplier",
-                    "logo": sup.logo.url if sup.logo else "",
+                    "logo": sup.logo or "",
                 }
             edges.append({
                 "source": site_id,

@@ -71,7 +71,7 @@
           <td>
             <a href="{% url 'assets:supplier-detail' supplier.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">
               <span class="d-inline-flex align-items-center gap-2">
-                {% if supplier.logo %}<img src="{{ supplier.logo.url }}" alt="" style="width:24px;height:24px;object-fit:cover;border-radius:4px">{% endif %}
+                {% if supplier.logo %}<img src="{{ supplier.logo }}" alt="" style="width:24px;height:24px;object-fit:cover;border-radius:4px">{% endif %}
                 {{ supplier.name }}
               </span>
             </a>
