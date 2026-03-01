@@ -17,16 +17,14 @@ DEBUG = os.environ.get("DEBUG", "True").lower() in ("true", "1", "yes")
 
 
 def _detect_version():
-    """Return app version from APP_VERSION env var, version.txt, or 'dev'."""
-    version = os.environ.get("APP_VERSION", "").strip()
-    if version:
-        return version
-    try:
-        version = (BASE_DIR / "version.txt").read_text().strip()
-        if version:
-            return version
-    except Exception:
-        pass
+    """Return app version from /etc/app-version, version.txt, or 'dev'."""
+    for path in (Path("/etc/app-version"), BASE_DIR / "version.txt"):
+        try:
+            version = path.read_text().strip()
+            if version:
+                return version
+        except Exception:
+            pass
     return "dev"
 
 
