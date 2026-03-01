@@ -25,7 +25,7 @@
     <h1 class="mb-0">{{ assessment.name }}</h1>
     <small class="ref">{{ assessment.reference }}</small>
   </div>
-{{% help_modal "risks.assessment_detail" %}}
+{% help_modal "risks.assessment_detail" %}
   <div class="d-flex gap-2">
     <a href="{% url 'risks:assessment-update' assessment.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'risks:assessment-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>

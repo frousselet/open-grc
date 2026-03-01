@@ -10,7 +10,7 @@
     <h1 class="mb-0">{{ risk.name }}</h1>
     <small class="ref">{{ risk.reference }}</small>
   </div>
-{{% help_modal "risks.risk_detail" %}}
+{% help_modal "risks.risk_detail" %}
   <div class="d-flex gap-2">
     <a href="{% url 'risks:risk-update' risk.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'risks:risk-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>

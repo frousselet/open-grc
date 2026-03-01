@@ -11,7 +11,7 @@
     <a href="{% url 'compliance:mapping-update' mapping.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'compliance:mapping-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
-{{% help_modal "compliance.mapping_detail" %}}
+{% help_modal "compliance.mapping_detail" %}
 </div>
 
 <div class="card">

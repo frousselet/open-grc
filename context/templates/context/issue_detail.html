@@ -10,7 +10,7 @@
     <h1 class="mb-0">{{ issue.name }}</h1>
     <small class="ref">{{ issue.reference }}</small>
   </div>
-{{% help_modal "context.issue_detail" %}}
+{% help_modal "context.issue_detail" %}
   <div class="d-flex gap-2">
     <a href="{% url 'context:issue-update' issue.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'context:issue-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>

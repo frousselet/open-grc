@@ -10,7 +10,7 @@
     <h1 class="mb-0">{{ group.name }}</h1>
     <small class="ref">{{ group.reference }}</small>
   </div>
-{{% help_modal "assets.group_detail" %}}
+{% help_modal "assets.group_detail" %}
   <div class="d-flex gap-2">
     <a href="{% url 'assets:group-update' group.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'assets:group-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>

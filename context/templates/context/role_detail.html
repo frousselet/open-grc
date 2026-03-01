@@ -10,7 +10,7 @@
     <h1 class="mb-0">{{ role.name }}</h1>
     <small class="ref">{{ role.reference }}</small>
   </div>
-{{% help_modal "context.role_detail" %}}
+{% help_modal "context.role_detail" %}
   <div class="d-flex gap-2">
     <a href="{% url 'context:role-update' role.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'context:role-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>

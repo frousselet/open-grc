@@ -10,7 +10,7 @@
     <h1 class="mb-0">{{ objective.name }}</h1>
     <small class="ref">{{ objective.reference }}</small>
   </div>
-{{% help_modal "context.objective_detail" %}}
+{% help_modal "context.objective_detail" %}
   <div class="d-flex gap-2">
     <a href="{% url 'context:objective-update' objective.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'context:objective-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>

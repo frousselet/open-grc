@@ -10,7 +10,7 @@
     <h1 class="mb-0">{{ criteria.name }}</h1>
     <small class="ref">{{ criteria.reference }}</small>
   </div>
-{{% help_modal "risks.criteria_detail" %}}
+{% help_modal "risks.criteria_detail" %}
   <div class="d-flex gap-2">
     <a href="{% url 'risks:criteria-update' criteria.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'risks:criteria-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
