@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from django.views import View
 from django.views.generic import TemplateView
 
-from assets.models import AssetDependency, EssentialAsset, SupportAsset
+from assets.models import AssetDependency, EssentialAsset, SupplierRequirementReview, SupportAsset
 from compliance.models import (
     ComplianceActionPlan,
     ComplianceAssessment,
@@ -222,7 +222,7 @@ class CalendarEventsView(LoginRequiredMixin, View):
             categories = [
                 "risk_assessment", "compliance_assessment", "action_plan",
                 "treatment_plan", "scope", "objective", "framework", "swot",
-                "acceptance",
+                "acceptance", "supplier_review",
             ]
 
         def add_events(queryset, date_field, category, color, url_name, label_prefix=""):
@@ -323,6 +323,28 @@ class CalendarEventsView(LoginRequiredMixin, View):
                        "risks:acceptance-detail")
             add_events(qs, "review_date", "acceptance", "#fdba74",
                        "risks:acceptance-detail", _("Review: "))
+
+        # ── Supplier requirement reviews ─────────────────
+        if "supplier_review" in categories:
+            filters = {"review_date__isnull": False}
+            if start:
+                filters["review_date__gte"] = start
+            if end:
+                filters["review_date__lte"] = end
+            qs = SupplierRequirementReview.objects.select_related(
+                "supplier_requirement"
+            ).filter(**filters)
+            for review in qs:
+                events.append({
+                    "title": str(review),
+                    "start": review.review_date.isoformat(),
+                    "color": "#d946ef",
+                    "category": "supplier_review",
+                    "url": self._get_url(
+                        review.supplier_requirement,
+                        "assets:supplier-requirement-detail",
+                    ),
+                })
 
         return JsonResponse(events, safe=False)
 
