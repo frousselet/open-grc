@@ -28,7 +28,7 @@
           <div class="d-flex align-items-center gap-4">
             <div class="position-relative" style="flex-shrink:0">
               {% if user.avatar %}
-              <img id="avatar-preview" src="{{ user.avatar.url }}" alt=""
+              <img id="avatar-preview" src="{{ user.avatar }}" alt=""
                    style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--border-light)">
               {% else %}
               <div id="avatar-preview"
