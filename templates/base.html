@@ -959,7 +959,7 @@
         var ts = new TomSelect(el, {
           plugins: ['remove_button'],
           create: function(input, callback) {
-            fetch('/api/v1/context/tags/', {
+            fetch('{% url "context:tag-create-inline" %}', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -968,20 +968,8 @@
               body: JSON.stringify({ name: input.trim() })
             })
             .then(function(resp) {
-              if (resp.ok) return resp.json();
-              if (resp.status === 400) {
-                return fetch('/api/v1/context/tags/?search=' + encodeURIComponent(input.trim()))
-                  .then(function(r) { return r.json(); })
-                  .then(function(data) {
-                    var results = data.results || data;
-                    var match = results.find(function(t) {
-                      return t.name.toLowerCase() === input.trim().toLowerCase();
-                    });
-                    if (match) return match;
-                    throw new Error('Tag creation failed');
-                  });
-              }
-              throw new Error('Tag creation failed');
+              if (!resp.ok) throw new Error('Tag creation failed');
+              return resp.json();
             })
             .then(function(tag) {
               callback({ value: tag.id, text: tag.name });

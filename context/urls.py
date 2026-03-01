@@ -64,4 +64,6 @@ urlpatterns = [
     path("activities/<uuid:pk>/edit/", views.ActivityUpdateView.as_view(), name="activity-update"),
     path("activities/<uuid:pk>/delete/", views.ActivityDeleteView.as_view(), name="activity-delete"),
     path("activities/<uuid:pk>/approve/", views.ApproveView.as_view(model=Activity, success_url=reverse_lazy("context:activity-list")), name="activity-approve"),
+    # Inline tag creation (AJAX)
+    path("tags/create/", views.tag_create_inline, name="tag-create-inline"),
 ]
