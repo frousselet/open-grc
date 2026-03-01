@@ -4,35 +4,11 @@
 <div class="risk-matrix-wrapper mb-4">
   <h6 class="text-center mb-3" style="font-weight:600;color:var(--text-secondary);font-size:.82rem;text-transform:uppercase;letter-spacing:.04em">{{ title }}</h6>
   <table style="border-collapse:separate; border-spacing:3px; width:100%;">
-    {# ── Impact title row ── #}
-    <tr>
-      <td></td>
-      <td></td>
-      <td colspan="{{ matrix.impact_labels|length }}" style="text-align:center; font-size:.625rem; text-transform:uppercase; color:var(--text-muted); letter-spacing:.1em; padding:0 0 2px;">
-        {% trans "Impact" %} &rarr;
-      </td>
-    </tr>
-    {# ── Impact header row ── #}
-    <tr>
-      <td></td>
-      <td></td>
-      {% for il in matrix.impact_labels %}
-      <td style="text-align:center; font-weight:600; font-size:.75rem; padding:4px 6px; white-space:nowrap; color:var(--text-secondary);">{{ il.name }}</td>
-      {% endfor %}
-    </tr>
     {# ── Matrix rows ── #}
     {% for row in matrix.rows %}
     <tr>
-      {% if forloop.first %}
-      <td rowspan="{{ matrix.rows|length }}" style="vertical-align:middle; text-align:center; width:1.4em; padding:0;">
-        <div style="writing-mode:vertical-lr; transform:rotate(180deg); font-size:.625rem; text-transform:uppercase; color:var(--text-muted); letter-spacing:.1em; white-space:nowrap;">
-          {% trans "Likelihood" %} &rarr;
-        </div>
-      </td>
-      {% endif %}
-      <td style="text-align:right; font-weight:600; font-size:.75rem; padding:4px 8px 4px 0; white-space:nowrap; color:var(--text-secondary);">{{ row.name }}</td>
       {% for cell in row.cells %}
-      <td class="risk-matrix-cell" style="background-color:{{ cell.color }}; color:{{ cell.text_color }}; text-align:center; vertical-align:middle; padding:10px 4px; min-width:90px; border-radius:var(--radius-sm);" title="{{ cell.risk_level_name }}{% if cell.count %} — {{ cell.count }} risk(s){% endif %}">
+      <td class="risk-matrix-cell" style="background-color:{{ cell.color }}; color:{{ cell.text_color }}; text-align:center; vertical-align:middle; padding:10px 4px; min-width:90px; border-radius:var(--radius-sm);" title="{{ row.name }} / {{ cell.impact_name|default:cell.risk_level_name }}{% if cell.count %} — {{ cell.count }} risk(s){% endif %}">
         {% if cell.count %}
         <span class="risk-matrix-count">{{ cell.count }}</span>
         {% endif %}
