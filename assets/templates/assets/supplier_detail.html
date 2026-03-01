@@ -5,9 +5,12 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h1 class="mb-0">{{ supplier.name }}</h1>
-    <small class="ref">{{ supplier.reference }}</small>
+  <div class="d-flex align-items-center gap-3">
+    {% if supplier.logo %}<img src="{{ supplier.logo.url }}" alt="{{ supplier.name }}" style="width:48px;height:48px;object-fit:contain;border-radius:6px;border:1px solid var(--border-light)">{% endif %}
+    <div>
+      <h1 class="mb-0">{{ supplier.name }}</h1>
+      <small class="ref">{{ supplier.reference }}</small>
+    </div>
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'assets:supplier-update' supplier.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
