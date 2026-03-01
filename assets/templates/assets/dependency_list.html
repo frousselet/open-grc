@@ -16,6 +16,7 @@
     <table class="table table-hover mb-0">
       <thead>
         <tr>
+          <th>{% trans "Reference" %}</th>
           <th>{% trans "Essential asset" %}</th>
           <th>{% trans "Support asset" %}</th>
           <th>{% trans "Type" %}</th>
@@ -28,7 +29,10 @@
       </thead>
       <tbody>
         {% for dep in dependencies %}
-        <tr{% if dep.is_single_point_of_failure %} class="table-danger"{% endif %}>
+        <tr>
+          <td class="ref" style="text-decoration:none;white-space:nowrap">
+            {{ dep.essential_asset.reference }} → {{ dep.support_asset.reference }}
+          </td>
           <td><a href="{% url 'assets:essential-asset-detail' dep.essential_asset.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ dep.essential_asset }}</a></td>
           <td><a href="{% url 'assets:support-asset-detail' dep.support_asset.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ dep.support_asset }}</a></td>
           <td>{{ dep.get_dependency_type_display }}</td>
@@ -37,7 +41,13 @@
               {{ dep.get_criticality_display }}
             </span>
           </td>
-          <td>{% if dep.is_single_point_of_failure %}<span class="badge text-bg-danger">SPOF</span>{% else %}—{% endif %}</td>
+          <td>
+            {% if dep.is_single_point_of_failure %}
+              <span class="badge text-bg-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i>SPOF</span>
+            {% else %}
+              —
+            {% endif %}
+          </td>
           <td>{{ dep.get_redundancy_level_display|default:"—" }}</td>
           <td>
             <span class="badge text-bg-{% if dep.is_approved %}success{% else %}warning{% endif %}">
@@ -50,7 +60,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted)">{% trans "No dependencies defined." %}</td></tr>
+        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No dependencies defined." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>
