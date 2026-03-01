@@ -52,7 +52,7 @@
               {{ a.get_status_display }}
             </span>
           </td>
-          <td>{% for tag in a.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.7rem">{{ tag.name }}</span>{% endfor %}</td>
+          <td>{% for tag in a.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
           <td>
             <span class="badge text-bg-{% if a.is_approved %}success{% else %}warning{% endif %}">
               {% if a.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}

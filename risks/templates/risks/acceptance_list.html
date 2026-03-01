@@ -46,7 +46,7 @@
               {{ acc.get_status_display }}
             </span>
           </td>
-          <td>{% for tag in acc.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.7rem">{{ tag.name }}</span>{% endfor %}</td>
+          <td>{% for tag in acc.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
           <td>
             <a href="{% url 'risks:acceptance-update' acc.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
           </td>

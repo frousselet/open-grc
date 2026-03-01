@@ -19,7 +19,7 @@
       <div class="stat-card-value">{{ scope_count }}</div>
       <div class="mt-2">
         {% for s in active_scopes %}
-        <span class="badge me-1" style="background:var(--accent-soft);color:var(--accent);font-size:.65rem">{{ s.full_path }}</span>
+        <span class="badge me-1" style="background:var(--accent-soft);color:var(--accent);font-size:.625rem">{{ s.full_path }}</span>
         {% empty %}
         <small style="color:var(--text-muted)">{% trans "No active scope" %}</small>
         {% endfor %}

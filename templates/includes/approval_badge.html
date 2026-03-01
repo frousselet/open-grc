@@ -1,14 +1,14 @@
 {% load i18n %}
 <div class="mb-3">
   {% if object.is_approved %}
-    <span class="badge" style="background:var(--success-soft);color:var(--success);padding:.35em .75em;font-size:.78rem">
+    <span class="badge" style="background:var(--success-soft);color:var(--success);padding:.3em .6875em;font-size:.75rem">
       <i class="bi bi-check-circle me-1"></i>{% trans "Approved" %}
     </span>
     {% if object.approved_by %}
-      <small style="color:var(--text-muted)" class="ms-2">{% blocktrans with user=object.approved_by date=object.approved_at|date:"d/m/Y H:i" %}by {{ user }} on {{ date }}{% endblocktrans %}</small>
+      <small style="color:var(--text-muted);font-size:.75rem" class="ms-2">{% blocktrans with user=object.approved_by date=object.approved_at|date:"d/m/Y H:i" %}by {{ user }} on {{ date }}{% endblocktrans %}</small>
     {% endif %}
   {% else %}
-    <span class="badge" style="background:var(--warning-soft);color:var(--warning);padding:.35em .75em;font-size:.78rem">
+    <span class="badge" style="background:var(--warning-soft);color:var(--warning);padding:.3em .6875em;font-size:.75rem">
       <i class="bi bi-clock me-1"></i>{% trans "Pending approval" %}
     </span>
   {% endif %}

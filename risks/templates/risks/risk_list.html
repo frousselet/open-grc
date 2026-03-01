@@ -61,7 +61,7 @@
           <td style="font-size:.85rem">{{ r.get_treatment_decision_display }}</td>
           <td style="font-size:.85rem">{{ r.get_status_display }}</td>
           <td style="font-size:.85rem">{{ r.risk_owner|default:"—" }}</td>
-          <td>{% for tag in r.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.7rem">{{ tag.name }}</span>{% endfor %}</td>
+          <td>{% for tag in r.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
           <td>
             <a href="{% url 'risks:risk-update' r.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
           </td>

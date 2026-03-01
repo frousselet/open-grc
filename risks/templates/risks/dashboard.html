@@ -9,12 +9,12 @@
 <style>
   .risk-matrix { table-layout: fixed; }
   .risk-matrix-corner { width: 90px; background: var(--surface-muted); }
-  .risk-matrix-header { font-size: .72rem; background: var(--surface-muted); font-weight: 600; color: var(--text-secondary); }
-  .risk-matrix-row-label { font-size: .72rem; white-space: nowrap; background: var(--surface-muted); text-align: right; padding-right: .6rem !important; font-weight: 600; color: var(--text-secondary); }
-  .risk-matrix-cell { position: relative; height: 60px; min-width: 60px; transition: transform .15s cubic-bezier(.4,0,.2,1); cursor: default; border: 2px solid var(--surface-raised) !important; border-radius: .25rem; }
+  .risk-matrix-header { font-size: .6875rem; background: var(--surface-muted); font-weight: 650; color: var(--text-secondary); letter-spacing:.02em; }
+  .risk-matrix-row-label { font-size: .6875rem; white-space: nowrap; background: var(--surface-muted); text-align: right; padding-right: .625rem !important; font-weight: 650; color: var(--text-secondary); }
+  .risk-matrix-cell { position: relative; height: 60px; min-width: 60px; transition: transform .2s cubic-bezier(.16,1,.3,1), box-shadow .2s; cursor: default; border: 2px solid var(--surface-raised) !important; border-radius: var(--radius-xs, .375rem); }
   .risk-matrix-cell:hover { transform: scale(1.06); z-index: 1; box-shadow: var(--shadow-md); }
-  .risk-matrix-count { display: block; font-size: 1.25rem; font-weight: 700; line-height: 1.2; }
-  .risk-matrix-level-name { display: block; font-size: .6rem; text-transform: uppercase; letter-spacing: .04em; opacity: .8; }
+  .risk-matrix-count { display: block; font-size: 1.25rem; font-weight: 700; line-height: 1.2; font-variant-numeric:tabular-nums; }
+  .risk-matrix-level-name { display: block; font-size: .5625rem; text-transform: uppercase; letter-spacing: .04em; opacity: .75; font-weight:500; }
   .risk-matrix-axis-label { border: none !important; }
 </style>
 {% endblock %}
@@ -48,7 +48,7 @@
       <div class="stat-card-label">{% trans "Treatment plans" %}</div>
       <div class="stat-card-value">{{ treatment_plan_count }}</div>
       {% if treatment_in_progress %}
-      <span class="badge mt-2" style="background:var(--warning-soft);color:var(--warning);font-size:.72rem">{% blocktrans with count=treatment_in_progress %}{{ count }} in progress{% endblocktrans %}</span>
+      <span class="badge mt-2" style="background:var(--warning-soft);color:var(--warning);font-size:.6875rem">{% blocktrans with count=treatment_in_progress %}{{ count }} in progress{% endblocktrans %}</span>
       {% endif %}
       <div class="stat-card-footer"><a href="{% url 'risks:treatment-plan-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
