@@ -8,6 +8,8 @@ from risks.constants import AssessmentStatus, Methodology
 
 
 class RiskAssessment(ScopedModel):
+    REFERENCE_PREFIX = "RA"
+
     reference = models.CharField(_("Reference"), max_length=50, unique=True)
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"), blank=True)

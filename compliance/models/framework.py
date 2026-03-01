@@ -8,6 +8,8 @@ from context.models.base import BaseModel
 
 
 class Framework(BaseModel):
+    REFERENCE_PREFIX = "FWK"
+
     scopes = models.ManyToManyField(
         "context.Scope",
         related_name="frameworks",

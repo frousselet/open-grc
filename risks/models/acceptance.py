@@ -8,6 +8,8 @@ from risks.constants import AcceptanceStatus
 
 
 class RiskAcceptance(BaseModel):
+    REFERENCE_PREFIX = "RACC"
+
     risk = models.ForeignKey(
         "risks.Risk",
         on_delete=models.CASCADE,
@@ -44,4 +46,4 @@ class RiskAcceptance(BaseModel):
         verbose_name_plural = _("Risk acceptances")
 
     def __str__(self):
-        return f"Acceptance — {self.risk}"
+        return f"{self.reference} — {self.risk}"

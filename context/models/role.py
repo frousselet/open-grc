@@ -10,6 +10,8 @@ from .base import ScopedModel
 
 
 class Role(ScopedModel):
+    REFERENCE_PREFIX = "ROLE"
+
     name = models.CharField(_("Title"), max_length=255)
     description = models.TextField(_("Description"), blank=True, default="")
     type = models.CharField(_("Type"), max_length=20, choices=RoleType.choices)
@@ -34,7 +36,7 @@ class Role(ScopedModel):
         verbose_name_plural = _("Roles")
 
     def __str__(self):
-        return self.name
+        return f"{self.reference} — {self.name}"
 
     @property
     def compliance_alert(self):

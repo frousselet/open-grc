@@ -15,6 +15,8 @@ from .base import ScopedModel
 
 
 class Objective(ScopedModel):
+    REFERENCE_PREFIX = "OBJ"
+
     reference = models.CharField(_("Reference"), max_length=50, unique=True)
     name = models.CharField(_("Title"), max_length=255)
     description = models.TextField(_("Description"), blank=True, default="")
