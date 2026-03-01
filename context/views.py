@@ -1,11 +1,16 @@
+import json
+
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views import View
+from django.views.decorators.http import require_POST
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -35,6 +40,7 @@ from .models import (
     Site,
     Stakeholder,
     SwotAnalysis,
+    Tag,
 )
 
 
@@ -599,3 +605,23 @@ class ActivityDeleteView(LoginRequiredMixin, DeleteView):
     model = Activity
     template_name = "context/confirm_delete.html"
     success_url = reverse_lazy("context:activity-list")
+
+
+@login_required
+@require_POST
+def tag_create_inline(request):
+    """Create (or retrieve) a tag via AJAX and return its id/name as JSON."""
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    name = (data.get("name") or "").strip()
+    if not name:
+        return JsonResponse({"error": "Name is required"}, status=400)
+
+    tag, _created = Tag.objects.get_or_create(
+        name__iexact=name,
+        defaults={"name": name},
+    )
+    return JsonResponse({"id": str(tag.id), "name": tag.name})
