@@ -1,7 +1,8 @@
 from django.urls import path, reverse_lazy
 
+from context.models import Site
 from . import views
-from .models import AssetDependency, AssetGroup, EssentialAsset, Supplier, SupplierDependency, SupportAsset
+from .models import AssetDependency, AssetGroup, EssentialAsset, SiteAssetDependency, SiteSupplierDependency, Supplier, SupplierDependency, SupportAsset
 
 app_name = "assets"
 
@@ -68,6 +69,25 @@ urlpatterns = [
     path("supplier-dependencies/<uuid:pk>/edit/", views.SupplierDependencyUpdateView.as_view(), name="supplier-dependency-update"),
     path("supplier-dependencies/<uuid:pk>/delete/", views.SupplierDependencyDeleteView.as_view(), name="supplier-dependency-delete"),
     path("supplier-dependencies/<uuid:pk>/approve/", views.ApproveView.as_view(model=SupplierDependency, permission_feature="supplier_dependency", success_url=reverse_lazy("assets:supplier-dependency-list")), name="supplier-dependency-approve"),
+    # Sites
+    path("sites/", views.SiteListView.as_view(), name="site-list"),
+    path("sites/create/", views.SiteCreateView.as_view(), name="site-create"),
+    path("sites/<uuid:pk>/", views.SiteDetailView.as_view(), name="site-detail"),
+    path("sites/<uuid:pk>/edit/", views.SiteUpdateView.as_view(), name="site-update"),
+    path("sites/<uuid:pk>/delete/", views.SiteDeleteView.as_view(), name="site-delete"),
+    path("sites/<uuid:pk>/approve/", views.ApproveView.as_view(model=Site, permission_feature="site", success_url=reverse_lazy("assets:site-list")), name="site-approve"),
+    # Site–Asset Dependencies
+    path("site-asset-dependencies/", views.SiteAssetDependencyListView.as_view(), name="site-asset-dependency-list"),
+    path("site-asset-dependencies/create/", views.SiteAssetDependencyCreateView.as_view(), name="site-asset-dependency-create"),
+    path("site-asset-dependencies/<uuid:pk>/edit/", views.SiteAssetDependencyUpdateView.as_view(), name="site-asset-dependency-update"),
+    path("site-asset-dependencies/<uuid:pk>/delete/", views.SiteAssetDependencyDeleteView.as_view(), name="site-asset-dependency-delete"),
+    path("site-asset-dependencies/<uuid:pk>/approve/", views.ApproveView.as_view(model=SiteAssetDependency, permission_feature="site_asset_dependency", success_url=reverse_lazy("assets:site-asset-dependency-list")), name="site-asset-dependency-approve"),
+    # Site–Supplier Dependencies
+    path("site-supplier-dependencies/", views.SiteSupplierDependencyListView.as_view(), name="site-supplier-dependency-list"),
+    path("site-supplier-dependencies/create/", views.SiteSupplierDependencyCreateView.as_view(), name="site-supplier-dependency-create"),
+    path("site-supplier-dependencies/<uuid:pk>/edit/", views.SiteSupplierDependencyUpdateView.as_view(), name="site-supplier-dependency-update"),
+    path("site-supplier-dependencies/<uuid:pk>/delete/", views.SiteSupplierDependencyDeleteView.as_view(), name="site-supplier-dependency-delete"),
+    path("site-supplier-dependencies/<uuid:pk>/approve/", views.ApproveView.as_view(model=SiteSupplierDependency, permission_feature="site_supplier_dependency", success_url=reverse_lazy("assets:site-supplier-dependency-list")), name="site-supplier-dependency-approve"),
     # Dependency Graph
     path("dependency-graph/", views.DependencyGraphView.as_view(), name="dependency-graph"),
 ]

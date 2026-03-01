@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Sites" %} — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">{% trans "Sites" %}</h1>
+  <a href="{% url 'assets:site-create' %}" class="btn btn-primary ms-auto">{% trans "New site" %}</a>
+</div>
+{% help_modal "context.site_list" %}
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Ref." %}</th>
+          <th>{% trans "Name" %}</th>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Status" %}</th>
+          <th>{% trans "Tags" %}</th>
+          <th>{% trans "Approval" %}</th>
+          <th>{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for site in sites %}
+        <tr>
+          <td><a href="{% url 'assets:site-detail' site.pk %}" class="ref" style="text-decoration:none">{{ site.reference }}</a></td>
+          <td>
+            <div style="padding-left: {{ site.tree_indent }}px;">
+              {% if site.tree_level > 0 %}<span class="text-muted me-1">&boxur;</span>{% endif %}
+              {{ site.name }}
+            </div>
+          </td>
+          <td>{{ site.get_type_display }}</td>
+          <td>
+            <span class="badge text-bg-{% if site.status == 'active' %}success{% elif site.status == 'draft' %}secondary{% else %}dark{% endif %}">
+              {{ site.get_status_display }}
+            </span>
+          </td>
+          <td>{% for tag in site.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.7rem">{{ tag.name }}</span>{% endfor %}</td>
+          <td>
+            <span class="badge text-bg-{% if site.is_approved %}success{% else %}warning{% endif %}">
+              {% if site.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'assets:site-update' site.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+            <a href="{% url 'assets:site-delete' site.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted)">{% trans "No site defined." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

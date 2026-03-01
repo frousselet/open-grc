@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Site–asset dependencies" %} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">{% trans "Site–asset dependencies" %}</h1>
+  <a href="{% url 'assets:site-asset-dependency-create' %}" class="btn btn-primary ms-auto">{% trans "New dependency" %}</a>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Support asset" %}</th>
+          <th>{% trans "Site" %}</th>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Criticality" %}</th>
+          <th>{% trans "SPOF" %}</th>
+          <th>{% trans "Redundancy" %}</th>
+          <th>{% trans "Approval" %}</th>
+          <th>{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dep in dependencies %}
+        <tr{% if dep.is_single_point_of_failure %} class="table-danger"{% endif %}>
+          <td><a href="{% url 'assets:support-asset-detail' dep.support_asset.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ dep.support_asset }}</a></td>
+          <td><a href="{% url 'assets:site-detail' dep.site.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ dep.site }}</a></td>
+          <td>{{ dep.get_dependency_type_display }}</td>
+          <td>
+            <span class="badge text-bg-{% if dep.criticality == 'critical' %}danger{% elif dep.criticality == 'high' %}warning{% elif dep.criticality == 'medium' %}info{% else %}secondary{% endif %}">
+              {{ dep.get_criticality_display }}
+            </span>
+          </td>
+          <td>{% if dep.is_single_point_of_failure %}<span class="badge text-bg-danger">SPOF</span>{% else %}—{% endif %}</td>
+          <td>{{ dep.get_redundancy_level_display|default:"—" }}</td>
+          <td>
+            <span class="badge text-bg-{% if dep.is_approved %}success{% else %}warning{% endif %}">
+              {% if dep.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'assets:site-asset-dependency-update' dep.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+            <a href="{% url 'assets:site-asset-dependency-delete' dep.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted)">{% trans "No site–asset dependencies defined." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Previous" %}</a></li>{% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Next" %}</a></li>{% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

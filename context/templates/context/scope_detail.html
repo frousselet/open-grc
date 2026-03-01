@@ -88,7 +88,7 @@
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Included sites" %}</dt>
           <dd class="col-sm-9">
             {% for site in scope.included_sites.all %}
-            <a href="{% url 'context:site-detail' site.pk %}"><span class="badge text-bg-success me-1 mb-1">{{ site.full_path }}</span></a>
+            <a href="{% url 'assets:site-detail' site.pk %}"><span class="badge text-bg-success me-1 mb-1">{{ site.full_path }}</span></a>
             {% empty %}
             <span style="color:var(--text-muted)">—</span>
             {% endfor %}
@@ -96,7 +96,7 @@
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Excluded sites" %}</dt>
           <dd class="col-sm-9">
             {% for site in scope.excluded_sites.all %}
-            <a href="{% url 'context:site-detail' site.pk %}"><span class="badge text-bg-danger me-1 mb-1">{{ site.full_path }}</span></a>
+            <a href="{% url 'assets:site-detail' site.pk %}"><span class="badge text-bg-danger me-1 mb-1">{{ site.full_path }}</span></a>
             {% empty %}
             <span style="color:var(--text-muted)">—</span>
             {% endfor %}

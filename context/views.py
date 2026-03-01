@@ -27,7 +27,6 @@ from .forms import (
     ObjectiveForm,
     RoleForm,
     ScopeForm,
-    SiteForm,
     StakeholderForm,
     SwotAnalysisForm,
 )
@@ -213,86 +212,6 @@ class ScopeDeleteView(LoginRequiredMixin, DeleteView):
     model = Scope
     template_name = "context/confirm_delete.html"
     success_url = reverse_lazy("context:scope-list")
-
-
-# ── Site ────────────────────────────────────────────────────
-
-class SiteListView(LoginRequiredMixin, ListView):
-    model = Site
-    template_name = "context/site_list.html"
-    context_object_name = "sites"
-
-    def get_queryset(self):
-        return super().get_queryset().select_related("parent_site")
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx["sites"] = self._build_tree(list(ctx["sites"]))
-        return ctx
-
-    @staticmethod
-    def _build_tree(sites):
-        """Return sites in depth-first tree order, annotated with tree_level/tree_indent."""
-        by_parent = {}
-        for s in sites:
-            by_parent.setdefault(s.parent_site_id, []).append(s)
-
-        result = []
-        visited = set()
-
-        def walk(parent_id, level):
-            for s in by_parent.get(parent_id, []):
-                s.tree_level = level
-                s.tree_indent = level * 24
-                result.append(s)
-                visited.add(s.pk)
-                walk(s.pk, level + 1)
-
-        walk(None, 0)
-
-        for s in sites:
-            if s.pk not in visited:
-                s.tree_level = 0
-                s.tree_indent = 0
-                result.append(s)
-
-        return result
-
-
-class SiteDetailView(LoginRequiredMixin, ApprovalContextMixin, HistoryMixin, DetailView):
-    model = Site
-    template_name = "context/site_detail.html"
-    context_object_name = "site"
-    approve_url_name = "context:site-approve"
-
-    def get_queryset(self):
-        return super().get_queryset().select_related("parent_site")
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx["ancestors"] = self.object.get_ancestors()
-        ctx["children"] = self.object.children.exclude(status="archived")
-        return ctx
-
-
-class SiteCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
-    model = Site
-    form_class = SiteForm
-    template_name = "context/site_form.html"
-    success_url = reverse_lazy("context:site-list")
-
-
-class SiteUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
-    model = Site
-    form_class = SiteForm
-    template_name = "context/site_form.html"
-    success_url = reverse_lazy("context:site-list")
-
-
-class SiteDeleteView(LoginRequiredMixin, DeleteView):
-    model = Site
-    template_name = "context/confirm_delete.html"
-    success_url = reverse_lazy("context:site-list")
 
 
 # ── Issue ───────────────────────────────────────────────────

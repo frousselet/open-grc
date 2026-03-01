@@ -16,10 +16,14 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
+from context.models import Site
 from .forms import (
     AssetDependencyForm,
     AssetGroupForm,
     EssentialAssetForm,
+    SiteAssetDependencyForm,
+    SiteForm,
+    SiteSupplierDependencyForm,
     SupplierDependencyForm,
     SupplierForm,
     SupplierRequirementForm,
@@ -33,6 +37,8 @@ from .models import (
     AssetDependency,
     AssetGroup,
     EssentialAsset,
+    SiteAssetDependency,
+    SiteSupplierDependency,
     Supplier,
     SupplierDependency,
     SupplierRequirement,
@@ -696,6 +702,146 @@ class SupplierDependencyDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy("assets:supplier-dependency-list")
 
 
+# ── Sites ─────────────────────────────────────────────────
+
+class SiteListView(LoginRequiredMixin, ListView):
+    model = Site
+    template_name = "assets/site_list.html"
+    context_object_name = "sites"
+
+    def get_queryset(self):
+        return super().get_queryset().select_related("parent_site")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["sites"] = self._build_tree(list(ctx["sites"]))
+        return ctx
+
+    @staticmethod
+    def _build_tree(sites):
+        by_parent = {}
+        for s in sites:
+            by_parent.setdefault(s.parent_site_id, []).append(s)
+        result = []
+        visited = set()
+
+        def walk(parent_id, level):
+            for s in by_parent.get(parent_id, []):
+                s.tree_level = level
+                s.tree_indent = level * 24
+                result.append(s)
+                visited.add(s.pk)
+                walk(s.pk, level + 1)
+
+        walk(None, 0)
+        for s in sites:
+            if s.pk not in visited:
+                s.tree_level = 0
+                s.tree_indent = 0
+                result.append(s)
+        return result
+
+
+class SiteDetailView(LoginRequiredMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+    model = Site
+    template_name = "assets/site_detail.html"
+    context_object_name = "site"
+    approve_url_name = "assets:site-approve"
+
+    def get_queryset(self):
+        return super().get_queryset().select_related("parent_site")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["ancestors"] = self.object.get_ancestors()
+        ctx["children"] = self.object.children.exclude(status="archived")
+        return ctx
+
+
+class SiteCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+    model = Site
+    form_class = SiteForm
+    template_name = "assets/site_form.html"
+    success_url = reverse_lazy("assets:site-list")
+
+
+class SiteUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
+    model = Site
+    form_class = SiteForm
+    template_name = "assets/site_form.html"
+    success_url = reverse_lazy("assets:site-list")
+
+
+class SiteDeleteView(LoginRequiredMixin, DeleteView):
+    model = Site
+    template_name = "assets/confirm_delete.html"
+    success_url = reverse_lazy("assets:site-list")
+
+
+# ── Site–Asset Dependencies ──────────────────────────────
+
+class SiteAssetDependencyListView(LoginRequiredMixin, ListView):
+    model = SiteAssetDependency
+    template_name = "assets/site_asset_dependency_list.html"
+    context_object_name = "dependencies"
+    paginate_by = 25
+
+    def get_queryset(self):
+        return super().get_queryset().select_related("support_asset", "site")
+
+
+class SiteAssetDependencyCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+    model = SiteAssetDependency
+    form_class = SiteAssetDependencyForm
+    template_name = "assets/site_asset_dependency_form.html"
+    success_url = reverse_lazy("assets:site-asset-dependency-list")
+
+
+class SiteAssetDependencyUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
+    model = SiteAssetDependency
+    form_class = SiteAssetDependencyForm
+    template_name = "assets/site_asset_dependency_form.html"
+    success_url = reverse_lazy("assets:site-asset-dependency-list")
+
+
+class SiteAssetDependencyDeleteView(LoginRequiredMixin, DeleteView):
+    model = SiteAssetDependency
+    template_name = "assets/confirm_delete.html"
+    success_url = reverse_lazy("assets:site-asset-dependency-list")
+
+
+# ── Site–Supplier Dependencies ───────────────────────────
+
+class SiteSupplierDependencyListView(LoginRequiredMixin, ListView):
+    model = SiteSupplierDependency
+    template_name = "assets/site_supplier_dependency_list.html"
+    context_object_name = "dependencies"
+    paginate_by = 25
+
+    def get_queryset(self):
+        return super().get_queryset().select_related("site", "supplier")
+
+
+class SiteSupplierDependencyCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+    model = SiteSupplierDependency
+    form_class = SiteSupplierDependencyForm
+    template_name = "assets/site_supplier_dependency_form.html"
+    success_url = reverse_lazy("assets:site-supplier-dependency-list")
+
+
+class SiteSupplierDependencyUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
+    model = SiteSupplierDependency
+    form_class = SiteSupplierDependencyForm
+    template_name = "assets/site_supplier_dependency_form.html"
+    success_url = reverse_lazy("assets:site-supplier-dependency-list")
+
+
+class SiteSupplierDependencyDeleteView(LoginRequiredMixin, DeleteView):
+    model = SiteSupplierDependency
+    template_name = "assets/confirm_delete.html"
+    success_url = reverse_lazy("assets:site-supplier-dependency-list")
+
+
 # ── Dependency Graph ──────────────────────────────────────
 
 class DependencyGraphView(LoginRequiredMixin, TemplateView):
@@ -710,6 +856,14 @@ class DependencyGraphView(LoginRequiredMixin, TemplateView):
         # Supplier dependencies (support → supplier)
         supplier_deps = SupplierDependency.objects.select_related(
             "support_asset", "supplier"
+        ).all()
+        # Site–asset dependencies (support → site)
+        site_asset_deps = SiteAssetDependency.objects.select_related(
+            "support_asset", "site"
+        ).all()
+        # Site–supplier dependencies (site → supplier)
+        site_supplier_deps = SiteSupplierDependency.objects.select_related(
+            "site", "supplier"
         ).all()
 
         nodes = {}
@@ -768,9 +922,64 @@ class DependencyGraphView(LoginRequiredMixin, TemplateView):
                 "kind": "supplier",
             })
 
+        for dep in site_asset_deps:
+            sa = dep.support_asset
+            site = dep.site
+            sa_id = str(sa.id)
+            site_id = str(site.id)
+            if sa_id not in nodes:
+                nodes[sa_id] = {
+                    "id": sa_id,
+                    "label": f"{sa.reference} - {sa.name}",
+                    "type": "support",
+                }
+            if site_id not in nodes:
+                nodes[site_id] = {
+                    "id": site_id,
+                    "label": f"{site.reference} - {site.name}",
+                    "type": "site",
+                }
+            edges.append({
+                "source": sa_id,
+                "target": site_id,
+                "label": dep.get_dependency_type_display(),
+                "criticality": dep.criticality,
+                "is_spof": dep.is_single_point_of_failure,
+                "kind": "site",
+            })
+
+        for dep in site_supplier_deps:
+            site = dep.site
+            sup = dep.supplier
+            site_id = str(site.id)
+            sup_id = str(sup.id)
+            if site_id not in nodes:
+                nodes[site_id] = {
+                    "id": site_id,
+                    "label": f"{site.reference} - {site.name}",
+                    "type": "site",
+                }
+            if sup_id not in nodes:
+                nodes[sup_id] = {
+                    "id": sup_id,
+                    "label": f"{sup.reference} - {sup.name}",
+                    "type": "supplier",
+                    "logo": sup.logo.url if sup.logo else "",
+                }
+            edges.append({
+                "source": site_id,
+                "target": sup_id,
+                "label": dep.get_dependency_type_display(),
+                "criticality": dep.criticality,
+                "is_spof": dep.is_single_point_of_failure,
+                "kind": "site_supplier",
+            })
+
         import json
         ctx["graph_nodes"] = json.dumps(list(nodes.values()))
         ctx["graph_edges"] = json.dumps(edges)
         ctx["asset_dep_count"] = asset_deps.count()
         ctx["supplier_dep_count"] = supplier_deps.count()
+        ctx["site_asset_dep_count"] = site_asset_deps.count()
+        ctx["site_supplier_dep_count"] = site_supplier_deps.count()
         return ctx

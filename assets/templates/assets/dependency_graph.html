@@ -62,26 +62,34 @@
 </div>
 
 <div class="row g-3 mb-3">
-  <div class="col-md-4">
+  <div class="col-md-3">
     <div class="stat-card">
       <div class="stat-card-icon accent"><i class="bi bi-diagram-3"></i></div>
       <div class="stat-card-label">{% trans "Asset dependencies" %}</div>
       <div class="stat-card-value">{{ asset_dep_count }}</div>
     </div>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-3">
     <div class="stat-card">
       <div class="stat-card-icon info"><i class="bi bi-truck"></i></div>
       <div class="stat-card-label">{% trans "Supplier dependencies" %}</div>
       <div class="stat-card-value">{{ supplier_dep_count }}</div>
     </div>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-card-icon" style="background:#06b6d410;color:#06b6d4"><i class="bi bi-building"></i></div>
+      <div class="stat-card-label">{% trans "Site dependencies" %}</div>
+      <div class="stat-card-value">{{ site_asset_dep_count|add:site_supplier_dep_count }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
     <div class="stat-card">
       <div class="stat-card-label">{% trans "Legend" %}</div>
       <div class="legend mt-2">
         <div class="legend-item"><span class="legend-dot" style="background:#6366f1"></span> {% trans "Essential asset" %}</div>
         <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span> {% trans "Support asset" %}</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#06b6d4"></span> {% trans "Site" %}</div>
         <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> {% trans "Supplier" %}</div>
       </div>
     </div>
@@ -124,12 +132,14 @@
   var colorMap = {
     essential: '#6366f1',
     support: '#10b981',
+    site: '#06b6d4',
     supplier: '#f59e0b'
   };
 
   var sizeMap = {
     essential: 18,
     support: 14,
+    site: 16,
     supplier: 16
   };
 
@@ -156,7 +166,7 @@
 
   // Arrow markers
   svg.append('defs').selectAll('marker')
-    .data(['asset', 'supplier', 'spof'])
+    .data(['asset', 'supplier', 'site', 'site_supplier', 'spof'])
     .join('marker')
       .attr('id', function(d) { return 'arrow-' + d; })
       .attr('viewBox', '0 -5 10 10')
@@ -168,7 +178,8 @@
     .append('path')
       .attr('fill', function(d) {
         if (d === 'spof') return '#ef4444';
-        if (d === 'supplier') return '#f59e0b';
+        if (d === 'supplier' || d === 'site_supplier') return '#f59e0b';
+        if (d === 'site') return '#06b6d4';
         return '#94a3b8';
       })
       .attr('d', 'M0,-5L10,0L0,5');
@@ -179,15 +190,19 @@
     .join('line')
       .attr('stroke', function(d) {
         if (d.is_spof) return '#ef4444';
-        if (d.kind === 'supplier') return '#f59e0b';
+        if (d.kind === 'supplier' || d.kind === 'site_supplier') return '#f59e0b';
+        if (d.kind === 'site') return '#06b6d4';
         return '#94a3b8';
       })
       .attr('stroke-width', function(d) { return d.is_spof ? 2.5 : 1.5; })
-      .attr('stroke-dasharray', function(d) { return d.kind === 'supplier' ? '5,3' : null; })
+      .attr('stroke-dasharray', function(d) {
+        if (d.kind === 'supplier' || d.kind === 'site_supplier') return '5,3';
+        if (d.kind === 'site') return '8,4';
+        return null;
+      })
       .attr('marker-end', function(d) {
         if (d.is_spof) return 'url(#arrow-spof)';
-        if (d.kind === 'supplier') return 'url(#arrow-supplier)';
-        return 'url(#arrow-asset)';
+        return 'url(#arrow-' + d.kind + ')';
       });
 
   var linkLabel = g.append('g')
@@ -244,6 +259,7 @@
     .text(function(d) {
       if (d.type === 'essential') return '\uF3E0';
       if (d.type === 'supplier') return '\uF5E6';
+      if (d.type === 'site') return '\uF1E7';
       return '\uF499';
     });
 

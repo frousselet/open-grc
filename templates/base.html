@@ -788,9 +788,6 @@
       <a href="{% url 'context:activity-list' %}" class="sidebar-link">
         <i class="bi bi-activity"></i> {% trans "Activities" %}
       </a>
-      <a href="{% url 'context:site-list' %}" class="sidebar-link">
-        <i class="bi bi-building"></i> {% trans "Sites" %}
-      </a>
 
       {# ── Actifs ──────────────────────────────────────── #}
       <div class="sidebar-section">{% trans "Assets" %}</div>
@@ -805,6 +802,7 @@
         <a href="{% url 'assets:essential-asset-list' %}" class="sidebar-link sidebar-sub">{% trans "Essential assets" %}</a>
         <a href="{% url 'assets:support-asset-list' %}" class="sidebar-link sidebar-sub">{% trans "Support assets" %}</a>
         <a href="{% url 'assets:group-list' %}" class="sidebar-link sidebar-sub">{% trans "Asset groups" %}</a>
+        <a href="{% url 'assets:site-list' %}" class="sidebar-link sidebar-sub">{% trans "Sites" %}</a>
       </div>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navSuppliers" aria-expanded="true">
         <i class="bi bi-truck"></i> {% trans "Suppliers" %}
@@ -821,6 +819,8 @@
       <div class="collapse show" id="navDeps">
         <a href="{% url 'assets:dependency-list' %}" class="sidebar-link sidebar-sub">{% trans "Asset dependencies" %}</a>
         <a href="{% url 'assets:supplier-dependency-list' %}" class="sidebar-link sidebar-sub">{% trans "Supplier dependencies" %}</a>
+        <a href="{% url 'assets:site-asset-dependency-list' %}" class="sidebar-link sidebar-sub">{% trans "Site–asset dependencies" %}</a>
+        <a href="{% url 'assets:site-supplier-dependency-list' %}" class="sidebar-link sidebar-sub">{% trans "Site–supplier dependencies" %}</a>
         <a href="{% url 'assets:dependency-graph' %}" class="sidebar-link sidebar-sub">{% trans "Graph view" %}</a>
       </div>
 
