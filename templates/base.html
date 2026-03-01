@@ -795,13 +795,19 @@
         <i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}
       </a>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navActifs" aria-expanded="true">
-        <i class="bi bi-box-seam"></i> {% trans "Assets" %}
+        <i class="bi bi-box-seam"></i> {% trans "Goods" %}
         <i class="bi bi-chevron-down"></i>
       </button>
       <div class="collapse show" id="navActifs">
         <a href="{% url 'assets:essential-asset-list' %}" class="sidebar-link sidebar-sub">{% trans "Essential assets" %}</a>
         <a href="{% url 'assets:support-asset-list' %}" class="sidebar-link sidebar-sub">{% trans "Support assets" %}</a>
         <a href="{% url 'assets:group-list' %}" class="sidebar-link sidebar-sub">{% trans "Asset groups" %}</a>
+      </div>
+      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navSites" aria-expanded="true">
+        <i class="bi bi-building"></i> {% trans "Sites" %}
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      <div class="collapse show" id="navSites">
         <a href="{% url 'assets:site-list' %}" class="sidebar-link sidebar-sub">{% trans "Sites" %}</a>
       </div>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navSuppliers" aria-expanded="true">
