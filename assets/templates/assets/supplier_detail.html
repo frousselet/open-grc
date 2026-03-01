@@ -113,7 +113,7 @@
           <tbody>
             {% for req in type_requirements %}
             <tr>
-              <td style="font-weight:500">{{ req.title }}</td>
+              <td><a href="{% url 'assets:supplier-type-requirement-update' req.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ req.title }}</a></td>
               <td>{{ req.description|default:"—"|truncatewords:20 }}</td>
             </tr>
             {% endfor %}
