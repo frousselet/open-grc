@@ -34,6 +34,8 @@
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Influence" %}</dt><dd class="col-sm-9">{{ stakeholder.get_influence_level_display }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Interest" %}</dt><dd class="col-sm-9">{{ stakeholder.get_interest_level_display }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt><dd class="col-sm-9">{{ stakeholder.get_status_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
+          <dd class="col-sm-9">{% for tag in stakeholder.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
         </dl>
       </div>
     </div>

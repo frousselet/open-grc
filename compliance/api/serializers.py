@@ -22,7 +22,7 @@ class FrameworkSerializer(serializers.ModelSerializer):
             "is_mandatory", "is_applicable", "applicability_justification",
             "owner", "related_stakeholders",
             "compliance_level", "last_assessment_date",
-            "status", "review_date", "version",
+            "status", "review_date", "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -68,7 +68,7 @@ class RequirementSerializer(serializers.ModelSerializer):
             "last_assessment_date", "last_assessed_by",
             "owner", "priority", "target_date",
             "linked_assets", "linked_stakeholder_expectations",
-            "order", "status", "version",
+            "order", "status", "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -129,7 +129,7 @@ class ComplianceAssessmentSerializer(serializers.ModelSerializer):
             "partially_compliant_count", "non_compliant_count",
             "not_assessed_count",
             "status", "validated_by", "validated_at",
-            "review_date", "version",
+            "review_date", "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -200,7 +200,7 @@ class ComplianceActionPlanSerializer(serializers.ModelSerializer):
             "priority", "owner",
             "start_date", "target_date", "completion_date",
             "progress_percentage", "cost_estimate",
-            "status", "version",
+            "status", "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]

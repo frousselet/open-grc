@@ -46,6 +46,8 @@
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Parent objective" %}</dt><dd class="col-sm-9">{{ objective.parent_objective|default:"—" }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Target date" %}</dt><dd class="col-sm-9">{{ objective.target_date|default:"—" }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ objective.review_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
+          <dd class="col-sm-9">{% for tag in objective.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
         </dl>
       </div>
     </div>

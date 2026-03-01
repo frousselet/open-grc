@@ -42,7 +42,7 @@ class RiskCriteriaSerializer(serializers.ModelSerializer):
         fields = [
             "id", "scope", "name", "description", "risk_matrix",
             "acceptance_threshold", "is_default", "status",
-            "scale_levels", "risk_levels",
+            "scale_levels", "risk_levels", "tags",
             "version", "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -69,7 +69,7 @@ class RiskAssessmentSerializer(serializers.ModelSerializer):
         fields = [
             "id", "scope", "reference", "name", "description", "methodology",
             "assessment_date", "assessor", "assessor_name", "risk_criteria",
-            "status", "validated_by", "validated_at", "next_review_date", "summary",
+            "status", "validated_by", "validated_at", "next_review_date", "summary", "tags",
             "version", "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -106,7 +106,7 @@ class RiskSerializer(serializers.ModelSerializer):
             "current_likelihood", "current_impact", "current_risk_level",
             "residual_likelihood", "residual_impact", "residual_risk_level",
             "treatment_decision", "treatment_justification",
-            "risk_owner", "risk_owner_name", "priority", "status", "review_date",
+            "risk_owner", "risk_owner_name", "priority", "status", "review_date", "tags",
             "version", "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -152,7 +152,7 @@ class RiskTreatmentPlanSerializer(serializers.ModelSerializer):
             "expected_residual_likelihood", "expected_residual_impact",
             "cost_estimate", "owner", "owner_name",
             "start_date", "target_date", "completion_date",
-            "progress_percentage", "status", "actions",
+            "progress_percentage", "status", "actions", "tags",
             "version", "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -183,7 +183,7 @@ class RiskAcceptanceSerializer(serializers.ModelSerializer):
         fields = [
             "id", "risk", "accepted_by", "accepted_by_name", "accepted_at",
             "risk_level_at_acceptance", "justification", "conditions",
-            "valid_until", "review_date", "status",
+            "valid_until", "review_date", "status", "tags",
             "version", "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -199,7 +199,7 @@ class ThreatSerializer(serializers.ModelSerializer):
         fields = [
             "id", "scope", "reference", "name", "description",
             "type", "origin", "category", "typical_likelihood",
-            "is_from_catalog", "status",
+            "is_from_catalog", "status", "tags",
             "version", "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -226,7 +226,7 @@ class VulnerabilitySerializer(serializers.ModelSerializer):
             "id", "scope", "reference", "name", "description",
             "category", "severity", "affected_asset_types",
             "affected_assets", "cve_references", "remediation_guidance",
-            "is_from_catalog", "status",
+            "is_from_catalog", "status", "tags",
             "version", "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -259,7 +259,7 @@ class ISO27005RiskSerializer(serializers.ModelSerializer):
             "threat_likelihood", "vulnerability_exposure", "combined_likelihood",
             "impact_confidentiality", "impact_integrity", "impact_availability",
             "max_impact", "risk_level", "existing_controls",
-            "risk", "description",
+            "risk", "description", "tags",
             "version", "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]

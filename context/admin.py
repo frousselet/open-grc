@@ -13,7 +13,15 @@ from .models import (
     StakeholderExpectation,
     SwotAnalysis,
     SwotItem,
+    Tag,
 )
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ("name", "color", "created_at")
+    search_fields = ("name",)
+    readonly_fields = ("id", "created_at")
 
 
 @admin.register(Scope)
@@ -22,7 +30,7 @@ class ScopeAdmin(SimpleHistoryAdmin):
     list_filter = ("status",)
     search_fields = ("name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("included_sites", "excluded_sites")
+    filter_horizontal = ("included_sites", "excluded_sites", "tags")
 
 
 @admin.register(Site)
@@ -31,6 +39,7 @@ class SiteAdmin(SimpleHistoryAdmin):
     list_filter = ("type", "status")
     search_fields = ("name", "description", "address")
     readonly_fields = ("id", "created_at", "updated_at")
+    filter_horizontal = ("tags",)
 
 
 @admin.register(Issue)
@@ -39,7 +48,7 @@ class IssueAdmin(SimpleHistoryAdmin):
     list_filter = ("type", "category", "impact_level", "status", "trend")
     search_fields = ("name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("related_stakeholders",)
+    filter_horizontal = ("related_stakeholders", "tags")
 
 
 class StakeholderExpectationInline(admin.TabularInline):
@@ -56,6 +65,7 @@ class StakeholderAdmin(SimpleHistoryAdmin):
     list_filter = ("type", "category", "influence_level", "interest_level", "status")
     search_fields = ("name", "description", "contact_name")
     readonly_fields = ("id", "created_at", "updated_at")
+    filter_horizontal = ("tags",)
     inlines = [StakeholderExpectationInline]
 
 
@@ -68,7 +78,7 @@ class ObjectiveAdmin(SimpleHistoryAdmin):
     list_filter = ("category", "type", "status", "measurement_frequency")
     search_fields = ("reference", "name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("related_issues", "related_stakeholders")
+    filter_horizontal = ("related_issues", "related_stakeholders", "tags")
 
 
 class SwotItemInline(admin.TabularInline):
@@ -83,6 +93,7 @@ class SwotAnalysisAdmin(SimpleHistoryAdmin):
     list_filter = ("status",)
     search_fields = ("name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
+    filter_horizontal = ("tags",)
     inlines = [SwotItemInline]
 
 
@@ -98,7 +109,7 @@ class RoleAdmin(SimpleHistoryAdmin):
     list_filter = ("type", "status", "is_mandatory")
     search_fields = ("name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("assigned_users",)
+    filter_horizontal = ("assigned_users", "tags")
     inlines = [ResponsibilityInline]
 
     @admin.display(description="Alerte conformité")
@@ -112,4 +123,4 @@ class ActivityAdmin(SimpleHistoryAdmin):
     list_filter = ("type", "criticality", "status")
     search_fields = ("reference", "name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("related_stakeholders", "related_objectives")
+    filter_horizontal = ("related_stakeholders", "related_objectives", "tags")

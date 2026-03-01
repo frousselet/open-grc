@@ -40,6 +40,8 @@
             <a href="{% url 'context:activity-detail' activity.parent_activity.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ activity.parent_activity }}</a>
             {% else %}—{% endif %}
           </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
+          <dd class="col-sm-9">{% for tag in activity.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Created on" %}</dt><dd class="col-sm-9">{{ activity.created_at }}</dd>
         </dl>
       </div>

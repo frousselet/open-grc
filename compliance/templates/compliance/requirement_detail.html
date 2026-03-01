@@ -41,6 +41,8 @@
           {% if requirement.guidance %}
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Guidance" %}</dt><dd class="col-sm-9">{{ requirement.guidance|linebreaksbr }}</dd>
           {% endif %}
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
+          <dd class="col-sm-9">{% for tag in requirement.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
         </dl>
       </div>
     </div>

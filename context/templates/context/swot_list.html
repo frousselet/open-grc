@@ -21,6 +21,7 @@
           <th>{% trans "Analysis date" %}</th>
           <th>{% trans "Status" %}</th>
           <th>{% trans "Validated by" %}</th>
+          <th>{% trans "Tags" %}</th>
           <th>{% trans "Approval" %}</th>
           <th>{% trans "Actions" %}</th>
         </tr>
@@ -36,6 +37,7 @@
             </span>
           </td>
           <td>{{ analysis.validated_by|default:"—" }}</td>
+          <td>{% for tag in analysis.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.7rem">{{ tag.name }}</span>{% endfor %}</td>
           <td>
             <span class="badge text-bg-{% if analysis.is_approved %}success{% else %}warning{% endif %}">
               {% if analysis.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
@@ -46,7 +48,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted)">{% trans "No SWOT analysis." %}</td></tr>
+        <tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted)">{% trans "No SWOT analysis." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>

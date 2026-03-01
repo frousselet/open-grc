@@ -17,6 +17,7 @@ from .models import (
 FORM_WIDGET_ATTRS = {"class": "form-control"}
 SELECT_ATTRS = {"class": "form-select"}
 CHECKBOX_ATTRS = {"class": "form-check-input"}
+TAGS_WIDGET = forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4})
 
 
 def _scope_tree_choices(queryset):
@@ -69,7 +70,7 @@ class ScopeForm(forms.ModelForm):
             "boundaries", "justification_exclusions",
             "geographic_scope", "organizational_scope", "technical_scope",
             "included_sites", "excluded_sites",
-            "effective_date", "review_date",
+            "effective_date", "review_date", "tags",
         ]
         widgets = {
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
@@ -85,6 +86,7 @@ class ScopeForm(forms.ModelForm):
             "excluded_sites": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 6}),
             "effective_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -108,7 +110,7 @@ class IssueForm(ScopedFormMixin, forms.ModelForm):
         model = Issue
         fields = [
             "scope", "name", "description", "type", "category",
-            "impact_level", "trend", "source", "review_date", "status",
+            "impact_level", "trend", "source", "review_date", "status", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -121,6 +123,7 @@ class IssueForm(ScopedFormMixin, forms.ModelForm):
             "source": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -130,7 +133,7 @@ class StakeholderForm(ScopedFormMixin, forms.ModelForm):
         fields = [
             "scope", "name", "type", "category", "description",
             "contact_name", "contact_email", "contact_phone",
-            "influence_level", "interest_level", "status", "review_date",
+            "influence_level", "interest_level", "status", "review_date", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -145,6 +148,7 @@ class StakeholderForm(ScopedFormMixin, forms.ModelForm):
             "interest_level": forms.Select(attrs=SELECT_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -168,7 +172,7 @@ class ObjectiveForm(ScopedFormMixin, forms.ModelForm):
             "category", "type", "target_value", "current_value", "unit",
             "measurement_method", "measurement_frequency", "target_date",
             "owner", "status", "progress_percentage",
-            "parent_objective", "review_date",
+            "parent_objective", "review_date", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -188,6 +192,7 @@ class ObjectiveForm(ScopedFormMixin, forms.ModelForm):
             "progress_percentage": forms.NumberInput(attrs={**FORM_WIDGET_ATTRS, "min": 0, "max": 100}),
             "parent_objective": forms.Select(attrs=SELECT_ATTRS),
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -196,7 +201,7 @@ class SwotAnalysisForm(ScopedFormMixin, forms.ModelForm):
         model = SwotAnalysis
         fields = [
             "scope", "name", "description", "analysis_date",
-            "status", "review_date",
+            "status", "review_date", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -205,6 +210,7 @@ class SwotAnalysisForm(ScopedFormMixin, forms.ModelForm):
             "analysis_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "status": forms.Select(attrs=SELECT_ATTRS),
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -225,7 +231,7 @@ class RoleForm(ScopedFormMixin, forms.ModelForm):
         model = Role
         fields = [
             "scope", "name", "description", "type",
-            "is_mandatory", "source_standard", "status",
+            "is_mandatory", "source_standard", "status", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -235,6 +241,7 @@ class RoleForm(ScopedFormMixin, forms.ModelForm):
             "is_mandatory": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
             "source_standard": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -243,7 +250,7 @@ class ActivityForm(ScopedFormMixin, forms.ModelForm):
         model = Activity
         fields = [
             "scope", "reference", "name", "description",
-            "type", "criticality", "owner", "parent_activity", "status",
+            "type", "criticality", "owner", "parent_activity", "status", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -255,6 +262,7 @@ class ActivityForm(ScopedFormMixin, forms.ModelForm):
             "owner": forms.Select(attrs=SELECT_ATTRS),
             "parent_activity": forms.Select(attrs=SELECT_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -288,7 +296,7 @@ class SiteForm(forms.ModelForm):
     class Meta:
         model = Site
         fields = [
-            "name", "type", "address", "description", "parent_site", "status",
+            "name", "type", "address", "description", "parent_site", "status", "tags",
         ]
         widgets = {
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
@@ -297,6 +305,7 @@ class SiteForm(forms.ModelForm):
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "parent_site": forms.Select(attrs=SELECT_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
     def __init__(self, *args, **kwargs):

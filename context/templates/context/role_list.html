@@ -22,6 +22,7 @@
           <th>{% trans "Users" %}</th>
           <th>{% trans "Mandatory" %}</th>
           <th>{% trans "Status" %}</th>
+          <th>{% trans "Tags" %}</th>
           <th>{% trans "Approval" %}</th>
           <th>{% trans "Actions" %}</th>
         </tr>
@@ -38,6 +39,7 @@
               {{ role.get_status_display }}
             </span>
           </td>
+          <td>{% for tag in role.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.7rem">{{ tag.name }}</span>{% endfor %}</td>
           <td>
             <span class="badge text-bg-{% if role.is_approved %}success{% else %}warning{% endif %}">
               {% if role.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
@@ -48,7 +50,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted)">{% trans "No role defined." %}</td></tr>
+        <tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted)">{% trans "No role defined." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>

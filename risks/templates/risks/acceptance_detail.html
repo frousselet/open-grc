@@ -36,6 +36,8 @@
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Review date" %}</dt><dd class="col-sm-9">{{ acceptance.review_date|default:"—" }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ acceptance.justification|linebreaksbr }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Conditions" %}</dt><dd class="col-sm-9">{{ acceptance.conditions|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
+          <dd class="col-sm-9">{% for tag in acceptance.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
         </dl>
       </div>
     </div>

@@ -55,7 +55,7 @@ class EssentialAssetSerializer(serializers.ModelSerializer):
             "recovery_point_objective",
             "data_classification", "personal_data",
             "personal_data_categories", "regulatory_constraints",
-            "related_activities", "status", "review_date",
+            "related_activities", "status", "review_date", "tags",
             "version",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
@@ -90,7 +90,7 @@ class SupportAssetSerializer(serializers.ModelSerializer):
             "inherited_confidentiality", "inherited_integrity",
             "inherited_availability",
             "exposure_level", "environment",
-            "parent_asset", "status", "review_date",
+            "parent_asset", "status", "review_date", "tags",
             "version",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
@@ -129,7 +129,7 @@ class AssetGroupSerializer(serializers.ModelSerializer):
         model = AssetGroup
         fields = [
             "id", "scope", "name", "description", "type",
-            "members", "owner", "status", "member_count",
+            "members", "owner", "status", "member_count", "tags",
             "version",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",

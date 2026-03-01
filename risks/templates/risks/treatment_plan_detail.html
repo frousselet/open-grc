@@ -46,6 +46,8 @@
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Expected residual likelihood" %}</dt><dd class="col-sm-9">{{ plan.expected_residual_likelihood|default:"—" }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Expected residual impact" %}</dt><dd class="col-sm-9">{{ plan.expected_residual_impact|default:"—" }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ plan.description|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
+          <dd class="col-sm-9">{% for tag in plan.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
         </dl>
       </div>
     </div>

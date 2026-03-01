@@ -41,7 +41,7 @@ class EssentialAssetForm(ScopedFormMixin, forms.ModelForm):
             "recovery_point_objective",
             "data_classification", "personal_data",
             "regulatory_constraints",
-            "related_activities", "status", "review_date",
+            "related_activities", "status", "review_date", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -67,6 +67,7 @@ class EssentialAssetForm(ScopedFormMixin, forms.ModelForm):
             "related_activities": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 5}),
             "status": forms.Select(attrs=SELECT_ATTRS),
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -81,7 +82,7 @@ class SupportAssetForm(ScopedFormMixin, forms.ModelForm):
             "acquisition_date", "end_of_life_date", "warranty_expiry_date",
             "contract_reference",
             "exposure_level", "environment",
-            "parent_asset", "status", "review_date",
+            "parent_asset", "status", "review_date", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -109,6 +110,7 @@ class SupportAssetForm(ScopedFormMixin, forms.ModelForm):
             "parent_asset": forms.Select(attrs=SELECT_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -135,7 +137,7 @@ class AssetGroupForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = AssetGroup
         fields = [
-            "scope", "name", "description", "type", "owner", "status",
+            "scope", "name", "description", "type", "owner", "status", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -144,6 +146,7 @@ class AssetGroupForm(ScopedFormMixin, forms.ModelForm):
             "type": forms.Select(attrs=SELECT_ATTRS),
             "owner": forms.Select(attrs=SELECT_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
