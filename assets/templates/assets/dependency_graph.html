@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Dependency graph" %} — Open GRC{% endblock %}
+
+{% block extra_css %}
+<style>
+  #graph-container {
+    width: 100%;
+    height: 70vh;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    background: var(--surface-raised);
+    overflow: hidden;
+    position: relative;
+  }
+  #graph-container svg { width: 100%; height: 100%; }
+  .node-label {
+    font-size: 11px;
+    font-family: 'Inter', sans-serif;
+    pointer-events: none;
+    fill: var(--text-primary);
+  }
+  .link-label {
+    font-size: 9px;
+    font-family: 'Inter', sans-serif;
+    fill: var(--text-muted);
+    pointer-events: none;
+  }
+  .legend {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .82rem;
+    color: var(--text-secondary);
+  }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .graph-toolbar {
+    position: absolute;
+    top: .75rem;
+    right: .75rem;
+    display: flex;
+    gap: .5rem;
+    z-index: 10;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">{% trans "Dependency graph" %}</h1>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="stat-card-icon accent"><i class="bi bi-diagram-3"></i></div>
+      <div class="stat-card-label">{% trans "Asset dependencies" %}</div>
+      <div class="stat-card-value">{{ asset_dep_count }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="stat-card-icon info"><i class="bi bi-truck"></i></div>
+      <div class="stat-card-label">{% trans "Supplier dependencies" %}</div>
+      <div class="stat-card-value">{{ supplier_dep_count }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="stat-card-label">{% trans "Legend" %}</div>
+      <div class="legend mt-2">
+        <div class="legend-item"><span class="legend-dot" style="background:#6366f1"></span> {% trans "Essential asset" %}</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span> {% trans "Support asset" %}</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> {% trans "Supplier" %}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="graph-container">
+  <div class="graph-toolbar">
+    <button class="btn btn-sm btn-outline-secondary" onclick="resetZoom()" title="{% trans 'Reset zoom' %}"><i class="bi bi-arrows-fullscreen"></i></button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="zoomIn()" title="{% trans 'Zoom in' %}"><i class="bi bi-zoom-in"></i></button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="zoomOut()" title="{% trans 'Zoom out' %}"><i class="bi bi-zoom-out"></i></button>
+  </div>
+  <svg id="graph-svg"></svg>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+(function() {
+  var nodes = {{ graph_nodes|safe }};
+  var edges = {{ graph_edges|safe }};
+
+  if (nodes.length === 0) {
+    document.getElementById('graph-container').innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted)">{% trans "No dependencies to display." %}</div>';
+    return;
+  }
+
+  var container = document.getElementById('graph-container');
+  var width = container.clientWidth;
+  var height = container.clientHeight;
+
+  var svg = d3.select('#graph-svg')
+    .attr('viewBox', [0, 0, width, height]);
+
+  var g = svg.append('g');
+
+  // Colors
+  var colorMap = {
+    essential: '#6366f1',
+    support: '#10b981',
+    supplier: '#f59e0b'
+  };
+
+  var sizeMap = {
+    essential: 18,
+    support: 14,
+    supplier: 16
+  };
+
+  // Build index for links
+  var nodeById = {};
+  nodes.forEach(function(n) { nodeById[n.id] = n; });
+
+  var links = edges.map(function(e) {
+    return {
+      source: e.source,
+      target: e.target,
+      label: e.label,
+      criticality: e.criticality,
+      is_spof: e.is_spof,
+      kind: e.kind
+    };
+  });
+
+  var simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(function(d) { return d.id; }).distance(160))
+    .force('charge', d3.forceManyBody().strength(-400))
+    .force('center', d3.forceCenter(width / 2, height / 2))
+    .force('collision', d3.forceCollide().radius(30));
+
+  // Arrow markers
+  svg.append('defs').selectAll('marker')
+    .data(['asset', 'supplier', 'spof'])
+    .join('marker')
+      .attr('id', function(d) { return 'arrow-' + d; })
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 25)
+      .attr('refY', 0)
+      .attr('markerWidth', 6)
+      .attr('markerHeight', 6)
+      .attr('orient', 'auto')
+    .append('path')
+      .attr('fill', function(d) {
+        if (d === 'spof') return '#ef4444';
+        if (d === 'supplier') return '#f59e0b';
+        return '#94a3b8';
+      })
+      .attr('d', 'M0,-5L10,0L0,5');
+
+  var link = g.append('g')
+    .selectAll('line')
+    .data(links)
+    .join('line')
+      .attr('stroke', function(d) {
+        if (d.is_spof) return '#ef4444';
+        if (d.kind === 'supplier') return '#f59e0b';
+        return '#94a3b8';
+      })
+      .attr('stroke-width', function(d) { return d.is_spof ? 2.5 : 1.5; })
+      .attr('stroke-dasharray', function(d) { return d.kind === 'supplier' ? '5,3' : null; })
+      .attr('marker-end', function(d) {
+        if (d.is_spof) return 'url(#arrow-spof)';
+        if (d.kind === 'supplier') return 'url(#arrow-supplier)';
+        return 'url(#arrow-asset)';
+      });
+
+  var linkLabel = g.append('g')
+    .selectAll('text')
+    .data(links)
+    .join('text')
+      .attr('class', 'link-label')
+      .attr('text-anchor', 'middle')
+      .text(function(d) { return d.label; });
+
+  var node = g.append('g')
+    .selectAll('g')
+    .data(nodes)
+    .join('g')
+      .call(d3.drag()
+        .on('start', dragstarted)
+        .on('drag', dragged)
+        .on('end', dragended));
+
+  node.append('circle')
+    .attr('r', function(d) { return sizeMap[d.type] || 14; })
+    .attr('fill', function(d) { return colorMap[d.type] || '#94a3b8'; })
+    .attr('stroke', '#fff')
+    .attr('stroke-width', 2)
+    .style('cursor', 'grab');
+
+  // Icon inside node
+  node.append('text')
+    .attr('text-anchor', 'middle')
+    .attr('dy', '.35em')
+    .attr('fill', '#fff')
+    .attr('font-size', function(d) { return (sizeMap[d.type] || 14) * 0.7 + 'px'; })
+    .attr('font-family', 'bootstrap-icons')
+    .text(function(d) {
+      if (d.type === 'essential') return '\uF3E0';
+      if (d.type === 'supplier') return '\uF5E6';
+      return '\uF499';
+    });
+
+  node.append('text')
+    .attr('class', 'node-label')
+    .attr('dy', function(d) { return (sizeMap[d.type] || 14) + 14; })
+    .attr('text-anchor', 'middle')
+    .text(function(d) {
+      return d.label.length > 30 ? d.label.substring(0, 30) + '...' : d.label;
+    });
+
+  // Tooltip
+  node.append('title')
+    .text(function(d) { return d.label + ' (' + d.type + ')'; });
+
+  simulation.on('tick', function() {
+    link
+      .attr('x1', function(d) { return d.source.x; })
+      .attr('y1', function(d) { return d.source.y; })
+      .attr('x2', function(d) { return d.target.x; })
+      .attr('y2', function(d) { return d.target.y; });
+
+    linkLabel
+      .attr('x', function(d) { return (d.source.x + d.target.x) / 2; })
+      .attr('y', function(d) { return (d.source.y + d.target.y) / 2 - 5; });
+
+    node.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+  });
+
+  // Zoom
+  var zoom = d3.zoom()
+    .scaleExtent([0.2, 4])
+    .on('zoom', function(event) { g.attr('transform', event.transform); });
+
+  svg.call(zoom);
+
+  function dragstarted(event) {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    event.subject.fx = event.subject.x;
+    event.subject.fy = event.subject.y;
+  }
+  function dragged(event) {
+    event.subject.fx = event.x;
+    event.subject.fy = event.y;
+  }
+  function dragended(event) {
+    if (!event.active) simulation.alphaTarget(0);
+    event.subject.fx = null;
+    event.subject.fy = null;
+  }
+
+  // Toolbar functions
+  window.resetZoom = function() {
+    svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
+  };
+  window.zoomIn = function() {
+    svg.transition().duration(300).call(zoom.scaleBy, 1.3);
+  };
+  window.zoomOut = function() {
+    svg.transition().duration(300).call(zoom.scaleBy, 0.7);
+  };
+})();
+</script>
+{% endblock %}

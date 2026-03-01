@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -5,10 +7,12 @@ from simple_history.models import HistoricalRecords
 
 from assets.constants import (
     SupplierCriticality,
+    SupplierDependencyType,
     SupplierRequirementStatus,
     SupplierStatus,
     SupplierType,
 )
+from context.constants import Criticality
 from context.models.base import ScopedModel
 
 
@@ -148,3 +152,67 @@ class SupplierRequirement(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class SupplierDependency(models.Model):
+    """Link between a support asset and a supplier."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    support_asset = models.ForeignKey(
+        "assets.SupportAsset",
+        on_delete=models.CASCADE,
+        related_name="supplier_dependencies",
+        verbose_name=_("Support asset"),
+    )
+    supplier = models.ForeignKey(
+        Supplier,
+        on_delete=models.CASCADE,
+        related_name="asset_dependencies",
+        verbose_name=_("Supplier"),
+    )
+    dependency_type = models.CharField(
+        _("Dependency type"),
+        max_length=20,
+        choices=SupplierDependencyType.choices,
+    )
+    criticality = models.CharField(
+        _("Criticality"), max_length=20, choices=Criticality.choices
+    )
+    description = models.TextField(_("Description"), blank=True, default="")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_supplier_dependencies",
+        verbose_name=_("Created by"),
+    )
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
+    is_approved = models.BooleanField(_("Approved"), default=False)
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="approved_supplier_dependencies",
+        verbose_name=_("Approved by"),
+    )
+    approved_at = models.DateTimeField(_("Approval date"), null=True, blank=True)
+    version = models.PositiveIntegerField(_("Version"), default=1)
+
+    history = HistoricalRecords()
+
+    class Meta:
+        verbose_name = _("Supplier dependency")
+        verbose_name_plural = _("Supplier dependencies")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["support_asset", "supplier"],
+                name="unique_supplier_dependency",
+            )
+        ]
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.support_asset.reference} → {self.supplier.reference}"

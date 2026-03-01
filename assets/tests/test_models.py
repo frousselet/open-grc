@@ -13,6 +13,7 @@ from assets.constants import (
 from assets.tests.factories import (
     DependencyFactory,
     EssentialAssetFactory,
+    SupplierDependencyFactory,
     SupplierFactory,
     SupplierRequirementFactory,
     SupportAssetFactory,
@@ -280,3 +281,38 @@ class TestSupplierRequirement:
         )
         assert supplier_req.requirement == comp_req
         assert supplier_req.requirement.reference == "A.15.1.1"
+
+
+class TestSupplierDependency:
+    def test_create_supplier_dependency(self):
+        dep = SupplierDependencyFactory()
+        assert dep.pk is not None
+        assert dep.dependency_type == "provided_by"
+
+    def test_str(self):
+        dep = SupplierDependencyFactory()
+        assert "→" in str(dep)
+
+    def test_unique_constraint(self):
+        dep = SupplierDependencyFactory()
+        with pytest.raises(Exception):
+            SupplierDependencyFactory(
+                support_asset=dep.support_asset,
+                supplier=dep.supplier,
+            )
+
+    def test_cascade_delete_support_asset(self):
+        dep = SupplierDependencyFactory()
+        sa = dep.support_asset
+        dep_pk = dep.pk
+        sa.delete()
+        from assets.models import SupplierDependency
+        assert not SupplierDependency.objects.filter(pk=dep_pk).exists()
+
+    def test_cascade_delete_supplier(self):
+        dep = SupplierDependencyFactory()
+        supplier = dep.supplier
+        dep_pk = dep.pk
+        supplier.delete()
+        from assets.models import SupplierDependency
+        assert not SupplierDependency.objects.filter(pk=dep_pk).exists()

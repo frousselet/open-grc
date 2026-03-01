@@ -12,6 +12,7 @@ from assets.models import (
     AssetValuation,
     EssentialAsset,
     Supplier,
+    SupplierDependency,
     SupplierRequirement,
     SupportAsset,
 )
@@ -19,6 +20,7 @@ from .filters import (
     AssetDependencyFilter,
     AssetGroupFilter,
     EssentialAssetFilter,
+    SupplierDependencyFilter,
     SupplierFilter,
     SupportAssetFilter,
 )
@@ -29,6 +31,7 @@ from .serializers import (
     AssetValuationSerializer,
     EssentialAssetListSerializer,
     EssentialAssetSerializer,
+    SupplierDependencySerializer,
     SupplierListSerializer,
     SupplierRequirementSerializer,
     SupplierSerializer,
@@ -360,3 +363,18 @@ class SupplierViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, 
             "by_status": by_status,
             "by_criticality": by_criticality,
         })
+
+
+class SupplierDependencyViewSet(ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+    queryset = SupplierDependency.objects.select_related(
+        "support_asset", "supplier"
+    ).all()
+    serializer_class = SupplierDependencySerializer
+    filterset_class = SupplierDependencyFilter
+    permission_classes = [ContextPermission]
+    permission_feature = "supplier_dependency"
+    search_fields = [
+        "support_asset__reference", "support_asset__name",
+        "supplier__reference", "supplier__name",
+    ]
+    ordering_fields = ["dependency_type", "criticality", "created_at"]

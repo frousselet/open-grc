@@ -1,7 +1,7 @@
 from django.urls import path, reverse_lazy
 
 from . import views
-from .models import AssetDependency, AssetGroup, EssentialAsset, Supplier, SupportAsset
+from .models import AssetDependency, AssetGroup, EssentialAsset, Supplier, SupplierDependency, SupportAsset
 
 app_name = "assets"
 
@@ -47,4 +47,12 @@ urlpatterns = [
     path("suppliers/<uuid:supplier_pk>/requirements/create/", views.SupplierRequirementCreateView.as_view(), name="supplier-requirement-create"),
     path("supplier-requirements/<int:pk>/edit/", views.SupplierRequirementUpdateView.as_view(), name="supplier-requirement-update"),
     path("supplier-requirements/<int:pk>/delete/", views.SupplierRequirementDeleteView.as_view(), name="supplier-requirement-delete"),
+    # Supplier Dependencies
+    path("supplier-dependencies/", views.SupplierDependencyListView.as_view(), name="supplier-dependency-list"),
+    path("supplier-dependencies/create/", views.SupplierDependencyCreateView.as_view(), name="supplier-dependency-create"),
+    path("supplier-dependencies/<uuid:pk>/edit/", views.SupplierDependencyUpdateView.as_view(), name="supplier-dependency-update"),
+    path("supplier-dependencies/<uuid:pk>/delete/", views.SupplierDependencyDeleteView.as_view(), name="supplier-dependency-delete"),
+    path("supplier-dependencies/<uuid:pk>/approve/", views.ApproveView.as_view(model=SupplierDependency, permission_feature="supplier_dependency", success_url=reverse_lazy("assets:supplier-dependency-list")), name="supplier-dependency-approve"),
+    # Dependency Graph
+    path("dependency-graph/", views.DependencyGraphView.as_view(), name="dependency-graph"),
 ]

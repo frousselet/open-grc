@@ -6,6 +6,7 @@ from assets.models import (
     AssetValuation,
     EssentialAsset,
     Supplier,
+    SupplierDependency,
     SupplierRequirement,
     SupportAsset,
 )
@@ -210,3 +211,27 @@ class SupplierListSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
+
+
+class SupplierDependencySerializer(serializers.ModelSerializer):
+    support_asset_name = serializers.CharField(
+        source="support_asset.name", read_only=True
+    )
+    supplier_name = serializers.CharField(
+        source="supplier.name", read_only=True
+    )
+
+    class Meta:
+        model = SupplierDependency
+        fields = [
+            "id", "support_asset", "support_asset_name",
+            "supplier", "supplier_name",
+            "dependency_type", "criticality", "description",
+            "version",
+            "is_approved", "approved_by", "approved_at",
+            "created_by", "created_at", "updated_at",
+        ]
+        read_only_fields = [
+            "id", "created_by", "created_at", "updated_at",
+            "is_approved", "approved_by", "approved_at", "version",
+        ]

@@ -7,13 +7,14 @@ from assets.constants import (
     EssentialAssetCategory,
     EssentialAssetType,
     SupplierCriticality,
+    SupplierDependencyType,
     SupplierType,
     SupportAssetCategory,
     SupportAssetType,
 )
 from assets.models.dependency import AssetDependency
 from assets.models.essential_asset import EssentialAsset
-from assets.models.supplier import Supplier, SupplierRequirement
+from assets.models.supplier import Supplier, SupplierDependency, SupplierRequirement
 from assets.models.support_asset import SupportAsset
 from context.constants import Criticality
 from context.tests.factories import ScopeFactory
@@ -75,3 +76,13 @@ class SupplierRequirementFactory(factory.django.DjangoModelFactory):
     supplier = factory.SubFactory(SupplierFactory)
     title = factory.Sequence(lambda n: f"Requirement {n}")
     description = "Test requirement description"
+
+
+class SupplierDependencyFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SupplierDependency
+
+    support_asset = factory.SubFactory(SupportAssetFactory)
+    supplier = factory.SubFactory(SupplierFactory)
+    dependency_type = SupplierDependencyType.PROVIDED_BY
+    criticality = Criticality.HIGH

@@ -20,6 +20,7 @@ from .forms import (
     AssetDependencyForm,
     AssetGroupForm,
     EssentialAssetForm,
+    SupplierDependencyForm,
     SupplierForm,
     SupplierRequirementForm,
     SupportAssetForm,
@@ -29,6 +30,7 @@ from .models import (
     AssetGroup,
     EssentialAsset,
     Supplier,
+    SupplierDependency,
     SupplierRequirement,
     SupportAsset,
 )
@@ -451,3 +453,116 @@ class SupplierRequirementDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy("assets:supplier-detail", kwargs={"pk": self.object.supplier.pk})
+
+
+# ── Supplier Dependencies ─────────────────────────────────
+
+class SupplierDependencyListView(LoginRequiredMixin, ListView):
+    model = SupplierDependency
+    template_name = "assets/supplier_dependency_list.html"
+    context_object_name = "dependencies"
+    paginate_by = 25
+
+    def get_queryset(self):
+        return super().get_queryset().select_related(
+            "support_asset", "supplier"
+        )
+
+
+class SupplierDependencyCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+    model = SupplierDependency
+    form_class = SupplierDependencyForm
+    template_name = "assets/supplier_dependency_form.html"
+    success_url = reverse_lazy("assets:supplier-dependency-list")
+
+
+class SupplierDependencyUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
+    model = SupplierDependency
+    form_class = SupplierDependencyForm
+    template_name = "assets/supplier_dependency_form.html"
+    success_url = reverse_lazy("assets:supplier-dependency-list")
+
+
+class SupplierDependencyDeleteView(LoginRequiredMixin, DeleteView):
+    model = SupplierDependency
+    template_name = "assets/confirm_delete.html"
+    success_url = reverse_lazy("assets:supplier-dependency-list")
+
+
+# ── Dependency Graph ──────────────────────────────────────
+
+class DependencyGraphView(LoginRequiredMixin, TemplateView):
+    template_name = "assets/dependency_graph.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        # Asset dependencies (essential → support)
+        asset_deps = AssetDependency.objects.select_related(
+            "essential_asset", "support_asset"
+        ).all()
+        # Supplier dependencies (support → supplier)
+        supplier_deps = SupplierDependency.objects.select_related(
+            "support_asset", "supplier"
+        ).all()
+
+        nodes = {}
+        edges = []
+
+        for dep in asset_deps:
+            ea = dep.essential_asset
+            sa = dep.support_asset
+            ea_id = str(ea.id)
+            sa_id = str(sa.id)
+            if ea_id not in nodes:
+                nodes[ea_id] = {
+                    "id": ea_id,
+                    "label": f"{ea.reference} - {ea.name}",
+                    "type": "essential",
+                }
+            if sa_id not in nodes:
+                nodes[sa_id] = {
+                    "id": sa_id,
+                    "label": f"{sa.reference} - {sa.name}",
+                    "type": "support",
+                }
+            edges.append({
+                "source": ea_id,
+                "target": sa_id,
+                "label": dep.get_dependency_type_display(),
+                "criticality": dep.criticality,
+                "is_spof": dep.is_single_point_of_failure,
+                "kind": "asset",
+            })
+
+        for dep in supplier_deps:
+            sa = dep.support_asset
+            sup = dep.supplier
+            sa_id = str(sa.id)
+            sup_id = str(sup.id)
+            if sa_id not in nodes:
+                nodes[sa_id] = {
+                    "id": sa_id,
+                    "label": f"{sa.reference} - {sa.name}",
+                    "type": "support",
+                }
+            if sup_id not in nodes:
+                nodes[sup_id] = {
+                    "id": sup_id,
+                    "label": f"{sup.reference} - {sup.name}",
+                    "type": "supplier",
+                }
+            edges.append({
+                "source": sa_id,
+                "target": sup_id,
+                "label": dep.get_dependency_type_display(),
+                "criticality": dep.criticality,
+                "is_spof": False,
+                "kind": "supplier",
+            })
+
+        import json
+        ctx["graph_nodes"] = json.dumps(list(nodes.values()))
+        ctx["graph_edges"] = json.dumps(edges)
+        ctx["asset_dep_count"] = asset_deps.count()
+        ctx["supplier_dep_count"] = supplier_deps.count()
+        return ctx
