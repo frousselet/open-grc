@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 16:11+0100\n"
+"POT-Creation-Date: 2026-03-01 11:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -122,6 +122,12 @@ msgstr "Dépendances"
 msgid "Asset groups"
 msgstr "Groupes d'actifs"
 
+msgid "Suppliers"
+msgstr "Fournisseurs"
+
+msgid "Supplier dependencies"
+msgstr "Dépendances fournisseurs"
+
 msgid "Asset import"
 msgstr "Import d'actifs"
 
@@ -234,23 +240,32 @@ msgid "System"
 msgstr "Système"
 
 msgid "Full technical administration of the platform. All permissions."
-msgstr "Administration technique complète de la plateforme. Toutes les permissions."
+msgstr ""
+"Administration technique complète de la plateforme. Toutes les permissions."
 
 msgid ""
 "Full functional administration. All permissions except Django admin access."
-msgstr "Administration fonctionnelle complète. Toutes les permissions sauf l'accès admin Django."
+msgstr ""
+"Administration fonctionnelle complète. Toutes les permissions sauf l'accès "
+"admin Django."
 
 msgid ""
 "GRC system steering. Read, create, update, approve. No deletion or system "
 "configuration."
-msgstr "Pilotage du système GRC. Lecture, création, modification, approbation. Pas de suppression ni de configuration système."
+msgstr ""
+"Pilotage du système GRC. Lecture, création, modification, approbation. Pas "
+"de suppression ni de configuration système."
 
 msgid "Platform consultation and audit. Read-only access to all modules."
-msgstr "Consultation et audit de la plateforme. Accès en lecture seule à tous les modules."
+msgstr ""
+"Consultation et audit de la plateforme. Accès en lecture seule à tous les "
+"modules."
 
 msgid ""
 "GRC content contribution. Read, create, update. No deletion or system access."
-msgstr "Contribution au contenu GRC. Lecture, création, modification. Pas de suppression ni d'accès système."
+msgstr ""
+"Contribution au contenu GRC. Lecture, création, modification. Pas de "
+"suppression ni d'accès système."
 
 msgid "Read-only access. Read on all modules except system."
 msgstr "Accès en lecture seule. Lecture sur tous les modules sauf système."
@@ -501,7 +516,9 @@ msgstr "Ajouter"
 
 msgid ""
 "If no scope is selected, members of this group have access to all scopes."
-msgstr "Si aucun périmètre n'est sélectionné, les membres de ce groupe ont accès à tous les périmètres."
+msgstr ""
+"Si aucun périmètre n'est sélectionné, les membres de ce groupe ont accès à "
+"tous les périmètres."
 
 msgid "No scopes available."
 msgstr "Aucun périmètre disponible."
@@ -532,6 +549,9 @@ msgstr "Aucun groupe."
 
 msgid "Sign in — Open GRC"
 msgstr "Se connecter — Open GRC"
+
+msgid "Sign in to your account"
+msgstr "Connectez-vous à votre compte"
 
 msgid "Sign in"
 msgstr "Se connecter"
@@ -620,13 +640,17 @@ msgstr "Le mot de passe doit contenir au moins un caractère spécial."
 msgid ""
 "The password must contain at least one uppercase letter, one lowercase "
 "letter, one digit, and one special character."
-msgstr "Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial."
+msgstr ""
+"Le mot de passe doit contenir au moins une lettre majuscule, une lettre "
+"minuscule, un chiffre et un caractère spécial."
 
 msgid "You do not have the required permissions."
 msgstr "Vous n'avez pas les permissions requises."
 
 msgid "This account is temporarily locked due to multiple failed attempts."
-msgstr "Ce compte est temporairement verrouillé suite à plusieurs tentatives échouées."
+msgstr ""
+"Ce compte est temporairement verrouillé suite à plusieurs tentatives "
+"échouées."
 
 msgid "Invalid credentials."
 msgstr "Identifiants invalides."
@@ -979,6 +1003,66 @@ msgstr "Partiel"
 msgid "Full"
 msgstr "Complet"
 
+msgid "Hosted by"
+msgstr "Hébergé par"
+
+msgid "Provided by"
+msgstr "Fourni par"
+
+msgid "Maintained by"
+msgstr "Maintenu par"
+
+msgid "Developed by"
+msgstr "Développé par"
+
+msgid "Operated by"
+msgstr "Opéré par"
+
+msgid "Monitored by"
+msgstr "Surveillé par"
+
+msgid "Cloud provider"
+msgstr "Fournisseur cloud"
+
+msgid "Software vendor"
+msgstr "Éditeur logiciel"
+
+msgid "Hardware vendor"
+msgstr "Fournisseur matériel"
+
+msgid "Consulting"
+msgstr "Conseil"
+
+msgid "Managed services"
+msgstr "Services managés"
+
+msgid "Telecommunications"
+msgstr "Télécommunications"
+
+msgid "Outsourcing"
+msgstr "Externalisation"
+
+msgid "Under evaluation"
+msgstr "En cours d'évaluation"
+
+msgid "Suspended"
+msgstr "Suspendu"
+
+msgid "Archived"
+msgstr "Archivé"
+
+msgid "Not assessed"
+msgstr "Non évalué"
+
+msgid "Compliant"
+msgstr "Conforme"
+
+msgid "Partially compliant"
+msgstr "Partiellement conforme"
+
+msgid "Non-compliant"
+msgstr "Non conforme"
+
 msgid "Essential asset"
 msgstr "Bien essentiel"
 
@@ -1017,7 +1101,9 @@ msgstr "Relations de dépendance"
 
 msgid ""
 "Cannot create a dependency to a decommissioned or disposed support asset."
-msgstr "Impossible de créer une dépendance vers un bien support décommissionné ou éliminé."
+msgstr ""
+"Impossible de créer une dépendance vers un bien support décommissionné ou "
+"éliminé."
 
 msgid "Reference"
 msgstr "Référence"
@@ -1077,13 +1163,83 @@ msgid "A business process can only have a process category."
 msgstr "Un processus métier ne peut avoir qu'une catégorie processus."
 
 msgid "An information asset can only have an information category."
-msgstr "Un actif informationnel ne peut avoir qu'une catégorie informationnelle."
+msgstr ""
+"Un actif informationnel ne peut avoir qu'une catégorie informationnelle."
 
 msgid "Members"
 msgstr "Membres"
 
 msgid "Asset group"
 msgstr "Groupe d'actifs"
+
+msgid "Logo"
+msgstr "Logo"
+
+msgid "Contact name"
+msgstr "Nom du contact"
+
+msgid "Contact email"
+msgstr "Email du contact"
+
+msgid "Contact phone"
+msgstr "Téléphone du contact"
+
+msgid "Website"
+msgstr "Site web"
+
+msgid "Address"
+msgstr "Adresse"
+
+msgid "Country"
+msgstr "Pays"
+
+msgid "Contract reference"
+msgstr "Référence du contrat"
+
+msgid "Contract start date"
+msgstr "Date de début du contrat"
+
+msgid "Contract end date"
+msgstr "Date de fin du contrat"
+
+msgid "Notes"
+msgstr "Notes"
+
+msgid "Supplier"
+msgstr "Fournisseur"
+
+msgid "Linked requirement"
+msgstr "Exigence liée"
+
+msgid "Title"
+msgstr "Titre"
+
+msgid "Custom title when not linked to a compliance requirement."
+msgstr "Titre personnalisé lorsque non lié à une exigence de conformité."
+
+msgid "Compliance status"
+msgstr "Statut de conformité"
+
+msgid "Evidence"
+msgstr "Preuves"
+
+msgid "Due date"
+msgstr "Date d'échéance"
+
+msgid "Verified at"
+msgstr "Vérifié le"
+
+msgid "Verified by"
+msgstr "Vérifié par"
+
+msgid "Supplier requirement"
+msgstr "Exigence fournisseur"
+
+msgid "Supplier requirements"
+msgstr "Exigences fournisseurs"
+
+msgid "Supplier dependency"
+msgstr "Dépendance fournisseur"
 
 msgid "Location"
 msgstr "Emplacement"
@@ -1112,9 +1268,6 @@ msgstr "Date de fin de vie"
 msgid "Warranty expiry"
 msgstr "Expiration de la garantie"
 
-msgid "Contract reference"
-msgstr "Référence du contrat"
-
 msgid "Inherited confidentiality"
 msgstr "Confidentialité héritée"
 
@@ -1138,7 +1291,8 @@ msgid "Invalid category for type '%(type)s'."
 msgstr "Catégorie invalide pour le type « %(type)s »."
 
 msgid "The child support asset must belong to the same scope as its parent."
-msgstr "Le bien support enfant doit appartenir au même périmètre que son parent."
+msgstr ""
+"Le bien support enfant doit appartenir au même périmètre que son parent."
 
 msgid "Evaluation date"
 msgstr "Date d'évaluation"
@@ -1209,6 +1363,27 @@ msgstr "Modifier la dépendance"
 msgid "New dependency"
 msgstr "Nouvelle dépendance"
 
+msgid "Dependency graph"
+msgstr "Graphe de dépendances"
+
+msgid "Asset dependencies"
+msgstr "Dépendances d'actifs"
+
+msgid "Legend"
+msgstr "Légende"
+
+msgid "Reset zoom"
+msgstr "Réinitialiser le zoom"
+
+msgid "Zoom in"
+msgstr "Zoom avant"
+
+msgid "Zoom out"
+msgstr "Zoom arrière"
+
+msgid "No dependencies to display."
+msgstr "Aucune dépendance à afficher."
+
 msgid "SPOF"
 msgstr "SPOF"
 
@@ -1250,6 +1425,9 @@ msgstr "Historique"
 
 msgid "Scope"
 msgstr "Périmètre"
+
+msgid "Tags"
+msgstr "Tags"
 
 msgid "Yes"
 msgstr "Oui"
@@ -1298,6 +1476,66 @@ msgstr "Nouveau groupe"
 
 msgid "No groups defined."
 msgstr "Aucun groupe défini."
+
+msgid "supplier dependency"
+msgstr "dépendance fournisseur"
+
+msgid "Edit supplier dependency"
+msgstr "Modifier la dépendance fournisseur"
+
+msgid "New supplier dependency"
+msgstr "Nouvelle dépendance fournisseur"
+
+msgid "No supplier dependencies defined."
+msgstr "Aucune dépendance fournisseur définie."
+
+msgid "Archive this supplier?"
+msgstr "Archiver ce fournisseur ?"
+
+msgid "The contract for this supplier has expired"
+msgstr "Le contrat de ce fournisseur a expiré"
+
+msgid "Contact"
+msgstr "Contact"
+
+msgid "Contract"
+msgstr "Contrat"
+
+msgid "Expired"
+msgstr "Expiré"
+
+msgid "Applied requirements"
+msgstr "Exigences appliquées"
+
+msgid "Add requirement"
+msgstr "Ajouter une exigence"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "No requirements applied to this supplier."
+msgstr "Aucune exigence appliquée à ce fournisseur."
+
+msgid "supplier"
+msgstr "fournisseur"
+
+msgid "Edit supplier"
+msgstr "Modifier le fournisseur"
+
+msgid "New supplier"
+msgstr "Nouveau fournisseur"
+
+msgid "Contract end"
+msgstr "Fin du contrat"
+
+msgid "No suppliers."
+msgstr "Aucun fournisseur."
+
+msgid "requirement"
+msgstr "exigence"
+
+msgid "Edit requirement"
+msgstr "Modifier l'exigence"
 
 msgid "This support asset has exceeded its end of life date"
 msgstr "Ce bien support a dépassé sa date de fin de vie"
@@ -1350,6 +1588,9 @@ msgstr "Vous n'avez pas la permission d'approuver cet élément."
 msgid "Item approved."
 msgstr "Élément approuvé."
 
+msgid "Supplier archived."
+msgstr "Fournisseur archivé."
+
 msgid "Standard"
 msgstr "Norme"
 
@@ -1358,9 +1599,6 @@ msgstr "Loi"
 
 msgid "Regulation"
 msgstr "Réglementation"
-
-msgid "Contract"
-msgstr "Contrat"
 
 msgid "Internal policy"
 msgstr "Politique interne"
@@ -1401,9 +1639,6 @@ msgstr "Brouillon"
 msgid "Deprecated"
 msgstr "Obsolète"
 
-msgid "Archived"
-msgstr "Archivé"
-
 msgid "Mandatory"
 msgstr "Obligatoire"
 
@@ -1427,18 +1662,6 @@ msgstr "Juridique"
 
 msgid "Human"
 msgstr "Humain"
-
-msgid "Not assessed"
-msgstr "Non évalué"
-
-msgid "Non-compliant"
-msgstr "Non conforme"
-
-msgid "Partially compliant"
-msgstr "Partiellement conforme"
-
-msgid "Compliant"
-msgstr "Conforme"
 
 msgid "Not applicable"
 msgstr "Non applicable"
@@ -1523,17 +1746,22 @@ msgstr "Le champ 'nom' du référentiel est requis."
 
 #, python-format
 msgid "Unknown framework type: '%(type)s'. Accepted values: %(values)s"
-msgstr "Type de référentiel inconnu : « %(type)s ». Valeurs acceptées : %(values)s"
+msgstr ""
+"Type de référentiel inconnu : « %(type)s ». Valeurs acceptées : %(values)s"
 
 #, python-format
 msgid "Unknown framework category: '%(category)s'. Accepted values: %(values)s"
-msgstr "Catégorie de référentiel inconnue : « %(category)s ». Valeurs acceptées : %(values)s"
+msgstr ""
+"Catégorie de référentiel inconnue : « %(category)s ». Valeurs acceptées : "
+"%(values)s"
 
 #, python-format
 msgid ""
 "A framework with the reference '%(reference)s' already exists in the "
 "database."
-msgstr "Un référentiel avec la référence « %(reference)s » existe déjà dans la base de données."
+msgstr ""
+"Un référentiel avec la référence « %(reference)s » existe déjà dans la base "
+"de données."
 
 msgid "A section has no reference."
 msgstr "Une section n'a pas de référence."
@@ -1544,7 +1772,8 @@ msgstr "Référence de section dupliquée : « %(ref)s »."
 
 #, python-format
 msgid "Section '%(ref)s' already exists in framework '%(framework_ref)s'."
-msgstr "La section « %(ref)s » existe déjà dans le référentiel « %(framework_ref)s »."
+msgstr ""
+"La section « %(ref)s » existe déjà dans le référentiel « %(framework_ref)s »."
 
 #, python-format
 msgid "Section '%(ref)s' has no name."
@@ -1559,7 +1788,8 @@ msgstr "Référence d'exigence dupliquée : « %(ref)s »."
 
 #, python-format
 msgid "Requirement '%(ref)s' already exists in framework '%(framework_ref)s'."
-msgstr "L'exigence « %(ref)s » existe déjà dans le référentiel « %(framework_ref)s »."
+msgstr ""
+"L'exigence « %(ref)s » existe déjà dans le référentiel « %(framework_ref)s »."
 
 #, python-format
 msgid "Requirement '%(ref)s' has no name."
@@ -1569,13 +1799,17 @@ msgstr "L'exigence « %(ref)s » n'a pas de nom."
 msgid ""
 "Unknown requirement type for '%(ref)s': '%(type)s'. Accepted values: "
 "%(values)s"
-msgstr "Type d'exigence inconnu pour « %(ref)s » : « %(type)s ». Valeurs acceptées : %(values)s"
+msgstr ""
+"Type d'exigence inconnu pour « %(ref)s » : « %(type)s ». Valeurs acceptées : "
+"%(values)s"
 
 #, python-format
 msgid ""
 "Unknown requirement category for '%(ref)s': '%(category)s'. Accepted values: "
 "%(values)s"
-msgstr "Catégorie d'exigence inconnue pour « %(ref)s » : « %(category)s ». Valeurs acceptées : %(values)s"
+msgstr ""
+"Catégorie d'exigence inconnue pour « %(ref)s » : « %(category)s ». Valeurs "
+"acceptées : %(values)s"
 
 #, python-format
 msgid "%(count)s requirement(s) without an identified parent section."
@@ -1653,14 +1887,8 @@ msgstr "Évaluation"
 msgid "Requirement"
 msgstr "Exigence"
 
-msgid "Compliance status"
-msgstr "Statut de conformité"
-
 msgid "Compliance level (%)"
 msgstr "Niveau de conformité (%)"
-
-msgid "Evidence"
-msgstr "Preuves"
 
 msgid "Gaps"
 msgstr "Écarts"
@@ -1733,13 +1961,12 @@ msgstr "Correspondances inter-référentiels"
 
 msgid ""
 "A mapping can only exist between requirements from different frameworks."
-msgstr "Une correspondance ne peut exister qu'entre des exigences de référentiels différents."
+msgstr ""
+"Une correspondance ne peut exister qu'entre des exigences de référentiels "
+"différents."
 
 msgid "Section"
 msgstr "Section"
-
-msgid "Title"
-msgstr "Titre"
 
 msgid "Implementation guidance"
 msgstr "Guide de mise en œuvre"
@@ -1886,20 +2113,28 @@ msgstr "Formats acceptés"
 msgid ""
 "Tree structure with <code>framework</code>, <code>sections</code> (nested) "
 "and <code>requirements</code> in each section."
-msgstr "Structure arborescente avec <code>framework</code>, <code>sections</code> (imbriquées) et <code>requirements</code> dans chaque section."
+msgstr ""
+"Structure arborescente avec <code>framework</code>, <code>sections</code> "
+"(imbriquées) et <code>requirements</code> dans chaque section."
 
 msgid ""
 "A single sheet with columns: <code>type</code>, <code>reference</code>, "
 "<code>name</code>, <code>description</code>, <code>guidance</code>, "
 "<code>req_type</code>, <code>req_category</code>. Hierarchy is inferred from "
 "reference prefixes."
-msgstr "Une feuille unique avec les colonnes : <code>type</code>, <code>reference</code>, <code>name</code>, <code>description</code>, <code>guidance</code>, <code>req_type</code>, <code>req_category</code>. La hiérarchie est déduite des préfixes de référence."
+msgstr ""
+"Une feuille unique avec les colonnes : <code>type</code>, <code>reference</"
+"code>, <code>name</code>, <code>description</code>, <code>guidance</code>, "
+"<code>req_type</code>, <code>req_category</code>. La hiérarchie est déduite "
+"des préfixes de référence."
 
 msgid "Sample templates"
 msgstr "Modèles d'exemple"
 
 msgid "Download a pre-filled sample file to help you prepare your import."
-msgstr "Téléchargez un fichier exemple pré-rempli pour vous aider à préparer votre import."
+msgstr ""
+"Téléchargez un fichier exemple pré-rempli pour vous aider à préparer votre "
+"import."
 
 msgid "JSON sample"
 msgstr "Exemple JSON"
@@ -1914,7 +2149,9 @@ msgstr "Aperçu de l'import"
 msgid ""
 "Import into existing framework <strong>%(ref)s — %(name)s</strong>. The name "
 "will be replaced by <strong>%(new_name)s</strong>."
-msgstr "Import dans le référentiel existant <strong>%(ref)s — %(name)s</strong>. Le nom sera remplacé par <strong>%(new_name)s</strong>."
+msgstr ""
+"Import dans le référentiel existant <strong>%(ref)s — %(name)s</strong>. Le "
+"nom sera remplacé par <strong>%(new_name)s</strong>."
 
 msgid "Imported data"
 msgstr "Données importées"
@@ -2002,12 +2239,6 @@ msgstr "Direction"
 msgid "No action plan associated."
 msgstr "Aucun plan d'action associé."
 
-msgid "requirement"
-msgstr "exigence"
-
-msgid "Edit requirement"
-msgstr "Modifier l'exigence"
-
 msgid "New requirement"
 msgstr "Nouvelle exigence"
 
@@ -2023,7 +2254,8 @@ msgid "File reading error: %(error)s"
 msgstr "Erreur de lecture du fichier : %(error)s"
 
 msgid "No import data in session. Please upload a file first."
-msgstr "Aucune donnée d'import en session. Veuillez d'abord télécharger un fichier."
+msgstr ""
+"Aucune donnée d'import en session. Veuillez d'abord télécharger un fichier."
 
 msgid "No import data in session."
 msgstr "Aucune donnée d'import en session."
@@ -2107,9 +2339,6 @@ msgstr "Employés"
 
 msgid "Customers"
 msgstr "Clients"
-
-msgid "Suppliers"
-msgstr "Fournisseurs"
 
 msgid "Partners"
 msgstr "Partenaires"
@@ -2324,20 +2553,8 @@ msgstr "Sites exclus"
 msgid "Circular reference detected."
 msgstr "Référence circulaire détectée."
 
-msgid "Address"
-msgstr "Adresse"
-
 msgid "Parent site"
 msgstr "Site parent"
-
-msgid "Contact name"
-msgstr "Nom du contact"
-
-msgid "Contact email"
-msgstr "Email du contact"
-
-msgid "Contact phone"
-msgstr "Téléphone du contact"
 
 msgid "Influence level"
 msgstr "Niveau d'influence"
@@ -2368,6 +2585,15 @@ msgstr "Élément SWOT"
 
 msgid "SWOT items"
 msgstr "Éléments SWOT"
+
+msgid "Color"
+msgstr "Couleur"
+
+msgid "Hex color code, e.g. #ff5733"
+msgstr "Code couleur hexadécimal, ex. #ff5733"
+
+msgid "Tag"
+msgstr "Tag"
 
 msgid "Sub-activities"
 msgstr "Sous-activités"
@@ -2503,9 +2729,6 @@ msgstr "Aucun site défini."
 msgid "Expectations & Requirements"
 msgstr "Attentes et exigences"
 
-msgid "Contact"
-msgstr "Contact"
-
 msgid "Influence"
 msgstr "Influence"
 
@@ -2551,6 +2774,15 @@ msgstr "Nouvelle analyse"
 msgid "No SWOT analysis."
 msgstr "Aucune analyse SWOT."
 
+msgid "Edit tag"
+msgstr "Modifier le tag"
+
+msgid "Linked items"
+msgstr "Éléments liés"
+
+msgid "No tag created yet."
+msgstr "Aucun tag créé pour le moment."
+
 #, python-format
 msgid "%(count)d mandatory role(s) with no assigned user"
 msgstr "%(count)d rôle(s) obligatoire(s) sans utilisateur assigné"
@@ -2575,11 +2807,24 @@ msgstr "%(count)d plan(s) d'action en retard"
 msgid "%(count)d critical risk(s)"
 msgstr "%(count)d risque(s) critique(s)"
 
+msgid "Review: "
+msgstr "Revue : "
+
+msgid "Start: "
+msgstr "Début : "
+
+msgid "Done: "
+msgstr "Terminé : "
+
+msgid "Expiry: "
+msgstr "Expiration : "
+
 msgid "Key"
 msgstr "Clé"
 
 msgid "Unique identifier of the page or feature (e.g. context.scope_list)."
-msgstr "Identifiant unique de la page ou fonctionnalité (ex. : context.scope_list)."
+msgstr ""
+"Identifiant unique de la page ou fonctionnalité (ex. : context.scope_list)."
 
 msgid "ISO 639-1 language code (e.g. fr, en)."
 msgstr "Code de langue ISO 639-1 (ex. : fr, en)."
@@ -2658,9 +2903,6 @@ msgstr "Accepté"
 
 msgid "Monitoring"
 msgstr "Surveillance"
-
-msgid "Expired"
-msgstr "Expiré"
 
 msgid "Revoked"
 msgstr "Révoqué"
@@ -2960,9 +3202,6 @@ msgstr "Critères"
 msgid "Scale type"
 msgstr "Type d'échelle"
 
-msgid "Color"
-msgstr "Couleur"
-
 msgid "Scale level"
 msgstr "Niveau d'échelle"
 
@@ -3042,17 +3281,145 @@ msgstr "Nouvelle acceptation"
 msgid "No risk acceptances."
 msgstr "Aucune acceptation de risque."
 
+msgid "ISO 27005 workflow"
+msgstr "Démarche ISO 27005"
+
+msgid "Identify threats"
+msgstr "Identifier les menaces"
+
+msgid "Define or select threats from the catalog that apply to your scope."
+msgstr ""
+"Définissez ou sélectionnez les menaces du catalogue qui s'appliquent à votre "
+"périmètre."
+
+msgid "threat(s)"
+msgstr "menace(s)"
+
+msgid "Manage"
+msgstr "Gérer"
+
+msgid "Identify vulnerabilities"
+msgstr "Identifier les vulnérabilités"
+
+msgid "Define or select vulnerabilities from the catalog."
+msgstr "Définissez ou sélectionnez les vulnérabilités du catalogue."
+
+msgid "vulnerability(ies)"
+msgstr "vulnérabilité(s)"
+
+msgid "Analyze risk scenarios"
+msgstr "Analyser les scénarios de risque"
+
+msgid ""
+"Create threat × vulnerability scenarios and evaluate their likelihood and "
+"impact."
+msgstr ""
+"Créez des scénarios menace × vulnérabilité et évaluez leur vraisemblance et "
+"impact."
+
+msgid "analysis(es)"
+msgstr "analyse(s)"
+
+msgid "Consolidate risks"
+msgstr "Consolider les risques"
+
+msgid "Promote analyses to the risk register for treatment planning."
+msgstr ""
+"Promouvez les analyses vers le registre des risques pour planifier le "
+"traitement."
+
+msgid "risk(s)"
+msgstr "risque(s)"
+
+msgid "EBIOS RM workflow"
+msgstr "Démarche EBIOS RM"
+
+msgid ""
+"The EBIOS RM methodology is not yet implemented. It will be available in a "
+"future version."
+msgstr ""
+"La méthodologie EBIOS RM n'est pas encore implémentée. Elle sera disponible "
+"dans une version future."
+
+msgid "Define scope and security baseline"
+msgstr "Définir le périmètre et le socle de sécurité"
+
+msgid ""
+"Workshop 1 — Identify essential assets, business values and the security "
+"baseline."
+msgstr ""
+"Atelier 1 — Identifier les valeurs métier, les biens essentiels et le socle "
+"de sécurité."
+
+msgid "Identify risk origins"
+msgstr "Identifier les sources de risque"
+
+msgid "Workshop 2 — Identify threat sources and their objectives."
+msgstr "Atelier 2 — Identifier les sources de menace et leurs objectifs."
+
+msgid "Build strategic scenarios"
+msgstr "Élaborer les scénarios stratégiques"
+
+msgid ""
+"Workshop 3 — Define attack paths from threat source to essential assets."
+msgstr ""
+"Atelier 3 — Définir les chemins d'attaque de la source de menace aux valeurs "
+"métier."
+
+msgid "Build operational scenarios"
+msgstr "Élaborer les scénarios opérationnels"
+
+msgid "Workshop 4 — Detail technical attack sequences on support assets."
+msgstr ""
+"Atelier 4 — Détailler les séquences d'attaque techniques sur les biens "
+"supports."
+
+msgid "Treat risks"
+msgstr "Traiter les risques"
+
+msgid "Workshop 5 — Define and track risk treatment measures."
+msgstr "Atelier 5 — Définir et suivre les mesures de traitement des risques."
+
+msgid ""
+"Unknown methodology. Please edit this assessment and select a valid "
+"methodology."
+msgstr ""
+"Méthodologie inconnue. Veuillez modifier cette évaluation et sélectionner "
+"une méthodologie valide."
+
+msgid "Analyses"
+msgstr "Analyses"
+
 msgid "Matrices"
 msgstr "Matrices"
+
+msgid "Max impact"
+msgstr "Impact max"
+
+msgid "Consolidate as risk"
+msgstr "Consolider en risque"
+
+msgid "Consolidate"
+msgstr "Consolider"
+
+msgid ""
+"No analyses yet. Start by creating threat × vulnerability scenarios to "
+"identify risks."
+msgstr ""
+"Aucune analyse pour le moment. Commencez par créer des scénarios menace × "
+"vulnérabilité pour identifier les risques."
 
 msgid "Associated risks"
 msgstr "Risques associés"
 
-msgid "Add a risk"
-msgstr "Ajouter un risque"
+msgid "Risks are created by consolidating ISO 27005 analyses."
+msgstr "Les risques sont créés en consolidant les analyses ISO 27005."
 
 msgid "Current level"
 msgstr "Niveau actuel"
+
+msgid "Treatment"
+msgstr "Traitement"
 
 msgid "No associated risk."
 msgstr "Aucun risque associé."
@@ -3065,12 +3432,6 @@ msgstr "Risques réels (avant traitement)"
 
 msgid "Residual risks (after treatment)"
 msgstr "Risques résiduels (après traitement)"
-
-msgid "Max impact"
-msgstr "Impact max"
-
-msgid "No ISO 27005 analysis."
-msgstr "Aucune analyse ISO 27005."
 
 msgid "Edit the assessment"
 msgstr "Modifier l'appréciation"
@@ -3181,17 +3542,24 @@ msgstr "Modifier l'analyse ISO 27005"
 msgid "New ISO 27005 analysis"
 msgstr "Nouvelle analyse ISO 27005"
 
+msgid "Go to assessments"
+msgstr "Aller aux évaluations"
+
+msgid ""
+"ISO 27005 analyses are created from within an assessment's methodology "
+"workflow. Open an ISO 27005 assessment to create new analyses."
+msgstr ""
+"Les analyses ISO 27005 sont créées depuis la démarche méthodologique d'une "
+"évaluation. Ouvrez une évaluation ISO 27005 pour créer de nouvelles analyses."
+
 msgid "No ISO 27005 analyses."
 msgstr "Aucune analyse ISO 27005."
 
 msgid "Evaluation"
 msgstr "Évaluation"
 
-msgid "Treatment"
-msgstr "Traitement"
-
-msgid "ISO 27005 sources"
-msgstr "Sources ISO 27005"
+msgid "Methodology sources"
+msgstr "Sources méthodologiques"
 
 msgid "Impact C / I / A"
 msgstr "Impact C / I / D"
@@ -3223,8 +3591,11 @@ msgstr "Aucun bien essentiel affecté."
 msgid "No affected support assets."
 msgstr "Aucun bien support affecté."
 
-msgid "No ISO 27005 sources."
-msgstr "Aucune source ISO 27005."
+msgid ""
+"This risk was identified through ISO 27005 analyses (threat × vulnerability)."
+msgstr ""
+"Ce risque a été identifié via des analyses ISO 27005 (menace × "
+"vulnérabilité)."
 
 msgid "risk"
 msgstr "risque"
@@ -3234,6 +3605,13 @@ msgstr "Modifier le risque"
 
 msgid "New risk"
 msgstr "Nouveau risque"
+
+msgid ""
+"Risks are identified through methodology-driven assessments. Open an "
+"assessment and use its methodology workflow to create risks."
+msgstr ""
+"Les risques sont identifiés au travers d'évaluations méthodologiques. Ouvrez "
+"une évaluation et utilisez sa démarche pour créer des risques."
 
 msgid "No risks recorded."
 msgstr "Aucun risque enregistré."
@@ -3280,11 +3658,30 @@ msgstr "Nouvelle vulnérabilité"
 msgid "No vulnerabilities."
 msgstr "Aucune vulnérabilité."
 
+msgid ""
+"Please select an assessment and use its methodology workflow to create risks."
+msgstr ""
+"Veuillez sélectionner une évaluation et utiliser sa démarche méthodologique "
+"pour créer des risques."
+
+msgid "This analysis is already linked to a risk."
+msgstr "Cette analyse est déjà liée à un risque."
+
+#, python-format
+msgid "Risk \"%(ref)s\" created from the ISO 27005 analysis."
+msgstr "Risque « %(ref)s » créé à partir de l'analyse ISO 27005."
+
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
+msgid "Calendar"
+msgstr "Calendrier"
+
 msgid "Organization"
 msgstr "Organisation"
+
+msgid "Graph view"
+msgstr "Vue graphe"
 
 msgid "Register"
 msgstr "Registre"
@@ -3292,8 +3689,8 @@ msgstr "Registre"
 msgid "Acceptances"
 msgstr "Acceptations"
 
-msgid "Analyses"
-msgstr "Analyses"
+msgid "Catalogs"
+msgstr "Catalogues"
 
 msgid "List"
 msgstr "Liste"
@@ -3312,6 +3709,103 @@ msgstr "Admin Django"
 
 msgid "Sign out"
 msgstr "Déconnexion"
+
+msgid "Month"
+msgstr "Mois"
+
+msgid "Year"
+msgstr "Année"
+
+msgid "Timeline"
+msgstr "Chronologie"
+
+msgid "January"
+msgstr "Janvier"
+
+msgid "February"
+msgstr "Février"
+
+msgid "March"
+msgstr "Mars"
+
+msgid "April"
+msgstr "Avril"
+
+msgid "May"
+msgstr "Mai"
+
+msgid "June"
+msgstr "Juin"
+
+msgid "July"
+msgstr "Juillet"
+
+msgid "August"
+msgstr "Août"
+
+msgid "September"
+msgstr "Septembre"
+
+msgid "October"
+msgstr "Octobre"
+
+msgid "November"
+msgstr "Novembre"
+
+msgid "December"
+msgstr "Décembre"
+
+msgid "Mon"
+msgstr "Lun"
+
+msgid "Tue"
+msgstr "Mar"
+
+msgid "Wed"
+msgstr "Mer"
+
+msgid "Thu"
+msgstr "Jeu"
+
+msgid "Fri"
+msgstr "Ven"
+
+msgid "Sat"
+msgstr "Sam"
+
+msgid "Sun"
+msgstr "Dim"
+
+msgid "Today"
+msgstr "Aujourd'hui"
+
+msgid "No events for this period"
+msgstr "Aucun événement pour cette période"
+
+msgid "Upcoming events"
+msgstr "Événements à venir"
+
+msgid "next 30 days"
+msgstr "30 prochains jours"
+
+msgid "No upcoming events"
+msgstr "Aucun événement à venir"
+
+msgid "today"
+msgstr "aujourd'hui"
+
+msgid "tomorrow"
+msgstr "demain"
+
+msgid "Show all"
+msgstr "Tout afficher"
+
+#, python-format
+msgid "in %%(days)s days"
+msgstr "dans %%(days)s jours"
+
+msgid "Loading..."
+msgstr "Chargement…"
 
 #, python-format
 msgid ""
@@ -3355,6 +3849,9 @@ msgstr "%(count)s non conforme(s)"
 msgid "%(count)s overdue"
 msgstr "%(count)s en retard"
 
+msgid "View calendar"
+msgstr "Voir le calendrier"
+
 #, python-format
 msgid "by %(user)s on %(date)s"
 msgstr "par %(user)s le %(date)s"
@@ -3383,275 +3880,17 @@ msgstr "Aucun changement détecté"
 msgid "No history available."
 msgstr "Aucun historique disponible."
 
-#: templates/base.html — sidebar
-msgid "Catalogs"
-msgstr "Catalogues"
+#~ msgid "Add a risk"
+#~ msgstr "Ajouter un risque"
 
-#: risks/templates/risks/assessment_detail.html — workflow ISO 27005
-msgid "ISO 27005 workflow"
-msgstr "Démarche ISO 27005"
+#~ msgid "No ISO 27005 analysis."
+#~ msgstr "Aucune analyse ISO 27005."
 
-msgid "Identify threats"
-msgstr "Identifier les menaces"
+#~ msgid "ISO 27005 sources"
+#~ msgstr "Sources ISO 27005"
 
-msgid "Define or select threats from the catalog that apply to your scope."
-msgstr "Définissez ou sélectionnez les menaces du catalogue qui s'appliquent à votre périmètre."
+#~ msgid "No ISO 27005 sources."
+#~ msgstr "Aucune source ISO 27005."
 
-msgid "threat(s)"
-msgstr "menace(s)"
-
-msgid "Manage"
-msgstr "Gérer"
-
-msgid "Identify vulnerabilities"
-msgstr "Identifier les vulnérabilités"
-
-msgid "Define or select vulnerabilities from the catalog."
-msgstr "Définissez ou sélectionnez les vulnérabilités du catalogue."
-
-msgid "vulnerability(ies)"
-msgstr "vulnérabilité(s)"
-
-msgid "Analyze risk scenarios"
-msgstr "Analyser les scénarios de risque"
-
-msgid "Create threat × vulnerability scenarios and evaluate their likelihood and impact."
-msgstr "Créez des scénarios menace × vulnérabilité et évaluez leur vraisemblance et impact."
-
-msgid "analysis(es)"
-msgstr "analyse(s)"
-
-msgid "Consolidate risks"
-msgstr "Consolider les risques"
-
-msgid "Promote analyses to the risk register for treatment planning."
-msgstr "Promouvez les analyses vers le registre des risques pour planifier le traitement."
-
-msgid "risk(s)"
-msgstr "risque(s)"
-
-msgid "Consolidate"
-msgstr "Consolider"
-
-msgid "No analyses yet. Start by creating threat × vulnerability scenarios to identify risks."
-msgstr "Aucune analyse pour le moment. Commencez par créer des scénarios menace × vulnérabilité pour identifier les risques."
-
-msgid "Risks are created by consolidating ISO 27005 analyses."
-msgstr "Les risques sont créés en consolidant les analyses ISO 27005."
-
-#: risks/templates/risks/assessment_detail.html — workflow EBIOS RM
-msgid "EBIOS RM workflow"
-msgstr "Démarche EBIOS RM"
-
-msgid "The EBIOS RM methodology is not yet implemented. It will be available in a future version."
-msgstr "La méthodologie EBIOS RM n'est pas encore implémentée. Elle sera disponible dans une version future."
-
-msgid "Define scope and security baseline"
-msgstr "Définir le périmètre et le socle de sécurité"
-
-msgid "Workshop 1 — Identify essential assets, business values and the security baseline."
-msgstr "Atelier 1 — Identifier les valeurs métier, les biens essentiels et le socle de sécurité."
-
-msgid "Identify risk origins"
-msgstr "Identifier les sources de risque"
-
-msgid "Workshop 2 — Identify threat sources and their objectives."
-msgstr "Atelier 2 — Identifier les sources de menace et leurs objectifs."
-
-msgid "Build strategic scenarios"
-msgstr "Élaborer les scénarios stratégiques"
-
-msgid "Workshop 3 — Define attack paths from threat source to essential assets."
-msgstr "Atelier 3 — Définir les chemins d'attaque de la source de menace aux valeurs métier."
-
-msgid "Build operational scenarios"
-msgstr "Élaborer les scénarios opérationnels"
-
-msgid "Workshop 4 — Detail technical attack sequences on support assets."
-msgstr "Atelier 4 — Détailler les séquences d'attaque techniques sur les biens supports."
-
-msgid "Treat risks"
-msgstr "Traiter les risques"
-
-msgid "Workshop 5 — Define and track risk treatment measures."
-msgstr "Atelier 5 — Définir et suivre les mesures de traitement des risques."
-
-msgid "Unknown methodology. Please edit this assessment and select a valid methodology."
-msgstr "Méthodologie inconnue. Veuillez modifier cette évaluation et sélectionner une méthodologie valide."
-
-#: risks/templates/risks/risk_list.html
-msgid "Go to assessments"
-msgstr "Aller aux évaluations"
-
-msgid "Risks are identified through methodology-driven assessments. Open an assessment and use its methodology workflow to create risks."
-msgstr "Les risques sont identifiés au travers d'évaluations méthodologiques. Ouvrez une évaluation et utilisez sa démarche pour créer des risques."
-
-#: risks/templates/risks/risk_detail.html
-msgid "Methodology sources"
-msgstr "Sources méthodologiques"
-
-msgid "This risk was identified through ISO 27005 analyses (threat × vulnerability)."
-msgstr "Ce risque a été identifié via des analyses ISO 27005 (menace × vulnérabilité)."
-
-#: risks/templates/risks/iso27005_risk_list.html
-msgid "ISO 27005 analyses are created from within an assessment's methodology workflow. Open an ISO 27005 assessment to create new analyses."
-msgstr "Les analyses ISO 27005 sont créées depuis la démarche méthodologique d'une évaluation. Ouvrez une évaluation ISO 27005 pour créer de nouvelles analyses."
-
-#: risks/views.py — consolidation
-msgid "Please select an assessment and use its methodology workflow to create risks."
-msgstr "Veuillez sélectionner une évaluation et utiliser sa démarche méthodologique pour créer des risques."
-
-msgid "This analysis is already linked to a risk."
-msgstr "Cette analyse est déjà liée à un risque."
-
-msgid "Risk \"%(ref)s\" created from the ISO 27005 analysis."
-msgstr "Risque « %(ref)s » créé à partir de l'analyse ISO 27005."
-
-msgid "Consolidate as risk"
-msgstr "Consolider en risque"
-
-#: templates/base.html templates/calendar.html
-msgid "Calendar"
-msgstr "Calendrier"
-
-#: templates/calendar.html
-msgid "Today"
-msgstr "Aujourd'hui"
-
-#: templates/calendar.html
-msgid "Month"
-msgstr "Mois"
-
-#: templates/calendar.html
-msgid "Week"
-msgstr "Semaine"
-
-#: core/views.py — calendar
-msgid "Review: "
-msgstr "Revue : "
-
-msgid "Start: "
-msgstr "Début : "
-
-msgid "Done: "
-msgstr "Terminé : "
-
-msgid "Expiry: "
-msgstr "Expiration : "
-
-#: templates/calendar.html
-msgid "Timeline"
-msgstr "Chronologie"
-
-msgid "No events for this period"
-msgstr "Aucun événement pour cette période"
-
-msgid "January"
-msgstr "Janvier"
-
-msgid "February"
-msgstr "Février"
-
-msgid "March"
-msgstr "Mars"
-
-msgid "April"
-msgstr "Avril"
-
-msgid "May"
-msgstr "Mai"
-
-msgid "June"
-msgstr "Juin"
-
-msgid "July"
-msgstr "Juillet"
-
-msgid "August"
-msgstr "Août"
-
-msgid "September"
-msgstr "Septembre"
-
-msgid "October"
-msgstr "Octobre"
-
-msgid "November"
-msgstr "Novembre"
-
-msgid "December"
-msgstr "Décembre"
-
-#: templates/calendar.html — day abbreviations
-msgid "Mon"
-msgstr "Lun"
-
-msgid "Tue"
-msgstr "Mar"
-
-msgid "Wed"
-msgstr "Mer"
-
-msgid "Thu"
-msgstr "Jeu"
-
-msgid "Fri"
-msgstr "Ven"
-
-msgid "Sat"
-msgstr "Sam"
-
-msgid "Sun"
-msgstr "Dim"
-
-#: templates/calendar.html
-msgid "Year"
-msgstr "Année"
-
-#: templates/calendar.html — upcoming events
-msgid "Upcoming events"
-msgstr "Événements à venir"
-
-msgid "next 30 days"
-msgstr "30 prochains jours"
-
-msgid "No upcoming events"
-msgstr "Aucun événement à venir"
-
-msgid "today"
-msgstr "aujourd'hui"
-
-msgid "tomorrow"
-msgstr "demain"
-
-msgid "Show all"
-msgstr "Tout afficher"
-
-msgid "in %(days)s days"
-msgstr "dans %(days)s jours"
-
-#: templates/home.html
-msgid "View calendar"
-msgstr "Voir le calendrier"
-
-msgid "Loading..."
-msgstr "Chargement…"
-
-#: context/models/tag.py
-msgid "Tag"
-msgstr "Tag"
-
-msgid "Tags"
-msgstr "Tags"
-
-msgid "Hex color code, e.g. #ff5733"
-msgstr "Code couleur hexadécimal, ex. #ff5733"
-
-msgid "Linked items"
-msgstr "Éléments liés"
-
-msgid "No tag created yet."
-msgstr "Aucun tag créé pour le moment."
-
-msgid "Edit tag"
-msgstr "Modifier le tag"
+#~ msgid "Week"
+#~ msgstr "Semaine"
