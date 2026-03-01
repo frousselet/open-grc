@@ -8,7 +8,7 @@ from context.models.base import ScopedModel
 
 
 class ComplianceActionPlan(ScopedModel):
-    REFERENCE_PREFIX = "CAP"
+    REFERENCE_PREFIX = "CAPL"
 
     reference = models.CharField(_("Reference"), max_length=50, unique=True)
     name = models.CharField(_("Name"), max_length=255)

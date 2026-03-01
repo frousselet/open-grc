@@ -63,7 +63,7 @@
     <li>{{ spof_count }} {% trans "single point(s) of failure (SPOF) detected" %}</li>
     {% endif %}
     {% for sa in eol_assets %}
-    <li><span style="color:var(--text-muted);font-size:.82rem">{{ sa.reference }}</span> {{ sa.name }}: {% trans "end of life exceeded" %} ({{ sa.end_of_life_date }})</li>
+    <li><span class="ref">{{ sa.reference }}</span> {{ sa.name }}: {% trans "end of life exceeded" %} ({{ sa.end_of_life_date }})</li>
     {% endfor %}
   </ul>
 </div>

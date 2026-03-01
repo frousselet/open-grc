@@ -31,7 +31,7 @@
       <tbody>
         {% for activity in activities %}
         <tr>
-          <td><a href="{% url 'context:activity-detail' activity.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ activity.reference }}</a></td>
+          <td><a href="{% url 'context:activity-detail' activity.pk %}" class="ref" style="text-decoration:none">{{ activity.reference }}</a></td>
           <td>{{ activity.name }}</td>
           <td>{{ activity.get_type_display }}</td>
           <td>

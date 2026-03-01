@@ -7,7 +7,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
     <h1 class="mb-0">{{ action_plan.name }}</h1>
-    <small style="color:var(--text-muted);font-size:.82rem">{{ action_plan.reference }}</small>
+    <small class="ref">{{ action_plan.reference }}</small>
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'compliance:action-plan-update' action_plan.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
@@ -35,7 +35,7 @@
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Related requirement" %}</dt>
           <dd class="col-sm-9">
             {% if action_plan.requirement %}
-            <a href="{% url 'compliance:requirement-detail' action_plan.requirement.pk %}" style="text-decoration:none"><span style="color:var(--text-muted);font-size:.82rem;font-weight:500">{{ action_plan.requirement.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ action_plan.requirement.name }}</span></a>
+            <a href="{% url 'compliance:requirement-detail' action_plan.requirement.pk %}" style="text-decoration:none"><span class="ref">{{ action_plan.requirement.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ action_plan.requirement.name }}</span></a>
             {% else %}—{% endif %}
           </dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Source assessment" %}</dt>

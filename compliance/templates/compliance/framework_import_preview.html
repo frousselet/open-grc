@@ -82,7 +82,7 @@
           {% for req in section.requirements %}
           <li class="py-1 text-muted">
             <i class="bi bi-check-square me-1"></i>
-            <span style="color:var(--text-muted);font-size:.82rem">{{ req.reference }}</span> {{ req.name }}
+            <span class="ref">{{ req.reference }}</span> {{ req.name }}
             {% if req.type %}<span class="badge text-bg-light">{{ req.type }}</span>{% endif %}
           </li>
           {% endfor %}
@@ -98,7 +98,7 @@
           {% for req in section.requirements %}
           <li class="py-1 text-muted">
             <i class="bi bi-check-square me-1"></i>
-            <span style="color:var(--text-muted);font-size:.82rem">{{ req.reference }}</span> {{ req.name }}
+            <span class="ref">{{ req.reference }}</span> {{ req.name }}
           </li>
           {% endfor %}
         </ul>

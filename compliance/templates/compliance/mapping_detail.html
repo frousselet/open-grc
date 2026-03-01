@@ -17,13 +17,13 @@
     <dl class="row mb-0">
       <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Source requirement" %}</dt>
       <dd class="col-sm-9">
-        <a href="{% url 'compliance:requirement-detail' mapping.source_requirement.pk %}" style="text-decoration:none"><span style="color:var(--text-muted);font-size:.82rem;font-weight:500">{{ mapping.source_requirement.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ mapping.source_requirement.name }}</span></a>
+        <a href="{% url 'compliance:requirement-detail' mapping.source_requirement.pk %}" style="text-decoration:none"><span class="ref">{{ mapping.source_requirement.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ mapping.source_requirement.name }}</span></a>
         <span style="color:var(--text-muted)">({{ mapping.source_requirement.framework.short_name|default:mapping.source_requirement.framework.name }})</span>
       </dd>
 
       <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Target requirement" %}</dt>
       <dd class="col-sm-9">
-        <a href="{% url 'compliance:requirement-detail' mapping.target_requirement.pk %}" style="text-decoration:none"><span style="color:var(--text-muted);font-size:.82rem;font-weight:500">{{ mapping.target_requirement.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ mapping.target_requirement.name }}</span></a>
+        <a href="{% url 'compliance:requirement-detail' mapping.target_requirement.pk %}" style="text-decoration:none"><span class="ref">{{ mapping.target_requirement.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ mapping.target_requirement.name }}</span></a>
         <span style="color:var(--text-muted)">({{ mapping.target_requirement.framework.short_name|default:mapping.target_requirement.framework.name }})</span>
       </dd>
 

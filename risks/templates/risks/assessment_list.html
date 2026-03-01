@@ -40,7 +40,7 @@
       <tbody>
         {% for a in assessments %}
         <tr>
-          <td><a href="{% url 'risks:assessment-detail' a.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ a.reference }}</a></td>
+          <td><a href="{% url 'risks:assessment-detail' a.pk %}" class="ref" style="text-decoration:none">{{ a.reference }}</a></td>
           <td>{{ a.name }}</td>
           <td>{{ a.get_methodology_display }}</td>
           <td>{{ a.scope }}</td>

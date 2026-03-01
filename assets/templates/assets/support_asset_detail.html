@@ -7,7 +7,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
     <h1 class="mb-0">{{ asset.name }}</h1>
-    <small style="color:var(--text-muted);font-size:.82rem">{{ asset.reference }}</small>
+    <small class="ref">{{ asset.reference }}</small>
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'assets:support-asset-update' asset.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
@@ -150,7 +150,7 @@
     <ul class="list-group mb-3">
       {% for child in children %}
       <li class="list-group-item">
-        <a href="{% url 'assets:support-asset-detail' child.pk %}" style="text-decoration:none"><span style="color:var(--text-muted);font-size:.82rem;font-weight:500">{{ child.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ child.name }}</span></a>
+        <a href="{% url 'assets:support-asset-detail' child.pk %}" style="text-decoration:none"><span class="ref">{{ child.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ child.name }}</span></a>
       </li>
       {% endfor %}
     </ul>

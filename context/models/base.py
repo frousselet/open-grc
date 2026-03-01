@@ -8,6 +8,16 @@ from simple_history.models import HistoricalRecords
 
 class BaseModel(models.Model):
     REFERENCE_PREFIX = ""
+    REQUIRED_PREFIX_LENGTH = 4
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        prefix = cls.__dict__.get("REFERENCE_PREFIX")
+        if prefix and len(prefix) != cls.REQUIRED_PREFIX_LENGTH:
+            raise ValueError(
+                f"{cls.__name__}.REFERENCE_PREFIX '{prefix}' must be exactly "
+                f"{cls.REQUIRED_PREFIX_LENGTH} characters"
+            )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     reference = models.CharField(_("Reference"), max_length=50, unique=True, blank=True)

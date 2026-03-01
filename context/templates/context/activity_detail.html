@@ -7,7 +7,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
     <h1 class="mb-0">{{ activity.name }}</h1>
-    <small style="color:var(--text-muted);font-size:.82rem">{{ activity.reference }}</small>
+    <small class="ref">{{ activity.reference }}</small>
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'context:activity-update' activity.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
@@ -55,7 +55,7 @@
     <ul class="list-group">
       {% for child in activity.children.all %}
       <li class="list-group-item d-flex justify-content-between align-items-center">
-        <a href="{% url 'context:activity-detail' child.pk %}" style="text-decoration:none"><span style="color:var(--text-muted);font-size:.82rem;font-weight:500">{{ child.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ child.name }}</span></a>
+        <a href="{% url 'context:activity-detail' child.pk %}" style="text-decoration:none"><span class="ref">{{ child.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ child.name }}</span></a>
         <span class="badge text-bg-{% if child.criticality == 'critical' %}danger{% elif child.criticality == 'high' %}warning{% else %}secondary{% endif %}">{{ child.get_criticality_display }}</span>
       </li>
       {% endfor %}

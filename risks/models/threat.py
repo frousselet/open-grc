@@ -7,7 +7,7 @@ from risks.constants import ThreatCategory, ThreatOrigin, ThreatStatus, ThreatTy
 
 
 class Threat(ScopedModel):
-    REFERENCE_PREFIX = "THR"
+    REFERENCE_PREFIX = "THRT"
 
     reference = models.CharField(_("Reference"), max_length=50, unique=True)
     name = models.CharField(_("Name"), max_length=255)

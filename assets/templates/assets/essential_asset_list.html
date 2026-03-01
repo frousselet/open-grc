@@ -38,7 +38,7 @@
       <tbody>
         {% for asset in assets %}
         <tr>
-          <td><a href="{% url 'assets:essential-asset-detail' asset.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ asset.reference }}</a></td>
+          <td><a href="{% url 'assets:essential-asset-detail' asset.pk %}" class="ref" style="text-decoration:none">{{ asset.reference }}</a></td>
           <td>{{ asset.name }}</td>
           <td>{{ asset.get_type_display }}</td>
           <td>{{ asset.get_category_display }}</td>

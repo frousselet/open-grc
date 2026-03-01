@@ -18,7 +18,7 @@ from risks.constants import (
 
 
 class RiskTreatmentPlan(BaseModel):
-    REFERENCE_PREFIX = "RTP"
+    REFERENCE_PREFIX = "RTPL"
 
     risk = models.ForeignKey(
         "risks.Risk",
