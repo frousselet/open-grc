@@ -4,27 +4,125 @@
 {% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "issue" %} — Open GRC{% endblock %}
 
 {% block content %}
-<h1>{% if form.instance.pk %}{% trans "Edit issue" %}{% else %}{% trans "New issue" %}{% endif %}</h1>
-
-<div class="card">
-  <div class="card-body">
-    <form method="post" class="mt-0">
-      {% csrf_token %}
-      {% for field in form %}
-      <div class="mb-3">
-        <label for="{{ field.id_for_label }}" class="form-label">
-          {{ field.label }}{% if field.field.required %} *{% endif %}
-        </label>
-        {{ field }}
-        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-        {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-      </div>
-      {% endfor %}
-      <div class="d-flex gap-2 mt-4 pt-3" style="border-top:1px solid var(--border-light)">
-        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
-        <a href="{% url 'context:issue-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-      </div>
-    </form>
-  </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0">{% if form.instance.pk %}{% trans "Edit issue" %}{% else %}{% trans "New issue" %}{% endif %}</h1>
+  <a href="{% url 'context:issue-list' %}" class="btn btn-outline-secondary">{% trans "Back to list" %}</a>
 </div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="row">
+    {# ── Left column: core fields ────────────────────── #}
+    <div class="col-lg-8">
+
+      {# ── Identity ──────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-flag me-2" style="color:var(--accent)"></i>{% trans "Identity" %}</h6></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-8">
+              <div class="mb-3">
+                <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
+                {{ form.name }}
+                {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="mb-3">
+                <label for="{{ form.scope.id_for_label }}" class="form-label">{{ form.scope.label }} *</label>
+                {{ form.scope }}
+                {% for error in form.scope.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <label for="{{ form.type.id_for_label }}" class="form-label">{{ form.type.label }} *</label>
+                {{ form.type }}
+                {% for error in form.type.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <label for="{{ form.category.id_for_label }}" class="form-label">{{ form.category.label }} *</label>
+                {{ form.category }}
+                {% for error in form.category.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="mb-0">
+            <label for="{{ form.source.id_for_label }}" class="form-label">{{ form.source.label }}</label>
+            {{ form.source }}
+            {% for error in form.source.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# ── Analysis ──────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-graph-up me-2" style="color:var(--accent)"></i>{% trans "Analysis" %}</h6></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <label for="{{ form.impact_level.id_for_label }}" class="form-label">{{ form.impact_level.label }} *</label>
+                {{ form.impact_level }}
+                {% for error in form.impact_level.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <label for="{{ form.trend.id_for_label }}" class="form-label">{{ form.trend.label }} *</label>
+                {{ form.trend }}
+                {% for error in form.trend.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="mb-0">
+            <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+            {{ form.description }}
+            {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ── Right column: status, dates, tags ───────────── #}
+    <div class="col-lg-4">
+
+      {# ── Status ────────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-info-circle me-2" style="color:var(--accent)"></i>{% trans "Status" %}</h6></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }} *</label>
+            {{ form.status }}
+            {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="mb-0">
+            <label for="{{ form.review_date.id_for_label }}" class="form-label">{{ form.review_date.label }}</label>
+            {{ form.review_date }}
+            {% for error in form.review_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# ── Tags ──────────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-tags me-2" style="color:var(--accent)"></i>{% trans "Tags" %}</h6></div>
+        <div class="card-body">
+          {{ form.tags }}
+          {% for error in form.tags.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ── Actions ───────────────────────────────────── #}
+  <div class="d-flex gap-2 pt-3 mb-4" style="border-top:1px solid var(--border-light)">
+    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{% trans "Save" %}</button>
+    <a href="{% url 'context:issue-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+  </div>
+</form>
 {% endblock %}
