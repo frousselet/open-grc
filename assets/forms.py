@@ -5,12 +5,8 @@ from django.forms import inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 
 from context.models import Scope, Site
+from helpers.image_utils import generate_image_variants
 
-
-def _file_to_data_uri(uploaded_file):
-    """Convert an uploaded file to a base64 data URI string."""
-    data = base64.b64encode(uploaded_file.read()).decode()
-    return f"data:{uploaded_file.content_type};base64,{data}"
 from .models import (
     AssetDependency,
     AssetGroup,
@@ -26,6 +22,22 @@ from .models import (
     SupplierTypeRequirement,
     SupportAsset,
 )
+
+
+def _file_to_data_uri(uploaded_file):
+    """Convert an uploaded file to a base64 data URI string."""
+    data = base64.b64encode(uploaded_file.read()).decode()
+    return f"data:{uploaded_file.content_type};base64,{data}"
+
+
+def _set_logo_with_variants(supplier, data_uri):
+    """Set the logo field and generate 16/32/64 variants."""
+    supplier.logo = data_uri
+    variants = generate_image_variants(data_uri)
+    supplier.logo_16 = variants[16]
+    supplier.logo_32 = variants[32]
+    supplier.logo_64 = variants[64]
+
 
 FORM_WIDGET_ATTRS = {"class": "form-control"}
 SELECT_ATTRS = {"class": "form-select"}
@@ -172,6 +184,7 @@ class SupplierForm(ScopedFormMixin, forms.ModelForm):
         required=False,
         widget=forms.FileInput(attrs={**FORM_WIDGET_ATTRS, "accept": "image/*"}),
     )
+    logo_resized = forms.CharField(required=False, widget=forms.HiddenInput())
 
     class Meta:
         model = Supplier
@@ -206,8 +219,11 @@ class SupplierForm(ScopedFormMixin, forms.ModelForm):
 
     def save(self, commit=True):
         supplier = super().save(commit=False)
-        if self.files.get("logo"):
-            supplier.logo = _file_to_data_uri(self.files["logo"])
+        resized = self.cleaned_data.get("logo_resized")
+        if resized:
+            _set_logo_with_variants(supplier, resized)
+        elif self.files.get("logo"):
+            _set_logo_with_variants(supplier, _file_to_data_uri(self.files["logo"]))
         if commit:
             supplier.save()
             self.save_m2m()

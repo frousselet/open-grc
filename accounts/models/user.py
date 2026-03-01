@@ -19,6 +19,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     department = models.CharField(_("Department"), max_length=255, blank=True, default="")
     phone = models.CharField(_("Phone"), max_length=50, blank=True, default="")
     avatar = models.TextField(_("Profile photo"), blank=True, default="")
+    avatar_16 = models.TextField(_("Avatar 16×16"), blank=True, default="")
+    avatar_32 = models.TextField(_("Avatar 32×32"), blank=True, default="")
+    avatar_64 = models.TextField(_("Avatar 64×64"), blank=True, default="")
     language = models.CharField(
         _("Language"),
         max_length=10,

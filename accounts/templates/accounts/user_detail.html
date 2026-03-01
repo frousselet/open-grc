@@ -8,7 +8,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div class="d-flex align-items-center gap-3">
     {% if account_user.avatar %}
-    <img src="{{ account_user.avatar }}" alt="" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--border-light)">
+    <img src="{{ account_user.avatar_64|default:account_user.avatar }}" alt="" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--border-light)">
     {% else %}
     <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--accent-soft),rgba(99,102,241,.15));color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.125rem;font-weight:650;">
       {{ account_user.display_name|truncatechars:1 }}

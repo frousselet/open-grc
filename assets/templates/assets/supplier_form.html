@@ -34,7 +34,7 @@
                      title="{% trans 'Change logo' %}">
                 <i class="bi bi-camera-fill"></i>
               </label>
-              <div style="display:none">{{ form.logo }}</div>
+              <div style="display:none">{{ form.logo }}{{ form.logo_resized }}</div>
             </div>
             <div class="flex-grow-1">
               <div class="row">
@@ -204,24 +204,24 @@
 {% endblock %}
 
 {% block extra_js %}
+{% include "includes/image_resize.html" %}
 <script>
 document.getElementById('{{ form.logo.id_for_label }}').addEventListener('change', function(e) {
   var file = e.target.files[0];
   if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(ev) {
+  resizeImageFile(file, 128, function(dataUri) {
+    document.getElementById('id_logo_resized').value = dataUri;
     var el = document.getElementById('logo-preview');
     if (el.tagName === 'IMG') {
-      el.src = ev.target.result;
+      el.src = dataUri;
     } else {
       var img = document.createElement('img');
       img.id = 'logo-preview';
-      img.src = ev.target.result;
+      img.src = dataUri;
       img.style.cssText = 'width:72px;height:72px;border-radius:var(--radius-md);object-fit:cover;border:2px solid var(--border-light)';
       el.parentNode.replaceChild(img, el);
     }
-  };
-  reader.readAsDataURL(file);
+  });
 });
 </script>
 {% endblock %}

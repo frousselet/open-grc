@@ -6,12 +6,30 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Group, User
+from helpers.image_utils import generate_image_variants
 
 
 def _file_to_data_uri(uploaded_file):
     """Convert an uploaded file to a base64 data URI string."""
     data = base64.b64encode(uploaded_file.read()).decode()
     return f"data:{uploaded_file.content_type};base64,{data}"
+
+
+def _set_avatar_with_variants(user, data_uri):
+    """Set the avatar field and generate 16/32/64 variants."""
+    user.avatar = data_uri
+    variants = generate_image_variants(data_uri)
+    user.avatar_16 = variants[16]
+    user.avatar_32 = variants[32]
+    user.avatar_64 = variants[64]
+
+
+def _clear_avatar(user):
+    """Clear the avatar and all its variants."""
+    user.avatar = ""
+    user.avatar_16 = ""
+    user.avatar_32 = ""
+    user.avatar_64 = ""
 
 
 class LoginForm(forms.Form):
@@ -78,6 +96,7 @@ class UserUpdateForm(forms.ModelForm):
         required=False,
         widget=forms.FileInput(attrs={"class": "form-control", "accept": "image/*"}),
     )
+    avatar_resized = forms.CharField(required=False, widget=forms.HiddenInput())
 
     class Meta:
         model = User
@@ -96,8 +115,11 @@ class UserUpdateForm(forms.ModelForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        if self.files.get("avatar"):
-            user.avatar = _file_to_data_uri(self.files["avatar"])
+        resized = self.cleaned_data.get("avatar_resized")
+        if resized:
+            _set_avatar_with_variants(user, resized)
+        elif self.files.get("avatar"):
+            _set_avatar_with_variants(user, _file_to_data_uri(self.files["avatar"]))
         if commit:
             user.save()
         return user
@@ -111,6 +133,7 @@ class ProfileForm(forms.ModelForm):
         required=False,
         widget=forms.FileInput(attrs={"class": "form-control", "accept": "image/*"}),
     )
+    avatar_resized = forms.CharField(required=False, widget=forms.HiddenInput())
     remove_avatar = forms.BooleanField(required=False, widget=forms.HiddenInput())
 
     class Meta:
@@ -126,10 +149,13 @@ class ProfileForm(forms.ModelForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        if self.cleaned_data.get("remove_avatar") and not self.files.get("avatar"):
-            user.avatar = ""
+        resized = self.cleaned_data.get("avatar_resized")
+        if self.cleaned_data.get("remove_avatar") and not resized and not self.files.get("avatar"):
+            _clear_avatar(user)
+        elif resized:
+            _set_avatar_with_variants(user, resized)
         elif self.files.get("avatar"):
-            user.avatar = _file_to_data_uri(self.files["avatar"])
+            _set_avatar_with_variants(user, _file_to_data_uri(self.files["avatar"]))
         if commit:
             user.save()
         return user

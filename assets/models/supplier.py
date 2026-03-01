@@ -65,6 +65,9 @@ class Supplier(ScopedModel):
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"), blank=True, default="")
     logo = models.TextField(_("Logo"), blank=True, default="")
+    logo_16 = models.TextField(_("Logo 16×16"), blank=True, default="")
+    logo_32 = models.TextField(_("Logo 32×32"), blank=True, default="")
+    logo_64 = models.TextField(_("Logo 64×64"), blank=True, default="")
     type = models.ForeignKey(
         SupplierType,
         on_delete=models.PROTECT,
