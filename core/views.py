@@ -175,7 +175,7 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
         agg = self._filter_scoped(
             Framework.objects.filter(status="active")
         ).aggregate(avg=Avg("compliance_level"))
-        ctx["overall_compliance"] = round(agg["avg"] or 0, 1)
+        ctx["overall_compliance"] = round(agg["avg"] or 0)
 
         ctx["requirement_count"] = Requirement.objects.count()
         ctx["non_compliant_count"] = Requirement.objects.filter(

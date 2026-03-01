@@ -39,7 +39,7 @@
           <td>{% if fw.is_mandatory %}<span class="badge text-bg-danger">{% trans "Yes" %}</span>{% else %}{% trans "No" %}{% endif %}</td>
           <td>
             <div class="progress" style="min-width: 80px;">
-              <div class="progress-bar {% if fw.compliance_level >= 80 %}bg-success{% elif fw.compliance_level >= 50 %}bg-warning{% else %}bg-danger{% endif %}" style="width: {{ fw.compliance_level }}%">{{ fw.compliance_level|floatformat:0 }}%</div>
+              <div class="progress-bar {% if fw.compliance_level >= 80 %}bg-success{% elif fw.compliance_level >= 50 %}bg-warning{% else %}bg-danger{% endif %}" style="width: {{ fw.compliance_level|floatformat:0 }}%">{{ fw.compliance_level|floatformat:0 }}%</div>
             </div>
           </td>
           <td>

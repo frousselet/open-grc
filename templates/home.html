@@ -116,15 +116,15 @@
       <div class="progress" style="height:1.125rem;background:rgba(255,255,255,.15)">
         <div class="progress-bar bg-{% if overall_compliance >= 80 %}success{% elif overall_compliance >= 50 %}warning{% else %}danger{% endif %}"
              role="progressbar"
-             style="width: {{ overall_compliance }}%;font-size:.75rem"
-             aria-valuenow="{{ overall_compliance }}"
+             style="width: {{ overall_compliance|floatformat:0 }}%;font-size:.75rem"
+             aria-valuenow="{{ overall_compliance|floatformat:0 }}"
              aria-valuemin="0" aria-valuemax="100">
-          {{ overall_compliance }}%
+          {{ overall_compliance|floatformat:0 }}%
         </div>
       </div>
     </div>
     <div class="col-lg-2 col-md-4 col-sm-4 text-lg-end text-md-end text-sm-end">
-      <span class="display-4" style="color:#fff;font-variant-numeric:tabular-nums">{{ overall_compliance }}%</span>
+      <span class="display-4" style="color:#fff;font-variant-numeric:tabular-nums">{{ overall_compliance|floatformat:0 }}%</span>
     </div>
   </div>
 </div>
@@ -145,14 +145,14 @@
           {% endfor %}
         </div>
         <span class="fw-semibold" style="font-size:.8125rem;font-variant-numeric:tabular-nums;{% if fw.compliance_level >= 80 %}color:var(--success){% elif fw.compliance_level >= 50 %}color:var(--warning){% else %}color:var(--danger){% endif %}">
-          {{ fw.compliance_level }}%
+          {{ fw.compliance_level|floatformat:0 }}%
         </span>
       </div>
       <div class="progress">
         <div class="progress-bar bg-{% if fw.compliance_level >= 80 %}success{% elif fw.compliance_level >= 50 %}warning{% else %}danger{% endif %}"
              role="progressbar"
-             style="width: {{ fw.compliance_level }}%"
-             aria-valuenow="{{ fw.compliance_level }}"
+             style="width: {{ fw.compliance_level|floatformat:0 }}%"
+             aria-valuenow="{{ fw.compliance_level|floatformat:0 }}"
              aria-valuemin="0" aria-valuemax="100">
         </div>
       </div>

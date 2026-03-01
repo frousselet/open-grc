@@ -121,7 +121,7 @@
                     <div class="progress-bar bg-{% if req.compliance_level >= 80 %}success{% elif req.compliance_level >= 50 %}warning{% else %}danger{% endif %}"
                          style="width:{{ req.compliance_level }}%"></div>
                   </div>
-                  <small class="text-nowrap">{{ req.compliance_level }}%</small>
+                  <small class="text-nowrap">{{ req.compliance_level|floatformat:0 }}%</small>
                 </div>
               </td>
               <td>

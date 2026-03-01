@@ -96,7 +96,7 @@
             <td>
               <div class="d-flex align-items-center gap-2">
                 <div class="progress flex-grow-1" style="min-width:80px;height:.65rem">
-                  <div class="progress-bar {% if fw.compliance_level >= 80 %}bg-success{% elif fw.compliance_level >= 50 %}bg-warning{% else %}bg-danger{% endif %}" style="width: {{ fw.compliance_level }}%"></div>
+                  <div class="progress-bar {% if fw.compliance_level >= 80 %}bg-success{% elif fw.compliance_level >= 50 %}bg-warning{% else %}bg-danger{% endif %}" style="width: {{ fw.compliance_level|floatformat:0 }}%"></div>
                 </div>
                 <span class="fw-semibold" style="font-size:.8rem;min-width:2.5rem;text-align:right;{% if fw.compliance_level >= 80 %}color:var(--success){% elif fw.compliance_level >= 50 %}color:var(--warning){% else %}color:var(--danger){% endif %}">{{ fw.compliance_level|floatformat:0 }}%</span>
               </div>
