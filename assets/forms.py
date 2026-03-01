@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import inlineformset_factory
 
 from context.models import Scope
 from .models import (
@@ -203,8 +204,17 @@ class SupplierTypeRequirementForm(forms.ModelForm):
         fields = ["title", "description"]
         widgets = {
             "title": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
-            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 2}),
         }
+
+
+SupplierTypeRequirementFormSet = inlineformset_factory(
+    SupplierType,
+    SupplierTypeRequirement,
+    form=SupplierTypeRequirementForm,
+    extra=1,
+    can_delete=True,
+)
 
 
 class SupplierRequirementForm(forms.ModelForm):
