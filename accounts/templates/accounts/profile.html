@@ -16,81 +16,174 @@
 {% endfor %}
 {% endif %}
 
-<div class="row">
-  <div class="col-md-8">
-    <div class="card mb-4">
-      <div class="card-header">{% trans "Personal information" %}</div>
-      <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
-          {% csrf_token %}
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.remove_avatar }}
+  <div class="row">
+    <div class="col-lg-8">
 
-          {# ── Avatar preview ─────────────────────────── #}
-          <div class="mb-4 d-flex align-items-center gap-3">
-            {% if user.avatar %}
-            <img src="{{ user.avatar.url }}" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--border-light)">
-            {% else %}
-            <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent-soft),rgba(99,102,241,.15));color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:650;">
-              {{ user.display_name|truncatechars:1 }}
+      {# ── Avatar + Identity card ──────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-4">
+            <div class="position-relative" style="flex-shrink:0">
+              {% if user.avatar %}
+              <img id="avatar-preview" src="{{ user.avatar.url }}" alt=""
+                   style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--border-light)">
+              {% else %}
+              <div id="avatar-preview"
+                   style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent-soft),rgba(99,102,241,.15));color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:650;border:3px solid var(--border-light)">
+                {{ user.display_name|truncatechars:1 }}
+              </div>
+              {% endif %}
+              <label for="{{ form.avatar.id_for_label }}" class="position-absolute d-flex align-items-center justify-content-center"
+                     style="bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;cursor:pointer;font-size:.7rem;border:2px solid var(--card-bg);transition:transform .15s"
+                     title="{% trans 'Change photo' %}">
+                <i class="bi bi-camera-fill"></i>
+              </label>
+              <div style="display:none">{{ form.avatar }}</div>
             </div>
-            {% endif %}
             <div>
-              <div style="font-weight:600;font-size:.9375rem">{{ user.display_name }}</div>
+              <div style="font-weight:600;font-size:1.0625rem">{{ user.display_name }}</div>
               <div style="color:var(--text-muted);font-size:.8125rem">{{ user.email }}</div>
+              {% if user.avatar %}
+              <button type="button" id="remove-avatar-btn" class="btn btn-link btn-sm p-0 mt-1" style="font-size:.75rem;color:var(--text-muted);text-decoration:none"
+                      onclick="removeAvatar()">
+                <i class="bi bi-x me-1"></i>{% trans "Remove photo" %}
+              </button>
+              {% endif %}
             </div>
           </div>
+        </div>
+      </div>
 
-          {% for field in form %}
-          <div class="mb-3">
-            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}
-            <div class="invalid-feedback d-block">{{ field.errors.0 }}</div>
-            {% endif %}
+      {# ── Personal information ────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-person me-2" style="color:var(--accent)"></i>{% trans "Personal information" %}</h6></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }}</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}<div class="invalid-feedback d-block">{{ form.first_name.errors.0 }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }}</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}<div class="invalid-feedback d-block">{{ form.last_name.errors.0 }}</div>{% endif %}
+              </div>
+            </div>
           </div>
-          {% endfor %}
-          <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
-        </form>
+          <div class="mb-0">
+            <label for="{{ form.phone.id_for_label }}" class="form-label">{{ form.phone.label }}</label>
+            {{ form.phone }}
+            {% if form.phone.errors %}<div class="invalid-feedback d-block">{{ form.phone.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# ── Preferences ─────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-gear me-2" style="color:var(--accent)"></i>{% trans "Preferences" %}</h6></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="mb-3 mb-sm-0">
+                <label for="{{ form.language.id_for_label }}" class="form-label">{{ form.language.label }}</label>
+                {{ form.language }}
+                {% if form.language.errors %}<div class="invalid-feedback d-block">{{ form.language.errors.0 }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="mb-0">
+                <label for="{{ form.timezone.id_for_label }}" class="form-label">{{ form.timezone.label }}</label>
+                {{ form.timezone }}
+                {% if form.timezone.errors %}<div class="invalid-feedback d-block">{{ form.timezone.errors.0 }}</div>{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ── Actions ─────────────────────────────────────── #}
+      <div class="d-flex gap-2 mb-4">
+        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+        <a href="{% url 'accounts:password-change' %}" class="btn btn-outline-secondary"><i class="bi bi-shield-lock me-1"></i>{% trans "Change password" %}</a>
       </div>
     </div>
 
-    <div class="card mb-4">
-      <div class="card-header">{% trans "Security" %}</div>
-      <div class="card-body">
-        <a href="{% url 'accounts:password-change' %}" class="btn btn-outline-secondary">{% trans "Change password" %}</a>
+    <div class="col-lg-4">
+      {# ── Groups ──────────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-people me-2" style="color:var(--accent)"></i>{% trans "My groups" %}</h6></div>
+        <div class="card-body">
+          {% if groups %}
+          <div class="d-flex flex-wrap gap-1">
+            {% for group in groups %}
+            <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ group.name }}</span>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No group assigned." %}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      {# ── Permissions ─────────────────────────────────── #}
+      <div class="card">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-key me-2" style="color:var(--accent)"></i>{% trans "Effective permissions" %}</h6></div>
+        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+          {% if permissions %}
+          <ul class="list-unstyled mb-0" style="font-size: 0.85rem;">
+            {% for perm in permissions %}
+            <li><code>{{ perm }}</code></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No permissions." %}</p>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
+</form>
+{% endblock %}
 
-  <div class="col-md-4">
-    <div class="card mb-4">
-      <div class="card-header">{% trans "My groups" %}</div>
-      <div class="card-body">
-        {% if groups %}
-        <ul class="list-unstyled mb-0">
-          {% for group in groups %}
-          <li><span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ group.name }}</span></li>
-          {% endfor %}
-        </ul>
-        {% else %}
-        <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No group assigned." %}</p>
-        {% endif %}
-      </div>
-    </div>
+{% block extra_js %}
+<script>
+document.getElementById('{{ form.avatar.id_for_label }}').addEventListener('change', function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('id_remove_avatar').value = '';
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var el = document.getElementById('avatar-preview');
+    if (el.tagName === 'IMG') {
+      el.src = ev.target.result;
+    } else {
+      var img = document.createElement('img');
+      img.id = 'avatar-preview';
+      img.src = ev.target.result;
+      img.style.cssText = 'width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--border-light)';
+      el.parentNode.replaceChild(img, el);
+    }
+  };
+  reader.readAsDataURL(file);
+});
 
-    <div class="card">
-      <div class="card-header">{% trans "Effective permissions" %}</div>
-      <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-        {% if permissions %}
-        <ul class="list-unstyled mb-0" style="font-size: 0.85rem;">
-          {% for perm in permissions %}
-          <li><code>{{ perm }}</code></li>
-          {% endfor %}
-        </ul>
-        {% else %}
-        <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No permissions." %}</p>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-</div>
+function removeAvatar() {
+  document.getElementById('id_remove_avatar').value = 'True';
+  var el = document.getElementById('avatar-preview');
+  var div = document.createElement('div');
+  div.id = 'avatar-preview';
+  div.style.cssText = 'width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent-soft),rgba(99,102,241,.15));color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:650;border:3px solid var(--border-light)';
+  div.textContent = '{{ user.display_name|truncatechars:1 }}';
+  el.parentNode.replaceChild(div, el);
+  var btn = document.getElementById('remove-avatar-btn');
+  if (btn) btn.style.display = 'none';
+}
+</script>
 {% endblock %}

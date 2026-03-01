@@ -4,27 +4,224 @@
 {% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "supplier" %} — Open GRC{% endblock %}
 
 {% block content %}
-<h1>{% if form.instance.pk %}{% trans "Edit supplier" %}{% else %}{% trans "New supplier" %}{% endif %}</h1>
-
-<div class="card">
-  <div class="card-body">
-    <form method="post" enctype="multipart/form-data" class="mt-0">
-      {% csrf_token %}
-      {% for field in form %}
-      <div class="mb-3">
-        <label for="{{ field.id_for_label }}" class="form-label">
-          {{ field.label }}{% if field.field.required %} *{% endif %}
-        </label>
-        {{ field }}
-        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-        {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-      </div>
-      {% endfor %}
-      <div class="d-flex gap-2 mt-4 pt-3" style="border-top:1px solid var(--border-light)">
-        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
-        <a href="{% url 'assets:supplier-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-      </div>
-    </form>
-  </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0">{% if form.instance.pk %}{% trans "Edit supplier" %}{% else %}{% trans "New supplier" %}{% endif %}</h1>
+  <a href="{% url 'assets:supplier-list' %}" class="btn btn-outline-secondary">{% trans "Back to list" %}</a>
 </div>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="row">
+    {# ── Left column: required / core fields ───────── #}
+    <div class="col-lg-8">
+
+      {# ── Logo + Identity ─────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-4">
+            <div class="position-relative" style="flex-shrink:0">
+              {% if form.instance.pk and form.instance.logo %}
+              <img id="logo-preview" src="{{ form.instance.logo.url }}" alt=""
+                   style="width:72px;height:72px;border-radius:var(--radius-md);object-fit:cover;border:2px solid var(--border-light)">
+              {% else %}
+              <div id="logo-preview"
+                   style="width:72px;height:72px;border-radius:var(--radius-md);background:#f59e0b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;border:2px solid var(--border-light)">
+                <i class="bi bi-truck"></i>
+              </div>
+              {% endif %}
+              <label for="{{ form.logo.id_for_label }}" class="position-absolute d-flex align-items-center justify-content-center"
+                     style="bottom:-4px;right:-4px;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;cursor:pointer;font-size:.7rem;border:2px solid var(--card-bg)"
+                     title="{% trans 'Change logo' %}">
+                <i class="bi bi-camera-fill"></i>
+              </label>
+              <div style="display:none">{{ form.logo }}</div>
+            </div>
+            <div class="flex-grow-1">
+              <div class="row">
+                <div class="col-sm-8">
+                  <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
+                  {{ form.name }}
+                  {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-sm-4">
+                  <label for="{{ form.scope.id_for_label }}" class="form-label">{{ form.scope.label }} *</label>
+                  {{ form.scope }}
+                  {% for error in form.scope.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ── General information ─────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-info-circle me-2" style="color:var(--accent)"></i>{% trans "General information" %}</h6></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="mb-3">
+                <label for="{{ form.type.id_for_label }}" class="form-label">{{ form.type.label }}</label>
+                {{ form.type }}
+                {% for error in form.type.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="mb-3">
+                <label for="{{ form.criticality.id_for_label }}" class="form-label">{{ form.criticality.label }} *</label>
+                {{ form.criticality }}
+                {% for error in form.criticality.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="mb-3">
+                <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }} *</label>
+                {{ form.status }}
+                {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.owner.id_for_label }}" class="form-label">{{ form.owner.label }} *</label>
+            {{ form.owner }}
+            {% for error in form.owner.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="mb-0">
+            <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+            {{ form.description }}
+            {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# ── Contact ─────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-person-lines-fill me-2" style="color:var(--accent)"></i>{% trans "Contact" %}</h6></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <label for="{{ form.contact_name.id_for_label }}" class="form-label">{{ form.contact_name.label }}</label>
+                {{ form.contact_name }}
+                {% for error in form.contact_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <label for="{{ form.contact_phone.id_for_label }}" class="form-label">{{ form.contact_phone.label }}</label>
+                {{ form.contact_phone }}
+                {% for error in form.contact_phone.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <label for="{{ form.contact_email.id_for_label }}" class="form-label">{{ form.contact_email.label }}</label>
+                {{ form.contact_email }}
+                {% for error in form.contact_email.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <label for="{{ form.website.id_for_label }}" class="form-label">{{ form.website.label }}</label>
+                {{ form.website }}
+                {% for error in form.website.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-8">
+              <div class="mb-3 mb-sm-0">
+                <label for="{{ form.address.id_for_label }}" class="form-label">{{ form.address.label }}</label>
+                {{ form.address }}
+                {% for error in form.address.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="mb-0">
+                <label for="{{ form.country.id_for_label }}" class="form-label">{{ form.country.label }}</label>
+                {{ form.country }}
+                {% for error in form.country.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ── Right column: contract, tags, notes ───────── #}
+    <div class="col-lg-4">
+
+      {# ── Contract ────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-file-earmark-text me-2" style="color:var(--accent)"></i>{% trans "Contract" %}</h6></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="{{ form.contract_reference.id_for_label }}" class="form-label">{{ form.contract_reference.label }}</label>
+            {{ form.contract_reference }}
+            {% for error in form.contract_reference.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.contract_start_date.id_for_label }}" class="form-label">{{ form.contract_start_date.label }}</label>
+            {{ form.contract_start_date }}
+            {% for error in form.contract_start_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="mb-0">
+            <label for="{{ form.contract_end_date.id_for_label }}" class="form-label">{{ form.contract_end_date.label }}</label>
+            {{ form.contract_end_date }}
+            {% for error in form.contract_end_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# ── Tags ────────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-tags me-2" style="color:var(--accent)"></i>{% trans "Tags" %}</h6></div>
+        <div class="card-body">
+          {{ form.tags }}
+          {% for error in form.tags.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+
+      {# ── Notes ───────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-journal-text me-2" style="color:var(--accent)"></i>{% trans "Notes" %}</h6></div>
+        <div class="card-body">
+          {{ form.notes }}
+          {% for error in form.notes.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ── Actions ───────────────────────────────────── #}
+  <div class="d-flex gap-2 pt-3 mb-4" style="border-top:1px solid var(--border-light)">
+    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{% trans "Save" %}</button>
+    <a href="{% url 'assets:supplier-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('{{ form.logo.id_for_label }}').addEventListener('change', function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var el = document.getElementById('logo-preview');
+    if (el.tagName === 'IMG') {
+      el.src = ev.target.result;
+    } else {
+      var img = document.createElement('img');
+      img.id = 'logo-preview';
+      img.src = ev.target.result;
+      img.style.cssText = 'width:72px;height:72px;border-radius:var(--radius-md);object-fit:cover;border:2px solid var(--border-light)';
+      el.parentNode.replaceChild(img, el);
+    }
+  };
+  reader.readAsDataURL(file);
+});
+</script>
 {% endblock %}
