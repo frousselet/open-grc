@@ -1,0 +1,26 @@
+<script>
+/**
+ * Resize an image file to a square of `size` pixels (center-crop + scale)
+ * and return the result as a PNG data-URI via callback.
+ */
+function resizeImageFile(file, size, callback) {
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      var ctx = canvas.getContext('2d');
+      // Center-crop to square, then scale to `size`
+      var s = Math.min(img.width, img.height);
+      var sx = (img.width - s) / 2;
+      var sy = (img.height - s) / 2;
+      ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+      callback(canvas.toDataURL('image/png'));
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+</script>

@@ -19,6 +19,7 @@
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   {{ form.remove_avatar }}
+  {{ form.avatar_resized }}
   <div class="row">
     <div class="col-lg-8">
 
@@ -153,29 +154,30 @@
 {% endblock %}
 
 {% block extra_js %}
+{% include "includes/image_resize.html" %}
 <script>
 document.getElementById('{{ form.avatar.id_for_label }}').addEventListener('change', function(e) {
   var file = e.target.files[0];
   if (!file) return;
   document.getElementById('id_remove_avatar').value = '';
-  var reader = new FileReader();
-  reader.onload = function(ev) {
+  resizeImageFile(file, 128, function(dataUri) {
+    document.getElementById('id_avatar_resized').value = dataUri;
     var el = document.getElementById('avatar-preview');
     if (el.tagName === 'IMG') {
-      el.src = ev.target.result;
+      el.src = dataUri;
     } else {
       var img = document.createElement('img');
       img.id = 'avatar-preview';
-      img.src = ev.target.result;
+      img.src = dataUri;
       img.style.cssText = 'width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--border-light)';
       el.parentNode.replaceChild(img, el);
     }
-  };
-  reader.readAsDataURL(file);
+  });
 });
 
 function removeAvatar() {
   document.getElementById('id_remove_avatar').value = 'True';
+  document.getElementById('id_avatar_resized').value = '';
   var el = document.getElementById('avatar-preview');
   var div = document.createElement('div');
   div.id = 'avatar-preview';

@@ -13,6 +13,9 @@
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       {% for field in form %}
+      {% if field.is_hidden %}
+      {{ field }}
+      {% else %}
       <div class="mb-3{% if field.field.widget.input_type == 'checkbox' %} form-check{% endif %}">
         {% if field.field.widget.input_type == 'checkbox' %}
         {{ field }}
@@ -30,6 +33,7 @@
         {% endfor %}
         {% endif %}
       </div>
+      {% endif %}
       {% endfor %}
       <div class="d-flex gap-2 mt-4 pt-3" style="border-top:1px solid var(--border-light)">
         <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
@@ -38,4 +42,22 @@
     </form>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{% include "includes/image_resize.html" %}
+<script>
+(function() {
+  var avatarInput = document.getElementById('id_avatar');
+  if (!avatarInput) return;
+  avatarInput.addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    resizeImageFile(file, 128, function(dataUri) {
+      var hidden = document.getElementById('id_avatar_resized');
+      if (hidden) hidden.value = dataUri;
+    });
+  });
+})();
+</script>
 {% endblock %}
