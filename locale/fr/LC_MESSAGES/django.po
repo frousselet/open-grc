@@ -3652,3 +3652,6 @@ msgstr "Éléments liés"
 
 msgid "No tag created yet."
 msgstr "Aucun tag créé pour le moment."
+
+msgid "Edit tag"
+msgstr "Modifier le tag"

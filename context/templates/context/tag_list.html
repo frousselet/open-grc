@@ -41,6 +41,7 @@
           </td>
           <td style="color:var(--text-secondary);font-size:.85rem">{{ tag.created_at|date:"d/m/Y H:i" }}</td>
           <td>
+            <a href="{% url 'context:tag-update' tag.pk %}" class="btn btn-sm btn-outline-primary me-1">{% trans "Edit" %}</a>
             <a href="{% url 'context:tag-delete' tag.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
           </td>
         </tr>

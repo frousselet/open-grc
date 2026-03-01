@@ -12,6 +12,7 @@ from .models import (
     SwotAnalysis,
     SwotItem,
     Responsibility,
+    Tag,
 )
 
 FORM_WIDGET_ATTRS = {"class": "form-control"}
@@ -316,3 +317,13 @@ class SiteForm(forms.ModelForm):
         field = self.fields["parent_site"]
         field.queryset = qs
         field.choices = [("", field.empty_label or "---------")] + _site_tree_choices(qs)
+
+
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = Tag
+        fields = ["name", "color"]
+        widgets = {
+            "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "color": forms.TextInput(attrs={**FORM_WIDGET_ATTRS, "type": "color", "style": "width:80px;height:38px;padding:4px"}),
+        }
