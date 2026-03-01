@@ -203,6 +203,60 @@ class SupplierRequirement(models.Model):
     def __str__(self):
         return self.title
 
+    @property
+    def latest_review(self):
+        return self.reviews.first()
+
+
+class SupplierRequirementReview(models.Model):
+    """A review / justification entry for a supplier requirement."""
+
+    id = models.AutoField(primary_key=True)
+    supplier_requirement = models.ForeignKey(
+        SupplierRequirement,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+        verbose_name=_("Supplier requirement"),
+    )
+    review_date = models.DateField(_("Review date"))
+    reviewer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="supplier_requirement_reviews",
+        verbose_name=_("Reviewer"),
+    )
+    result = models.CharField(
+        _("Result"),
+        max_length=25,
+        choices=SupplierRequirementStatus.choices,
+        default=SupplierRequirementStatus.NOT_ASSESSED,
+    )
+    comment = models.TextField(
+        _("Justification"),
+        blank=True,
+        default="",
+        help_text=_("Written justification for the compliance assessment."),
+    )
+    evidence_file = models.FileField(
+        _("Supporting evidence"),
+        upload_to="supplier_requirements/evidence/",
+        blank=True,
+        default="",
+        help_text=_("Upload a supporting document (certificate, report, etc.)."),
+    )
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
+
+    class Meta:
+        ordering = ["-review_date", "-created_at"]
+        verbose_name = _("Requirement review")
+        verbose_name_plural = _("Requirement reviews")
+
+    def __str__(self):
+        return f"{self.supplier_requirement.title} — {self.review_date}"
+
 
 class SupplierDependency(models.Model):
     """Link between a support asset and a supplier."""

@@ -10,6 +10,7 @@ from .models import (
     Supplier,
     SupplierDependency,
     SupplierRequirement,
+    SupplierRequirementReview,
     SupplierType,
     SupplierTypeRequirement,
     SupportAsset,
@@ -231,6 +232,18 @@ class SupplierRequirementForm(forms.ModelForm):
             "compliance_status": forms.Select(attrs=SELECT_ATTRS),
             "evidence": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "due_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+        }
+
+
+class SupplierRequirementReviewForm(forms.ModelForm):
+    class Meta:
+        model = SupplierRequirementReview
+        fields = ["review_date", "result", "comment", "evidence_file"]
+        widgets = {
+            "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "result": forms.Select(attrs=SELECT_ATTRS),
+            "comment": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
+            "evidence_file": forms.ClearableFileInput(attrs=FORM_WIDGET_ATTRS),
         }
 
 

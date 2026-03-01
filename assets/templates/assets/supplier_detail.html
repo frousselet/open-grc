@@ -168,6 +168,7 @@
               <th>{% trans "Title" %}</th>
               <th>{% trans "Linked requirement" %}</th>
               <th>{% trans "Status" %}</th>
+              <th>{% trans "Reviews" %}</th>
               <th>{% trans "Due date" %}</th>
               <th>{% trans "Verified by" %}</th>
               <th>{% trans "Actions" %}</th>
@@ -176,13 +177,14 @@
           <tbody>
             {% for req in requirements %}
             <tr>
-              <td>{{ req.title }}</td>
+              <td><a href="{% url 'assets:supplier-requirement-detail' req.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ req.title }}</a></td>
               <td>{% if req.requirement %}<span class="ref">{{ req.requirement.reference }}</span> {{ req.requirement.name|truncatewords:10 }}{% else %}—{% endif %}</td>
               <td>
                 <span class="badge text-bg-{% if req.compliance_status == 'compliant' %}success{% elif req.compliance_status == 'non_compliant' %}danger{% elif req.compliance_status == 'partially_compliant' %}warning{% else %}secondary{% endif %}">
                   {{ req.get_compliance_status_display }}
                 </span>
               </td>
+              <td><span class="badge text-bg-secondary">{{ req.reviews.count }}</span></td>
               <td>{{ req.due_date|default:"—" }}</td>
               <td>{{ req.verified_by|default:"—" }}</td>
               <td class="d-flex gap-1">
@@ -191,7 +193,7 @@
               </td>
             </tr>
             {% empty %}
-            <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted)">{% trans "No specific requirements for this supplier." %}</td></tr>
+            <tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted)">{% trans "No specific requirements for this supplier." %}</td></tr>
             {% endfor %}
           </tbody>
         </table>

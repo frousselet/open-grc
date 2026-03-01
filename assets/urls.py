@@ -55,8 +55,12 @@ urlpatterns = [
     path("suppliers/<uuid:pk>/approve/", views.ApproveView.as_view(model=Supplier, permission_feature="supplier", success_url=reverse_lazy("assets:supplier-list")), name="supplier-approve"),
     # Supplier Requirements
     path("suppliers/<uuid:supplier_pk>/requirements/create/", views.SupplierRequirementCreateView.as_view(), name="supplier-requirement-create"),
+    path("supplier-requirements/<int:pk>/", views.SupplierRequirementDetailView.as_view(), name="supplier-requirement-detail"),
     path("supplier-requirements/<int:pk>/edit/", views.SupplierRequirementUpdateView.as_view(), name="supplier-requirement-update"),
     path("supplier-requirements/<int:pk>/delete/", views.SupplierRequirementDeleteView.as_view(), name="supplier-requirement-delete"),
+    # Supplier Requirement Reviews
+    path("supplier-requirements/<int:requirement_pk>/reviews/create/", views.SupplierRequirementReviewCreateView.as_view(), name="supplier-requirement-review-create"),
+    path("supplier-requirement-reviews/<int:pk>/delete/", views.SupplierRequirementReviewDeleteView.as_view(), name="supplier-requirement-review-delete"),
     # Supplier Dependencies
     path("supplier-dependencies/", views.SupplierDependencyListView.as_view(), name="supplier-dependency-list"),
     path("supplier-dependencies/create/", views.SupplierDependencyCreateView.as_view(), name="supplier-dependency-create"),
