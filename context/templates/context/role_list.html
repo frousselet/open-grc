@@ -31,8 +31,8 @@
       <tbody>
         {% for role in roles %}
         <tr{% if role.is_mandatory and role.user_count == 0 %} class="table-danger"{% endif %}>
-          <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ role.reference }}</td>
-          <td><a href="{% url 'context:role-detail' role.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ role.name }}</a></td>
+          <td><a href="{% url 'context:role-detail' role.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ role.reference }}</a></td>
+          <td>{{ role.name }}</td>
           <td>{{ role.get_type_display }}</td>
           <td>{{ role.user_count }}</td>
           <td>{% if role.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</td>

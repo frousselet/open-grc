@@ -130,7 +130,7 @@ class Risk(BaseModel):
         verbose_name_plural = _("Risks")
 
     def __str__(self):
-        return f"{self.reference} — {self.name}"
+        return f"{self.reference} : {self.name}"
 
     def _get_valid_levels(self):
         """Return (likelihood_levels, impact_levels) sets from criteria or defaults."""

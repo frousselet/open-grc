@@ -36,8 +36,8 @@
       <tbody>
         {% for acc in acceptances %}
         <tr>
-          <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ acc.reference }}</td>
-          <td><a href="{% url 'risks:acceptance-detail' acc.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ acc.risk }}</a></td>
+          <td><a href="{% url 'risks:acceptance-detail' acc.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ acc.reference }}</a></td>
+          <td>{{ acc.risk }}</td>
           <td>{{ acc.accepted_by|default:"—" }}</td>
           <td>{{ acc.risk_level_at_acceptance|default:"—" }}</td>
           <td>{{ acc.valid_until|default:"—" }}</td>

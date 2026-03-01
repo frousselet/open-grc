@@ -31,11 +31,11 @@
       <tbody>
         {% for scope in scopes %}
         <tr>
-          <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ scope.reference }}</td>
+          <td><a href="{% url 'context:scope-detail' scope.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ scope.reference }}</a></td>
           <td>
             <div style="padding-left: {{ scope.tree_indent }}px;">
               {% if scope.tree_level > 0 %}<span class="text-muted me-1">└</span>{% endif %}
-              <a href="{% url 'context:scope-detail' scope.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ scope.name }}</a>
+              {{ scope.name }}
             </div>
           </td>
           <td>{{ scope.version }}</td>

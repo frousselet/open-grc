@@ -31,8 +31,8 @@
       <tbody>
         {% for activity in activities %}
         <tr>
-          <td>{{ activity.reference }}</td>
-          <td><a href="{% url 'context:activity-detail' activity.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ activity.name }}</a></td>
+          <td><a href="{% url 'context:activity-detail' activity.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ activity.reference }}</a></td>
+          <td>{{ activity.name }}</td>
           <td>{{ activity.get_type_display }}</td>
           <td>
             <span class="badge text-bg-{% if activity.criticality == 'critical' %}danger{% elif activity.criticality == 'high' %}warning{% elif activity.criticality == 'medium' %}info{% else %}secondary{% endif %}">

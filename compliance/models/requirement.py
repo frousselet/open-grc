@@ -122,4 +122,4 @@ class Requirement(BaseModel):
         ]
 
     def __str__(self):
-        return f"{self.reference} — {self.name}"
+        return f"{self.reference} : {self.name}"

@@ -77,7 +77,7 @@ class Framework(BaseModel):
         verbose_name_plural = _("Frameworks")
 
     def __str__(self):
-        return f"{self.reference} — {self.name}"
+        return f"{self.reference} : {self.name}"
 
     def recalculate_compliance(self):
         """RC-01: compliance level = average of applicable requirements."""

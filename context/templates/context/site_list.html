@@ -29,11 +29,11 @@
       <tbody>
         {% for site in sites %}
         <tr>
-          <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ site.reference }}</td>
+          <td><a href="{% url 'context:site-detail' site.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ site.reference }}</a></td>
           <td>
             <div style="padding-left: {{ site.tree_indent }}px;">
               {% if site.tree_level > 0 %}<span class="text-muted me-1">&boxur;</span>{% endif %}
-              <a href="{% url 'context:site-detail' site.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ site.name }}</a>
+              {{ site.name }}
             </div>
           </td>
           <td>{{ site.get_type_display }}</td>

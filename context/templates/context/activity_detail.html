@@ -55,7 +55,7 @@
     <ul class="list-group">
       {% for child in activity.children.all %}
       <li class="list-group-item d-flex justify-content-between align-items-center">
-        <a href="{% url 'context:activity-detail' child.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ child.reference }} — {{ child.name }}</a>
+        <a href="{% url 'context:activity-detail' child.pk %}" style="text-decoration:none"><span style="color:var(--text-muted);font-size:.82rem;font-weight:500">{{ child.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ child.name }}</span></a>
         <span class="badge text-bg-{% if child.criticality == 'critical' %}danger{% elif child.criticality == 'high' %}warning{% else %}secondary{% endif %}">{{ child.get_criticality_display }}</span>
       </li>
       {% endfor %}
