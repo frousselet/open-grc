@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from assets.constants import (
+    RedundancyLevel,
     SupplierCriticality,
     SupplierDependencyType,
     SupplierRequirementStatus,
@@ -182,6 +183,16 @@ class SupplierDependency(models.Model):
         _("Criticality"), max_length=20, choices=Criticality.choices
     )
     description = models.TextField(_("Description"), blank=True, default="")
+    is_single_point_of_failure = models.BooleanField(
+        _("Single point of failure (SPOF)"), default=False
+    )
+    redundancy_level = models.CharField(
+        _("Redundancy level"),
+        max_length=20,
+        choices=RedundancyLevel.choices,
+        blank=True,
+        default="",
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
