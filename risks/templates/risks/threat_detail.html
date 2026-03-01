@@ -10,7 +10,7 @@
     <h1 class="mb-0">{{ threat.name }}</h1>
     <small class="ref">{{ threat.reference }}</small>
   </div>
-{{% help_modal "risks.threat_detail" %}}
+{% help_modal "risks.threat_detail" %}
   <div class="d-flex gap-2">
     <a href="{% url 'risks:threat-update' threat.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'risks:threat-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>

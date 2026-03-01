@@ -9,7 +9,7 @@
   <h1 class="mb-0">{% trans "Suppliers" %}</h1>
   <a href="{% url 'assets:supplier-create' %}" class="btn btn-primary ms-auto">{% trans "New supplier" %}</a>
 </div>
-{{% help_modal "assets.supplier_list" %}}
+{% help_modal "assets.supplier_list" %}
 
 <div class="mb-3 d-flex gap-2 flex-wrap">
   <a href="{% url 'assets:supplier-list' %}" class="filter-chip {% if not request.GET.status %}active{% endif %}">{% trans "All" %}</a>

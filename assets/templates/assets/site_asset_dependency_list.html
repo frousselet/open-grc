@@ -9,7 +9,7 @@
   <h1 class="mb-0">{% trans "Site–asset dependencies" %}</h1>
   <a href="{% url 'assets:site-asset-dependency-create' %}" class="btn btn-primary ms-auto">{% trans "New dependency" %}</a>
 </div>
-{{% help_modal "assets.site_asset_dependency_list" %}}
+{% help_modal "assets.site_asset_dependency_list" %}
 
 <div class="card">
   <div class="table-responsive">

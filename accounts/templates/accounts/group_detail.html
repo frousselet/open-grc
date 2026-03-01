@@ -18,7 +18,7 @@
     {% endif %}
     <a href="{% url 'accounts:group-list' %}" class="btn btn-outline-secondary">{% trans "Back to list" %}</a>
   </div>
-{{% help_modal "accounts.group_detail" %}}
+{% help_modal "accounts.group_detail" %}
 </div>
 
 {% if messages %}

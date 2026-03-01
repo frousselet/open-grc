@@ -11,7 +11,7 @@
     <h1 class="mb-0">{{ asset.name }}</h1>
     <small class="ref">{{ asset.reference }}</small>
   </div>
-{{% help_modal "assets.support_asset_detail" %}}
+{% help_modal "assets.support_asset_detail" %}
   <div class="d-flex gap-2">
     <a href="{% url 'assets:support-asset-update' asset.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'assets:support-asset-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
