@@ -39,7 +39,7 @@
       <tbody>
         {% for t in threats %}
         <tr>
-          <td><a href="{% url 'risks:threat-detail' t.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ t.reference }}</a></td>
+          <td><a href="{% url 'risks:threat-detail' t.pk %}" class="ref" style="text-decoration:none">{{ t.reference }}</a></td>
           <td>{{ t.name }}</td>
           <td>{{ t.get_type_display }}</td>
           <td>{{ t.get_origin_display|default:"—" }}</td>

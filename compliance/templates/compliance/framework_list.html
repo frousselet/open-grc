@@ -32,7 +32,7 @@
       <tbody>
         {% for fw in frameworks %}
         <tr>
-          <td><a href="{% url 'compliance:framework-detail' fw.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ fw.reference }}</a></td>
+          <td><a href="{% url 'compliance:framework-detail' fw.pk %}" class="ref" style="text-decoration:none">{{ fw.reference }}</a></td>
           <td>{{ fw.name }}</td>
           <td>{{ fw.get_type_display }}</td>
           <td>{{ fw.get_category_display }}</td>

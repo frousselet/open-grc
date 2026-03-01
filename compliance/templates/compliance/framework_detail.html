@@ -7,7 +7,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
     <h1 class="mb-0">{{ framework.name }}</h1>
-    <small style="color:var(--text-muted);font-size:.82rem">{{ framework.reference }}</small>
+    <small class="ref">{{ framework.reference }}</small>
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'compliance:framework-update' framework.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
@@ -67,7 +67,7 @@
     <ul class="list-group mb-3">
       {% for section in sections %}
       <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div><span style="color:var(--text-muted);font-size:.82rem;font-weight:500">{{ section.reference }}</span> {{ section.name }}</div>
+        <div><span class="ref">{{ section.reference }}</span> {{ section.name }}</div>
         <span class="badge text-bg-{% if section.compliance_level >= 80 %}success{% elif section.compliance_level >= 50 %}warning{% else %}danger{% endif %}">{{ section.compliance_level|floatformat:0 }}%</span>
       </li>
       {% endfor %}

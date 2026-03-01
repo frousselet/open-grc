@@ -39,7 +39,7 @@
       <tbody>
         {% for issue in issues %}
         <tr>
-          <td><a href="{% url 'context:issue-detail' issue.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ issue.reference }}</a></td>
+          <td><a href="{% url 'context:issue-detail' issue.pk %}" class="ref" style="text-decoration:none">{{ issue.reference }}</a></td>
           <td>{{ issue.name }}</td>
           <td>{{ issue.scope.full_path }}</td>
           <td>{{ issue.get_type_display }}</td>

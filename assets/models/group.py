@@ -8,7 +8,7 @@ from context.models.base import ScopedModel
 
 
 class AssetGroup(ScopedModel):
-    REFERENCE_PREFIX = "AG"
+    REFERENCE_PREFIX = "AGRP"
 
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"), blank=True, default="")

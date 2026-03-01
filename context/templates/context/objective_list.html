@@ -32,7 +32,7 @@
       <tbody>
         {% for obj in objectives %}
         <tr>
-          <td><a href="{% url 'context:objective-detail' obj.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ obj.reference }}</a></td>
+          <td><a href="{% url 'context:objective-detail' obj.pk %}" class="ref" style="text-decoration:none">{{ obj.reference }}</a></td>
           <td>{{ obj.name }}</td>
           <td>{{ obj.get_category_display }}</td>
           <td>{{ obj.owner }}</td>

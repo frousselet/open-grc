@@ -30,7 +30,7 @@
       <tbody>
         {% for analysis in analyses %}
         <tr>
-          <td><a href="{% url 'context:swot-detail' analysis.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ analysis.reference }}</a></td>
+          <td><a href="{% url 'context:swot-detail' analysis.pk %}" class="ref" style="text-decoration:none">{{ analysis.reference }}</a></td>
           <td>{{ analysis.name }}</td>
           <td>{{ analysis.analysis_date }}</td>
           <td>

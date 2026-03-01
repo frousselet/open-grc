@@ -10,7 +10,7 @@ from context.models.base import ScopedModel
 
 
 class ComplianceAssessment(ScopedModel):
-    REFERENCE_PREFIX = "CA"
+    REFERENCE_PREFIX = "CAST"
 
     framework = models.ForeignKey(
         "compliance.Framework",

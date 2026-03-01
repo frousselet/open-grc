@@ -7,7 +7,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
     <h1 class="mb-0">{% trans "ISO 27005 analysis" %}</h1>
-    <small style="color:var(--text-muted);font-size:.82rem">{{ analysis.reference }}</small>
+    <small class="ref">{{ analysis.reference }}</small>
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'risks:iso27005-update' analysis.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>

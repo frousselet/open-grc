@@ -48,7 +48,7 @@
       <tbody>
         {% for r in risks %}
         <tr>
-          <td><a href="{% url 'risks:risk-detail' r.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ r.reference }}</a></td>
+          <td><a href="{% url 'risks:risk-detail' r.pk %}" class="ref" style="text-decoration:none">{{ r.reference }}</a></td>
           <td>{{ r.name }}</td>
           <td style="font-size:.85rem">{{ r.assessment.reference }}</td>
           <td style="font-size:.85rem">{{ r.get_risk_source_display }}</td>

@@ -9,7 +9,7 @@ from .base import ScopedModel
 
 
 class Activity(ScopedModel):
-    REFERENCE_PREFIX = "ACT"
+    REFERENCE_PREFIX = "ACTV"
 
     reference = models.CharField(_("Reference"), max_length=50, unique=True)
     name = models.CharField(_("Name"), max_length=255)

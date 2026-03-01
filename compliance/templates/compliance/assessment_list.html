@@ -33,7 +33,7 @@
       <tbody>
         {% for a in assessments %}
         <tr>
-          <td><a href="{% url 'compliance:assessment-detail' a.pk %}" style="font-weight:500;color:var(--text-muted);font-size:.82rem;text-decoration:none">{{ a.reference }}</a></td>
+          <td><a href="{% url 'compliance:assessment-detail' a.pk %}" class="ref" style="text-decoration:none">{{ a.reference }}</a></td>
           <td>{{ a.name }}</td>
           <td>{{ a.framework.short_name|default:a.framework.name }}</td>
           <td>{{ a.assessment_date }}</td>

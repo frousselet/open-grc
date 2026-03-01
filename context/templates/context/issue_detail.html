@@ -7,7 +7,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
     <h1 class="mb-0">{{ issue.name }}</h1>
-    <small style="color:var(--text-muted);font-size:.82rem">{{ issue.reference }}</small>
+    <small class="ref">{{ issue.reference }}</small>
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'context:issue-update' issue.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
