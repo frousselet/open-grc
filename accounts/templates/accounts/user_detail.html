@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load accounts_tags %}
 {% load i18n %}
+{% load help_tags %}
 {% block title %}{{ account_user.display_name }} — Open GRC{% endblock %}
 
 {% block content %}
@@ -13,6 +14,7 @@
     {% endif %}
     <a href="{% url 'accounts:user-list' %}" class="btn btn-outline-secondary">{% trans "Back to list" %}</a>
   </div>
+{{% help_modal "accounts.user_detail" %}}
 </div>
 
 <ul class="nav nav-tabs mb-4" role="tablist">

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load help_tags %}
 
 {% block title %}{% trans "Site–supplier dependencies" %} — Open GRC{% endblock %}
 
@@ -8,6 +9,7 @@
   <h1 class="mb-0">{% trans "Site–supplier dependencies" %}</h1>
   <a href="{% url 'assets:site-supplier-dependency-create' %}" class="btn btn-primary ms-auto">{% trans "New dependency" %}</a>
 </div>
+{{% help_modal "assets.site_supplier_dependency_list" %}}
 
 <div class="card">
   <div class="table-responsive">

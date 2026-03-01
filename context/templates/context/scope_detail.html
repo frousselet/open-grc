@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load help_tags %}
 
 {% block title %}{{ scope.name }} — Open GRC{% endblock %}
 
@@ -19,6 +20,7 @@
     <h1 class="mb-0">{{ scope.name }}</h1>
     <small class="ref">{{ scope.reference }}</small>
   </div>
+{{% help_modal "context.scope_detail" %}}
   <div class="d-flex gap-2">
     <a href="{% url 'context:scope-update' scope.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'context:scope-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>

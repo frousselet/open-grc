@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load help_tags %}
 
 {% block title %}{{ req.title }} — {{ supplier.name }} — Open GRC{% endblock %}
 
@@ -18,6 +19,7 @@
     <a href="{% url 'assets:supplier-requirement-update' req.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'assets:supplier-detail' supplier.pk %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
+{{% help_modal "assets.supplier_requirement_detail" %}}
 </div>
 
 <div class="card mb-4">
