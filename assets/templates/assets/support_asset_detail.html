@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 {% load dic_tags i18n %}
 
-{% block title %}{{ asset.reference }} — Open GRC{% endblock %}
+{% block title %}{{ asset.name }} — Open GRC{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1>{{ asset.reference }} — {{ asset.name }}</h1>
+  <div>
+    <h1 class="mb-0">{{ asset.name }}</h1>
+    <small style="color:var(--text-muted);font-size:.82rem">{{ asset.reference }}</small>
+  </div>
   <div class="d-flex gap-2">
     <a href="{% url 'assets:support-asset-update' asset.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'assets:support-asset-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
