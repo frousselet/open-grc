@@ -120,7 +120,7 @@
   .upcoming-item-dot { width:.4375rem; height:.4375rem; border-radius:50%; flex-shrink:0; }
   .upcoming-item-date {
     font-size:.75rem; font-weight:600; color:var(--text-muted);
-    min-width:9.5rem; flex-shrink:0; font-variant-numeric:tabular-nums;
+    min-width:11.5rem; flex-shrink:0; font-variant-numeric:tabular-nums; white-space:nowrap;
   }
   .upcoming-item-date .upcoming-days {
     display:inline-block; margin-left:.25rem; font-size:.625rem; font-weight:550;
@@ -201,6 +201,7 @@
   {% trans "Scopes" as t_sc %}{% trans "Objectives" as t_ob %}
   {% trans "Frameworks" as t_fw %}{% trans "SWOT analyses" as t_sw %}
   {% trans "Risk acceptances" as t_ac %}
+  {% trans "Supplier reviews" as t_sr %}
   {% trans "January" as t_jan %}{% trans "February" as t_feb %}{% trans "March" as t_mar %}
   {% trans "April" as t_apr %}{% trans "May" as t_may %}{% trans "June" as t_jun %}
   {% trans "July" as t_jul %}{% trans "August" as t_aug %}{% trans "September" as t_sep %}
@@ -218,7 +219,7 @@
     action_plan:'{{ t_ap|escapejs }}', treatment_plan:'{{ t_tp|escapejs }}',
     scope:'{{ t_sc|escapejs }}', objective:'{{ t_ob|escapejs }}',
     framework:'{{ t_fw|escapejs }}', swot:'{{ t_sw|escapejs }}',
-    acceptance:'{{ t_ac|escapejs }}'
+    acceptance:'{{ t_ac|escapejs }}', supplier_review:'{{ t_sr|escapejs }}'
   };
   var MONTHS = ['{{ t_jan|escapejs }}','{{ t_feb|escapejs }}','{{ t_mar|escapejs }}','{{ t_apr|escapejs }}','{{ t_may|escapejs }}','{{ t_jun|escapejs }}','{{ t_jul|escapejs }}','{{ t_aug|escapejs }}','{{ t_sep|escapejs }}','{{ t_oct|escapejs }}','{{ t_nov|escapejs }}','{{ t_dec|escapejs }}'];
   var DAYS = ['{{ t_d1|escapejs }}','{{ t_d2|escapejs }}','{{ t_d3|escapejs }}','{{ t_d4|escapejs }}','{{ t_d5|escapejs }}','{{ t_d6|escapejs }}','{{ t_d0|escapejs }}'];
