@@ -75,7 +75,7 @@ class UserUpdateForm(forms.ModelForm):
             "job_title": forms.TextInput(attrs={"class": "form-control"}),
             "department": forms.TextInput(attrs={"class": "form-control"}),
             "phone": forms.TextInput(attrs={"class": "form-control"}),
-            "avatar": forms.ClearableFileInput(attrs={"class": "form-control", "accept": "image/*"}),
+            "avatar": forms.FileInput(attrs={"class": "form-control", "accept": "image/*"}),
             "language": forms.Select(attrs={"class": "form-select"}),
             "timezone": forms.TextInput(attrs={"class": "form-control"}),
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
@@ -85,6 +85,8 @@ class UserUpdateForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     """Form for users to edit their own profile (RU-04)."""
 
+    remove_avatar = forms.BooleanField(required=False, widget=forms.HiddenInput())
+
     class Meta:
         model = User
         fields = ("first_name", "last_name", "phone", "avatar", "language", "timezone")
@@ -92,10 +94,18 @@ class ProfileForm(forms.ModelForm):
             "first_name": forms.TextInput(attrs={"class": "form-control"}),
             "last_name": forms.TextInput(attrs={"class": "form-control"}),
             "phone": forms.TextInput(attrs={"class": "form-control"}),
-            "avatar": forms.ClearableFileInput(attrs={"class": "form-control", "accept": "image/*"}),
+            "avatar": forms.FileInput(attrs={"class": "form-control", "accept": "image/*"}),
             "language": forms.Select(attrs={"class": "form-select"}),
             "timezone": forms.TextInput(attrs={"class": "form-control"}),
         }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if self.cleaned_data.get("remove_avatar") and not self.cleaned_data.get("avatar"):
+            user.avatar = ""
+        if commit:
+            user.save()
+        return user
 
 
 class GroupForm(forms.ModelForm):
