@@ -14,14 +14,27 @@ MODEL_PREFIXES = [
     ("RiskAcceptance", "RACC"),
 ]
 
+# Models whose reference field was newly added (historical records may have NULLs)
+HISTORICAL_MODELS = [
+    "HistoricalRiskCriteria",
+    "HistoricalISO27005Risk",
+    "HistoricalRiskAcceptance",
+]
+
 
 def populate_references(apps, schema_editor):
     for model_name, prefix in MODEL_PREFIXES:
         Model = apps.get_model("risks", model_name)
-        items = Model.objects.all().order_by("created_at")
+        items = list(Model.objects.all().order_by("created_at"))
         for i, item in enumerate(items, start=1):
             item.reference = f"{prefix}-{i}"
-        Model.objects.bulk_update(items, ["reference"])
+        if items:
+            Model.objects.bulk_update(items, ["reference"])
+
+    # Set NULL references in historical tables to empty string
+    for hist_model_name in HISTORICAL_MODELS:
+        HistModel = apps.get_model("risks", hist_model_name)
+        HistModel.objects.filter(reference__isnull=True).update(reference="")
 
 
 def clear_references(apps, schema_editor):
