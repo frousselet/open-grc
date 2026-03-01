@@ -11,12 +11,15 @@ from assets.models import (
     AssetGroup,
     AssetValuation,
     EssentialAsset,
+    Supplier,
+    SupplierRequirement,
     SupportAsset,
 )
 from .filters import (
     AssetDependencyFilter,
     AssetGroupFilter,
     EssentialAssetFilter,
+    SupplierFilter,
     SupportAssetFilter,
 )
 from .serializers import (
@@ -26,6 +29,9 @@ from .serializers import (
     AssetValuationSerializer,
     EssentialAssetListSerializer,
     EssentialAssetSerializer,
+    SupplierListSerializer,
+    SupplierRequirementSerializer,
+    SupplierSerializer,
     SupportAssetListSerializer,
     SupportAssetSerializer,
 )
@@ -305,3 +311,52 @@ class AssetGroupViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin
         group = self.get_object()
         group.members.remove(asset_id)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SupplierViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+    queryset = Supplier.objects.select_related("scope", "owner").all()
+    filterset_class = SupplierFilter
+    permission_classes = [ContextPermission]
+    permission_feature = "supplier"
+    search_fields = ["reference", "name", "description", "contact_name", "contact_email"]
+    ordering_fields = [
+        "reference", "name", "type", "criticality", "status",
+        "contract_end_date", "created_at",
+    ]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return SupplierListSerializer
+        return SupplierSerializer
+
+    @action(detail=True, methods=["post"], url_path="archive")
+    def archive(self, request, pk=None):
+        supplier = self.get_object()
+        supplier.status = "archived"
+        supplier.save(update_fields=["status"])
+        return Response(SupplierSerializer(supplier).data)
+
+    @action(detail=True, methods=["get", "post"])
+    def requirements(self, request, pk=None):
+        supplier = self.get_object()
+        if request.method == "GET":
+            reqs = supplier.requirements.select_related("requirement", "verified_by")
+            return Response(SupplierRequirementSerializer(reqs, many=True).data)
+        serializer = SupplierRequirementSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(supplier=supplier)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["get"])
+    def dashboard(self, request):
+        qs = self.filter_queryset(self.get_queryset())
+        total = qs.count()
+        by_type = dict(qs.values_list("type").annotate(c=Count("id")).values_list("type", "c"))
+        by_status = dict(qs.values_list("status").annotate(c=Count("id")).values_list("status", "c"))
+        by_criticality = dict(qs.values_list("criticality").annotate(c=Count("id")).values_list("criticality", "c"))
+        return Response({
+            "total": total,
+            "by_type": by_type,
+            "by_status": by_status,
+            "by_criticality": by_criticality,
+        })

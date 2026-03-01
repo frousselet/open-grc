@@ -6,6 +6,8 @@ from .models import (
     AssetGroup,
     AssetValuation,
     EssentialAsset,
+    Supplier,
+    SupplierRequirement,
     SupportAsset,
 )
 
@@ -98,3 +100,32 @@ class AssetValuationAdmin(admin.ModelAdmin):
     list_filter = ("evaluation_date",)
     search_fields = ("essential_asset__reference", "essential_asset__name")
     readonly_fields = ("id", "created_at")
+
+
+class SupplierRequirementInline(admin.TabularInline):
+    model = SupplierRequirement
+    extra = 0
+    readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(Supplier)
+class SupplierAdmin(SimpleHistoryAdmin):
+    list_display = (
+        "reference", "name", "type", "criticality", "owner",
+        "status", "contract_end_date",
+    )
+    list_filter = ("type", "criticality", "status")
+    search_fields = ("reference", "name", "description", "contact_name", "contact_email")
+    readonly_fields = ("id", "created_at", "updated_at")
+    filter_horizontal = ("tags",)
+    inlines = [SupplierRequirementInline]
+
+
+@admin.register(SupplierRequirement)
+class SupplierRequirementAdmin(admin.ModelAdmin):
+    list_display = (
+        "supplier", "title", "compliance_status", "due_date", "verified_by",
+    )
+    list_filter = ("compliance_status",)
+    search_fields = ("title", "supplier__name", "supplier__reference")
+    readonly_fields = ("created_at", "updated_at")

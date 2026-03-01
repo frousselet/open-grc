@@ -13,6 +13,8 @@ from assets.constants import (
 from assets.tests.factories import (
     DependencyFactory,
     EssentialAssetFactory,
+    SupplierFactory,
+    SupplierRequirementFactory,
     SupportAssetFactory,
 )
 from context.tests.factories import ScopeFactory
@@ -182,3 +184,99 @@ class TestDependencyValidation:
         dep = DependencyFactory.build(essential_asset=ea, support_asset=sa)
         with pytest.raises(ValidationError, match="decommissioned"):
             dep.clean()
+
+
+class TestSupplier:
+    def test_create_supplier(self):
+        supplier = SupplierFactory()
+        assert supplier.pk is not None
+        assert supplier.reference.startswith("SUPP-")
+
+    def test_auto_reference_generation(self):
+        supplier = SupplierFactory(reference="")
+        assert supplier.reference.startswith("SUPP-")
+
+    def test_str(self):
+        supplier = SupplierFactory(reference="SUPP-001", name="Acme Corp")
+        assert str(supplier) == "SUPP-001 : Acme Corp"
+
+    def test_is_contract_expired_true(self):
+        supplier = SupplierFactory(
+            status="active",
+            contract_end_date=timezone.now().date() - timezone.timedelta(days=1),
+        )
+        assert supplier.is_contract_expired is True
+
+    def test_is_contract_expired_false(self):
+        supplier = SupplierFactory(
+            status="active",
+            contract_end_date=timezone.now().date() + timezone.timedelta(days=30),
+        )
+        assert supplier.is_contract_expired is False
+
+    def test_is_contract_expired_archived(self):
+        supplier = SupplierFactory(
+            status="archived",
+            contract_end_date=timezone.now().date() - timezone.timedelta(days=1),
+        )
+        assert supplier.is_contract_expired is False
+
+    def test_archive_supplier(self):
+        supplier = SupplierFactory(status="active")
+        supplier.status = "archived"
+        supplier.save()
+        supplier.refresh_from_db()
+        assert supplier.status == "archived"
+
+    def test_requirement_compliance_summary_empty(self):
+        supplier = SupplierFactory()
+        summary = supplier.requirement_compliance_summary
+        assert summary["total"] == 0
+
+    def test_requirement_compliance_summary(self):
+        supplier = SupplierFactory()
+        SupplierRequirementFactory(supplier=supplier, compliance_status="compliant")
+        SupplierRequirementFactory(supplier=supplier, compliance_status="non_compliant")
+        SupplierRequirementFactory(supplier=supplier, compliance_status="not_assessed")
+        summary = supplier.requirement_compliance_summary
+        assert summary["total"] == 3
+        assert summary["compliant"] == 1
+        assert summary["non_compliant"] == 1
+        assert summary["not_assessed"] == 1
+
+
+class TestSupplierRequirement:
+    def test_create_requirement(self):
+        req = SupplierRequirementFactory(title="Must be ISO 27001 certified")
+        assert req.pk is not None
+        assert str(req) == "Must be ISO 27001 certified"
+
+    def test_default_compliance_status(self):
+        req = SupplierRequirementFactory()
+        assert req.compliance_status == "not_assessed"
+
+    def test_link_to_compliance_requirement(self):
+        from accounts.tests.factories import UserFactory
+        from compliance.models import Framework, Requirement
+        from compliance.constants import RequirementType
+
+        owner = UserFactory()
+        framework = Framework.objects.create(
+            name="ISO 27001",
+            version="2022",
+            type="standard",
+            owner=owner,
+        )
+        comp_req = Requirement.objects.create(
+            framework=framework,
+            reference="A.15.1.1",
+            name="Information security policy for supplier relationships",
+            description="Test requirement",
+            type=RequirementType.MANDATORY,
+        )
+        supplier_req = SupplierRequirementFactory(
+            title="ISO 27001 A.15.1.1",
+            requirement=comp_req,
+        )
+        assert supplier_req.requirement == comp_req
+        assert supplier_req.requirement.reference == "A.15.1.1"

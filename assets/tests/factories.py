@@ -6,11 +6,14 @@ from assets.constants import (
     DICLevel,
     EssentialAssetCategory,
     EssentialAssetType,
+    SupplierCriticality,
+    SupplierType,
     SupportAssetCategory,
     SupportAssetType,
 )
 from assets.models.dependency import AssetDependency
 from assets.models.essential_asset import EssentialAsset
+from assets.models.supplier import Supplier, SupplierRequirement
 from assets.models.support_asset import SupportAsset
 from context.constants import Criticality
 from context.tests.factories import ScopeFactory
@@ -51,3 +54,24 @@ class DependencyFactory(factory.django.DjangoModelFactory):
     support_asset = factory.SubFactory(SupportAssetFactory)
     dependency_type = DependencyType.RUNS_ON
     criticality = Criticality.HIGH
+
+
+class SupplierFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Supplier
+
+    scope = factory.SubFactory(ScopeFactory)
+    reference = factory.Sequence(lambda n: f"SUPP-{n:03d}")
+    name = factory.Sequence(lambda n: f"Supplier {n}")
+    type = SupplierType.SOFTWARE_VENDOR
+    criticality = SupplierCriticality.MEDIUM
+    owner = factory.SubFactory(UserFactory)
+
+
+class SupplierRequirementFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SupplierRequirement
+
+    supplier = factory.SubFactory(SupplierFactory)
+    title = factory.Sequence(lambda n: f"Requirement {n}")
+    description = "Test requirement description"

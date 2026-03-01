@@ -20,12 +20,16 @@ from .forms import (
     AssetDependencyForm,
     AssetGroupForm,
     EssentialAssetForm,
+    SupplierForm,
+    SupplierRequirementForm,
     SupportAssetForm,
 )
 from .models import (
     AssetDependency,
     AssetGroup,
     EssentialAsset,
+    Supplier,
+    SupplierRequirement,
     SupportAsset,
 )
 
@@ -325,3 +329,125 @@ class GroupDeleteView(LoginRequiredMixin, DeleteView):
     model = AssetGroup
     template_name = "assets/confirm_delete.html"
     success_url = reverse_lazy("assets:group-list")
+
+
+# ── Supplier ──────────────────────────────────────────────
+
+class SupplierListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+    model = Supplier
+    template_name = "assets/supplier_list.html"
+    context_object_name = "suppliers"
+    paginate_by = 25
+
+    def get_queryset(self):
+        qs = super().get_queryset().select_related("scope", "owner")
+        supplier_type = self.request.GET.get("type")
+        if supplier_type:
+            qs = qs.filter(type=supplier_type)
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        return qs
+
+
+class SupplierDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+    model = Supplier
+    template_name = "assets/supplier_detail.html"
+    context_object_name = "supplier"
+    approval_feature = "supplier"
+    approve_url_name = "assets:supplier-approve"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["requirements"] = self.object.requirements.select_related(
+            "requirement", "verified_by"
+        )
+        ctx["compliance_summary"] = self.object.requirement_compliance_summary
+        return ctx
+
+
+class SupplierCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+    model = Supplier
+    form_class = SupplierForm
+    template_name = "assets/supplier_form.html"
+    success_url = reverse_lazy("assets:supplier-list")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+
+class SupplierUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+    model = Supplier
+    form_class = SupplierForm
+    template_name = "assets/supplier_form.html"
+    success_url = reverse_lazy("assets:supplier-list")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+
+class SupplierDeleteView(LoginRequiredMixin, DeleteView):
+    model = Supplier
+    template_name = "assets/confirm_delete.html"
+    success_url = reverse_lazy("assets:supplier-list")
+
+
+class SupplierArchiveView(LoginRequiredMixin, View):
+    """Archive a supplier (set status to 'archived')."""
+
+    def post(self, request, pk):
+        supplier = get_object_or_404(Supplier, pk=pk)
+        supplier.status = "archived"
+        supplier.save(update_fields=["status"])
+        messages.success(request, _("Supplier archived."))
+        return redirect("assets:supplier-list")
+
+
+# ── Supplier Requirements ─────────────────────────────────
+
+class SupplierRequirementCreateView(LoginRequiredMixin, CreateView):
+    model = SupplierRequirement
+    form_class = SupplierRequirementForm
+    template_name = "assets/supplier_requirement_form.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.supplier = get_object_or_404(Supplier, pk=kwargs["supplier_pk"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.supplier = self.supplier
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["supplier"] = self.supplier
+        return ctx
+
+    def get_success_url(self):
+        return reverse_lazy("assets:supplier-detail", kwargs={"pk": self.supplier.pk})
+
+
+class SupplierRequirementUpdateView(LoginRequiredMixin, UpdateView):
+    model = SupplierRequirement
+    form_class = SupplierRequirementForm
+    template_name = "assets/supplier_requirement_form.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["supplier"] = self.object.supplier
+        return ctx
+
+    def get_success_url(self):
+        return reverse_lazy("assets:supplier-detail", kwargs={"pk": self.object.supplier.pk})
+
+
+class SupplierRequirementDeleteView(LoginRequiredMixin, DeleteView):
+    model = SupplierRequirement
+    template_name = "assets/confirm_delete.html"
+
+    def get_success_url(self):
+        return reverse_lazy("assets:supplier-detail", kwargs={"pk": self.object.supplier.pk})

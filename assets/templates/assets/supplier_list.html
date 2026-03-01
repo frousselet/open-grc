@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Suppliers" %} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">{% trans "Suppliers" %}</h1>
+  <a href="{% url 'assets:supplier-create' %}" class="btn btn-primary ms-auto">{% trans "New supplier" %}</a>
+</div>
+
+<div class="mb-3 d-flex gap-2 flex-wrap">
+  <a href="{% url 'assets:supplier-list' %}" class="filter-chip {% if not request.GET.status %}active{% endif %}">{% trans "All" %}</a>
+  <a href="?status=active" class="filter-chip {% if request.GET.status == 'active' %}active{% endif %}">{% trans "Active" %}</a>
+  <a href="?status=under_evaluation" class="filter-chip {% if request.GET.status == 'under_evaluation' %}active{% endif %}">{% trans "Under evaluation" %}</a>
+  <a href="?status=suspended" class="filter-chip {% if request.GET.status == 'suspended' %}active{% endif %}">{% trans "Suspended" %}</a>
+  <a href="?status=archived" class="filter-chip {% if request.GET.status == 'archived' %}active{% endif %}">{% trans "Archived" %}</a>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Ref." %}</th>
+          <th>{% trans "Name" %}</th>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Criticality" %}</th>
+          <th>{% trans "Owner" %}</th>
+          <th>{% trans "Contract end" %}</th>
+          <th>{% trans "Status" %}</th>
+          <th>{% trans "Tags" %}</th>
+          <th>{% trans "Approval" %}</th>
+          <th>{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for supplier in suppliers %}
+        <tr{% if supplier.is_contract_expired %} class="table-warning"{% endif %}>
+          <td><a href="{% url 'assets:supplier-detail' supplier.pk %}" class="ref" style="text-decoration:none">{{ supplier.reference }}</a></td>
+          <td>{{ supplier.name }}</td>
+          <td>{{ supplier.get_type_display }}</td>
+          <td>
+            <span class="badge text-bg-{% if supplier.criticality == 'critical' %}danger{% elif supplier.criticality == 'high' %}warning{% elif supplier.criticality == 'medium' %}info{% else %}secondary{% endif %}">
+              {{ supplier.get_criticality_display }}
+            </span>
+          </td>
+          <td>{{ supplier.owner }}</td>
+          <td>
+            {% if supplier.contract_end_date %}
+              {{ supplier.contract_end_date }}
+              {% if supplier.is_contract_expired %}<span class="badge text-bg-danger">{% trans "Expired" %}</span>{% endif %}
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            <span class="badge text-bg-{% if supplier.status == 'active' %}success{% elif supplier.status == 'under_evaluation' %}info{% elif supplier.status == 'suspended' %}warning{% else %}dark{% endif %}">
+              {{ supplier.get_status_display }}
+            </span>
+          </td>
+          <td>{% for tag in supplier.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.7rem">{{ tag.name }}</span>{% endfor %}</td>
+          <td>
+            <span class="badge text-bg-{% if supplier.is_approved %}success{% else %}warning{% endif %}">
+              {% if supplier.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'assets:supplier-update' supplier.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)">{% trans "No suppliers." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Previous" %}</a></li>{% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Next" %}</a></li>{% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

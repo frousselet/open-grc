@@ -211,3 +211,37 @@ class RedundancyLevel(models.TextChoices):
 class AssetGroupStatus(models.TextChoices):
     ACTIVE = "active", _("Active")
     INACTIVE = "inactive", _("Inactive")
+
+
+# ── Supplier ───────────────────────────────────────────────
+
+class SupplierType(models.TextChoices):
+    CLOUD_PROVIDER = "cloud_provider", _("Cloud provider")
+    SOFTWARE_VENDOR = "software_vendor", _("Software vendor")
+    HARDWARE_VENDOR = "hardware_vendor", _("Hardware vendor")
+    CONSULTING = "consulting", _("Consulting")
+    MANAGED_SERVICES = "managed_services", _("Managed services")
+    TELECOMMUNICATIONS = "telecommunications", _("Telecommunications")
+    OUTSOURCING = "outsourcing", _("Outsourcing")
+    OTHER = "other", _("Other")
+
+
+class SupplierStatus(models.TextChoices):
+    ACTIVE = "active", _("Active")
+    UNDER_EVALUATION = "under_evaluation", _("Under evaluation")
+    SUSPENDED = "suspended", _("Suspended")
+    ARCHIVED = "archived", _("Archived")
+
+
+class SupplierCriticality(models.TextChoices):
+    LOW = "low", _("Low")
+    MEDIUM = "medium", _("Medium")
+    HIGH = "high", _("High")
+    CRITICAL = "critical", _("Critical")
+
+
+class SupplierRequirementStatus(models.TextChoices):
+    NOT_ASSESSED = "not_assessed", _("Not assessed")
+    COMPLIANT = "compliant", _("Compliant")
+    PARTIALLY_COMPLIANT = "partially_compliant", _("Partially compliant")
+    NON_COMPLIANT = "non_compliant", _("Non-compliant")

@@ -6,6 +6,8 @@ from .models import (
     AssetGroup,
     AssetValuation,
     EssentialAsset,
+    Supplier,
+    SupplierRequirement,
     SupportAsset,
 )
 
@@ -147,6 +149,57 @@ class AssetGroupForm(ScopedFormMixin, forms.ModelForm):
             "owner": forms.Select(attrs=SELECT_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+        }
+
+
+class SupplierForm(ScopedFormMixin, forms.ModelForm):
+    class Meta:
+        model = Supplier
+        fields = [
+            "scope", "reference", "name", "description",
+            "type", "criticality", "owner",
+            "contact_name", "contact_email", "contact_phone",
+            "website", "address", "country",
+            "contract_reference", "contract_start_date", "contract_end_date",
+            "status", "notes", "tags",
+        ]
+        widgets = {
+            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
+            "type": forms.Select(attrs=SELECT_ATTRS),
+            "criticality": forms.Select(attrs=SELECT_ATTRS),
+            "owner": forms.Select(attrs=SELECT_ATTRS),
+            "contact_name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "contact_email": forms.EmailInput(attrs=FORM_WIDGET_ATTRS),
+            "contact_phone": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "website": forms.URLInput(attrs=FORM_WIDGET_ATTRS),
+            "address": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 2}),
+            "country": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "contract_reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "contract_start_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "contract_end_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "status": forms.Select(attrs=SELECT_ATTRS),
+            "notes": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+        }
+
+
+class SupplierRequirementForm(forms.ModelForm):
+    class Meta:
+        model = SupplierRequirement
+        fields = [
+            "requirement", "title", "description",
+            "compliance_status", "evidence", "due_date",
+        ]
+        widgets = {
+            "requirement": forms.Select(attrs=SELECT_ATTRS),
+            "title": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "compliance_status": forms.Select(attrs=SELECT_ATTRS),
+            "evidence": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "due_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
         }
 
 

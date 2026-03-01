@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ supplier.name }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="mb-0">{{ supplier.name }}</h1>
+    <small class="ref">{{ supplier.reference }}</small>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'assets:supplier-update' supplier.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    {% if supplier.status != 'archived' %}
+    <form method="post" action="{% url 'assets:supplier-archive' supplier.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-warning" onclick="return confirm('{% trans "Archive this supplier?" %}')">{% trans "Archive" %}</button>
+    </form>
+    {% endif %}
+    <a href="{% url 'assets:supplier-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+  </div>
+</div>
+
+{% include "includes/approval_badge.html" %}
+
+{% if supplier.is_contract_expired %}
+<div class="alert alert-warning">{% trans "The contract for this supplier has expired" %} ({{ supplier.contract_end_date }}).</div>
+{% endif %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#contact">{% trans "Contact" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#contract">{% trans "Contract" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#requirements">{% trans "Requirements" %} <span class="badge text-bg-secondary">{{ requirements|length }}</span></a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="general">
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ supplier.scope }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ supplier.get_type_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Criticality" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if supplier.criticality == 'critical' %}danger{% elif supplier.criticality == 'high' %}warning{% elif supplier.criticality == 'medium' %}info{% else %}secondary{% endif %}">
+              {{ supplier.get_criticality_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ supplier.owner }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if supplier.status == 'active' %}success{% elif supplier.status == 'under_evaluation' %}info{% elif supplier.status == 'suspended' %}warning{% else %}dark{% endif %}">
+              {{ supplier.get_status_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ supplier.description|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Notes" %}</dt><dd class="col-sm-9">{{ supplier.notes|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
+          <dd class="col-sm-9">{% for tag in supplier.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="contact">
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contact name" %}</dt><dd class="col-sm-9">{{ supplier.contact_name|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contact email" %}</dt><dd class="col-sm-9">{% if supplier.contact_email %}<a href="mailto:{{ supplier.contact_email }}">{{ supplier.contact_email }}</a>{% else %}—{% endif %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contact phone" %}</dt><dd class="col-sm-9">{{ supplier.contact_phone|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Website" %}</dt><dd class="col-sm-9">{% if supplier.website %}<a href="{{ supplier.website }}" target="_blank" rel="noopener">{{ supplier.website }}</a>{% else %}—{% endif %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Address" %}</dt><dd class="col-sm-9">{{ supplier.address|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Country" %}</dt><dd class="col-sm-9">{{ supplier.country|default:"—" }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="contract">
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contract reference" %}</dt><dd class="col-sm-9">{{ supplier.contract_reference|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contract start date" %}</dt><dd class="col-sm-9">{{ supplier.contract_start_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contract end date" %}</dt>
+          <dd class="col-sm-9">
+            {{ supplier.contract_end_date|default:"—" }}
+            {% if supplier.is_contract_expired %}<span class="badge text-bg-danger">{% trans "Expired" %}</span>{% endif %}
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="requirements">
+    <div class="d-flex align-items-center mb-3">
+      <h5 class="mb-0">{% trans "Applied requirements" %}</h5>
+      <a href="{% url 'assets:supplier-requirement-create' supplier.pk %}" class="btn btn-sm btn-primary ms-auto">{% trans "Add requirement" %}</a>
+    </div>
+
+    {% if compliance_summary.total > 0 %}
+    <div class="row g-3 mb-3">
+      <div class="col-md-3">
+        <div class="stat-card">
+          <div class="stat-card-label">{% trans "Total" %}</div>
+          <div class="stat-card-value">{{ compliance_summary.total }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card">
+          <div class="stat-card-icon success"><i class="bi bi-check-circle"></i></div>
+          <div class="stat-card-label">{% trans "Compliant" %}</div>
+          <div class="stat-card-value">{{ compliance_summary.compliant }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card">
+          <div class="stat-card-icon danger"><i class="bi bi-x-circle"></i></div>
+          <div class="stat-card-label">{% trans "Non-compliant" %}</div>
+          <div class="stat-card-value">{{ compliance_summary.non_compliant }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card">
+          <div class="stat-card-icon warning"><i class="bi bi-exclamation-circle"></i></div>
+          <div class="stat-card-label">{% trans "Not assessed" %}</div>
+          <div class="stat-card-value">{{ compliance_summary.not_assessed }}</div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>{% trans "Title" %}</th>
+              <th>{% trans "Linked requirement" %}</th>
+              <th>{% trans "Status" %}</th>
+              <th>{% trans "Due date" %}</th>
+              <th>{% trans "Verified by" %}</th>
+              <th>{% trans "Actions" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for req in requirements %}
+            <tr>
+              <td>{{ req.title }}</td>
+              <td>{% if req.requirement %}<span class="ref">{{ req.requirement.reference }}</span> {{ req.requirement.name|truncatewords:10 }}{% else %}—{% endif %}</td>
+              <td>
+                <span class="badge text-bg-{% if req.compliance_status == 'compliant' %}success{% elif req.compliance_status == 'non_compliant' %}danger{% elif req.compliance_status == 'partially_compliant' %}warning{% else %}secondary{% endif %}">
+                  {{ req.get_compliance_status_display }}
+                </span>
+              </td>
+              <td>{{ req.due_date|default:"—" }}</td>
+              <td>{{ req.verified_by|default:"—" }}</td>
+              <td class="d-flex gap-1">
+                <a href="{% url 'assets:supplier-requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+                <a href="{% url 'assets:supplier-requirement-delete' req.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted)">{% trans "No requirements applied to this supplier." %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

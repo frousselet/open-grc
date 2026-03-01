@@ -4,6 +4,7 @@ from assets.models import (
     AssetDependency,
     AssetGroup,
     EssentialAsset,
+    Supplier,
     SupportAsset,
 )
 
@@ -95,5 +96,21 @@ class AssetGroupFilter(django_filters.FilterSet):
         model = AssetGroup
         fields = {
             "type": ["exact"],
+            "status": ["exact"],
+        }
+
+
+class SupplierFilter(django_filters.FilterSet):
+    scope = django_filters.UUIDFilter(field_name="scope_id")
+    owner = django_filters.UUIDFilter(field_name="owner_id")
+    contract_end_before = django_filters.DateFilter(
+        field_name="contract_end_date", lookup_expr="lte"
+    )
+
+    class Meta:
+        model = Supplier
+        fields = {
+            "type": ["exact"],
+            "criticality": ["exact"],
             "status": ["exact"],
         }
