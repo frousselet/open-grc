@@ -38,7 +38,10 @@
         {% for supplier in suppliers %}
         <tr{% if supplier.is_contract_expired %} class="table-warning"{% endif %}>
           <td><a href="{% url 'assets:supplier-detail' supplier.pk %}" class="ref" style="text-decoration:none">{{ supplier.reference }}</a></td>
-          <td>{{ supplier.name }}</td>
+          <td class="d-flex align-items-center gap-2">
+            {% if supplier.logo %}<img src="{{ supplier.logo.url }}" alt="" style="width:24px;height:24px;object-fit:contain;border-radius:4px">{% endif %}
+            {{ supplier.name }}
+          </td>
           <td>{{ supplier.get_type_display }}</td>
           <td>
             <span class="badge text-bg-{% if supplier.criticality == 'critical' %}danger{% elif supplier.criticality == 'high' %}warning{% elif supplier.criticality == 'medium' %}info{% else %}secondary{% endif %}">

@@ -22,6 +22,9 @@ class Supplier(ScopedModel):
     reference = models.CharField(_("Reference"), max_length=50, unique=True)
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"), blank=True, default="")
+    logo = models.ImageField(
+        _("Logo"), upload_to="suppliers/logos/", blank=True, default=""
+    )
     type = models.CharField(
         _("Type"), max_length=30, choices=SupplierType.choices
     )

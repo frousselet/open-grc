@@ -155,7 +155,7 @@ class SupplierForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Supplier
         fields = [
-            "scope", "name", "description",
+            "scope", "name", "description", "logo",
             "type", "criticality", "owner",
             "contact_name", "contact_email", "contact_phone",
             "website", "address", "country",
@@ -166,6 +166,7 @@ class SupplierForm(ScopedFormMixin, forms.ModelForm):
             "scope": forms.Select(attrs=SELECT_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
+            "logo": forms.ClearableFileInput(attrs={**FORM_WIDGET_ATTRS, "accept": "image/*"}),
             "type": forms.Select(attrs=SELECT_ATTRS),
             "criticality": forms.Select(attrs=SELECT_ATTRS),
             "owner": forms.Select(attrs=SELECT_ATTRS),

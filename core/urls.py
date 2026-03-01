@@ -1,5 +1,7 @@
 """URL configuration for open-grc project."""
 
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
@@ -22,3 +24,6 @@ urlpatterns = [
     path("api/v1/compliance/", include("compliance.api.urls")),
     path("api/v1/risks/", include("risks.api.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

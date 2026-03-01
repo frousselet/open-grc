@@ -8,7 +8,7 @@
 
 <div class="card">
   <div class="card-body">
-    <form method="post" class="mt-0">
+    <form method="post" enctype="multipart/form-data" class="mt-0">
       {% csrf_token %}
       {% for field in form %}
       <div class="mb-3">

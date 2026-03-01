@@ -207,6 +207,14 @@
         .on('drag', dragged)
         .on('end', dragended));
 
+  // Clip path for supplier logos
+  svg.select('defs').selectAll('clipPath')
+    .data(nodes.filter(function(d) { return d.logo; }))
+    .join('clipPath')
+      .attr('id', function(d) { return 'clip-' + d.id; })
+    .append('circle')
+      .attr('r', function(d) { return sizeMap[d.type] || 14; });
+
   node.append('circle')
     .attr('r', function(d) { return sizeMap[d.type] || 14; })
     .attr('fill', function(d) { return colorMap[d.type] || '#94a3b8'; })
@@ -214,8 +222,20 @@
     .attr('stroke-width', 2)
     .style('cursor', 'grab');
 
-  // Icon inside node
-  node.append('text')
+  // Logo image for suppliers with a logo
+  node.filter(function(d) { return d.logo; })
+    .append('image')
+      .attr('xlink:href', function(d) { return d.logo; })
+      .attr('x', function(d) { return -(sizeMap[d.type] || 14); })
+      .attr('y', function(d) { return -(sizeMap[d.type] || 14); })
+      .attr('width', function(d) { return (sizeMap[d.type] || 14) * 2; })
+      .attr('height', function(d) { return (sizeMap[d.type] || 14) * 2; })
+      .attr('clip-path', function(d) { return 'url(#clip-' + d.id + ')'; })
+      .style('pointer-events', 'none');
+
+  // Icon inside node (only for nodes without a logo)
+  node.filter(function(d) { return !d.logo; })
+    .append('text')
     .attr('text-anchor', 'middle')
     .attr('dy', '.35em')
     .attr('fill', '#fff')
