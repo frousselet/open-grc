@@ -16,6 +16,8 @@
         crossorigin="anonymous">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
         rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/css/tom-select.bootstrap5.min.css"
+        rel="stylesheet">
   <style>
     /* ── Design tokens ────────────────────────────────── */
     :root {
@@ -642,6 +644,50 @@
       color: #fff;
     }
 
+    /* ── Tom Select overrides ─────────────────────────── */
+    .ts-wrapper.multi .ts-control > .item {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+    }
+    .ts-wrapper .ts-control {
+      border-color: var(--border-light);
+      border-radius: var(--radius-sm);
+      font-size: .88rem;
+      padding: .4rem .6rem;
+    }
+    .ts-wrapper.focus .ts-control {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+    }
+    .ts-dropdown {
+      border-color: var(--border-light);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-md);
+    }
+    .ts-dropdown .active {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .ts-dropdown .create {
+      color: var(--accent);
+    }
+    [data-bs-theme="dark"] .ts-wrapper .ts-control {
+      background: var(--surface);
+      color: var(--text-primary);
+      border-color: var(--border-light);
+    }
+    [data-bs-theme="dark"] .ts-dropdown {
+      background: var(--surface);
+      color: var(--text-primary);
+      border-color: var(--border-light);
+    }
+    [data-bs-theme="dark"] .ts-dropdown .option {
+      color: var(--text-primary);
+    }
+
     /* ── Mobile ────────────────────────────────────────── */
     .sidebar-backdrop {
       display: none;
@@ -897,6 +943,82 @@
   <script src="https://unpkg.com/htmx.org@2.0.4"
           integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
           crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/js/tom-select.complete.min.js"></script>
+  <script>
+  /* ── Tag input (Tom Select) ──────────────────────── */
+  (function() {
+    function getCsrfToken() {
+      var el = document.querySelector('[name=csrfmiddlewaretoken]');
+      if (el) return el.value;
+      var m = document.cookie.match(/csrftoken=([^;]+)/);
+      return m ? m[1] : '';
+    }
+
+    function initTagInputs() {
+      document.querySelectorAll('select[name="tags"]:not(.tomselected)').forEach(function(el) {
+        var ts = new TomSelect(el, {
+          plugins: ['remove_button'],
+          create: function(input, callback) {
+            fetch('/api/v1/context/tags/', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+              },
+              body: JSON.stringify({ name: input.trim() })
+            })
+            .then(function(resp) {
+              if (resp.ok) return resp.json();
+              if (resp.status === 400) {
+                return fetch('/api/v1/context/tags/?search=' + encodeURIComponent(input.trim()))
+                  .then(function(r) { return r.json(); })
+                  .then(function(data) {
+                    var results = data.results || data;
+                    var match = results.find(function(t) {
+                      return t.name.toLowerCase() === input.trim().toLowerCase();
+                    });
+                    if (match) return match;
+                    throw new Error('Tag creation failed');
+                  });
+              }
+              throw new Error('Tag creation failed');
+            })
+            .then(function(tag) {
+              callback({ value: tag.id, text: tag.name });
+            })
+            .catch(function() { callback(); });
+          },
+          createOnBlur: true,
+          persist: false,
+          render: {
+            option_create: function(data, escape) {
+              return '<div class="create">{% trans "Create" %} <strong>' + escape(data.input) + '</strong>&hellip;</div>';
+            }
+          }
+        });
+
+        /* Space and comma trigger tag creation */
+        ts.control_input.addEventListener('keydown', function(e) {
+          if (e.key === ' ' || e.key === ',') {
+            var val = ts.control_input.value.trim();
+            if (val) {
+              ts.createItem(val);
+              e.preventDefault();
+            }
+          }
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initTagInputs);
+    } else {
+      initTagInputs();
+    }
+    /* Re-init after HTMX swaps */
+    document.body.addEventListener('htmx:afterSettle', initTagInputs);
+  })();
+  </script>
   <script>
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('show');
