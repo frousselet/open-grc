@@ -31,7 +31,7 @@
           <th>{% trans "Max impact" %}</th>
           <th>{% trans "Risk level" %}</th>
           <th>{% trans "Consolidated risk" %}</th>
-          <th>{% trans "Actions" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -45,8 +45,8 @@
           <td>{{ a.max_impact|default:"—" }}</td>
           <td>{{ a.risk_level|default:"—" }}</td>
           <td>{% if a.risk %}<a href="{% url 'risks:risk-detail' a.risk.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ a.risk.reference }}</a>{% else %}—{% endif %}</td>
-          <td>
-            <a href="{% url 'risks:iso27005-update' a.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+          <td class="text-end">
+            <a href="{% url 'risks:iso27005-update' a.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}

@@ -24,7 +24,7 @@
           <th>{% trans "SPOF" %}</th>
           <th>{% trans "Redundancy" %}</th>
           <th>{% trans "Approval" %}</th>
-          <th>{% trans "Actions" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -63,9 +63,9 @@
               {% if dep.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
             </span>
           </td>
-          <td>
-            <a href="{% url 'assets:supplier-dependency-update' dep.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-            <a href="{% url 'assets:supplier-dependency-delete' dep.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+          <td class="text-end">
+            <a href="{% url 'assets:supplier-dependency-update' dep.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+            <a href="{% url 'assets:supplier-dependency-delete' dep.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
           </td>
         </tr>
         {% empty %}

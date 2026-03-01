@@ -180,7 +180,7 @@
             <th>{% trans "Max impact" %}</th>
             <th>{% trans "Level" %}</th>
             <th>{% trans "Consolidated risk" %}</th>
-            <th>{% trans "Actions" %}</th>
+            <th class="text-end">{% trans "Actions" %}</th>
           </tr></thead>
           <tbody>
             {% for a in iso27005_risks %}
@@ -197,8 +197,8 @@
                 <span class="text-muted">—</span>
                 {% endif %}
               </td>
-              <td>
-                <a href="{% url 'risks:iso27005-update' a.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+              <td class="text-end">
+                <a href="{% url 'risks:iso27005-update' a.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
                 {% if not a.risk and a.risk_level %}
                 <form method="post" action="{% url 'risks:iso27005-consolidate' a.pk %}" class="d-inline">
                   {% csrf_token %}
@@ -244,7 +244,7 @@
             <th>{% trans "Status" %}</th>
             <th>{% trans "Current level" %}</th>
             <th>{% trans "Treatment" %}</th>
-            <th>{% trans "Actions" %}</th>
+            <th class="text-end">{% trans "Actions" %}</th>
           </tr></thead>
           <tbody>
             {% for r in risks %}
@@ -255,7 +255,7 @@
               <td>{{ r.get_status_display }}</td>
               <td>{{ r.current_risk_level|default:"—" }}</td>
               <td>{{ r.get_treatment_decision_display }}</td>
-              <td><a href="{% url 'risks:risk-update' r.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a></td>
+              <td class="text-end"><a href="{% url 'risks:risk-update' r.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a></td>
             </tr>
             {% endfor %}
           </tbody>

@@ -110,7 +110,7 @@
             <tr>
               <th>{% trans "Title" %}</th>
               <th>{% trans "Description" %}</th>
-              <th>{% trans "Actions" %}</th>
+              <th class="text-end">{% trans "Actions" %}</th>
             </tr>
           </thead>
           <tbody>
@@ -182,7 +182,7 @@
               <th>{% trans "Reviews" %}</th>
               <th>{% trans "Due date" %}</th>
               <th>{% trans "Verified by" %}</th>
-              <th>{% trans "Actions" %}</th>
+              <th class="text-end">{% trans "Actions" %}</th>
             </tr>
           </thead>
           <tbody>
@@ -198,9 +198,9 @@
               <td><span class="badge text-bg-secondary">{{ req.reviews.count }}</span></td>
               <td>{{ req.due_date|default:"—" }}</td>
               <td>{{ req.verified_by|default:"—" }}</td>
-              <td class="d-flex gap-1">
-                <a href="{% url 'assets:supplier-requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-                <a href="{% url 'assets:supplier-requirement-delete' req.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+              <td class="text-end">
+                <a href="{% url 'assets:supplier-requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                <a href="{% url 'assets:supplier-requirement-delete' req.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
               </td>
             </tr>
             {% empty %}

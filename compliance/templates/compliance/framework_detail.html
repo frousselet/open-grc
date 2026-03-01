@@ -100,7 +100,7 @@
               <th style="min-width:120px">{% trans "Compliance" %}</th>
               <th>{% trans "Priority" %}</th>
               <th>{% trans "Owner" %}</th>
-              <th>{% trans "Actions" %}</th>
+              <th class="text-end">{% trans "Actions" %}</th>
             </tr>
           </thead>
           <tbody>
@@ -132,8 +132,8 @@
                 {% else %}—{% endif %}
               </td>
               <td>{{ req.owner.display_name|default:"—" }}</td>
-              <td>
-                <a href="{% url 'compliance:requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+              <td class="text-end">
+                <a href="{% url 'compliance:requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
               </td>
             </tr>
             {% endfor %}

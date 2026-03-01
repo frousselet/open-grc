@@ -112,7 +112,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="action" value="remove">
                     <input type="hidden" name="user_id" value="{{ u.pk }}">
-                    <button type="submit" class="btn btn-sm btn-outline-danger">{% trans "Remove" %}</button>
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="bi bi-x-circle"></i></button>
                   </form>
                   {% endif %}
                   {% endif %}

@@ -37,7 +37,7 @@
         <tr>
           <th>{% trans "Title" %}</th>
           <th>{% trans "Description" %}</th>
-          <th>{% trans "Actions" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -45,9 +45,9 @@
         <tr>
           <td><a href="{% url 'assets:supplier-type-requirement-update' req.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ req.title }}</a></td>
           <td>{{ req.description|default:"—"|truncatewords:20 }}</td>
-          <td class="d-flex gap-1">
-            <a href="{% url 'assets:supplier-type-requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
-            <a href="{% url 'assets:supplier-type-requirement-delete' req.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+          <td class="text-end">
+            <a href="{% url 'assets:supplier-type-requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+            <a href="{% url 'assets:supplier-type-requirement-delete' req.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
           </td>
         </tr>
         {% empty %}
