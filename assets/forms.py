@@ -35,7 +35,7 @@ class EssentialAssetForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = EssentialAsset
         fields = [
-            "scope", "reference", "name", "description",
+            "scope", "name", "description",
             "type", "category", "owner", "custodian",
             "confidentiality_level", "integrity_level", "availability_level",
             "confidentiality_justification", "integrity_justification",
@@ -48,7 +48,6 @@ class EssentialAssetForm(ScopedFormMixin, forms.ModelForm):
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
-            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "type": forms.Select(attrs=SELECT_ATTRS),
@@ -78,7 +77,7 @@ class SupportAssetForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = SupportAsset
         fields = [
-            "scope", "reference", "name", "description",
+            "scope", "name", "description",
             "type", "category", "owner", "custodian",
             "location", "manufacturer", "model_name", "serial_number",
             "software_version", "ip_address", "hostname", "operating_system",
@@ -89,7 +88,6 @@ class SupportAssetForm(ScopedFormMixin, forms.ModelForm):
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
-            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "type": forms.Select(attrs=SELECT_ATTRS),
@@ -157,7 +155,7 @@ class SupplierForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Supplier
         fields = [
-            "scope", "reference", "name", "description",
+            "scope", "name", "description",
             "type", "criticality", "owner",
             "contact_name", "contact_email", "contact_phone",
             "website", "address", "country",
@@ -166,7 +164,6 @@ class SupplierForm(ScopedFormMixin, forms.ModelForm):
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
-            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "type": forms.Select(attrs=SELECT_ATTRS),
