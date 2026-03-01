@@ -24,6 +24,7 @@ from .forms import (
     SupplierForm,
     SupplierRequirementForm,
     SupplierTypeForm,
+    SupplierTypeRequirementForm,
     SupportAssetForm,
 )
 from .models import (
@@ -34,6 +35,7 @@ from .models import (
     SupplierDependency,
     SupplierRequirement,
     SupplierType,
+    SupplierTypeRequirement,
     SupportAsset,
 )
 
@@ -432,6 +434,7 @@ class SupplierTypeDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        ctx["requirements"] = self.object.requirements.all()
         ctx["suppliers"] = self.object.suppliers.select_related("scope", "owner")
         return ctx
 
@@ -454,6 +457,52 @@ class SupplierTypeDeleteView(LoginRequiredMixin, DeleteView):
     model = SupplierType
     template_name = "assets/confirm_delete.html"
     success_url = reverse_lazy("assets:supplier-type-list")
+
+
+# ── Supplier Type Requirements ───────────────────────────
+
+class SupplierTypeRequirementCreateView(LoginRequiredMixin, CreateView):
+    model = SupplierTypeRequirement
+    form_class = SupplierTypeRequirementForm
+    template_name = "assets/supplier_type_requirement_form.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.supplier_type = get_object_or_404(SupplierType, pk=kwargs["type_pk"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.supplier_type = self.supplier_type
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["supplier_type"] = self.supplier_type
+        return ctx
+
+    def get_success_url(self):
+        return reverse_lazy("assets:supplier-type-detail", kwargs={"pk": self.supplier_type.pk})
+
+
+class SupplierTypeRequirementUpdateView(LoginRequiredMixin, UpdateView):
+    model = SupplierTypeRequirement
+    form_class = SupplierTypeRequirementForm
+    template_name = "assets/supplier_type_requirement_form.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["supplier_type"] = self.object.supplier_type
+        return ctx
+
+    def get_success_url(self):
+        return reverse_lazy("assets:supplier-type-detail", kwargs={"pk": self.object.supplier_type.pk})
+
+
+class SupplierTypeRequirementDeleteView(LoginRequiredMixin, DeleteView):
+    model = SupplierTypeRequirement
+    template_name = "assets/confirm_delete.html"
+
+    def get_success_url(self):
+        return reverse_lazy("assets:supplier-type-detail", kwargs={"pk": self.object.supplier_type.pk})
 
 
 # ── Supplier Requirements ─────────────────────────────────

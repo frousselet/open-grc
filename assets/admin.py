@@ -10,6 +10,7 @@ from .models import (
     SupplierDependency,
     SupplierRequirement,
     SupplierType,
+    SupplierTypeRequirement,
     SupportAsset,
 )
 
@@ -104,11 +105,17 @@ class AssetValuationAdmin(admin.ModelAdmin):
     readonly_fields = ("id", "created_at")
 
 
+class SupplierTypeRequirementInline(admin.TabularInline):
+    model = SupplierTypeRequirement
+    extra = 0
+    readonly_fields = ("created_at", "updated_at")
+
+
 @admin.register(SupplierType)
 class SupplierTypeAdmin(admin.ModelAdmin):
     list_display = ("name", "description")
     search_fields = ("name",)
-    filter_horizontal = ("requirements",)
+    inlines = [SupplierTypeRequirementInline]
 
 
 class SupplierRequirementInline(admin.TabularInline):

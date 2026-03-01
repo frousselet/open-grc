@@ -63,7 +63,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("assets", "0015_supplier_dependency_spof"),
-        ("compliance", "0010_standardise_reference_prefixes"),
     ]
 
     operations = [
@@ -93,15 +92,6 @@ class Migration(migrations.Migration):
                 (
                     "updated_at",
                     models.DateTimeField(auto_now=True, verbose_name="Updated at"),
-                ),
-                (
-                    "requirements",
-                    models.ManyToManyField(
-                        blank=True,
-                        related_name="supplier_types",
-                        to="compliance.requirement",
-                        verbose_name="Default requirements",
-                    ),
                 ),
             ],
             options={

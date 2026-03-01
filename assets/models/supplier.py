@@ -17,17 +17,11 @@ from context.models.base import ScopedModel
 
 
 class SupplierType(models.Model):
-    """Configurable supplier type with default requirements."""
+    """Configurable supplier type with associated requirements."""
 
     id = models.AutoField(primary_key=True)
     name = models.CharField(_("Name"), max_length=255, unique=True)
     description = models.TextField(_("Description"), blank=True, default="")
-    requirements = models.ManyToManyField(
-        "compliance.Requirement",
-        blank=True,
-        related_name="supplier_types",
-        verbose_name=_("Default requirements"),
-    )
     created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
 
@@ -38,6 +32,30 @@ class SupplierType(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class SupplierTypeRequirement(models.Model):
+    """A requirement imposed on suppliers of a given type."""
+
+    id = models.AutoField(primary_key=True)
+    supplier_type = models.ForeignKey(
+        SupplierType,
+        on_delete=models.CASCADE,
+        related_name="requirements",
+        verbose_name=_("Supplier type"),
+    )
+    title = models.CharField(_("Title"), max_length=500)
+    description = models.TextField(_("Description"), blank=True, default="")
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
+
+    class Meta:
+        ordering = ["title"]
+        verbose_name = _("Supplier type requirement")
+        verbose_name_plural = _("Supplier type requirements")
+
+    def __str__(self):
+        return self.title
 
 
 class Supplier(ScopedModel):
