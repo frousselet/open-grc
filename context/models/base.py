@@ -18,7 +18,7 @@ class BaseModel(models.Model):
         related_name="%(class)s_created",
         verbose_name=_("Created by"),
     )
-    is_approved = models.BooleanField(_("Approved"), default=True)
+    is_approved = models.BooleanField(_("Approved"), default=False)
     approved_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
