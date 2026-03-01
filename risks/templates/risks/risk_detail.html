@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{{ risk.reference }} — Open GRC{% endblock %}
+{% block title %}{{ risk.name }} — Open GRC{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1>{{ risk.reference }} — {{ risk.name }}</h1>
+  <div>
+    <h1 class="mb-0">{{ risk.name }}</h1>
+    <small style="color:var(--text-muted);font-size:.82rem">{{ risk.reference }}</small>
+  </div>
   <div class="d-flex gap-2">
     <a href="{% url 'risks:risk-update' risk.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'risks:risk-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>

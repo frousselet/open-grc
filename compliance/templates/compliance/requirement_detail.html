@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{{ requirement.reference }} — Open GRC{% endblock %}
+{% block title %}{{ requirement.name }} — Open GRC{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1>{{ requirement.reference }} — {{ requirement.name }}</h1>
+  <div>
+    <h1 class="mb-0">{{ requirement.name }}</h1>
+    <small style="color:var(--text-muted);font-size:.82rem">{{ requirement.reference }}</small>
+  </div>
   <div class="d-flex gap-2">
     <a href="{% url 'compliance:requirement-update' requirement.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'compliance:requirement-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>

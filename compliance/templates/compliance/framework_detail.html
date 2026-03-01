@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{{ framework.reference }} — Open GRC{% endblock %}
+{% block title %}{{ framework.name }} — Open GRC{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1>{{ framework.reference }} — {{ framework.name }}</h1>
+  <div>
+    <h1 class="mb-0">{{ framework.name }}</h1>
+    <small style="color:var(--text-muted);font-size:.82rem">{{ framework.reference }}</small>
+  </div>
   <div class="d-flex gap-2">
     <a href="{% url 'compliance:framework-update' framework.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'compliance:framework-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
