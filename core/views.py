@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Avg, Count, Prefetch, Q
 from django.http import JsonResponse
@@ -6,7 +8,16 @@ from django.utils.translation import gettext as _
 from django.views import View
 from django.views.generic import TemplateView
 
-from assets.models import AssetDependency, EssentialAsset, SupplierRequirementReview, SupportAsset
+from assets.models import (
+    AssetDependency,
+    AssetGroup,
+    EssentialAsset,
+    Supplier,
+    SupplierDependency,
+    SupplierRequirementReview,
+    SupplierType,
+    SupportAsset,
+)
 from compliance.models import (
     ComplianceActionPlan,
     ComplianceAssessment,
@@ -14,8 +25,16 @@ from compliance.models import (
     Requirement,
     RequirementMapping,
 )
-from context.models import Issue, Objective, Role, Scope, Site, Stakeholder, SwotAnalysis
-from risks.models import Risk, RiskAcceptance, RiskAssessment, RiskCriteria, RiskTreatmentPlan
+from context.models import Activity, Issue, Objective, Role, Scope, Site, Stakeholder, SwotAnalysis
+from risks.models import (
+    Risk,
+    RiskAcceptance,
+    RiskAssessment,
+    RiskCriteria,
+    RiskTreatmentPlan,
+    Threat,
+    Vulnerability,
+)
 from risks.views import build_default_risk_matrix, build_risk_matrix
 
 
@@ -63,20 +82,36 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
         ctx["mandatory_roles_no_user"] = self._filter_scoped(
             Role.objects.filter(is_mandatory=True)
         ).annotate(user_count=Count("assigned_users")).filter(user_count=0).count()
+        ctx["swot_count"] = self._filter_scoped(SwotAnalysis.objects.all()).count()
+        ctx["activity_count"] = self._filter_scoped(Activity.objects.all()).count()
+        ctx["critical_activities_no_owner"] = self._filter_scoped(
+            Activity.objects.filter(criticality="critical", owner__isnull=True)
+        ).count()
 
         # ── Actifs ──────────────────────────────────────
         ctx["essential_count"] = EssentialAsset.objects.count()
         ctx["support_count"] = SupportAsset.objects.count()
         ctx["dependency_count"] = AssetDependency.objects.count()
-        ctx["spof_count"] = AssetDependency.objects.filter(
-            is_single_point_of_failure=True
-        ).count()
+        ctx["spof_count"] = (
+            AssetDependency.objects.filter(is_single_point_of_failure=True).count()
+            + SupplierDependency.objects.filter(is_single_point_of_failure=True).count()
+        )
         ctx["eol_count"] = SupportAsset.objects.filter(
             end_of_life_date__lte=today, status="active"
         ).count()
         ctx["personal_data_count"] = EssentialAsset.objects.filter(
             personal_data=True
         ).count()
+        ctx["supplier_count"] = Supplier.objects.count()
+        ctx["expired_contract_count"] = Supplier.objects.filter(
+            contract_end_date__lt=today, status="active"
+        ).count()
+        ctx["supplier_dep_count"] = SupplierDependency.objects.count()
+        ctx["supplier_spof_count"] = SupplierDependency.objects.filter(
+            is_single_point_of_failure=True
+        ).count()
+        ctx["supplier_type_count"] = SupplierType.objects.count()
+        ctx["group_count"] = AssetGroup.objects.count()
 
         # ── Gestion des risques ─────────────────────────
         ctx["risk_assessment_count"] = self._filter_scoped(
@@ -90,6 +125,16 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
         ctx["critical_risk_count"] = Risk.objects.filter(
             priority="critical"
         ).count()
+        ctx["acceptance_count"] = RiskAcceptance.objects.filter(
+            status="active"
+        ).count()
+        ctx["expiring_acceptance_count"] = RiskAcceptance.objects.filter(
+            status="active",
+            valid_until__lte=today + timedelta(days=30),
+            valid_until__gte=today,
+        ).count()
+        ctx["threat_count"] = Threat.objects.count()
+        ctx["vulnerability_count"] = Vulnerability.objects.count()
 
         # Risk matrices
         criteria = RiskCriteria.objects.filter(is_default=True).first()
@@ -180,6 +225,21 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
             alerts.append(
                 _("%(count)d critical risk(s)")
                 % {"count": ctx["critical_risk_count"]}
+            )
+        if ctx["expired_contract_count"]:
+            alerts.append(
+                _("%(count)d supplier(s) with expired contract")
+                % {"count": ctx["expired_contract_count"]}
+            )
+        if ctx["expiring_acceptance_count"]:
+            alerts.append(
+                _("%(count)d risk acceptance(s) expiring within 30 days")
+                % {"count": ctx["expiring_acceptance_count"]}
+            )
+        if ctx["critical_activities_no_owner"]:
+            alerts.append(
+                _("%(count)d critical activity(ies) without owner")
+                % {"count": ctx["critical_activities_no_owner"]}
             )
         ctx["alerts"] = alerts
 
