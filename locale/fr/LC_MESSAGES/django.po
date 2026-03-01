@@ -6876,3 +6876,73 @@ msgstr "%(count)s expirant bientôt"
 #: templates/home.html
 msgid "%(count)s critical without owner"
 msgstr "%(count)s critique(s) sans propriétaire"
+
+#: context/templates/context/scope_form.html
+msgid "Identity"
+msgstr "Identité"
+
+#: context/templates/context/scope_form.html
+msgid "Boundaries"
+msgstr "Périmètre et limites"
+
+#: context/templates/context/scope_form.html
+msgid "Scope details"
+msgstr "Détails du périmètre"
+
+#: context/templates/context/scope_form.html
+#: context/templates/context/objective_form.html
+msgid "Dates"
+msgstr "Dates"
+
+#: context/templates/context/issue_form.html
+#: context/templates/context/stakeholder_form.html
+msgid "Influence & Interest"
+msgstr "Influence et intérêt"
+
+#: context/templates/context/objective_form.html
+msgid "Measurement"
+msgstr "Mesure"
+
+#: context/templates/context/objective_form.html
+msgid "Status & Progress"
+msgstr "Statut et progression"
+
+#: assets/templates/assets/essential_asset_form.html
+msgid "Security classification"
+msgstr "Classification de sécurité"
+
+#: assets/templates/assets/essential_asset_form.html
+msgid "Data classification"
+msgstr "Classification des données"
+
+#: assets/templates/assets/essential_asset_form.html
+msgid "Related activities"
+msgstr "Activités associées"
+
+#: assets/templates/assets/support_asset_form.html
+msgid "Technical details"
+msgstr "Détails techniques"
+
+#: accounts/templates/accounts/profile.html
+msgid "Preferences"
+msgstr "Préférences"
+
+#: accounts/templates/accounts/profile.html
+msgid "Change photo"
+msgstr "Changer la photo"
+
+#: accounts/templates/accounts/profile.html
+msgid "Remove photo"
+msgstr "Supprimer la photo"
+
+#: assets/templates/assets/supplier_form.html
+msgid "Change logo"
+msgstr "Changer le logo"
+
+#: assets/templates/assets/supplier_requirement_detail.html
+msgid "Add a requirement"
+msgstr "Ajouter une exigence"
+
+#: accounts/models/user.py
+msgid "Profile photo"
+msgstr "Photo de profil"
