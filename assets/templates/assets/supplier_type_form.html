@@ -3,13 +3,24 @@
 
 {% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "supplier type" %} — Open GRC{% endblock %}
 
+{% block extra_css %}
+<style>
+  .formset-table th { font-size: .85rem; }
+  .formset-table td { vertical-align: middle; }
+  .formset-table .form-control { font-size: .85rem; padding: .3rem .5rem; }
+  .formset-table .form-check-input { margin-top: .35rem; }
+</style>
+{% endblock %}
+
 {% block content %}
 <h1>{% if form.instance.pk %}{% trans "Edit supplier type" %}{% else %}{% trans "New supplier type" %}{% endif %}</h1>
 
-<div class="card">
-  <div class="card-body">
-    <form method="post" class="mt-0">
-      {% csrf_token %}
+<form method="post" class="mt-0">
+  {% csrf_token %}
+
+  {# ── General information ──────────────────────────── #}
+  <div class="card mb-4">
+    <div class="card-body">
       {% for field in form %}
       <div class="mb-3">
         <label for="{{ field.id_for_label }}" class="form-label">
@@ -20,11 +31,66 @@
         {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
       </div>
       {% endfor %}
-      <div class="d-flex gap-2 mt-4 pt-3" style="border-top:1px solid var(--border-light)">
-        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
-        <a href="{% url 'assets:supplier-type-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-      </div>
-    </form>
+    </div>
   </div>
-</div>
+
+  {# ── Requirements ─────────────────────────────────── #}
+  <div class="card mb-4">
+    <div class="card-header"><h5 class="mb-0"><i class="bi bi-list-check me-1" style="color:var(--accent)"></i> {% trans "Requirements" %}</h5></div>
+    <div class="card-body">
+      {{ requirement_formset.management_form }}
+      {% if requirement_formset.non_form_errors %}
+      <div class="alert alert-danger">{{ requirement_formset.non_form_errors }}</div>
+      {% endif %}
+      <table class="table table-sm formset-table mb-0" id="requirement-table">
+        <thead>
+          <tr>
+            <th>{% trans "Title" %}</th>
+            <th>{% trans "Description" %}</th>
+            <th style="width:60px" class="text-center">{% trans "Del." %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fs_form in requirement_formset %}
+          <tr>
+            {{ fs_form.id }}
+            <td>{{ fs_form.title }}</td>
+            <td>{{ fs_form.description }}</td>
+            <td class="text-center">{{ fs_form.DELETE }}</td>
+          </tr>
+          {% if fs_form.errors %}
+          <tr><td colspan="3"><div class="text-danger small">{{ fs_form.errors }}</div></td></tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+      <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addRequirementRow()">
+        <i class="bi bi-plus-circle me-1"></i>{% trans "Add a requirement" %}
+      </button>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2 mt-4 pt-3" style="border-top:1px solid var(--border-light)">
+    <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+    <a href="{% url 'assets:supplier-type-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function addRequirementRow() {
+  var prefix = 'requirements';
+  var totalInput = document.getElementById('id_' + prefix + '-TOTAL_FORMS');
+  var idx = parseInt(totalInput.value, 10);
+  var tbody = document.querySelector('#requirement-table tbody');
+  var tr = document.createElement('tr');
+  tr.innerHTML =
+    '<td><input type="text" name="' + prefix + '-' + idx + '-title" id="id_' + prefix + '-' + idx + '-title" class="form-control" maxlength="500"></td>' +
+    '<td><textarea name="' + prefix + '-' + idx + '-description" id="id_' + prefix + '-' + idx + '-description" class="form-control" rows="2"></textarea></td>' +
+    '<td class="text-center"><input type="checkbox" name="' + prefix + '-' + idx + '-DELETE" id="id_' + prefix + '-' + idx + '-DELETE" class="form-check-input"></td>';
+  tbody.appendChild(tr);
+  totalInput.value = idx + 1;
+}
+</script>
 {% endblock %}
