@@ -625,3 +625,34 @@ def tag_create_inline(request):
         defaults={"name": name},
     )
     return JsonResponse({"id": str(tag.id), "name": tag.name})
+
+
+class TagListView(LoginRequiredMixin, ListView):
+    model = Tag
+    template_name = "context/tag_list.html"
+    context_object_name = "tags"
+    paginate_by = 50
+
+    def get_queryset(self):
+        from django.db.models.fields.related import ManyToManyRel
+
+        qs = Tag.objects.all()
+        tags = list(qs)
+        for tag in tags:
+            usage = []
+            for field in Tag._meta.get_fields():
+                if isinstance(field, ManyToManyRel):
+                    accessor = field.get_accessor_name()
+                    count = getattr(tag, accessor).count()
+                    if count > 0:
+                        model_name = field.related_model._meta.verbose_name_plural
+                        usage.append((str(model_name), count))
+            tag.usage = usage
+            tag.usage_total = sum(c for _, c in usage)
+        return tags
+
+
+class TagDeleteView(LoginRequiredMixin, DeleteView):
+    model = Tag
+    template_name = "context/confirm_delete.html"
+    success_url = reverse_lazy("context:tag-list")

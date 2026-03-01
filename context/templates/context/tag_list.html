@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Tags" %} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">{% trans "Tags" %}</h1>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Tag" %}</th>
+          <th>{% trans "Color" %}</th>
+          <th>{% trans "Linked items" %}</th>
+          <th>{% trans "Created at" %}</th>
+          <th>{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tag in tags %}
+        <tr>
+          <td>
+            <span class="badge" style="background-color:{{ tag.color }};color:#fff;font-size:.82rem">{{ tag.name }}</span>
+          </td>
+          <td>
+            <span style="display:inline-block;width:1.2rem;height:1.2rem;border-radius:var(--radius-sm);background:{{ tag.color }};vertical-align:middle;border:1px solid var(--border-light)"></span>
+            <code style="font-size:.8rem;color:var(--text-secondary);margin-left:.35rem">{{ tag.color }}</code>
+          </td>
+          <td>
+            {% if tag.usage %}
+              <span style="color:var(--text-secondary);font-size:.85rem">
+                {% for model_name, count in tag.usage %}{{ count }}&nbsp;{{ model_name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+              </span>
+            {% else %}
+              <span style="color:var(--text-muted);font-size:.85rem">—</span>
+            {% endif %}
+          </td>
+          <td style="color:var(--text-secondary);font-size:.85rem">{{ tag.created_at|date:"d/m/Y H:i" }}</td>
+          <td>
+            <a href="{% url 'context:tag-delete' tag.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center py-4" style="color:var(--text-muted)">{% trans "No tag created yet." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Previous" %}</a></li>{% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Next" %}</a></li>{% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}
