@@ -161,6 +161,14 @@ class SupplierRequirement(models.Model):
         related_name="requirements",
         verbose_name=_("Supplier"),
     )
+    source_type_requirement = models.ForeignKey(
+        SupplierTypeRequirement,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="instantiated_requirements",
+        verbose_name=_("Source type requirement"),
+    )
     requirement = models.ForeignKey(
         "compliance.Requirement",
         on_delete=models.SET_NULL,

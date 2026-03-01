@@ -54,6 +54,7 @@ urlpatterns = [
     path("suppliers/<uuid:pk>/archive/", views.SupplierArchiveView.as_view(), name="supplier-archive"),
     path("suppliers/<uuid:pk>/approve/", views.ApproveView.as_view(model=Supplier, permission_feature="supplier", success_url=reverse_lazy("assets:supplier-list")), name="supplier-approve"),
     # Supplier Requirements
+    path("suppliers/<uuid:supplier_pk>/type-requirements/<int:type_req_pk>/review/", views.InstantiateTypeRequirementReviewView.as_view(), name="instantiate-type-requirement-review"),
     path("suppliers/<uuid:supplier_pk>/requirements/create/", views.SupplierRequirementCreateView.as_view(), name="supplier-requirement-create"),
     path("supplier-requirements/<int:pk>/", views.SupplierRequirementDetailView.as_view(), name="supplier-requirement-detail"),
     path("supplier-requirements/<int:pk>/edit/", views.SupplierRequirementUpdateView.as_view(), name="supplier-requirement-update"),
