@@ -31,6 +31,8 @@
           <dd class="col-sm-9">{% if analysis.risk %}<a href="{% url 'risks:risk-detail' analysis.risk.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ analysis.risk }}</a>{% else %}—{% endif %}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Existing controls" %}</dt><dd class="col-sm-9">{{ analysis.existing_controls|default:"—"|linebreaksbr }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ analysis.description|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
+          <dd class="col-sm-9">{% for tag in risk.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
         </dl>
       </div>
     </div>

@@ -40,7 +40,7 @@ class EssentialAssetAdmin(SimpleHistoryAdmin):
     list_filter = ("type", "category", "status", "data_classification", "personal_data")
     search_fields = ("reference", "name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("related_activities",)
+    filter_horizontal = ("related_activities", "tags")
     inlines = [EssentialDependencyInline, AssetValuationInline]
 
 
@@ -57,6 +57,7 @@ class SupportAssetAdmin(SimpleHistoryAdmin):
         "id", "created_at", "updated_at",
         "inherited_confidentiality", "inherited_integrity", "inherited_availability",
     )
+    filter_horizontal = ("tags",)
     inlines = [SupportDependencyInline]
 
 
@@ -80,7 +81,7 @@ class AssetGroupAdmin(SimpleHistoryAdmin):
     list_filter = ("type", "status")
     search_fields = ("name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("members",)
+    filter_horizontal = ("members", "tags")
 
     @admin.display(description="Membres")
     def member_count(self, obj):

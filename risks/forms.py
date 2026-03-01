@@ -93,7 +93,7 @@ class RiskCriteriaForm(ScopedFormMixin, forms.ModelForm):
         model = RiskCriteria
         fields = [
             "scope", "name", "description", "acceptance_threshold",
-            "is_default", "status",
+            "is_default", "status", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -102,6 +102,7 @@ class RiskCriteriaForm(ScopedFormMixin, forms.ModelForm):
             "acceptance_threshold": forms.NumberInput(attrs=FORM_WIDGET_ATTRS),
             "is_default": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -111,7 +112,7 @@ class RiskAssessmentForm(ScopedFormMixin, forms.ModelForm):
         fields = [
             "scope", "reference", "name", "description", "methodology",
             "assessment_date", "assessor", "risk_criteria", "status",
-            "next_review_date", "summary",
+            "next_review_date", "summary", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -125,6 +126,7 @@ class RiskAssessmentForm(ScopedFormMixin, forms.ModelForm):
             "status": forms.Select(attrs=SELECT_ATTRS),
             "next_review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "summary": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -138,7 +140,7 @@ class RiskForm(forms.ModelForm):
             "initial_likelihood", "initial_impact",
             "current_likelihood", "current_impact",
             "treatment_decision", "treatment_justification",
-            "risk_owner", "priority", "status", "review_date",
+            "risk_owner", "priority", "status", "review_date", "tags",
         ]
         widgets = {
             "assessment": forms.Select(attrs=SELECT_ATTRS),
@@ -161,6 +163,7 @@ class RiskForm(forms.ModelForm):
             "priority": forms.Select(attrs=SELECT_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -203,7 +206,7 @@ class RiskTreatmentPlanForm(forms.ModelForm):
         fields = [
             "risk", "reference", "name", "description", "treatment_type",
             "expected_residual_likelihood", "expected_residual_impact",
-            "cost_estimate", "owner", "start_date", "target_date", "status",
+            "cost_estimate", "owner", "start_date", "target_date", "status", "tags",
         ]
         widgets = {
             "risk": forms.Select(attrs=SELECT_ATTRS),
@@ -218,6 +221,7 @@ class RiskTreatmentPlanForm(forms.ModelForm):
             "start_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "target_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -257,7 +261,7 @@ class RiskAcceptanceForm(forms.ModelForm):
     class Meta:
         model = RiskAcceptance
         fields = [
-            "risk", "justification", "conditions", "valid_until", "review_date",
+            "risk", "justification", "conditions", "valid_until", "review_date", "tags",
         ]
         widgets = {
             "risk": forms.Select(attrs=SELECT_ATTRS),
@@ -265,6 +269,7 @@ class RiskAcceptanceForm(forms.ModelForm):
             "conditions": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "valid_until": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -273,7 +278,7 @@ class ThreatForm(ScopedFormMixin, forms.ModelForm):
         model = Threat
         fields = [
             "scope", "reference", "name", "description", "type", "origin",
-            "category", "typical_likelihood", "is_from_catalog", "status",
+            "category", "typical_likelihood", "is_from_catalog", "status", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -286,6 +291,7 @@ class ThreatForm(ScopedFormMixin, forms.ModelForm):
             "typical_likelihood": forms.NumberInput(attrs=FORM_WIDGET_ATTRS),
             "is_from_catalog": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -295,7 +301,7 @@ class VulnerabilityForm(ScopedFormMixin, forms.ModelForm):
         fields = [
             "scope", "reference", "name", "description", "category",
             "severity", "affected_assets", "remediation_guidance",
-            "is_from_catalog", "status",
+            "is_from_catalog", "status", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -308,6 +314,7 @@ class VulnerabilityForm(ScopedFormMixin, forms.ModelForm):
             "remediation_guidance": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "is_from_catalog": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -366,7 +373,7 @@ class ISO27005RiskForm(forms.ModelForm):
             "affected_essential_assets", "affected_support_assets",
             "threat_likelihood", "vulnerability_exposure",
             "impact_confidentiality", "impact_integrity", "impact_availability",
-            "existing_controls", "description",
+            "existing_controls", "description", "tags",
         ]
         widgets = {
             "assessment": forms.Select(attrs=SELECT_ATTRS),
@@ -381,6 +388,7 @@ class ISO27005RiskForm(forms.ModelForm):
             "impact_availability": forms.NumberInput(attrs=FORM_WIDGET_ATTRS),
             "existing_controls": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
     def __init__(self, *args, **kwargs):

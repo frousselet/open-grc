@@ -10,10 +10,27 @@ from .models import (
     Section,
 )
 
-admin.site.register(Framework)
+
+@admin.register(Framework)
+class FrameworkAdmin(admin.ModelAdmin):
+    filter_horizontal = ("tags",)
+
+
+@admin.register(Requirement)
+class RequirementAdmin(admin.ModelAdmin):
+    filter_horizontal = ("tags",)
+
+
+@admin.register(ComplianceAssessment)
+class ComplianceAssessmentAdmin(admin.ModelAdmin):
+    filter_horizontal = ("tags",)
+
+
+@admin.register(ComplianceActionPlan)
+class ComplianceActionPlanAdmin(admin.ModelAdmin):
+    filter_horizontal = ("tags",)
+
+
 admin.site.register(Section)
-admin.site.register(Requirement)
-admin.site.register(ComplianceAssessment)
 admin.site.register(AssessmentResult)
 admin.site.register(RequirementMapping)
-admin.site.register(ComplianceActionPlan)

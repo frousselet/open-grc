@@ -29,6 +29,12 @@ class BaseModel(models.Model):
     )
     approved_at = models.DateTimeField(_("Approval date"), null=True, blank=True)
     version = models.PositiveIntegerField(_("Version"), default=1)
+    tags = models.ManyToManyField(
+        "context.Tag",
+        blank=True,
+        related_name="%(app_label)s_%(class)s_set",
+        verbose_name=_("Tags"),
+    )
 
     class Meta:
         abstract = True

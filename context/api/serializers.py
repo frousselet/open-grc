@@ -12,7 +12,15 @@ from context.models import (
     StakeholderExpectation,
     SwotAnalysis,
     SwotItem,
+    Tag,
 )
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ["id", "name", "color", "created_at"]
+        read_only_fields = ["id", "created_at"]
 
 
 class ScopeSerializer(serializers.ModelSerializer):
@@ -29,7 +37,7 @@ class ScopeSerializer(serializers.ModelSerializer):
             "geographic_scope", "organizational_scope", "technical_scope",
             "included_sites", "excluded_sites",
             "is_approved", "approved_by", "approved_at",
-            "effective_date", "review_date",
+            "effective_date", "review_date", "tags",
             "created_by", "created_at", "updated_at",
         ]
         read_only_fields = ["id", "created_by", "created_at", "updated_at", "is_approved", "approved_by", "approved_at", "version"]
@@ -44,7 +52,7 @@ class SiteSerializer(serializers.ModelSerializer):
         model = Site
         fields = [
             "id", "name", "type", "address", "description",
-            "parent_site", "parent_site_name", "status", "version",
+            "parent_site", "parent_site_name", "status", "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -57,7 +65,7 @@ class IssueSerializer(serializers.ModelSerializer):
         fields = [
             "id", "scope", "name", "description", "type", "category",
             "impact_level", "trend", "source", "related_stakeholders",
-            "review_date", "status", "version",
+            "review_date", "status", "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -83,7 +91,7 @@ class StakeholderSerializer(serializers.ModelSerializer):
             "id", "scope", "name", "type", "category", "description",
             "contact_name", "contact_email", "contact_phone",
             "influence_level", "interest_level", "expectations",
-            "status", "review_date", "version",
+            "status", "review_date", "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -112,7 +120,7 @@ class ObjectiveSerializer(serializers.ModelSerializer):
             "measurement_method", "measurement_frequency", "target_date",
             "owner", "status", "progress_percentage",
             "related_issues", "related_stakeholders", "parent_objective",
-            "review_date", "version",
+            "review_date", "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -138,7 +146,7 @@ class SwotAnalysisSerializer(serializers.ModelSerializer):
         fields = [
             "id", "scope", "name", "description", "analysis_date",
             "status", "validated_by", "validated_at", "items",
-            "review_date", "version",
+            "review_date", "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -177,7 +185,7 @@ class RoleSerializer(serializers.ModelSerializer):
             "id", "scope", "name", "description", "type",
             "assigned_users", "is_mandatory", "source_standard",
             "status", "responsibilities", "compliance_alert",
-            "version",
+            "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -205,7 +213,7 @@ class ActivitySerializer(serializers.ModelSerializer):
             "id", "scope", "reference", "name", "description",
             "type", "criticality", "owner", "parent_activity",
             "related_stakeholders", "related_objectives",
-            "status", "version",
+            "status", "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]

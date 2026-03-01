@@ -41,6 +41,7 @@
           <th>{% trans "Treatment" %}</th>
           <th>{% trans "Status" %}</th>
           <th>{% trans "Owner" %}</th>
+          <th>{% trans "Tags" %}</th>
           <th>{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -60,12 +61,13 @@
           <td style="font-size:.85rem">{{ r.get_treatment_decision_display }}</td>
           <td style="font-size:.85rem">{{ r.get_status_display }}</td>
           <td style="font-size:.85rem">{{ r.risk_owner|default:"—" }}</td>
+          <td>{% for tag in r.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.7rem">{{ tag.name }}</span>{% endfor %}</td>
           <td>
             <a href="{% url 'risks:risk-update' r.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)">{% trans "No risks recorded." %}</td></tr>
+        <tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No risks recorded." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>

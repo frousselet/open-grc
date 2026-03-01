@@ -32,6 +32,7 @@
           <th>{% trans "Progress" %}</th>
           <th>{% trans "Target date" %}</th>
           <th>{% trans "Status" %}</th>
+          <th>{% trans "Tags" %}</th>
           <th>{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -54,12 +55,13 @@
               {{ p.get_status_display }}
             </span>
           </td>
+          <td>{% for tag in p.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.7rem">{{ tag.name }}</span>{% endfor %}</td>
           <td>
             <a href="{% url 'risks:treatment-plan-update' p.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No treatment plans." %}</td></tr>
+        <tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)">{% trans "No treatment plans." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>

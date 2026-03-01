@@ -16,6 +16,7 @@ from context.models import (
     StakeholderExpectation,
     SwotAnalysis,
     SwotItem,
+    Tag,
 )
 from .filters import (
     ActivityFilter,
@@ -43,7 +44,16 @@ from .serializers import (
     SwotAnalysisListSerializer,
     SwotAnalysisSerializer,
     SwotItemSerializer,
+    TagSerializer,
 )
+
+
+class TagViewSet(viewsets.ModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = [ContextPermission]
+    search_fields = ["name"]
+    ordering_fields = ["name", "created_at"]
 
 
 class CreatedByMixin:

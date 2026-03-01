@@ -42,6 +42,7 @@ class RiskCriteriaAdmin(SimpleHistoryAdmin):
     list_filter = ("status", "is_default")
     search_fields = ("name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
+    filter_horizontal = ("tags",)
     inlines = [ScaleLevelInline, RiskLevelInline]
 
 
@@ -54,6 +55,7 @@ class RiskAssessmentAdmin(SimpleHistoryAdmin):
     list_filter = ("status", "methodology")
     search_fields = ("reference", "name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
+    filter_horizontal = ("tags",)
 
 
 class RiskAdminForm(dj_forms.ModelForm):
@@ -102,7 +104,7 @@ class RiskAdmin(SimpleHistoryAdmin):
         "id", "created_at", "updated_at",
         "initial_risk_level", "current_risk_level", "residual_risk_level",
     )
-    filter_horizontal = ("affected_essential_assets", "affected_support_assets")
+    filter_horizontal = ("affected_essential_assets", "affected_support_assets", "tags")
 
 
 class TreatmentPlanAdminForm(dj_forms.ModelForm):
@@ -141,6 +143,7 @@ class RiskTreatmentPlanAdmin(SimpleHistoryAdmin):
     list_filter = ("status", "treatment_type")
     search_fields = ("reference", "name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
+    filter_horizontal = ("tags",)
     inlines = [TreatmentActionInline]
 
 
@@ -153,6 +156,7 @@ class RiskAcceptanceAdmin(SimpleHistoryAdmin):
     list_filter = ("status",)
     search_fields = ("justification", "conditions")
     readonly_fields = ("id", "created_at", "updated_at")
+    filter_horizontal = ("tags",)
 
 
 @admin.register(Threat)
@@ -164,6 +168,7 @@ class ThreatAdmin(SimpleHistoryAdmin):
     list_filter = ("type", "origin", "category", "status", "is_from_catalog")
     search_fields = ("reference", "name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
+    filter_horizontal = ("tags",)
 
 
 @admin.register(Vulnerability)
@@ -175,7 +180,7 @@ class VulnerabilityAdmin(SimpleHistoryAdmin):
     list_filter = ("category", "severity", "status", "is_from_catalog")
     search_fields = ("reference", "name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("affected_assets",)
+    filter_horizontal = ("affected_assets", "tags")
 
 
 @admin.register(ISO27005Risk)
@@ -190,4 +195,4 @@ class ISO27005RiskAdmin(SimpleHistoryAdmin):
         "id", "created_at", "updated_at",
         "combined_likelihood", "max_impact", "risk_level",
     )
-    filter_horizontal = ("affected_essential_assets", "affected_support_assets")
+    filter_horizontal = ("affected_essential_assets", "affected_support_assets", "tags")

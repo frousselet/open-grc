@@ -28,6 +28,7 @@
           <th>{% trans "Level at acceptance" %}</th>
           <th>{% trans "Valid until" %}</th>
           <th>{% trans "Status" %}</th>
+          <th>{% trans "Tags" %}</th>
           <th>{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -43,12 +44,13 @@
               {{ acc.get_status_display }}
             </span>
           </td>
+          <td>{% for tag in acc.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.7rem">{{ tag.name }}</span>{% endfor %}</td>
           <td>
             <a href="{% url 'risks:acceptance-update' acc.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted)">{% trans "No risk acceptances." %}</td></tr>
+        <tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted)">{% trans "No risk acceptances." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>

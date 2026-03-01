@@ -3636,3 +3636,16 @@ msgstr "Voir le calendrier"
 
 msgid "Loading..."
 msgstr "Chargement…"
+
+#: context/models/tag.py
+msgid "Tag"
+msgstr "Tag"
+
+msgid "Tags"
+msgstr "Tags"
+
+msgid "Color"
+msgstr "Couleur"
+
+msgid "Hex color code, e.g. #ff5733"
+msgstr "Code couleur hexadécimal, ex. #ff5733"

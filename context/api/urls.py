@@ -12,6 +12,7 @@ router.register(r"objectives", views.ObjectiveViewSet)
 router.register(r"swot-analyses", views.SwotAnalysisViewSet)
 router.register(r"roles", views.RoleViewSet)
 router.register(r"activities", views.ActivityViewSet)
+router.register(r"tags", views.TagViewSet)
 
 # Nested routes for sub-entities
 stakeholder_expectations = views.StakeholderExpectationViewSet.as_view({

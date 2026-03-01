@@ -24,6 +24,7 @@
           <th>{% trans "Compliance" %}</th>
           <th>{% trans "Level" %}</th>
           <th>{% trans "Priority" %}</th>
+          <th>{% trans "Tags" %}</th>
           <th>{% trans "Approval" %}</th>
           <th>{% trans "Actions" %}</th>
         </tr>
@@ -48,6 +49,7 @@
             </span>
             {% else %}—{% endif %}
           </td>
+          <td>{% for tag in req.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.7rem">{{ tag.name }}</span>{% endfor %}</td>
           <td>
             <span class="badge text-bg-{% if req.is_approved %}success{% else %}warning{% endif %}">
               {% if req.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
@@ -58,7 +60,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No requirement defined." %}</td></tr>
+        <tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)">{% trans "No requirement defined." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>

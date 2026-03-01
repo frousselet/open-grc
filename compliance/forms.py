@@ -45,7 +45,7 @@ class FrameworkForm(ScopedFormMixin, forms.ModelForm):
             "publication_date", "effective_date", "expiry_date",
             "issuing_body", "jurisdiction", "url",
             "is_mandatory", "is_applicable", "applicability_justification",
-            "owner", "status", "review_date",
+            "owner", "status", "review_date", "tags",
         ]
         widgets = {
             "scopes": forms.SelectMultiple(attrs=SELECT_ATTRS),
@@ -68,6 +68,7 @@ class FrameworkForm(ScopedFormMixin, forms.ModelForm):
             "owner": forms.Select(attrs=SELECT_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -96,7 +97,7 @@ class RequirementForm(forms.ModelForm):
             "description", "guidance", "type", "category",
             "is_applicable", "applicability_justification",
             "owner", "priority", "target_date",
-            "order", "status",
+            "order", "status", "tags",
         ]
         widgets = {
             "framework": forms.Select(attrs=SELECT_ATTRS),
@@ -114,6 +115,7 @@ class RequirementForm(forms.ModelForm):
             "target_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "order": forms.NumberInput(attrs=FORM_WIDGET_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -123,7 +125,7 @@ class ComplianceAssessmentForm(ScopedFormMixin, forms.ModelForm):
         fields = [
             "scope", "framework", "name", "description",
             "assessment_date", "assessor", "methodology",
-            "status", "review_date",
+            "status", "review_date", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -135,6 +137,7 @@ class ComplianceAssessmentForm(ScopedFormMixin, forms.ModelForm):
             "methodology": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "status": forms.Select(attrs=SELECT_ATTRS),
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
 
 
@@ -230,7 +233,7 @@ class ComplianceActionPlanForm(ScopedFormMixin, forms.ModelForm):
             "gap_description", "remediation_plan",
             "priority", "owner",
             "start_date", "target_date", "completion_date",
-            "progress_percentage", "cost_estimate", "status",
+            "progress_percentage", "cost_estimate", "status", "tags",
         ]
         widgets = {
             "scope": forms.Select(attrs=SELECT_ATTRS),
@@ -249,4 +252,5 @@ class ComplianceActionPlanForm(ScopedFormMixin, forms.ModelForm):
             "progress_percentage": forms.NumberInput(attrs={**FORM_WIDGET_ATTRS, "min": 0, "max": 100}),
             "cost_estimate": forms.NumberInput(attrs={**FORM_WIDGET_ATTRS, "step": "0.01"}),
             "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
