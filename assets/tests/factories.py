@@ -8,13 +8,12 @@ from assets.constants import (
     EssentialAssetType,
     SupplierCriticality,
     SupplierDependencyType,
-    SupplierType,
     SupportAssetCategory,
     SupportAssetType,
 )
 from assets.models.dependency import AssetDependency
 from assets.models.essential_asset import EssentialAsset
-from assets.models.supplier import Supplier, SupplierDependency, SupplierRequirement
+from assets.models.supplier import Supplier, SupplierDependency, SupplierRequirement, SupplierType
 from assets.models.support_asset import SupportAsset
 from context.constants import Criticality
 from context.tests.factories import ScopeFactory
@@ -57,6 +56,13 @@ class DependencyFactory(factory.django.DjangoModelFactory):
     criticality = Criticality.HIGH
 
 
+class SupplierTypeFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SupplierType
+
+    name = factory.Sequence(lambda n: f"Supplier Type {n}")
+
+
 class SupplierFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Supplier
@@ -64,7 +70,7 @@ class SupplierFactory(factory.django.DjangoModelFactory):
     scope = factory.SubFactory(ScopeFactory)
     reference = factory.Sequence(lambda n: f"SUPP-{n:03d}")
     name = factory.Sequence(lambda n: f"Supplier {n}")
-    type = SupplierType.SOFTWARE_VENDOR
+    type = factory.SubFactory(SupplierTypeFactory)
     criticality = SupplierCriticality.MEDIUM
     owner = factory.SubFactory(UserFactory)
 

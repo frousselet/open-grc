@@ -34,7 +34,7 @@
   <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#contact">{% trans "Contact" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#contract">{% trans "Contract" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#requirements">{% trans "Requirements" %} <span class="badge text-bg-secondary">{{ requirements|length }}</span></a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#requirements">{% trans "Requirements" %} <span class="badge text-bg-secondary">{{ requirements|length }}{% if type_requirements %} + {{ type_requirements|length }}{% endif %}</span></a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
@@ -44,7 +44,7 @@
       <div class="card-body">
         <dl class="row mb-0">
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ supplier.scope }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ supplier.get_type_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{% if supplier.type %}<a href="{% url 'assets:supplier-type-detail' supplier.type.pk %}" style="color:var(--accent);text-decoration:none">{{ supplier.type.name }}</a>{% else %}—{% endif %}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Criticality" %}</dt>
           <dd class="col-sm-9">
             <span class="badge text-bg-{% if supplier.criticality == 'critical' %}danger{% elif supplier.criticality == 'high' %}warning{% elif supplier.criticality == 'medium' %}info{% else %}secondary{% endif %}">
@@ -99,8 +99,34 @@
   </div>
 
   <div class="tab-pane fade" id="requirements">
+    {% if supplier.type and type_requirements %}
+    <h5 class="mb-3">{% trans "Type requirements" %} <small style="color:var(--text-muted);font-weight:normal">({% trans "inherited from" %} <a href="{% url 'assets:supplier-type-detail' supplier.type.pk %}" style="color:var(--accent);text-decoration:none">{{ supplier.type.name }}</a>)</small></h5>
+    <div class="card mb-4">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>{% trans "Ref." %}</th>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Framework" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for req in type_requirements %}
+            <tr>
+              <td><span class="ref">{{ req.reference }}</span></td>
+              <td>{{ req.name }}</td>
+              <td>{{ req.framework|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
     <div class="d-flex align-items-center mb-3">
-      <h5 class="mb-0">{% trans "Applied requirements" %}</h5>
+      <h5 class="mb-0">{% trans "Specific requirements" %}</h5>
       <a href="{% url 'assets:supplier-requirement-create' supplier.pk %}" class="btn btn-sm btn-primary ms-auto">{% trans "Add requirement" %}</a>
     </div>
 
@@ -167,7 +193,7 @@
               </td>
             </tr>
             {% empty %}
-            <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted)">{% trans "No requirements applied to this supplier." %}</td></tr>
+            <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted)">{% trans "No specific requirements for this supplier." %}</td></tr>
             {% endfor %}
           </tbody>
         </table>

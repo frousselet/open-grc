@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Supplier types" %} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">{% trans "Supplier types" %}</h1>
+  <a href="{% url 'assets:supplier-type-create' %}" class="btn btn-primary ms-auto">{% trans "New supplier type" %}</a>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Name" %}</th>
+          <th>{% trans "Description" %}</th>
+          <th>{% trans "Requirements" %}</th>
+          <th>{% trans "Suppliers" %}</th>
+          <th>{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for st in supplier_types %}
+        <tr>
+          <td><a href="{% url 'assets:supplier-type-detail' st.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ st.name }}</a></td>
+          <td>{{ st.description|truncatewords:15|default:"—" }}</td>
+          <td><span class="badge text-bg-secondary">{{ st.requirements.count }}</span></td>
+          <td><span class="badge text-bg-secondary">{{ st.suppliers.count }}</span></td>
+          <td class="d-flex gap-1">
+            <a href="{% url 'assets:supplier-type-update' st.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Edit" %}</a>
+            <a href="{% url 'assets:supplier-type-delete' st.pk %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center py-4" style="color:var(--text-muted)">{% trans "No supplier types defined." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -23,6 +23,7 @@ from .forms import (
     SupplierDependencyForm,
     SupplierForm,
     SupplierRequirementForm,
+    SupplierTypeForm,
     SupportAssetForm,
 )
 from .models import (
@@ -32,6 +33,7 @@ from .models import (
     Supplier,
     SupplierDependency,
     SupplierRequirement,
+    SupplierType,
     SupportAsset,
 )
 
@@ -343,10 +345,10 @@ class SupplierListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related("scope", "owner")
+        qs = super().get_queryset().select_related("scope", "owner", "type")
         supplier_type = self.request.GET.get("type")
         if supplier_type:
-            qs = qs.filter(type=supplier_type)
+            qs = qs.filter(type_id=supplier_type)
         status_filter = self.request.GET.get("status")
         if status_filter:
             qs = qs.filter(status=status_filter)
@@ -366,6 +368,10 @@ class SupplierDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMi
             "requirement", "verified_by"
         )
         ctx["compliance_summary"] = self.object.requirement_compliance_summary
+        if self.object.type:
+            ctx["type_requirements"] = self.object.type.requirements.all()
+        else:
+            ctx["type_requirements"] = []
         return ctx
 
 
@@ -408,6 +414,46 @@ class SupplierArchiveView(LoginRequiredMixin, View):
         supplier.save(update_fields=["status"])
         messages.success(request, _("Supplier archived."))
         return redirect("assets:supplier-list")
+
+
+# ── Supplier Types ────────────────────────────────────────
+
+
+class SupplierTypeListView(LoginRequiredMixin, ListView):
+    model = SupplierType
+    template_name = "assets/supplier_type_list.html"
+    context_object_name = "supplier_types"
+
+
+class SupplierTypeDetailView(LoginRequiredMixin, DetailView):
+    model = SupplierType
+    template_name = "assets/supplier_type_detail.html"
+    context_object_name = "supplier_type"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["suppliers"] = self.object.suppliers.select_related("scope", "owner")
+        return ctx
+
+
+class SupplierTypeCreateView(LoginRequiredMixin, CreateView):
+    model = SupplierType
+    form_class = SupplierTypeForm
+    template_name = "assets/supplier_type_form.html"
+    success_url = reverse_lazy("assets:supplier-type-list")
+
+
+class SupplierTypeUpdateView(LoginRequiredMixin, UpdateView):
+    model = SupplierType
+    form_class = SupplierTypeForm
+    template_name = "assets/supplier_type_form.html"
+    success_url = reverse_lazy("assets:supplier-type-list")
+
+
+class SupplierTypeDeleteView(LoginRequiredMixin, DeleteView):
+    model = SupplierType
+    template_name = "assets/confirm_delete.html"
+    success_url = reverse_lazy("assets:supplier-type-list")
 
 
 # ── Supplier Requirements ─────────────────────────────────

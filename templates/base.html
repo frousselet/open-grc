@@ -815,9 +815,14 @@
         <a href="{% url 'assets:supplier-dependency-list' %}" class="sidebar-link sidebar-sub">{% trans "Supplier dependencies" %}</a>
         <a href="{% url 'assets:dependency-graph' %}" class="sidebar-link sidebar-sub">{% trans "Graph view" %}</a>
       </div>
-      <a href="{% url 'assets:supplier-list' %}" class="sidebar-link">
+      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navSuppliers" aria-expanded="true">
         <i class="bi bi-truck"></i> {% trans "Suppliers" %}
-      </a>
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      <div class="collapse show" id="navSuppliers">
+        <a href="{% url 'assets:supplier-list' %}" class="sidebar-link sidebar-sub">{% trans "Suppliers" %}</a>
+        <a href="{% url 'assets:supplier-type-list' %}" class="sidebar-link sidebar-sub">{% trans "Supplier types" %}</a>
+      </div>
 
       {# ── Gestion des risques ───────────────────────── #}
       <div class="sidebar-section">{% trans "Risk management" %}</div>

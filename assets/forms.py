@@ -9,6 +9,7 @@ from .models import (
     Supplier,
     SupplierDependency,
     SupplierRequirement,
+    SupplierType,
     SupportAsset,
 )
 
@@ -182,6 +183,17 @@ class SupplierForm(ScopedFormMixin, forms.ModelForm):
             "status": forms.Select(attrs=SELECT_ATTRS),
             "notes": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+        }
+
+
+class SupplierTypeForm(forms.ModelForm):
+    class Meta:
+        model = SupplierType
+        fields = ["name", "description", "requirements"]
+        widgets = {
+            "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "requirements": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 8}),
         }
 
 

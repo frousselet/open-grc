@@ -9,6 +9,7 @@ from .models import (
     Supplier,
     SupplierDependency,
     SupplierRequirement,
+    SupplierType,
     SupportAsset,
 )
 
@@ -101,6 +102,13 @@ class AssetValuationAdmin(admin.ModelAdmin):
     list_filter = ("evaluation_date",)
     search_fields = ("essential_asset__reference", "essential_asset__name")
     readonly_fields = ("id", "created_at")
+
+
+@admin.register(SupplierType)
+class SupplierTypeAdmin(admin.ModelAdmin):
+    list_display = ("name", "description")
+    search_fields = ("name",)
+    filter_horizontal = ("requirements",)
 
 
 class SupplierRequirementInline(admin.TabularInline):
