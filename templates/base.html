@@ -724,7 +724,45 @@
       .sidebar.show { transform: translateX(0); }
       .sidebar-backdrop.show { display: block; }
       .sidebar-toggle { display: inline-flex; }
-      .main-content { margin-left: 0; padding: 2rem 1.25rem 4rem; }
+      .main-content { margin-left: 0; padding: 3.25rem 1rem 4rem; }
+      .main-content h1 { font-size: 1.25rem; }
+      .main-content h2 { font-size: 1.1rem; }
+      .main-content hr { margin: 1.5rem 0; }
+
+      /* Stat cards: compact on mobile */
+      .stat-card { padding: 1rem 1.15rem; }
+      .stat-card-value { font-size: 1.5rem; }
+      .stat-card-icon { width: 2.1rem; height: 2.1rem; font-size: .95rem; margin-bottom: .5rem; }
+
+      /* Hero section responsive */
+      .hero-section { padding: 1.25rem 1.15rem; }
+      .hero-section .display-4 { font-size: 1.5rem; }
+      .hero-section h2 { font-size: 1.05rem; }
+      .hero-section p { font-size: .78rem !important; }
+
+      /* Cards compact */
+      .card-body { padding: 1rem 1.15rem; }
+
+      /* Tables scroll hint */
+      .table-responsive { -webkit-overflow-scrolling: touch; }
+
+      /* Buttons touch-friendly */
+      .btn { min-height: 2.5rem; }
+      .btn-sm { min-height: 2rem; }
+
+      /* Section headers compact */
+      .section-header { margin-bottom: 1rem; }
+      .section-header h2 { font-size: 1rem; }
+    }
+    @media (max-width: 575.98px) {
+      .main-content { padding: 3.25rem .75rem 3rem; }
+
+      /* Stack stat cards nicely on very small screens */
+      .stat-card { padding: .85rem 1rem; }
+      .stat-card-value { font-size: 1.35rem; }
+
+      /* Risk matrix: allow horizontal scroll */
+      .risk-matrix-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     }
     @media (min-width: 992px) and (max-width: 1399.98px) {
       .main-content { padding: 2.5rem 2rem 4rem; }

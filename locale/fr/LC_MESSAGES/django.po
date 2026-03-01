@@ -6852,3 +6852,27 @@ msgstr "Aucun historique disponible."
 
 #~ msgid "Week"
 #~ msgstr "Semaine"
+
+#: core/views.py templates/home.html
+msgid "%(count)d supplier(s) with expired contract"
+msgstr "%(count)d fournisseur(s) avec contrat expiré"
+
+#: core/views.py templates/home.html
+msgid "%(count)d risk acceptance(s) expiring within 30 days"
+msgstr "%(count)d acceptation(s) de risque expirant dans les 30 jours"
+
+#: core/views.py templates/home.html
+msgid "%(count)d critical activity(ies) without owner"
+msgstr "%(count)d activité(s) critique(s) sans propriétaire"
+
+#: templates/home.html
+msgid "%(count)s expired contract(s)"
+msgstr "%(count)s contrat(s) expiré(s)"
+
+#: templates/home.html
+msgid "%(count)s expiring soon"
+msgstr "%(count)s expirant bientôt"
+
+#: templates/home.html
+msgid "%(count)s critical without owner"
+msgstr "%(count)s critique(s) sans propriétaire"
