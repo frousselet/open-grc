@@ -1,12 +1,14 @@
 from django import forms
 from django.forms import inlineformset_factory
 
-from context.models import Scope
+from context.models import Scope, Site
 from .models import (
     AssetDependency,
     AssetGroup,
     AssetValuation,
     EssentialAsset,
+    SiteAssetDependency,
+    SiteSupplierDependency,
     Supplier,
     SupplierDependency,
     SupplierRequirement,
@@ -257,6 +259,96 @@ class SupplierDependencyForm(forms.ModelForm):
         ]
         widgets = {
             "support_asset": forms.Select(attrs=SELECT_ATTRS),
+            "supplier": forms.Select(attrs=SELECT_ATTRS),
+            "dependency_type": forms.Select(attrs=SELECT_ATTRS),
+            "criticality": forms.Select(attrs=SELECT_ATTRS),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "is_single_point_of_failure": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
+            "redundancy_level": forms.Select(attrs=SELECT_ATTRS),
+        }
+
+
+def _site_tree_choices(queryset):
+    """Build tree-ordered (pk, label) choices with full path labels (A / B / C)."""
+    sites = list(queryset.select_related("parent_site"))
+    by_parent = {}
+    for s in sites:
+        by_parent.setdefault(s.parent_site_id, []).append(s)
+
+    choices = []
+    visited = set()
+
+    def walk(parent_id, path):
+        for s in sorted(by_parent.get(parent_id, []), key=lambda x: x.name):
+            full_path = path + [s.name]
+            choices.append((s.pk, " / ".join(full_path)))
+            visited.add(s.pk)
+            walk(s.pk, full_path)
+
+    walk(None, [])
+
+    for s in sites:
+        if s.pk not in visited:
+            choices.append((s.pk, s.name))
+
+    return choices
+
+
+class SiteForm(forms.ModelForm):
+    class Meta:
+        model = Site
+        fields = [
+            "name", "type", "address", "description", "parent_site", "status", "tags",
+        ]
+        widgets = {
+            "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "type": forms.Select(attrs=SELECT_ATTRS),
+            "address": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
+            "parent_site": forms.Select(attrs=SELECT_ATTRS),
+            "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        qs = Site.objects.exclude(status="archived")
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        field = self.fields["parent_site"]
+        field.queryset = qs
+        field.choices = [("", field.empty_label or "---------")] + _site_tree_choices(qs)
+
+
+class SiteAssetDependencyForm(forms.ModelForm):
+    class Meta:
+        model = SiteAssetDependency
+        fields = [
+            "support_asset", "site",
+            "dependency_type", "criticality", "description",
+            "is_single_point_of_failure", "redundancy_level",
+        ]
+        widgets = {
+            "support_asset": forms.Select(attrs=SELECT_ATTRS),
+            "site": forms.Select(attrs=SELECT_ATTRS),
+            "dependency_type": forms.Select(attrs=SELECT_ATTRS),
+            "criticality": forms.Select(attrs=SELECT_ATTRS),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "is_single_point_of_failure": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
+            "redundancy_level": forms.Select(attrs=SELECT_ATTRS),
+        }
+
+
+class SiteSupplierDependencyForm(forms.ModelForm):
+    class Meta:
+        model = SiteSupplierDependency
+        fields = [
+            "site", "supplier",
+            "dependency_type", "criticality", "description",
+            "is_single_point_of_failure", "redundancy_level",
+        ]
+        widgets = {
+            "site": forms.Select(attrs=SELECT_ATTRS),
             "supplier": forms.Select(attrs=SELECT_ATTRS),
             "dependency_type": forms.Select(attrs=SELECT_ATTRS),
             "criticality": forms.Select(attrs=SELECT_ATTRS),

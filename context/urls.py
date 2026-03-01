@@ -1,7 +1,7 @@
 from django.urls import path, reverse_lazy
 
 from . import views
-from .models import Activity, Issue, Objective, Role, Scope, Site, Stakeholder, SwotAnalysis
+from .models import Activity, Issue, Objective, Role, Scope, Stakeholder, SwotAnalysis
 
 app_name = "context"
 
@@ -15,13 +15,6 @@ urlpatterns = [
     path("scopes/<uuid:pk>/edit/", views.ScopeUpdateView.as_view(), name="scope-update"),
     path("scopes/<uuid:pk>/delete/", views.ScopeDeleteView.as_view(), name="scope-delete"),
     path("scopes/<uuid:pk>/approve/", views.ApproveView.as_view(model=Scope, success_url=reverse_lazy("context:scope-list")), name="scope-approve"),
-    # Sites
-    path("sites/", views.SiteListView.as_view(), name="site-list"),
-    path("sites/create/", views.SiteCreateView.as_view(), name="site-create"),
-    path("sites/<uuid:pk>/", views.SiteDetailView.as_view(), name="site-detail"),
-    path("sites/<uuid:pk>/edit/", views.SiteUpdateView.as_view(), name="site-update"),
-    path("sites/<uuid:pk>/delete/", views.SiteDeleteView.as_view(), name="site-delete"),
-    path("sites/<uuid:pk>/approve/", views.ApproveView.as_view(model=Site, success_url=reverse_lazy("context:site-list")), name="site-approve"),
     # Issues
     path("issues/", views.IssueListView.as_view(), name="issue-list"),
     path("issues/create/", views.IssueCreateView.as_view(), name="issue-create"),

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ site.name }} — Open GRC{% endblock %}
+
+{% block content %}
+{% if ancestors %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    {% for ancestor in ancestors %}
+    <li class="breadcrumb-item"><a href="{% url 'assets:site-detail' ancestor.pk %}">{{ ancestor.name }}</a></li>
+    {% endfor %}
+    <li class="breadcrumb-item active" aria-current="page">{{ site.name }}</li>
+  </ol>
+</nav>
+{% endif %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="mb-0">{{ site.name }}</h1>
+    <small class="ref">{{ site.reference }}</small>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'assets:site-update' site.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'assets:site-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+  </div>
+</div>
+{% include "includes/approval_badge.html" %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="general">
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ site.get_type_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if site.status == 'active' %}success{% elif site.status == 'draft' %}secondary{% else %}dark{% endif %}">
+              {{ site.get_status_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Address" %}</dt><dd class="col-sm-9">{{ site.address|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ site.description|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Parent site" %}</dt>
+          <dd class="col-sm-9">
+            {% if site.parent_site %}
+            <a href="{% url 'assets:site-detail' site.parent_site.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ site.parent_site.name }}</a>
+            {% else %}—{% endif %}
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Version" %}</dt><dd class="col-sm-9">{{ site.version }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Approved by" %}</dt><dd class="col-sm-9">{{ site.approved_by|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Approval date" %}</dt><dd class="col-sm-9">{{ site.approved_at|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Created by" %}</dt><dd class="col-sm-9">{{ site.created_by|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
+          <dd class="col-sm-9">{% for tag in site.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Created on" %}</dt><dd class="col-sm-9">{{ site.created_at }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Modified on" %}</dt><dd class="col-sm-9">{{ site.updated_at }}</dd>
+        </dl>
+      </div>
+    </div>
+    {% if children %}
+    <h5 class="mt-4">{% trans "Sub-sites" %}</h5>
+    <ul class="list-group">
+      {% for child in children %}
+      <li class="list-group-item">
+        <a href="{% url 'assets:site-detail' child.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ child.name }}</a>
+        <span class="badge text-bg-{% if child.status == 'active' %}success{% elif child.status == 'draft' %}secondary{% else %}dark{% endif %} ms-2">
+          {{ child.get_status_display }}
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

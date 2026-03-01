@@ -218,6 +218,25 @@ class SupplierDependencyType(models.TextChoices):
     OTHER = "other", _("Other")
 
 
+# ── Site–Asset Dependency ──────────────────────────────────
+
+class SiteAssetDependencyType(models.TextChoices):
+    LOCATED_AT = "located_at", _("Located at")
+    HOSTED_AT = "hosted_at", _("Hosted at")
+    DEPLOYED_AT = "deployed_at", _("Deployed at")
+    OTHER = "other", _("Other")
+
+
+# ── Site–Supplier Dependency ───────────────────────────────
+
+class SiteSupplierDependencyType(models.TextChoices):
+    MAINTAINED_BY = "maintained_by", _("Maintained by")
+    MANAGED_BY = "managed_by", _("Managed by")
+    POWERED_BY = "powered_by", _("Powered by")
+    SECURED_BY = "secured_by", _("Secured by")
+    OTHER = "other", _("Other")
+
+
 # ── Asset Group ─────────────────────────────────────────────
 
 class AssetGroupStatus(models.TextChoices):
