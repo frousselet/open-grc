@@ -4,7 +4,7 @@ LABEL org.opencontainers.image.source="https://github.com/frousselet/open-grc"
 LABEL org.opencontainers.image.description="Open GRC – Governance, Risk & Compliance platform"
 LABEL org.opencontainers.image.licenses="MIT"
 
-ARG APP_VERSION=dev
+ARG APP_VERSION
 ENV APP_VERSION=${APP_VERSION}
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
