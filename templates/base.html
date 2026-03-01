@@ -682,7 +682,7 @@
     <div class="sidebar-brand">
       <a href="/">
         <span class="sidebar-brand-icon"><i class="bi bi-shield-check"></i></span>
-        Open GRC
+        Open GRC {% if APP_VERSION %}<small style="font-size:.7em;opacity:.45">{{ APP_VERSION }}</small>{% endif %}
       </a>
       <button class="sidebar-toggle d-lg-none" onclick="toggleSidebar()">
         <i class="bi bi-x-lg"></i>
