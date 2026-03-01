@@ -5,6 +5,8 @@ from assets.models import (
     AssetGroup,
     AssetValuation,
     EssentialAsset,
+    Supplier,
+    SupplierRequirement,
     SupportAsset,
 )
 
@@ -147,5 +149,64 @@ class AssetGroupListSerializer(serializers.ModelSerializer):
         fields = [
             "id", "scope", "name", "type", "owner",
             "status", "member_count", "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class SupplierRequirementSerializer(serializers.ModelSerializer):
+    requirement_reference = serializers.CharField(
+        source="requirement.reference", read_only=True, default=None
+    )
+
+    class Meta:
+        model = SupplierRequirement
+        fields = [
+            "id", "supplier", "requirement", "requirement_reference",
+            "title", "description",
+            "compliance_status", "evidence", "due_date",
+            "verified_at", "verified_by",
+            "created_at", "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class SupplierSerializer(serializers.ModelSerializer):
+    requirement_count = serializers.IntegerField(
+        source="requirements.count", read_only=True
+    )
+
+    class Meta:
+        model = Supplier
+        fields = [
+            "id", "scope", "reference", "name", "description",
+            "type", "criticality", "owner",
+            "contact_name", "contact_email", "contact_phone",
+            "website", "address", "country",
+            "contract_reference", "contract_start_date", "contract_end_date",
+            "status", "notes", "tags",
+            "requirement_count",
+            "version",
+            "is_approved", "approved_by", "approved_at",
+            "created_by", "created_at", "updated_at",
+        ]
+        read_only_fields = [
+            "id", "created_by", "created_at", "updated_at",
+            "is_approved", "approved_by", "approved_at", "version",
+        ]
+
+
+class SupplierListSerializer(serializers.ModelSerializer):
+    owner_name = serializers.CharField(source="owner.get_full_name", read_only=True)
+    requirement_count = serializers.IntegerField(
+        source="requirements.count", read_only=True
+    )
+
+    class Meta:
+        model = Supplier
+        fields = [
+            "id", "scope", "reference", "name", "type", "criticality",
+            "owner", "owner_name",
+            "status", "contract_end_date", "requirement_count",
+            "created_at",
         ]
         read_only_fields = ["id", "created_at"]

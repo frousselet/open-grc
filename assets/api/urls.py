@@ -8,6 +8,7 @@ router.register(r"essential-assets", views.EssentialAssetViewSet)
 router.register(r"support-assets", views.SupportAssetViewSet)
 router.register(r"dependencies", views.AssetDependencyViewSet)
 router.register(r"groups", views.AssetGroupViewSet)
+router.register(r"suppliers", views.SupplierViewSet)
 
 app_name = "assets-api"
 

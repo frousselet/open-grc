@@ -1,7 +1,7 @@
 from django.urls import path, reverse_lazy
 
 from . import views
-from .models import AssetDependency, AssetGroup, EssentialAsset, SupportAsset
+from .models import AssetDependency, AssetGroup, EssentialAsset, Supplier, SupportAsset
 
 app_name = "assets"
 
@@ -35,4 +35,16 @@ urlpatterns = [
     path("groups/<uuid:pk>/edit/", views.GroupUpdateView.as_view(), name="group-update"),
     path("groups/<uuid:pk>/delete/", views.GroupDeleteView.as_view(), name="group-delete"),
     path("groups/<uuid:pk>/approve/", views.ApproveView.as_view(model=AssetGroup, permission_feature="group", success_url=reverse_lazy("assets:group-list")), name="group-approve"),
+    # Suppliers
+    path("suppliers/", views.SupplierListView.as_view(), name="supplier-list"),
+    path("suppliers/create/", views.SupplierCreateView.as_view(), name="supplier-create"),
+    path("suppliers/<uuid:pk>/", views.SupplierDetailView.as_view(), name="supplier-detail"),
+    path("suppliers/<uuid:pk>/edit/", views.SupplierUpdateView.as_view(), name="supplier-update"),
+    path("suppliers/<uuid:pk>/delete/", views.SupplierDeleteView.as_view(), name="supplier-delete"),
+    path("suppliers/<uuid:pk>/archive/", views.SupplierArchiveView.as_view(), name="supplier-archive"),
+    path("suppliers/<uuid:pk>/approve/", views.ApproveView.as_view(model=Supplier, permission_feature="supplier", success_url=reverse_lazy("assets:supplier-list")), name="supplier-approve"),
+    # Supplier Requirements
+    path("suppliers/<uuid:supplier_pk>/requirements/create/", views.SupplierRequirementCreateView.as_view(), name="supplier-requirement-create"),
+    path("supplier-requirements/<int:pk>/edit/", views.SupplierRequirementUpdateView.as_view(), name="supplier-requirement-update"),
+    path("supplier-requirements/<int:pk>/delete/", views.SupplierRequirementDeleteView.as_view(), name="supplier-requirement-delete"),
 ]
