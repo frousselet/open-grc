@@ -25,6 +25,7 @@ from .forms import (
     SupplierRequirementForm,
     SupplierTypeForm,
     SupplierTypeRequirementForm,
+    SupplierTypeRequirementFormSet,
     SupportAssetForm,
 )
 from .models import (
@@ -439,14 +440,40 @@ class SupplierTypeDetailView(LoginRequiredMixin, DetailView):
         return ctx
 
 
-class SupplierTypeCreateView(LoginRequiredMixin, CreateView):
+class SupplierTypeFormsetMixin:
+    """Handle the requirements inline formset for SupplierType create/update."""
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        if self.request.POST:
+            ctx["requirement_formset"] = SupplierTypeRequirementFormSet(
+                self.request.POST, instance=self.object
+            )
+        else:
+            ctx["requirement_formset"] = SupplierTypeRequirementFormSet(
+                instance=self.object
+            )
+        return ctx
+
+    def form_valid(self, form):
+        ctx = self.get_context_data()
+        formset = ctx["requirement_formset"]
+        if formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            return redirect(self.get_success_url())
+        return self.render_to_response(ctx)
+
+
+class SupplierTypeCreateView(LoginRequiredMixin, SupplierTypeFormsetMixin, CreateView):
     model = SupplierType
     form_class = SupplierTypeForm
     template_name = "assets/supplier_type_form.html"
     success_url = reverse_lazy("assets:supplier-type-list")
 
 
-class SupplierTypeUpdateView(LoginRequiredMixin, UpdateView):
+class SupplierTypeUpdateView(LoginRequiredMixin, SupplierTypeFormsetMixin, UpdateView):
     model = SupplierType
     form_class = SupplierTypeForm
     template_name = "assets/supplier_type_form.html"
