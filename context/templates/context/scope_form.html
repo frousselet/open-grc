@@ -4,27 +4,144 @@
 {% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "scope" %} — Open GRC{% endblock %}
 
 {% block content %}
-<h1>{% if form.instance.pk %}{% trans "Edit scope" %}{% else %}{% trans "New scope" %}{% endif %}</h1>
-
-<div class="card">
-  <div class="card-body">
-    <form method="post" class="mt-0">
-      {% csrf_token %}
-      {% for field in form %}
-      <div class="mb-3">
-        <label for="{{ field.id_for_label }}" class="form-label">
-          {{ field.label }}{% if field.field.required %} *{% endif %}
-        </label>
-        {{ field }}
-        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-        {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-      </div>
-      {% endfor %}
-      <div class="d-flex gap-2 mt-4 pt-3" style="border-top:1px solid var(--border-light)">
-        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
-        <a href="{% url 'context:scope-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-      </div>
-    </form>
-  </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0">{% if form.instance.pk %}{% trans "Edit scope" %}{% else %}{% trans "New scope" %}{% endif %}</h1>
+  <a href="{% url 'context:scope-list' %}" class="btn btn-outline-secondary">{% trans "Back to list" %}</a>
 </div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="row">
+    {# ── Left column: core fields ────────────────────── #}
+    <div class="col-lg-8">
+
+      {# ── Identity ──────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-diagram-3 me-2" style="color:var(--accent)"></i>{% trans "Identity" %}</h6></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
+                {{ form.name }}
+                {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="mb-3">
+                <label for="{{ form.parent_scope.id_for_label }}" class="form-label">{{ form.parent_scope.label }}</label>
+                {{ form.parent_scope }}
+                {% for error in form.parent_scope.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="mb-3">
+                <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }} *</label>
+                {{ form.status }}
+                {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="mb-0">
+            <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+            {{ form.description }}
+            {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# ── Boundaries ────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-bounding-box me-2" style="color:var(--accent)"></i>{% trans "Boundaries" %}</h6></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="{{ form.boundaries.id_for_label }}" class="form-label">{{ form.boundaries.label }}</label>
+            {{ form.boundaries }}
+            {% for error in form.boundaries.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="mb-0">
+            <label for="{{ form.justification_exclusions.id_for_label }}" class="form-label">{{ form.justification_exclusions.label }}</label>
+            {{ form.justification_exclusions }}
+            {% for error in form.justification_exclusions.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# ── Scope details ─────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-layers me-2" style="color:var(--accent)"></i>{% trans "Scope details" %}</h6></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="{{ form.geographic_scope.id_for_label }}" class="form-label">{{ form.geographic_scope.label }}</label>
+            {{ form.geographic_scope }}
+            {% for error in form.geographic_scope.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.organizational_scope.id_for_label }}" class="form-label">{{ form.organizational_scope.label }}</label>
+            {{ form.organizational_scope }}
+            {% for error in form.organizational_scope.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="mb-0">
+            <label for="{{ form.technical_scope.id_for_label }}" class="form-label">{{ form.technical_scope.label }}</label>
+            {{ form.technical_scope }}
+            {% for error in form.technical_scope.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ── Right column: sites, dates, tags ────────────── #}
+    <div class="col-lg-4">
+
+      {# ── Sites ─────────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-geo-alt me-2" style="color:var(--accent)"></i>{% trans "Sites" %}</h6></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="{{ form.included_sites.id_for_label }}" class="form-label">{{ form.included_sites.label }}</label>
+            {{ form.included_sites }}
+            {% for error in form.included_sites.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="mb-0">
+            <label for="{{ form.excluded_sites.id_for_label }}" class="form-label">{{ form.excluded_sites.label }}</label>
+            {{ form.excluded_sites }}
+            {% for error in form.excluded_sites.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# ── Dates ─────────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-calendar-event me-2" style="color:var(--accent)"></i>{% trans "Dates" %}</h6></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="{{ form.effective_date.id_for_label }}" class="form-label">{{ form.effective_date.label }}</label>
+            {{ form.effective_date }}
+            {% for error in form.effective_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="mb-0">
+            <label for="{{ form.review_date.id_for_label }}" class="form-label">{{ form.review_date.label }}</label>
+            {{ form.review_date }}
+            {% for error in form.review_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# ── Tags ──────────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-tags me-2" style="color:var(--accent)"></i>{% trans "Tags" %}</h6></div>
+        <div class="card-body">
+          {{ form.tags }}
+          {% for error in form.tags.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ── Actions ───────────────────────────────────── #}
+  <div class="d-flex gap-2 pt-3 mb-4" style="border-top:1px solid var(--border-light)">
+    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{% trans "Save" %}</button>
+    <a href="{% url 'context:scope-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+  </div>
+</form>
 {% endblock %}
