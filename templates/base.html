@@ -50,6 +50,7 @@
       --info-soft: #ecfeff;
       --transition-fast: .15s cubic-bezier(.4,0,.2,1);
       --transition-normal: .25s cubic-bezier(.4,0,.2,1);
+      --text-sidebar-sub: #8494a7;
     }
 
     [data-bs-theme="dark"] {
@@ -73,10 +74,11 @@
       --shadow-sm: 0 1px 3px rgba(0,0,0,.25);
       --shadow-md: 0 4px 12px rgba(0,0,0,.3);
       --shadow-lg: 0 8px 24px rgba(0,0,0,.35);
+      --text-sidebar-sub: #64748b;
     }
 
     /* ── Global ────────────────────────────────────────── */
-    html { font-size: 14px; }
+    html { font-size: 16px; }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg-page);
@@ -188,7 +190,7 @@
     }
     .sidebar-link:hover i,
     .sidebar-link.active i { color: var(--accent); }
-    .sidebar-sub { padding-left: 3.1rem; font-size: .82rem; }
+    .sidebar-sub { padding-left: 3.1rem; font-size: .82rem; color: var(--text-sidebar-sub); }
 
     .sidebar-collapse-btn {
       display: flex;
