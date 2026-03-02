@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from accounts.api.mixins import ApprovableAPIMixin, HistoryAPIMixin, ScopeFilterAPIMixin
+from assets.services.spof_detection import SpofDetector
 from context.api.permissions import ContextPermission
 from assets.models import (
     AssetDependency,
@@ -229,6 +230,16 @@ class AssetDependencyViewSet(ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin
             is_single_point_of_failure=True,
         )
         return Response(AssetDependencySerializer(qs, many=True).data)
+
+    @action(detail=False, methods=["get", "post"], url_path="detect-spof")
+    def detect_spof(self, request):
+        """GET = dry-run detection, POST = detect and apply."""
+        detector = SpofDetector()
+        if request.method == "POST":
+            results = detector.apply()
+        else:
+            results = detector.detect_all()
+        return Response(results)
 
     @action(detail=False, methods=["get"])
     def graph(self, request):

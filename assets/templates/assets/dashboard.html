@@ -60,7 +60,14 @@
     <li>{{ orphan_supports }} {% trans "orphan support asset(s) (without essential asset)" %}</li>
     {% endif %}
     {% if spof_count %}
-    <li>{{ spof_count }} {% trans "single point(s) of failure (SPOF) detected" %}</li>
+    <li>{{ spof_count }} {% trans "single point(s) of failure (SPOF) detected" %}
+      <ul>
+        {% if spof_detail.asset %}<li>{{ spof_detail.asset }} {% trans "asset dependency(ies)" %}</li>{% endif %}
+        {% if spof_detail.supplier %}<li>{{ spof_detail.supplier }} {% trans "supplier dependency(ies)" %}</li>{% endif %}
+        {% if spof_detail.site_asset %}<li>{{ spof_detail.site_asset }} {% trans "site–asset dependency(ies)" %}</li>{% endif %}
+        {% if spof_detail.site_supplier %}<li>{{ spof_detail.site_supplier }} {% trans "site–supplier dependency(ies)" %}</li>{% endif %}
+      </ul>
+    </li>
     {% endif %}
     {% for sa in eol_assets %}
     <li><span class="ref">{{ sa.reference }}</span> {{ sa.name }}: {% trans "end of life exceeded" %} ({{ sa.end_of_life_date }})</li>
