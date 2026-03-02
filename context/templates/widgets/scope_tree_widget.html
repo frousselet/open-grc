@@ -8,19 +8,19 @@
       <input type="text" class="form-control form-control-sm scope-tree-filter" placeholder="{% trans 'Search scopes…' %}" style="border-color:var(--border-light)">
     </div>
   </div>
-  <div class="scope-tree-container" style="max-height:280px;overflow-y:auto;border:1px solid var(--border-light);border-radius:var(--radius-sm);background:var(--surface);padding:.5rem 0">
+  <div class="scope-tree-container" style="max-height:280px;overflow-y:auto;border:1px solid var(--border-light);border-radius:var(--radius-sm);background:var(--surface);padding:.25rem 0">
     {% for node in widget.tree_data %}
     <div class="scope-tree-node" data-depth="{{ node.depth }}" data-id="{{ node.id }}" data-parent="{{ node.parent_id }}" style="padding-left:{{ node.indent }}px">
-      <label class="d-flex align-items-center gap-2 px-2 py-1 scope-tree-label" style="cursor:pointer;margin:0;font-size:.85rem;border-radius:var(--radius-xs)">
+      <label class="d-flex align-items-center gap-1 px-1 py-1 scope-tree-label" style="cursor:pointer;margin:0;font-size:.85rem;border-radius:var(--radius-xs)">
         {% if node.has_children %}
-        <button type="button" class="btn btn-sm p-0 border-0 scope-tree-toggle" style="width:18px;height:18px;line-height:18px;font-size:.7rem;color:var(--text-muted);background:none" data-target="{{ node.id }}">
+        <button type="button" class="btn btn-sm p-0 border-0 scope-tree-toggle" style="width:14px;height:14px;line-height:14px;font-size:.6rem;color:var(--text-muted);background:none;flex-shrink:0" data-target="{{ node.id }}">
           <i class="bi bi-chevron-down"></i>
         </button>
         {% else %}
-        <span style="width:18px;display:inline-block"></span>
+        <span style="width:14px;display:inline-block;flex-shrink:0"></span>
         {% endif %}
-        <input type="checkbox" name="{{ widget.name }}" value="{{ node.id }}" class="form-check-input mt-0" style="min-width:16px;min-height:16px" {% if node.selected %}checked{% endif %}>
-        <span class="scope-tree-icon" style="color:var(--accent);font-size:.75rem">
+        <input type="checkbox" name="{{ widget.name }}" value="{{ node.id }}" class="form-check-input mt-0" style="min-width:14px;min-height:14px;width:14px;height:14px;flex-shrink:0" {% if node.selected %}checked{% endif %}>
+        <span class="scope-tree-icon" style="color:var(--accent);font-size:.7rem;flex-shrink:0;width:14px;text-align:center">
           {% if node.depth == 0 %}<i class="bi bi-building"></i>{% elif node.has_children %}<i class="bi bi-diagram-3"></i>{% else %}<i class="bi bi-geo-alt"></i>{% endif %}
         </span>
         <span class="scope-tree-name" style="color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ node.full_path }}">{{ node.name }}</span>
@@ -32,7 +32,7 @@
     </div>
     {% endfor %}
   </div>
-  <div class="scope-tree-selection-summary mt-1 d-flex align-items-center gap-2" style="font-size:.8rem;color:var(--text-muted)">
+  <div class="scope-tree-selection-summary mt-1 d-flex align-items-center gap-1" style="font-size:.78rem;color:var(--text-muted)">
     <i class="bi bi-check2-square"></i>
     <span class="scope-tree-count">0</span> {% trans "scope(s) selected" %}
   </div>
