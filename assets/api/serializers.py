@@ -42,7 +42,7 @@ class AssetDependencySerializer(serializers.ModelSerializer):
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
-        read_only_fields = ["id", "created_by", "created_at", "updated_at", "is_approved", "approved_by", "approved_at", "version"]
+        read_only_fields = ["id", "is_single_point_of_failure", "created_by", "created_at", "updated_at", "is_approved", "approved_by", "approved_at", "version"]
 
 
 class EssentialAssetSerializer(serializers.ModelSerializer):
