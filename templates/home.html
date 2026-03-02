@@ -95,6 +95,23 @@
 </div>
 {% endif %}
 
+{# ── SPOF recap ────────────────────────────────────────── #}
+{% if spof_count %}
+<div class="alert alert-warning mb-4">
+  <div class="d-flex align-items-center mb-2">
+    <i class="bi bi-info-circle-fill me-2"></i>
+    <strong>{% trans "Points of attention" %} — SPOF</strong>
+  </div>
+  <p class="mb-1">{{ spof_count }} {% trans "single point(s) of failure (SPOF) detected across your dependencies." %}</p>
+  <ul class="mb-0">
+    {% if spof_detail.asset %}<li>{{ spof_detail.asset }} {% trans "asset dependency(ies)" %} — <a href="{% url 'assets:dependency-list' %}">{% trans "View" %}</a></li>{% endif %}
+    {% if spof_detail.supplier %}<li>{{ spof_detail.supplier }} {% trans "supplier dependency(ies)" %} — <a href="{% url 'assets:supplier-dependency-list' %}">{% trans "View" %}</a></li>{% endif %}
+    {% if spof_detail.site_asset %}<li>{{ spof_detail.site_asset }} {% trans "site–asset dependency(ies)" %} — <a href="{% url 'assets:site-asset-dependency-list' %}">{% trans "View" %}</a></li>{% endif %}
+    {% if spof_detail.site_supplier %}<li>{{ spof_detail.site_supplier }} {% trans "site–supplier dependency(ies)" %} — <a href="{% url 'assets:site-supplier-dependency-list' %}">{% trans "View" %}</a></li>{% endif %}
+  </ul>
+</div>
+{% endif %}
+
 {# ── Upcoming events ──────────────────────────────────────── #}
 <div class="card upcoming-section" id="upcomingSection">
   <div class="card-body" id="upcomingBody">
@@ -290,7 +307,7 @@
       <div class="stat-card-label">{% trans "Dependencies" %}</div>
       <div class="stat-card-value">{{ dependency_count }}</div>
       {% if spof_count %}
-      <span class="badge mt-2" style="background:var(--danger-soft);color:var(--danger);font-size:.6875rem">{{ spof_count }} SPOF</span>
+      <span class="badge mt-2" style="background:var(--warning-soft);color:var(--warning);font-size:.6875rem">{{ spof_count }} SPOF</span>
       {% endif %}
       <div class="stat-card-footer"><a href="{% url 'assets:dependency-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
@@ -314,7 +331,7 @@
       <div class="stat-card-label">{% trans "Supplier dependencies" %}</div>
       <div class="stat-card-value">{{ supplier_dep_count }}</div>
       {% if supplier_spof_count %}
-      <span class="badge mt-2" style="background:var(--danger-soft);color:var(--danger);font-size:.6875rem">{{ supplier_spof_count }} SPOF</span>
+      <span class="badge mt-2" style="background:var(--warning-soft);color:var(--warning);font-size:.6875rem">{{ supplier_spof_count }} SPOF</span>
       {% endif %}
       <div class="stat-card-footer"><a href="{% url 'assets:supplier-dependency-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
