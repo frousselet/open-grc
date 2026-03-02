@@ -150,7 +150,7 @@
       </div>
 
       {# ── Passkeys ──────────────────────────────────── #}
-      <div class="card" id="passkey-card" style="display:none">
+      <div class="card mb-4" id="passkey-card" style="display:none">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h6 class="mb-0"><i class="bi bi-fingerprint me-2" style="color:var(--accent)"></i>{% trans "Passkeys" %}</h6>
           <button type="button" class="btn btn-sm btn-outline-primary" id="register-passkey-btn" onclick="registerPasskey()">
@@ -161,6 +161,58 @@
           {% include "accounts/partials/passkey_list.html" %}
         </div>
       </div>
+
+      {# ── OAuth credentials (MCP) ─────────────────── #}
+      {% if can_create_oauth or oauth_apps %}
+      <div class="card" id="oauth-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h6 class="mb-0"><i class="bi bi-plug me-2" style="color:var(--accent)"></i>{% trans "OAuth credentials" %}</h6>
+          {% if can_create_oauth %}
+          <button type="button" class="btn btn-sm btn-outline-primary" id="create-oauth-btn" onclick="createOAuthApp()">
+            <i class="bi bi-plus-lg me-1"></i>{% trans "Add" %}
+          </button>
+          {% endif %}
+        </div>
+        <div class="card-body" id="oauth-app-list">
+          {% include "mcp/partials/oauth_app_list.html" %}
+        </div>
+      </div>
+
+      {# Secret display modal #}
+      <div class="modal fade" id="oauth-secret-modal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h6 class="modal-title"><i class="bi bi-shield-lock me-2"></i>{% trans "OAuth credentials created" %}</h6>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="alert alert-warning mb-3" style="font-size:.8125rem">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                {% trans "Copy the secret now. It will not be shown again." %}
+              </div>
+              <div class="mb-3">
+                <label class="form-label" style="font-size:.8125rem;font-weight:550">Client ID</label>
+                <div class="input-group">
+                  <input type="text" class="form-control form-control-sm" id="oauth-client-id" readonly>
+                  <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyToClipboard('oauth-client-id')"><i class="bi bi-clipboard"></i></button>
+                </div>
+              </div>
+              <div>
+                <label class="form-label" style="font-size:.8125rem;font-weight:550">Client Secret</label>
+                <div class="input-group">
+                  <input type="text" class="form-control form-control-sm" id="oauth-client-secret" readonly>
+                  <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyToClipboard('oauth-client-secret')"><i class="bi bi-clipboard"></i></button>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">{% trans "Done" %}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
 </form>
@@ -324,6 +376,93 @@ async function refreshPasskeyList() {
   } catch (e) {
     window.location.reload();
   }
+}
+
+/* ── OAuth credential management ──────────────── */
+{% trans "Name for this credential:" as tr_oauth_name %}
+{% trans "Creation failed." as tr_oauth_create_failed %}
+{% trans "Delete OAuth credential" as tr_oauth_delete %}
+{% trans "Deletion failed." as tr_oauth_del_failed %}
+var TR_OAUTH_NAME = '{{ tr_oauth_name|escapejs }}';
+var TR_OAUTH_CREATE_FAILED = '{{ tr_oauth_create_failed|escapejs }}';
+var TR_OAUTH_DELETE = '{{ tr_oauth_delete|escapejs }}';
+var TR_OAUTH_DEL_FAILED = '{{ tr_oauth_del_failed|escapejs }}';
+
+function getCsrfToken() {
+  var el = document.querySelector('[name=csrfmiddlewaretoken]');
+  if (el) return el.value;
+  var m = document.cookie.match(/csrftoken=([^;]+)/);
+  return m ? m[1] : '';
+}
+
+async function createOAuthApp() {
+  var name = prompt(TR_OAUTH_NAME, 'MCP');
+  if (!name) return;
+
+  var btn = document.getElementById('create-oauth-btn');
+  btn.disabled = true;
+
+  try {
+    var resp = await fetch('{% url "accounts:oauth-app-create" %}', {
+      method: 'POST',
+      headers: {'X-CSRFToken': getCsrfToken(), 'Content-Type': 'application/json'},
+      body: JSON.stringify({name: name})
+    });
+    var result = await resp.json();
+    if (resp.ok && result.status === 'ok') {
+      document.getElementById('oauth-client-id').value = result.client_id;
+      document.getElementById('oauth-client-secret').value = result.client_secret;
+      var modal = new bootstrap.Modal(document.getElementById('oauth-secret-modal'));
+      modal.show();
+      refreshOAuthAppList();
+    } else {
+      alert(result.error || TR_OAUTH_CREATE_FAILED);
+    }
+  } catch (e) {
+    alert(e.message || TR_OAUTH_CREATE_FAILED);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function deleteOAuthApp(id, name) {
+  if (!confirm(TR_OAUTH_DELETE + ' "' + name + '" ?')) return;
+
+  try {
+    var resp = await fetch('/accounts/oauth-apps/' + id + '/delete/', {
+      method: 'POST',
+      headers: {'X-CSRFToken': getCsrfToken(), 'Content-Type': 'application/json'},
+      body: '{}'
+    });
+    if (resp.ok) {
+      refreshOAuthAppList();
+    } else {
+      var result = await resp.json();
+      alert(result.error || TR_OAUTH_DEL_FAILED);
+    }
+  } catch (e) {
+    alert(e.message || TR_OAUTH_DEL_FAILED);
+  }
+}
+
+async function refreshOAuthAppList() {
+  try {
+    var resp = await fetch('{% url "accounts:oauth-app-list" %}');
+    var data = await resp.json();
+    document.getElementById('oauth-app-list').innerHTML = data.html;
+  } catch (e) {
+    window.location.reload();
+  }
+}
+
+function copyToClipboard(inputId) {
+  var input = document.getElementById(inputId);
+  navigator.clipboard.writeText(input.value).then(function() {
+    var btn = input.nextElementSibling;
+    var icon = btn.querySelector('i');
+    icon.className = 'bi bi-check';
+    setTimeout(function() { icon.className = 'bi bi-clipboard'; }, 1500);
+  });
 }
 </script>
 {% endblock %}

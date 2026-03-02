@@ -93,18 +93,25 @@ class LogoutView(LoginRequiredMixin, View):
 # ── Profile ─────────────────────────────────────────────────
 
 class ProfileView(LoginRequiredMixin, View):
-    def get(self, request):
-        form = ProfileForm(instance=request.user)
+    def _get_context(self, request, form):
         groups = request.user.custom_groups.all()
         permissions = sorted(
             Permission.objects.filter(groups__users=request.user).values_list("codename", flat=True).distinct()
         )
-        return render(request, "accounts/profile.html", {
+        can_oauth = request.user.is_superuser or request.user.has_perm("system.oauth.read")
+        oauth_apps = request.user.oauth_applications.order_by("-created_at") if can_oauth else []
+        return {
             "form": form,
             "groups": groups,
             "permissions": permissions,
             "passkeys": request.user.passkeys.order_by("-created_at"),
-        })
+            "oauth_apps": oauth_apps,
+            "can_create_oauth": request.user.is_superuser or request.user.has_perm("system.oauth.create"),
+        }
+
+    def get(self, request):
+        form = ProfileForm(instance=request.user)
+        return render(request, "accounts/profile.html", self._get_context(request, form))
 
     def post(self, request):
         form = ProfileForm(request.POST, request.FILES, instance=request.user)
@@ -120,16 +127,7 @@ class ProfileView(LoginRequiredMixin, View):
             else:
                 response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
             return response
-        groups = request.user.custom_groups.all()
-        permissions = sorted(
-            Permission.objects.filter(groups__users=request.user).values_list("codename", flat=True).distinct()
-        )
-        return render(request, "accounts/profile.html", {
-            "form": form,
-            "groups": groups,
-            "permissions": permissions,
-            "passkeys": request.user.passkeys.order_by("-created_at"),
-        })
+        return render(request, "accounts/profile.html", self._get_context(request, form))
 
 
 class PasswordChangeView(LoginRequiredMixin, View):
