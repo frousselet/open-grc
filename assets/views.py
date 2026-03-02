@@ -16,6 +16,7 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
+from assets.services.spof_detection import SpofDetector
 from context.models import Site
 from .forms import (
     AssetDependencyForm,
@@ -114,10 +115,14 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ctx["orphan_supports"] = SupportAsset.objects.filter(
             dependencies_as_support__isnull=True
         ).count()
-        ctx["spof_count"] = (
-            AssetDependency.objects.filter(is_single_point_of_failure=True).count()
-            + SupplierDependency.objects.filter(is_single_point_of_failure=True).count()
-        )
+        spof_results = SpofDetector().detect_all()
+        ctx["spof_count"] = spof_results["total_spof"]
+        ctx["spof_detail"] = {
+            "asset": len([d for d in spof_results["asset_dependencies"] if d["is_spof"]]),
+            "supplier": len([d for d in spof_results["supplier_dependencies"] if d["is_spof"]]),
+            "site_asset": len([d for d in spof_results["site_asset_dependencies"] if d["is_spof"]]),
+            "site_supplier": len([d for d in spof_results["site_supplier_dependencies"] if d["is_spof"]]),
+        }
         ctx["eol_assets"] = SupportAsset.objects.filter(
             end_of_life_date__lte=today,
             status="active",
