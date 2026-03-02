@@ -48,8 +48,12 @@ class McpEndpointView(View):
         try:
             result = auth.authenticate(request)
         except Exception as e:
+            logger.exception("Authentication error in MCP endpoint")
             return JsonResponse(
-                {"error": "authentication_failed", "message": str(e)},
+                {
+                    "error": "authentication_failed",
+                    "message": "Authentication failed.",
+                },
                 status=401,
             )
 
