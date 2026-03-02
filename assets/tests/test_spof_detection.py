@@ -1,5 +1,6 @@
 import pytest
 from io import StringIO
+from unittest.mock import patch
 
 from django.core.management import call_command
 
@@ -453,3 +454,30 @@ class TestManagementCommand:
         err = StringIO()
         call_command("detect_spof", "--scope", "nonexistent", stderr=err)
         assert "not found" in err.getvalue().lower()
+
+
+# ── Scheduler ───────────────────────────────────────────────
+
+
+class TestSpofScheduler:
+
+    def test_start_spof_scheduler_launches_thread(self):
+        import assets.services.spof_scheduler as mod
+
+        # Reset module state so we can test start
+        with patch.object(mod, "_started", False):
+            with patch("threading.Thread") as mock_thread:
+                mock_thread.return_value.start = lambda: None
+                mod.start_spof_scheduler()
+                mock_thread.assert_called_once()
+                call_kwargs = mock_thread.call_args
+                assert call_kwargs[1]["name"] == "spof-scheduler"
+                assert call_kwargs[1]["daemon"] is True
+
+    def test_start_spof_scheduler_only_once(self):
+        import assets.services.spof_scheduler as mod
+
+        with patch.object(mod, "_started", True):
+            with patch("threading.Thread") as mock_thread:
+                mod.start_spof_scheduler()
+                mock_thread.assert_not_called()
