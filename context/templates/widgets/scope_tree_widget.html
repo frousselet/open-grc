@@ -71,26 +71,72 @@
     });
   }
 
-  // ── Cascading selection: check/uncheck all descendants ──
-  function setDescendantsChecked(parentId, checked) {
+  // ── Cascading selection: parent checked → children locked ──
+  function isAncestorChecked(nodeEl) {
+    var pid = nodeEl.dataset.parent;
+    while (pid) {
+      var found = false;
+      for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].dataset.id === pid) {
+          var pcb = nodes[i].querySelector('input[type="checkbox"]');
+          if (pcb && pcb.checked) return true;
+          pid = nodes[i].dataset.parent;
+          found = true;
+          break;
+        }
+      }
+      if (!found) break;
+    }
+    return false;
+  }
+
+  function applyDescendantLocks(parentId, lock) {
     nodes.forEach(function(n) {
       if (n.dataset.parent === parentId) {
         var cb = n.querySelector('input[type="checkbox"]');
-        if (cb) cb.checked = checked;
-        setDescendantsChecked(n.dataset.id, checked);
+        if (cb) {
+          if (lock) {
+            cb.checked = true;
+            cb.disabled = true;
+            n.classList.add('scope-tree-locked');
+          } else if (!isAncestorChecked(n)) {
+            cb.disabled = false;
+            cb.checked = false;
+            n.classList.remove('scope-tree-locked');
+          }
+        }
+        applyDescendantLocks(n.dataset.id, lock);
       }
     });
   }
+
+  // Apply initial locks on page load
+  nodes.forEach(function(n) {
+    var cb = n.querySelector('input[type="checkbox"]');
+    if (cb && cb.checked) {
+      applyDescendantLocks(n.dataset.id, true);
+    }
+  });
 
   ctr.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
     cb.addEventListener('change', function() {
       var nodeEl = this.closest('.scope-tree-node');
       if (nodeEl) {
-        setDescendantsChecked(nodeEl.dataset.id, this.checked);
+        applyDescendantLocks(nodeEl.dataset.id, this.checked);
       }
       updateCount();
     });
   });
+
+  // Re-enable disabled checkboxes before form submit so values are sent
+  var form = ctr.closest('form');
+  if (form) {
+    form.addEventListener('submit', function() {
+      ctr.querySelectorAll('input[type="checkbox"]:disabled').forEach(function(cb) {
+        cb.disabled = false;
+      });
+    });
+  }
 
   // ── Search filter ──
   filterInput.addEventListener('input', function() {
