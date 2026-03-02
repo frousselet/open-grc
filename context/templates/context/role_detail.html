@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n scope_tags %}
 {% load help_tags %}
 
 {% block title %}{{ role.name }} — Open GRC{% endblock %}
@@ -34,7 +34,7 @@
     <div class="card">
       <div class="card-body">
         <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt><dd class="col-sm-9">{% for s in role.scopes.all %}<a href="{% url 'context:scope-detail' s.pk %}" class="badge" style="background:var(--accent-soft);color:var(--accent);text-decoration:none;font-weight:500;font-size:.82rem;margin-right:.25rem">{{ s }}</a>{% empty %}<span style="color:var(--text-muted)">—</span>{% endfor %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt><dd class="col-sm-9">{% grouped_scope_badges role.scopes.all %}{% if not role.scopes.all %}<span style="color:var(--text-muted)">—</span>{% endif %}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ role.get_type_display }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt><dd class="col-sm-9">{{ role.get_status_display }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Mandatory" %}</dt><dd class="col-sm-9">{% if role.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>

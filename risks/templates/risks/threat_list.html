@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n scope_tags %}
 
 {% block title %}{% trans "Threats" %} — Open GRC{% endblock %}
 
@@ -44,7 +44,7 @@
           <td>{{ t.get_type_display }}</td>
           <td>{{ t.get_origin_display|default:"—" }}</td>
           <td>{{ t.get_category_display|default:"—" }}</td>
-          <td>{% for s in t.scopes.all %}<span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.75rem;font-weight:500;margin-right:.125rem">{{ s.name }}</span>{% empty %}—{% endfor %}</td>
+          <td>{% grouped_scope_badges t.scopes.all %}{% if not t.scopes.all %}—{% endif %}</td>
           <td>
             <span class="badge text-bg-{% if t.status == 'active' %}success{% else %}secondary{% endif %}">
               {{ t.get_status_display }}
