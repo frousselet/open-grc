@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "assets",
     "compliance",
     "risks",
+    "mcp",
 ]
 
 MIDDLEWARE = [
