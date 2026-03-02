@@ -202,11 +202,6 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
                 _("%(count)d mandatory role(s) with no assigned user")
                 % {"count": ctx["mandatory_roles_no_user"]}
             )
-        if ctx["spof_count"]:
-            alerts.append(
-                _("%(count)d single point(s) of failure (SPOF) to review")
-                % {"count": ctx["spof_count"]}
-            )
         if ctx["eol_count"]:
             alerts.append(
                 _("%(count)d support asset(s) past end of life")
