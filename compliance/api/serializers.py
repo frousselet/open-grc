@@ -122,7 +122,7 @@ class ComplianceAssessmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ComplianceAssessment
         fields = [
-            "id", "scope", "framework", "name", "description",
+            "id", "scopes", "framework", "name", "description",
             "assessment_date", "assessor", "methodology",
             "overall_compliance_level",
             "total_requirements", "compliant_count",
@@ -149,7 +149,7 @@ class ComplianceAssessmentListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ComplianceAssessment
         fields = [
-            "id", "scope", "framework", "framework_name",
+            "id", "scopes", "framework", "framework_name",
             "name", "assessment_date", "assessor",
             "overall_compliance_level", "status", "created_at",
         ]
@@ -193,7 +193,7 @@ class ComplianceActionPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = ComplianceActionPlan
         fields = [
-            "id", "scope", "reference", "name", "description",
+            "id", "scopes", "reference", "name", "description",
             "assessment", "requirement", "requirement_reference",
             "framework_name",
             "gap_description", "remediation_plan",
@@ -219,7 +219,7 @@ class ComplianceActionPlanListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ComplianceActionPlan
         fields = [
-            "id", "scope", "reference", "name",
+            "id", "scopes", "reference", "name",
             "priority", "owner", "target_date",
             "progress_percentage", "status", "created_at",
         ]

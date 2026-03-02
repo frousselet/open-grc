@@ -40,7 +40,7 @@ class RiskCriteriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = RiskCriteria
         fields = [
-            "id", "scope", "name", "description", "risk_matrix",
+            "id", "scopes", "name", "description", "risk_matrix",
             "acceptance_threshold", "is_default", "status",
             "scale_levels", "risk_levels", "tags",
             "version", "is_approved", "approved_by", "approved_at",
@@ -56,7 +56,7 @@ class RiskCriteriaListSerializer(serializers.ModelSerializer):
     class Meta:
         model = RiskCriteria
         fields = [
-            "id", "scope", "name", "is_default", "status", "created_at",
+            "id", "scopes", "name", "is_default", "status", "created_at",
         ]
         read_only_fields = ["id", "created_at"]
 
@@ -67,7 +67,7 @@ class RiskAssessmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = RiskAssessment
         fields = [
-            "id", "scope", "reference", "name", "description", "methodology",
+            "id", "scopes", "reference", "name", "description", "methodology",
             "assessment_date", "assessor", "assessor_name", "risk_criteria",
             "status", "validated_by", "validated_at", "next_review_date", "summary", "tags",
             "version", "is_approved", "approved_by", "approved_at",
@@ -85,7 +85,7 @@ class RiskAssessmentListSerializer(serializers.ModelSerializer):
     class Meta:
         model = RiskAssessment
         fields = [
-            "id", "scope", "reference", "name", "methodology",
+            "id", "scopes", "reference", "name", "methodology",
             "assessment_date", "assessor", "assessor_name",
             "status", "created_at",
         ]
@@ -197,7 +197,7 @@ class ThreatSerializer(serializers.ModelSerializer):
     class Meta:
         model = Threat
         fields = [
-            "id", "scope", "reference", "name", "description",
+            "id", "scopes", "reference", "name", "description",
             "type", "origin", "category", "typical_likelihood",
             "is_from_catalog", "status", "tags",
             "version", "is_approved", "approved_by", "approved_at",
@@ -213,7 +213,7 @@ class ThreatListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Threat
         fields = [
-            "id", "scope", "reference", "name", "type", "origin",
+            "id", "scopes", "reference", "name", "type", "origin",
             "category", "status", "created_at",
         ]
         read_only_fields = ["id", "created_at"]
@@ -223,7 +223,7 @@ class VulnerabilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Vulnerability
         fields = [
-            "id", "scope", "reference", "name", "description",
+            "id", "scopes", "reference", "name", "description",
             "category", "severity", "affected_asset_types",
             "affected_assets", "cve_references", "remediation_guidance",
             "is_from_catalog", "status", "tags",
@@ -240,7 +240,7 @@ class VulnerabilityListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vulnerability
         fields = [
-            "id", "scope", "reference", "name", "category",
+            "id", "scopes", "reference", "name", "category",
             "severity", "status", "created_at",
         ]
         read_only_fields = ["id", "created_at"]

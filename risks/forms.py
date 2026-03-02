@@ -1,6 +1,7 @@
 from django import forms
 
 from context.models import Scope
+from context.widgets import ScopeTreeWidget
 from .constants import DEFAULT_IMPACT_SCALES, DEFAULT_LIKELIHOOD_SCALES
 from .models import (
     ISO27005Risk,
@@ -75,28 +76,35 @@ def get_scale_choices(scale_type, criteria=None):
 
 
 class ScopedFormMixin:
-    """Filter the scope dropdown to only show scopes the user can access (non-archived)."""
+    """Populate the scopes tree widget with the user's accessible scopes."""
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
-        if "scope" in self.fields:
+        if "scopes" in self.fields:
             qs = Scope.objects.exclude(status="archived")
             if user and not user.is_superuser:
                 scope_ids = user.get_allowed_scope_ids()
                 if scope_ids is not None:
                     qs = qs.filter(id__in=scope_ids)
-            self.fields["scope"].queryset = qs
+            field = self.fields["scopes"]
+            field.queryset = qs
+            selected_ids = []
+            if self.instance and self.instance.pk:
+                selected_ids = list(self.instance.scopes.values_list("pk", flat=True))
+            elif self.data:
+                selected_ids = self.data.getlist(self.add_prefix("scopes"))
+            field.widget.build_tree_data(qs, selected_ids)
 
 
 class RiskCriteriaForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = RiskCriteria
         fields = [
-            "scope", "name", "description", "acceptance_threshold",
+            "scopes", "name", "description", "acceptance_threshold",
             "is_default", "status", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "acceptance_threshold": forms.NumberInput(attrs=FORM_WIDGET_ATTRS),
@@ -110,12 +118,12 @@ class RiskAssessmentForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = RiskAssessment
         fields = [
-            "scope", "reference", "name", "description", "methodology",
+            "scopes", "reference", "name", "description", "methodology",
             "assessment_date", "assessor", "risk_criteria", "status",
             "next_review_date", "summary", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
@@ -277,11 +285,11 @@ class ThreatForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Threat
         fields = [
-            "scope", "reference", "name", "description", "type", "origin",
+            "scopes", "reference", "name", "description", "type", "origin",
             "category", "typical_likelihood", "is_from_catalog", "status", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
@@ -299,12 +307,12 @@ class VulnerabilityForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Vulnerability
         fields = [
-            "scope", "reference", "name", "description", "category",
+            "scopes", "reference", "name", "description", "category",
             "severity", "affected_assets", "remediation_guidance",
             "is_from_catalog", "status", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),

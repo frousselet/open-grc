@@ -25,7 +25,7 @@
         <tr>
           <th>{% trans "Ref." %}</th>
           <th>{% trans "Title" %}</th>
-          <th>{% trans "Scope" %}</th>
+          <th>{% trans "Scopes" %}</th>
           <th>{% trans "Type" %}</th>
           <th>{% trans "Category" %}</th>
           <th>{% trans "Impact" %}</th>
@@ -41,7 +41,7 @@
         <tr>
           <td><a href="{% url 'context:issue-detail' issue.pk %}" class="ref" style="text-decoration:none">{{ issue.reference }}</a></td>
           <td>{{ issue.name }}</td>
-          <td>{{ issue.scope.full_path }}</td>
+          <td>{% for s in issue.scopes.all %}<span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.75rem;font-weight:500;margin-right:.125rem">{{ s.name }}</span>{% empty %}—{% endfor %}</td>
           <td>{{ issue.get_type_display }}</td>
           <td>{{ issue.get_category_display }}</td>
           <td>

@@ -80,11 +80,11 @@ class BaseModel(models.Model):
 
 
 class ScopedModel(BaseModel):
-    scope = models.ForeignKey(
+    scopes = models.ManyToManyField(
         "context.Scope",
-        on_delete=models.CASCADE,
         related_name="%(class)s_set",
-        verbose_name=_("Scope"),
+        verbose_name=_("Scopes"),
+        blank=True,
     )
 
     class Meta:

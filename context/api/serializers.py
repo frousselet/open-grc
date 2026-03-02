@@ -63,7 +63,7 @@ class IssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
         fields = [
-            "id", "scope", "name", "description", "type", "category",
+            "id", "scopes", "name", "description", "type", "category",
             "impact_level", "trend", "source", "related_stakeholders",
             "review_date", "status", "version", "tags",
             "is_approved", "approved_by", "approved_at",
@@ -88,7 +88,7 @@ class StakeholderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stakeholder
         fields = [
-            "id", "scope", "name", "type", "category", "description",
+            "id", "scopes", "name", "type", "category", "description",
             "contact_name", "contact_email", "contact_phone",
             "influence_level", "interest_level", "expectations",
             "status", "review_date", "version", "tags",
@@ -104,7 +104,7 @@ class StakeholderListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stakeholder
         fields = [
-            "id", "scope", "name", "type", "category",
+            "id", "scopes", "name", "type", "category",
             "influence_level", "interest_level", "status",
             "created_at",
         ]
@@ -115,7 +115,7 @@ class ObjectiveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Objective
         fields = [
-            "id", "scope", "reference", "name", "description",
+            "id", "scopes", "reference", "name", "description",
             "category", "type", "target_value", "current_value", "unit",
             "measurement_method", "measurement_frequency", "target_date",
             "owner", "status", "progress_percentage",
@@ -144,7 +144,7 @@ class SwotAnalysisSerializer(serializers.ModelSerializer):
     class Meta:
         model = SwotAnalysis
         fields = [
-            "id", "scope", "name", "description", "analysis_date",
+            "id", "scopes", "name", "description", "analysis_date",
             "status", "validated_by", "validated_at", "items",
             "review_date", "version", "tags",
             "is_approved", "approved_by", "approved_at",
@@ -159,7 +159,7 @@ class SwotAnalysisListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SwotAnalysis
         fields = [
-            "id", "scope", "name", "analysis_date", "status",
+            "id", "scopes", "name", "analysis_date", "status",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
@@ -182,7 +182,7 @@ class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
         fields = [
-            "id", "scope", "name", "description", "type",
+            "id", "scopes", "name", "description", "type",
             "assigned_users", "is_mandatory", "source_standard",
             "status", "responsibilities", "compliance_alert",
             "version", "tags",
@@ -200,7 +200,7 @@ class RoleListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
         fields = [
-            "id", "scope", "name", "type", "status",
+            "id", "scopes", "name", "type", "status",
             "is_mandatory", "assigned_users_count", "created_at",
         ]
         read_only_fields = ["id", "created_at"]
@@ -210,7 +210,7 @@ class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
         fields = [
-            "id", "scope", "reference", "name", "description",
+            "id", "scopes", "reference", "name", "description",
             "type", "criticality", "owner", "parent_activity",
             "related_stakeholders", "related_objectives",
             "status", "version", "tags",

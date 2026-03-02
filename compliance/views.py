@@ -104,9 +104,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         if scope_ids is None:
             return qs
         model = qs.model
-        if hasattr(model, "scope"):
-            return qs.filter(scope_id__in=scope_ids)
-        if model._meta.many_to_many and any(f.name == "scopes" for f in model._meta.many_to_many):
+        if any(f.name == "scopes" for f in model._meta.many_to_many):
             return qs.filter(scopes__id__in=scope_ids).distinct()
         return qs
 
@@ -418,7 +416,7 @@ class AssessmentListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        return super().get_queryset().select_related("scope", "framework", "assessor")
+        return super().get_queryset().prefetch_related("scopes").select_related("framework", "assessor")
 
 
 class AssessmentDetailView(
@@ -524,7 +522,7 @@ class ActionPlanListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related("scope", "owner", "requirement")
+        qs = super().get_queryset().prefetch_related("scopes").select_related("owner", "requirement")
         status_filter = self.request.GET.get("status")
         if status_filter:
             qs = qs.filter(status=status_filter)

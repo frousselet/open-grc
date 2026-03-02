@@ -29,7 +29,7 @@
           <th>{% trans "Type" %}</th>
           <th>{% trans "Origin" %}</th>
           <th>{% trans "Category" %}</th>
-          <th>{% trans "Scope" %}</th>
+          <th>{% trans "Scopes" %}</th>
           <th>{% trans "Status" %}</th>
           <th>{% trans "Catalog" %}</th>
           <th>{% trans "Tags" %}</th>
@@ -44,7 +44,7 @@
           <td>{{ t.get_type_display }}</td>
           <td>{{ t.get_origin_display|default:"—" }}</td>
           <td>{{ t.get_category_display|default:"—" }}</td>
-          <td>{{ t.scope }}</td>
+          <td>{% for s in t.scopes.all %}<span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.75rem;font-weight:500;margin-right:.125rem">{{ s.name }}</span>{% empty %}—{% endfor %}</td>
           <td>
             <span class="badge text-bg-{% if t.status == 'active' %}success{% else %}secondary{% endif %}">
               {{ t.get_status_display }}

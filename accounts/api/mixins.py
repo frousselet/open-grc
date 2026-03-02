@@ -111,7 +111,7 @@ class ScopeFilterAPIMixin:
     """Filter queryset by the user's allowed scopes (DRF ViewSets).
 
     Works for:
-    - ScopedModel subclasses (have a ``scope`` FK) → filter on scope_id
+    - Models with a ``scopes`` M2M → filter on scopes__id
     - Scope model itself → filter on id
     """
 
@@ -129,8 +129,6 @@ class ScopeFilterAPIMixin:
         model = qs.model
         if model is Scope or (hasattr(model, "_meta") and model._meta.label == "context.Scope"):
             return qs.filter(id__in=scope_ids)
-        if hasattr(model, "scope"):
-            return qs.filter(scope_id__in=scope_ids)
-        if model._meta.many_to_many and any(f.name == "scopes" for f in model._meta.many_to_many):
+        if any(f.name == "scopes" for f in model._meta.many_to_many):
             return qs.filter(scopes__id__in=scope_ids).distinct()
         return qs

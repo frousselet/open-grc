@@ -47,7 +47,7 @@ class CreatedByMixin:
 
 
 class RiskCriteriaViewSet(ScopeFilterAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = RiskCriteria.objects.select_related("scope").prefetch_related("scale_levels", "risk_levels").all()
+    queryset = RiskCriteria.objects.prefetch_related("scopes", "scale_levels", "risk_levels").all()
     filterset_class = RiskCriteriaFilter
     permission_classes = [ContextPermission]
     permission_feature = "criteria"
@@ -61,7 +61,7 @@ class RiskCriteriaViewSet(ScopeFilterAPIMixin, HistoryAPIMixin, CreatedByMixin, 
 
 
 class RiskAssessmentViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = RiskAssessment.objects.select_related("scope", "assessor", "risk_criteria").all()
+    queryset = RiskAssessment.objects.select_related("assessor", "risk_criteria").prefetch_related("scopes").all()
     filterset_class = RiskAssessmentFilter
     permission_classes = [ContextPermission]
     permission_feature = "assessment"
@@ -115,7 +115,7 @@ class RiskAcceptanceViewSet(HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewS
 
 
 class ThreatViewSet(ScopeFilterAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = Threat.objects.select_related("scope").all()
+    queryset = Threat.objects.prefetch_related("scopes").all()
     filterset_class = ThreatFilter
     permission_classes = [ContextPermission]
     permission_feature = "threat"
@@ -129,7 +129,7 @@ class ThreatViewSet(ScopeFilterAPIMixin, HistoryAPIMixin, CreatedByMixin, viewse
 
 
 class VulnerabilityViewSet(ScopeFilterAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = Vulnerability.objects.select_related("scope").all()
+    queryset = Vulnerability.objects.prefetch_related("scopes").all()
     filterset_class = VulnerabilityFilter
     permission_classes = [ContextPermission]
     permission_feature = "vulnerability"

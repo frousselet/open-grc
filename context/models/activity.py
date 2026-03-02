@@ -64,15 +64,18 @@ class Activity(ScopedModel):
 
     def clean(self):
         super().clean()
-        # RS-04: same scope as parent
-        if self.parent_activity_id and self.parent_activity.scope_id != self.scope_id:
-            raise ValidationError(
-                {
-                    "parent_activity": _(
-                        "The child activity must belong to the same scope as its parent."
-                    )
-                }
-            )
+        # RS-04: parent and child must share at least one scope
+        if self.parent_activity_id and self.pk:
+            parent_scopes = set(self.parent_activity.scopes.values_list("pk", flat=True))
+            child_scopes = set(self.scopes.values_list("pk", flat=True))
+            if parent_scopes and child_scopes and not (parent_scopes & child_scopes):
+                raise ValidationError(
+                    {
+                        "parent_activity": _(
+                            "The child activity must share at least one scope with its parent."
+                        )
+                    }
+                )
 
     def save(self, *args, **kwargs):
         self.clean()

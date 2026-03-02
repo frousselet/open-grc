@@ -1,0 +1,100 @@
+{% load i18n %}
+{# ── Scope tree-checkbox widget (rendered by ScopeTreeWidget) ─ #}
+{% with widget_id=widget.attrs.id %}
+<div class="scope-tree-widget" id="stw-{{ widget_id }}">
+  <div class="scope-tree-search mb-2">
+    <div class="input-group input-group-sm">
+      <span class="input-group-text" style="background:var(--surface);border-color:var(--border-light)"><i class="bi bi-search" style="color:var(--text-muted)"></i></span>
+      <input type="text" class="form-control form-control-sm scope-tree-filter" placeholder="{% trans 'Search scopes…' %}" style="border-color:var(--border-light)">
+    </div>
+  </div>
+  <div class="scope-tree-container" style="max-height:280px;overflow-y:auto;border:1px solid var(--border-light);border-radius:var(--radius-sm);background:var(--surface);padding:.5rem 0">
+    {% for node in widget.tree_data %}
+    <div class="scope-tree-node" data-depth="{{ node.depth }}" data-id="{{ node.id }}" data-parent="{{ node.parent_id }}" style="padding-left:{{ node.indent }}px">
+      <label class="d-flex align-items-center gap-2 px-2 py-1 scope-tree-label" style="cursor:pointer;margin:0;font-size:.85rem;border-radius:var(--radius-xs)">
+        {% if node.has_children %}
+        <button type="button" class="btn btn-sm p-0 border-0 scope-tree-toggle" style="width:18px;height:18px;line-height:18px;font-size:.7rem;color:var(--text-muted);background:none" data-target="{{ node.id }}">
+          <i class="bi bi-chevron-down"></i>
+        </button>
+        {% else %}
+        <span style="width:18px;display:inline-block"></span>
+        {% endif %}
+        <input type="checkbox" name="{{ widget.name }}" value="{{ node.id }}" class="form-check-input mt-0" style="min-width:16px;min-height:16px" {% if node.selected %}checked{% endif %}>
+        <span class="scope-tree-icon" style="color:var(--accent);font-size:.75rem">
+          {% if node.depth == 0 %}<i class="bi bi-building"></i>{% elif node.has_children %}<i class="bi bi-diagram-3"></i>{% else %}<i class="bi bi-geo-alt"></i>{% endif %}
+        </span>
+        <span class="scope-tree-name" style="color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ node.full_path }}">{{ node.name }}</span>
+      </label>
+    </div>
+    {% empty %}
+    <div class="text-center py-3" style="color:var(--text-muted);font-size:.85rem">
+      <i class="bi bi-inbox me-1"></i>{% trans "No scopes available" %}
+    </div>
+    {% endfor %}
+  </div>
+  <div class="scope-tree-selection-summary mt-1 d-flex align-items-center gap-2" style="font-size:.8rem;color:var(--text-muted)">
+    <i class="bi bi-check2-square"></i>
+    <span class="scope-tree-count">0</span> {% trans "scope(s) selected" %}
+  </div>
+</div>
+
+<script>
+(function() {
+  const ctr = document.getElementById('stw-{{ widget_id }}');
+  if (!ctr || ctr._stw_init) return;
+  ctr._stw_init = true;
+
+  const filterInput = ctr.querySelector('.scope-tree-filter');
+  const nodes = ctr.querySelectorAll('.scope-tree-node');
+  const countEl = ctr.querySelector('.scope-tree-count');
+
+  function updateCount() {
+    countEl.textContent = ctr.querySelectorAll('input[type="checkbox"]:checked').length;
+  }
+  updateCount();
+
+  // ── Collapse / expand ──
+  ctr.querySelectorAll('.scope-tree-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault(); e.stopPropagation();
+      this.classList.toggle('collapsed');
+      toggleDescendants(this.dataset.target, this.classList.contains('collapsed'));
+    });
+  });
+
+  function toggleDescendants(parentId, hide) {
+    nodes.forEach(function(n) {
+      if (n.dataset.parent === parentId) {
+        n.classList.toggle('collapsed-child', hide);
+        if (hide) toggleDescendants(n.dataset.id, true);
+      }
+    });
+  }
+
+  // ── Search filter ──
+  filterInput.addEventListener('input', function() {
+    var q = this.value.toLowerCase().trim();
+    nodes.forEach(function(n) {
+      var txt = n.querySelector('.scope-tree-name');
+      var title = (txt.getAttribute('title') || '').toLowerCase();
+      var name = txt.textContent.toLowerCase();
+      n.classList.toggle('hidden', q && !name.includes(q) && !title.includes(q));
+    });
+    if (q) {
+      nodes.forEach(function(n) { if (!n.classList.contains('hidden')) showParents(n.dataset.parent); n.classList.remove('collapsed-child'); });
+    } else {
+      nodes.forEach(function(n) { n.classList.remove('hidden'); n.classList.remove('collapsed-child'); });
+      ctr.querySelectorAll('.scope-tree-toggle').forEach(function(b) { b.classList.remove('collapsed'); });
+    }
+  });
+
+  function showParents(pid) {
+    if (!pid) return;
+    nodes.forEach(function(n) { if (n.dataset.id === pid) { n.classList.remove('hidden'); showParents(n.dataset.parent); } });
+  }
+
+  // ── Count ──
+  ctr.querySelectorAll('input[type="checkbox"]').forEach(function(cb) { cb.addEventListener('change', updateCount); });
+})();
+</script>
+{% endwith %}

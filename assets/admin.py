@@ -83,11 +83,11 @@ class AssetDependencyAdmin(SimpleHistoryAdmin):
 
 @admin.register(AssetGroup)
 class AssetGroupAdmin(SimpleHistoryAdmin):
-    list_display = ("name", "type", "scope", "owner", "status", "member_count")
+    list_display = ("name", "type", "owner", "status", "member_count")
     list_filter = ("type", "status")
     search_fields = ("name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("members", "tags")
+    filter_horizontal = ("scopes", "members", "tags")
 
     @admin.display(description="Membres")
     def member_count(self, obj):

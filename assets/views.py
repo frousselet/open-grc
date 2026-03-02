@@ -137,7 +137,7 @@ class EssentialAssetListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related("scope", "owner")
+        qs = super().get_queryset().prefetch_related("scopes").select_related("owner")
         asset_type = self.request.GET.get("type")
         if asset_type:
             qs = qs.filter(type=asset_type)
@@ -202,7 +202,7 @@ class SupportAssetListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related("scope", "owner")
+        qs = super().get_queryset().prefetch_related("scopes").select_related("owner")
         asset_type = self.request.GET.get("type")
         if asset_type:
             qs = qs.filter(type=asset_type)
@@ -356,7 +356,7 @@ class SupplierListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related("scope", "owner", "type")
+        qs = super().get_queryset().prefetch_related("scopes").select_related("owner", "type")
         supplier_type = self.request.GET.get("type")
         if supplier_type:
             qs = qs.filter(type_id=supplier_type)
@@ -444,7 +444,7 @@ class SupplierTypeDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["requirements"] = self.object.requirements.all()
-        ctx["suppliers"] = self.object.suppliers.select_related("scope", "owner")
+        ctx["suppliers"] = self.object.suppliers.prefetch_related("scopes").select_related("owner")
         return ctx
 
 

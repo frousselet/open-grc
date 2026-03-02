@@ -181,8 +181,8 @@ class ComplianceAssessmentViewSet(
     viewsets.ModelViewSet,
 ):
     queryset = ComplianceAssessment.objects.select_related(
-        "scope", "framework", "assessor", "validated_by"
-    ).all()
+        "framework", "assessor", "validated_by"
+    ).prefetch_related("scopes").all()
     filterset_class = ComplianceAssessmentFilter
     permission_classes = [CompliancePermission]
     permission_feature = "assessment"
@@ -310,8 +310,8 @@ class ComplianceActionPlanViewSet(
     viewsets.ModelViewSet,
 ):
     queryset = ComplianceActionPlan.objects.select_related(
-        "scope", "owner", "requirement__framework", "assessment"
-    ).all()
+        "owner", "requirement__framework", "assessment"
+    ).prefetch_related("scopes").all()
     filterset_class = ComplianceActionPlanFilter
     permission_classes = [CompliancePermission]
     permission_feature = "action_plan"

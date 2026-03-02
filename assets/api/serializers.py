@@ -49,7 +49,7 @@ class EssentialAssetSerializer(serializers.ModelSerializer):
     class Meta:
         model = EssentialAsset
         fields = [
-            "id", "scope", "reference", "name", "description",
+            "id", "scopes", "reference", "name", "description",
             "type", "category", "owner", "custodian",
             "confidentiality_level", "integrity_level", "availability_level",
             "confidentiality_justification", "integrity_justification",
@@ -72,7 +72,7 @@ class EssentialAssetListSerializer(serializers.ModelSerializer):
     class Meta:
         model = EssentialAsset
         fields = [
-            "id", "scope", "reference", "name", "type", "category",
+            "id", "scopes", "reference", "name", "type", "category",
             "owner", "owner_name",
             "confidentiality_level", "integrity_level", "availability_level",
             "data_classification", "personal_data", "status", "created_at",
@@ -84,7 +84,7 @@ class SupportAssetSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportAsset
         fields = [
-            "id", "scope", "reference", "name", "description",
+            "id", "scopes", "reference", "name", "description",
             "type", "category", "owner", "custodian",
             "location", "manufacturer", "model_name", "serial_number",
             "software_version", "ip_address", "hostname", "operating_system",
@@ -113,7 +113,7 @@ class SupportAssetListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportAsset
         fields = [
-            "id", "scope", "reference", "name", "type", "category",
+            "id", "scopes", "reference", "name", "type", "category",
             "owner", "owner_name",
             "inherited_confidentiality", "inherited_integrity",
             "inherited_availability",
@@ -131,7 +131,7 @@ class AssetGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssetGroup
         fields = [
-            "id", "scope", "name", "description", "type",
+            "id", "scopes", "name", "description", "type",
             "members", "owner", "status", "member_count", "tags",
             "version",
             "is_approved", "approved_by", "approved_at",
@@ -148,7 +148,7 @@ class AssetGroupListSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssetGroup
         fields = [
-            "id", "scope", "name", "type", "owner",
+            "id", "scopes", "name", "type", "owner",
             "status", "member_count", "created_at",
         ]
         read_only_fields = ["id", "created_at"]
@@ -179,7 +179,7 @@ class SupplierSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supplier
         fields = [
-            "id", "scope", "reference", "name", "description",
+            "id", "scopes", "reference", "name", "description",
             "type", "criticality", "owner",
             "contact_name", "contact_email", "contact_phone",
             "website", "address", "country",
@@ -205,7 +205,7 @@ class SupplierListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supplier
         fields = [
-            "id", "scope", "reference", "name", "type", "criticality",
+            "id", "scopes", "reference", "name", "type", "criticality",
             "owner", "owner_name",
             "status", "contract_end_date", "requirement_count",
             "created_at",

@@ -34,7 +34,7 @@
     <div class="card">
       <div class="card-body">
         <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9"><a href="{% url 'context:scope-detail' role.scope.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ role.scope }}</a></dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt><dd class="col-sm-9">{% for s in role.scopes.all %}<a href="{% url 'context:scope-detail' s.pk %}" class="badge" style="background:var(--accent-soft);color:var(--accent);text-decoration:none;font-weight:500;font-size:.82rem;margin-right:.25rem">{{ s }}</a>{% empty %}<span style="color:var(--text-muted)">—</span>{% endfor %}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ role.get_type_display }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt><dd class="col-sm-9">{{ role.get_status_display }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Mandatory" %}</dt><dd class="col-sm-9">{% if role.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>

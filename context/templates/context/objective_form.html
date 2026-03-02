@@ -36,9 +36,9 @@
             </div>
             <div class="col-sm-3">
               <div class="mb-3">
-                <label for="{{ form.scope.id_for_label }}" class="form-label">{{ form.scope.label }} *</label>
-                {{ form.scope }}
-                {% for error in form.scope.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                <label for="{{ form.scopes.id_for_label }}" class="form-label">{{ form.scopes.label }}</label>
+                {{ form.scopes }}
+                {% for error in form.scopes.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
               </div>
             </div>
           </div>

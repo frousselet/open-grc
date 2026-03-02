@@ -91,9 +91,8 @@ class TestObjectiveValidation:
         scope_a = ScopeFactory()
         scope_b = ScopeFactory()
         parent = ObjectiveFactory(scope=scope_a)
-        child = ObjectiveFactory.build(scope=scope_b, parent_objective=parent)
-        with pytest.raises(ValidationError, match="same scope"):
-            child.clean()
+        with pytest.raises(ValidationError, match="share at least one scope"):
+            ObjectiveFactory(scope=scope_b, parent_objective=parent)
 
     def test_parent_same_scope_ok(self):
         scope = ScopeFactory()
