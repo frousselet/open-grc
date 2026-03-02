@@ -170,9 +170,10 @@ REST_FRAMEWORK = {
 
 # Simple JWT
 # WebAuthn / Passkeys
-WEBAUTHN_RP_ID = os.environ.get("WEBAUTHN_RP_ID", "localhost")
+# When not set, RPID and origin are derived from the request automatically.
+WEBAUTHN_RP_ID = os.environ.get("WEBAUTHN_RP_ID")
 WEBAUTHN_RP_NAME = os.environ.get("WEBAUTHN_RP_NAME", "Open GRC")
-WEBAUTHN_ORIGIN = os.environ.get("WEBAUTHN_ORIGIN", "http://localhost:8000")
+WEBAUTHN_ORIGIN = os.environ.get("WEBAUTHN_ORIGIN")
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
