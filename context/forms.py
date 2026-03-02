@@ -74,7 +74,7 @@ class ScopeForm(forms.ModelForm):
     class Meta:
         model = Scope
         fields = [
-            "name", "description", "parent_scope", "status",
+            "name", "description", "parent_scope", "status", "icon",
             "boundaries", "justification_exclusions",
             "geographic_scope", "organizational_scope", "technical_scope",
             "included_sites", "excluded_sites",
@@ -85,6 +85,7 @@ class ScopeForm(forms.ModelForm):
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "parent_scope": forms.Select(attrs=SELECT_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
+            "icon": forms.HiddenInput(attrs={"id": "id_icon"}),
             "boundaries": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "justification_exclusions": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "geographic_scope": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),

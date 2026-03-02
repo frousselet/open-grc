@@ -27,14 +27,29 @@
                 {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
               </div>
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-2">
+              <div class="mb-3">
+                <label class="form-label">{{ form.icon.label }}</label>
+                {{ form.icon }}
+                <div class="d-flex align-items-center gap-2">
+                  <button type="button" class="btn btn-outline-secondary d-flex align-items-center justify-content-center" id="icon-picker-btn" style="width:38px;height:38px;font-size:1.1rem" title="{% trans 'Choose icon' %}">
+                    <i id="icon-preview" class="bi {{ form.icon.value|default:'bi-diagram-3' }}"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-link text-muted p-0" id="icon-clear-btn" title="{% trans 'Reset' %}" style="font-size:.75rem">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </div>
+                {% for error in form.icon.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-2">
               <div class="mb-3">
                 <label for="{{ form.parent_scope.id_for_label }}" class="form-label">{{ form.parent_scope.label }}</label>
                 {{ form.parent_scope }}
                 {% for error in form.parent_scope.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
               </div>
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-2">
               <div class="mb-3">
                 <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }} *</label>
                 {{ form.status }}
@@ -144,4 +159,107 @@
     <a href="{% url 'context:scope-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
   </div>
 </form>
+
+{# ── Icon picker popover ─────────────────────────── #}
+<div id="icon-picker-popover" style="display:none;position:absolute;z-index:1060;width:320px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius-sm);box-shadow:0 4px 16px rgba(0,0,0,.15)">
+  <div style="padding:.5rem">
+    <input type="text" class="form-control form-control-sm" id="icon-picker-search" placeholder="{% trans 'Search icons…' %}" style="border-color:var(--border-light)">
+  </div>
+  <div id="icon-picker-grid" style="max-height:240px;overflow-y:auto;padding:0 .5rem .5rem;display:grid;grid-template-columns:repeat(8,1fr);gap:2px">
+  </div>
+</div>
+
+<script>
+(function() {
+  const ICONS = [
+    "bi-building","bi-buildings","bi-house-door","bi-globe","bi-globe-europe-africa",
+    "bi-globe-americas","bi-globe-asia-australia","bi-geo-alt","bi-geo","bi-pin-map",
+    "bi-diagram-3","bi-diagram-2","bi-share","bi-bezier2","bi-layers",
+    "bi-stack","bi-collection","bi-grid","bi-grid-3x3","bi-bounding-box",
+    "bi-shield-lock","bi-shield-check","bi-shield-exclamation","bi-shield",
+    "bi-lock","bi-unlock","bi-key","bi-fingerprint","bi-eye","bi-eye-slash",
+    "bi-server","bi-hdd-network","bi-hdd-stack","bi-cpu","bi-motherboard",
+    "bi-router","bi-wifi","bi-ethernet","bi-cloud","bi-cloud-check",
+    "bi-database","bi-device-ssd","bi-usb-drive",
+    "bi-people","bi-person","bi-person-badge","bi-person-lock","bi-person-check",
+    "bi-briefcase","bi-bank","bi-shop","bi-hospital","bi-mortarboard",
+    "bi-truck","bi-airplane","bi-train-front","bi-ev-front",
+    "bi-file-earmark-text","bi-file-earmark-lock","bi-file-earmark-check","bi-files",
+    "bi-folder","bi-folder-check","bi-folder2-open",
+    "bi-gear","bi-tools","bi-wrench","bi-sliders","bi-toggles",
+    "bi-code-square","bi-terminal","bi-braces","bi-bug","bi-git",
+    "bi-bar-chart","bi-graph-up","bi-pie-chart","bi-speedometer2","bi-clipboard-data",
+    "bi-flag","bi-bookmark-star","bi-award","bi-trophy","bi-star",
+    "bi-lightning","bi-activity","bi-bell","bi-megaphone","bi-broadcast",
+    "bi-box","bi-boxes","bi-archive","bi-inbox","bi-recycle",
+    "bi-heart-pulse","bi-radioactive","bi-binoculars","bi-camera-video","bi-headset",
+  ];
+
+  const btn = document.getElementById('icon-picker-btn');
+  const preview = document.getElementById('icon-preview');
+  const hiddenInput = document.getElementById('id_icon');
+  const clearBtn = document.getElementById('icon-clear-btn');
+  const popover = document.getElementById('icon-picker-popover');
+  const grid = document.getElementById('icon-picker-grid');
+  const search = document.getElementById('icon-picker-search');
+
+  function renderGrid(filter) {
+    const q = (filter || '').toLowerCase();
+    grid.innerHTML = '';
+    ICONS.forEach(function(ic) {
+      if (q && !ic.replace('bi-','').includes(q)) return;
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'btn btn-sm p-0 d-flex align-items-center justify-content-center';
+      cell.style.cssText = 'width:34px;height:34px;font-size:1rem;color:var(--text-primary);border:1px solid transparent;border-radius:var(--radius-xs)';
+      cell.title = ic.replace('bi-','');
+      cell.innerHTML = '<i class="bi ' + ic + '"></i>';
+      if (hiddenInput.value === ic) {
+        cell.style.borderColor = 'var(--accent)';
+        cell.style.background = 'var(--accent-soft)';
+      }
+      cell.addEventListener('mouseenter', function() { this.style.background = 'var(--surface-muted)'; });
+      cell.addEventListener('mouseleave', function() {
+        this.style.background = hiddenInput.value === ic ? 'var(--accent-soft)' : '';
+      });
+      cell.addEventListener('click', function() {
+        hiddenInput.value = ic;
+        preview.className = 'bi ' + ic;
+        closePopover();
+      });
+      grid.appendChild(cell);
+    });
+  }
+
+  function openPopover() {
+    const rect = btn.getBoundingClientRect();
+    popover.style.display = 'block';
+    popover.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+    popover.style.left = (rect.left + window.scrollX) + 'px';
+    renderGrid('');
+    search.value = '';
+    search.focus();
+  }
+
+  function closePopover() { popover.style.display = 'none'; }
+
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    popover.style.display === 'none' ? openPopover() : closePopover();
+  });
+
+  clearBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    hiddenInput.value = '';
+    preview.className = 'bi bi-diagram-3';
+    closePopover();
+  });
+
+  search.addEventListener('input', function() { renderGrid(this.value); });
+
+  document.addEventListener('click', function(e) {
+    if (!popover.contains(e.target) && e.target !== btn && !btn.contains(e.target)) closePopover();
+  });
+})();
+</script>
 {% endblock %}
