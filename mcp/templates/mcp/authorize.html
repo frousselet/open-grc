@@ -1,0 +1,238 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% trans "Authorize — Open GRC" %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+  <script>
+    (function(){
+      var m = window.matchMedia('(prefers-color-scheme: dark)');
+      function apply(dark) {
+        document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+      }
+      apply(m.matches);
+      m.addEventListener('change', function(e) { apply(e.matches); });
+    })();
+  </script>
+  <style>
+    :root {
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-soft: #eef2ff;
+      --accent-glow: rgba(99,102,241,.2);
+      --surface: #ffffff;
+      --border-light: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --radius-lg: 1.25rem;
+      --radius-md: .75rem;
+      --radius-sm: .5rem;
+      --ease-out-expo: cubic-bezier(.16,1,.3,1);
+    }
+    [data-bs-theme="dark"] {
+      --surface: #1a2332;
+      --border-light: #2d3d50;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent: #818cf8;
+      --accent-soft: rgba(99,102,241,.1);
+      --accent-glow: rgba(129,140,248,.15);
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #4f46e5 0%, #6d28d9 50%, #7c3aed 100%);
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    [data-bs-theme="dark"] body {
+      background: linear-gradient(135deg, #0c0a1d 0%, #1e1b4b 40%, #312e81 70%, #1e1b4b 100%);
+    }
+    .auth-wrapper {
+      max-width: 440px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+      animation: fadeIn .5s var(--ease-out-expo);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .auth-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+      box-shadow: 0 24px 64px rgba(0,0,0,.18), 0 8px 24px rgba(0,0,0,.1);
+      padding: 2.5rem 2rem 2rem;
+    }
+    [data-bs-theme="dark"] .auth-card {
+      box-shadow: 0 24px 64px rgba(0,0,0,.45), 0 8px 24px rgba(0,0,0,.3);
+      border-color: rgba(255,255,255,.06);
+    }
+    .auth-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .625rem;
+      margin-bottom: .5rem;
+    }
+    .auth-brand-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%);
+      color: #fff;
+      font-size: 1.0625rem;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+    .auth-brand-text {
+      font-weight: 700;
+      font-size: 1.3125rem;
+      color: var(--text-primary);
+      letter-spacing: -.025em;
+    }
+    .auth-subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: .8125rem;
+      margin-bottom: 1.5rem;
+    }
+    .scope-list {
+      background: var(--accent-soft);
+      border-radius: var(--radius-sm);
+      padding: .875rem 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .scope-item {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .8125rem;
+      color: var(--text-secondary);
+    }
+    .scope-item i { color: var(--accent); }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .75rem 1rem;
+      background: var(--accent-soft);
+      border-radius: var(--radius-sm);
+      margin-bottom: 1.5rem;
+      font-size: .8125rem;
+      color: var(--text-secondary);
+    }
+    .user-info i { color: var(--accent); font-size: 1.25rem; }
+    .btn-approve {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      border-radius: var(--radius-sm);
+      padding: .625rem;
+      font-weight: 600;
+      font-size: .8125rem;
+      width: 100%;
+      transition: all .2s var(--ease-out-expo);
+      box-shadow: 0 1px 3px var(--accent-glow);
+    }
+    .btn-approve:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99,102,241,.3);
+      color: #fff;
+    }
+    .btn-deny {
+      background: transparent;
+      border: 1px solid var(--border-light);
+      color: var(--text-secondary);
+      border-radius: var(--radius-sm);
+      padding: .625rem;
+      font-weight: 550;
+      font-size: .8125rem;
+      width: 100%;
+      transition: all .2s var(--ease-out-expo);
+    }
+    .btn-deny:hover {
+      background: rgba(239,68,68,.05);
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <span class="auth-brand-icon"><i class="bi bi-shield-check"></i></span>
+        <span class="auth-brand-text">Open GRC</span>
+      </div>
+
+      {% if error %}
+        <p class="auth-subtitle" style="color:#ef4444">{{ error }}</p>
+      {% else %}
+        <p class="auth-subtitle">{% trans "An application wants to access your Open GRC account" %}</p>
+
+        <div class="user-info">
+          <i class="bi bi-person-circle"></i>
+          <div>
+            <div style="font-weight:600;color:var(--text-primary)">{{ user.display_name }}</div>
+            <div style="font-size:.75rem">{{ user.email }}</div>
+          </div>
+        </div>
+
+        <div class="scope-list">
+          <div class="scope-item">
+            <i class="bi bi-check-circle-fill"></i>
+            {% trans "Access your MCP tools (read and write data)" %}
+          </div>
+        </div>
+
+        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:1.25rem;text-align:center">
+          {% trans "Client:" %} <code style="font-size:.7rem">{{ client_id|truncatechars:30 }}</code>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="response_type" value="{{ params.response_type }}">
+          <input type="hidden" name="client_id" value="{{ params.client_id }}">
+          <input type="hidden" name="redirect_uri" value="{{ params.redirect_uri }}">
+          <input type="hidden" name="code_challenge" value="{{ params.code_challenge }}">
+          <input type="hidden" name="code_challenge_method" value="{{ params.code_challenge_method }}">
+          <input type="hidden" name="state" value="{{ params.state }}">
+          <input type="hidden" name="scope" value="{{ params.scope }}">
+
+          <div class="d-flex flex-column gap-2">
+            <button type="submit" name="action" value="approve" class="btn-approve">
+              <i class="bi bi-check-lg me-1"></i>{% trans "Authorize" %}
+            </button>
+            <button type="submit" name="action" value="deny" class="btn-deny">
+              {% trans "Deny" %}
+            </button>
+          </div>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

@@ -116,3 +116,59 @@ class OAuthAccessToken(models.Model):
         )
         token.save()
         return token, raw_token
+
+
+class OAuthAuthorizationCode(models.Model):
+    """Short-lived authorization code for the Authorization Code + PKCE flow."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code = models.CharField(_("Authorization code"), max_length=128, unique=True, db_index=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="oauth_authorization_codes",
+        verbose_name=_("User"),
+    )
+    client_id = models.CharField(_("Client ID"), max_length=255)
+    redirect_uri = models.URLField(_("Redirect URI"), max_length=2048)
+    scope = models.CharField(_("Scope"), max_length=512, blank=True, default="")
+    code_challenge = models.CharField(_("PKCE code challenge"), max_length=128)
+    code_challenge_method = models.CharField(
+        _("PKCE code challenge method"),
+        max_length=10,
+        default="S256",
+    )
+    state = models.CharField(_("State"), max_length=512, blank=True, default="")
+    expires_at = models.DateTimeField(_("Expires at"))
+    used = models.BooleanField(_("Used"), default=False)
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("OAuth authorization code")
+        verbose_name_plural = _("OAuth authorization codes")
+
+    def __str__(self):
+        return f"AuthCode for {self.client_id} ({self.user})"
+
+    @property
+    def is_expired(self):
+        return timezone.now() >= self.expires_at
+
+    @classmethod
+    def create_code(cls, user, client_id, redirect_uri, code_challenge, code_challenge_method, scope="", state="", lifetime_seconds=600):
+        """Create a new authorization code (10 min lifetime by default)."""
+        raw_code = secrets.token_urlsafe(48)
+        auth_code = cls(
+            code=raw_code,
+            user=user,
+            client_id=client_id,
+            redirect_uri=redirect_uri,
+            scope=scope,
+            code_challenge=code_challenge,
+            code_challenge_method=code_challenge_method,
+            state=state,
+            expires_at=timezone.now() + timezone.timedelta(seconds=lifetime_seconds),
+        )
+        auth_code.save()
+        return auth_code, raw_code

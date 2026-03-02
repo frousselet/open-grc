@@ -3,6 +3,9 @@
 from django.contrib import admin
 from django.urls import include, path
 
+from mcp.api.views_authorize import OAuthAuthorizeView
+from mcp.api.views_mcp import oauth_authorization_server_metadata
+
 from .views import CalendarEventsView, CalendarView, GeneralDashboardView
 
 urlpatterns = [
@@ -22,4 +25,8 @@ urlpatterns = [
     path("api/v1/compliance/", include("compliance.api.urls")),
     path("api/v1/risks/", include("risks.api.urls")),
     path("api/v1/", include("mcp.urls")),
+
+    # OAuth 2.0 Authorization Code flow (root-level for MCP clients)
+    path("authorize", OAuthAuthorizeView.as_view(), name="oauth-authorize"),
+    path(".well-known/oauth-authorization-server", oauth_authorization_server_metadata, name="oauth-as-metadata"),
 ]

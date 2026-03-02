@@ -4,12 +4,13 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from mcp.models import OAuthAccessToken, OAuthApplication
+from mcp.api.views_authorize import verify_code_challenge
+from mcp.models import OAuthAccessToken, OAuthApplication, OAuthAuthorizationCode
 from mcp.models.oauth import _generate_client_secret
 
 
 class OAuthTokenView(APIView):
-    """OAuth 2.0 token endpoint implementing client_credentials grant."""
+    """OAuth 2.0 token endpoint supporting client_credentials and authorization_code grants."""
 
     permission_classes = [AllowAny]
     authentication_classes = []
@@ -17,12 +18,18 @@ class OAuthTokenView(APIView):
 
     def post(self, request):
         grant_type = request.data.get("grant_type")
-        if grant_type != "client_credentials":
+
+        if grant_type == "client_credentials":
+            return self._handle_client_credentials(request)
+        elif grant_type == "authorization_code":
+            return self._handle_authorization_code(request)
+        else:
             return Response(
-                {"error": "unsupported_grant_type", "error_description": "Only client_credentials is supported."},
+                {"error": "unsupported_grant_type", "error_description": "Supported grants: client_credentials, authorization_code."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+    def _handle_client_credentials(self, request):
         client_id = request.data.get("client_id")
         client_secret = request.data.get("client_secret")
 
@@ -62,6 +69,88 @@ class OAuthTokenView(APIView):
             )
 
         # Issue access token (1 hour lifetime)
+        token_obj, raw_token = OAuthAccessToken.create_token(app, lifetime_seconds=3600)
+
+        return Response({
+            "access_token": raw_token,
+            "token_type": "Bearer",
+            "expires_in": 3600,
+        })
+
+    def _handle_authorization_code(self, request):
+        code = request.data.get("code", "").strip()
+        code_verifier = request.data.get("code_verifier", "").strip()
+        client_id = request.data.get("client_id", "").strip()
+        redirect_uri = request.data.get("redirect_uri", "").strip()
+
+        if not code or not code_verifier or not client_id:
+            return Response(
+                {"error": "invalid_request", "error_description": "code, code_verifier, and client_id are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Look up the authorization code
+        try:
+            auth_code = OAuthAuthorizationCode.objects.select_related("user").get(
+                code=code, client_id=client_id, used=False,
+            )
+        except OAuthAuthorizationCode.DoesNotExist:
+            return Response(
+                {"error": "invalid_grant", "error_description": "Invalid or expired authorization code."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Check expiration
+        if auth_code.is_expired:
+            auth_code.used = True
+            auth_code.save(update_fields=["used"])
+            return Response(
+                {"error": "invalid_grant", "error_description": "Authorization code has expired."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Verify redirect_uri matches
+        if redirect_uri and redirect_uri != auth_code.redirect_uri:
+            return Response(
+                {"error": "invalid_grant", "error_description": "redirect_uri mismatch."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Verify PKCE code_verifier
+        if not verify_code_challenge(code_verifier, auth_code.code_challenge, auth_code.code_challenge_method):
+            auth_code.used = True
+            auth_code.save(update_fields=["used"])
+            return Response(
+                {"error": "invalid_grant", "error_description": "PKCE code_verifier validation failed."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Mark code as used (one-time use)
+        auth_code.used = True
+        auth_code.save(update_fields=["used"])
+
+        user = auth_code.user
+
+        if not user.is_active:
+            return Response(
+                {"error": "invalid_grant", "error_description": "User account is disabled."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Check MCP access permission
+        if not user.is_superuser and not user.has_perm("system.mcp.access"):
+            return Response(
+                {"error": "access_denied", "error_description": "User does not have MCP access."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        # Find or create an OAuthApplication for this user/client_id pair
+        app, _ = OAuthApplication.objects.get_or_create(
+            client_id=client_id,
+            defaults={"name": f"MCP ({client_id[:20]})", "user": user, "client_secret_hash": "none"},
+        )
+
+        # Issue access token
         token_obj, raw_token = OAuthAccessToken.create_token(app, lifetime_seconds=3600)
 
         return Response({

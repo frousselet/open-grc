@@ -154,3 +154,27 @@ def mcp_metadata_view(request):
         "bearer_methods_supported": ["header"],
         "resource_documentation": f"{base_url}/api/v1/mcp/.well-known/oauth-protected-resource",
     })
+
+
+@csrf_exempt
+def oauth_authorization_server_metadata(request):
+    """
+    OAuth 2.0 Authorization Server Metadata (RFC 8414).
+    Advertises the authorization and token endpoints to MCP clients.
+    """
+    if request.method != "GET":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    scheme = request.scheme
+    host = request.get_host()
+    base_url = f"{scheme}://{host}"
+
+    return JsonResponse({
+        "issuer": base_url,
+        "authorization_endpoint": f"{base_url}/authorize",
+        "token_endpoint": f"{base_url}/api/v1/oauth/token/",
+        "response_types_supported": ["code"],
+        "grant_types_supported": ["authorization_code", "client_credentials"],
+        "code_challenge_methods_supported": ["S256"],
+        "token_endpoint_auth_methods_supported": ["none", "client_secret_post"],
+    })

@@ -4228,6 +4228,27 @@ msgstr "Échec de la création."
 msgid "Delete OAuth credential"
 msgstr "Supprimer l'identifiant OAuth"
 
+msgid "Authorize — Open GRC"
+msgstr "Autoriser — Open GRC"
+
+msgid "An application wants to access your Open GRC account"
+msgstr "Une application souhaite accéder à votre compte Open GRC"
+
+msgid "Access your MCP tools (read and write data)"
+msgstr "Accéder à vos outils MCP (lecture et écriture de données)"
+
+msgid "Client:"
+msgstr "Client :"
+
+msgid "Authorize"
+msgstr "Autoriser"
+
+msgid "Deny"
+msgstr "Refuser"
+
+msgid "You do not have permission to access the MCP server."
+msgstr "Vous n'avez pas la permission d'accéder au serveur MCP."
+
 #, python-format
 #~ msgid "%(count)d single point(s) of failure (SPOF) to review"
 #~ msgstr "%(count)d point(s) de défaillance unique (SPOF) à examiner"
