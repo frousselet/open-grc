@@ -38,6 +38,41 @@ class EmailAuthBackend(BaseBackend):
             return None
 
 
+class PasskeyAuthBackend(BaseBackend):
+    """
+    Authenticate using a WebAuthn passkey credential ID.
+    Called by the passkey login view after WebAuthn verification.
+    """
+
+    def authenticate(self, request, passkey_credential_id=None, **kwargs):
+        if passkey_credential_id is None:
+            return None
+
+        from accounts.models.passkey import Passkey
+
+        try:
+            passkey = Passkey.objects.select_related("user").get(
+                credential_id=passkey_credential_id,
+            )
+        except Passkey.DoesNotExist:
+            return None
+
+        user = passkey.user
+        if not user.is_active:
+            return None
+        if user.is_locked:
+            return None
+
+        return user
+
+    def get_user(self, user_id):
+        User = get_user_model()
+        try:
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return None
+
+
 class GroupPermissionBackend(BaseBackend):
     """
     Resolve permissions via custom accounts.Group -> Permission model.

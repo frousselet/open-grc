@@ -1,6 +1,6 @@
 from django.urls import path
 
-from accounts import views
+from accounts import views, views_passkey
 
 app_name = "accounts"
 
@@ -8,6 +8,14 @@ urlpatterns = [
     # Authentication
     path("login/", views.LoginView.as_view(), name="login"),
     path("logout/", views.LogoutView.as_view(), name="logout"),
+
+    # Passkeys
+    path("passkeys/register/begin/", views_passkey.PasskeyRegisterBeginView.as_view(), name="passkey-register-begin"),
+    path("passkeys/register/complete/", views_passkey.PasskeyRegisterCompleteView.as_view(), name="passkey-register-complete"),
+    path("passkeys/login/begin/", views_passkey.PasskeyLoginBeginView.as_view(), name="passkey-login-begin"),
+    path("passkeys/login/complete/", views_passkey.PasskeyLoginCompleteView.as_view(), name="passkey-login-complete"),
+    path("passkeys/<uuid:pk>/delete/", views_passkey.PasskeyDeleteView.as_view(), name="passkey-delete"),
+    path("passkeys/", views_passkey.PasskeyListView.as_view(), name="passkey-list"),
 
     # Profile
     path("profile/", views.ProfileView.as_view(), name="profile"),

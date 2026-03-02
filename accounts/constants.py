@@ -19,6 +19,10 @@ class AccessEventType(models.TextChoices):
     PASSWORD_CHANGE = "password_change", _("Password change")
     ACCOUNT_LOCKED = "account_locked", _("Account locked")
     ACCOUNT_UNLOCKED = "account_unlocked", _("Account unlocked")
+    PASSKEY_LOGIN_SUCCESS = "passkey_login_success", _("Passkey login")
+    PASSKEY_LOGIN_FAILED = "passkey_login_failed", _("Passkey login failed")
+    PASSKEY_REGISTERED = "passkey_registered", _("Passkey registered")
+    PASSKEY_DELETED = "passkey_deleted", _("Passkey deleted")
 
 
 class FailureReason(models.TextChoices):

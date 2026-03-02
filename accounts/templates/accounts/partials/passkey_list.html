@@ -1,0 +1,23 @@
+{% load i18n %}
+{% if passkeys %}
+<ul class="list-group list-group-flush">
+  {% for pk in passkeys %}
+  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+    <div>
+      <div style="font-weight:550;font-size:.875rem"><i class="bi bi-key me-1" style="color:var(--accent)"></i>{{ pk.name }}</div>
+      <div style="font-size:.75rem;color:var(--text-muted)">
+        {% trans "Added" %} {{ pk.created_at|date:"d/m/Y" }}
+        {% if pk.last_used_at %}
+          — {% trans "Last used" %} {{ pk.last_used_at|date:"d/m/Y" }}
+        {% endif %}
+      </div>
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deletePasskey('{{ pk.id }}', '{{ pk.name|escapejs }}')" title="{% trans 'Delete' %}">
+      <i class="bi bi-trash"></i>
+    </button>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No passkeys registered." %}</p>
+{% endif %}

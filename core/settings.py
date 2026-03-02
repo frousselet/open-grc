@@ -107,6 +107,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 AUTHENTICATION_BACKENDS = [
     "accounts.backends.EmailAuthBackend",
+    "accounts.backends.PasskeyAuthBackend",
     "accounts.backends.GroupPermissionBackend",
 ]
 
@@ -168,6 +169,11 @@ REST_FRAMEWORK = {
 }
 
 # Simple JWT
+# WebAuthn / Passkeys
+WEBAUTHN_RP_ID = os.environ.get("WEBAUTHN_RP_ID", "localhost")
+WEBAUTHN_RP_NAME = os.environ.get("WEBAUTHN_RP_NAME", "Open GRC")
+WEBAUTHN_ORIGIN = os.environ.get("WEBAUTHN_ORIGIN", "http://localhost:8000")
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
