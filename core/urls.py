@@ -3,9 +3,17 @@
 from django.contrib import admin
 from django.urls import include, path
 
+from mcp.views import OAuthAuthorizeView, oauth_authorization_server_metadata
+
 from .views import CalendarEventsView, CalendarView, GeneralDashboardView
 
 urlpatterns = [
+    # OAuth 2.0 Authorization Server Metadata (RFC 8414) - must be at root
+    path(".well-known/oauth-authorization-server", oauth_authorization_server_metadata, name="oauth-as-metadata"),
+
+    # OAuth 2.0 Authorization Endpoint - must be at root
+    path("authorize", OAuthAuthorizeView.as_view(), name="oauth-authorize"),
+
     path("i18n/", include("django.conf.urls.i18n")),
     path("", GeneralDashboardView.as_view(), name="home"),
     path("calendar/", CalendarView.as_view(), name="calendar"),

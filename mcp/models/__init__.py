@@ -1,3 +1,3 @@
-from mcp.models.oauth import OAuthApplication, OAuthAccessToken
+from mcp.models.oauth import OAuthApplication, OAuthAccessToken, OAuthAuthorizationCode
 
-__all__ = ["OAuthApplication", "OAuthAccessToken"]
+__all__ = ["OAuthApplication", "OAuthAccessToken", "OAuthAuthorizationCode"]
