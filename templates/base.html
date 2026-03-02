@@ -992,12 +992,15 @@
     .scope-tree-locked .scope-tree-label input { cursor: default; }
 
     /* ── Grouped scope badges ─────────────────────────── */
-    .scope-badge-group { display: inline-flex; align-items: center; }
-    .scope-badge { font-size: .625rem; padding: .2em .55em; font-weight: 600; border: 0; vertical-align: middle; }
-    .scope-badge-root { background: var(--accent-soft); color: var(--accent); border-radius: var(--radius-xs); }
-    .scope-badge-parent { background: var(--accent-soft); color: var(--accent); border-radius: var(--radius-xs) 0 0 var(--radius-xs); }
-    .scope-badge-child { background: var(--accent-soft); color: var(--accent); opacity: .6; border-radius: 0; border-left: 1px solid color-mix(in srgb, var(--accent) 20%, transparent); }
-    .scope-badge-child:last-child { border-radius: 0 var(--radius-xs) var(--radius-xs) 0; }
+    .scope-badge-group { display: inline-flex; align-items: center; vertical-align: middle; }
+    .scope-badge { font-size: .625rem; padding: .2em .55em; font-weight: 600; border: 0; border-radius: 0; background: var(--accent-soft); color: var(--accent); border-left: 1px solid color-mix(in srgb, var(--accent) 20%, transparent); }
+    .scope-badge-first { border-left: 0; border-radius: var(--radius-xs) 0 0 var(--radius-xs); }
+    .scope-badge-last { border-radius: 0 var(--radius-xs) var(--radius-xs) 0; }
+    .scope-badge-first.scope-badge-last { border-radius: var(--radius-xs); }
+    .scope-badge-d0 { opacity: 1; }
+    .scope-badge-d1 { opacity: .6; }
+    .scope-badge-d2 { opacity: .45; }
+    .scope-badge-d3 { opacity: .35; }
   </style>
   <script>
     (function(){
