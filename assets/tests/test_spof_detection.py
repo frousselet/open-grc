@@ -249,11 +249,35 @@ class TestRule4SingleSite:
         match = [d for d in results["site_asset_dependencies"] if d["id"] == str(dep1.id)]
         assert match[0]["is_spof"] is False
 
-    def test_single_site_low_availability_not_spof(self):
+    def test_single_site_low_availability_low_criticality_not_spof(self):
         sa = SupportAssetFactory()
         # No essential asset linked → inherited availability stays at NEGLIGIBLE
+        # Low criticality → rule 4b doesn't trigger either
         site = _make_site()
-        dep = _make_site_asset_dep(sa, site)
+        dep = _make_site_asset_dep(sa, site, criticality=Criticality.LOW,
+                                   redundancy_level=RedundancyLevel.NONE)
+        results = SpofDetector().detect_all()
+        match = [d for d in results["site_asset_dependencies"] if d["id"] == str(dep.id)]
+        assert match[0]["is_spof"] is False
+
+    def test_single_site_no_redundancy_critical_is_spof(self):
+        """Rule 4b: single site + no redundancy + critical criticality → SPOF,
+        even without high inherited availability."""
+        sa = SupportAssetFactory()
+        site = _make_site()
+        dep = _make_site_asset_dep(sa, site, criticality=Criticality.CRITICAL,
+                                   redundancy_level=RedundancyLevel.NONE)
+        results = SpofDetector().detect_all()
+        match = [d for d in results["site_asset_dependencies"] if d["id"] == str(dep.id)]
+        assert match[0]["is_spof"] is True
+        assert "single_site_no_redundancy_high_criticality" in match[0]["rules"]
+
+    def test_single_site_with_full_redundancy_critical_not_spof(self):
+        """Full redundancy prevents rule 4b even with critical criticality."""
+        sa = SupportAssetFactory()
+        site = _make_site()
+        dep = _make_site_asset_dep(sa, site, criticality=Criticality.CRITICAL,
+                                   redundancy_level=RedundancyLevel.FULL)
         results = SpofDetector().detect_all()
         match = [d for d in results["site_asset_dependencies"] if d["id"] == str(dep.id)]
         assert match[0]["is_spof"] is False
