@@ -1,0 +1,951 @@
+"""
+MCP tool definitions covering all Open GRC API functionality.
+
+Each tool maps to one or more API endpoints and performs operations
+using the Django ORM directly, respecting the user's permissions.
+"""
+
+import json
+from functools import wraps
+
+from django.apps import apps
+from django.core.exceptions import ValidationError
+from django.db.models import Q
+from django.utils import timezone
+
+from mcp.server import InvalidParamsError
+
+
+# ── Permission helpers ─────────────────────────────────────
+
+def require_perm(codename):
+    """Decorator that checks user permission before executing tool handler."""
+    def decorator(fn):
+        @wraps(fn)
+        def wrapper(user, arguments):
+            if not user.is_superuser and not user.has_perm(codename):
+                return _error(f"Permission denied: {codename}")
+            return fn(user, arguments)
+        return wrapper
+    return decorator
+
+
+def _error(message):
+    return {
+        "content": [{"type": "text", "text": json.dumps({"error": message}, ensure_ascii=False)}],
+        "isError": True,
+    }
+
+
+def _serialize_obj(obj, fields=None):
+    """Simple serialization of a model instance to dict."""
+    if fields is None:
+        fields = [f.name for f in obj._meta.fields]
+    data = {}
+    for field_name in fields:
+        val = getattr(obj, field_name, None)
+        if hasattr(val, "isoformat"):
+            val = val.isoformat()
+        elif hasattr(val, "pk"):
+            val = str(val.pk)
+        elif isinstance(val, (list, set)):
+            val = list(val)
+        else:
+            val = str(val) if val is not None else None
+        data[field_name] = val
+    return data
+
+
+def _serialize_qs(qs, fields=None, limit=50, offset=0):
+    """Serialize a queryset to list of dicts."""
+    qs = qs[offset:offset + limit]
+    return [_serialize_obj(obj, fields) for obj in qs]
+
+
+def _get_model(app_label, model_name):
+    return apps.get_model(app_label, model_name)
+
+
+def _filter_by_scopes(qs, user, model=None):
+    """Apply scope-based filtering to a queryset."""
+    if user.is_superuser:
+        return qs
+    scope_ids = user.get_allowed_scope_ids()
+    if scope_ids is None:
+        return qs
+    model = model or qs.model
+    Scope = _get_model("context", "Scope")
+    if model is Scope or model._meta.label == "context.Scope":
+        return qs.filter(id__in=scope_ids)
+    if any(f.name == "scopes" for f in model._meta.many_to_many):
+        return qs.filter(scopes__id__in=scope_ids).distinct()
+    return qs
+
+
+def _apply_filters(qs, arguments, allowed_filters):
+    """Apply simple equality filters from arguments."""
+    for key in allowed_filters:
+        val = arguments.get(key)
+        if val is not None:
+            qs = qs.filter(**{key: val})
+    return qs
+
+
+def _apply_search(qs, arguments, search_fields):
+    """Apply text search across multiple fields."""
+    search = arguments.get("search")
+    if search and search_fields:
+        q = Q()
+        for field in search_fields:
+            q |= Q(**{f"{field}__icontains": search})
+        qs = qs.filter(q)
+    return qs
+
+
+# ── Generic CRUD helpers ───────────────────────────────────
+
+def _list_handler(model_class, fields, search_fields=None, filters=None, scope_filtered=True):
+    """Create a generic list handler."""
+    def handler(user, arguments):
+        qs = model_class.objects.all()
+        if scope_filtered:
+            qs = _filter_by_scopes(qs, user)
+        if search_fields:
+            qs = _apply_search(qs, arguments, search_fields)
+        if filters:
+            qs = _apply_filters(qs, arguments, filters)
+        limit = min(int(arguments.get("limit", 25)), 100)
+        offset = int(arguments.get("offset", 0))
+        total = qs.count()
+        items = _serialize_qs(qs, fields, limit=limit, offset=offset)
+        return {"total": total, "items": items, "limit": limit, "offset": offset}
+    return handler
+
+
+def _get_handler(model_class, fields, scope_filtered=True):
+    """Create a generic get-by-id handler."""
+    def handler(user, arguments):
+        pk = arguments.get("id")
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        try:
+            obj = model_class.objects.get(pk=pk)
+        except model_class.DoesNotExist:
+            return _error(f"{model_class.__name__} not found.")
+        if scope_filtered:
+            qs = _filter_by_scopes(model_class.objects.filter(pk=pk), user)
+            if not qs.exists():
+                return _error("Access denied: object is outside your allowed scopes.")
+        return _serialize_obj(obj, fields)
+    return handler
+
+
+def _create_handler(model_class, writable_fields, scope_filtered=True):
+    """Create a generic create handler."""
+    def handler(user, arguments):
+        kwargs = {}
+        for field_name in writable_fields:
+            if field_name in arguments:
+                kwargs[field_name] = arguments[field_name]
+        if hasattr(model_class, "created_by"):
+            kwargs["created_by"] = user
+        try:
+            obj = model_class(**kwargs)
+            obj.full_clean()
+            obj.save()
+        except (ValidationError, Exception) as e:
+            return _error(str(e))
+        fields = [f.name for f in model_class._meta.fields]
+        return _serialize_obj(obj, fields)
+    return handler
+
+
+def _update_handler(model_class, writable_fields, scope_filtered=True):
+    """Create a generic update handler."""
+    def handler(user, arguments):
+        pk = arguments.get("id")
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        try:
+            obj = model_class.objects.get(pk=pk)
+        except model_class.DoesNotExist:
+            return _error(f"{model_class.__name__} not found.")
+        if scope_filtered:
+            qs = _filter_by_scopes(model_class.objects.filter(pk=pk), user)
+            if not qs.exists():
+                return _error("Access denied: object is outside your allowed scopes.")
+        for field_name in writable_fields:
+            if field_name in arguments:
+                setattr(obj, field_name, arguments[field_name])
+        # Reset approval on update (like ApprovableAPIMixin)
+        if hasattr(obj, "is_approved"):
+            obj.is_approved = False
+            obj.approved_by = None
+            obj.approved_at = None
+        if hasattr(obj, "version"):
+            obj.version = (obj.version or 0) + 1
+        try:
+            obj.full_clean()
+            obj.save()
+        except (ValidationError, Exception) as e:
+            return _error(str(e))
+        fields = [f.name for f in model_class._meta.fields]
+        return _serialize_obj(obj, fields)
+    return handler
+
+
+def _delete_handler(model_class, scope_filtered=True):
+    """Create a generic delete handler."""
+    def handler(user, arguments):
+        pk = arguments.get("id")
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        try:
+            obj = model_class.objects.get(pk=pk)
+        except model_class.DoesNotExist:
+            return _error(f"{model_class.__name__} not found.")
+        if scope_filtered:
+            qs = _filter_by_scopes(model_class.objects.filter(pk=pk), user)
+            if not qs.exists():
+                return _error("Access denied: object is outside your allowed scopes.")
+        obj.delete()
+        return {"deleted": True, "id": str(pk)}
+    return handler
+
+
+def _approve_handler(model_class, scope_filtered=True):
+    """Create a generic approve handler."""
+    def handler(user, arguments):
+        pk = arguments.get("id")
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        try:
+            obj = model_class.objects.get(pk=pk)
+        except model_class.DoesNotExist:
+            return _error(f"{model_class.__name__} not found.")
+        obj.is_approved = True
+        obj.approved_by = user
+        obj.approved_at = timezone.now()
+        obj.save(update_fields=["is_approved", "approved_by", "approved_at"])
+        return {"approved": True, "id": str(pk)}
+    return handler
+
+
+# ── Schema helpers ─────────────────────────────────────────
+
+def _list_schema(extra_props=None):
+    props = {
+        "search": {"type": "string", "description": "Text search query"},
+        "limit": {"type": "integer", "description": "Max items to return (default 25, max 100)"},
+        "offset": {"type": "integer", "description": "Offset for pagination"},
+    }
+    if extra_props:
+        props.update(extra_props)
+    return {"type": "object", "properties": props}
+
+
+def _id_schema():
+    return {
+        "type": "object",
+        "properties": {"id": {"type": "string", "description": "UUID of the object"}},
+        "required": ["id"],
+    }
+
+
+def _obj_schema(properties, required=None):
+    schema = {"type": "object", "properties": properties}
+    if required:
+        schema["required"] = required
+    return schema
+
+
+# ── Tool registration ──────────────────────────────────────
+
+def register_all_tools(server):
+    """Register all MCP tools on the given McpServer instance."""
+    _register_context_tools(server)
+    _register_assets_tools(server)
+    _register_compliance_tools(server)
+    _register_risks_tools(server)
+    _register_accounts_tools(server)
+
+
+# ── Context Module ─────────────────────────────────────────
+
+def _register_context_tools(server):
+    Scope = _get_model("context", "Scope")
+    Issue = _get_model("context", "Issue")
+    Stakeholder = _get_model("context", "Stakeholder")
+    StakeholderExpectation = _get_model("context", "StakeholderExpectation")
+    Objective = _get_model("context", "Objective")
+    SwotAnalysis = _get_model("context", "SwotAnalysis")
+    SwotItem = _get_model("context", "SwotItem")
+    Role = _get_model("context", "Role")
+    Activity = _get_model("context", "Activity")
+    Site = _get_model("context", "Site")
+    Tag = _get_model("context", "Tag")
+
+    scope_fields = ["id", "reference", "name", "description", "status", "type",
+                    "effective_date", "review_date", "version", "is_approved", "created_at"]
+    scope_writable = ["name", "description", "status", "type", "effective_date",
+                      "review_date", "parent_scope_id"]
+
+    _register_crud(server, "scope", Scope, "context.scope",
+                   list_fields=scope_fields,
+                   writable_fields=scope_writable,
+                   search_fields=["name", "description"],
+                   filters=["status", "type"])
+
+    issue_fields = ["id", "reference", "name", "description", "category", "severity",
+                    "status", "is_approved", "created_at"]
+    issue_writable = ["name", "description", "category", "severity", "status"]
+
+    _register_crud(server, "issue", Issue, "context.issue",
+                   list_fields=issue_fields,
+                   writable_fields=issue_writable,
+                   search_fields=["name", "description"],
+                   filters=["category", "severity", "status"])
+
+    stakeholder_fields = ["id", "reference", "name", "description", "type", "influence_level",
+                          "status", "is_approved", "created_at"]
+    stakeholder_writable = ["name", "description", "type", "influence_level", "status"]
+
+    _register_crud(server, "stakeholder", Stakeholder, "context.stakeholder",
+                   list_fields=stakeholder_fields,
+                   writable_fields=stakeholder_writable,
+                   search_fields=["name", "description"],
+                   filters=["type", "status"])
+
+    expectation_fields = ["id", "reference", "name", "description", "type", "priority",
+                          "stakeholder_id", "created_at"]
+    expectation_writable = ["name", "description", "type", "priority", "stakeholder_id"]
+
+    _register_crud(server, "expectation", StakeholderExpectation, "context.expectation",
+                   list_fields=expectation_fields,
+                   writable_fields=expectation_writable,
+                   search_fields=["name", "description"],
+                   filters=["stakeholder_id", "type"],
+                   scope_filtered=False)
+
+    objective_fields = ["id", "reference", "name", "description", "type", "priority",
+                        "status", "target_date", "is_approved", "created_at"]
+    objective_writable = ["name", "description", "type", "priority", "status", "target_date"]
+
+    _register_crud(server, "objective", Objective, "context.objective",
+                   list_fields=objective_fields,
+                   writable_fields=objective_writable,
+                   search_fields=["name", "description"],
+                   filters=["type", "status", "priority"])
+
+    swot_fields = ["id", "reference", "name", "description", "status", "is_approved", "created_at"]
+    swot_writable = ["name", "description", "status"]
+
+    _register_crud(server, "swot_analysis", SwotAnalysis, "context.swot",
+                   list_fields=swot_fields,
+                   writable_fields=swot_writable,
+                   search_fields=["name", "description"],
+                   filters=["status"])
+
+    swot_item_fields = ["id", "reference", "type", "title", "description", "impact",
+                        "priority", "order", "analysis_id", "created_at"]
+    swot_item_writable = ["type", "title", "description", "impact", "priority", "order", "analysis_id"]
+
+    _register_crud(server, "swot_item", SwotItem, "context.swot",
+                   list_fields=swot_item_fields,
+                   writable_fields=swot_item_writable,
+                   search_fields=["title", "description"],
+                   filters=["analysis_id", "type"],
+                   scope_filtered=False)
+
+    role_fields = ["id", "reference", "name", "description", "type", "status",
+                   "is_approved", "created_at"]
+    role_writable = ["name", "description", "type", "status"]
+
+    _register_crud(server, "role", Role, "context.role",
+                   list_fields=role_fields,
+                   writable_fields=role_writable,
+                   search_fields=["name", "description"],
+                   filters=["type", "status"])
+
+    activity_fields = ["id", "reference", "name", "description", "type", "status",
+                       "is_approved", "created_at"]
+    activity_writable = ["name", "description", "type", "status", "parent_activity_id"]
+
+    _register_crud(server, "activity", Activity, "context.activity",
+                   list_fields=activity_fields,
+                   writable_fields=activity_writable,
+                   search_fields=["name", "description"],
+                   filters=["type", "status"])
+
+    site_fields = ["id", "reference", "name", "description", "type", "status",
+                   "address", "city", "country", "is_approved", "created_at"]
+    site_writable = ["name", "description", "type", "status", "address", "city",
+                     "country", "parent_site_id"]
+
+    _register_crud(server, "site", Site, "context.site",
+                   list_fields=site_fields,
+                   writable_fields=site_writable,
+                   search_fields=["name", "description", "city"],
+                   filters=["type", "status", "country"])
+
+    # Tags (simple CRUD, no approve)
+    server.register_tool(
+        "list_tags",
+        "List all tags",
+        _list_schema({"search": {"type": "string"}}),
+        require_perm("context.scope.read")(
+            _list_handler(Tag, ["id", "name", "color", "created_at"], ["name"], scope_filtered=False)
+        ),
+    )
+    server.register_tool(
+        "create_tag",
+        "Create a tag",
+        _obj_schema({"name": {"type": "string"}, "color": {"type": "string"}}, ["name"]),
+        require_perm("context.scope.create")(
+            _create_handler(Tag, ["name", "color"], scope_filtered=False)
+        ),
+    )
+    server.register_tool(
+        "delete_tag",
+        "Delete a tag",
+        _id_schema(),
+        require_perm("context.scope.delete")(
+            _delete_handler(Tag, scope_filtered=False)
+        ),
+    )
+
+
+# ── Assets Module ──────────────────────────────────────────
+
+def _register_assets_tools(server):
+    EssentialAsset = _get_model("assets", "EssentialAsset")
+    SupportAsset = _get_model("assets", "SupportAsset")
+    AssetDependency = _get_model("assets", "AssetDependency")
+    AssetGroup = _get_model("assets", "AssetGroup")
+    Supplier = _get_model("assets", "Supplier")
+    SupplierDependency = _get_model("assets", "SupplierDependency")
+
+    ea_fields = ["id", "reference", "name", "description", "type", "category",
+                 "status", "confidentiality_level", "integrity_level",
+                 "availability_level", "personal_data", "is_approved", "created_at"]
+    ea_writable = ["name", "description", "type", "category", "status",
+                   "confidentiality_level", "integrity_level", "availability_level",
+                   "personal_data", "owner_id", "custodian_id"]
+
+    _register_crud(server, "essential_asset", EssentialAsset, "assets.essential_asset",
+                   list_fields=ea_fields,
+                   writable_fields=ea_writable,
+                   search_fields=["reference", "name", "description"],
+                   filters=["type", "category", "status"])
+
+    sa_fields = ["id", "reference", "name", "description", "type", "category",
+                 "status", "hostname", "ip_address",
+                 "inherited_confidentiality", "inherited_integrity",
+                 "inherited_availability", "end_of_life_date", "is_approved", "created_at"]
+    sa_writable = ["name", "description", "type", "category", "status",
+                   "hostname", "ip_address", "end_of_life_date",
+                   "owner_id", "custodian_id", "parent_asset_id"]
+
+    _register_crud(server, "support_asset", SupportAsset, "assets.support_asset",
+                   list_fields=sa_fields,
+                   writable_fields=sa_writable,
+                   search_fields=["reference", "name", "description", "hostname", "ip_address"],
+                   filters=["type", "category", "status"])
+
+    dep_fields = ["id", "essential_asset_id", "support_asset_id", "dependency_type",
+                  "criticality", "is_single_point_of_failure", "created_at"]
+    dep_writable = ["essential_asset_id", "support_asset_id", "dependency_type",
+                    "criticality", "description"]
+
+    _register_crud(server, "asset_dependency", AssetDependency, "assets.dependency",
+                   list_fields=dep_fields,
+                   writable_fields=dep_writable,
+                   search_fields=[],
+                   filters=["essential_asset_id", "support_asset_id", "dependency_type", "criticality"],
+                   scope_filtered=False)
+
+    ag_fields = ["id", "name", "description", "type", "status", "is_approved", "created_at"]
+    ag_writable = ["name", "description", "type", "status", "owner_id"]
+
+    _register_crud(server, "asset_group", AssetGroup, "assets.group",
+                   list_fields=ag_fields,
+                   writable_fields=ag_writable,
+                   search_fields=["name", "description"],
+                   filters=["type", "status"])
+
+    sup_fields = ["id", "reference", "name", "description", "type", "criticality",
+                  "status", "contact_name", "contact_email",
+                  "contract_end_date", "is_approved", "created_at"]
+    sup_writable = ["name", "description", "type", "criticality", "status",
+                    "contact_name", "contact_email", "contact_phone",
+                    "website", "contract_start_date", "contract_end_date",
+                    "owner_id"]
+
+    _register_crud(server, "supplier", Supplier, "assets.supplier",
+                   list_fields=sup_fields,
+                   writable_fields=sup_writable,
+                   search_fields=["reference", "name", "description", "contact_name"],
+                   filters=["type", "criticality", "status"])
+
+    sd_fields = ["id", "support_asset_id", "supplier_id", "dependency_type",
+                 "criticality", "created_at"]
+    sd_writable = ["support_asset_id", "supplier_id", "dependency_type",
+                   "criticality", "description"]
+
+    _register_crud(server, "supplier_dependency", SupplierDependency, "assets.supplier_dependency",
+                   list_fields=sd_fields,
+                   writable_fields=sd_writable,
+                   search_fields=[],
+                   filters=["support_asset_id", "supplier_id"],
+                   scope_filtered=False)
+
+
+# ── Compliance Module ──────────────────────────────────────
+
+def _register_compliance_tools(server):
+    Framework = _get_model("compliance", "Framework")
+    Section = _get_model("compliance", "Section")
+    Requirement = _get_model("compliance", "Requirement")
+    ComplianceAssessment = _get_model("compliance", "ComplianceAssessment")
+    AssessmentResult = _get_model("compliance", "AssessmentResult")
+    RequirementMapping = _get_model("compliance", "RequirementMapping")
+    ComplianceActionPlan = _get_model("compliance", "ComplianceActionPlan")
+
+    fw_fields = ["id", "reference", "name", "short_name", "description", "type",
+                 "category", "compliance_level", "status", "is_approved", "created_at"]
+    fw_writable = ["name", "short_name", "description", "type", "category", "status",
+                   "owner_id"]
+
+    _register_crud(server, "framework", Framework, "compliance.framework",
+                   list_fields=fw_fields,
+                   writable_fields=fw_writable,
+                   search_fields=["reference", "name", "short_name", "description"],
+                   filters=["type", "category", "status"])
+
+    # Framework compliance summary (special tool)
+    @require_perm("compliance.framework.read")
+    def framework_compliance_summary(user, arguments):
+        pk = arguments.get("id")
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        try:
+            framework = Framework.objects.get(pk=pk)
+        except Framework.DoesNotExist:
+            return _error("Framework not found.")
+        sections = framework.sections.filter(parent_section__isnull=True)
+        section_data = [{
+            "id": str(s.id), "reference": s.reference,
+            "name": s.name, "compliance_level": float(s.compliance_level),
+        } for s in sections]
+        reqs = framework.requirements.filter(is_applicable=True)
+        by_status = {}
+        for req in reqs.values("compliance_status"):
+            st = req["compliance_status"]
+            by_status[st] = by_status.get(st, 0) + 1
+        return {
+            "compliance_level": float(framework.compliance_level),
+            "sections": section_data,
+            "by_status": by_status,
+            "total_requirements": reqs.count(),
+        }
+
+    server.register_tool(
+        "get_framework_compliance_summary",
+        "Get compliance summary for a framework, including section-level compliance and status distribution",
+        _id_schema(),
+        framework_compliance_summary,
+    )
+
+    sec_fields = ["id", "reference", "name", "description", "order", "compliance_level",
+                  "framework_id", "parent_section_id", "created_at"]
+    sec_writable = ["name", "description", "order", "framework_id", "parent_section_id"]
+
+    _register_crud(server, "section", Section, "compliance.section",
+                   list_fields=sec_fields,
+                   writable_fields=sec_writable,
+                   search_fields=["reference", "name"],
+                   filters=["framework_id", "parent_section_id"],
+                   scope_filtered=False,
+                   has_approve=False)
+
+    req_fields = ["id", "reference", "name", "description", "type", "compliance_status",
+                  "compliance_level", "priority", "is_applicable",
+                  "framework_id", "section_id", "is_approved", "created_at"]
+    req_writable = ["name", "description", "type", "compliance_status", "compliance_level",
+                    "priority", "is_applicable", "compliance_evidence", "compliance_gaps",
+                    "framework_id", "section_id", "owner_id"]
+
+    _register_crud(server, "requirement", Requirement, "compliance.requirement",
+                   list_fields=req_fields,
+                   writable_fields=req_writable,
+                   search_fields=["reference", "name", "description"],
+                   filters=["framework_id", "section_id", "compliance_status", "type", "priority"],
+                   scope_filtered=False)
+
+    ca_fields = ["id", "name", "description", "assessment_date", "status",
+                 "overall_compliance_level", "total_requirements",
+                 "compliant_count", "non_compliant_count",
+                 "framework_id", "is_approved", "created_at"]
+    ca_writable = ["name", "description", "assessment_date", "status",
+                   "framework_id", "assessor_id"]
+
+    _register_crud(server, "compliance_assessment", ComplianceAssessment,
+                   "compliance.assessment",
+                   list_fields=ca_fields,
+                   writable_fields=ca_writable,
+                   search_fields=["name", "description"],
+                   filters=["framework_id", "status"])
+
+    ar_fields = ["id", "assessment_id", "requirement_id", "compliance_status",
+                 "compliance_level", "evidence", "gaps", "assessed_at"]
+    ar_writable = ["assessment_id", "requirement_id", "compliance_status",
+                   "compliance_level", "evidence", "gaps"]
+
+    _register_crud(server, "assessment_result", AssessmentResult, "compliance.assessment",
+                   list_fields=ar_fields,
+                   writable_fields=ar_writable,
+                   search_fields=[],
+                   filters=["assessment_id", "requirement_id", "compliance_status"],
+                   scope_filtered=False,
+                   has_approve=False)
+
+    rm_fields = ["id", "source_requirement_id", "target_requirement_id",
+                 "mapping_type", "coverage_level", "description", "created_at"]
+    rm_writable = ["source_requirement_id", "target_requirement_id",
+                   "mapping_type", "coverage_level", "description", "justification"]
+
+    _register_crud(server, "requirement_mapping", RequirementMapping, "compliance.mapping",
+                   list_fields=rm_fields,
+                   writable_fields=rm_writable,
+                   search_fields=["description"],
+                   filters=["source_requirement_id", "target_requirement_id", "mapping_type"],
+                   scope_filtered=False,
+                   has_approve=False)
+
+    ap_fields = ["id", "reference", "name", "description", "priority", "status",
+                 "target_date", "progress_percentage",
+                 "requirement_id", "assessment_id", "is_approved", "created_at"]
+    ap_writable = ["name", "description", "priority", "status", "target_date",
+                   "progress_percentage", "requirement_id", "assessment_id", "owner_id"]
+
+    _register_crud(server, "action_plan", ComplianceActionPlan, "compliance.action_plan",
+                   list_fields=ap_fields,
+                   writable_fields=ap_writable,
+                   search_fields=["reference", "name", "description"],
+                   filters=["status", "priority", "requirement_id", "assessment_id"])
+
+
+# ── Risks Module ───────────────────────────────────────────
+
+def _register_risks_tools(server):
+    RiskAssessment = _get_model("risks", "RiskAssessment")
+    RiskCriteria = _get_model("risks", "RiskCriteria")
+    Risk = _get_model("risks", "Risk")
+    RiskTreatmentPlan = _get_model("risks", "RiskTreatmentPlan")
+    RiskAcceptance = _get_model("risks", "RiskAcceptance")
+    Threat = _get_model("risks", "Threat")
+    Vulnerability = _get_model("risks", "Vulnerability")
+    ISO27005Risk = _get_model("risks", "ISO27005Risk")
+
+    ra_fields = ["id", "reference", "name", "description", "status", "assessment_date",
+                 "risk_criteria_id", "is_approved", "created_at"]
+    ra_writable = ["name", "description", "status", "assessment_date",
+                   "risk_criteria_id", "assessor_id"]
+
+    _register_crud(server, "risk_assessment", RiskAssessment, "risks.assessment",
+                   list_fields=ra_fields,
+                   writable_fields=ra_writable,
+                   search_fields=["reference", "name", "description"],
+                   filters=["status"])
+
+    rc_fields = ["id", "name", "description", "status", "created_at"]
+    rc_writable = ["name", "description", "status"]
+
+    _register_crud(server, "risk_criteria", RiskCriteria, "risks.criteria",
+                   list_fields=rc_fields,
+                   writable_fields=rc_writable,
+                   search_fields=["name", "description"],
+                   filters=["status"],
+                   has_approve=False)
+
+    risk_fields = ["id", "reference", "name", "description", "status", "priority",
+                   "current_risk_level", "assessment_id",
+                   "is_approved", "created_at"]
+    risk_writable = ["name", "description", "status", "priority",
+                     "initial_likelihood", "initial_impact",
+                     "current_likelihood", "current_impact",
+                     "residual_likelihood", "residual_impact",
+                     "treatment_strategy", "assessment_id", "risk_owner_id"]
+
+    _register_crud(server, "risk", Risk, "risks.risk",
+                   list_fields=risk_fields,
+                   writable_fields=risk_writable,
+                   search_fields=["reference", "name", "description"],
+                   filters=["status", "priority", "assessment_id"],
+                   scope_filtered=False)
+
+    tp_fields = ["id", "reference", "name", "description", "status", "target_date",
+                 "progress_percentage", "risk_id", "is_approved", "created_at"]
+    tp_writable = ["name", "description", "status", "target_date",
+                   "progress_percentage", "risk_id", "owner_id"]
+
+    _register_crud(server, "risk_treatment_plan", RiskTreatmentPlan, "risks.treatment",
+                   list_fields=tp_fields,
+                   writable_fields=tp_writable,
+                   search_fields=["reference", "name", "description"],
+                   filters=["status", "risk_id"],
+                   scope_filtered=False)
+
+    acc_fields = ["id", "risk_id", "status", "justification", "conditions",
+                  "valid_until", "accepted_by_id", "created_at"]
+    acc_writable = ["risk_id", "justification", "conditions", "valid_until",
+                    "accepted_by_id"]
+
+    _register_crud(server, "risk_acceptance", RiskAcceptance, "risks.acceptance",
+                   list_fields=acc_fields,
+                   writable_fields=acc_writable,
+                   search_fields=["justification"],
+                   filters=["risk_id", "status"],
+                   scope_filtered=False,
+                   has_approve=False)
+
+    threat_fields = ["id", "reference", "name", "description", "type", "status", "created_at"]
+    threat_writable = ["name", "description", "type", "status"]
+
+    _register_crud(server, "threat", Threat, "risks.threat",
+                   list_fields=threat_fields,
+                   writable_fields=threat_writable,
+                   search_fields=["reference", "name", "description"],
+                   filters=["type", "status"])
+
+    vuln_fields = ["id", "reference", "name", "description", "category",
+                   "severity", "status", "created_at"]
+    vuln_writable = ["name", "description", "category", "severity", "status"]
+
+    _register_crud(server, "vulnerability", Vulnerability, "risks.vulnerability",
+                   list_fields=vuln_fields,
+                   writable_fields=vuln_writable,
+                   search_fields=["reference", "name", "description"],
+                   filters=["category", "severity", "status"])
+
+    iso_fields = ["id", "assessment_id", "threat_id", "vulnerability_id",
+                  "risk_level", "combined_likelihood", "max_impact",
+                  "description", "created_at"]
+    iso_writable = ["assessment_id", "threat_id", "vulnerability_id",
+                    "combined_likelihood", "max_impact", "description"]
+
+    _register_crud(server, "iso27005_risk", ISO27005Risk, "risks.iso27005",
+                   list_fields=iso_fields,
+                   writable_fields=iso_writable,
+                   search_fields=["description"],
+                   filters=["assessment_id", "threat_id", "vulnerability_id"],
+                   scope_filtered=False,
+                   has_approve=False)
+
+
+# ── Accounts Module ────────────────────────────────────────
+
+def _register_accounts_tools(server):
+    User = _get_model("accounts", "User")
+    Group = _get_model("accounts", "Group")
+    Permission = _get_model("accounts", "Permission")
+    AccessLog = _get_model("accounts", "AccessLog")
+
+    # List users
+    server.register_tool(
+        "list_users",
+        "List users with optional search",
+        _list_schema({
+            "is_active": {"type": "boolean", "description": "Filter by active status"},
+        }),
+        require_perm("system.users.read")(
+            _list_handler(User,
+                          ["id", "email", "first_name", "last_name", "job_title",
+                           "department", "is_active", "last_login", "created_at"],
+                          search_fields=["email", "first_name", "last_name"],
+                          filters=["is_active"],
+                          scope_filtered=False)
+        ),
+    )
+
+    # Get user
+    server.register_tool(
+        "get_user",
+        "Get detailed information about a user",
+        _id_schema(),
+        require_perm("system.users.read")(
+            _get_handler(User,
+                         ["id", "email", "first_name", "last_name", "job_title",
+                          "department", "phone", "language", "timezone",
+                          "is_active", "last_login", "created_at", "updated_at"],
+                         scope_filtered=False)
+        ),
+    )
+
+    # Get current user info
+    def get_me(user, arguments):
+        return _serialize_obj(user, ["id", "email", "first_name", "last_name",
+                                     "job_title", "department", "language", "timezone"])
+
+    server.register_tool(
+        "get_me",
+        "Get information about the currently authenticated user",
+        {"type": "object", "properties": {}},
+        get_me,
+    )
+
+    # List groups
+    server.register_tool(
+        "list_groups",
+        "List all groups",
+        _list_schema(),
+        require_perm("system.groups.read")(
+            _list_handler(Group,
+                          ["id", "name", "description", "is_system", "created_at"],
+                          search_fields=["name"],
+                          scope_filtered=False)
+        ),
+    )
+
+    # Get group details
+    @require_perm("system.groups.read")
+    def get_group(user, arguments):
+        pk = arguments.get("id")
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        try:
+            group = Group.objects.get(pk=pk)
+        except Group.DoesNotExist:
+            return _error("Group not found.")
+        perms = list(group.permissions.values_list("codename", flat=True))
+        user_count = group.users.count()
+        return {
+            "id": str(group.id),
+            "name": group.name,
+            "description": group.description,
+            "is_system": group.is_system,
+            "permissions": perms,
+            "user_count": user_count,
+            "created_at": group.created_at.isoformat(),
+        }
+
+    server.register_tool(
+        "get_group",
+        "Get group details including permissions",
+        _id_schema(),
+        get_group,
+    )
+
+    # List permissions
+    server.register_tool(
+        "list_permissions",
+        "List all available permissions",
+        _list_schema({
+            "module": {"type": "string", "description": "Filter by module (context, assets, compliance, risks, system)"},
+        }),
+        require_perm("system.groups.read")(
+            _list_handler(Permission,
+                          ["id", "codename", "name", "module", "feature", "action"],
+                          search_fields=["codename", "name"],
+                          filters=["module", "feature"],
+                          scope_filtered=False)
+        ),
+    )
+
+    # List access logs
+    server.register_tool(
+        "list_access_logs",
+        "List access logs (authentication events)",
+        _list_schema({
+            "event_type": {"type": "string", "description": "Filter by event type"},
+            "user_id": {"type": "string", "description": "Filter by user ID"},
+        }),
+        require_perm("system.audit_trail.read")(
+            _list_handler(AccessLog,
+                          ["id", "timestamp", "user_id", "email_attempted",
+                           "event_type", "ip_address", "failure_reason"],
+                          search_fields=["email_attempted"],
+                          filters=["event_type", "user_id"],
+                          scope_filtered=False)
+        ),
+    )
+
+
+# ── Generic CRUD registration helper ──────────────────────
+
+def _register_crud(server, entity_name, model_class, perm_prefix,
+                   list_fields, writable_fields, search_fields=None,
+                   filters=None, scope_filtered=True, has_approve=True):
+    """Register list, get, create, update, delete (and optionally approve) tools for an entity."""
+
+    display_name = entity_name.replace("_", " ")
+    filter_props = {}
+    for f in (filters or []):
+        filter_props[f] = {"type": "string", "description": f"Filter by {f}"}
+
+    # List
+    server.register_tool(
+        f"list_{entity_name}s",
+        f"List {display_name}s with optional search and filters",
+        _list_schema(filter_props),
+        require_perm(f"{perm_prefix}.read")(
+            _list_handler(model_class, list_fields, search_fields, filters, scope_filtered)
+        ),
+    )
+
+    # Get
+    server.register_tool(
+        f"get_{entity_name}",
+        f"Get a {display_name} by ID",
+        _id_schema(),
+        require_perm(f"{perm_prefix}.read")(
+            _get_handler(model_class, list_fields, scope_filtered)
+        ),
+    )
+
+    # Create
+    create_props = {}
+    for f in writable_fields:
+        create_props[f] = {"type": "string", "description": f}
+    server.register_tool(
+        f"create_{entity_name}",
+        f"Create a new {display_name}",
+        _obj_schema(create_props),
+        require_perm(f"{perm_prefix}.create")(
+            _create_handler(model_class, writable_fields, scope_filtered)
+        ),
+    )
+
+    # Update
+    update_props = {"id": {"type": "string", "description": "UUID of the object to update"}}
+    for f in writable_fields:
+        update_props[f] = {"type": "string", "description": f}
+    server.register_tool(
+        f"update_{entity_name}",
+        f"Update an existing {display_name}",
+        _obj_schema(update_props, ["id"]),
+        require_perm(f"{perm_prefix}.update")(
+            _update_handler(model_class, writable_fields, scope_filtered)
+        ),
+    )
+
+    # Delete
+    server.register_tool(
+        f"delete_{entity_name}",
+        f"Delete a {display_name}",
+        _id_schema(),
+        require_perm(f"{perm_prefix}.delete")(
+            _delete_handler(model_class, scope_filtered)
+        ),
+    )
+
+    # Approve
+    if has_approve:
+        server.register_tool(
+            f"approve_{entity_name}",
+            f"Approve a {display_name}",
+            _id_schema(),
+            require_perm(f"{perm_prefix}.approve")(
+                _approve_handler(model_class, scope_filtered)
+            ),
+        )

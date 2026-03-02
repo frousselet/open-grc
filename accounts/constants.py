@@ -248,6 +248,14 @@ PERMISSION_REGISTRY = {
             "actions": ["read", "update"],
             "label": _("Notifications"),
         },
+        "mcp": {
+            "actions": ["access"],
+            "label": _("MCP server"),
+        },
+        "oauth": {
+            "actions": ["create", "read", "delete"],
+            "label": _("OAuth credentials"),
+        },
     },
 }
 
