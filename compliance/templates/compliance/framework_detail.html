@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n scope_tags %}
 {% load help_tags %}
 
 {% block title %}{{ framework.name }} — Open GRC{% endblock %}
@@ -39,11 +39,8 @@
         <dl class="row mb-0">
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt>
           <dd class="col-sm-9">
-            {% for s in framework.scopes.all %}
-              <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ s.full_path }}</span>
-            {% empty %}
-              —
-            {% endfor %}
+            {% grouped_scope_badges framework.scopes.all %}
+            {% if not framework.scopes.all %}—{% endif %}
           </dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Abbreviation" %}</dt><dd class="col-sm-9">{{ framework.short_name|default:"—" }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ framework.get_type_display }}</dd>

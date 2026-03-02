@@ -1,0 +1,1 @@
+{% for name in roots %}<span class="badge scope-badge scope-badge-root ms-1">{{ name }}</span>{% endfor %}{% for g in groups %}<span class="scope-badge-group ms-1"><span class="badge scope-badge scope-badge-parent">{{ g.parent_name }}</span>{% for child in g.children %}<span class="badge scope-badge scope-badge-child">{{ child }}</span>{% endfor %}</span>{% endfor %}

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n scope_tags %}
 
 {% block title %}{% trans "Dashboard" %} — Open GRC{% endblock %}
 
@@ -140,9 +140,7 @@
         <div>
           <a href="{% url 'compliance:framework-detail' fw.pk %}" class="fw-semibold text-decoration-none" style="color:var(--text-primary);font-size:.8125rem">{{ fw.short_name|default:fw.name }}</a>
           <small class="ms-2" style="color:var(--text-muted);font-size:.75rem">{% blocktrans with count=fw.req_count %}{{ count }} requirement{{ count|pluralize:"s" }}{% endblocktrans %}</small>
-          {% for s in fw.scopes.all %}
-          <span class="badge ms-1" style="font-size:.625rem;background:var(--accent-soft);color:var(--accent)">{{ s.full_path }}</span>
-          {% endfor %}
+          {% grouped_scope_badges fw.scopes.all %}
         </div>
         <span class="fw-semibold" style="font-size:.8125rem;font-variant-numeric:tabular-nums;{% if fw.compliance_level >= 80 %}color:var(--success){% elif fw.compliance_level >= 50 %}color:var(--warning){% else %}color:var(--danger){% endif %}">
           {{ fw.compliance_level|floatformat:0 }}%
@@ -247,11 +245,10 @@
       <div class="stat-card-icon accent"><i class="bi bi-bullseye"></i></div>
       <div class="stat-card-label">{% trans "Active scopes" %}</div>
       <div class="mt-2">
-        {% for s in active_scopes %}
-        <span class="badge me-1 mb-1" style="background:var(--accent-soft);color:var(--accent);font-size:.6875rem">{{ s.full_path }}</span>
-        {% empty %}
+        {% grouped_scope_badges active_scopes %}
+        {% if not active_scopes %}
         <span style="color:var(--text-muted);font-size:.85rem">{% trans "No active scope" %}</span>
-        {% endfor %}
+        {% endif %}
       </div>
     </div>
   </div>
