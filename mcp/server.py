@@ -111,14 +111,17 @@ class McpServer:
                 return None
             return jsonrpc_result(result, req_id)
         except InvalidParamsError as e:
+            logger.debug("Invalid params for MCP method %s: %s", method, e, exc_info=True)
             if is_notification:
                 return None
-            return jsonrpc_error(INVALID_PARAMS, str(e), req_id)
+            # Do not expose raw exception details to the client
+            return jsonrpc_error(INVALID_PARAMS, "Invalid params", req_id)
         except Exception as e:
             logger.exception("MCP method %s failed", method)
             if is_notification:
                 return None
-            return jsonrpc_error(INTERNAL_ERROR, f"Internal error: {e}", req_id)
+            # Return a generic internal error message without exception details
+            return jsonrpc_error(INTERNAL_ERROR, "Internal error", req_id)
 
     def _get_method_handler(self, method):
         handlers = {
