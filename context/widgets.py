@@ -11,7 +11,7 @@ class ScopeTreeData:
         self.name = name
         self.full_path = full_path
         self.depth = depth
-        self.indent = 12 + depth * 24  # px
+        self.indent = depth * 16  # px
         self.parent_id = str(parent_id) if parent_id else ""
         self.has_children = has_children
         self.selected = selected
