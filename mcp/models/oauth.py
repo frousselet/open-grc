@@ -30,6 +30,19 @@ class OAuthApplication(models.Model):
     client_secret_hash = models.CharField(
         _("Client secret (hashed)"),
         max_length=128,
+        blank=True,
+        default="",
+    )
+    redirect_uris = models.TextField(
+        _("Redirect URIs (JSON)"),
+        blank=True,
+        default="",
+        help_text=_("JSON-encoded list of allowed redirect URIs for public clients."),
+    )
+    token_endpoint_auth_method = models.CharField(
+        _("Token endpoint auth method"),
+        max_length=20,
+        default="client_secret_post",
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -59,6 +72,25 @@ class OAuthApplication(models.Model):
 
     def verify_secret(self, raw_secret):
         return self.client_secret_hash == self.hash_secret(raw_secret)
+
+    @property
+    def is_public_client(self):
+        return self.token_endpoint_auth_method == "none"
+
+    def get_redirect_uris(self):
+        if not self.redirect_uris:
+            return []
+        import json
+        try:
+            return json.loads(self.redirect_uris)
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    def validate_redirect_uri(self, uri):
+        allowed = self.get_redirect_uris()
+        if not allowed:
+            return True  # No restriction for legacy apps
+        return uri in allowed
 
 
 class OAuthAccessToken(models.Model):
@@ -116,3 +148,66 @@ class OAuthAccessToken(models.Model):
         )
         token.save()
         return token, raw_token
+
+
+class OAuthAuthorizationCode(models.Model):
+    """OAuth 2.0 authorization codes for the Authorization Code + PKCE flow."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code_hash = models.CharField(
+        _("Code (hashed)"),
+        max_length=64,
+        unique=True,
+        db_index=True,
+    )
+    client_id = models.CharField(_("Client ID"), max_length=255)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="oauth_authorization_codes",
+        verbose_name=_("User"),
+    )
+    redirect_uri = models.URLField(_("Redirect URI"), max_length=2048)
+    code_challenge = models.CharField(_("PKCE code challenge"), max_length=128)
+    code_challenge_method = models.CharField(
+        _("PKCE code challenge method"),
+        max_length=10,
+        default="S256",
+    )
+    scope = models.CharField(_("Scope"), max_length=512, blank=True, default="")
+    expires_at = models.DateTimeField(_("Expires at"))
+    used = models.BooleanField(_("Used"), default=False)
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("OAuth authorization code")
+        verbose_name_plural = _("OAuth authorization codes")
+
+    def __str__(self):
+        return f"Auth code for {self.client_id} (user: {self.user})"
+
+    @property
+    def is_expired(self):
+        return timezone.now() >= self.expires_at
+
+    @staticmethod
+    def hash_code(raw_code):
+        return hashlib.sha256(raw_code.encode()).hexdigest()
+
+    @classmethod
+    def create_code(cls, client_id, user, redirect_uri, code_challenge, code_challenge_method, scope="", lifetime_seconds=600):
+        """Create a new authorization code and return (instance, raw_code)."""
+        raw_code = secrets.token_urlsafe(48)
+        code = cls(
+            code_hash=cls.hash_code(raw_code),
+            client_id=client_id,
+            user=user,
+            redirect_uri=redirect_uri,
+            code_challenge=code_challenge,
+            code_challenge_method=code_challenge_method,
+            scope=scope,
+            expires_at=timezone.now() + timezone.timedelta(seconds=lifetime_seconds),
+        )
+        code.save()
+        return code, raw_code
