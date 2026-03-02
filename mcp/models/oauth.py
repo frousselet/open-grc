@@ -94,7 +94,16 @@ class OAuthAccessToken(models.Model):
 
     @staticmethod
     def hash_token(raw_token):
-        return hashlib.sha256(raw_token.encode()).hexdigest()
+        # Use a computationally expensive key-derivation function (PBKDF2)
+        # instead of a single fast SHA-256 hash to better protect stored
+        # access token hashes against brute-force attacks.
+        dk = hashlib.pbkdf2_hmac(
+            "sha256",
+            raw_token.encode("utf-8"),
+            b"mcp_oauth_access_token_salt_v1",
+            100_000,
+        )
+        return dk.hex()
 
     @classmethod
     def create_token(cls, application, lifetime_seconds=3600):
