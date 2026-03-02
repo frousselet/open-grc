@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-02 11:53+0100\n"
+"POT-Creation-Date: 2026-03-02 12:10+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1524,6 +1524,9 @@ msgstr "Dépendances sites"
 
 msgid "Legend"
 msgstr "Légende"
+
+msgid "Dependency"
+msgstr "Dépendance"
 
 msgid "Reset zoom"
 msgstr "Réinitialiser le zoom"
@@ -3089,10 +3092,6 @@ msgid "%(count)d mandatory role(s) with no assigned user"
 msgstr "%(count)d rôle(s) obligatoire(s) sans utilisateur assigné"
 
 #, python-format
-msgid "%(count)d single point(s) of failure (SPOF) to review"
-msgstr "%(count)d point(s) de défaillance unique (SPOF) à examiner"
-
-#, python-format
 msgid "%(count)d support asset(s) past end of life"
 msgstr "%(count)d bien(s) support(s) en fin de vie"
 
@@ -4204,6 +4203,10 @@ msgstr "Aucun changement détecté"
 
 msgid "No history available."
 msgstr "Aucun historique disponible."
+
+#, python-format
+#~ msgid "%(count)d single point(s) of failure (SPOF) to review"
+#~ msgstr "%(count)d point(s) de défaillance unique (SPOF) à examiner"
 
 #~ msgid "Remove"
 #~ msgstr "Retirer"
