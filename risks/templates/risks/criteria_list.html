@@ -38,7 +38,7 @@
         <tr>
           <td><a href="{% url 'risks:criteria-detail' c.pk %}" class="ref" style="text-decoration:none">{{ c.reference }}</a></td>
           <td>{{ c.name }}</td>
-          <td>{% grouped_scope_badges c.scopes.all %}{% if not c.scopes.all %}—{% endif %}</td>
+          <td>{% scope_popover c.scopes.all %}</td>
           <td>{{ c.acceptance_threshold }}</td>
           <td>{% if c.is_default %}<span class="badge text-bg-success">{% trans "Yes" %}</span>{% else %}—{% endif %}</td>
           <td>

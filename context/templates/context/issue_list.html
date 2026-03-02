@@ -41,7 +41,7 @@
         <tr>
           <td><a href="{% url 'context:issue-detail' issue.pk %}" class="ref" style="text-decoration:none">{{ issue.reference }}</a></td>
           <td>{{ issue.name }}</td>
-          <td>{% grouped_scope_badges issue.scopes.all %}{% if not issue.scopes.all %}—{% endif %}</td>
+          <td>{% scope_popover issue.scopes.all %}</td>
           <td>{{ issue.get_type_display }}</td>
           <td>{{ issue.get_category_display }}</td>
           <td>

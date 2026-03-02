@@ -35,7 +35,7 @@
         <tr>
           <td><a href="{% url 'context:stakeholder-detail' sh.pk %}" class="ref" style="text-decoration:none">{{ sh.reference }}</a></td>
           <td>{{ sh.name }}</td>
-          <td>{% grouped_scope_badges sh.scopes.all %}{% if not sh.scopes.all %}—{% endif %}</td>
+          <td>{% scope_popover sh.scopes.all %}</td>
           <td>{{ sh.get_type_display }}</td>
           <td>{{ sh.get_category_display }}</td>
           <td>{{ sh.get_influence_level_display }}</td>
