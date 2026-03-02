@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n scope_tags %}
 
 {% block title %}{% trans "Risk assessments" %} — Open GRC{% endblock %}
 
@@ -43,7 +43,7 @@
           <td><a href="{% url 'risks:assessment-detail' a.pk %}" class="ref" style="text-decoration:none">{{ a.reference }}</a></td>
           <td>{{ a.name }}</td>
           <td>{{ a.get_methodology_display }}</td>
-          <td>{% for s in a.scopes.all %}<span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.75rem;font-weight:500;margin-right:.125rem">{{ s.name }}</span>{% empty %}—{% endfor %}</td>
+          <td>{% grouped_scope_badges a.scopes.all %}{% if not a.scopes.all %}—{% endif %}</td>
           <td>{{ a.assessor|default:"—" }}</td>
           <td>{{ a.assessment_date|default:"—" }}</td>
           <td>

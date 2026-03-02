@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n scope_tags %}
 
 {% block title %}{% trans "Stakeholders" %} — Open GRC{% endblock %}
 
@@ -35,7 +35,7 @@
         <tr>
           <td><a href="{% url 'context:stakeholder-detail' sh.pk %}" class="ref" style="text-decoration:none">{{ sh.reference }}</a></td>
           <td>{{ sh.name }}</td>
-          <td>{% for s in sh.scopes.all %}<span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.75rem;font-weight:500;margin-right:.125rem">{{ s.name }}</span>{% empty %}—{% endfor %}</td>
+          <td>{% grouped_scope_badges sh.scopes.all %}{% if not sh.scopes.all %}—{% endif %}</td>
           <td>{{ sh.get_type_display }}</td>
           <td>{{ sh.get_category_display }}</td>
           <td>{{ sh.get_influence_level_display }}</td>

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n scope_tags %}
 {% load help_tags %}
 
 {% block title %}{{ criteria.name }} — Open GRC{% endblock %}
@@ -29,7 +29,7 @@
     <div class="card">
       <div class="card-body">
         <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt><dd class="col-sm-9">{% for s in criteria.scopes.all %}<span class="badge" style="background:var(--accent-soft);color:var(--accent);font-weight:500;font-size:.82rem;margin-right:.25rem">{{ s }}</span>{% empty %}<span style="color:var(--text-muted)">—</span>{% endfor %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt><dd class="col-sm-9">{% grouped_scope_badges criteria.scopes.all %}{% if not criteria.scopes.all %}<span style="color:var(--text-muted)">—</span>{% endif %}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Acceptance threshold" %}</dt><dd class="col-sm-9">{{ criteria.acceptance_threshold }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Default" %}</dt><dd class="col-sm-9">{% if criteria.is_default %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>

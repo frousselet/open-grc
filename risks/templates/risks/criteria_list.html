@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n scope_tags %}
 
 {% block title %}{% trans "Risk criteria" %} — Open GRC{% endblock %}
 
@@ -38,7 +38,7 @@
         <tr>
           <td><a href="{% url 'risks:criteria-detail' c.pk %}" class="ref" style="text-decoration:none">{{ c.reference }}</a></td>
           <td>{{ c.name }}</td>
-          <td>{% for s in c.scopes.all %}<span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.75rem;font-weight:500;margin-right:.125rem">{{ s.name }}</span>{% empty %}—{% endfor %}</td>
+          <td>{% grouped_scope_badges c.scopes.all %}{% if not c.scopes.all %}—{% endif %}</td>
           <td>{{ c.acceptance_threshold }}</td>
           <td>{% if c.is_default %}<span class="badge text-bg-success">{% trans "Yes" %}</span>{% else %}—{% endif %}</td>
           <td>
