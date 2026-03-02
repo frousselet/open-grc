@@ -156,7 +156,7 @@ class AssetDependencyForm(forms.ModelForm):
         fields = [
             "essential_asset", "support_asset",
             "dependency_type", "criticality", "description",
-            "is_single_point_of_failure", "redundancy_level",
+            "redundancy_level",
         ]
         widgets = {
             "essential_asset": forms.Select(attrs=SELECT_ATTRS),
@@ -164,7 +164,6 @@ class AssetDependencyForm(forms.ModelForm):
             "dependency_type": forms.Select(attrs=SELECT_ATTRS),
             "criticality": forms.Select(attrs=SELECT_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
-            "is_single_point_of_failure": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
             "redundancy_level": forms.Select(attrs=SELECT_ATTRS),
         }
 
@@ -318,7 +317,7 @@ class SupplierDependencyForm(forms.ModelForm):
         fields = [
             "support_asset", "supplier",
             "dependency_type", "criticality", "description",
-            "is_single_point_of_failure", "redundancy_level",
+            "redundancy_level",
         ]
         widgets = {
             "support_asset": forms.Select(attrs=SELECT_ATTRS),
@@ -326,7 +325,6 @@ class SupplierDependencyForm(forms.ModelForm):
             "dependency_type": forms.Select(attrs=SELECT_ATTRS),
             "criticality": forms.Select(attrs=SELECT_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
-            "is_single_point_of_failure": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
             "redundancy_level": forms.Select(attrs=SELECT_ATTRS),
         }
 
@@ -389,7 +387,7 @@ class SiteAssetDependencyForm(forms.ModelForm):
         fields = [
             "support_asset", "site",
             "dependency_type", "criticality", "description",
-            "is_single_point_of_failure", "redundancy_level",
+            "redundancy_level",
         ]
         widgets = {
             "support_asset": forms.Select(attrs=SELECT_ATTRS),
@@ -397,7 +395,6 @@ class SiteAssetDependencyForm(forms.ModelForm):
             "dependency_type": forms.Select(attrs=SELECT_ATTRS),
             "criticality": forms.Select(attrs=SELECT_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
-            "is_single_point_of_failure": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
             "redundancy_level": forms.Select(attrs=SELECT_ATTRS),
         }
 
@@ -408,7 +405,7 @@ class SiteSupplierDependencyForm(forms.ModelForm):
         fields = [
             "site", "supplier",
             "dependency_type", "criticality", "description",
-            "is_single_point_of_failure", "redundancy_level",
+            "redundancy_level",
         ]
         widgets = {
             "site": forms.Select(attrs=SELECT_ATTRS),
@@ -416,7 +413,6 @@ class SiteSupplierDependencyForm(forms.ModelForm):
             "dependency_type": forms.Select(attrs=SELECT_ATTRS),
             "criticality": forms.Select(attrs=SELECT_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
-            "is_single_point_of_failure": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
             "redundancy_level": forms.Select(attrs=SELECT_ATTRS),
         }
 
