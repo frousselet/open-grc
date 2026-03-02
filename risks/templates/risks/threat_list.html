@@ -44,7 +44,7 @@
           <td>{{ t.get_type_display }}</td>
           <td>{{ t.get_origin_display|default:"—" }}</td>
           <td>{{ t.get_category_display|default:"—" }}</td>
-          <td>{% grouped_scope_badges t.scopes.all %}{% if not t.scopes.all %}—{% endif %}</td>
+          <td>{% scope_popover t.scopes.all %}</td>
           <td>
             <span class="badge text-bg-{% if t.status == 'active' %}success{% else %}secondary{% endif %}">
               {{ t.get_status_display }}

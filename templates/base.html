@@ -996,8 +996,19 @@
     .scope-crumb-sep { opacity: .35; font-weight: 400; }
     .scope-crumb-seg { opacity: .55; white-space: nowrap; }
     .scope-crumb-leaf { opacity: 1; font-weight: 650; }
+
+    /* ── Scope count popover (tables) ─────────────── */
+    .scope-pop-wrap { position: relative; display: inline-block; }
+    .scope-pop-btn { background: var(--accent-soft); color: var(--accent); border: 0; border-radius: 999px; padding: .15em .55em; font-size: .75rem; font-weight: 600; cursor: pointer; white-space: nowrap; line-height: 1.4; transition: background .15s; }
+    .scope-pop-btn:hover { background: color-mix(in srgb, var(--accent) 20%, var(--accent-soft)); }
+    .scope-pop-btn .bi { font-size: .65rem; }
+    .scope-pop-panel { display: none; position: absolute; z-index: 1050; left: 0; top: calc(100% + 4px); background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: .5rem .6rem; box-shadow: 0 4px 16px rgba(0,0,0,.12); min-width: max-content; max-width: 360px; }
+    .scope-pop-panel.show { display: flex; flex-wrap: wrap; gap: .3em; align-items: center; }
   </style>
   <script>
+    document.addEventListener('click', function() {
+      document.querySelectorAll('.scope-pop-panel.show').forEach(function(p) { p.classList.remove('show'); });
+    });
     (function(){
       var m = window.matchMedia('(prefers-color-scheme: dark)');
       function apply(dark) {
