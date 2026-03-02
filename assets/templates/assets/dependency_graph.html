@@ -45,6 +45,12 @@
     border-radius: 50%;
     display: inline-block;
   }
+  .legend-line {
+    width: 24px;
+    height: 2px;
+    display: inline-block;
+    vertical-align: middle;
+  }
   .graph-toolbar {
     position: absolute;
     top: .75rem;
@@ -91,6 +97,8 @@
         <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span> {% trans "Support asset" %}</div>
         <div class="legend-item"><span class="legend-dot" style="background:#06b6d4"></span> {% trans "Site" %}</div>
         <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> {% trans "Supplier" %}</div>
+        <div class="legend-item"><span class="legend-line" style="background:#94a3b8"></span> {% trans "Dependency" %}</div>
+        <div class="legend-item"><span class="legend-line" style="background:#ef4444"></span> SPOF</div>
       </div>
     </div>
   </div>
@@ -164,9 +172,9 @@
     .force('center', d3.forceCenter(width / 2, height / 2))
     .force('collision', d3.forceCollide().radius(30));
 
-  // Arrow markers
+  // Arrow markers — grey for normal, red for SPOF
   svg.append('defs').selectAll('marker')
-    .data(['asset', 'supplier', 'site', 'site_supplier', 'spof'])
+    .data(['default', 'spof'])
     .join('marker')
       .attr('id', function(d) { return 'arrow-' + d; })
       .attr('viewBox', '0 -5 10 10')
@@ -176,33 +184,17 @@
       .attr('markerHeight', 6)
       .attr('orient', 'auto')
     .append('path')
-      .attr('fill', function(d) {
-        if (d === 'spof') return '#ef4444';
-        if (d === 'supplier' || d === 'site_supplier') return '#f59e0b';
-        if (d === 'site') return '#06b6d4';
-        return '#94a3b8';
-      })
+      .attr('fill', function(d) { return d === 'spof' ? '#ef4444' : '#94a3b8'; })
       .attr('d', 'M0,-5L10,0L0,5');
 
   var link = g.append('g')
     .selectAll('line')
     .data(links)
     .join('line')
-      .attr('stroke', function(d) {
-        if (d.is_spof) return '#ef4444';
-        if (d.kind === 'supplier' || d.kind === 'site_supplier') return '#f59e0b';
-        if (d.kind === 'site') return '#06b6d4';
-        return '#94a3b8';
-      })
+      .attr('stroke', function(d) { return d.is_spof ? '#ef4444' : '#94a3b8'; })
       .attr('stroke-width', function(d) { return d.is_spof ? 2.5 : 1.5; })
-      .attr('stroke-dasharray', function(d) {
-        if (d.kind === 'supplier' || d.kind === 'site_supplier') return '5,3';
-        if (d.kind === 'site') return '8,4';
-        return null;
-      })
       .attr('marker-end', function(d) {
-        if (d.is_spof) return 'url(#arrow-spof)';
-        return 'url(#arrow-' + d.kind + ')';
+        return d.is_spof ? 'url(#arrow-spof)' : 'url(#arrow-default)';
       });
 
   var linkLabel = g.append('g')
