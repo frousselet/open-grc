@@ -73,7 +73,7 @@ class SpofDetector:
 
     def _detect_asset_deps(self) -> list[SpofResult]:
         """Rules 1 & 2 on AssetDependency."""
-        qs = self._scoped_qs(AssetDependency, scope_path="essential_asset__scope")
+        qs = self._scoped_qs(AssetDependency, scope_path="essential_asset__scopes")
         qs = qs.select_related("essential_asset", "support_asset").annotate(
             fan_in_count=Count(
                 "support_asset__dependencies_as_support",
@@ -97,7 +97,7 @@ class SpofDetector:
 
     def _detect_supplier_deps(self) -> list[SpofResult]:
         """Rule 3 on SupplierDependency."""
-        qs = self._scoped_qs(SupplierDependency, scope_path="support_asset__scope")
+        qs = self._scoped_qs(SupplierDependency, scope_path="support_asset__scopes")
         qs = qs.select_related("support_asset", "supplier").annotate(
             redundant_supplier_count=Count(
                 "support_asset__supplier_dependencies",
@@ -124,7 +124,7 @@ class SpofDetector:
 
     def _detect_site_asset_deps(self) -> list[SpofResult]:
         """Rule 4 on SiteAssetDependency."""
-        qs = self._scoped_qs(SiteAssetDependency, scope_path="support_asset__scope")
+        qs = self._scoped_qs(SiteAssetDependency, scope_path="support_asset__scopes")
         qs = qs.select_related("support_asset", "site").annotate(
             site_count=Count("support_asset__site_dependencies"),
         )
