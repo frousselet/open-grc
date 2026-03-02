@@ -32,7 +32,7 @@ class ScopeSerializer(serializers.ModelSerializer):
         model = Scope
         fields = [
             "id", "name", "description", "parent_scope", "parent_scope_name",
-            "version", "status",
+            "version", "status", "icon",
             "boundaries", "justification_exclusions",
             "geographic_scope", "organizational_scope", "technical_scope",
             "included_sites", "excluded_sites",

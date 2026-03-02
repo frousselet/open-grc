@@ -21,7 +21,7 @@
         {% endif %}
         <input type="checkbox" name="{{ widget.name }}" value="{{ node.id }}" class="form-check-input mt-0" style="min-width:14px;min-height:14px;width:14px;height:14px;flex-shrink:0" {% if node.selected %}checked{% endif %}>
         <span class="scope-tree-icon" style="color:var(--accent);font-size:.7rem;flex-shrink:0;width:14px;text-align:center">
-          {% if node.depth == 0 %}<i class="bi bi-building"></i>{% elif node.has_children %}<i class="bi bi-diagram-3"></i>{% else %}<i class="bi bi-geo-alt"></i>{% endif %}
+          {% if node.icon %}<i class="bi {{ node.icon }}"></i>{% elif node.depth == 0 %}<i class="bi bi-building"></i>{% elif node.has_children %}<i class="bi bi-diagram-3"></i>{% else %}<i class="bi bi-geo-alt"></i>{% endif %}
         </span>
         <span class="scope-tree-name" style="color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ node.full_path }}">{{ node.name }}</span>
       </label>
@@ -71,6 +71,27 @@
     });
   }
 
+  // ── Cascading selection: check/uncheck all descendants ──
+  function setDescendantsChecked(parentId, checked) {
+    nodes.forEach(function(n) {
+      if (n.dataset.parent === parentId) {
+        var cb = n.querySelector('input[type="checkbox"]');
+        if (cb) cb.checked = checked;
+        setDescendantsChecked(n.dataset.id, checked);
+      }
+    });
+  }
+
+  ctr.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      var nodeEl = this.closest('.scope-tree-node');
+      if (nodeEl) {
+        setDescendantsChecked(nodeEl.dataset.id, this.checked);
+      }
+      updateCount();
+    });
+  });
+
   // ── Search filter ──
   filterInput.addEventListener('input', function() {
     var q = this.value.toLowerCase().trim();
@@ -92,9 +113,6 @@
     if (!pid) return;
     nodes.forEach(function(n) { if (n.dataset.id === pid) { n.classList.remove('hidden'); showParents(n.dataset.parent); } });
   }
-
-  // ── Count ──
-  ctr.querySelectorAll('input[type="checkbox"]').forEach(function(cb) { cb.addEventListener('change', updateCount); });
 })();
 </script>
 {% endwith %}

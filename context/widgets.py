@@ -4,9 +4,9 @@ from django import forms
 class ScopeTreeData:
     """Light value-object used to pass tree nodes to the template."""
 
-    __slots__ = ("id", "name", "full_path", "depth", "indent", "parent_id", "has_children", "selected")
+    __slots__ = ("id", "name", "full_path", "depth", "indent", "parent_id", "has_children", "selected", "icon")
 
-    def __init__(self, pk, name, full_path, depth, parent_id, has_children, selected):
+    def __init__(self, pk, name, full_path, depth, parent_id, has_children, selected, icon=""):
         self.id = str(pk)
         self.name = name
         self.full_path = full_path
@@ -15,6 +15,7 @@ class ScopeTreeData:
         self.parent_id = str(parent_id) if parent_id else ""
         self.has_children = has_children
         self.selected = selected
+        self.icon = icon
 
 
 class ScopeTreeWidget(forms.CheckboxSelectMultiple):
@@ -60,6 +61,7 @@ class ScopeTreeWidget(forms.CheckboxSelectMultiple):
                     parent_id=parent_id,
                     has_children=s.pk in ids_with_children,
                     selected=str(s.pk) in selected_set,
+                    icon=getattr(s, "icon", "") or "",
                 ))
                 visited.add(s.pk)
                 walk(s.pk, depth + 1, full_path)
@@ -74,6 +76,7 @@ class ScopeTreeWidget(forms.CheckboxSelectMultiple):
                     depth=0, parent_id=None,
                     has_children=s.pk in ids_with_children,
                     selected=str(s.pk) in selected_set,
+                    icon=getattr(s, "icon", "") or "",
                 ))
 
         self.tree_data = result

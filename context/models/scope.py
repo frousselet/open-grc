@@ -52,6 +52,13 @@ class Scope(BaseModel):
         _("Effective date"), null=True, blank=True
     )
     review_date = models.DateField(_("Next review date"), null=True, blank=True)
+    icon = models.CharField(
+        _("Icon"),
+        max_length=50,
+        blank=True,
+        default="",
+        help_text=_("Bootstrap Icons class name (e.g. bi-building, bi-globe, bi-shield-lock)."),
+    )
 
     history = HistoricalRecords()
 
