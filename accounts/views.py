@@ -103,6 +103,7 @@ class ProfileView(LoginRequiredMixin, View):
             "form": form,
             "groups": groups,
             "permissions": permissions,
+            "passkeys": request.user.passkeys.order_by("-created_at"),
         })
 
     def post(self, request):
@@ -127,6 +128,7 @@ class ProfileView(LoginRequiredMixin, View):
             "form": form,
             "groups": groups,
             "permissions": permissions,
+            "passkeys": request.user.passkeys.order_by("-created_at"),
         })
 
 

@@ -228,11 +228,117 @@
           <button type="submit" class="btn btn-login">{% trans "Sign in" %}</button>
         </div>
       </form>
+
+      <div id="passkey-section" style="display:none">
+        <div class="d-flex align-items-center gap-2 mt-3 mb-3">
+          <hr class="flex-grow-1"><span style="color:var(--text-muted);font-size:.75rem">{% trans "or" %}</span><hr class="flex-grow-1">
+        </div>
+        <button type="button" id="passkey-login-btn" class="btn btn-outline-secondary w-100"
+                style="border-radius:var(--radius-sm);font-size:.8125rem;font-weight:550;padding:.5625rem"
+                onclick="passkeyLogin()">
+          <i class="bi bi-fingerprint me-2"></i>{% trans "Sign in with a passkey" %}
+        </button>
+        <div id="passkey-error" class="alert alert-danger mt-2" style="display:none;font-size:.8125rem"></div>
+      </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
           integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
           crossorigin="anonymous"></script>
+  <script>
+  (function() {
+    if (!window.PublicKeyCredential) return;
+    document.getElementById('passkey-section').style.display = 'block';
+  })();
+
+  function base64urlToBytes(b64) {
+    var s = b64.replace(/-/g, '+').replace(/_/g, '/');
+    while (s.length % 4) s += '=';
+    var raw = atob(s);
+    var arr = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+    return arr;
+  }
+
+  function bytesToBase64url(buf) {
+    var bytes = new Uint8Array(buf);
+    var s = '';
+    for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+    return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  function getCsrfToken() {
+    var el = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (el) return el.value;
+    var m = document.cookie.match(/csrftoken=([^;]+)/);
+    return m ? m[1] : '';
+  }
+
+  async function passkeyLogin() {
+    var errEl = document.getElementById('passkey-error');
+    errEl.style.display = 'none';
+    var btn = document.getElementById('passkey-login-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>{% trans "Waiting for passkey..." %}';
+
+    try {
+      var beginResp = await fetch('{% url "accounts:passkey-login-begin" %}', {
+        method: 'POST',
+        headers: {'X-CSRFToken': getCsrfToken(), 'Content-Type': 'application/json'},
+        body: '{}'
+      });
+      if (!beginResp.ok) throw new Error('Server error');
+      var options = await beginResp.json();
+
+      // Decode challenge
+      options.publicKey.challenge = base64urlToBytes(options.publicKey.challenge);
+
+      // Decode allowCredentials if present
+      if (options.publicKey.allowCredentials) {
+        options.publicKey.allowCredentials = options.publicKey.allowCredentials.map(function(c) {
+          return Object.assign({}, c, {id: base64urlToBytes(c.id)});
+        });
+      }
+
+      var assertion = await navigator.credentials.get(options);
+
+      var credential = {
+        id: assertion.id,
+        rawId: bytesToBase64url(assertion.rawId),
+        type: assertion.type,
+        response: {
+          authenticatorData: bytesToBase64url(assertion.response.authenticatorData),
+          clientDataJSON: bytesToBase64url(assertion.response.clientDataJSON),
+          signature: bytesToBase64url(assertion.response.signature)
+        }
+      };
+      if (assertion.response.userHandle) {
+        credential.response.userHandle = bytesToBase64url(assertion.response.userHandle);
+      }
+
+      var completeResp = await fetch('{% url "accounts:passkey-login-complete" %}', {
+        method: 'POST',
+        headers: {'X-CSRFToken': getCsrfToken(), 'Content-Type': 'application/json'},
+        body: JSON.stringify({credential: credential})
+      });
+      var result = await completeResp.json();
+      if (completeResp.ok && result.status === 'ok') {
+        window.location.href = result.redirect || '/';
+      } else {
+        throw new Error(result.error || '{% trans "Authentication failed." %}');
+      }
+    } catch (e) {
+      if (e.name === 'NotAllowedError') {
+        // User cancelled
+      } else {
+        errEl.textContent = e.message || '{% trans "Authentication failed." %}';
+        errEl.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-fingerprint me-2"></i>{% trans "Sign in with a passkey" %}';
+    }
+  }
+  </script>
 </body>
 </html>
