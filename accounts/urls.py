@@ -1,6 +1,7 @@
 from django.urls import path
 
 from accounts import views, views_passkey
+from mcp.views import OAuthAppCreateView, OAuthAppDeleteView, OAuthAppListView
 
 app_name = "accounts"
 
@@ -42,4 +43,9 @@ urlpatterns = [
     # Logs
     path("access-logs/", views.AccessLogListView.as_view(), name="access-log-list"),
     path("action-logs/", views.ActionLogListView.as_view(), name="action-log-list"),
+
+    # OAuth credentials (MCP)
+    path("oauth-apps/create/", OAuthAppCreateView.as_view(), name="oauth-app-create"),
+    path("oauth-apps/<uuid:pk>/delete/", OAuthAppDeleteView.as_view(), name="oauth-app-delete"),
+    path("oauth-apps/", OAuthAppListView.as_view(), name="oauth-app-list"),
 ]

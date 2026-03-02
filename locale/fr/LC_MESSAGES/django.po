@@ -4204,6 +4204,30 @@ msgstr "Aucun changement détecté"
 msgid "No history available."
 msgstr "Aucun historique disponible."
 
+msgid "OAuth credentials"
+msgstr "Identifiants OAuth"
+
+msgid "OAuth credentials created"
+msgstr "Identifiants OAuth créés"
+
+msgid "Copy the secret now. It will not be shown again."
+msgstr "Copiez le secret maintenant. Il ne sera plus affiché."
+
+msgid "Done"
+msgstr "Terminé"
+
+msgid "No OAuth credentials."
+msgstr "Aucun identifiant OAuth."
+
+msgid "Name for this credential:"
+msgstr "Nom de cet identifiant :"
+
+msgid "Creation failed."
+msgstr "Échec de la création."
+
+msgid "Delete OAuth credential"
+msgstr "Supprimer l'identifiant OAuth"
+
 #, python-format
 #~ msgid "%(count)d single point(s) of failure (SPOF) to review"
 #~ msgstr "%(count)d point(s) de défaillance unique (SPOF) à examiner"

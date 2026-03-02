@@ -1,0 +1,26 @@
+{% load i18n %}
+{% if oauth_apps %}
+<ul class="list-group list-group-flush">
+  {% for app in oauth_apps %}
+  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+    <div style="min-width:0">
+      <div style="font-weight:550;font-size:.875rem"><i class="bi bi-plug me-1" style="color:var(--accent)"></i>{{ app.name }}</div>
+      <div style="font-size:.75rem;color:var(--text-muted)">
+        <code style="font-size:.7rem">{{ app.client_id }}</code>
+      </div>
+      <div style="font-size:.75rem;color:var(--text-muted)">
+        {% trans "Created" %} {{ app.created_at|date:"d/m/Y" }}
+        {% if app.last_used_at %}
+          — {% trans "Last used" %} {{ app.last_used_at|date:"d/m/Y" }}
+        {% endif %}
+      </div>
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-danger flex-shrink-0 ms-2" onclick="deleteOAuthApp('{{ app.id }}', '{{ app.name|escapejs }}')" title="{% trans 'Delete' %}">
+      <i class="bi bi-trash"></i>
+    </button>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No OAuth credentials." %}</p>
+{% endif %}
