@@ -28,7 +28,7 @@
       </thead>
       <tbody>
         {% for dep in dependencies %}
-        <tr{% if dep.is_single_point_of_failure %} class="table-danger"{% endif %}>
+        <tr>
           <td><a href="{% url 'assets:site-detail' dep.site.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ dep.site }}</a></td>
           <td>
             <a href="{% url 'assets:supplier-detail' dep.supplier.pk %}" class="d-inline-flex align-items-center gap-2" style="color:var(--accent);text-decoration:none;font-weight:500">
@@ -46,7 +46,13 @@
               {{ dep.get_criticality_display }}
             </span>
           </td>
-          <td>{% if dep.is_single_point_of_failure %}<span class="badge text-bg-danger">SPOF</span>{% else %}—{% endif %}</td>
+          <td>
+            {% if dep.is_single_point_of_failure %}
+              <span class="badge text-bg-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i>SPOF</span>
+            {% else %}
+              —
+            {% endif %}
+          </td>
           <td>{{ dep.get_redundancy_level_display|default:"—" }}</td>
           <td>
             <span class="badge text-bg-{% if dep.is_approved %}success{% else %}warning{% endif %}">
