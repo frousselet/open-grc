@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
 from context.models import Scope
+from context.widgets import ScopeTreeWidget
 from .models import (
     ComplianceActionPlan,
     ComplianceAssessment,
@@ -22,18 +23,24 @@ CHECKBOX_ATTRS = {"class": "form-check-input"}
 
 
 class ScopedFormMixin:
-    """Filter the scope dropdown to only show scopes the user can access (non-archived)."""
+    """Populate the scopes tree widget with the user's accessible scopes."""
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
-        scope_field_name = "scope" if "scope" in self.fields else "scopes" if "scopes" in self.fields else None
-        if scope_field_name:
+        if "scopes" in self.fields:
             qs = Scope.objects.exclude(status="archived")
             if user and not user.is_superuser:
                 scope_ids = user.get_allowed_scope_ids()
                 if scope_ids is not None:
                     qs = qs.filter(id__in=scope_ids)
-            self.fields[scope_field_name].queryset = qs
+            field = self.fields["scopes"]
+            field.queryset = qs
+            selected_ids = []
+            if self.instance and self.instance.pk:
+                selected_ids = list(self.instance.scopes.values_list("pk", flat=True))
+            elif self.data:
+                selected_ids = self.data.getlist(self.add_prefix("scopes"))
+            field.widget.build_tree_data(qs, selected_ids)
 
 
 class FrameworkForm(ScopedFormMixin, forms.ModelForm):
@@ -48,7 +55,7 @@ class FrameworkForm(ScopedFormMixin, forms.ModelForm):
             "owner", "status", "review_date", "tags",
         ]
         widgets = {
-            "scopes": forms.SelectMultiple(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "short_name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
@@ -123,12 +130,12 @@ class ComplianceAssessmentForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = ComplianceAssessment
         fields = [
-            "scope", "framework", "name", "description",
+            "scopes", "framework", "name", "description",
             "assessment_date", "assessor", "methodology",
             "status", "review_date", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "framework": forms.Select(attrs=SELECT_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
@@ -228,7 +235,7 @@ class ComplianceActionPlanForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = ComplianceActionPlan
         fields = [
-            "scope", "reference", "name", "description",
+            "scopes", "reference", "name", "description",
             "assessment", "requirement",
             "gap_description", "remediation_plan",
             "priority", "owner",
@@ -236,7 +243,7 @@ class ComplianceActionPlanForm(ScopedFormMixin, forms.ModelForm):
             "progress_percentage", "cost_estimate", "status", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),

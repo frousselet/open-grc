@@ -102,15 +102,18 @@ class Objective(ScopedModel):
                     )
                 }
             )
-        # RS-03: same scope as parent
-        if self.parent_objective_id and self.parent_objective.scope_id != self.scope_id:
-            raise ValidationError(
-                {
-                    "parent_objective": _(
-                        "The child objective must belong to the same scope as its parent."
-                    )
-                }
-            )
+        # RS-03: parent and child must share at least one scope
+        if self.parent_objective_id and self.pk:
+            parent_scopes = set(self.parent_objective.scopes.values_list("pk", flat=True))
+            child_scopes = set(self.scopes.values_list("pk", flat=True))
+            if parent_scopes and child_scopes and not (parent_scopes & child_scopes):
+                raise ValidationError(
+                    {
+                        "parent_objective": _(
+                            "The child objective must share at least one scope with its parent."
+                        )
+                    }
+                )
 
     def save(self, *args, **kwargs):
         self.clean()

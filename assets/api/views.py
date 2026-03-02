@@ -46,7 +46,7 @@ class CreatedByMixin:
 
 
 class EssentialAssetViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = EssentialAsset.objects.select_related("scope", "owner", "custodian").all()
+    queryset = EssentialAsset.objects.select_related("owner", "custodian").prefetch_related("scopes").all()
     filterset_class = EssentialAssetFilter
     permission_classes = [ContextPermission]
     permission_feature = "essential_asset"
@@ -116,7 +116,7 @@ class EssentialAssetViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIM
 
 
 class SupportAssetViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = SupportAsset.objects.select_related("scope", "owner", "custodian", "parent_asset").all()
+    queryset = SupportAsset.objects.select_related("owner", "custodian", "parent_asset").prefetch_related("scopes").all()
     filterset_class = SupportAssetFilter
     permission_classes = [ContextPermission]
     permission_feature = "support_asset"
@@ -282,7 +282,7 @@ class AssetDependencyViewSet(ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin
 
 
 class AssetGroupViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = AssetGroup.objects.select_related("scope", "owner").prefetch_related("members").all()
+    queryset = AssetGroup.objects.select_related("owner").prefetch_related("scopes", "members").all()
     filterset_class = AssetGroupFilter
     permission_classes = [ContextPermission]
     permission_feature = "group"
@@ -317,7 +317,7 @@ class AssetGroupViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin
 
 
 class SupplierViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = Supplier.objects.select_related("scope", "owner").all()
+    queryset = Supplier.objects.select_related("owner").prefetch_related("scopes").all()
     filterset_class = SupplierFilter
     permission_classes = [ContextPermission]
     permission_feature = "supplier"

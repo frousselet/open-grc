@@ -47,14 +47,9 @@ class ApprovalContextMixin:
         if user.is_superuser:
             can_approve = True
         elif user.has_perm(codename):
-            # Check scope access
+            # Check scope access via M2M scopes
             obj = self.object
-            scope_id = getattr(obj, "scope_id", None)
-            if scope_id is not None:
-                allowed = user.get_allowed_scope_ids()
-                if allowed is None or scope_id in allowed:
-                    can_approve = True
-            elif hasattr(obj, "scopes") and hasattr(obj.scopes, "values_list"):
+            if hasattr(obj, "scopes") and hasattr(obj.scopes, "values_list"):
                 allowed = user.get_allowed_scope_ids()
                 if allowed is None:
                     can_approve = True
@@ -75,7 +70,7 @@ class ScopeFilterMixin:
     """Filter queryset by the user's allowed scopes (UI views).
 
     Works for:
-    - ScopedModel subclasses (have a ``scope`` FK) → filter on scope_id
+    - ScopedModel subclasses (have a ``scopes`` M2M) → filter on scopes__id
     - Scope model itself → filter on id
     """
 
@@ -93,8 +88,6 @@ class ScopeFilterMixin:
         model = qs.model
         if model is Scope or (hasattr(model, "_meta") and model._meta.label == "context.Scope"):
             return qs.filter(id__in=scope_ids)
-        if hasattr(model, "scope"):
-            return qs.filter(scope_id__in=scope_ids)
-        if model._meta.many_to_many and any(f.name == "scopes" for f in model._meta.many_to_many):
+        if any(f.name == "scopes" for f in model._meta.many_to_many):
             return qs.filter(scopes__id__in=scope_ids).distinct()
         return qs

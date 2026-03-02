@@ -52,11 +52,7 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
         if scope_ids is None:
             return qs
         model = qs.model
-        if hasattr(model, "scope"):
-            return qs.filter(scope_id__in=scope_ids)
-        if model._meta.many_to_many and any(
-            f.name == "scopes" for f in model._meta.many_to_many
-        ):
+        if any(f.name == "scopes" for f in model._meta.many_to_many):
             return qs.filter(scopes__id__in=scope_ids).distinct()
         return qs
 
@@ -264,11 +260,7 @@ class CalendarEventsView(LoginRequiredMixin, View):
         if scope_ids is None:
             return qs
         model = qs.model
-        if hasattr(model, "scope"):
-            return qs.filter(scope_id__in=scope_ids)
-        if model._meta.many_to_many and any(
-            f.name == "scopes" for f in model._meta.many_to_many
-        ):
+        if any(f.name == "scopes" for f in model._meta.many_to_many):
             return qs.filter(scopes__id__in=scope_ids).distinct()
         return qs
 

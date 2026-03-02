@@ -5,6 +5,7 @@ from django.forms import inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 
 from context.models import Scope, Site
+from context.widgets import ScopeTreeWidget
 from helpers.image_utils import generate_image_variants
 
 from .models import (
@@ -45,24 +46,31 @@ CHECKBOX_ATTRS = {"class": "form-check-input"}
 
 
 class ScopedFormMixin:
-    """Filter the scope dropdown to only show scopes the user can access (non-archived)."""
+    """Populate the scopes tree widget with the user's accessible scopes."""
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
-        if "scope" in self.fields:
+        if "scopes" in self.fields:
             qs = Scope.objects.exclude(status="archived")
             if user and not user.is_superuser:
                 scope_ids = user.get_allowed_scope_ids()
                 if scope_ids is not None:
                     qs = qs.filter(id__in=scope_ids)
-            self.fields["scope"].queryset = qs
+            field = self.fields["scopes"]
+            field.queryset = qs
+            selected_ids = []
+            if self.instance and self.instance.pk:
+                selected_ids = list(self.instance.scopes.values_list("pk", flat=True))
+            elif self.data:
+                selected_ids = self.data.getlist(self.add_prefix("scopes"))
+            field.widget.build_tree_data(qs, selected_ids)
 
 
 class EssentialAssetForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = EssentialAsset
         fields = [
-            "scope", "name", "description",
+            "scopes", "name", "description",
             "type", "category", "owner", "custodian",
             "confidentiality_level", "integrity_level", "availability_level",
             "confidentiality_justification", "integrity_justification",
@@ -74,7 +82,7 @@ class EssentialAssetForm(ScopedFormMixin, forms.ModelForm):
             "related_activities", "status", "review_date", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "type": forms.Select(attrs=SELECT_ATTRS),
@@ -104,7 +112,7 @@ class SupportAssetForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = SupportAsset
         fields = [
-            "scope", "name", "description",
+            "scopes", "name", "description",
             "type", "category", "owner", "custodian",
             "location", "manufacturer", "model_name", "serial_number",
             "software_version", "ip_address", "hostname", "operating_system",
@@ -114,7 +122,7 @@ class SupportAssetForm(ScopedFormMixin, forms.ModelForm):
             "parent_asset", "status", "review_date", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "type": forms.Select(attrs=SELECT_ATTRS),
@@ -165,10 +173,10 @@ class AssetGroupForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = AssetGroup
         fields = [
-            "scope", "name", "description", "type", "owner", "status", "tags",
+            "scopes", "name", "description", "type", "owner", "status", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "type": forms.Select(attrs=SELECT_ATTRS),
@@ -189,7 +197,7 @@ class SupplierForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Supplier
         fields = [
-            "scope", "name", "description",
+            "scopes", "name", "description",
             "type", "criticality", "owner",
             "contact_name", "contact_email", "contact_phone",
             "website", "address", "country",
@@ -197,7 +205,7 @@ class SupplierForm(ScopedFormMixin, forms.ModelForm):
             "status", "notes", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "type": forms.Select(attrs=SELECT_ATTRS),

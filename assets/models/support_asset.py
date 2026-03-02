@@ -133,11 +133,14 @@ class SupportAsset(ScopedModel):
             raise ValidationError(
                 {"category": _("Invalid category for type '%(type)s'.") % {"type": self.get_type_display()}}
             )
-        # RS-06: same scope as parent
-        if self.parent_asset_id and self.parent_asset.scope_id != self.scope_id:
-            raise ValidationError(
-                {"parent_asset": _("The child support asset must belong to the same scope as its parent.")}
-            )
+        # RS-06: parent and child must share at least one scope
+        if self.parent_asset_id and self.pk:
+            parent_scopes = set(self.parent_asset.scopes.values_list("pk", flat=True))
+            child_scopes = set(self.scopes.values_list("pk", flat=True))
+            if parent_scopes and child_scopes and not (parent_scopes & child_scopes):
+                raise ValidationError(
+                    {"parent_asset": _("The child support asset must share at least one scope with its parent.")}
+                )
 
     def save(self, *args, **kwargs):
         self.clean()

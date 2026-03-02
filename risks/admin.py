@@ -38,24 +38,24 @@ class TreatmentActionInline(admin.TabularInline):
 
 @admin.register(RiskCriteria)
 class RiskCriteriaAdmin(SimpleHistoryAdmin):
-    list_display = ("name", "scope", "is_default", "status", "acceptance_threshold")
+    list_display = ("name", "is_default", "status", "acceptance_threshold")
     list_filter = ("status", "is_default")
     search_fields = ("name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("tags",)
+    filter_horizontal = ("scopes", "tags")
     inlines = [ScaleLevelInline, RiskLevelInline]
 
 
 @admin.register(RiskAssessment)
 class RiskAssessmentAdmin(SimpleHistoryAdmin):
     list_display = (
-        "reference", "name", "methodology", "scope", "assessor",
+        "reference", "name", "methodology", "assessor",
         "status", "assessment_date",
     )
     list_filter = ("status", "methodology")
     search_fields = ("reference", "name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("tags",)
+    filter_horizontal = ("scopes", "tags")
 
 
 class RiskAdminForm(dj_forms.ModelForm):
@@ -163,24 +163,24 @@ class RiskAcceptanceAdmin(SimpleHistoryAdmin):
 class ThreatAdmin(SimpleHistoryAdmin):
     list_display = (
         "reference", "name", "type", "origin", "category",
-        "scope", "status", "is_from_catalog",
+        "status", "is_from_catalog",
     )
     list_filter = ("type", "origin", "category", "status", "is_from_catalog")
     search_fields = ("reference", "name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("tags",)
+    filter_horizontal = ("scopes", "tags")
 
 
 @admin.register(Vulnerability)
 class VulnerabilityAdmin(SimpleHistoryAdmin):
     list_display = (
         "reference", "name", "category", "severity",
-        "scope", "status", "is_from_catalog",
+        "status", "is_from_catalog",
     )
     list_filter = ("category", "severity", "status", "is_from_catalog")
     search_fields = ("reference", "name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("affected_assets", "tags")
+    filter_horizontal = ("scopes", "affected_assets", "tags")
 
 
 @admin.register(ISO27005Risk)

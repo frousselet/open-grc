@@ -89,7 +89,7 @@ class SiteViewSet(ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.
 
 
 class IssueViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = Issue.objects.select_related("scope").all()
+    queryset = Issue.objects.prefetch_related("scopes").all()
     serializer_class = IssueSerializer
     filterset_class = IssueFilter
     permission_classes = [ContextPermission]
@@ -98,7 +98,7 @@ class IssueViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, Cre
 
 
 class StakeholderViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = Stakeholder.objects.select_related("scope").prefetch_related("expectations").all()
+    queryset = Stakeholder.objects.prefetch_related("scopes", "expectations").all()
     filterset_class = StakeholderFilter
     permission_classes = [ContextPermission]
     search_fields = ["name", "description", "contact_name"]
@@ -131,7 +131,7 @@ class StakeholderExpectationViewSet(CreatedByMixin, viewsets.ModelViewSet):
 
 
 class ObjectiveViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = Objective.objects.select_related("scope", "owner", "parent_objective").all()
+    queryset = Objective.objects.select_related("owner", "parent_objective").prefetch_related("scopes").all()
     serializer_class = ObjectiveSerializer
     filterset_class = ObjectiveFilter
     permission_classes = [ContextPermission]
@@ -174,7 +174,7 @@ class ObjectiveViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin,
 
 
 class SwotAnalysisViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = SwotAnalysis.objects.select_related("scope", "validated_by").prefetch_related("items").all()
+    queryset = SwotAnalysis.objects.select_related("validated_by").prefetch_related("scopes", "items").all()
     filterset_class = SwotAnalysisFilter
     permission_classes = [ContextPermission]
     permission_feature = "swot"
@@ -220,8 +220,8 @@ class SwotItemViewSet(viewsets.ModelViewSet):
 
 
 class RoleViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = Role.objects.select_related("scope").prefetch_related(
-        "assigned_users", "responsibilities"
+    queryset = Role.objects.prefetch_related(
+        "scopes", "assigned_users", "responsibilities"
     ).all()
     filterset_class = RoleFilter
     permission_classes = [ContextPermission]
@@ -278,7 +278,7 @@ class ResponsibilityViewSet(viewsets.ModelViewSet):
 
 
 class ActivityViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = Activity.objects.select_related("scope", "owner", "parent_activity").all()
+    queryset = Activity.objects.select_related("owner", "parent_activity").prefetch_related("scopes").all()
     serializer_class = ActivitySerializer
     filterset_class = ActivityFilter
     permission_classes = [ContextPermission]

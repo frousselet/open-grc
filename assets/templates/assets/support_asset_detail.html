@@ -38,7 +38,7 @@
     <div class="card">
       <div class="card-body">
         <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scope" %}</dt><dd class="col-sm-9">{{ asset.scope }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt><dd class="col-sm-9">{% for s in asset.scopes.all %}<span class="badge" style="background:var(--accent-soft);color:var(--accent);font-weight:500;font-size:.82rem;margin-right:.25rem">{{ s }}</span>{% empty %}<span style="color:var(--text-muted)">—</span>{% endfor %}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ asset.get_type_display }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Category" %}</dt><dd class="col-sm-9">{{ asset.get_category_display }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{{ asset.owner }}</dd>

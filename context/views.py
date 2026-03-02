@@ -95,7 +95,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         scope_ids = user.get_allowed_scope_ids()
         if scope_ids is None:
             return qs
-        return qs.filter(scope_id__in=scope_ids)
+        return qs.filter(scopes__id__in=scope_ids).distinct()
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -223,7 +223,7 @@ class IssueListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related("scope", "scope__parent_scope")
+        qs = super().get_queryset().prefetch_related("scopes")
         type_filter = self.request.GET.get("type")
         if type_filter:
             qs = qs.filter(type=type_filter)
@@ -279,7 +279,7 @@ class StakeholderListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        return super().get_queryset().select_related("scope", "scope__parent_scope")
+        return super().get_queryset().prefetch_related("scopes")
 
 
 class StakeholderDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
@@ -331,7 +331,7 @@ class ObjectiveListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        return super().get_queryset().select_related("scope", "owner")
+        return super().get_queryset().prefetch_related("scopes").select_related("owner")
 
 
 class ObjectiveDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
@@ -486,7 +486,7 @@ class ActivityListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        return super().get_queryset().select_related("scope", "owner")
+        return super().get_queryset().prefetch_related("scopes").select_related("owner")
 
 
 class ActivityDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):

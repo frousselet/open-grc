@@ -25,7 +25,7 @@
         <tr>
           <th>{% trans "Ref." %}</th>
           <th>{% trans "Name" %}</th>
-          <th>{% trans "Scope" %}</th>
+          <th>{% trans "Scopes" %}</th>
           <th>{% trans "Acceptance threshold" %}</th>
           <th>{% trans "Default" %}</th>
           <th>{% trans "Status" %}</th>
@@ -38,7 +38,7 @@
         <tr>
           <td><a href="{% url 'risks:criteria-detail' c.pk %}" class="ref" style="text-decoration:none">{{ c.reference }}</a></td>
           <td>{{ c.name }}</td>
-          <td>{{ c.scope }}</td>
+          <td>{% for s in c.scopes.all %}<span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.75rem;font-weight:500;margin-right:.125rem">{{ s.name }}</span>{% empty %}—{% endfor %}</td>
           <td>{{ c.acceptance_threshold }}</td>
           <td>{% if c.is_default %}<span class="badge text-bg-success">{% trans "Yes" %}</span>{% else %}—{% endif %}</td>
           <td>

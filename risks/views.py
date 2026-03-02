@@ -285,7 +285,7 @@ class RiskAssessmentListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related("scope", "assessor", "risk_criteria")
+        qs = super().get_queryset().prefetch_related("scopes").select_related("assessor", "risk_criteria")
         status_filter = self.request.GET.get("status")
         if status_filter:
             qs = qs.filter(status=status_filter)
@@ -364,7 +364,7 @@ class RiskCriteriaListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related("scope")
+        qs = super().get_queryset().prefetch_related("scopes")
         status_filter = self.request.GET.get("status")
         if status_filter:
             qs = qs.filter(status=status_filter)
@@ -677,7 +677,7 @@ class ThreatListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related("scope")
+        qs = super().get_queryset().prefetch_related("scopes")
         threat_type = self.request.GET.get("type")
         if threat_type:
             qs = qs.filter(type=threat_type)
@@ -732,7 +732,7 @@ class VulnerabilityListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related("scope")
+        qs = super().get_queryset().prefetch_related("scopes")
         category = self.request.GET.get("category")
         if category:
             qs = qs.filter(category=category)

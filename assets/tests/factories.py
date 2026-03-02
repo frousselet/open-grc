@@ -29,7 +29,6 @@ class EssentialAssetFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = EssentialAsset
 
-    scope = factory.SubFactory(ScopeFactory)
     reference = factory.Sequence(lambda n: f"EA-{n:03d}")
     name = factory.Sequence(lambda n: f"Essential Asset {n}")
     type = EssentialAssetType.INFORMATION
@@ -39,17 +38,42 @@ class EssentialAssetFactory(factory.django.DjangoModelFactory):
     integrity_level = DICLevel.MEDIUM
     availability_level = DICLevel.MEDIUM
 
+    @factory.post_generation
+    def scope(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            self.scopes.add(extracted)
+
+    @factory.post_generation
+    def scopes(self, create, extracted, **kwargs):
+        if not create or not extracted:
+            return
+        self.scopes.add(*extracted)
+
 
 class SupportAssetFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = SupportAsset
 
-    scope = factory.SubFactory(ScopeFactory)
     reference = factory.Sequence(lambda n: f"SA-{n:03d}")
     name = factory.Sequence(lambda n: f"Support Asset {n}")
     type = SupportAssetType.HARDWARE
     category = SupportAssetCategory.SERVER
     owner = factory.SubFactory(UserFactory)
+
+    @factory.post_generation
+    def scope(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            self.scopes.add(extracted)
+
+    @factory.post_generation
+    def scopes(self, create, extracted, **kwargs):
+        if not create or not extracted:
+            return
+        self.scopes.add(*extracted)
 
 
 class DependencyFactory(factory.django.DjangoModelFactory):
@@ -73,12 +97,24 @@ class SupplierFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Supplier
 
-    scope = factory.SubFactory(ScopeFactory)
     reference = factory.Sequence(lambda n: f"SUPP-{n:03d}")
     name = factory.Sequence(lambda n: f"Supplier {n}")
     type = factory.SubFactory(SupplierTypeFactory)
     criticality = SupplierCriticality.MEDIUM
     owner = factory.SubFactory(UserFactory)
+
+    @factory.post_generation
+    def scope(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            self.scopes.add(extracted)
+
+    @factory.post_generation
+    def scopes(self, create, extracted, **kwargs):
+        if not create or not extracted:
+            return
+        self.scopes.add(*extracted)
 
 
 class SupplierRequirementFactory(factory.django.DjangoModelFactory):

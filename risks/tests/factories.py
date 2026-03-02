@@ -10,9 +10,21 @@ class RiskCriteriaFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = RiskCriteria
 
-    scope = factory.SubFactory(ScopeFactory)
     name = factory.Sequence(lambda n: f"Criteria {n}")
     status = "active"
+
+    @factory.post_generation
+    def scope(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            self.scopes.add(extracted)
+
+    @factory.post_generation
+    def scopes(self, create, extracted, **kwargs):
+        if not create or not extracted:
+            return
+        self.scopes.add(*extracted)
 
 
 class ScaleLevelFactory(factory.django.DjangoModelFactory):
@@ -38,9 +50,21 @@ class RiskAssessmentFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = RiskAssessment
 
-    scope = factory.SubFactory(ScopeFactory)
     reference = factory.Sequence(lambda n: f"RA-{n:03d}")
     name = factory.Sequence(lambda n: f"Assessment {n}")
+
+    @factory.post_generation
+    def scope(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            self.scopes.add(extracted)
+
+    @factory.post_generation
+    def scopes(self, create, extracted, **kwargs):
+        if not create or not extracted:
+            return
+        self.scopes.add(*extracted)
 
 
 class RiskFactory(factory.django.DjangoModelFactory):

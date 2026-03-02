@@ -44,11 +44,11 @@ class SiteAdmin(SimpleHistoryAdmin):
 
 @admin.register(Issue)
 class IssueAdmin(SimpleHistoryAdmin):
-    list_display = ("name", "scope", "type", "category", "impact_level", "status", "trend")
+    list_display = ("name", "type", "category", "impact_level", "status", "trend")
     list_filter = ("type", "category", "impact_level", "status", "trend")
     search_fields = ("name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("related_stakeholders", "tags")
+    filter_horizontal = ("scopes", "related_stakeholders", "tags")
 
 
 class StakeholderExpectationInline(admin.TabularInline):
@@ -60,25 +60,25 @@ class StakeholderExpectationInline(admin.TabularInline):
 @admin.register(Stakeholder)
 class StakeholderAdmin(SimpleHistoryAdmin):
     list_display = (
-        "name", "scope", "type", "category", "influence_level", "interest_level", "status",
+        "name", "type", "category", "influence_level", "interest_level", "status",
     )
     list_filter = ("type", "category", "influence_level", "interest_level", "status")
     search_fields = ("name", "description", "contact_name")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("tags",)
+    filter_horizontal = ("scopes", "tags")
     inlines = [StakeholderExpectationInline]
 
 
 @admin.register(Objective)
 class ObjectiveAdmin(SimpleHistoryAdmin):
     list_display = (
-        "reference", "name", "scope", "category", "type", "status",
+        "reference", "name", "category", "type", "status",
         "progress_percentage", "owner", "target_date",
     )
     list_filter = ("category", "type", "status", "measurement_frequency")
     search_fields = ("reference", "name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("related_issues", "related_stakeholders", "tags")
+    filter_horizontal = ("scopes", "related_issues", "related_stakeholders", "tags")
 
 
 class SwotItemInline(admin.TabularInline):
@@ -89,11 +89,11 @@ class SwotItemInline(admin.TabularInline):
 
 @admin.register(SwotAnalysis)
 class SwotAnalysisAdmin(SimpleHistoryAdmin):
-    list_display = ("name", "scope", "analysis_date", "status", "validated_by", "validated_at")
+    list_display = ("name", "analysis_date", "status", "validated_by", "validated_at")
     list_filter = ("status",)
     search_fields = ("name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("tags",)
+    filter_horizontal = ("scopes", "tags")
     inlines = [SwotItemInline]
 
 
@@ -105,11 +105,11 @@ class ResponsibilityInline(admin.TabularInline):
 
 @admin.register(Role)
 class RoleAdmin(SimpleHistoryAdmin):
-    list_display = ("name", "scope", "type", "status", "is_mandatory", "compliance_alert")
+    list_display = ("name", "type", "status", "is_mandatory", "compliance_alert")
     list_filter = ("type", "status", "is_mandatory")
     search_fields = ("name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("assigned_users", "tags")
+    filter_horizontal = ("scopes", "assigned_users", "tags")
     inlines = [ResponsibilityInline]
 
     @admin.display(description="Alerte conformité")
@@ -119,8 +119,8 @@ class RoleAdmin(SimpleHistoryAdmin):
 
 @admin.register(Activity)
 class ActivityAdmin(SimpleHistoryAdmin):
-    list_display = ("reference", "name", "scope", "type", "criticality", "owner", "status")
+    list_display = ("reference", "name", "type", "criticality", "owner", "status")
     list_filter = ("type", "criticality", "status")
     search_fields = ("reference", "name", "description")
     readonly_fields = ("id", "created_at", "updated_at")
-    filter_horizontal = ("related_stakeholders", "related_objectives", "tags")
+    filter_horizontal = ("scopes", "related_stakeholders", "related_objectives", "tags")

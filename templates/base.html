@@ -981,6 +981,13 @@
     @media (min-width: 992px) and (max-width: 1399.98px) {
       .main-content { padding: 2.5rem 2rem 3.5rem; }
     }
+    /* ── Scope tree widget ──────────────────────────── */
+    .scope-tree-label:hover { background: var(--surface-muted); }
+    .scope-tree-node.hidden { display: none; }
+    .scope-tree-node.collapsed-child { display: none; }
+    .scope-tree-toggle .bi { transition: transform .2s ease; }
+    .scope-tree-toggle.collapsed .bi { transform: rotate(-90deg); }
+    .scope-tree-label input:checked ~ .scope-tree-name { font-weight: 600; color: var(--accent) !important; }
   </style>
   <script>
     (function(){

@@ -14,6 +14,7 @@ from .models import (
     Responsibility,
     Tag,
 )
+from .widgets import ScopeTreeWidget
 
 FORM_WIDGET_ATTRS = {"class": "form-control"}
 SELECT_ATTRS = {"class": "form-select"}
@@ -48,19 +49,25 @@ def _scope_tree_choices(queryset):
 
 
 class ScopedFormMixin:
-    """Filter the scope dropdown to only show scopes the user can access (non-archived)."""
+    """Populate the scopes tree widget with the user's accessible scopes."""
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
-        if "scope" in self.fields:
+        if "scopes" in self.fields:
             qs = Scope.objects.exclude(status="archived")
             if user and not user.is_superuser:
                 scope_ids = user.get_allowed_scope_ids()
                 if scope_ids is not None:
                     qs = qs.filter(id__in=scope_ids)
-            field = self.fields["scope"]
+            field = self.fields["scopes"]
             field.queryset = qs
-            field.choices = [("", field.empty_label or "---------")] + _scope_tree_choices(qs)
+            # Build tree data for the widget
+            selected_ids = []
+            if self.instance and self.instance.pk:
+                selected_ids = list(self.instance.scopes.values_list("pk", flat=True))
+            elif self.data:
+                selected_ids = self.data.getlist(self.add_prefix("scopes"))
+            field.widget.build_tree_data(qs, selected_ids)
 
 
 class ScopeForm(forms.ModelForm):
@@ -110,11 +117,11 @@ class IssueForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Issue
         fields = [
-            "scope", "name", "description", "type", "category",
+            "scopes", "name", "description", "type", "category",
             "impact_level", "trend", "source", "review_date", "status", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "type": forms.Select(attrs=SELECT_ATTRS),
@@ -132,12 +139,12 @@ class StakeholderForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Stakeholder
         fields = [
-            "scope", "name", "type", "category", "description",
+            "scopes", "name", "type", "category", "description",
             "contact_name", "contact_email", "contact_phone",
             "influence_level", "interest_level", "status", "review_date", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "type": forms.Select(attrs=SELECT_ATTRS),
             "category": forms.Select(attrs=SELECT_ATTRS),
@@ -169,14 +176,14 @@ class ObjectiveForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Objective
         fields = [
-            "scope", "reference", "name", "description",
+            "scopes", "reference", "name", "description",
             "category", "type", "target_value", "current_value", "unit",
             "measurement_method", "measurement_frequency", "target_date",
             "owner", "status", "progress_percentage",
             "parent_objective", "review_date", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
@@ -201,11 +208,11 @@ class SwotAnalysisForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = SwotAnalysis
         fields = [
-            "scope", "name", "description", "analysis_date",
+            "scopes", "name", "description", "analysis_date",
             "status", "review_date", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "analysis_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
@@ -231,11 +238,11 @@ class RoleForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Role
         fields = [
-            "scope", "name", "description", "type",
+            "scopes", "name", "description", "type",
             "is_mandatory", "source_standard", "status", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "type": forms.Select(attrs=SELECT_ATTRS),
@@ -250,11 +257,11 @@ class ActivityForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Activity
         fields = [
-            "scope", "reference", "name", "description",
+            "scopes", "reference", "name", "description",
             "type", "criticality", "owner", "parent_activity", "status", "tags",
         ]
         widgets = {
-            "scope": forms.Select(attrs=SELECT_ATTRS),
+            "scopes": ScopeTreeWidget(),
             "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
