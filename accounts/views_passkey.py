@@ -28,15 +28,29 @@ def _ensure_fido2():
         _fido2_initialized = True
 
 
-def _get_server():
+def _get_server(request):
+    """Build a Fido2Server using explicit settings or request-derived values."""
     _ensure_fido2()
     from fido2.server import Fido2Server
     from fido2.webauthn import PublicKeyCredentialRpEntity
 
-    rp = PublicKeyCredentialRpEntity(id=settings.WEBAUTHN_RP_ID, name=settings.WEBAUTHN_RP_NAME)
+    rp_id = settings.WEBAUTHN_RP_ID
+    origin = settings.WEBAUTHN_ORIGIN
+
+    if rp_id is None or origin is None:
+        host = request.get_host().split(":")[0]
+        scheme = "https" if request.is_secure() else "http"
+        derived_origin = f"{scheme}://{request.get_host()}"
+        if rp_id is None:
+            rp_id = host
+        if origin is None:
+            origin = derived_origin
+
+    expected_origin = origin
+    rp = PublicKeyCredentialRpEntity(id=rp_id, name=settings.WEBAUTHN_RP_NAME)
     return Fido2Server(
         rp,
-        verify_origin=lambda origin: origin == settings.WEBAUTHN_ORIGIN,
+        verify_origin=lambda o: o == expected_origin,
     )
 
 
@@ -61,7 +75,7 @@ class PasskeyRegisterBeginView(LoginRequiredMixin, View):
             UserVerificationRequirement,
         )
 
-        server = _get_server()
+        server = _get_server(request)
         user = request.user
 
         # Build exclude list from existing passkeys
@@ -95,7 +109,7 @@ class PasskeyRegisterCompleteView(LoginRequiredMixin, View):
     def post(self, request):
         from fido2 import cbor
 
-        server = _get_server()
+        server = _get_server(request)
         state = request.session.pop("webauthn_register_state", None)
         if state is None:
             return JsonResponse({"error": "No registration in progress."}, status=400)
@@ -140,7 +154,7 @@ class PasskeyLoginBeginView(View):
     def post(self, request):
         from fido2.webauthn import UserVerificationRequirement
 
-        server = _get_server()
+        server = _get_server(request)
 
         # Discoverable credentials: no allow_credentials list
         options, state = server.authenticate_begin(
@@ -160,7 +174,7 @@ class PasskeyLoginCompleteView(View):
         from fido2.cose import CoseKey
         from fido2.webauthn import AttestedCredentialData
 
-        server = _get_server()
+        server = _get_server(request)
         state = request.session.pop("webauthn_auth_state", None)
         if state is None:
             return JsonResponse({"error": "No authentication in progress."}, status=400)
