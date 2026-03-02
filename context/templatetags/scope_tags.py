@@ -7,16 +7,15 @@ register = template.Library()
 
 @register.inclusion_tag("widgets/grouped_scope_badges.html")
 def grouped_scope_badges(scopes):
-    """Render scope badges as connected trees, avoiding repeated parent names.
+    """Render scopes as breadcrumb pills, one per root-to-leaf path.
 
-    Builds a mini-tree from the selected scopes:
-    - Scopes whose parent is also selected are nested under it.
-    - Tree roots show ``full_path`` (for context); descendants show ``name``.
-    - Depth drives visual muting (opacity decreases with depth).
+    Builds a mini-tree from the selected scopes, then extracts every
+    root-to-leaf branch as a breadcrumb: ``Org › BU › Site``.
 
-    Example: scopes [Iguane Solutions, Hébergement, Héb. données de santé]
-    renders as  [Iguane Solutions][Hébergement][Héb. données de santé]
-    with progressive fading.
+    - Ancestor context (parents *not* in the list) is prepended to give
+      the full hierarchy from the top of the tree.
+    - When a branch has siblings, the common prefix repeats in each pill
+      so every pill is self-contained and unambiguous.
     """
     scope_list = list(scopes)
     scope_ids = {s.pk for s in scope_list}
@@ -30,16 +29,22 @@ def grouped_scope_badges(scopes):
         else:
             tree_roots.append(s)
 
-    def flatten_tree(scope, depth=0):
-        """Depth-first traversal returning a flat list of badge nodes."""
-        display = scope.full_path if depth == 0 else scope.name
-        nodes = [{"name": display, "depth": depth}]
-        for child in children_of.get(scope.pk, []):
-            nodes.extend(flatten_tree(child, depth + 1))
-        return nodes
+    def get_branches(scope, prefix):
+        """Return every root-to-leaf path as a list of segment names."""
+        path = prefix + [scope.name]
+        kids = children_of.get(scope.pk, [])
+        if not kids:
+            return [path]
+        branches = []
+        for kid in kids:
+            branches.extend(get_branches(kid, path))
+        return branches
 
-    trees = []
+    crumbs = []
     for root in tree_roots:
-        trees.append(flatten_tree(root))
+        # Prepend ancestors that are NOT in the scope list for context.
+        prefix = [a.name for a in root.get_ancestors()]
+        for branch in get_branches(root, prefix):
+            crumbs.append(branch)
 
-    return {"trees": trees}
+    return {"crumbs": crumbs}

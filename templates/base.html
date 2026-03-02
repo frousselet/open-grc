@@ -991,16 +991,11 @@
     .scope-tree-locked .scope-tree-label { opacity: .55; cursor: default; }
     .scope-tree-locked .scope-tree-label input { cursor: default; }
 
-    /* ── Grouped scope badges ─────────────────────────── */
-    .scope-badge-group { display: inline-flex; align-items: center; vertical-align: middle; }
-    .scope-badge { font-size: .625rem; padding: .2em .55em; font-weight: 600; border: 0; border-radius: 0; background: var(--accent-soft); color: var(--accent); border-left: 1px solid color-mix(in srgb, var(--accent) 20%, transparent); }
-    .scope-badge-first { border-left: 0; border-radius: var(--radius-xs) 0 0 var(--radius-xs); }
-    .scope-badge-last { border-radius: 0 var(--radius-xs) var(--radius-xs) 0; }
-    .scope-badge-first.scope-badge-last { border-radius: var(--radius-xs); }
-    .scope-badge-d0 { opacity: 1; }
-    .scope-badge-d1 { opacity: .6; }
-    .scope-badge-d2 { opacity: .45; }
-    .scope-badge-d3 { opacity: .35; }
+    /* ── Scope breadcrumb pills ──────────────────────── */
+    .scope-crumb { display: inline-flex; align-items: center; background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: .15em .65em; font-size: .625rem; font-weight: 500; line-height: 1.4; vertical-align: middle; gap: .3em; }
+    .scope-crumb-sep { opacity: .35; font-weight: 400; }
+    .scope-crumb-seg { opacity: .55; white-space: nowrap; }
+    .scope-crumb-leaf { opacity: 1; font-weight: 650; }
   </style>
   <script>
     (function(){
