@@ -202,6 +202,15 @@ function removeAvatar() {
 }
 
 /* ── Passkey management ─────────────────────────── */
+{% trans "Name for this passkey:" as tr_passkey_name %}
+{% trans "Registration failed." as tr_reg_failed %}
+{% trans "Delete passkey" as tr_delete_passkey %}
+{% trans "Deletion failed." as tr_del_failed %}
+var TR_PASSKEY_NAME = '{{ tr_passkey_name|escapejs }}';
+var TR_REG_FAILED = '{{ tr_reg_failed|escapejs }}';
+var TR_DELETE_PASSKEY = '{{ tr_delete_passkey|escapejs }}';
+var TR_DEL_FAILED = '{{ tr_del_failed|escapejs }}';
+
 (function() {
   if (!window.PublicKeyCredential) return;
   document.getElementById('passkey-card').style.display = '';
@@ -231,7 +240,7 @@ function getCsrfTokenPasskey() {
 }
 
 async function registerPasskey() {
-  var name = prompt('{% trans "Name for this passkey:" %}', 'Passkey');
+  var name = prompt(TR_PASSKEY_NAME, 'Passkey');
   if (!name) return;
 
   var btn = document.getElementById('register-passkey-btn');
@@ -276,11 +285,11 @@ async function registerPasskey() {
     if (completeResp.ok && result.status === 'ok') {
       refreshPasskeyList();
     } else {
-      alert(result.error || '{% trans "Registration failed." %}');
+      alert(result.error || TR_REG_FAILED);
     }
   } catch (e) {
     if (e.name !== 'NotAllowedError') {
-      alert(e.message || '{% trans "Registration failed." %}');
+      alert(e.message || TR_REG_FAILED);
     }
   } finally {
     btn.disabled = false;
@@ -288,7 +297,7 @@ async function registerPasskey() {
 }
 
 async function deletePasskey(id, name) {
-  if (!confirm('{% trans "Delete passkey" %} "' + name + '" ?')) return;
+  if (!confirm(TR_DELETE_PASSKEY + ' "' + name + '" ?')) return;
 
   try {
     var resp = await fetch('/accounts/passkeys/' + id + '/delete/', {
@@ -300,10 +309,10 @@ async function deletePasskey(id, name) {
       refreshPasskeyList();
     } else {
       var result = await resp.json();
-      alert(result.error || '{% trans "Deletion failed." %}');
+      alert(result.error || TR_DEL_FAILED);
     }
   } catch (e) {
-    alert(e.message || '{% trans "Deletion failed." %}');
+    alert(e.message || TR_DEL_FAILED);
   }
 }
 
