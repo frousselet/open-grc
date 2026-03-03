@@ -1261,6 +1261,14 @@
   {# ── Main content ─────────────────────────────────────── #}
   <main class="main-content">
     <div class="container-xl">
+      {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endfor %}
+      {% endif %}
       {% block content %}{% endblock %}
     </div>
   </main>
@@ -1376,6 +1384,17 @@
         if (btn) btn.setAttribute('aria-expanded', 'true');
       }
     })();
+  </script>
+  <script>
+  /* Auto-dismiss alerts after 5 seconds */
+  (function() {
+    document.querySelectorAll('.main-content > .container-xl > .alert-dismissible').forEach(function(el) {
+      setTimeout(function() {
+        var alert = bootstrap.Alert.getOrCreateInstance(el);
+        alert.close();
+      }, 5000);
+    });
+  })();
   </script>
   {% block extra_js %}{% endblock %}
 </body>
