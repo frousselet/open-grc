@@ -58,6 +58,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         help_text=_("List of help content keys dismissed by the user."),
     )
+    dashboard_indicators = models.JSONField(
+        _("Dashboard indicators"),
+        default=list,
+        blank=True,
+        help_text=_("List of indicator IDs pinned to the dashboard (max 6)."),
+    )
 
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

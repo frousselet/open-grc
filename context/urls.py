@@ -9,6 +9,7 @@ app_name = "context"
 urlpatterns = [
     # Dashboard
     path("", views.DashboardView.as_view(), name="dashboard"),
+    path("dashboard/indicator-toggle/", views.dashboard_indicator_toggle, name="dashboard-indicator-toggle"),
     # Scopes
     path("scopes/", views.ScopeListView.as_view(), name="scope-list"),
     path("scopes/create/", views.ScopeCreateView.as_view(), name="scope-create"),

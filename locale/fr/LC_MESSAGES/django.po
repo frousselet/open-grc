@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-03 12:38+0100\n"
+"POT-Creation-Date: 2026-03-03 12:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -211,7 +211,7 @@ msgid "Activities"
 msgstr "Activités"
 
 #: accounts/constants.py:81 context/models/indicator.py:116
-#: templates/base.html:1079
+#: context/templates/context/dashboard.html:107 templates/base.html:1079
 msgid "Indicators"
 msgstr "Indicateurs"
 
@@ -439,7 +439,7 @@ msgid "Django administration"
 msgstr "Administration Django"
 
 #: accounts/constants.py:233 accounts/models/group.py:23
-#: accounts/models/user.py:81 accounts/templates/accounts/group_list.html:25
+#: accounts/models/user.py:87 accounts/templates/accounts/group_list.html:25
 #: accounts/templates/accounts/user_list.html:9
 #: context/templates/context/role_detail.html:28
 #: context/templates/context/role_list.html:23 templates/base.html:1195
@@ -610,7 +610,7 @@ msgid "Timestamp"
 msgstr "Horodatage"
 
 #: accounts/models/access_log.py:19 accounts/models/passkey.py:14
-#: accounts/models/user.py:80
+#: accounts/models/user.py:86
 #: accounts/templates/accounts/action_log_list.html:55 mcp/models/oauth.py:168
 msgid "User"
 msgstr "Utilisateur"
@@ -781,7 +781,7 @@ msgstr "Permissions"
 msgid "Allowed scopes"
 msgstr "Périmètres autorisés"
 
-#: accounts/models/group.py:37 accounts/models/user.py:68
+#: accounts/models/group.py:37 accounts/models/user.py:74
 #: assets/models/dependency.py:57 assets/models/site_dependency.py:60
 #: assets/models/site_dependency.py:136 assets/models/supplier.py:319
 #: assets/templates/assets/site_detail.html:59 compliance/models/mapping.py:44
@@ -792,7 +792,7 @@ msgid "Created by"
 msgstr "Créé par"
 
 #: accounts/models/group.py:39 accounts/models/passkey.py:20
-#: accounts/models/user.py:70 assets/models/dependency.py:59
+#: accounts/models/user.py:76 assets/models/dependency.py:59
 #: assets/models/site_dependency.py:62 assets/models/site_dependency.py:138
 #: assets/models/supplier.py:27 assets/models/supplier.py:51
 #: assets/models/supplier.py:205 assets/models/supplier.py:264
@@ -807,7 +807,7 @@ msgstr "Créé par"
 msgid "Created at"
 msgstr "Créé le"
 
-#: accounts/models/group.py:40 accounts/models/user.py:71
+#: accounts/models/group.py:40 accounts/models/user.py:77
 #: assets/models/dependency.py:60 assets/models/site_dependency.py:63
 #: assets/models/site_dependency.py:139 assets/models/supplier.py:28
 #: assets/models/supplier.py:52 assets/models/supplier.py:206
@@ -970,6 +970,14 @@ msgstr "Aides masquées"
 #: accounts/models/user.py:59
 msgid "List of help content keys dismissed by the user."
 msgstr "Liste des clés d'aide contextuelle masquées par l'utilisateur."
+
+#: accounts/models/user.py:62
+msgid "Dashboard indicators"
+msgstr "Indicateurs du tableau de bord"
+
+#: accounts/models/user.py:65
+msgid "List of indicator IDs pinned to the dashboard (max 6)."
+msgstr "Liste des identifiants d'indicateurs épinglés au tableau de bord (max 6)."
 
 #: accounts/templates/accounts/access_log_list.html:4
 msgid "Access log — Open GRC"
@@ -1146,7 +1154,6 @@ msgstr "Aucune action enregistrée."
 #: context/templates/context/activity_form.html:4
 #: context/templates/context/indicator_detail.html:15
 #: context/templates/context/indicator_form.html:4
-#: context/templates/context/indicator_internal_form.html:4
 #: context/templates/context/indicator_predefined_form.html:4
 #: context/templates/context/issue_detail.html:15
 #: context/templates/context/issue_form.html:4
@@ -1191,7 +1198,6 @@ msgstr "Modifier"
 #: assets/templates/assets/support_asset_form.html:9
 #: context/templates/context/indicator_form.html:10
 #: context/templates/context/indicator_form.html:12
-#: context/templates/context/indicator_internal_form.html:9
 #: context/templates/context/indicator_predefined_form.html:9
 #: context/templates/context/issue_form.html:9
 #: context/templates/context/objective_form.html:9
@@ -1257,7 +1263,6 @@ msgstr "Enregistrer les périmètres"
 #: compliance/templates/compliance/requirement_form.html:24
 #: context/templates/context/activity_form.html:24
 #: context/templates/context/indicator_form.html:153
-#: context/templates/context/indicator_internal_form.html:176
 #: context/templates/context/indicator_predefined_form.html:166
 #: context/templates/context/issue_form.html:124
 #: context/templates/context/objective_form.html:178
@@ -1307,7 +1312,6 @@ msgstr "Enregistrer"
 #: context/templates/context/confirm_delete.html:15
 #: context/templates/context/indicator_form.html:155
 #: context/templates/context/indicator_form.html:157
-#: context/templates/context/indicator_internal_form.html:177
 #: context/templates/context/indicator_predefined_form.html:167
 #: context/templates/context/issue_form.html:125
 #: context/templates/context/objective_form.html:179
@@ -1606,7 +1610,6 @@ msgstr "Information"
 #: context/templates/context/activity_list.html:25
 #: context/templates/context/indicator_detail.html:53
 #: context/templates/context/indicator_form.html:118
-#: context/templates/context/indicator_internal_form.html:136
 #: context/templates/context/indicator_list.html:35
 #: context/templates/context/indicator_predefined_form.html:126
 #: context/templates/context/issue_detail.html:42
@@ -1827,6 +1830,7 @@ msgstr "Élevé"
 #: assets/constants.py:12 assets/constants.py:260
 #: assets/templatetags/dic_tags.py:20 compliance/constants.py:74
 #: context/constants.py:60 context/constants.py:108 context/constants.py:189
+#: context/templates/context/dashboard.html:174
 #: context/templates/context/indicator_detail.html:89 risks/constants.py:51
 #: risks/constants.py:160 risks/templates/risks/risk_list.html:26
 msgid "Critical"
@@ -3063,7 +3067,6 @@ msgstr "bien(s) essentiel(s) contenant des données personnelles."
 #: compliance/templates/compliance/requirement_form.html:4
 #: context/templates/context/activity_form.html:4
 #: context/templates/context/indicator_form.html:4
-#: context/templates/context/indicator_internal_form.html:4
 #: context/templates/context/indicator_predefined_form.html:4
 #: context/templates/context/issue_form.html:4
 #: context/templates/context/objective_form.html:4
@@ -3432,7 +3435,6 @@ msgstr "Historique"
 #: context/templates/context/activity_list.html:26
 #: context/templates/context/indicator_detail.html:71
 #: context/templates/context/indicator_form.html:143
-#: context/templates/context/indicator_internal_form.html:165
 #: context/templates/context/indicator_list.html:36
 #: context/templates/context/indicator_predefined_form.html:155
 #: context/templates/context/issue_detail.html:45
@@ -3538,7 +3540,6 @@ msgstr "Nouveau bien essentiel"
 #: assets/templates/assets/site_form.html:20
 #: assets/templates/assets/support_asset_form.html:20
 #: context/templates/context/indicator_form.html:24
-#: context/templates/context/indicator_internal_form.html:27
 #: context/templates/context/indicator_predefined_form.html:27
 #: context/templates/context/issue_form.html:20
 #: context/templates/context/objective_form.html:20
@@ -5020,7 +5021,7 @@ msgstr "Réglementaire"
 msgid "Improving"
 msgstr "En amélioration"
 
-#: context/constants.py:65
+#: context/constants.py:65 context/templates/context/dashboard.html:154
 msgid "Stable"
 msgstr "Stable"
 
@@ -5305,7 +5306,6 @@ msgstr "Niveau attendu"
 #: context/models/indicator.py:65
 #: context/templates/context/indicator_detail.html:96
 #: context/templates/context/indicator_form.html:92
-#: context/templates/context/indicator_internal_form.html:109
 #: context/templates/context/indicator_predefined_form.html:99
 msgid "Critical threshold"
 msgstr "Seuil critique"
@@ -5402,7 +5402,9 @@ msgstr "Relevés d'indicateur"
 msgid "Impact level"
 msgstr "Niveau d'impact"
 
-#: context/models/issue.py:31 context/templates/context/issue_detail.html:40
+#: context/models/issue.py:31 context/templates/context/dashboard.html:146
+#: context/templates/context/dashboard.html:150
+#: context/templates/context/issue_detail.html:40
 #: context/templates/context/issue_list.html:32
 msgid "Trend"
 msgstr "Tendance"
@@ -5647,7 +5649,69 @@ msgstr "Alertes de conformité"
 msgid "Mandatory role <strong>%(name)s</strong> with no assigned user"
 msgstr "Rôle obligatoire <strong>%(name)s</strong> sans utilisateur assigné"
 
-#: context/templates/context/dashboard.html:107
+#: context/templates/context/dashboard.html:109
+#: risks/templates/risks/dashboard.html:116 templates/home.html:464
+msgid "Configure"
+msgstr "Configurer"
+
+#: context/templates/context/dashboard.html:123
+#: context/templates/context/dashboard.html:219
+msgid "Org."
+msgstr "Org."
+
+#: context/templates/context/dashboard.html:125
+#: context/templates/context/dashboard.html:221
+msgid "Tech."
+msgstr "Tech."
+
+#: context/templates/context/dashboard.html:158
+msgid "Changed"
+msgstr "Modifié"
+
+#: context/templates/context/dashboard.html:165
+msgid "Last:"
+msgstr "Dernier :"
+
+#: context/templates/context/dashboard.html:167
+msgid "Previous:"
+msgstr "Précédent :"
+
+#: context/templates/context/dashboard.html:171
+msgid "No measurement"
+msgstr "Aucun relevé"
+
+#: context/templates/context/dashboard.html:185
+msgid "No indicator pinned to the dashboard."
+msgstr "Aucun indicateur épinglé au tableau de bord."
+
+#: context/templates/context/dashboard.html:187
+msgid "Choose indicators"
+msgstr "Choisir les indicateurs"
+
+#: context/templates/context/dashboard.html:199
+msgid "Choose dashboard indicators"
+msgstr "Choisir les indicateurs du tableau de bord"
+
+#: context/templates/context/dashboard.html:200
+#: context/templates/context/dashboard.html:235
+#: templates/includes/help_modal.html:9
+msgid "Close"
+msgstr "Fermer"
+
+#: context/templates/context/dashboard.html:203
+#, python-format
+msgid "Select up to %(max)s indicators to display on your dashboard."
+msgstr "Sélectionnez jusqu'à %(max)s indicateurs à afficher sur votre tableau de bord."
+
+#: context/templates/context/dashboard.html:205
+msgid "Search indicators…"
+msgstr "Rechercher des indicateurs…"
+
+#: context/templates/context/dashboard.html:230
+msgid "No active indicator available."
+msgstr "Aucun indicateur actif disponible."
+
+#: context/templates/context/dashboard.html:314
 msgid "Issues by impact level"
 msgstr "Enjeux par niveau d'impact"
 
@@ -5694,7 +5758,6 @@ msgid "New indicator"
 msgstr "Nouvel indicateur"
 
 #: context/templates/context/indicator_form.html:52
-#: context/templates/context/indicator_internal_form.html:79
 msgid "Format & Values"
 msgstr "Format et valeurs"
 
@@ -5707,35 +5770,9 @@ msgid "For numbers only."
 msgstr "Pour les nombres uniquement."
 
 #: context/templates/context/indicator_form.html:128
-#: context/templates/context/indicator_internal_form.html:148
 #: context/templates/context/indicator_predefined_form.html:138
 msgid "Review"
 msgstr "Revue"
-
-#: context/templates/context/indicator_internal_form.html:4
-msgid "internal indicator"
-msgstr "indicateur interne"
-
-#: context/templates/context/indicator_internal_form.html:8
-msgid "Edit internal indicator"
-msgstr "Modifier l'indicateur interne"
-
-#: context/templates/context/indicator_internal_form.html:8
-msgid "New internal Open GRC indicator"
-msgstr "Nouvel indicateur interne Open GRC"
-
-#: context/templates/context/indicator_internal_form.html:15
-msgid "An internal indicator is automatically populated from Open GRC data. It is always of organizational type. The first measurement will be taken automatically upon creation."
-msgstr "Un indicateur interne est automatiquement alimenté depuis les données Open GRC. Il est toujours de type organisationnel. Le premier relevé sera effectué automatiquement à la création."
-
-#: context/templates/context/indicator_internal_form.html:55
-msgid "Internal data source"
-msgstr "Source de données interne"
-
-#: context/templates/context/indicator_internal_form.html:69
-#: context/templates/context/indicator_predefined_form.html:69
-msgid "Optional. E.g. framework ID for compliance rate by framework."
-msgstr "Optionnel. Ex. : ID du référentiel pour le taux de conformité par référentiel."
 
 #: context/templates/context/indicator_list.html:5
 #: context/templates/context/indicator_list.html:12
@@ -5783,6 +5820,10 @@ msgstr "Nouvel indicateur prédéfini Open GRC"
 #: context/templates/context/indicator_predefined_form.html:15
 msgid "A predefined indicator is automatically populated from Open GRC data. It is always of organizational type. The first measurement will be taken automatically upon creation."
 msgstr "Un indicateur prédéfini est automatiquement alimenté depuis les données Open GRC. Il est toujours de type organisationnel. Le premier relevé sera effectué automatiquement à la création."
+
+#: context/templates/context/indicator_predefined_form.html:69
+msgid "Optional. E.g. framework ID for compliance rate by framework."
+msgstr "Optionnel. Ex. : ID du référentiel pour le taux de conformité par référentiel."
 
 #: context/templates/context/indicator_predefined_form.html:76
 msgid "Format and unit are determined automatically from the selected source."
@@ -6023,31 +6064,36 @@ msgstr "Aucun périmètre disponible"
 msgid "scope(s) selected"
 msgstr "périmètre(s) sélectionné(s)"
 
-#: context/views.py:684
+#: context/views.py:690
+#, python-format
+msgid "Maximum %d indicators on the dashboard."
+msgstr "Maximum %d indicateurs sur le tableau de bord."
+
+#: context/views.py:787
 msgid "Initial measurement (automatic)."
 msgstr "Relevé initial (automatique)."
 
-#: context/views.py:740
+#: context/views.py:843
 msgid "Measurement recorded."
 msgstr "Relevé enregistré."
 
-#: context/views.py:742
+#: context/views.py:845
 msgid "Invalid measurement data."
 msgstr "Données de relevé invalides."
 
-#: context/views.py:752
+#: context/views.py:855
 msgid "This indicator is not a predefined indicator."
 msgstr "Cet indicateur n'est pas un indicateur prédéfini."
 
-#: context/views.py:759
+#: context/views.py:862
 msgid "Manual refresh."
 msgstr "Rafraîchissement manuel."
 
-#: context/views.py:761
+#: context/views.py:864
 msgid "Indicator refreshed."
 msgstr "Indicateur rafraîchi."
 
-#: context/views.py:763
+#: context/views.py:866
 msgid "Could not compute the indicator value."
 msgstr "Impossible de calculer la valeur de l'indicateur."
 
@@ -7154,10 +7200,6 @@ msgstr "Risques par statut"
 msgid "Configure scales"
 msgstr "Configurer les échelles"
 
-#: risks/templates/risks/dashboard.html:116 templates/home.html:464
-msgid "Configure"
-msgstr "Configurer"
-
 #: risks/templates/risks/iso27005_risk_detail.html:22
 msgid "Calculation"
 msgstr "Calcul"
@@ -7641,10 +7683,6 @@ msgstr "par %(user)s le %(date)s"
 msgid "Pending approval"
 msgstr "En attente d'approbation"
 
-#: templates/includes/help_modal.html:9
-msgid "Close"
-msgstr "Fermer"
-
 #: templates/includes/history_tab.html:78
 msgid "Initial record"
 msgstr "Enregistrement initial"
@@ -7668,6 +7706,21 @@ msgstr "Aucun changement détecté"
 #: templates/includes/history_tab.html:100
 msgid "No history available."
 msgstr "Aucun historique disponible."
+
+#~ msgid "internal indicator"
+#~ msgstr "indicateur interne"
+
+#~ msgid "Edit internal indicator"
+#~ msgstr "Modifier l'indicateur interne"
+
+#~ msgid "New internal Open GRC indicator"
+#~ msgstr "Nouvel indicateur interne Open GRC"
+
+#~ msgid "An internal indicator is automatically populated from Open GRC data. It is always of organizational type. The first measurement will be taken automatically upon creation."
+#~ msgstr "Un indicateur interne est automatiquement alimenté depuis les données Open GRC. Il est toujours de type organisationnel. Le premier relevé sera effectué automatiquement à la création."
+
+#~ msgid "Internal data source"
+#~ msgstr "Source de données interne"
 
 #~ msgid "Internal Open GRC"
 #~ msgstr "Interne Open GRC"
