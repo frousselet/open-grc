@@ -13,10 +13,10 @@ class Migration(migrations.Migration):
 CREATE OR REPLACE FUNCTION natural_sort_key(val text) RETURNS text
 LANGUAGE sql IMMUTABLE STRICT AS $$
   SELECT STRING_AGG(
-    CASE WHEN part ~ '^\\d+$' THEN LPAD(part, 20, '0') ELSE part END,
+    CASE WHEN m[1] ~ '^\\d+$' THEN LPAD(m[1], 20, '0') ELSE m[1] END,
     ''
   )
-  FROM REGEXP_MATCHES(val, '(\\d+|\\D+)', 'g') AS m(part);
+  FROM REGEXP_MATCHES(val, '(\\d+|\\D+)', 'g') AS m;
 $$;
 """,
             reverse_sql="DROP FUNCTION IF EXISTS natural_sort_key(text);",
