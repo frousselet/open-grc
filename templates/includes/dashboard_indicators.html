@@ -1,17 +1,33 @@
 {% load i18n %}
 
-{# ── Indicator boxes (10 slots, 5 per row) ─────── #}
+{# ── Indicator boxes (10 slots) ─────────────────── #}
+<style>
+  .indicator-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 1199.98px) {
+    .indicator-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 767.98px) {
+    .indicator-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 575.98px) {
+    .indicator-grid { grid-template-columns: 1fr; }
+  }
+</style>
 <div class="d-flex align-items-center mb-3">
   <h5 class="mb-0"><i class="bi bi-speedometer2 me-1" style="color:var(--accent)"></i> {% trans "Indicators" %}</h5>
   <button class="btn btn-sm btn-outline-primary ms-auto" data-bs-toggle="modal" data-bs-target="#indicatorPickerModal">
     <i class="bi bi-gear me-1"></i>{% trans "Configure" %}
   </button>
 </div>
-<div class="row g-3 mb-4">
+<div class="indicator-grid mb-4">
   {% for slot in dashboard_indicator_slots %}
-  <div class="col-xl col-md-4 col-sm-6" style="flex:0 0 20%;max-width:20%">
     {% if slot %}
-    <a href="{% url 'context:indicator-detail' slot.indicator.pk %}" class="text-decoration-none d-block h-100">
+    <a href="{% url 'context:indicator-detail' slot.indicator.pk %}" class="text-decoration-none d-block">
       <div class="stat-card h-100 position-relative" style="border-left:3px solid {% if slot.indicator.is_critical %}var(--bs-danger){% else %}var(--accent){% endif %};min-height:130px;overflow:hidden">
         <div style="position:relative;z-index:1">
           <div class="d-flex justify-content-between align-items-start mb-1">
@@ -41,19 +57,19 @@
             {% endif %}
             {% if slot.trend == "up" %}
               <span class="ms-auto" title="{% trans 'Trend' %}: +{{ slot.trend_value|floatformat:1 }}">
-                <i class="bi bi-arrow-up-short fs-5 text-success"></i>
+                <i class="bi bi-arrow-up-short fs-5" style="color:{% if slot.indicator.is_critical %}var(--bs-danger){% else %}var(--success){% endif %}"></i>
               </span>
             {% elif slot.trend == "down" %}
               <span class="ms-auto" title="{% trans 'Trend' %}: {{ slot.trend_value|floatformat:1 }}">
-                <i class="bi bi-arrow-down-short fs-5 text-danger"></i>
+                <i class="bi bi-arrow-down-short fs-5" style="color:{% if slot.indicator.is_critical %}var(--bs-danger){% else %}var(--danger){% endif %}"></i>
               </span>
             {% elif slot.trend == "stable" %}
               <span class="ms-auto" title="{% trans 'Stable' %}">
-                <i class="bi bi-dash fs-5 text-muted"></i>
+                <i class="bi bi-dash fs-5" style="color:var(--text-muted)"></i>
               </span>
             {% elif slot.trend == "changed" %}
               <span class="ms-auto" title="{% trans 'Changed' %}">
-                <i class="bi bi-arrow-left-right fs-5 text-warning"></i>
+                <i class="bi bi-arrow-left-right fs-5" style="color:{% if slot.indicator.is_critical %}var(--bs-danger){% else %}var(--warning){% endif %}"></i>
               </span>
             {% endif %}
           </div>
@@ -74,6 +90,7 @@
         {# Sparkline at the bottom of the card #}
         {% if slot.sparkline_data %}
         <div class="sparkline-slot" data-sparkline="{{ slot.sparkline_data|join:',' }}" data-trend="{{ slot.trend }}"
+             data-critical="{% if slot.indicator.is_critical %}1{% endif %}"
              style="position:absolute;bottom:0;left:0;right:0;height:30px;z-index:0;pointer-events:none"></div>
         {% endif %}
       </div>
@@ -95,7 +112,6 @@
       </div>
     </div>
     {% endif %}
-  </div>
   {% endfor %}
 </div>
 
@@ -236,10 +252,11 @@
     modal.addEventListener('hidden.bs.modal', function() { location.reload(); });
   }
 
-  // ── SVG sparklines ────────────────────────────
+  // ── SVG sparklines (color based on threshold) ──
   document.querySelectorAll('.sparkline-slot').forEach(function(el) {
     var raw = el.getAttribute('data-sparkline');
     var trend = el.getAttribute('data-trend');
+    var isCritical = el.getAttribute('data-critical') === '1';
     if (!raw) return;
     var values = raw.split(',').map(Number).filter(function(v) { return !isNaN(v); });
     if (values.length < 2) return;
@@ -257,7 +274,18 @@
       return x.toFixed(1) + ',' + y.toFixed(1);
     });
 
-    var color = trend === 'up' ? '#10b981' : trend === 'down' ? '#ef4444' : '#6366f1';
+    // Color: red when critical, else green/red/accent based on trend
+    var color;
+    if (isCritical) {
+      color = '#ef4444';
+    } else if (trend === 'up') {
+      color = '#10b981';
+    } else if (trend === 'down') {
+      color = '#ef4444';
+    } else {
+      color = '#6366f1';
+    }
+
     var uid = 'sp' + Math.random().toString(36).substr(2, 6);
     var line = 'M' + points.join(' L');
     var area = line + ' L' + w + ',' + h + ' L0,' + h + ' Z';
