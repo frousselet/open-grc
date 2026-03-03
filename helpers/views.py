@@ -28,3 +28,32 @@ class DismissHelperView(LoginRequiredMixin, View):
             request.user.save(update_fields=["dismissed_helpers"])
 
         return JsonResponse({"status": "ok"})
+
+
+class SaveSortPreferenceView(LoginRequiredMixin, View):
+    """Save the sort preference for a specific list view."""
+
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+        except (json.JSONDecodeError, ValueError):
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        view_key = data.get("view", "").strip()
+        sort_field = data.get("sort", "").strip()
+        order = data.get("order", "asc").strip()
+
+        if not view_key or not sort_field:
+            return JsonResponse({"error": "Missing view or sort"}, status=400)
+        if order not in ("asc", "desc"):
+            return JsonResponse({"error": "Invalid order"}, status=400)
+
+        prefs = request.user.table_preferences
+        if not isinstance(prefs, dict):
+            prefs = {}
+
+        prefs[view_key] = {"sort": sort_field, "order": order}
+        request.user.table_preferences = prefs
+        request.user.save(update_fields=["table_preferences"])
+
+        return JsonResponse({"status": "ok"})

@@ -70,6 +70,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         help_text=_("List of indicator IDs whose sparkline is visible on the dashboard."),
     )
+    table_preferences = models.JSONField(
+        _("Table preferences"),
+        default=dict,
+        blank=True,
+        help_text=_("Per-view sort preferences: {view_key: {sort, order}}."),
+    )
 
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

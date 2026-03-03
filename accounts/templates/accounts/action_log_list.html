@@ -9,43 +9,35 @@
 </div>
 {% help_modal "accounts.action_log_list" %}
 
-<form method="get" class="row g-3 mb-4">
-  <div class="col-md-2">
-    <select name="module" class="form-select">
+<div class="table-toolbar">
+  <form method="get" class="d-flex align-items-center gap-2 flex-wrap flex-grow-1">
+    <select name="module" class="form-select form-select-sm" style="width:auto;font-size:.8rem">
       <option value="">{% trans "All modules" %}</option>
       {% for key, label in module_labels.items %}
       <option value="{{ key }}" {% if request.GET.module == key %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
-  </div>
-  <div class="col-md-2">
-    <select name="action" class="form-select">
+    <select name="action" class="form-select form-select-sm" style="width:auto;font-size:.8rem">
       <option value="">{% trans "All actions" %}</option>
       <option value="+" {% if request.GET.action == "+" %}selected{% endif %}>{% trans "Creation" %}</option>
       <option value="~" {% if request.GET.action == "~" %}selected{% endif %}>{% trans "Modification" %}</option>
       <option value="-" {% if request.GET.action == "-" %}selected{% endif %}>{% trans "Deletion" %}</option>
       <option value="approval" {% if request.GET.action == "approval" %}selected{% endif %}>{% trans "Approval" %}</option>
     </select>
-  </div>
-  <div class="col-md-2">
-    <select name="user" class="form-select">
+    <select name="user" class="form-select form-select-sm" style="width:auto;font-size:.8rem">
       <option value="">{% trans "All users" %}</option>
       {% for u in users %}
       <option value="{{ u.pk }}" {% if request.GET.user == u.pk|slugify %}selected{% endif %}>{{ u.display_name }}</option>
       {% endfor %}
     </select>
-  </div>
-  <div class="col-md-2">
-    <input type="date" name="date_from" class="form-control" value="{{ request.GET.date_from|default:'' }}" placeholder="{% trans "From" %}">
-  </div>
-  <div class="col-md-2">
-    <input type="date" name="date_to" class="form-control" value="{{ request.GET.date_to|default:'' }}" placeholder="{% trans "To" %}">
-  </div>
-  <div class="col-md-2">
-    <button type="submit" class="btn btn-outline-secondary w-100">{% trans "Filter" %}</button>
-  </div>
-</form>
-
+    <input type="date" name="date_from" class="form-control form-control-sm" style="width:auto;font-size:.8rem" value="{{ request.GET.date_from|default:'' }}">
+    <input type="date" name="date_to" class="form-control form-control-sm" style="width:auto;font-size:.8rem" value="{{ request.GET.date_to|default:'' }}">
+    <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="bi bi-funnel"></i></button>
+    {% if request.GET.module or request.GET.action or request.GET.user or request.GET.date_from or request.GET.date_to %}
+      <a href="{% url 'accounts:action-log-list' %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Clear' %}"><i class="bi bi-x-lg"></i></a>
+    {% endif %}
+  </form>
+</div>
 <div class="card">
   <div class="table-responsive">
     <table class="table table-hover table-sm mb-0">
@@ -79,17 +71,5 @@
   </div>
 </div>
 
-{% if is_paginated %}
-<nav>
-  <ul class="pagination justify-content-center">
-    {% if page_obj.has_previous %}
-    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
-    {% endif %}
-    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-    {% if page_obj.has_next %}
-    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
-    {% endif %}
-  </ul>
-</nav>
-{% endif %}
+{% include "includes/pagination.html" %}
 {% endblock %}
