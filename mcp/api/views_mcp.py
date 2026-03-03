@@ -43,6 +43,12 @@ class McpEndpointView(View):
     """MCP Streamable HTTP endpoint."""
 
     def dispatch(self, request, *args, **kwargs):
+        # Allow DELETE without strict authentication so clients can always
+        # disconnect (e.g. when the token has already expired).
+        if request.method == "DELETE":
+            self._try_authenticate(request)
+            return self.delete(request)
+
         # Authenticate via OAuth Bearer token
         auth = OAuthTokenAuthentication()
         try:
@@ -75,6 +81,21 @@ class McpEndpointView(View):
             )
 
         return super().dispatch(request, *args, **kwargs)
+
+    def _try_authenticate(self, request):
+        """Best-effort authentication for DELETE — never raises."""
+        from django.contrib.auth.models import AnonymousUser
+
+        request.auth = None
+        if not hasattr(request, "user") or request.user is None:
+            request.user = AnonymousUser()
+        try:
+            auth = OAuthTokenAuthentication()
+            result = auth.authenticate(request)
+            if result is not None:
+                request.user, request.auth = result
+        except Exception:
+            pass
 
     def post(self, request):
         """Handle JSON-RPC requests from MCP clients."""
@@ -130,7 +151,13 @@ class McpEndpointView(View):
         return response
 
     def delete(self, request):
-        """Terminate an MCP session."""
+        """Terminate an MCP session and revoke the access token."""
+        # Revoke the access token so the session is truly closed.
+        if getattr(request, "auth", None) is not None:
+            try:
+                request.auth.delete()
+            except Exception:
+                logger.debug("Token already deleted during session termination")
         return JsonResponse({"status": "session_terminated"}, status=200)
 
 

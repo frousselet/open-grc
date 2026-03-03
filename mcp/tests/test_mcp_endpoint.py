@@ -184,6 +184,34 @@ class TestMcpEndpoint:
         )
         assert response.status_code == 200
 
+        # Token should be revoked after session termination
+        response2 = client.post(
+            "/api/v1/mcp",
+            data=json.dumps({"jsonrpc": "2.0", "id": 1, "method": "ping"}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
+        assert response2.status_code == 401
+
+    def test_mcp_delete_session_without_token(self, client):
+        """DELETE should succeed even without a Bearer token (e.g. expired)."""
+        response = client.delete("/api/v1/mcp")
+        assert response.status_code == 200
+
+    def test_mcp_delete_session_with_expired_token(self, client):
+        """DELETE should succeed even when the token has expired."""
+        user, token = self._create_authenticated_token()
+        # Manually expire the token
+        from django.utils import timezone
+        from datetime import timedelta
+        OAuthAccessToken.objects.update(expires_at=timezone.now() - timedelta(hours=1))
+
+        response = client.delete(
+            "/api/v1/mcp",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
+        assert response.status_code == 200
+
     def test_mcp_metadata_endpoint(self, client):
         response = client.get("/api/v1/mcp/.well-known/oauth-protected-resource")
         # This endpoint is public (separate view, no auth required)
