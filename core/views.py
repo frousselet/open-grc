@@ -26,7 +26,8 @@ from compliance.models import (
     Requirement,
     RequirementMapping,
 )
-from context.models import Activity, Issue, Objective, Role, Scope, Site, Stakeholder, SwotAnalysis
+from context.models import Activity, Indicator, Issue, Objective, Role, Scope, Site, Stakeholder, SwotAnalysis
+from context.views import get_dashboard_indicator_slots
 from risks.models import (
     Risk,
     RiskAcceptance,
@@ -182,6 +183,12 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
             Framework.objects.filter(status="active")
         ).aggregate(avg=Avg("compliance_level"))
         ctx["overall_compliance"] = round(agg["avg"] or 0)
+
+        # Dashboard indicators
+        ctx["dashboard_indicator_slots"] = get_dashboard_indicator_slots(self.request.user)
+        ctx["available_indicators"] = Indicator.objects.filter(
+            status="active",
+        ).order_by("indicator_type", "name")
 
         ctx["requirement_count"] = Requirement.objects.count()
         ctx["non_compliant_count"] = Requirement.objects.filter(

@@ -88,6 +88,68 @@ class ApproveView(LoginRequiredMixin, View):
         return redirect(request.META.get("HTTP_REFERER", self.success_url or "/"))
 
 
+# ── Dashboard indicator helpers ──────────────────────────────
+
+DASHBOARD_INDICATOR_SLOTS = 6
+
+
+def get_dashboard_indicator_slots(user):
+    """Load pinned indicators with trend data, padded to 6 slots (None for empty)."""
+    pinned_ids = user.dashboard_indicators or []
+
+    indicator_map = {}
+    if pinned_ids:
+        indicators = Indicator.objects.filter(
+            id__in=pinned_ids,
+        ).prefetch_related("measurements")
+
+        for ind in indicators:
+            measurements = list(ind.measurements.order_by("-recorded_at")[:2])
+            current = measurements[0] if measurements else None
+            previous = measurements[1] if len(measurements) > 1 else None
+
+            trend = None
+            trend_value = None
+            if current and previous and ind.format == "number":
+                try:
+                    cur_val = float(current.value)
+                    prev_val = float(previous.value)
+                    diff = cur_val - prev_val
+                    trend_value = diff
+                    if diff > 0:
+                        trend = "up"
+                    elif diff < 0:
+                        trend = "down"
+                    else:
+                        trend = "stable"
+                except (ValueError, TypeError):
+                    pass
+            elif current and previous and ind.format == "boolean":
+                cur_bool = current.value.lower() in ("true", "1", "yes")
+                prev_bool = previous.value.lower() in ("true", "1", "yes")
+                if cur_bool != prev_bool:
+                    trend = "changed"
+                else:
+                    trend = "stable"
+
+            indicator_map[str(ind.pk)] = {
+                "indicator": ind,
+                "current_measurement": current,
+                "previous_measurement": previous,
+                "trend": trend,
+                "trend_value": trend_value,
+            }
+
+    # Build ordered list, padded with None for empty slots
+    slots = []
+    for pid in pinned_ids:
+        if pid in indicator_map:
+            slots.append(indicator_map[pid])
+    while len(slots) < DASHBOARD_INDICATOR_SLOTS:
+        slots.append(None)
+    return slots
+
+
 # ── Dashboard ───────────────────────────────────────────────
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -138,68 +200,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ctx["site_count"] = Site.objects.count()
 
         # Dashboard indicators
-        ctx["dashboard_indicators"] = self._get_dashboard_indicators(user)
+        ctx["dashboard_indicator_slots"] = get_dashboard_indicator_slots(user)
         ctx["available_indicators"] = Indicator.objects.filter(
             status="active",
         ).order_by("indicator_type", "name")
 
         return ctx
-
-    def _get_dashboard_indicators(self, user):
-        """Load pinned indicators with current value, trend, and previous value."""
-        pinned_ids = user.dashboard_indicators or []
-        if not pinned_ids:
-            return []
-
-        indicators = Indicator.objects.filter(
-            id__in=pinned_ids,
-        ).prefetch_related("measurements")
-
-        # Preserve the user's chosen order
-        indicator_map = {}
-        for ind in indicators:
-            measurements = list(ind.measurements.order_by("-recorded_at")[:2])
-            current = measurements[0] if measurements else None
-            previous = measurements[1] if len(measurements) > 1 else None
-
-            trend = None
-            trend_value = None
-            if current and previous and ind.format == "number":
-                try:
-                    cur_val = float(current.value)
-                    prev_val = float(previous.value)
-                    diff = cur_val - prev_val
-                    trend_value = diff
-                    if diff > 0:
-                        trend = "up"
-                    elif diff < 0:
-                        trend = "down"
-                    else:
-                        trend = "stable"
-                except (ValueError, TypeError):
-                    pass
-            elif current and previous and ind.format == "boolean":
-                cur_bool = current.value.lower() in ("true", "1", "yes")
-                prev_bool = previous.value.lower() in ("true", "1", "yes")
-                if cur_bool != prev_bool:
-                    trend = "changed"
-                else:
-                    trend = "stable"
-
-            indicator_map[str(ind.pk)] = {
-                "indicator": ind,
-                "current_measurement": current,
-                "previous_measurement": previous,
-                "trend": trend,
-                "trend_value": trend_value,
-            }
-
-        # Return in order of pinned_ids
-        result = []
-        for pid in pinned_ids:
-            if pid in indicator_map:
-                result.append(indicator_map[pid])
-        return result
 
 
 # ── Scope ───────────────────────────────────────────────────
