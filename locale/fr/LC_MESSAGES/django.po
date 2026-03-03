@@ -646,6 +646,21 @@ msgstr "Informations personnelles"
 msgid "Preferences"
 msgstr "Préférences"
 
+msgid "Help banners"
+msgstr "Aides contextuelles"
+
+msgid "Restore help banners that have been dismissed."
+msgstr "Réafficher les aides contextuelles qui ont été masquées."
+
+msgid "Help banners have been restored."
+msgstr "Les aides contextuelles ont été réaffichées."
+
+msgid "Dismissed helpers"
+msgstr "Aides masquées"
+
+msgid "List of help content keys dismissed by the user."
+msgstr "Liste des clés d'aide contextuelle masquées par l'utilisateur."
+
 msgid "My groups"
 msgstr "Mes groupes"
 
