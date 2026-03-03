@@ -13,6 +13,18 @@
 </div>
 {% help_modal "context.role_list" %}
 
+<div class="mb-3 d-flex gap-2 flex-wrap align-items-center">
+  <a href="{% url 'context:role-list' %}" class="filter-chip {% if not request.GET.type and not request.GET.status %}active{% endif %}">{% trans "All" %}</a>
+  <span class="filter-chip-divider"></span>
+  <a href="?type=governance" class="filter-chip {% if request.GET.type == 'governance' %}active{% endif %}">{% trans "Governance" %}</a>
+  <a href="?type=operational" class="filter-chip {% if request.GET.type == 'operational' %}active{% endif %}">{% trans "Operational" %}</a>
+  <a href="?type=support" class="filter-chip {% if request.GET.type == 'support' %}active{% endif %}">{% trans "Support" %}</a>
+  <a href="?type=control" class="filter-chip {% if request.GET.type == 'control' %}active{% endif %}">{% trans "Control" %}</a>
+  <span class="filter-chip-divider"></span>
+  <a href="?status=active" class="filter-chip {% if request.GET.status == 'active' %}active{% endif %}">{% trans "Active" %}</a>
+  <a href="?status=inactive" class="filter-chip {% if request.GET.status == 'inactive' %}active{% endif %}">{% trans "Inactive" %}</a>
+</div>
+
 {% include "includes/table_search.html" %}
 <div class="card">
   <div class="table-responsive">

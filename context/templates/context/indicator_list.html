@@ -21,6 +21,17 @@
   </div>
 </div>
 
+<div class="mb-3 d-flex gap-2 flex-wrap align-items-center">
+  {% if indicator_type == "organizational" %}
+  <a href="{% url 'context:indicator-organizational-list' %}" class="filter-chip {% if not request.GET.status %}active{% endif %}">{% trans "All" %}</a>
+  {% else %}
+  <a href="{% url 'context:indicator-technical-list' %}" class="filter-chip {% if not request.GET.status %}active{% endif %}">{% trans "All" %}</a>
+  {% endif %}
+  <a href="?status=active" class="filter-chip {% if request.GET.status == 'active' %}active{% endif %}">{% trans "Active" %}</a>
+  <a href="?status=draft" class="filter-chip {% if request.GET.status == 'draft' %}active{% endif %}">{% trans "Draft" %}</a>
+  <a href="?status=inactive" class="filter-chip {% if request.GET.status == 'inactive' %}active{% endif %}">{% trans "Inactive" %}</a>
+</div>
+
 {% include "includes/table_search.html" %}
 <div class="card">
   <div class="table-responsive">

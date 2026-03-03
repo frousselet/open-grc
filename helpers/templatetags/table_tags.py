@@ -25,11 +25,11 @@ def sortable_th(context, field_name, label, css_class=""):
     # Sort indicator
     if current_sort == field_name:
         if current_order == "asc":
-            icon = '<i class="bi bi-sort-up ms-1" style="font-size:.75rem;opacity:.7"></i>'
+            icon = '<i class="bi bi-sort-up sort-icon sort-icon-active ms-1"></i>'
         else:
-            icon = '<i class="bi bi-sort-down ms-1" style="font-size:.75rem;opacity:.7"></i>'
+            icon = '<i class="bi bi-sort-down sort-icon sort-icon-active ms-1"></i>'
     else:
-        icon = '<i class="bi bi-arrow-down-up ms-1" style="font-size:.7rem;opacity:.25"></i>'
+        icon = '<i class="bi bi-arrow-down-up sort-icon sort-icon-idle ms-1"></i>'
 
     class_attr = f' class="{css_class}"' if css_class else ""
 

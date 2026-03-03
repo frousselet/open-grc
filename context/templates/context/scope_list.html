@@ -13,18 +13,25 @@
 </div>
 {% help_modal "context.scope_list" %}
 
+<div class="mb-3 d-flex gap-2 flex-wrap">
+  <a href="{% url 'context:scope-list' %}" class="filter-chip {% if not request.GET.status %}active{% endif %}">{% trans "All" %}</a>
+  <a href="?status=draft" class="filter-chip {% if request.GET.status == 'draft' %}active{% endif %}">{% trans "Draft" %}</a>
+  <a href="?status=active" class="filter-chip {% if request.GET.status == 'active' %}active{% endif %}">{% trans "Active" %}</a>
+  <a href="?status=archived" class="filter-chip {% if request.GET.status == 'archived' %}active{% endif %}">{% trans "Archived" %}</a>
+</div>
+
 {% include "includes/table_search.html" %}
 <div class="card">
   <div class="table-responsive">
     <table class="table table-hover mb-0">
       <thead>
         <tr>
-          <th>{% trans "Ref." %}</th>
-          <th>{% trans "Name" %}</th>
-          <th>{% trans "Version" %}</th>
-          <th>{% trans "Status" %}</th>
-          <th>{% trans "Effective date" %}</th>
-          <th>{% trans "Review date" %}</th>
+          {% sortable_th "reference" "Ref." %}
+          {% sortable_th "name" "Name" %}
+          {% sortable_th "version" "Version" %}
+          {% sortable_th "status" "Status" %}
+          {% sortable_th "effective_date" "Effective date" %}
+          {% sortable_th "review_date" "Review date" %}
           <th>{% trans "Tags" %}</th>
           <th>{% trans "Approval" %}</th>
           <th class="text-end">{% trans "Actions" %}</th>

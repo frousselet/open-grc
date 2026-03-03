@@ -13,10 +13,20 @@
 </div>
 {% help_modal "context.issue_list" %}
 
-<div class="mb-3 d-flex gap-2">
-  <a href="{% url 'context:issue-list' %}" class="filter-chip {% if not request.GET.type %}active{% endif %}">{% trans "All" %}</a>
+<div class="mb-3 d-flex gap-2 flex-wrap align-items-center">
+  <a href="{% url 'context:issue-list' %}" class="filter-chip {% if not request.GET.type and not request.GET.impact and not request.GET.status %}active{% endif %}">{% trans "All" %}</a>
+  <span class="filter-chip-divider"></span>
   <a href="?type=internal" class="filter-chip {% if request.GET.type == 'internal' %}active{% endif %}">{% trans "Internal" %}</a>
   <a href="?type=external" class="filter-chip {% if request.GET.type == 'external' %}active{% endif %}">{% trans "External" %}</a>
+  <span class="filter-chip-divider"></span>
+  <a href="?impact=low" class="filter-chip {% if request.GET.impact == 'low' %}active{% endif %}">{% trans "Low" %}</a>
+  <a href="?impact=medium" class="filter-chip {% if request.GET.impact == 'medium' %}active{% endif %}">{% trans "Medium" %}</a>
+  <a href="?impact=high" class="filter-chip {% if request.GET.impact == 'high' %}active-warning{% endif %}">{% trans "High" %}</a>
+  <a href="?impact=critical" class="filter-chip {% if request.GET.impact == 'critical' %}active-danger{% endif %}">{% trans "Critical" %}</a>
+  <span class="filter-chip-divider"></span>
+  <a href="?status=active" class="filter-chip {% if request.GET.status == 'active' %}active{% endif %}">{% trans "Active" %}</a>
+  <a href="?status=monitored" class="filter-chip {% if request.GET.status == 'monitored' %}active{% endif %}">{% trans "Monitored" %}</a>
+  <a href="?status=closed" class="filter-chip {% if request.GET.status == 'closed' %}active{% endif %}">{% trans "Closed" %}</a>
 </div>
 
 {% include "includes/table_search.html" %}

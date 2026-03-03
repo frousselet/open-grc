@@ -13,6 +13,16 @@
 </div>
 {% help_modal "context.objective_list" %}
 
+<div class="mb-3 d-flex gap-2 flex-wrap align-items-center">
+  <a href="{% url 'context:objective-list' %}" class="filter-chip {% if not request.GET.status and not request.GET.category %}active{% endif %}">{% trans "All" %}</a>
+  <span class="filter-chip-divider"></span>
+  <a href="?status=draft" class="filter-chip {% if request.GET.status == 'draft' %}active{% endif %}">{% trans "Draft" %}</a>
+  <a href="?status=active" class="filter-chip {% if request.GET.status == 'active' %}active{% endif %}">{% trans "Active" %}</a>
+  <a href="?status=achieved" class="filter-chip {% if request.GET.status == 'achieved' %}active{% endif %}">{% trans "Achieved" %}</a>
+  <a href="?status=not_achieved" class="filter-chip {% if request.GET.status == 'not_achieved' %}active-danger{% endif %}">{% trans "Not achieved" %}</a>
+  <a href="?status=cancelled" class="filter-chip {% if request.GET.status == 'cancelled' %}active{% endif %}">{% trans "Cancelled" %}</a>
+</div>
+
 {% include "includes/table_search.html" %}
 <div class="card">
   <div class="table-responsive">

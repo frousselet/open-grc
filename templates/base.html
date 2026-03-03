@@ -1012,6 +1012,14 @@
       color: #fff;
       box-shadow: 0 2px 8px rgba(245,158,11,.2);
     }
+    .filter-chip-divider {
+      display: inline-block;
+      width: 1px;
+      height: 1.5rem;
+      background: var(--border-light);
+      align-self: center;
+      margin: 0 .125rem;
+    }
 
     /* ── Sortable table headers ──────────────────────── */
     .sortable-th {
@@ -1021,7 +1029,15 @@
     .sortable-th:hover {
       color: var(--accent) !important;
     }
-    .sortable-th:hover .bi { opacity: .7 !important; }
+    .sortable-th:hover .sort-icon { opacity: .85 !important; color: var(--accent); }
+
+    /* Sort icons */
+    .sort-icon { transition: opacity var(--transition-fast), color var(--transition-fast); }
+    .sort-icon-active { font-size: .8rem; opacity: 1; color: var(--accent); }
+    .sort-icon-idle { font-size: .75rem; opacity: .38; color: var(--text-secondary); }
+
+    [data-bs-theme="dark"] .sort-icon-active { color: var(--accent-hover); opacity: 1; }
+    [data-bs-theme="dark"] .sort-icon-idle { opacity: .5; color: var(--text-muted); }
 
     /* ── Table toolbar (integrated search) ────────────── */
     .table-toolbar {

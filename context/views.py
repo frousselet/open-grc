@@ -250,13 +250,28 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
 # ── Scope ───────────────────────────────────────────────────
 
-class ScopeListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class ScopeListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Scope
     template_name = "context/scope_list.html"
     context_object_name = "scopes"
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "version": "version",
+        "status": "status",
+        "effective_date": "effective_date",
+        "review_date": "review_date",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name"]
+    paginate_by = None  # tree view shows all
 
     def get_queryset(self):
-        return super().get_queryset().select_related("parent_scope")
+        qs = super().get_queryset().select_related("parent_scope")
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -265,7 +280,11 @@ class ScopeListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
 
     @staticmethod
     def _build_tree(scopes):
-        """Return scopes in depth-first tree order, annotated with tree_level/tree_indent."""
+        """Return scopes in depth-first tree order, annotated with tree_level/tree_indent.
+
+        Sibling order is preserved from the queryset (i.e. server-side sort
+        applies within each parent group, keeping the hierarchy intact).
+        """
         by_parent = {}
         for s in scopes:
             by_parent.setdefault(s.parent_scope_id, []).append(s)
@@ -355,6 +374,9 @@ class IssueListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, Lis
         status_filter = self.request.GET.get("status")
         if status_filter:
             qs = qs.filter(status=status_filter)
+        impact_filter = self.request.GET.get("impact")
+        if impact_filter:
+            qs = qs.filter(impact_level=impact_filter)
         return qs
 
 
@@ -415,7 +437,14 @@ class StakeholderListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixi
     search_fields = ["reference", "name"]
 
     def get_queryset(self):
-        return super().get_queryset().prefetch_related("scopes")
+        qs = super().get_queryset().prefetch_related("scopes")
+        type_filter = self.request.GET.get("type")
+        if type_filter:
+            qs = qs.filter(type=type_filter)
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        return qs
 
 
 class StakeholderDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
@@ -477,7 +506,14 @@ class ObjectiveListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin,
     search_fields = ["reference", "name"]
 
     def get_queryset(self):
-        return super().get_queryset().prefetch_related("scopes").select_related("owner")
+        qs = super().get_queryset().prefetch_related("scopes").select_related("owner")
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        category_filter = self.request.GET.get("category")
+        if category_filter:
+            qs = qs.filter(category=category_filter)
+        return qs
 
 
 class ObjectiveDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
@@ -532,6 +568,13 @@ class SwotListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, List
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        return qs
 
 
 class SwotDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
@@ -592,9 +635,16 @@ class RoleListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, List
     search_fields = ["reference", "name"]
 
     def get_queryset(self):
-        return super().get_queryset().annotate(
+        qs = super().get_queryset().annotate(
             user_count=Count("assigned_users")
         )
+        type_filter = self.request.GET.get("type")
+        if type_filter:
+            qs = qs.filter(type=type_filter)
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        return qs
 
 
 class RoleDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
@@ -657,7 +707,14 @@ class ActivityListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, 
     search_fields = ["reference", "name"]
 
     def get_queryset(self):
-        return super().get_queryset().prefetch_related("scopes").select_related("owner")
+        qs = super().get_queryset().prefetch_related("scopes").select_related("owner")
+        criticality_filter = self.request.GET.get("criticality")
+        if criticality_filter:
+            qs = qs.filter(criticality=criticality_filter)
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        return qs
 
 
 class ActivityDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
@@ -847,6 +904,9 @@ class IndicatorListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin,
         qs = super().get_queryset().prefetch_related("scopes")
         if self.indicator_type:
             qs = qs.filter(indicator_type=self.indicator_type)
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
         return qs
 
     def get_context_data(self, **kwargs):
