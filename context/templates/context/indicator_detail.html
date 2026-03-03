@@ -13,6 +13,7 @@
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'context:indicator-update' indicator.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'context:indicator-delete' indicator.pk %}" class="btn btn-outline-danger">{% trans "Delete" %}</a>
     {% if indicator.indicator_type == "organizational" %}
     <a href="{% url 'context:indicator-organizational-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
     {% else %}
