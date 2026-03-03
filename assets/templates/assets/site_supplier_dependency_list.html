@@ -16,6 +16,7 @@
     <table class="table table-hover mb-0">
       <thead>
         <tr>
+          <th>{% trans "Reference" %}</th>
           <th>{% trans "Site" %}</th>
           <th>{% trans "Supplier" %}</th>
           <th>{% trans "Type" %}</th>
@@ -29,6 +30,7 @@
       <tbody>
         {% for dep in dependencies %}
         <tr>
+          <td class="ref" style="text-decoration:none;white-space:nowrap">{{ dep.reference }}</td>
           <td><a href="{% url 'assets:site-detail' dep.site.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ dep.site }}</a></td>
           <td>
             <a href="{% url 'assets:supplier-detail' dep.supplier.pk %}" class="d-inline-flex align-items-center gap-2" style="color:var(--accent);text-decoration:none;font-weight:500">
@@ -65,7 +67,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted)">{% trans "No site–supplier dependencies defined." %}</td></tr>
+        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No site–supplier dependencies defined." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>

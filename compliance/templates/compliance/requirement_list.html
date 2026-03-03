@@ -18,6 +18,7 @@
       <thead>
         <tr>
           <th>{% trans "Reference" %}</th>
+          <th>{% trans "Req. number" %}</th>
           <th>{% trans "Title" %}</th>
           <th>{% trans "Framework" %}</th>
           <th>{% trans "Type" %}</th>
@@ -33,6 +34,7 @@
         {% for req in requirements %}
         <tr>
           <td><a href="{% url 'compliance:requirement-detail' req.pk %}" class="ref" style="text-decoration:none">{{ req.reference }}</a></td>
+          <td>{{ req.requirement_number|default:"—" }}</td>
           <td>{{ req.name|truncatechars:60 }}</td>
           <td>{{ req.framework.short_name|default:req.framework.name }}</td>
           <td>{{ req.get_type_display }}</td>
@@ -60,7 +62,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)">{% trans "No requirement defined." %}</td></tr>
+        <tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No requirement defined." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>

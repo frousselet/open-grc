@@ -34,6 +34,7 @@
         <dl class="row mb-0">
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Framework" %}</dt><dd class="col-sm-9"><a href="{% url 'compliance:framework-detail' requirement.framework.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ requirement.framework }}</a></dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Section" %}</dt><dd class="col-sm-9">{{ requirement.section|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Requirement number" %}</dt><dd class="col-sm-9">{{ requirement.requirement_number|default:"—" }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ requirement.get_type_display }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Category" %}</dt><dd class="col-sm-9">{{ requirement.get_category_display|default:"—" }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Applicable" %}</dt><dd class="col-sm-9">{% if requirement.is_applicable %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>

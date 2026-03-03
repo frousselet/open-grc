@@ -13,11 +13,13 @@ from assets.constants import (
     SupplierStatus,
 )
 from context.constants import Criticality
-from context.models.base import ScopedModel
+from context.models.base import ReferenceGeneratorMixin, ScopedModel
 
 
-class SupplierType(models.Model):
+class SupplierType(ReferenceGeneratorMixin):
     """Configurable supplier type with associated requirements."""
+
+    REFERENCE_PREFIX = "SPTY"
 
     id = models.AutoField(primary_key=True)
     name = models.CharField(_("Name"), max_length=255, unique=True)
@@ -271,8 +273,10 @@ class SupplierRequirementReview(models.Model):
         return f"{self.supplier_requirement.title} — {self.review_date}"
 
 
-class SupplierDependency(models.Model):
+class SupplierDependency(ReferenceGeneratorMixin):
     """Link between a support asset and a supplier."""
+
+    REFERENCE_PREFIX = "SDEP"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     support_asset = models.ForeignKey(

@@ -12,9 +12,12 @@ from assets.constants import (
     SupportAssetStatus,
 )
 from context.constants import Criticality
+from context.models.base import ReferenceGeneratorMixin
 
 
-class AssetDependency(models.Model):
+class AssetDependency(ReferenceGeneratorMixin):
+    REFERENCE_PREFIX = "ADEP"
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     essential_asset = models.ForeignKey(
         "assets.EssentialAsset",

@@ -34,7 +34,7 @@ class AssetDependencySerializer(serializers.ModelSerializer):
     class Meta:
         model = AssetDependency
         fields = [
-            "id", "essential_asset", "essential_asset_name",
+            "id", "reference", "essential_asset", "essential_asset_name",
             "support_asset", "support_asset_name",
             "dependency_type", "criticality", "description",
             "is_single_point_of_failure", "redundancy_level",
@@ -42,7 +42,7 @@ class AssetDependencySerializer(serializers.ModelSerializer):
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
-        read_only_fields = ["id", "is_single_point_of_failure", "created_by", "created_at", "updated_at", "is_approved", "approved_by", "approved_at", "version"]
+        read_only_fields = ["id", "reference", "is_single_point_of_failure", "created_by", "created_at", "updated_at", "is_approved", "approved_by", "approved_at", "version"]
 
 
 class EssentialAssetSerializer(serializers.ModelSerializer):
@@ -224,7 +224,7 @@ class SupplierDependencySerializer(serializers.ModelSerializer):
     class Meta:
         model = SupplierDependency
         fields = [
-            "id", "support_asset", "support_asset_name",
+            "id", "reference", "support_asset", "support_asset_name",
             "supplier", "supplier_name",
             "dependency_type", "criticality", "description",
             "version",
@@ -232,6 +232,6 @@ class SupplierDependencySerializer(serializers.ModelSerializer):
             "created_by", "created_at", "updated_at",
         ]
         read_only_fields = [
-            "id", "created_by", "created_at", "updated_at",
+            "id", "reference", "created_by", "created_at", "updated_at",
             "is_approved", "approved_by", "approved_at", "version",
         ]
