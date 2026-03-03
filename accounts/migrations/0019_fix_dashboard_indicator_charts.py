@@ -1,22 +1,34 @@
 from django.db import migrations
 
 
+def fix_dashboard_columns(apps, schema_editor):
+    """Clean up the old dashboard_show_indicator_chart column if it was
+    created by the original version of migration 0017."""
+    connection = schema_editor.connection
+    # Introspect actual columns on the table
+    with connection.cursor() as cursor:
+        columns = [
+            col.name
+            for col in connection.introspection.get_table_description(
+                cursor, "accounts_user"
+            )
+        ]
+
+    # Drop the stale column if it exists
+    if "dashboard_show_indicator_chart" in columns:
+        schema_editor.execute(
+            "ALTER TABLE accounts_user DROP COLUMN dashboard_show_indicator_chart;"
+        )
+
+
 class Migration(migrations.Migration):
-    """Fix-up: ensure dashboard_indicator_charts column exists and clean up
-    the old dashboard_show_indicator_chart column if it was created by the
-    original version of migration 0017."""
+    """Fix-up: clean up the old dashboard_show_indicator_chart column if it
+    was created by the original version of migration 0017."""
 
     dependencies = [
         ("accounts", "0017_add_dashboard_show_indicator_chart"),
     ]
 
     operations = [
-        migrations.RunSQL(
-            sql="ALTER TABLE accounts_user ADD COLUMN IF NOT EXISTS dashboard_indicator_charts jsonb NOT NULL DEFAULT '[]';",
-            reverse_sql="ALTER TABLE accounts_user DROP COLUMN IF EXISTS dashboard_indicator_charts;",
-        ),
-        migrations.RunSQL(
-            sql="ALTER TABLE accounts_user DROP COLUMN IF EXISTS dashboard_show_indicator_chart;",
-            reverse_sql=migrations.RunSQL.noop,
-        ),
+        migrations.RunPython(fix_dashboard_columns, migrations.RunPython.noop),
     ]
