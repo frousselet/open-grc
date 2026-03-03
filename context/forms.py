@@ -345,7 +345,9 @@ class IndicatorForm(ScopedFormMixin, forms.ModelForm):
             "scopes", "name", "description",
             "collection_method", "format", "unit",
             "expected_level", "critical_threshold_operator",
-            "critical_threshold_value", "review_frequency",
+            "critical_threshold_value",
+            "critical_threshold_min", "critical_threshold_max",
+            "review_frequency",
             "first_review_date", "status", "tags",
         ]
         widgets = {
@@ -358,6 +360,8 @@ class IndicatorForm(ScopedFormMixin, forms.ModelForm):
             "expected_level": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "critical_threshold_operator": forms.Select(attrs=SELECT_ATTRS),
             "critical_threshold_value": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "critical_threshold_min": forms.NumberInput(attrs={**FORM_WIDGET_ATTRS, "step": "any"}),
+            "critical_threshold_max": forms.NumberInput(attrs={**FORM_WIDGET_ATTRS, "step": "any"}),
             "review_frequency": forms.Select(attrs=SELECT_ATTRS),
             "first_review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "status": forms.Select(attrs=SELECT_ATTRS),
@@ -374,7 +378,9 @@ class PredefinedIndicatorForm(ScopedFormMixin, forms.ModelForm):
             "scopes", "name", "description",
             "internal_source", "internal_source_parameter",
             "expected_level", "critical_threshold_operator",
-            "critical_threshold_value", "review_frequency",
+            "critical_threshold_value",
+            "critical_threshold_min", "critical_threshold_max",
+            "review_frequency",
             "first_review_date", "status", "tags",
         ]
         widgets = {
@@ -386,6 +392,8 @@ class PredefinedIndicatorForm(ScopedFormMixin, forms.ModelForm):
             "expected_level": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "critical_threshold_operator": forms.Select(attrs=SELECT_ATTRS),
             "critical_threshold_value": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "critical_threshold_min": forms.NumberInput(attrs={**FORM_WIDGET_ATTRS, "step": "any"}),
+            "critical_threshold_max": forms.NumberInput(attrs={**FORM_WIDGET_ATTRS, "step": "any"}),
             "review_frequency": forms.Select(attrs=SELECT_ATTRS),
             "first_review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "status": forms.Select(attrs=SELECT_ATTRS),

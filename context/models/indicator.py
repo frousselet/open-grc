@@ -75,6 +75,18 @@ class Indicator(ScopedModel):
         default="",
         help_text=_("For numbers only. For booleans, the operator defines the threshold."),
     )
+    critical_threshold_min = models.FloatField(
+        _("Minimum threshold"),
+        null=True,
+        blank=True,
+        help_text=_("Critical if the value falls below this minimum (numbers only)."),
+    )
+    critical_threshold_max = models.FloatField(
+        _("Maximum threshold"),
+        null=True,
+        blank=True,
+        help_text=_("Critical if the value exceeds this maximum (numbers only)."),
+    )
     review_frequency = models.CharField(
         _("Review frequency"),
         max_length=20,
@@ -151,6 +163,25 @@ class Indicator(ScopedModel):
                         )
                     }
                 )
+        # Min/max thresholds only for numbers
+        if self.format != IndicatorFormat.NUMBER:
+            if self.critical_threshold_min is not None or self.critical_threshold_max is not None:
+                raise ValidationError(
+                    _("Min/max thresholds are only applicable to number indicators.")
+                )
+        # Min must be less than max when both are set
+        if (
+            self.critical_threshold_min is not None
+            and self.critical_threshold_max is not None
+            and self.critical_threshold_min >= self.critical_threshold_max
+        ):
+            raise ValidationError(
+                {
+                    "critical_threshold_min": _(
+                        "The minimum threshold must be less than the maximum threshold."
+                    )
+                }
+            )
         # Predefined indicators must be organizational
         if self.is_internal and self.indicator_type != IndicatorType.ORGANIZATIONAL:
             raise ValidationError(
@@ -186,10 +217,12 @@ class Indicator(ScopedModel):
 
     @property
     def is_critical(self):
-        """Check if the current value breaches the critical threshold."""
-        if not self.current_value or not self.critical_threshold_operator:
+        """Check if the current value breaches any critical threshold."""
+        if not self.current_value:
             return False
         if self.format == IndicatorFormat.BOOLEAN:
+            if not self.critical_threshold_operator:
+                return False
             current_bool = self.current_value.lower() in ("true", "1", "yes")
             if self.critical_threshold_operator == CriticalThresholdOperator.IS_FALSE:
                 return not current_bool
@@ -198,13 +231,23 @@ class Indicator(ScopedModel):
         elif self.format == IndicatorFormat.NUMBER:
             try:
                 current = float(self.current_value)
-                threshold = float(self.critical_threshold_value)
             except (ValueError, TypeError):
                 return False
-            if self.critical_threshold_operator == CriticalThresholdOperator.BELOW:
-                return current < threshold
-            if self.critical_threshold_operator == CriticalThresholdOperator.ABOVE:
-                return current > threshold
+            # Check min/max thresholds first
+            if self.critical_threshold_min is not None and current < self.critical_threshold_min:
+                return True
+            if self.critical_threshold_max is not None and current > self.critical_threshold_max:
+                return True
+            # Fallback to legacy operator + value
+            if self.critical_threshold_operator and self.critical_threshold_value:
+                try:
+                    threshold = float(self.critical_threshold_value)
+                except (ValueError, TypeError):
+                    return False
+                if self.critical_threshold_operator == CriticalThresholdOperator.BELOW:
+                    return current < threshold
+                if self.critical_threshold_operator == CriticalThresholdOperator.ABOVE:
+                    return current > threshold
         return False
 
     def compute_internal_value(self):

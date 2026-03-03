@@ -100,6 +100,22 @@
               {% if indicator.critical_threshold_value %} {{ indicator.critical_threshold_value }}{% if indicator.unit %} {{ indicator.unit }}{% endif %}{% endif %}
             {% else %}—{% endif %}
           </dd>
+
+          {% if indicator.format == "number" %}
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Minimum threshold" %}</dt>
+          <dd class="col-sm-9">
+            {% if indicator.critical_threshold_min != None %}
+              {{ indicator.critical_threshold_min }}{% if indicator.unit %} {{ indicator.unit }}{% endif %}
+            {% else %}—{% endif %}
+          </dd>
+
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Maximum threshold" %}</dt>
+          <dd class="col-sm-9">
+            {% if indicator.critical_threshold_max != None %}
+              {{ indicator.critical_threshold_max }}{% if indicator.unit %} {{ indicator.unit }}{% endif %}
+            {% else %}—{% endif %}
+          </dd>
+          {% endif %}
         </dl>
       </div>
     </div>
