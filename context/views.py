@@ -732,7 +732,9 @@ class IndicatorDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextM
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["measurements"] = self.object.measurements.select_related("recorded_by")[:50]
-        ctx["measurement_form"] = IndicatorMeasurementForm()
+        ctx["measurement_form"] = IndicatorMeasurementForm(
+            indicator_format=self.object.format,
+        )
         return ctx
 
 
@@ -839,7 +841,7 @@ class IndicatorRecordMeasurementView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         indicator = get_object_or_404(Indicator, pk=pk)
-        form = IndicatorMeasurementForm(request.POST)
+        form = IndicatorMeasurementForm(request.POST, indicator_format=indicator.format)
         if form.is_valid():
             indicator.record_measurement(
                 value=form.cleaned_data["value"],

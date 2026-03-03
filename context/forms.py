@@ -400,3 +400,26 @@ class IndicatorMeasurementForm(forms.ModelForm):
             "value": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "notes": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
         }
+
+    def __init__(self, *args, indicator_format=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.indicator_format = indicator_format
+        if indicator_format == "boolean":
+            self.fields["value"] = forms.ChoiceField(
+                choices=[("true", _("True")), ("false", _("False"))],
+                widget=forms.Select(attrs=SELECT_ATTRS),
+                label=self.fields["value"].label,
+            )
+        elif indicator_format == "number":
+            self.fields["value"].widget = forms.NumberInput(
+                attrs={**FORM_WIDGET_ATTRS, "step": "any"},
+            )
+
+    def clean_value(self):
+        value = self.cleaned_data.get("value", "")
+        if self.indicator_format == "number":
+            try:
+                float(value)
+            except (ValueError, TypeError):
+                raise forms.ValidationError(_("Please enter a valid number."))
+        return value
