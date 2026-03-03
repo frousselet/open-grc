@@ -130,6 +130,16 @@ class ProfileView(LoginRequiredMixin, View):
         return render(request, "accounts/profile.html", self._get_context(request, form))
 
 
+class ResetHelpersView(LoginRequiredMixin, View):
+    """Reset all dismissed helpers for the current user."""
+
+    def post(self, request):
+        request.user.dismissed_helpers = []
+        request.user.save(update_fields=["dismissed_helpers"])
+        messages.success(request, _("Help banners have been restored."))
+        return redirect("accounts:profile")
+
+
 class PasswordChangeView(LoginRequiredMixin, View):
     def get(self, request):
         form = PasswordChangeForm(request.user)

@@ -52,6 +52,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
     )
 
+    dismissed_helpers = models.JSONField(
+        _("Dismissed helpers"),
+        default=list,
+        blank=True,
+        help_text=_("List of help content keys dismissed by the user."),
+    )
+
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
