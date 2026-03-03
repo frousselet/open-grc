@@ -1023,6 +1023,76 @@
     }
     .sortable-th:hover .bi { opacity: .7 !important; }
 
+    /* ── Table toolbar (integrated search) ────────────── */
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .625rem 1rem;
+      background: var(--surface-muted);
+      border: 1px solid var(--border-light);
+      border-bottom: none;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    .table-toolbar + .card {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+    .table-toolbar-search {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      position: relative;
+      min-width: 0;
+    }
+    .table-toolbar-icon {
+      position: absolute;
+      left: .625rem;
+      font-size: .8rem;
+      color: var(--text-muted);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .table-toolbar-input {
+      width: 100%;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      padding: .375rem .625rem .375rem 2rem;
+      font-size: .8125rem;
+      background: var(--surface);
+      color: var(--text-primary);
+      transition: all var(--transition-fast);
+    }
+    .table-toolbar-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .table-toolbar-input::placeholder {
+      color: var(--text-muted);
+    }
+    .table-toolbar-input::-webkit-search-cancel-button { display: none; }
+    .table-toolbar-clear {
+      position: absolute;
+      right: .5rem;
+      color: var(--text-muted);
+      font-size: .85rem;
+      text-decoration: none;
+      transition: color var(--transition-fast);
+    }
+    .table-toolbar-clear:hover { color: var(--danger); }
+    .table-toolbar-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: .2rem .625rem;
+      font-size: .7rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
     /* ── Tom Select overrides ─────────────────────────── */
     .ts-wrapper.multi .ts-control > .item {
       background: var(--accent);
@@ -1690,6 +1760,36 @@
         bsTab.show();
       }
     }
+  })();
+
+  /* ── Sort preference persistence ────────────────── */
+  (function() {
+    document.addEventListener('click', function(e) {
+      var link = e.target.closest('a.sortable-th');
+      if (!link) return;
+      var field = link.dataset.sortField;
+      var order = link.dataset.sortOrder;
+      var viewKey = document.querySelector('[data-sort-view-key]');
+      if (!field || !viewKey) return;
+      viewKey = viewKey.dataset.sortViewKey;
+      var csrf = (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '';
+      fetch('{% url "helpers:save-sort" %}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrf},
+        body: JSON.stringify({view: viewKey, sort: field, order: order})
+      });
+    });
+  })();
+
+  /* ── Dynamic search debounce ────────────────────── */
+  (function() {
+    var input = document.querySelector('.table-toolbar-input');
+    if (!input) return;
+    var timer;
+    input.addEventListener('input', function() {
+      clearTimeout(timer);
+      timer = setTimeout(function() { input.closest('form').submit(); }, 400);
+    });
   })();
   </script>
   {% block extra_js %}{% endblock %}

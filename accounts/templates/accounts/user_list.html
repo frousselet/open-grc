@@ -15,22 +15,13 @@
 </div>
 {% help_modal "accounts.user_list" %}
 
-<form method="get" class="row g-3 mb-4">
-  <div class="col-md-4">
-    <input type="text" name="q" class="form-control" placeholder="{% trans "Search..." %}" value="{{ request.GET.q|default:'' }}">
-  </div>
-  <div class="col-md-3">
-    <select name="status" class="form-select">
-      <option value="">{% trans "All statuses" %}</option>
-      <option value="active" {% if request.GET.status == "active" %}selected{% endif %}>{% trans "Active" %}</option>
-      <option value="inactive" {% if request.GET.status == "inactive" %}selected{% endif %}>{% trans "Inactive" %}</option>
-    </select>
-  </div>
-  <div class="col-md-2">
-    <button type="submit" class="btn btn-outline-secondary w-100">{% trans "Filter" %}</button>
-  </div>
-</form>
+<div class="mb-3 d-flex gap-2">
+  <a href="{% url 'accounts:user-list' %}" class="filter-chip {% if not request.GET.status %}active{% endif %}">{% trans "All" %}</a>
+  <a href="?status=active" class="filter-chip {% if request.GET.status == 'active' %}active{% endif %}">{% trans "Active" %}</a>
+  <a href="?status=inactive" class="filter-chip {% if request.GET.status == 'inactive' %}active{% endif %}">{% trans "Inactive" %}</a>
+</div>
 
+{% include "includes/table_search.html" %}
 <div class="card">
   <div class="table-responsive">
     <table class="table table-hover mb-0">

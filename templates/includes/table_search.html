@@ -1,22 +1,28 @@
 {% load i18n %}
-<form method="get" class="mb-3">
-  {# Preserve existing filter params (status, type, etc.) but not q/page #}
-  {% for key, value in request.GET.items %}
-    {% if key != "q" and key != "page" %}
-      <input type="hidden" name="{{ key }}" value="{{ value }}">
-    {% endif %}
-  {% endfor %}
-  <div class="input-group">
-    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search" style="opacity:.5"></i></span>
-    <input type="text" name="q" class="form-control border-start-0 ps-0"
+<div class="table-toolbar" data-sort-view-key="{{ sort_view_key }}">
+  <form method="get" class="table-toolbar-search">
+    {# Preserve existing filter params (status, type, sort, order, etc.) but not q/page #}
+    {% for key, value in request.GET.items %}
+      {% if key != "q" and key != "page" %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
+      {% endif %}
+    {% endfor %}
+    <i class="bi bi-search table-toolbar-icon"></i>
+    <input type="search" name="q" class="table-toolbar-input"
            placeholder="{% trans 'Search…' %}"
            value="{{ search_query }}"
-           aria-label="{% trans 'Search' %}">
+           aria-label="{% trans 'Search' %}"
+           autocomplete="off">
     {% if search_query %}
       <a href="?{% for key, value in request.GET.items %}{% if key != 'q' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}"
-         class="btn btn-outline-secondary" title="{% trans 'Clear' %}">
-        <i class="bi bi-x-lg"></i>
+         class="table-toolbar-clear" title="{% trans 'Clear' %}">
+        <i class="bi bi-x-circle-fill"></i>
       </a>
     {% endif %}
-  </div>
-</form>
+  </form>
+  {% if search_query %}
+    <span class="table-toolbar-badge">
+      <i class="bi bi-funnel-fill me-1" style="font-size:.65rem"></i>{% trans "Filtered" %}
+    </span>
+  {% endif %}
+</div>

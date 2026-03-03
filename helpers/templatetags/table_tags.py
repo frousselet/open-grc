@@ -1,6 +1,5 @@
 from django import template
 from django.utils.html import format_html
-from django.utils.http import urlencode
 
 register = template.Library()
 
@@ -44,9 +43,12 @@ def sortable_th(context, field_name, label, css_class=""):
 
     return format_html(
         '<th{class_attr}><a href="{url}" class="sortable-th text-decoration-none text-reset"'
+        ' data-sort-field="{field}" data-sort-order="{order}"'
         ' style="white-space:nowrap">{label}{icon}</a></th>',
         class_attr=format_html(class_attr),
         url=url,
+        field=field_name,
+        order=new_order,
         label=label,
         icon=format_html(icon),
     )

@@ -171,17 +171,13 @@ class UserListView(LoginRequiredMixin, PermissionRequiredMixin, SortableListMixi
         "last_login": "last_login",
     }
     default_sort = "name"
+    search_fields = ["email", "first_name", "last_name"]
 
     def get_queryset(self):
         qs = User.objects.annotate(group_count=Count("custom_groups"))
-        q = self.request.GET.get("q")
+        qs = self._apply_search(qs)
+        qs = self._apply_sorting(qs)
         status = self.request.GET.get("status")
-        if q:
-            qs = qs.filter(
-                Q(email__icontains=q)
-                | Q(first_name__icontains=q)
-                | Q(last_name__icontains=q)
-            )
         if status == "active":
             qs = qs.filter(is_active=True)
         elif status == "inactive":

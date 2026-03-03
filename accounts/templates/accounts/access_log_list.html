@@ -10,12 +10,16 @@
 </div>
 {% help_modal "accounts.access_log_list" %}
 
-<form method="get" class="row g-3 mb-4">
-  <div class="col-md-3">
-    <input type="text" name="email" class="form-control" placeholder="Email..." value="{{ request.GET.email|default:'' }}">
-  </div>
-  <div class="col-md-2">
-    <select name="event_type" class="form-select">
+<div class="table-toolbar" data-sort-view-key="{{ sort_view_key }}">
+  <form method="get" class="d-flex align-items-center gap-2 flex-wrap flex-grow-1">
+    <div class="table-toolbar-search flex-grow-1" style="min-width:160px">
+      <i class="bi bi-search table-toolbar-icon"></i>
+      <input type="search" name="email" class="table-toolbar-input"
+             placeholder="{% trans 'Email…' %}"
+             value="{{ request.GET.email|default:'' }}"
+             autocomplete="off">
+    </div>
+    <select name="event_type" class="form-select form-select-sm" style="width:auto;font-size:.8rem">
       <option value="">{% trans "All types" %}</option>
       <option value="login_success" {% if request.GET.event_type == "login_success" %}selected{% endif %}>{% trans "Successful login" %}</option>
       <option value="login_failed" {% if request.GET.event_type == "login_failed" %}selected{% endif %}>{% trans "Failed login" %}</option>
@@ -23,18 +27,14 @@
       <option value="account_locked" {% if request.GET.event_type == "account_locked" %}selected{% endif %}>{% trans "Account locked" %}</option>
       <option value="password_change" {% if request.GET.event_type == "password_change" %}selected{% endif %}>{% trans "Password change" %}</option>
     </select>
-  </div>
-  <div class="col-md-2">
-    <input type="date" name="date_from" class="form-control" value="{{ request.GET.date_from|default:'' }}" placeholder="{% trans "From" %}">
-  </div>
-  <div class="col-md-2">
-    <input type="date" name="date_to" class="form-control" value="{{ request.GET.date_to|default:'' }}" placeholder="{% trans "To" %}">
-  </div>
-  <div class="col-md-2">
-    <button type="submit" class="btn btn-outline-secondary w-100">{% trans "Filter" %}</button>
-  </div>
-</form>
-
+    <input type="date" name="date_from" class="form-control form-control-sm" style="width:auto;font-size:.8rem" value="{{ request.GET.date_from|default:'' }}">
+    <input type="date" name="date_to" class="form-control form-control-sm" style="width:auto;font-size:.8rem" value="{{ request.GET.date_to|default:'' }}">
+    <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="bi bi-funnel"></i></button>
+    {% if request.GET.email or request.GET.event_type or request.GET.date_from or request.GET.date_to %}
+      <a href="{% url 'accounts:access-log-list' %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Clear' %}"><i class="bi bi-x-lg"></i></a>
+    {% endif %}
+  </form>
+</div>
 <div class="card">
   <div class="table-responsive">
     <table class="table table-hover table-sm mb-0">
