@@ -17,7 +17,7 @@ from django.views.generic import (
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
 from assets.services.spof_detection import SpofDetector
-from context.models import Site
+from context.models import Scope, Site
 from .forms import (
     AssetDependencyForm,
     AssetGroupForm,
@@ -94,6 +94,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        user = self.request.user
+        scope_ids = user.get_allowed_scope_ids()
+        if scope_ids is not None:
+            ctx["user_scopes"] = Scope.objects.filter(id__in=scope_ids).select_related("parent_scope")
         today = timezone.now().date()
         ctx["essential_count"] = EssentialAsset.objects.count()
         ctx["support_count"] = SupportAsset.objects.count()

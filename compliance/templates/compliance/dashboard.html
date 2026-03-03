@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n scope_tags %}
 
 {% block title %}{% trans "Compliance" %} — Open GRC{% endblock %}
 
@@ -10,6 +10,12 @@
   <h1 class="mb-0">{% trans "Compliance" %}</h1>
 </div>
 {% help_modal "compliance.dashboard" %}
+
+{% if user_scopes %}
+<div class="d-flex flex-wrap gap-1 mb-4">
+  {% grouped_scope_badges user_scopes %}
+</div>
+{% endif %}
 
 <div class="row g-3 mb-4">
   <div class="col-md-3 col-sm-6">

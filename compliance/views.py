@@ -47,6 +47,7 @@ from .models import (
     RequirementMapping,
     Section,
 )
+from context.models import Scope
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -110,6 +111,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        user = self.request.user
+        scope_ids = user.get_allowed_scope_ids()
+        if scope_ids is not None:
+            ctx["user_scopes"] = Scope.objects.filter(id__in=scope_ids).select_related("parent_scope")
         frameworks = self._filter_scoped(Framework.objects.all())
         ctx["framework_count"] = frameworks.count()
         ctx["frameworks"] = frameworks.filter(status="active")[:10]

@@ -207,11 +207,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         user = self.request.user
 
         # Scopes — filtered by access
+        scope_ids = user.get_allowed_scope_ids()
         scopes_qs = Scope.objects.all()
-        if not user.is_superuser:
-            scope_ids = user.get_allowed_scope_ids()
-            if scope_ids is not None:
-                scopes_qs = scopes_qs.filter(id__in=scope_ids)
+        if not user.is_superuser and scope_ids is not None:
+            scopes_qs = scopes_qs.filter(id__in=scope_ids)
+        if scope_ids is not None:
+            ctx["user_scopes"] = Scope.objects.filter(id__in=scope_ids).select_related("parent_scope")
 
         ctx["scope_count"] = scopes_qs.count()
         ctx["active_scopes"] = scopes_qs.filter(status="active").select_related("parent_scope")
