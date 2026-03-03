@@ -1,0 +1,195 @@
+{% load i18n %}
+
+{# ── Indicator boxes (always 6 slots) ────────────── #}
+<div class="d-flex align-items-center mb-3">
+  <h5 class="mb-0"><i class="bi bi-speedometer2 me-1" style="color:var(--accent)"></i> {% trans "Indicators" %}</h5>
+  <button class="btn btn-sm btn-outline-primary ms-auto" data-bs-toggle="modal" data-bs-target="#indicatorPickerModal">
+    <i class="bi bi-gear me-1"></i>{% trans "Configure" %}
+  </button>
+</div>
+<div class="row g-3 mb-4">
+  {% for slot in dashboard_indicator_slots %}
+  <div class="col-md-4 col-sm-6">
+    {% if slot %}
+    <a href="{% url 'context:indicator-detail' slot.indicator.pk %}" class="text-decoration-none d-block h-100">
+      <div class="stat-card h-100" style="border-left:3px solid {% if slot.indicator.is_critical %}var(--bs-danger){% else %}var(--accent){% endif %}">
+        <div class="d-flex justify-content-between align-items-start mb-1">
+          <small class="text-muted text-truncate me-2" style="max-width:70%" title="{{ slot.indicator.name }}">{{ slot.indicator.name }}</small>
+          {% if slot.indicator.indicator_type == "organizational" %}
+          <span class="badge text-bg-primary" style="font-size:.6rem">{% trans "Org." %}</span>
+          {% else %}
+          <span class="badge text-bg-secondary" style="font-size:.6rem">{% trans "Tech." %}</span>
+          {% endif %}
+        </div>
+        <div class="d-flex align-items-baseline gap-2">
+          <span class="stat-card-value mb-0" style="{% if slot.indicator.is_critical %}color:var(--bs-danger){% endif %}">
+            {% if slot.indicator.format == "boolean" %}
+              {% if slot.indicator.current_value == "true" or slot.indicator.current_value == "1" or slot.indicator.current_value == "yes" %}
+                <i class="bi bi-check-circle-fill text-success"></i>
+              {% elif slot.indicator.current_value %}
+                <i class="bi bi-x-circle-fill text-danger"></i>
+              {% else %}
+                <span style="color:var(--text-muted)">—</span>
+              {% endif %}
+            {% else %}
+              {{ slot.indicator.current_value|default:"—" }}
+            {% endif %}
+          </span>
+          {% if slot.indicator.unit and slot.indicator.format != "boolean" %}
+          <small class="text-muted">{{ slot.indicator.unit }}</small>
+          {% endif %}
+          {% if slot.trend == "up" %}
+            <span class="ms-auto" title="{% trans 'Trend' %}: +{{ slot.trend_value|floatformat:1 }}">
+              <i class="bi bi-arrow-up-short fs-5 text-success"></i>
+            </span>
+          {% elif slot.trend == "down" %}
+            <span class="ms-auto" title="{% trans 'Trend' %}: {{ slot.trend_value|floatformat:1 }}">
+              <i class="bi bi-arrow-down-short fs-5 text-danger"></i>
+            </span>
+          {% elif slot.trend == "stable" %}
+            <span class="ms-auto" title="{% trans 'Stable' %}">
+              <i class="bi bi-dash fs-5 text-muted"></i>
+            </span>
+          {% elif slot.trend == "changed" %}
+            <span class="ms-auto" title="{% trans 'Changed' %}">
+              <i class="bi bi-arrow-left-right fs-5 text-warning"></i>
+            </span>
+          {% endif %}
+        </div>
+        {% if slot.current_measurement %}
+        <small class="text-muted" style="font-size:.72rem">
+          {% trans "Last:" %} {{ slot.current_measurement.recorded_at|date:"d/m/Y" }}
+          {% if slot.previous_measurement and slot.indicator.format == "number" %}
+            · {% trans "Previous:" %} {{ slot.previous_measurement.value }}{{ slot.indicator.unit }}
+          {% endif %}
+        </small>
+        {% else %}
+        <small class="text-muted" style="font-size:.72rem">{% trans "No measurement" %}</small>
+        {% endif %}
+        {% if slot.indicator.is_critical %}
+        <div class="mt-1"><span class="badge text-bg-danger" style="font-size:.65rem">{% trans "Critical" %}</span></div>
+        {% endif %}
+      </div>
+    </a>
+    {% else %}
+    <div class="stat-card h-100 d-flex flex-column align-items-center justify-content-center text-center" style="border:2px dashed var(--border-light);background:transparent;min-height:120px;cursor:pointer" data-bs-toggle="modal" data-bs-target="#indicatorPickerModal">
+      <i class="bi bi-plus-circle d-block mb-1" style="font-size:1.5rem;color:var(--text-muted);opacity:.5"></i>
+      <small style="color:var(--text-muted);font-size:.75rem">{% trans "Select an indicator" %}</small>
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+{# ── Indicator Picker Modal ──────────────────── #}
+<div class="modal fade" id="indicatorPickerModal" tabindex="-1" aria-labelledby="indicatorPickerLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="indicatorPickerLabel"><i class="bi bi-speedometer2 me-2"></i>{% trans "Choose dashboard indicators" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted mb-3">{% blocktrans with max=6 %}Select up to {{ max }} indicators to display on your dashboard.{% endblocktrans %}</p>
+        <div class="mb-3">
+          <input type="text" class="form-control form-control-sm" id="indicatorPickerSearch" placeholder="{% trans 'Search indicators…' %}">
+        </div>
+        {% if available_indicators %}
+        <div class="list-group" id="indicatorPickerList" style="max-height:400px;overflow-y:auto">
+          {% for ind in available_indicators %}
+          <label class="list-group-item list-group-item-action d-flex align-items-center gap-2 indicator-picker-item" data-name="{{ ind.name|lower }}">
+            <input type="checkbox" class="form-check-input mt-0 indicator-pin-check"
+                   value="{{ ind.pk }}"
+                   {% if ind.pk|stringformat:"s" in request.user.dashboard_indicators %}checked{% endif %}>
+            <div class="flex-grow-1">
+              <span class="fw-medium">{{ ind.name }}</span>
+              <small class="text-muted ms-1">{{ ind.reference }}</small>
+            </div>
+            {% if ind.indicator_type == "organizational" %}
+            <span class="badge text-bg-primary" style="font-size:.65rem">{% trans "Org." %}</span>
+            {% else %}
+            <span class="badge text-bg-secondary" style="font-size:.65rem">{% trans "Tech." %}</span>
+            {% endif %}
+            {% if ind.current_value %}
+            <span class="badge text-bg-light" style="font-size:.72rem">{{ ind.current_value }}{% if ind.unit %} {{ ind.unit }}{% endif %}</span>
+            {% endif %}
+          </label>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-center text-muted py-3">{% trans "No active indicator available." %}</p>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <span class="me-auto text-muted" id="indicatorPickerCount"></span>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var toggleUrl = '{% url "context:dashboard-indicator-toggle" %}';
+  var csrfToken = '{{ csrf_token }}';
+  var maxPinned = 6;
+
+  var searchInput = document.getElementById('indicatorPickerSearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      var query = this.value.toLowerCase();
+      document.querySelectorAll('.indicator-picker-item').forEach(function(item) {
+        var name = item.getAttribute('data-name');
+        item.style.display = name.indexOf(query) !== -1 ? '' : 'none';
+      });
+    });
+  }
+
+  function updateCount() {
+    var checked = document.querySelectorAll('.indicator-pin-check:checked').length;
+    var counter = document.getElementById('indicatorPickerCount');
+    if (counter) counter.textContent = checked + ' / ' + maxPinned;
+  }
+  updateCount();
+
+  document.querySelectorAll('.indicator-pin-check').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      var indicatorId = this.value;
+      var checkbox = this;
+      var checked = document.querySelectorAll('.indicator-pin-check:checked').length;
+
+      if (checkbox.checked && checked > maxPinned) {
+        checkbox.checked = false;
+        updateCount();
+        return;
+      }
+
+      fetch(toggleUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify({indicator_id: indicatorId}),
+      })
+      .then(function(resp) {
+        if (!resp.ok) {
+          checkbox.checked = !checkbox.checked;
+          return resp.json().then(function(d) { alert(d.error || 'Error'); });
+        }
+        return resp.json();
+      })
+      .then(function() {
+        updateCount();
+      });
+    });
+  });
+
+  var modal = document.getElementById('indicatorPickerModal');
+  if (modal) {
+    modal.addEventListener('hidden.bs.modal', function() {
+      location.reload();
+    });
+  }
+})();
+</script>
