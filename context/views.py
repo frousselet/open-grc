@@ -136,7 +136,70 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             Activity.objects.filter(criticality="critical")
         ).count()
         ctx["site_count"] = Site.objects.count()
+
+        # Dashboard indicators
+        ctx["dashboard_indicators"] = self._get_dashboard_indicators(user)
+        ctx["available_indicators"] = Indicator.objects.filter(
+            status="active",
+        ).order_by("indicator_type", "name")
+
         return ctx
+
+    def _get_dashboard_indicators(self, user):
+        """Load pinned indicators with current value, trend, and previous value."""
+        pinned_ids = user.dashboard_indicators or []
+        if not pinned_ids:
+            return []
+
+        indicators = Indicator.objects.filter(
+            id__in=pinned_ids,
+        ).prefetch_related("measurements")
+
+        # Preserve the user's chosen order
+        indicator_map = {}
+        for ind in indicators:
+            measurements = list(ind.measurements.order_by("-recorded_at")[:2])
+            current = measurements[0] if measurements else None
+            previous = measurements[1] if len(measurements) > 1 else None
+
+            trend = None
+            trend_value = None
+            if current and previous and ind.format == "number":
+                try:
+                    cur_val = float(current.value)
+                    prev_val = float(previous.value)
+                    diff = cur_val - prev_val
+                    trend_value = diff
+                    if diff > 0:
+                        trend = "up"
+                    elif diff < 0:
+                        trend = "down"
+                    else:
+                        trend = "stable"
+                except (ValueError, TypeError):
+                    pass
+            elif current and previous and ind.format == "boolean":
+                cur_bool = current.value.lower() in ("true", "1", "yes")
+                prev_bool = previous.value.lower() in ("true", "1", "yes")
+                if cur_bool != prev_bool:
+                    trend = "changed"
+                else:
+                    trend = "stable"
+
+            indicator_map[str(ind.pk)] = {
+                "indicator": ind,
+                "current_measurement": current,
+                "previous_measurement": previous,
+                "trend": trend,
+                "trend_value": trend_value,
+            }
+
+        # Return in order of pinned_ids
+        result = []
+        for pid in pinned_ids:
+            if pid in indicator_map:
+                result.append(indicator_map[pid])
+        return result
 
 
 # ── Scope ───────────────────────────────────────────────────
@@ -594,6 +657,46 @@ class TagDeleteView(LoginRequiredMixin, DeleteView):
 
 
 # ── Indicators ─────────────────────────────────────────────
+
+MAX_DASHBOARD_INDICATORS = 6
+
+
+@login_required
+@require_POST
+def dashboard_indicator_toggle(request):
+    """Toggle an indicator on/off the dashboard (AJAX)."""
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    indicator_id = data.get("indicator_id", "").strip()
+    if not indicator_id:
+        return JsonResponse({"error": "indicator_id is required"}, status=400)
+
+    # Verify the indicator exists
+    if not Indicator.objects.filter(pk=indicator_id).exists():
+        return JsonResponse({"error": "Indicator not found"}, status=404)
+
+    user = request.user
+    pinned = list(user.dashboard_indicators or [])
+
+    if indicator_id in pinned:
+        pinned.remove(indicator_id)
+        action = "removed"
+    else:
+        if len(pinned) >= MAX_DASHBOARD_INDICATORS:
+            return JsonResponse(
+                {"error": _("Maximum %d indicators on the dashboard.") % MAX_DASHBOARD_INDICATORS},
+                status=400,
+            )
+        pinned.append(indicator_id)
+        action = "added"
+
+    user.dashboard_indicators = pinned
+    user.save(update_fields=["dashboard_indicators"])
+    return JsonResponse({"action": action, "pinned": pinned})
+
 
 class IndicatorListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     model = Indicator
