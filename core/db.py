@@ -1,4 +1,6 @@
+from django.db import connection
 from django.db.models import CharField, Func
+from django.db.models.expressions import Col
 
 
 class NaturalSortKey(Func):
@@ -11,7 +13,16 @@ class NaturalSortKey(Func):
 
     Requires the natural_sort_key() function in PostgreSQL
     (see helpers/migrations/0006_natural_sort_key_function.py).
+
+    On non-PostgreSQL backends (e.g. SQLite) it falls back to the raw
+    column value, so ordering still works but is purely lexicographic.
     """
 
     function = "natural_sort_key"
     output_field = CharField()
+
+    def as_sql(self, compiler, connection, **extra_context):
+        if connection.vendor != "postgresql":
+            # Fallback: just return the inner expression as-is
+            return self.source_expressions[0].as_sql(compiler, connection)
+        return super().as_sql(compiler, connection, **extra_context)
