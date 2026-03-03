@@ -296,9 +296,25 @@
           '<stop offset="0%" stop-color="' + color + '" stop-opacity=".22"/>' +
           '<stop offset="100%" stop-color="' + color + '" stop-opacity=".02"/>' +
         '</linearGradient></defs>' +
-        '<path d="' + area + '" fill="url(#' + uid + ')"/>' +
-        '<path d="' + line + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+        '<path class="sparkline-area" d="' + area + '" fill="url(#' + uid + ')"/>' +
+        '<path class="sparkline-line" d="' + line + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>' +
       '</svg>';
+
+    // Animate: draw the line, then fade in the area
+    var lineEl = el.querySelector('.sparkline-line');
+    var areaEl = el.querySelector('.sparkline-area');
+    if (lineEl) {
+      var len = lineEl.getTotalLength();
+      lineEl.style.strokeDasharray = len;
+      lineEl.style.strokeDashoffset = len;
+      lineEl.style.transition = 'stroke-dashoffset .8s ease-out';
+      areaEl.style.opacity = '0';
+      areaEl.style.transition = 'opacity .5s ease-out .4s';
+      requestAnimationFrame(function() {
+        lineEl.style.strokeDashoffset = '0';
+        areaEl.style.opacity = '1';
+      });
+    }
   });
 })();
 </script>
