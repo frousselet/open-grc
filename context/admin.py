@@ -29,7 +29,7 @@ class ScopeAdmin(SimpleHistoryAdmin):
     list_display = ("name", "version", "status", "effective_date", "review_date", "created_at")
     list_filter = ("status",)
     search_fields = ("name", "description")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("included_sites", "excluded_sites", "tags")
 
 
@@ -38,7 +38,7 @@ class SiteAdmin(SimpleHistoryAdmin):
     list_display = ("name", "type", "status", "parent_site", "is_approved", "created_at")
     list_filter = ("type", "status")
     search_fields = ("name", "description", "address")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("tags",)
 
 
@@ -47,7 +47,7 @@ class IssueAdmin(SimpleHistoryAdmin):
     list_display = ("name", "type", "category", "impact_level", "status", "trend")
     list_filter = ("type", "category", "impact_level", "status", "trend")
     search_fields = ("name", "description")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("scopes", "related_stakeholders", "tags")
 
 
@@ -64,7 +64,7 @@ class StakeholderAdmin(SimpleHistoryAdmin):
     )
     list_filter = ("type", "category", "influence_level", "interest_level", "status")
     search_fields = ("name", "description", "contact_name")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("scopes", "tags")
     inlines = [StakeholderExpectationInline]
 
@@ -77,7 +77,7 @@ class ObjectiveAdmin(SimpleHistoryAdmin):
     )
     list_filter = ("category", "type", "status", "measurement_frequency")
     search_fields = ("reference", "name", "description")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("scopes", "related_issues", "related_stakeholders", "tags")
 
 
@@ -92,7 +92,7 @@ class SwotAnalysisAdmin(SimpleHistoryAdmin):
     list_display = ("name", "analysis_date", "status", "validated_by", "validated_at")
     list_filter = ("status",)
     search_fields = ("name", "description")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("scopes", "tags")
     inlines = [SwotItemInline]
 
@@ -108,7 +108,7 @@ class RoleAdmin(SimpleHistoryAdmin):
     list_display = ("name", "type", "status", "is_mandatory", "compliance_alert")
     list_filter = ("type", "status", "is_mandatory")
     search_fields = ("name", "description")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("scopes", "assigned_users", "tags")
     inlines = [ResponsibilityInline]
 
@@ -122,5 +122,5 @@ class ActivityAdmin(SimpleHistoryAdmin):
     list_display = ("reference", "name", "type", "criticality", "owner", "status")
     list_filter = ("type", "criticality", "status")
     search_fields = ("reference", "name", "description")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("scopes", "related_stakeholders", "related_objectives", "tags")

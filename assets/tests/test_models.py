@@ -270,7 +270,7 @@ class TestSupplierRequirement:
         )
         comp_req = Requirement.objects.create(
             framework=framework,
-            reference="A.15.1.1",
+            requirement_number="A.15.1.1",
             name="Information security policy for supplier relationships",
             description="Test requirement",
             type=RequirementType.MANDATORY,
@@ -280,7 +280,7 @@ class TestSupplierRequirement:
             requirement=comp_req,
         )
         assert supplier_req.requirement == comp_req
-        assert supplier_req.requirement.reference == "A.15.1.1"
+        assert supplier_req.requirement.requirement_number == "A.15.1.1"
 
 
 class TestSupplierDependency:

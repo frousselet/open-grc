@@ -177,7 +177,7 @@ class ObjectiveForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Objective
         fields = [
-            "scopes", "reference", "name", "description",
+            "scopes", "name", "description",
             "category", "type", "target_value", "current_value", "unit",
             "measurement_method", "measurement_frequency", "target_date",
             "owner", "status", "progress_percentage",
@@ -185,7 +185,6 @@ class ObjectiveForm(ScopedFormMixin, forms.ModelForm):
         ]
         widgets = {
             "scopes": ScopeTreeWidget(),
-            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "category": forms.Select(attrs=SELECT_ATTRS),
@@ -258,12 +257,11 @@ class ActivityForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Activity
         fields = [
-            "scopes", "reference", "name", "description",
+            "scopes", "name", "description",
             "type", "criticality", "owner", "parent_activity", "status", "tags",
         ]
         widgets = {
             "scopes": ScopeTreeWidget(),
-            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "type": forms.Select(attrs=SELECT_ATTRS),

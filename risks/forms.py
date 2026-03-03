@@ -118,13 +118,12 @@ class RiskAssessmentForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = RiskAssessment
         fields = [
-            "scopes", "reference", "name", "description", "methodology",
+            "scopes", "name", "description", "methodology",
             "assessment_date", "assessor", "risk_criteria", "status",
             "next_review_date", "summary", "tags",
         ]
         widgets = {
             "scopes": ScopeTreeWidget(),
-            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "methodology": forms.Select(attrs=SELECT_ATTRS),
@@ -142,7 +141,7 @@ class RiskForm(forms.ModelForm):
     class Meta:
         model = Risk
         fields = [
-            "assessment", "reference", "name", "description", "risk_source",
+            "assessment", "name", "description", "risk_source",
             "affected_essential_assets", "affected_support_assets",
             "impact_confidentiality", "impact_integrity", "impact_availability",
             "initial_likelihood", "initial_impact",
@@ -152,7 +151,6 @@ class RiskForm(forms.ModelForm):
         ]
         widgets = {
             "assessment": forms.Select(attrs=SELECT_ATTRS),
-            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "risk_source": forms.Select(attrs=SELECT_ATTRS),
@@ -212,13 +210,12 @@ class RiskTreatmentPlanForm(forms.ModelForm):
     class Meta:
         model = RiskTreatmentPlan
         fields = [
-            "risk", "reference", "name", "description", "treatment_type",
+            "risk", "name", "description", "treatment_type",
             "expected_residual_likelihood", "expected_residual_impact",
             "cost_estimate", "owner", "start_date", "target_date", "status", "tags",
         ]
         widgets = {
             "risk": forms.Select(attrs=SELECT_ATTRS),
-            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "treatment_type": forms.Select(attrs=SELECT_ATTRS),
@@ -285,12 +282,11 @@ class ThreatForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Threat
         fields = [
-            "scopes", "reference", "name", "description", "type", "origin",
+            "scopes", "name", "description", "type", "origin",
             "category", "typical_likelihood", "is_from_catalog", "status", "tags",
         ]
         widgets = {
             "scopes": ScopeTreeWidget(),
-            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "type": forms.Select(attrs=SELECT_ATTRS),
@@ -307,13 +303,12 @@ class VulnerabilityForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Vulnerability
         fields = [
-            "scopes", "reference", "name", "description", "category",
+            "scopes", "name", "description", "category",
             "severity", "affected_assets", "remediation_guidance",
             "is_from_catalog", "status", "tags",
         ]
         widgets = {
             "scopes": ScopeTreeWidget(),
-            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "category": forms.Select(attrs=SELECT_ATTRS),

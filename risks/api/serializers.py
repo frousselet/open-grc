@@ -74,7 +74,7 @@ class RiskAssessmentSerializer(serializers.ModelSerializer):
             "created_by", "created_at", "updated_at",
         ]
         read_only_fields = [
-            "id", "created_by", "created_at", "updated_at",
+            "id", "reference", "created_by", "created_at", "updated_at",
             "is_approved", "approved_by", "approved_at", "version",
         ]
 
@@ -89,7 +89,7 @@ class RiskAssessmentListSerializer(serializers.ModelSerializer):
             "assessment_date", "assessor", "assessor_name",
             "status", "created_at",
         ]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "reference", "created_at"]
 
 
 class RiskSerializer(serializers.ModelSerializer):
@@ -111,7 +111,7 @@ class RiskSerializer(serializers.ModelSerializer):
             "created_by", "created_at", "updated_at",
         ]
         read_only_fields = [
-            "id", "created_by", "created_at", "updated_at",
+            "id", "reference", "created_by", "created_at", "updated_at",
             "initial_risk_level", "current_risk_level", "residual_risk_level",
             "is_approved", "approved_by", "approved_at", "version",
         ]
@@ -127,7 +127,7 @@ class RiskListSerializer(serializers.ModelSerializer):
             "current_risk_level", "priority", "status",
             "risk_owner", "risk_owner_name", "created_at",
         ]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "reference", "created_at"]
 
 
 class TreatmentActionSerializer(serializers.ModelSerializer):
@@ -157,7 +157,7 @@ class RiskTreatmentPlanSerializer(serializers.ModelSerializer):
             "created_by", "created_at", "updated_at",
         ]
         read_only_fields = [
-            "id", "created_by", "created_at", "updated_at",
+            "id", "reference", "created_by", "created_at", "updated_at",
             "is_approved", "approved_by", "approved_at", "version",
         ]
 
@@ -172,7 +172,7 @@ class RiskTreatmentPlanListSerializer(serializers.ModelSerializer):
             "owner", "owner_name", "target_date",
             "progress_percentage", "status", "created_at",
         ]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "reference", "created_at"]
 
 
 class RiskAcceptanceSerializer(serializers.ModelSerializer):
@@ -204,7 +204,7 @@ class ThreatSerializer(serializers.ModelSerializer):
             "created_by", "created_at", "updated_at",
         ]
         read_only_fields = [
-            "id", "created_by", "created_at", "updated_at",
+            "id", "reference", "created_by", "created_at", "updated_at",
             "is_approved", "approved_by", "approved_at", "version",
         ]
 
@@ -216,7 +216,7 @@ class ThreatListSerializer(serializers.ModelSerializer):
             "id", "scopes", "reference", "name", "type", "origin",
             "category", "status", "created_at",
         ]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "reference", "created_at"]
 
 
 class VulnerabilitySerializer(serializers.ModelSerializer):
@@ -231,7 +231,7 @@ class VulnerabilitySerializer(serializers.ModelSerializer):
             "created_by", "created_at", "updated_at",
         ]
         read_only_fields = [
-            "id", "created_by", "created_at", "updated_at",
+            "id", "reference", "created_by", "created_at", "updated_at",
             "is_approved", "approved_by", "approved_at", "version",
         ]
 
@@ -243,7 +243,7 @@ class VulnerabilityListSerializer(serializers.ModelSerializer):
             "id", "scopes", "reference", "name", "category",
             "severity", "status", "created_at",
         ]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "reference", "created_at"]
 
 
 class ISO27005RiskSerializer(serializers.ModelSerializer):

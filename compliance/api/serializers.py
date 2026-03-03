@@ -27,7 +27,7 @@ class FrameworkSerializer(serializers.ModelSerializer):
             "created_by", "created_at", "updated_at",
         ]
         read_only_fields = [
-            "id", "created_by", "created_at", "updated_at",
+            "id", "reference", "created_by", "created_at", "updated_at",
             "is_approved", "approved_by", "approved_at", "version",
             "compliance_level", "last_assessment_date",
         ]
@@ -41,7 +41,7 @@ class FrameworkListSerializer(serializers.ModelSerializer):
             "type", "category", "is_mandatory", "is_applicable",
             "compliance_level", "status", "owner", "created_at",
         ]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "reference", "created_at"]
 
 
 class SectionSerializer(serializers.ModelSerializer):
@@ -52,7 +52,7 @@ class SectionSerializer(serializers.ModelSerializer):
             "description", "order", "compliance_level",
             "created_at", "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at", "compliance_level"]
+        read_only_fields = ["id", "reference", "created_at", "updated_at", "compliance_level"]
 
 
 class RequirementSerializer(serializers.ModelSerializer):
@@ -60,7 +60,7 @@ class RequirementSerializer(serializers.ModelSerializer):
         model = Requirement
         fields = [
             "id", "framework", "section",
-            "reference", "name", "description", "guidance",
+            "reference", "requirement_number", "name", "description", "guidance",
             "type", "category",
             "is_applicable", "applicability_justification",
             "compliance_status", "compliance_level",
@@ -73,7 +73,7 @@ class RequirementSerializer(serializers.ModelSerializer):
             "created_by", "created_at", "updated_at",
         ]
         read_only_fields = [
-            "id", "created_by", "created_at", "updated_at",
+            "id", "reference", "created_by", "created_at", "updated_at",
             "is_approved", "approved_by", "approved_at", "version",
             "last_assessment_date", "last_assessed_by",
         ]
@@ -90,11 +90,11 @@ class RequirementListSerializer(serializers.ModelSerializer):
         fields = [
             "id", "framework", "framework_name",
             "section", "section_name",
-            "reference", "name", "type", "is_applicable",
+            "reference", "requirement_number", "name", "type", "is_applicable",
             "compliance_status", "compliance_level",
             "priority", "owner", "status", "created_at",
         ]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "reference", "created_at"]
 
 
 class AssessmentResultSerializer(serializers.ModelSerializer):
@@ -205,7 +205,7 @@ class ComplianceActionPlanSerializer(serializers.ModelSerializer):
             "created_by", "created_at", "updated_at",
         ]
         read_only_fields = [
-            "id", "created_by", "created_at", "updated_at",
+            "id", "reference", "created_by", "created_at", "updated_at",
             "is_approved", "approved_by", "approved_at", "version",
         ]
 
@@ -223,4 +223,4 @@ class ComplianceActionPlanListSerializer(serializers.ModelSerializer):
             "priority", "owner", "target_date",
             "progress_percentage", "status", "created_at",
         ]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "reference", "created_at"]

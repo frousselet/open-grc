@@ -17,7 +17,6 @@ class FrameworkFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Framework
 
-    reference = factory.Sequence(lambda n: f"FW-{n:03d}")
     name = factory.Sequence(lambda n: f"Framework {n}")
     type = FrameworkType.STANDARD
     category = FrameworkCategory.INFORMATION_SECURITY
@@ -29,7 +28,7 @@ class RequirementFactory(factory.django.DjangoModelFactory):
         model = Requirement
 
     framework = factory.SubFactory(FrameworkFactory)
-    reference = factory.Sequence(lambda n: f"REQ-{n:03d}")
+    requirement_number = factory.Sequence(lambda n: f"REQ-{n:03d}")
     name = factory.Sequence(lambda n: f"Requirement {n}")
     description = "Test requirement"
     type = RequirementType.MANDATORY

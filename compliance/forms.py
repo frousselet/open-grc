@@ -47,7 +47,7 @@ class FrameworkForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Framework
         fields = [
-            "scopes", "reference", "name", "short_name", "description",
+            "scopes", "name", "short_name", "description",
             "type", "category", "framework_version",
             "publication_date", "effective_date", "expiry_date",
             "issuing_body", "jurisdiction", "url",
@@ -56,7 +56,6 @@ class FrameworkForm(ScopedFormMixin, forms.ModelForm):
         ]
         widgets = {
             "scopes": ScopeTreeWidget(),
-            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "short_name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
@@ -83,13 +82,12 @@ class SectionForm(forms.ModelForm):
     class Meta:
         model = Section
         fields = [
-            "framework", "parent_section", "reference", "name",
+            "framework", "parent_section", "name",
             "description", "order",
         ]
         widgets = {
             "framework": forms.Select(attrs=SELECT_ATTRS),
             "parent_section": forms.Select(attrs=SELECT_ATTRS),
-            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "order": forms.NumberInput(attrs=FORM_WIDGET_ATTRS),
@@ -100,7 +98,7 @@ class RequirementForm(forms.ModelForm):
     class Meta:
         model = Requirement
         fields = [
-            "framework", "section", "reference", "name",
+            "framework", "section", "requirement_number", "name",
             "description", "guidance", "type", "category",
             "is_applicable", "applicability_justification",
             "owner", "priority", "target_date",
@@ -109,7 +107,7 @@ class RequirementForm(forms.ModelForm):
         widgets = {
             "framework": forms.Select(attrs=SELECT_ATTRS),
             "section": forms.Select(attrs=SELECT_ATTRS),
-            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "requirement_number": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "guidance": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
@@ -235,7 +233,7 @@ class ComplianceActionPlanForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = ComplianceActionPlan
         fields = [
-            "scopes", "reference", "name", "description",
+            "scopes", "name", "description",
             "assessment", "requirement",
             "gap_description", "remediation_plan",
             "priority", "owner",
@@ -244,7 +242,6 @@ class ComplianceActionPlanForm(ScopedFormMixin, forms.ModelForm):
         ]
         widgets = {
             "scopes": ScopeTreeWidget(),
-            "reference": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "assessment": forms.Select(attrs=SELECT_ATTRS),

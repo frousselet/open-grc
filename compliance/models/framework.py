@@ -15,7 +15,6 @@ class Framework(BaseModel):
         related_name="frameworks",
         verbose_name=_("Scopes"),
     )
-    reference = models.CharField(_("Reference"), max_length=50, unique=True)
     name = models.CharField(_("Name"), max_length=255)
     short_name = models.CharField(_("Abbreviation"), max_length=50, blank=True, default="")
     description = models.TextField(_("Description"), blank=True, default="")
