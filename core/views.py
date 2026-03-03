@@ -74,6 +74,11 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
         ctx["issue_count"] = self._filter_scoped(Issue.objects.all()).count()
         ctx["stakeholder_count"] = self._filter_scoped(Stakeholder.objects.all()).count()
         ctx["objective_count"] = self._filter_scoped(Objective.objects.all()).count()
+        ctx["active_objectives"] = self._filter_scoped(
+            Objective.objects.filter(status="active")
+        ).select_related("owner").prefetch_related(
+            Prefetch("scopes", queryset=Scope.objects.select_related("parent_scope")),
+        )[:10]
         ctx["role_count"] = self._filter_scoped(Role.objects.all()).count()
         ctx["site_count"] = Site.objects.count()
         ctx["mandatory_roles_no_user"] = self._filter_scoped(
