@@ -126,36 +126,29 @@
   <div class="tab-pane fade" id="measurements">
     {# Record a new measurement #}
     {% if not indicator.is_internal or indicator.collection_method == "manual" %}
-    <div class="card mb-3">
-      <div class="card-header"><h6 class="mb-0"><i class="bi bi-plus-circle me-2" style="color:var(--accent)"></i>{% trans "Record a measurement" %}</h6></div>
-      <div class="card-body">
-        <form method="post" action="{% url 'context:indicator-record' indicator.pk %}" class="row g-3 align-items-end">
-          {% csrf_token %}
-          <div class="col-sm-4">
-            <label for="id_value" class="form-label">{% trans "Value" %} *</label>
-            {{ measurement_form.value }}
-          </div>
-          <div class="col-sm-5">
-            <label for="id_notes" class="form-label">{% trans "Notes" %}</label>
-            {{ measurement_form.notes }}
-          </div>
-          <div class="col-sm-3">
-            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check-lg me-1"></i>{% trans "Record" %}</button>
-          </div>
-        </form>
-      </div>
+    <div class="inline-form-bar mb-3">
+      <form method="post" action="{% url 'context:indicator-record' indicator.pk %}" class="d-flex align-items-center gap-3 flex-wrap">
+        {% csrf_token %}
+        <span class="inline-form-label"><i class="bi bi-plus-circle me-1"></i>{% trans "Record" %}</span>
+        <div style="min-width:8rem;max-width:14rem;flex:1">
+          {{ measurement_form.value }}
+        </div>
+        <div style="min-width:10rem;flex:2">
+          {{ measurement_form.notes }}
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-lg me-1"></i>{% trans "Save" %}</button>
+      </form>
     </div>
     {% endif %}
 
     {% if indicator.is_internal %}
-    <div class="card mb-3">
-      <div class="card-body d-flex align-items-center">
-        <span class="me-3">{% trans "This is a predefined indicator. You can refresh its value from Open GRC data." %}</span>
-        <form method="post" action="{% url 'context:indicator-refresh' indicator.pk %}">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-outline-primary"><i class="bi bi-arrow-clockwise me-1"></i>{% trans "Refresh" %}</button>
-        </form>
-      </div>
+    <div class="inline-form-bar mb-3">
+      <form method="post" action="{% url 'context:indicator-refresh' indicator.pk %}" class="d-flex align-items-center gap-3">
+        {% csrf_token %}
+        <span class="inline-form-label"><i class="bi bi-arrow-clockwise me-1"></i>{% trans "Predefined" %}</span>
+        <span style="font-size:.8125rem;color:var(--text-secondary);flex:1">{% trans "Refresh the value from Open GRC data." %}</span>
+        <button type="submit" class="btn btn-outline-primary btn-sm">{% trans "Refresh" %}</button>
+      </form>
     </div>
     {% endif %}
 

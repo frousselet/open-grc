@@ -120,21 +120,21 @@
         {% if not group.is_system %}
         {% has_perm "system.groups.update" as can_edit_group %}
         {% if can_edit_group and all_users %}
-        <hr>
-        <form method="post" action="{% url 'accounts:group-users-update' group.pk %}" class="row g-2">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="add">
-          <div class="col-auto">
-            <select name="user_id" class="form-select form-select-sm">
-              {% for u in all_users %}
-              <option value="{{ u.pk }}">{{ u.display_name }} ({{ u.email }})</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="col-auto">
+        <div class="inline-form-bar mt-3">
+          <form method="post" action="{% url 'accounts:group-users-update' group.pk %}" class="d-flex align-items-center gap-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add">
+            <span class="inline-form-label"><i class="bi bi-person-plus me-1"></i>{% trans "Add" %}</span>
+            <div style="flex:1;min-width:12rem">
+              <select name="user_id" class="form-select form-select-sm">
+                {% for u in all_users %}
+                <option value="{{ u.pk }}">{{ u.display_name }} ({{ u.email }})</option>
+                {% endfor %}
+              </select>
+            </div>
             <button type="submit" class="btn btn-sm btn-primary">{% trans "Add" %}</button>
-          </div>
-        </form>
+          </form>
+        </div>
         {% endif %}
         {% endif %}
       </div>

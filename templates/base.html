@@ -691,6 +691,27 @@
       to   { width: 0%; }
     }
 
+    /* ── Inline form bars ─────────────────────────────── */
+    .inline-form-bar {
+      background: var(--surface-muted);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: .75rem 1rem;
+    }
+    .inline-form-bar .form-control,
+    .inline-form-bar .form-select {
+      background: var(--surface);
+      font-size: .8125rem;
+      padding: .4375rem .75rem;
+    }
+    .inline-form-bar textarea.form-control { resize: none; }
+    .inline-form-label {
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
     /* ── Forms ─────────────────────────────────────────── */
     .form-control, .form-select {
       border-radius: var(--radius-sm);
