@@ -1,15 +1,29 @@
 {% load i18n %}
 
-{# ── Indicator boxes (always 6 slots) ────────────── #}
+{# ── Indicator boxes (always 10 slots, 5 per row) ── #}
 <div class="d-flex align-items-center mb-3">
   <h5 class="mb-0"><i class="bi bi-speedometer2 me-1" style="color:var(--accent)"></i> {% trans "Indicators" %}</h5>
-  <button class="btn btn-sm btn-outline-primary ms-auto" data-bs-toggle="modal" data-bs-target="#indicatorPickerModal">
-    <i class="bi bi-gear me-1"></i>{% trans "Configure" %}
-  </button>
+  <div class="dropdown ms-auto">
+    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="bi bi-gear me-1"></i>{% trans "Configure" %}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#indicatorPickerModal"><i class="bi bi-speedometer2 me-2"></i>{% trans "Choose indicators" %}</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li>
+        <a class="dropdown-item d-flex align-items-center" href="#" id="toggleChartBtn">
+          <i class="bi bi-graph-up me-2"></i>{% trans "Evolution chart" %}
+          <span class="ms-auto">
+            <i class="bi {% if dashboard_show_indicator_chart %}bi-toggle-on text-primary{% else %}bi-toggle-off text-muted{% endif %}" id="toggleChartIcon" style="font-size:1.2rem"></i>
+          </span>
+        </a>
+      </li>
+    </ul>
+  </div>
 </div>
 <div class="row g-3 mb-4">
   {% for slot in dashboard_indicator_slots %}
-  <div class="col-md-4 col-sm-6">
+  <div class="col-xl col-md-4 col-sm-6" style="flex:0 0 20%;max-width:20%">
     {% if slot %}
     <a href="{% url 'context:indicator-detail' slot.indicator.pk %}" class="text-decoration-none d-block h-100">
       <div class="stat-card h-100" style="border-left:3px solid {% if slot.indicator.is_critical %}var(--bs-danger){% else %}var(--accent){% endif %}">
@@ -81,6 +95,17 @@
   {% endfor %}
 </div>
 
+{# ── Indicator Evolution Chart ─────────────── #}
+<div id="indicatorChartWrapper" class="card mb-4" style="{% if not dashboard_show_indicator_chart %}display:none{% endif %}">
+  <div class="card-body">
+    <h6 class="card-title mb-3"><i class="bi bi-graph-up me-2" style="color:var(--accent)"></i>{% trans "Indicator evolution" %}</h6>
+    <div style="position:relative;height:300px">
+      <canvas id="indicatorEvolutionChart"></canvas>
+    </div>
+    <p class="text-muted text-center mt-2 mb-0" id="indicatorChartEmpty" style="display:none"><small>{% trans "No numeric data available for the selected indicators." %}</small></p>
+  </div>
+</div>
+
 {# ── Indicator Picker Modal ──────────────────── #}
 <div class="modal fade" id="indicatorPickerModal" tabindex="-1" aria-labelledby="indicatorPickerLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -90,7 +115,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
       </div>
       <div class="modal-body">
-        <p class="text-muted mb-3">{% blocktrans with max=6 %}Select up to {{ max }} indicators to display on your dashboard.{% endblocktrans %}</p>
+        <p class="text-muted mb-3">{% blocktrans with max=10 %}Select up to {{ max }} indicators to display on your dashboard.{% endblocktrans %}</p>
         <div class="mb-3">
           <input type="text" class="form-control form-control-sm" id="indicatorPickerSearch" placeholder="{% trans 'Search indicators…' %}">
         </div>
@@ -128,12 +153,16 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 (function() {
   var toggleUrl = '{% url "context:dashboard-indicator-toggle" %}';
+  var chartToggleUrl = '{% url "context:dashboard-indicator-chart-toggle" %}';
+  var chartDataUrl = '{% url "context:dashboard-indicator-chart-data" %}';
   var csrfToken = '{{ csrf_token }}';
-  var maxPinned = 6;
+  var maxPinned = 10;
 
+  // ── Indicator picker ──────────────────────────
   var searchInput = document.getElementById('indicatorPickerSearch');
   if (searchInput) {
     searchInput.addEventListener('input', function() {
@@ -190,6 +219,113 @@
     modal.addEventListener('hidden.bs.modal', function() {
       location.reload();
     });
+  }
+
+  // ── Chart toggle ──────────────────────────────
+  var chartWrapper = document.getElementById('indicatorChartWrapper');
+  var toggleChartBtn = document.getElementById('toggleChartBtn');
+  var toggleChartIcon = document.getElementById('toggleChartIcon');
+  var chartLoaded = false;
+
+  if (toggleChartBtn) {
+    toggleChartBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      fetch(chartToggleUrl, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken },
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.show_chart) {
+          chartWrapper.style.display = '';
+          toggleChartIcon.className = 'bi bi-toggle-on text-primary';
+          if (!chartLoaded) loadChart();
+        } else {
+          chartWrapper.style.display = 'none';
+          toggleChartIcon.className = 'bi bi-toggle-off text-muted';
+        }
+      });
+    });
+  }
+
+  // ── Chart rendering ───────────────────────────
+  var CHART_COLORS = [
+    '#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ef4444',
+    '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#64748b',
+  ];
+  var chartInstance = null;
+
+  function loadChart() {
+    chartLoaded = true;
+    fetch(chartDataUrl)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var canvas = document.getElementById('indicatorEvolutionChart');
+        var emptyMsg = document.getElementById('indicatorChartEmpty');
+        if (!data.datasets || !data.datasets.length) {
+          canvas.style.display = 'none';
+          emptyMsg.style.display = '';
+          return;
+        }
+        canvas.style.display = '';
+        emptyMsg.style.display = 'none';
+
+        var datasets = data.datasets.map(function(ds, i) {
+          var color = CHART_COLORS[i % CHART_COLORS.length];
+          return {
+            label: ds.label + (ds.unit ? ' (' + ds.unit + ')' : ''),
+            data: ds.data,
+            borderColor: color,
+            backgroundColor: color + '18',
+            fill: false,
+            tension: 0.3,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+          };
+        });
+
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(canvas, {
+          type: 'line',
+          data: { datasets: datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+              x: {
+                type: 'category',
+                grid: { display: false },
+                ticks: { font: { size: 11 }, maxRotation: 45 },
+              },
+              y: {
+                grid: { color: 'rgba(0,0,0,.06)' },
+                ticks: { font: { size: 11 } },
+              },
+            },
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { usePointStyle: true, padding: 16, font: { size: 12 } },
+              },
+              tooltip: {
+                backgroundColor: 'rgba(30,41,59,.92)',
+                titleFont: { size: 12 },
+                bodyFont: { size: 12 },
+                padding: 10,
+                cornerRadius: 8,
+              },
+            },
+          },
+        });
+      });
+  }
+
+  // Load chart on page load if enabled
+  if (chartWrapper && chartWrapper.style.display !== 'none') {
+    loadChart();
   }
 })();
 </script>
