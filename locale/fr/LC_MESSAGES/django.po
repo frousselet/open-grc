@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-02 12:10+0100\n"
+"POT-Creation-Date: 2026-03-03 11:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -106,6 +106,9 @@ msgstr "Attribution de rôle"
 
 msgid "Activities"
 msgstr "Activités"
+
+msgid "Indicators"
+msgstr "Indicateurs"
 
 msgid "Sites"
 msgstr "Sites"
@@ -229,6 +232,12 @@ msgstr "Webhooks"
 
 msgid "Notifications"
 msgstr "Notifications"
+
+msgid "MCP server"
+msgstr "Serveur MCP"
+
+msgid "OAuth credentials"
+msgstr "Identifiants OAuth"
 
 msgid "Assess"
 msgstr "Évaluer"
@@ -465,6 +474,12 @@ msgstr "Tentatives échouées"
 msgid "Locked until"
 msgstr "Verrouillé jusqu'au"
 
+msgid "Dismissed helpers"
+msgstr "Aides masquées"
+
+msgid "List of help content keys dismissed by the user."
+msgstr "Liste des clés d'aide contextuelle masquées par l'utilisateur."
+
 msgid "Access log — Open GRC"
 msgstr "Journal d'accès — Open GRC"
 
@@ -652,14 +667,8 @@ msgstr "Aides contextuelles"
 msgid "Restore help banners that have been dismissed."
 msgstr "Réafficher les aides contextuelles qui ont été masquées."
 
-msgid "Help banners have been restored."
-msgstr "Les aides contextuelles ont été réaffichées."
-
-msgid "Dismissed helpers"
-msgstr "Aides masquées"
-
-msgid "List of help content keys dismissed by the user."
-msgstr "Liste des clés d'aide contextuelle masquées par l'utilisateur."
+msgid "Reset"
+msgstr "Réinitialiser"
 
 msgid "My groups"
 msgstr "Mes groupes"
@@ -673,6 +682,15 @@ msgstr "Permissions effectives"
 msgid "No permissions."
 msgstr "Aucune permission."
 
+msgid "OAuth credentials created"
+msgstr "Identifiants OAuth créés"
+
+msgid "Copy the secret now. It will not be shown again."
+msgstr "Copiez le secret maintenant. Il ne sera plus affiché."
+
+msgid "Done"
+msgstr "Terminé"
+
 msgid "Name for this passkey:"
 msgstr "Nom de cette clé d'accès :"
 
@@ -684,6 +702,15 @@ msgstr "Supprimer la clé d'accès"
 
 msgid "Deletion failed."
 msgstr "Échec de la suppression."
+
+msgid "Name for this credential:"
+msgstr "Nom de cet identifiant :"
+
+msgid "Creation failed."
+msgstr "Échec de la création."
+
+msgid "Delete OAuth credential"
+msgstr "Supprimer l'identifiant OAuth"
 
 msgid "Information"
 msgstr "Information"
@@ -750,6 +777,9 @@ msgstr "Identifiants invalides."
 
 msgid "Profile updated."
 msgstr "Profil mis à jour."
+
+msgid "Help banners have been restored."
+msgstr "Les aides contextuelles ont été réaffichées."
 
 msgid "Password changed successfully."
 msgstr "Mot de passe changé avec succès."
@@ -1198,9 +1228,6 @@ msgstr ""
 "Impossible de créer une dépendance vers un bien support décommissionné ou "
 "éliminé."
 
-msgid "Reference"
-msgstr "Référence"
-
 msgid "Category"
 msgstr "Catégorie"
 
@@ -1554,6 +1581,9 @@ msgstr "Zoom arrière"
 
 msgid "No dependencies to display."
 msgstr "Aucune dépendance à afficher."
+
+msgid "Reference"
+msgstr "Référence"
 
 msgid "SPOF"
 msgstr "SPOF"
@@ -2037,9 +2067,6 @@ msgstr "Le propriétaire est requis pour créer un nouveau référentiel."
 msgid "(Requirements without section)"
 msgstr "(Exigences sans section)"
 
-msgid "The framework 'reference' field is required."
-msgstr "Le champ 'référence' du référentiel est requis."
-
 msgid "The framework 'name' field is required."
 msgstr "Le champ 'nom' du référentiel est requis."
 
@@ -2053,14 +2080,6 @@ msgid "Unknown framework category: '%(category)s'. Accepted values: %(values)s"
 msgstr ""
 "Catégorie de référentiel inconnue : « %(category)s ». Valeurs acceptées : "
 "%(values)s"
-
-#, python-format
-msgid ""
-"A framework with the reference '%(reference)s' already exists in the "
-"database."
-msgstr ""
-"Un référentiel avec la référence « %(reference)s » existe déjà dans la base "
-"de données."
 
 msgid "A section has no reference."
 msgstr "Une section n'a pas de référence."
@@ -2263,6 +2282,9 @@ msgstr ""
 
 msgid "Section"
 msgstr "Section"
+
+msgid "Requirement number"
+msgstr "Numéro d'exigence"
 
 msgid "Implementation guidance"
 msgstr "Guide de mise en œuvre"
@@ -2535,6 +2557,9 @@ msgstr "Aucun plan d'action associé."
 msgid "New requirement"
 msgstr "Nouvelle exigence"
 
+msgid "Req. number"
+msgstr "N° d'exigence"
+
 msgid "No requirement defined."
 msgstr "Aucune exigence définie."
 
@@ -2726,6 +2751,51 @@ msgstr "Cœur de métier"
 msgid "Management"
 msgstr "Gestion"
 
+msgid "Number"
+msgstr "Nombre"
+
+msgid "Boolean"
+msgstr "Booléen"
+
+msgid "Falls below"
+msgstr "Descend sous"
+
+msgid "Exceeds"
+msgstr "Dépasse"
+
+msgid "Is false"
+msgstr "Est faux"
+
+msgid "Is true"
+msgstr "Est vrai"
+
+msgid "Manual"
+msgstr "Manuel"
+
+msgid "API"
+msgstr "API"
+
+msgid "Internal Open GRC"
+msgstr "Interne Open GRC"
+
+msgid "Global compliance rate"
+msgstr "Taux de conformité global"
+
+msgid "Compliance rate by framework"
+msgstr "Taux de conformité par référentiel"
+
+msgid "Objective progress rate"
+msgstr "Taux de progression des objectifs"
+
+msgid "Risk treatment rate"
+msgstr "Taux de traitement des risques"
+
+msgid "Approved scopes rate"
+msgstr "Taux de périmètres approuvés"
+
+msgid "Mandatory roles coverage rate"
+msgstr "Taux de couverture des rôles obligatoires"
+
 msgid "Headquarters"
 msgstr "Siège social"
 
@@ -2747,6 +2817,90 @@ msgstr "Activité"
 msgid "The child activity must share at least one scope with its parent."
 msgstr "L'activité enfant doit partager au moins un périmètre avec son parent."
 
+msgid "Indicator type"
+msgstr "Type d'indicateur"
+
+msgid "Collection method"
+msgstr "Méthode de collecte"
+
+msgid "Format"
+msgstr "Format"
+
+msgid "Unit"
+msgstr "Unité"
+
+msgid "Applicable only for number format."
+msgstr "Applicable uniquement au format nombre."
+
+msgid "Current value"
+msgstr "Valeur actuelle"
+
+msgid "Expected level"
+msgstr "Niveau attendu"
+
+msgid "Critical threshold"
+msgstr "Seuil critique"
+
+msgid "Critical threshold value"
+msgstr "Valeur du seuil critique"
+
+msgid "For numbers only. For booleans, the operator defines the threshold."
+msgstr "Pour les nombres uniquement. Pour les booléens, l'opérateur définit le seuil."
+
+msgid "Review frequency"
+msgstr "Fréquence de revue"
+
+msgid "First review date"
+msgstr "Date de première revue"
+
+msgid "Internal Open GRC indicator"
+msgstr "Indicateur interne Open GRC"
+
+msgid "Internal data source"
+msgstr "Source de données interne"
+
+msgid "Source parameter"
+msgstr "Paramètre de la source"
+
+msgid "Optional parameter, e.g. framework ID for compliance rate by framework."
+msgstr "Paramètre optionnel, ex. : ID du référentiel pour le taux de conformité par référentiel."
+
+msgid "Indicator"
+msgstr "Indicateur"
+
+msgid "A boolean indicator cannot have a unit."
+msgstr "Un indicateur booléen ne peut pas avoir d'unité."
+
+msgid "A boolean indicator must use 'Is true' or 'Is false' as threshold."
+msgstr "Un indicateur booléen doit utiliser « Est vrai » ou « Est faux » comme seuil."
+
+msgid "A number indicator must use 'Falls below' or 'Exceeds' as threshold."
+msgstr "Un indicateur numérique doit utiliser « Descend sous » ou « Dépasse » comme seuil."
+
+msgid "Internal Open GRC indicators must be of organizational type."
+msgstr "Les indicateurs internes Open GRC doivent être de type organisationnel."
+
+msgid "An internal indicator must have a data source."
+msgstr "Un indicateur interne doit avoir une source de données."
+
+msgid "The first review date must be today or in the future."
+msgstr "La date de première revue doit être aujourd'hui ou dans le futur."
+
+msgid "Value"
+msgstr "Valeur"
+
+msgid "Recorded at"
+msgstr "Relevé le"
+
+msgid "Recorded by"
+msgstr "Relevé par"
+
+msgid "Indicator measurement"
+msgstr "Relevé d'indicateur"
+
+msgid "Indicator measurements"
+msgstr "Relevés d'indicateur"
+
 msgid "Impact level"
 msgstr "Niveau d'impact"
 
@@ -2767,9 +2921,6 @@ msgstr "Un enjeu externe ne peut avoir qu'une catégorie externe."
 
 msgid "Target value"
 msgstr "Valeur cible"
-
-msgid "Current value"
-msgstr "Valeur actuelle"
 
 msgid "Unit of measure"
 msgstr "Unité de mesure"
@@ -2934,6 +3085,79 @@ msgstr "Rôle obligatoire <strong>%(name)s</strong> sans utilisateur assigné"
 msgid "Issues by impact level"
 msgstr "Enjeux par niveau d'impact"
 
+msgid "Thresholds"
+msgstr "Seuils"
+
+msgid "Measurements"
+msgstr "Relevés"
+
+msgid "Record a measurement"
+msgstr "Enregistrer un relevé"
+
+msgid "Record"
+msgstr "Enregistrer"
+
+msgid ""
+"This is an internal indicator. You can refresh its value from Open GRC data."
+msgstr "Cet indicateur est interne. Vous pouvez rafraîchir sa valeur depuis les données Open GRC."
+
+msgid "Refresh"
+msgstr "Rafraîchir"
+
+msgid "No measurement recorded."
+msgstr "Aucun relevé enregistré."
+
+msgid "indicator"
+msgstr "indicateur"
+
+msgid "Edit indicator"
+msgstr "Modifier l'indicateur"
+
+msgid "New indicator"
+msgstr "Nouvel indicateur"
+
+msgid "Format & Values"
+msgstr "Format et valeurs"
+
+msgid "Only for number format."
+msgstr "Uniquement pour le format nombre."
+
+msgid "For numbers only."
+msgstr "Pour les nombres uniquement."
+
+msgid "Review"
+msgstr "Revue"
+
+msgid "internal indicator"
+msgstr "indicateur interne"
+
+msgid "Edit internal indicator"
+msgstr "Modifier l'indicateur interne"
+
+msgid "New internal Open GRC indicator"
+msgstr "Nouvel indicateur interne Open GRC"
+
+msgid ""
+"An internal indicator is automatically populated from Open GRC data. It is "
+"always of organizational type. The first measurement will be taken "
+"automatically upon creation."
+msgstr "Un indicateur interne est automatiquement alimenté depuis les données Open GRC. Il est toujours de type organisationnel. Le premier relevé sera effectué automatiquement à la création."
+
+msgid "Optional. E.g. framework ID for compliance rate by framework."
+msgstr "Optionnel. Ex. : ID du référentiel pour le taux de conformité par référentiel."
+
+msgid "New internal indicator"
+msgstr "Nouvel indicateur interne"
+
+msgid "Collection"
+msgstr "Collecte"
+
+msgid "Frequency"
+msgstr "Fréquence"
+
+msgid "No indicator defined."
+msgstr "Aucun indicateur défini."
+
 msgid "issue"
 msgstr "enjeu"
 
@@ -2954,9 +3178,6 @@ msgstr "Aucun enjeu défini."
 
 msgid "KPI"
 msgstr "KPI"
-
-msgid "Frequency"
-msgstr "Fréquence"
 
 msgid "objective"
 msgstr "objectif"
@@ -3020,9 +3241,6 @@ msgstr "Nouveau périmètre"
 
 msgid "Choose icon"
 msgstr "Choisir une icône"
-
-msgid "Reset"
-msgstr "Réinitialiser"
 
 msgid "Boundaries"
 msgstr "Périmètre et limites"
@@ -3102,6 +3320,27 @@ msgstr "Aucun périmètre disponible"
 msgid "scope(s) selected"
 msgstr "périmètre(s) sélectionné(s)"
 
+msgid "Initial measurement (automatic)."
+msgstr "Relevé initial (automatique)."
+
+msgid "Measurement recorded."
+msgstr "Relevé enregistré."
+
+msgid "Invalid measurement data."
+msgstr "Données de relevé invalides."
+
+msgid "This indicator is not an internal indicator."
+msgstr "Cet indicateur n'est pas un indicateur interne."
+
+msgid "Manual refresh."
+msgstr "Rafraîchissement manuel."
+
+msgid "Indicator refreshed."
+msgstr "Indicateur rafraîchi."
+
+msgid "Could not compute the indicator value."
+msgstr "Impossible de calculer la valeur de l'indicateur."
+
 #, python-format
 msgid "%(count)d mandatory role(s) with no assigned user"
 msgstr "%(count)d rôle(s) obligatoire(s) sans utilisateur assigné"
@@ -3167,6 +3406,85 @@ msgstr "Contenu d'aide"
 
 msgid "Help contents"
 msgstr "Contenus d'aide"
+
+msgid "MCP Server"
+msgstr "Serveur MCP"
+
+msgid "Application name"
+msgstr "Nom de l'application"
+
+msgid "Client ID"
+msgstr "Identifiant client"
+
+msgid "Client secret (hashed)"
+msgstr "Secret client (haché)"
+
+msgid "Redirect URIs (JSON)"
+msgstr "URIs de redirection (JSON)"
+
+msgid "JSON-encoded list of allowed redirect URIs for public clients."
+msgstr "Liste encodée en JSON des URIs de redirection autorisées pour les clients publics."
+
+msgid "Token endpoint auth method"
+msgstr "Méthode d'authentification du point de terminaison de jeton"
+
+msgid "OAuth application"
+msgstr "Application OAuth"
+
+msgid "OAuth applications"
+msgstr "Applications OAuth"
+
+msgid "Token (hashed)"
+msgstr "Jeton (haché)"
+
+msgid "Expires at"
+msgstr "Expire le"
+
+msgid "OAuth access token"
+msgstr "Jeton d'accès OAuth"
+
+msgid "OAuth access tokens"
+msgstr "Jetons d'accès OAuth"
+
+msgid "Code (hashed)"
+msgstr "Code (haché)"
+
+msgid "Redirect URI"
+msgstr "URI de redirection"
+
+msgid "PKCE code challenge"
+msgstr "Défi de code PKCE"
+
+msgid "PKCE code challenge method"
+msgstr "Méthode de défi de code PKCE"
+
+msgid "Used"
+msgstr "Utilisé"
+
+msgid "OAuth authorization code"
+msgstr "Code d'autorisation OAuth"
+
+msgid "OAuth authorization codes"
+msgstr "Codes d'autorisation OAuth"
+
+msgid "Authorize — Open GRC"
+msgstr "Autoriser — Open GRC"
+
+msgid "An application is requesting access to your account"
+msgstr "Une application demande l'accès à votre compte"
+
+#, python-format
+msgid "Signed in as <strong>%(email)s</strong>"
+msgstr "Connecté en tant que <strong>%(email)s</strong>"
+
+msgid "Authorize"
+msgstr "Autoriser"
+
+msgid "Deny"
+msgstr "Refuser"
+
+msgid "No OAuth credentials."
+msgstr "Aucun identifiant OAuth."
 
 msgid "ISO 27005"
 msgstr "ISO 27005"
@@ -4131,9 +4449,6 @@ msgstr "Tout afficher"
 msgid "in %%(days)s days"
 msgstr "dans %%(days)s jours"
 
-msgid "Loading..."
-msgstr "Chargement…"
-
 #, python-format
 msgid ""
 "Average of active frameworks — %(count)s "
@@ -4145,15 +4460,18 @@ msgstr ""
 msgid "Compliance by framework"
 msgstr "Conformité par référentiel"
 
+#, python-format
+msgid "%(count)s requirement%(count|pluralize:\"s\")s"
+msgstr "%(count)s exigence%(count|pluralize:\"s\")s"
+
 msgid "Active objectives progression"
 msgstr "Progression des objectifs actifs"
 
 msgid "Target:"
 msgstr "Échéance :"
 
-#, python-format
-msgid "%(count)s requirement%(count|pluralize:\"s\")s"
-msgstr "%(count)s exigence%(count|pluralize:\"s\")s"
+msgid "Loading..."
+msgstr "Chargement…"
 
 #, python-format
 msgid "%(count)s mandatory role(s) with no user"
@@ -4225,29 +4543,16 @@ msgstr "Aucun changement détecté"
 msgid "No history available."
 msgstr "Aucun historique disponible."
 
-msgid "OAuth credentials"
-msgstr "Identifiants OAuth"
+#~ msgid "The framework 'reference' field is required."
+#~ msgstr "Le champ 'référence' du référentiel est requis."
 
-msgid "OAuth credentials created"
-msgstr "Identifiants OAuth créés"
-
-msgid "Copy the secret now. It will not be shown again."
-msgstr "Copiez le secret maintenant. Il ne sera plus affiché."
-
-msgid "Done"
-msgstr "Terminé"
-
-msgid "No OAuth credentials."
-msgstr "Aucun identifiant OAuth."
-
-msgid "Name for this credential:"
-msgstr "Nom de cet identifiant :"
-
-msgid "Creation failed."
-msgstr "Échec de la création."
-
-msgid "Delete OAuth credential"
-msgstr "Supprimer l'identifiant OAuth"
+#, python-format
+#~ msgid ""
+#~ "A framework with the reference '%(reference)s' already exists in the "
+#~ "database."
+#~ msgstr ""
+#~ "Un référentiel avec la référence « %(reference)s » existe déjà dans la "
+#~ "base de données."
 
 #, python-format
 #~ msgid "%(count)d single point(s) of failure (SPOF) to review"
