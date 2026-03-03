@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
     original version of migration 0017."""
 
     dependencies = [
-        ("accounts", "0018_alter_user_dashboard_indicators"),
+        ("accounts", "0017_add_dashboard_show_indicator_chart"),
     ]
 
     operations = [
