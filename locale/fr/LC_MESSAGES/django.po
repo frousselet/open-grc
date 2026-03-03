@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-03 13:01+0100\n"
+"POT-Creation-Date: 2026-03-03 13:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5257,6 +5257,18 @@ msgstr "Usine"
 msgid "Warehouse"
 msgstr "Entrepôt"
 
+#: context/forms.py:409
+msgid "True"
+msgstr "Vrai"
+
+#: context/forms.py:409
+msgid "False"
+msgstr "Faux"
+
+#: context/forms.py:424
+msgid "Please enter a valid number."
+msgstr "Veuillez saisir un nombre valide."
+
 #: context/models/activity.py:32
 #: context/templates/context/activity_detail.html:42
 msgid "Parent activity"
@@ -6015,31 +6027,31 @@ msgstr "périmètre(s) sélectionné(s)"
 msgid "Maximum %d indicators on the dashboard."
 msgstr "Maximum %d indicateurs sur le tableau de bord."
 
-#: context/views.py:793
+#: context/views.py:795
 msgid "Initial measurement (automatic)."
 msgstr "Relevé initial (automatique)."
 
-#: context/views.py:849
+#: context/views.py:851
 msgid "Measurement recorded."
 msgstr "Relevé enregistré."
 
-#: context/views.py:851
+#: context/views.py:853
 msgid "Invalid measurement data."
 msgstr "Données de relevé invalides."
 
-#: context/views.py:861
+#: context/views.py:863
 msgid "This indicator is not a predefined indicator."
 msgstr "Cet indicateur n'est pas un indicateur prédéfini."
 
-#: context/views.py:868
+#: context/views.py:870
 msgid "Manual refresh."
 msgstr "Rafraîchissement manuel."
 
-#: context/views.py:870
+#: context/views.py:872
 msgid "Indicator refreshed."
 msgstr "Indicateur rafraîchi."
 
-#: context/views.py:872
+#: context/views.py:874
 msgid "Could not compute the indicator value."
 msgstr "Impossible de calculer la valeur de l'indicateur."
 
