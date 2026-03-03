@@ -1029,15 +1029,15 @@
     .sortable-th:hover {
       color: var(--accent) !important;
     }
-    .sortable-th:hover .sort-icon { opacity: .85 !important; color: var(--accent); }
+    .sortable-th:hover .sort-icon { opacity: 1 !important; color: var(--accent) !important; }
 
     /* Sort icons */
     .sort-icon { transition: opacity var(--transition-fast), color var(--transition-fast); }
-    .sort-icon-active { font-size: .8rem; opacity: 1; color: var(--accent); }
-    .sort-icon-idle { font-size: .75rem; opacity: .38; color: var(--text-secondary); }
+    .sort-icon-active { font-size: .85rem; opacity: 1; color: var(--accent); font-weight: 700; }
+    .sort-icon-idle { font-size: .8rem; opacity: 1; color: var(--text-secondary); }
 
-    [data-bs-theme="dark"] .sort-icon-active { color: var(--accent-hover); opacity: 1; }
-    [data-bs-theme="dark"] .sort-icon-idle { opacity: .5; color: var(--text-muted); }
+    [data-bs-theme="dark"] .sort-icon-active { color: var(--accent-hover); }
+    [data-bs-theme="dark"] .sort-icon-idle { color: var(--text-secondary); }
 
     /* ── Table toolbar (integrated search) ────────────── */
     .table-toolbar {
@@ -1849,6 +1849,34 @@
 
     /* Initial filter in case of browser back-fill */
     filter();
+  })();
+
+  /* ── Combinable filter chips ─────────────────────── */
+  (function() {
+    document.addEventListener('click', function(e) {
+      var chip = e.target.closest('a.filter-chip');
+      if (!chip) return;
+
+      var chipUrl = new URL(chip.href, window.location.origin);
+      /* "All" chips link to base URL (no query string) — navigate directly */
+      if (!chipUrl.search) return;
+
+      e.preventDefault();
+      var current = new URLSearchParams(window.location.search);
+      var clicked = new URLSearchParams(chipUrl.search);
+
+      clicked.forEach(function(value, key) {
+        if (current.get(key) === value) {
+          /* Same value already active — toggle off */
+          current.delete(key);
+        } else {
+          current.set(key, value);
+        }
+      });
+
+      var qs = current.toString();
+      window.location.href = window.location.pathname + (qs ? '?' + qs : '');
+    });
   })();
   </script>
   {% block extra_js %}{% endblock %}
