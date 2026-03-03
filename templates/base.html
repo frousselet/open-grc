@@ -1515,26 +1515,35 @@
   })();
   </script>
   <script>
-  /* ── Persist active tab (hash + sessionStorage) ── */
+  /* ── Persist active tab across form submissions ── */
   (function() {
     var tabs = document.querySelectorAll('[data-bs-toggle="tab"]');
     if (!tabs.length) return;
     var storageKey = 'activeTab:' + location.pathname;
 
-    /* On tab change → update URL hash + sessionStorage */
+    /* On tab change → update URL hash */
     tabs.forEach(function(tab) {
       tab.addEventListener('shown.bs.tab', function(e) {
         var id = e.target.getAttribute('href') || e.target.dataset.bsTarget;
-        if (!id) return;
-        history.replaceState(null, '', id);
-        try { sessionStorage.setItem(storageKey, id); } catch(e) {}
+        if (id) history.replaceState(null, '', id);
       });
     });
 
-    /* On page load → restore from hash (refresh) or sessionStorage (form submit) */
+    /* Before form submit → save current tab so it survives the POST+redirect */
+    document.addEventListener('submit', function(e) {
+      var pane = e.target.closest('.tab-pane');
+      if (pane && pane.id) {
+        try { sessionStorage.setItem(storageKey, '#' + pane.id); } catch(ex) {}
+      }
+    });
+
+    /* On page load → restore from hash (manual refresh) or sessionStorage (post-redirect, consumed once) */
     var hash = location.hash;
     if (!hash) {
-      try { hash = sessionStorage.getItem(storageKey); } catch(e) {}
+      try {
+        hash = sessionStorage.getItem(storageKey);
+        sessionStorage.removeItem(storageKey);
+      } catch(ex) {}
     }
     if (hash) {
       var target = document.querySelector('[data-bs-toggle="tab"][href="' + hash + '"]');
