@@ -49,7 +49,7 @@
                   <span style="color:var(--text-muted)">—</span>
                 {% endif %}
               {% else %}
-                {{ slot.indicator.current_value|default:"—" }}
+                {{ slot.formatted_value|default:slot.indicator.current_value|default:"—" }}
               {% endif %}
             </span>
             {% if slot.indicator.unit and slot.indicator.format != "boolean" %}
@@ -75,9 +75,9 @@
           </div>
           {% if slot.current_measurement %}
           <small class="text-muted" style="font-size:.72rem">
-            {% trans "Last:" %} {{ slot.current_measurement.recorded_at|date:"d/m/Y" }}
-            {% if slot.previous_measurement and slot.indicator.format == "number" %}
-              · {% trans "Previous:" %} {{ slot.previous_measurement.value }}{{ slot.indicator.unit }}
+            <i class="bi bi-calendar3 me-1"></i>{{ slot.current_measurement.recorded_at|date:"d/m/Y" }}
+            {% if slot.delta_display %}
+              · <i class="bi bi-plus-slash-minus me-1"></i><span style="color:{% if slot.indicator.is_critical %}var(--bs-danger){% elif slot.trend == 'up' %}var(--success){% elif slot.trend == 'down' %}var(--danger){% else %}var(--text-muted){% endif %}">{{ slot.delta_display }}{% if slot.indicator.unit %} {{ slot.indicator.unit }}{% endif %}</span>
             {% endif %}
           </small>
           {% else %}
