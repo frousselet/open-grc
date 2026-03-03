@@ -329,6 +329,7 @@
     .main-content .row.g-3 { --bs-gutter-y: 1.25rem; }
     .main-content .row.g-4 { --bs-gutter-y: 1.5rem; }
     .main-content .table-responsive { margin-top: .75rem; margin-bottom: 2rem; }
+    .main-content .card .table-responsive { margin-top: 0; margin-bottom: 0; }
     .main-content form.row { margin-bottom: 2rem; }
     .main-content .help-banner { margin-bottom: 1.5rem; }
     .main-content > .container-xl > .d-flex:first-child { margin-bottom: 1.75rem; }
@@ -434,45 +435,151 @@
     .stat-card-link:hover::after { transform: translateX(1px); }
 
     /* ── Tables ────────────────────────────────────────── */
+    .card:has(.table-responsive) {
+      overflow: hidden;
+    }
+    .card:has(.table-responsive):hover {
+      box-shadow: var(--shadow-xs);
+    }
+    .card > .table-responsive {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
     .table {
       --bs-table-bg: transparent;
       font-size: .8125rem;
+      margin-bottom: 0;
     }
     .table > thead > tr > th {
-      font-size: .6875rem;
-      font-weight: 650;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      color: var(--text-muted);
-      border-bottom: 2px solid var(--border-light);
-      padding: .75rem .875rem;
-      background: transparent;
+      font-size: .75rem;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: .01em;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-light);
+      padding: .75rem 1rem;
+      background: var(--surface-muted);
       white-space: nowrap;
     }
     .table > thead.table-dark {
       --bs-table-bg: transparent;
-      --bs-table-color: var(--text-muted);
+      --bs-table-color: var(--text-secondary);
       --bs-table-border-color: var(--border-light);
       font-weight: 600;
     }
     .table > thead.table-dark > tr > th {
-      color: var(--text-muted);
-      background: transparent;
+      color: var(--text-secondary);
+      background: var(--surface-muted);
     }
     .table > tbody > tr {
       transition: background var(--transition-fast);
     }
     .table > tbody > tr:hover {
+      --bs-table-hover-bg: transparent;
       background: var(--accent-soft) !important;
     }
     .table > :not(caption) > * > * {
-      padding: .6875rem .875rem;
-      border-bottom-color: var(--border-light);
+      padding: .75rem 1rem;
+      border-bottom-color: var(--border-subtle);
+    }
+    .table > tbody > tr:last-child > td {
+      border-bottom: none;
     }
     .table-striped > tbody > tr:nth-of-type(odd) > * {
       --bs-table-striped-bg: transparent;
     }
     .table > tbody > tr > td { vertical-align: middle; }
+    .table > tbody > tr.table-danger {
+      --bs-table-bg: var(--danger-soft);
+      --bs-table-hover-bg: var(--danger-soft);
+    }
+
+    /* ── Table badges — dot-pill style ───────────────── */
+    .table .badge,
+    .badge-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: .375rem;
+      border-radius: 100px;
+      font-weight: 550;
+      font-size: .6875rem;
+      padding: .25em .625em;
+      letter-spacing: .01em;
+      line-height: 1.5;
+    }
+    .table .badge::before,
+    .badge-dot::before {
+      content: '';
+      width: .4375rem;
+      height: .4375rem;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    /* Tag badges (inline background-color) should not get the dot */
+    .table .badge[style*="background-color"]::before { display: none; }
+    .table .badge[style*="background-color"] { gap: 0; }
+
+    /* Success — Active, Approved, Compliant, Fulfilled */
+    .table .badge.text-bg-success, .table .badge.bg-success,
+    .badge-dot.success {
+      background: var(--success-soft) !important;
+      color: var(--success) !important;
+    }
+    .table .badge.text-bg-success::before, .table .badge.bg-success::before,
+    .badge-dot.success::before { background: var(--success); }
+
+    /* Warning — High, Pending, In Progress, Partially compliant */
+    .table .badge.text-bg-warning, .table .badge.bg-warning,
+    .badge-dot.warning {
+      background: var(--warning-soft) !important;
+      color: var(--warning) !important;
+    }
+    .table .badge.bg-warning.text-dark { color: var(--warning) !important; }
+    .table .badge.text-bg-warning::before, .table .badge.bg-warning::before,
+    .badge-dot.warning::before { background: var(--warning); }
+
+    /* Danger — Critical, Expired, Non-compliant, Overdue */
+    .table .badge.text-bg-danger, .table .badge.bg-danger,
+    .badge-dot.danger {
+      background: var(--danger-soft) !important;
+      color: var(--danger) !important;
+    }
+    .table .badge.text-bg-danger::before, .table .badge.bg-danger::before,
+    .badge-dot.danger::before { background: var(--danger); }
+
+    /* Info — Medium, Under review, Identified */
+    .table .badge.text-bg-info, .table .badge.bg-info,
+    .badge-dot.info {
+      background: var(--info-soft) !important;
+      color: var(--info) !important;
+    }
+    .table .badge.text-bg-info::before, .table .badge.bg-info::before,
+    .badge-dot.info::before { background: var(--info); }
+
+    /* Primary — Deployed, Active objectives */
+    .table .badge.text-bg-primary, .table .badge.bg-primary,
+    .badge-dot.accent {
+      background: var(--accent-soft) !important;
+      color: var(--accent) !important;
+    }
+    .table .badge.text-bg-primary::before, .table .badge.bg-primary::before,
+    .badge-dot.accent::before { background: var(--accent); }
+
+    /* Secondary — Default, Draft, Not assessed */
+    .table .badge.text-bg-secondary, .table .badge.bg-secondary,
+    .badge-dot.secondary {
+      background: var(--surface-subtle) !important;
+      color: var(--text-secondary) !important;
+    }
+    .table .badge.text-bg-secondary::before, .table .badge.bg-secondary::before,
+    .badge-dot.secondary::before { background: var(--text-muted); }
+
+    /* Dark — Archived, Disposed, Inactive */
+    .table .badge.text-bg-dark, .table .badge.bg-dark {
+      background: var(--surface-subtle) !important;
+      color: var(--text-secondary) !important;
+    }
+    .table .badge.text-bg-dark::before, .table .badge.bg-dark::before { background: var(--text-muted); }
 
     /* ── Buttons ───────────────────────────────────────── */
     .btn {
