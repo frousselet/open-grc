@@ -66,15 +66,17 @@ urlpatterns = [
     path("tags/create-inline/", views.tag_create_inline, name="tag-create-inline"),
     # Indicators — Organizational
     path("indicators/organizational/", views.IndicatorListView.as_view(indicator_type=IndicatorType.ORGANIZATIONAL), name="indicator-organizational-list"),
+    path("indicators/organizational/create/", views.IndicatorCreateView.as_view(indicator_type=IndicatorType.ORGANIZATIONAL), name="indicator-organizational-create"),
     # Indicators — Technical
     path("indicators/technical/", views.IndicatorListView.as_view(indicator_type=IndicatorType.TECHNICAL), name="indicator-technical-list"),
-    # Indicators — CRUD
-    path("indicators/create/", views.IndicatorCreateView.as_view(), name="indicator-create"),
-    path("indicators/create/internal/", views.InternalIndicatorCreateView.as_view(), name="indicator-internal-create"),
+    path("indicators/technical/create/", views.IndicatorCreateView.as_view(indicator_type=IndicatorType.TECHNICAL), name="indicator-technical-create"),
+    # Indicators — Predefined
+    path("indicators/predefined/create/", views.PredefinedIndicatorCreateView.as_view(), name="indicator-predefined-create"),
+    # Indicators — shared CRUD
     path("indicators/<uuid:pk>/", views.IndicatorDetailView.as_view(), name="indicator-detail"),
     path("indicators/<uuid:pk>/edit/", views.IndicatorUpdateView.as_view(), name="indicator-update"),
     path("indicators/<uuid:pk>/delete/", views.IndicatorDeleteView.as_view(), name="indicator-delete"),
     path("indicators/<uuid:pk>/approve/", views.ApproveView.as_view(model=Indicator, success_url=reverse_lazy("context:indicator-organizational-list")), name="indicator-approve"),
     path("indicators/<uuid:pk>/record/", views.IndicatorRecordMeasurementView.as_view(), name="indicator-record"),
-    path("indicators/<uuid:pk>/refresh/", views.IndicatorRefreshInternalView.as_view(), name="indicator-refresh"),
+    path("indicators/<uuid:pk>/refresh/", views.IndicatorRefreshView.as_view(), name="indicator-refresh"),
 ]

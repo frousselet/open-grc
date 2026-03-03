@@ -215,7 +215,7 @@ class CriticalThresholdOperator(models.TextChoices):
 class CollectionMethod(models.TextChoices):
     MANUAL = "manual", _("Manual")
     API = "api", _("API")
-    INTERNAL = "internal", _("Internal Open GRC")
+    INTERNAL = "internal", _("Predefined Open GRC")
 
 
 class IndicatorStatus(models.TextChoices):
@@ -224,13 +224,24 @@ class IndicatorStatus(models.TextChoices):
     DRAFT = "draft", _("Draft")
 
 
-class InternalIndicatorSource(models.TextChoices):
+class PredefinedIndicatorSource(models.TextChoices):
     GLOBAL_COMPLIANCE_RATE = "global_compliance_rate", _("Global compliance rate")
     FRAMEWORK_COMPLIANCE_RATE = "framework_compliance_rate", _("Compliance rate by framework")
     OBJECTIVE_PROGRESS = "objective_progress", _("Objective progress rate")
     RISK_TREATMENT_RATE = "risk_treatment_rate", _("Risk treatment rate")
     APPROVED_SCOPES_RATE = "approved_scopes_rate", _("Approved scopes rate")
     MANDATORY_ROLES_COVERAGE = "mandatory_roles_coverage", _("Mandatory roles coverage rate")
+
+
+# Mapping: predefined source -> (format, unit)
+PREDEFINED_SOURCE_FORMAT = {
+    PredefinedIndicatorSource.GLOBAL_COMPLIANCE_RATE: ("number", "%"),
+    PredefinedIndicatorSource.FRAMEWORK_COMPLIANCE_RATE: ("number", "%"),
+    PredefinedIndicatorSource.OBJECTIVE_PROGRESS: ("number", "%"),
+    PredefinedIndicatorSource.RISK_TREATMENT_RATE: ("number", "%"),
+    PredefinedIndicatorSource.APPROVED_SCOPES_RATE: ("number", "%"),
+    PredefinedIndicatorSource.MANDATORY_ROLES_COVERAGE: ("number", "%"),
+}
 
 
 class SiteType(models.TextChoices):

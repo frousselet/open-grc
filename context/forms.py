@@ -341,7 +341,7 @@ class IndicatorForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = Indicator
         fields = [
-            "scopes", "name", "description", "indicator_type",
+            "scopes", "name", "description",
             "collection_method", "format", "unit",
             "expected_level", "critical_threshold_operator",
             "critical_threshold_value", "review_frequency",
@@ -351,9 +351,8 @@ class IndicatorForm(ScopedFormMixin, forms.ModelForm):
             "scopes": ScopeTreeWidget(),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
-            "indicator_type": forms.Select(attrs=SELECT_ATTRS),
             "collection_method": forms.Select(attrs=SELECT_ATTRS),
-            "format": forms.Select(attrs=SELECT_ATTRS),
+            "format": forms.Select(attrs={**SELECT_ATTRS, "id": "id_format"}),
             "unit": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "expected_level": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "critical_threshold_operator": forms.Select(attrs=SELECT_ATTRS),
@@ -365,15 +364,14 @@ class IndicatorForm(ScopedFormMixin, forms.ModelForm):
         }
 
 
-class InternalIndicatorForm(ScopedFormMixin, forms.ModelForm):
-    """Form for creating internal Open GRC indicators."""
+class PredefinedIndicatorForm(ScopedFormMixin, forms.ModelForm):
+    """Form for creating predefined Open GRC indicators."""
 
     class Meta:
         model = Indicator
         fields = [
             "scopes", "name", "description",
             "internal_source", "internal_source_parameter",
-            "format", "unit",
             "expected_level", "critical_threshold_operator",
             "critical_threshold_value", "review_frequency",
             "first_review_date", "status", "tags",
@@ -384,8 +382,6 @@ class InternalIndicatorForm(ScopedFormMixin, forms.ModelForm):
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "internal_source": forms.Select(attrs=SELECT_ATTRS),
             "internal_source_parameter": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
-            "format": forms.Select(attrs=SELECT_ATTRS),
-            "unit": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "expected_level": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "critical_threshold_operator": forms.Select(attrs=SELECT_ATTRS),
             "critical_threshold_value": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
