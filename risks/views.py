@@ -18,6 +18,7 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
+from core.mixins import SortableListMixin
 from .constants import (
     DEFAULT_IMPACT_SCALES,
     DEFAULT_LIKELIHOOD_SCALES,
@@ -283,11 +284,20 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
 # ── Risk Assessment ─────────────────────────────────────────
 
-class RiskAssessmentListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class RiskAssessmentListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = RiskAssessment
     template_name = "risks/assessment_list.html"
     context_object_name = "assessments"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "methodology": "methodology",
+        "date": "assessment_date",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name"]
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related("scopes").select_related("assessor", "risk_criteria")
@@ -362,11 +372,18 @@ class RiskAssessmentDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Risk Criteria ───────────────────────────────────────────
 
-class RiskCriteriaListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class RiskCriteriaListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = RiskCriteria
     template_name = "risks/criteria_list.html"
     context_object_name = "criteria_list"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name"]
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related("scopes")
@@ -502,11 +519,21 @@ class RiskCriteriaDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Risk ────────────────────────────────────────────────────
 
-class RiskListView(LoginRequiredMixin, ListView):
+class RiskListView(LoginRequiredMixin, SortableListMixin, ListView):
     model = Risk
     template_name = "risks/risk_list.html"
     context_object_name = "risks"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "priority": "priority",
+        "current_level": "current_risk_level",
+        "treatment": "treatment_decision",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name"]
 
     def get_queryset(self):
         qs = super().get_queryset().select_related("assessment", "risk_owner")
@@ -577,11 +604,21 @@ class RiskDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Treatment Plan ──────────────────────────────────────────
 
-class TreatmentPlanListView(LoginRequiredMixin, ListView):
+class TreatmentPlanListView(LoginRequiredMixin, SortableListMixin, ListView):
     model = RiskTreatmentPlan
     template_name = "risks/treatment_plan_list.html"
     context_object_name = "plans"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "type": "treatment_type",
+        "target_date": "target_date",
+        "progress": "progress_percentage",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name", "risk__reference"]
 
     def get_queryset(self):
         qs = super().get_queryset().select_related("risk", "owner")
@@ -630,11 +667,19 @@ class TreatmentPlanDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Risk Acceptance ─────────────────────────────────────────
 
-class RiskAcceptanceListView(LoginRequiredMixin, ListView):
+class RiskAcceptanceListView(LoginRequiredMixin, SortableListMixin, ListView):
     model = RiskAcceptance
     template_name = "risks/acceptance_list.html"
     context_object_name = "acceptances"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "risk": "risk__reference",
+        "valid_until": "valid_until",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "risk__reference", "risk__name"]
 
     def get_queryset(self):
         qs = super().get_queryset().select_related("risk", "accepted_by")
@@ -675,11 +720,20 @@ class RiskAcceptanceDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Threat ──────────────────────────────────────────────────
 
-class ThreatListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class ThreatListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Threat
     template_name = "risks/threat_list.html"
     context_object_name = "threats"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "type": "type",
+        "origin": "origin",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name"]
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related("scopes")
@@ -730,11 +784,20 @@ class ThreatDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Vulnerability ───────────────────────────────────────────
 
-class VulnerabilityListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class VulnerabilityListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Vulnerability
     template_name = "risks/vulnerability_list.html"
     context_object_name = "vulnerabilities"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "category": "category",
+        "severity": "severity",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name"]
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related("scopes")
@@ -810,11 +873,21 @@ def scale_choices_api(request):
 
 # ── ISO 27005 Risk ──────────────────────────────────────────
 
-class ISO27005RiskListView(LoginRequiredMixin, ListView):
+class ISO27005RiskListView(LoginRequiredMixin, SortableListMixin, ListView):
     model = ISO27005Risk
     template_name = "risks/iso27005_risk_list.html"
     context_object_name = "analyses"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "threat": "threat__name",
+        "vulnerability": "vulnerability__name",
+        "likelihood": "combined_likelihood",
+        "impact": "max_impact",
+        "risk_level": "risk_level",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "threat__name", "vulnerability__name"]
 
     def get_queryset(self):
         qs = super().get_queryset().select_related("assessment", "threat", "vulnerability")

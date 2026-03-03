@@ -2,6 +2,7 @@
 {% load accounts_tags %}
 {% load help_tags %}
 {% load i18n %}
+{% load table_tags %}
 {% block title %}{% trans "Users — Open GRC" %}{% endblock %}
 
 {% block content %}
@@ -35,12 +36,12 @@
     <table class="table table-hover mb-0">
       <thead>
         <tr>
-          <th>{% trans "Name" %}</th>
-          <th>{% trans "Email" %}</th>
+          {% sortable_th "name" "Name" %}
+          {% sortable_th "email" "Email" %}
           <th>{% trans "Job title" %}</th>
           <th>{% trans "Department" %}</th>
-          <th>{% trans "Status" %}</th>
-          <th>{% trans "Last login" %}</th>
+          {% sortable_th "status" "Status" %}
+          {% sortable_th "last_login" "Last login" %}
         </tr>
       </thead>
       <tbody>
@@ -80,17 +81,5 @@
   </div>
 </div>
 
-{% if is_paginated %}
-<nav>
-  <ul class="pagination justify-content-center">
-    {% if page_obj.has_previous %}
-    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">&laquo;</a></li>
-    {% endif %}
-    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-    {% if page_obj.has_next %}
-    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">&raquo;</a></li>
-    {% endif %}
-  </ul>
-</nav>
-{% endif %}
+{% include "includes/pagination.html" %}
 {% endblock %}

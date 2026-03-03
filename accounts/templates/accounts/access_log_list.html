@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load help_tags %}
 {% load i18n %}
+{% load table_tags %}
 {% block title %}{% trans "Access log — Open GRC" %}{% endblock %}
 
 {% block content %}
@@ -39,9 +40,9 @@
     <table class="table table-hover table-sm mb-0">
       <thead>
         <tr>
-          <th>{% trans "Date" %}</th>
-          <th>{% trans "Email" %}</th>
-          <th>{% trans "Event" %}</th>
+          {% sortable_th "date" "Date" %}
+          {% sortable_th "email" "Email" %}
+          {% sortable_th "event" "Event" %}
           <th>{% trans "IP" %}</th>
           <th>{% trans "Reason" %}</th>
         </tr>
@@ -73,17 +74,5 @@
   </div>
 </div>
 
-{% if is_paginated %}
-<nav>
-  <ul class="pagination justify-content-center">
-    {% if page_obj.has_previous %}
-    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
-    {% endif %}
-    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-    {% if page_obj.has_next %}
-    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
-    {% endif %}
-  </ul>
-</nav>
-{% endif %}
+{% include "includes/pagination.html" %}
 {% endblock %}

@@ -15,6 +15,7 @@ from django.views import View
 from django.views.generic import DetailView, ListView
 
 from accounts.constants import PERMISSION_REGISTRY, MODULE_LABELS
+from core.mixins import SortableListMixin
 from accounts.forms import (
     GroupForm,
     LoginForm,
@@ -157,12 +158,19 @@ class PasswordChangeView(LoginRequiredMixin, View):
 
 # ── Users ───────────────────────────────────────────────────
 
-class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class UserListView(LoginRequiredMixin, PermissionRequiredMixin, SortableListMixin, ListView):
     model = User
     template_name = "accounts/user_list.html"
     context_object_name = "users"
     paginate_by = 25
     permission_required = "system.users.read"
+    sortable_fields = {
+        "name": "last_name",
+        "email": "email",
+        "status": "is_active",
+        "last_login": "last_login",
+    }
+    default_sort = "name"
 
     def get_queryset(self):
         qs = User.objects.annotate(group_count=Count("custom_groups"))
@@ -236,12 +244,15 @@ class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 # ── Groups ──────────────────────────────────────────────────
 
-class GroupListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class GroupListView(LoginRequiredMixin, PermissionRequiredMixin, SortableListMixin, ListView):
     model = Group
     template_name = "accounts/group_list.html"
     context_object_name = "groups"
     paginate_by = 25
     permission_required = "system.groups.read"
+    sortable_fields = {"name": "name"}
+    default_sort = "name"
+    search_fields = ["name", "description"]
 
     def get_queryset(self):
         return Group.objects.annotate(
@@ -419,12 +430,19 @@ class PermissionListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 # ── Access Logs ─────────────────────────────────────────────
 
-class AccessLogListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class AccessLogListView(LoginRequiredMixin, PermissionRequiredMixin, SortableListMixin, ListView):
     model = AccessLog
     template_name = "accounts/access_log_list.html"
     context_object_name = "logs"
     paginate_by = 50
     permission_required = "system.audit_trail.read"
+    sortable_fields = {
+        "date": "timestamp",
+        "email": "email_attempted",
+        "event": "event_type",
+    }
+    default_sort = "date"
+    default_sort_order = "desc"
 
     def get_queryset(self):
         qs = AccessLog.objects.select_related("user")

@@ -2,6 +2,7 @@
 {% load accounts_tags %}
 {% load help_tags %}
 {% load i18n %}
+{% load table_tags %}
 {% block title %}{% trans "Groups — Open GRC" %}{% endblock %}
 
 {% block content %}
@@ -14,12 +15,14 @@
 </div>
 {% help_modal "accounts.group_list" %}
 
+{% include "includes/table_search.html" %}
+
 <div class="card">
   <div class="table-responsive">
     <table class="table table-hover mb-0">
       <thead>
         <tr>
-          <th>{% trans "Name" %}</th>
+          {% sortable_th "name" "Name" %}
           <th>{% trans "Description" %}</th>
           <th>{% trans "Type" %}</th>
           <th>{% trans "Users" %}</th>
@@ -48,4 +51,6 @@
     </table>
   </div>
 </div>
+
+{% include "includes/pagination.html" %}
 {% endblock %}

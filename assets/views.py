@@ -17,6 +17,7 @@ from django.views.generic import (
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
 from assets.services.spof_detection import SpofDetector
+from core.mixins import SortableListMixin
 from context.models import Scope, Site
 from .forms import (
     AssetDependencyForm,
@@ -139,11 +140,21 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
 # ── Essential Asset ─────────────────────────────────────────
 
-class EssentialAssetListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class EssentialAssetListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = EssentialAsset
     template_name = "assets/essential_asset_list.html"
     context_object_name = "assets"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "type": "type",
+        "category": "category",
+        "owner": "owner__last_name",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name", "owner__last_name", "owner__first_name"]
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related("scopes").select_related("owner")
@@ -204,11 +215,22 @@ class EssentialAssetDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Support Asset ───────────────────────────────────────────
 
-class SupportAssetListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class SupportAssetListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = SupportAsset
     template_name = "assets/support_asset_list.html"
     context_object_name = "assets"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "type": "type",
+        "category": "category",
+        "owner": "owner__last_name",
+        "status": "status",
+        "eol": "end_of_life_date",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name", "owner__last_name", "owner__first_name"]
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related("scopes").select_related("owner")
@@ -269,11 +291,20 @@ class SupportAssetDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Dependency ──────────────────────────────────────────────
 
-class DependencyListView(LoginRequiredMixin, ListView):
+class DependencyListView(LoginRequiredMixin, SortableListMixin, ListView):
     model = AssetDependency
     template_name = "assets/dependency_list.html"
     context_object_name = "dependencies"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "essential": "essential_asset__name",
+        "support": "support_asset__name",
+        "type": "dependency_type",
+        "criticality": "criticality",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "essential_asset__name", "support_asset__name"]
 
     def get_queryset(self):
         return super().get_queryset().select_related(
@@ -303,11 +334,19 @@ class DependencyDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Group ───────────────────────────────────────────────────
 
-class GroupListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class GroupListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = AssetGroup
     template_name = "assets/group_list.html"
     context_object_name = "groups"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "type": "type",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name"]
 
     def get_queryset(self):
         return super().get_queryset().annotate(
@@ -358,11 +397,20 @@ class GroupDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Supplier ──────────────────────────────────────────────
 
-class SupplierListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class SupplierListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Supplier
     template_name = "assets/supplier_list.html"
     context_object_name = "suppliers"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "criticality": "criticality",
+        "contract_end": "contract_end_date",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name", "contact_name"]
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related("scopes").select_related("owner", "type")
@@ -439,10 +487,13 @@ class SupplierArchiveView(LoginRequiredMixin, View):
 # ── Supplier Types ────────────────────────────────────────
 
 
-class SupplierTypeListView(LoginRequiredMixin, ListView):
+class SupplierTypeListView(LoginRequiredMixin, SortableListMixin, ListView):
     model = SupplierType
     template_name = "assets/supplier_type_list.html"
     context_object_name = "supplier_types"
+    sortable_fields = {"name": "name"}
+    default_sort = "name"
+    search_fields = ["name"]
 
 
 class SupplierTypeDetailView(LoginRequiredMixin, DetailView):
@@ -679,11 +730,20 @@ class InstantiateTypeRequirementReviewView(LoginRequiredMixin, View):
 
 # ── Supplier Dependencies ─────────────────────────────────
 
-class SupplierDependencyListView(LoginRequiredMixin, ListView):
+class SupplierDependencyListView(LoginRequiredMixin, SortableListMixin, ListView):
     model = SupplierDependency
     template_name = "assets/supplier_dependency_list.html"
     context_object_name = "dependencies"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "support": "support_asset__name",
+        "supplier": "supplier__name",
+        "type": "dependency_type",
+        "criticality": "criticality",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "support_asset__name", "supplier__name"]
 
     def get_queryset(self):
         return super().get_queryset().select_related(
@@ -789,11 +849,20 @@ class SiteDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Site–Asset Dependencies ──────────────────────────────
 
-class SiteAssetDependencyListView(LoginRequiredMixin, ListView):
+class SiteAssetDependencyListView(LoginRequiredMixin, SortableListMixin, ListView):
     model = SiteAssetDependency
     template_name = "assets/site_asset_dependency_list.html"
     context_object_name = "dependencies"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "support": "support_asset__name",
+        "site": "site__name",
+        "type": "dependency_type",
+        "criticality": "criticality",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "support_asset__name", "site__name"]
 
     def get_queryset(self):
         return super().get_queryset().select_related("support_asset", "site")
@@ -821,11 +890,20 @@ class SiteAssetDependencyDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Site–Supplier Dependencies ───────────────────────────
 
-class SiteSupplierDependencyListView(LoginRequiredMixin, ListView):
+class SiteSupplierDependencyListView(LoginRequiredMixin, SortableListMixin, ListView):
     model = SiteSupplierDependency
     template_name = "assets/site_supplier_dependency_list.html"
     context_object_name = "dependencies"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "site": "site__name",
+        "supplier": "supplier__name",
+        "type": "dependency_type",
+        "criticality": "criticality",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "site__name", "supplier__name"]
 
     def get_queryset(self):
         return super().get_queryset().select_related("site", "supplier")

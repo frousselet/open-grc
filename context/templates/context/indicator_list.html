@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load table_tags %}
 
 {% block title %}
 {% if indicator_type == "organizational" %}{% trans "Organizational indicators" %}{% else %}{% trans "Technical indicators" %}{% endif %} — Open GRC
@@ -20,19 +21,20 @@
   </div>
 </div>
 
+{% include "includes/table_search.html" %}
 <div class="card">
   <div class="table-responsive">
     <table class="table table-hover mb-0">
       <thead>
         <tr>
-          <th>{% trans "Reference" %}</th>
-          <th>{% trans "Title" %}</th>
-          <th>{% trans "Format" %}</th>
+          {% sortable_th "reference" "Reference" %}
+          {% sortable_th "name" "Title" %}
+          {% sortable_th "format" "Format" %}
           <th>{% trans "Current value" %}</th>
           <th>{% trans "Expected level" %}</th>
           <th>{% trans "Collection" %}</th>
           <th>{% trans "Frequency" %}</th>
-          <th>{% trans "Status" %}</th>
+          {% sortable_th "status" "Status" %}
           <th>{% trans "Tags" %}</th>
           <th>{% trans "Approval" %}</th>
           <th class="text-end">{% trans "Actions" %}</th>
@@ -81,13 +83,5 @@
   </div>
 </div>
 
-{% if is_paginated %}
-<nav>
-  <ul class="pagination justify-content-center">
-    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Previous" %}</a></li>{% endif %}
-    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Next" %}</a></li>{% endif %}
-  </ul>
-</nav>
-{% endif %}
+{% include "includes/pagination.html" %}
 {% endblock %}
