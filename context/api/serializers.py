@@ -2,6 +2,8 @@ from rest_framework import serializers
 
 from context.models import (
     Activity,
+    Indicator,
+    IndicatorMeasurement,
     Issue,
     Objective,
     Responsibility,
@@ -218,3 +220,53 @@ class ActivitySerializer(serializers.ModelSerializer):
             "created_by", "created_at", "updated_at",
         ]
         read_only_fields = ["id", "reference", "created_by", "created_at", "updated_at", "is_approved", "approved_by", "approved_at", "version"]
+
+
+class IndicatorMeasurementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IndicatorMeasurement
+        fields = [
+            "id", "indicator", "value", "recorded_at",
+            "recorded_by", "notes",
+        ]
+        read_only_fields = ["id", "recorded_at", "recorded_by"]
+
+
+class IndicatorSerializer(serializers.ModelSerializer):
+    measurements = IndicatorMeasurementSerializer(many=True, read_only=True)
+    is_critical = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = Indicator
+        fields = [
+            "id", "scopes", "reference", "name", "description",
+            "indicator_type", "collection_method", "format", "unit",
+            "current_value", "expected_level",
+            "critical_threshold_operator", "critical_threshold_value",
+            "review_frequency", "first_review_date", "status",
+            "is_internal", "internal_source", "internal_source_parameter",
+            "is_critical", "measurements",
+            "version", "tags",
+            "is_approved", "approved_by", "approved_at",
+            "created_by", "created_at", "updated_at",
+        ]
+        read_only_fields = [
+            "id", "reference", "created_by", "created_at", "updated_at",
+            "is_approved", "approved_by", "approved_at", "version",
+            "current_value",
+        ]
+
+
+class IndicatorListSerializer(serializers.ModelSerializer):
+    """Lighter serializer for list views."""
+    is_critical = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = Indicator
+        fields = [
+            "id", "scopes", "reference", "name", "indicator_type",
+            "format", "current_value", "expected_level", "status",
+            "collection_method", "is_internal", "is_critical",
+            "created_at",
+        ]
+        read_only_fields = ["id", "reference", "created_at"]

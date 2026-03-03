@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Indicators" %} — {{ indicator_type_label }} — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">{% trans "Indicators" %} — {{ indicator_type_label }}</h1>
+  <div class="ms-auto d-flex gap-2">
+    <a href="{% url 'context:indicator-create' %}?type={{ indicator_type }}" class="btn btn-primary">{% trans "New indicator" %}</a>
+    <a href="{% url 'context:indicator-internal-create' %}" class="btn btn-outline-primary">{% trans "New internal indicator" %}</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Reference" %}</th>
+          <th>{% trans "Title" %}</th>
+          <th>{% trans "Format" %}</th>
+          <th>{% trans "Current value" %}</th>
+          <th>{% trans "Expected level" %}</th>
+          <th>{% trans "Collection" %}</th>
+          <th>{% trans "Frequency" %}</th>
+          <th>{% trans "Status" %}</th>
+          <th>{% trans "Tags" %}</th>
+          <th>{% trans "Approval" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for indicator in indicators %}
+        <tr>
+          <td><a href="{% url 'context:indicator-detail' indicator.pk %}" class="ref" style="text-decoration:none">{{ indicator.reference }}</a></td>
+          <td>
+            {{ indicator.name }}
+            {% if indicator.is_internal %}<span class="badge text-bg-info ms-1" style="font-size:.65rem">{% trans "Internal" %}</span>{% endif %}
+          </td>
+          <td>{{ indicator.get_format_display }}</td>
+          <td>
+            {% if indicator.current_value %}
+              <span class="{% if indicator.is_critical %}text-danger fw-bold{% endif %}">
+                {{ indicator.current_value }}{% if indicator.unit %} {{ indicator.unit }}{% endif %}
+              </span>
+            {% else %}—{% endif %}
+          </td>
+          <td>{{ indicator.expected_level|default:"—" }}{% if indicator.unit and indicator.expected_level %} {{ indicator.unit }}{% endif %}</td>
+          <td>{{ indicator.get_collection_method_display }}</td>
+          <td>{{ indicator.get_review_frequency_display }}</td>
+          <td>
+            <span class="badge text-bg-{% if indicator.status == 'active' %}success{% elif indicator.status == 'draft' %}secondary{% else %}warning{% endif %}">
+              {{ indicator.get_status_display }}
+            </span>
+          </td>
+          <td>{% for tag in indicator.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
+          <td>
+            <span class="badge text-bg-{% if indicator.is_approved %}success{% else %}warning{% endif %}">
+              {% if indicator.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+            </span>
+          </td>
+          <td class="text-end">
+            <a href="{% url 'context:indicator-update' indicator.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No indicator defined." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Previous" %}</a></li>{% endif %}
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Next" %}</a></li>{% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

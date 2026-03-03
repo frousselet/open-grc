@@ -12,6 +12,7 @@ router.register(r"objectives", views.ObjectiveViewSet)
 router.register(r"swot-analyses", views.SwotAnalysisViewSet)
 router.register(r"roles", views.RoleViewSet)
 router.register(r"activities", views.ActivityViewSet)
+router.register(r"indicators", views.IndicatorViewSet)
 router.register(r"tags", views.TagViewSet)
 
 # Nested routes for sub-entities
@@ -45,6 +46,17 @@ role_responsibilities = views.ResponsibilityViewSet.as_view({
     "post": "create",
 })
 role_responsibility_detail = views.ResponsibilityViewSet.as_view({
+    "get": "retrieve",
+    "put": "update",
+    "patch": "partial_update",
+    "delete": "destroy",
+})
+
+indicator_measurements = views.IndicatorMeasurementViewSet.as_view({
+    "get": "list",
+    "post": "create",
+})
+indicator_measurement_detail = views.IndicatorMeasurementViewSet.as_view({
     "get": "retrieve",
     "put": "update",
     "patch": "partial_update",
@@ -92,5 +104,16 @@ urlpatterns = [
         "roles/<uuid:role_pk>/responsibilities/<uuid:pk>/",
         role_responsibility_detail,
         name="role-responsibilities-detail",
+    ),
+    # Indicator measurements
+    path(
+        "indicators/<uuid:indicator_pk>/measurements/",
+        indicator_measurements,
+        name="indicator-measurements-list",
+    ),
+    path(
+        "indicators/<uuid:indicator_pk>/measurements/<uuid:pk>/",
+        indicator_measurement_detail,
+        name="indicator-measurements-detail",
     ),
 ]

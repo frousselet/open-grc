@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from accounts.api.mixins import ApprovableAPIMixin, HistoryAPIMixin, ScopeFilterAPIMixin
 from context.models import (
     Activity,
+    Indicator,
+    IndicatorMeasurement,
     Issue,
     Objective,
     Responsibility,
@@ -20,6 +22,7 @@ from context.models import (
 )
 from .filters import (
     ActivityFilter,
+    IndicatorFilter,
     IssueFilter,
     ObjectiveFilter,
     RoleFilter,
@@ -31,6 +34,9 @@ from .filters import (
 from .permissions import ContextPermission
 from .serializers import (
     ActivitySerializer,
+    IndicatorListSerializer,
+    IndicatorMeasurementSerializer,
+    IndicatorSerializer,
     IssueSerializer,
     ObjectiveSerializer,
     ResponsibilitySerializer,
@@ -297,3 +303,88 @@ class ActivityViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, 
         roots = self.filter_queryset(self.get_queryset()).filter(parent_activity__isnull=True)
         serializer = ActivitySerializer(roots, many=True)
         return Response(serializer.data)
+
+
+class IndicatorViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+    queryset = Indicator.objects.prefetch_related("scopes", "measurements").all()
+    filterset_class = IndicatorFilter
+    permission_classes = [ContextPermission]
+    search_fields = ["reference", "name", "description"]
+    ordering_fields = [
+        "reference", "name", "indicator_type", "format",
+        "status", "collection_method", "created_at",
+    ]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return IndicatorListSerializer
+        return IndicatorSerializer
+
+    def perform_create(self, serializer):
+        indicator = serializer.save(created_by=self.request.user)
+        # For internal indicators, trigger first measurement
+        if indicator.is_internal:
+            value = indicator.compute_internal_value()
+            if value is not None:
+                indicator.record_measurement(
+                    value=value,
+                    recorded_by=self.request.user,
+                    notes="Initial measurement (automatic).",
+                )
+
+    @action(detail=True, methods=["post"])
+    def record(self, request, pk=None):
+        """Record a new measurement via API."""
+        indicator = self.get_object()
+        serializer = IndicatorMeasurementSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        indicator.record_measurement(
+            value=serializer.validated_data["value"],
+            recorded_by=request.user,
+            notes=serializer.validated_data.get("notes", ""),
+        )
+        return Response(
+            IndicatorSerializer(indicator).data,
+            status=status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=["post"])
+    def refresh(self, request, pk=None):
+        """Refresh an internal indicator's value."""
+        indicator = self.get_object()
+        if not indicator.is_internal:
+            return Response(
+                {"detail": "This indicator is not an internal indicator."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        value = indicator.compute_internal_value()
+        if value is not None:
+            indicator.record_measurement(
+                value=value,
+                recorded_by=request.user,
+                notes="API refresh.",
+            )
+            return Response(IndicatorSerializer(indicator).data)
+        return Response(
+            {"detail": "Could not compute the indicator value."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class IndicatorMeasurementViewSet(viewsets.ModelViewSet):
+    serializer_class = IndicatorMeasurementSerializer
+    permission_classes = [ContextPermission]
+
+    def get_queryset(self):
+        return IndicatorMeasurement.objects.filter(
+            indicator_id=self.kwargs["indicator_pk"]
+        )
+
+    def perform_create(self, serializer):
+        indicator = Indicator.objects.get(pk=self.kwargs["indicator_pk"])
+        measurement = serializer.save(
+            indicator=indicator,
+            recorded_by=self.request.user,
+        )
+        indicator.current_value = measurement.value
+        indicator.save(update_fields=["current_value", "updated_at"])

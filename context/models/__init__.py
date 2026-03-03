@@ -8,6 +8,7 @@ from .objective import Objective
 from .swot import SwotAnalysis, SwotItem
 from .role import Role, Responsibility
 from .activity import Activity
+from .indicator import Indicator, IndicatorMeasurement
 
 __all__ = [
     "Tag",
@@ -25,4 +26,6 @@ __all__ = [
     "Role",
     "Responsibility",
     "Activity",
+    "Indicator",
+    "IndicatorMeasurement",
 ]

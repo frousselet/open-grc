@@ -2,6 +2,7 @@ import django_filters
 
 from context.models import (
     Activity,
+    Indicator,
     Issue,
     Objective,
     Role,
@@ -107,4 +108,19 @@ class ActivityFilter(django_filters.FilterSet):
             "criticality": ["exact"],
             "status": ["exact"],
             "owner": ["exact"],
+        }
+
+
+class IndicatorFilter(django_filters.FilterSet):
+    scope = django_filters.UUIDFilter(field_name="scope_id")
+
+    class Meta:
+        model = Indicator
+        fields = {
+            "indicator_type": ["exact"],
+            "format": ["exact"],
+            "status": ["exact"],
+            "collection_method": ["exact"],
+            "is_internal": ["exact"],
+            "review_frequency": ["exact"],
         }
