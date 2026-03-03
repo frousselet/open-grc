@@ -41,7 +41,7 @@ class RiskCriteriaAdmin(SimpleHistoryAdmin):
     list_display = ("name", "is_default", "status", "acceptance_threshold")
     list_filter = ("status", "is_default")
     search_fields = ("name", "description")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("scopes", "tags")
     inlines = [ScaleLevelInline, RiskLevelInline]
 
@@ -54,7 +54,7 @@ class RiskAssessmentAdmin(SimpleHistoryAdmin):
     )
     list_filter = ("status", "methodology")
     search_fields = ("reference", "name", "description")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("scopes", "tags")
 
 
@@ -101,7 +101,7 @@ class RiskAdmin(SimpleHistoryAdmin):
     list_filter = ("status", "priority", "treatment_decision", "risk_source")
     search_fields = ("reference", "name", "description")
     readonly_fields = (
-        "id", "created_at", "updated_at",
+        "id", "reference", "created_at", "updated_at",
         "initial_risk_level", "current_risk_level", "residual_risk_level",
     )
     filter_horizontal = ("affected_essential_assets", "affected_support_assets", "tags")
@@ -142,7 +142,7 @@ class RiskTreatmentPlanAdmin(SimpleHistoryAdmin):
     )
     list_filter = ("status", "treatment_type")
     search_fields = ("reference", "name", "description")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("tags",)
     inlines = [TreatmentActionInline]
 
@@ -155,7 +155,7 @@ class RiskAcceptanceAdmin(SimpleHistoryAdmin):
     )
     list_filter = ("status",)
     search_fields = ("justification", "conditions")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("tags",)
 
 
@@ -167,7 +167,7 @@ class ThreatAdmin(SimpleHistoryAdmin):
     )
     list_filter = ("type", "origin", "category", "status", "is_from_catalog")
     search_fields = ("reference", "name", "description")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("scopes", "tags")
 
 
@@ -179,7 +179,7 @@ class VulnerabilityAdmin(SimpleHistoryAdmin):
     )
     list_filter = ("category", "severity", "status", "is_from_catalog")
     search_fields = ("reference", "name", "description")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("scopes", "affected_assets", "tags")
 
 

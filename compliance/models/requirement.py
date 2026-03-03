@@ -14,6 +14,8 @@ from context.models.base import BaseModel
 
 
 class Requirement(BaseModel):
+    REFERENCE_PREFIX = "REQT"
+
     framework = models.ForeignKey(
         "compliance.Framework",
         on_delete=models.CASCADE,
@@ -28,7 +30,9 @@ class Requirement(BaseModel):
         related_name="requirements",
         verbose_name=_("Section"),
     )
-    reference = models.CharField(_("Reference"), max_length=100)
+    requirement_number = models.CharField(
+        _("Requirement number"), max_length=100, blank=True, default=""
+    )
     name = models.CharField(_("Title"), max_length=500)
     description = models.TextField(_("Description"))
     guidance = models.TextField(
@@ -116,10 +120,13 @@ class Requirement(BaseModel):
         verbose_name_plural = _("Requirements")
         constraints = [
             models.UniqueConstraint(
-                fields=["framework", "reference"],
-                name="unique_requirement_reference_per_framework",
+                fields=["framework", "requirement_number"],
+                name="unique_requirement_number_per_framework",
+                condition=~models.Q(requirement_number=""),
             )
         ]
 
     def __str__(self):
+        if self.requirement_number:
+            return f"{self.requirement_number} : {self.name}"
         return f"{self.reference} : {self.name}"

@@ -14,21 +14,25 @@ from .models import (
 @admin.register(Framework)
 class FrameworkAdmin(admin.ModelAdmin):
     filter_horizontal = ("tags",)
+    readonly_fields = ("reference",)
 
 
 @admin.register(Requirement)
 class RequirementAdmin(admin.ModelAdmin):
     filter_horizontal = ("tags",)
+    readonly_fields = ("reference",)
 
 
 @admin.register(ComplianceAssessment)
 class ComplianceAssessmentAdmin(admin.ModelAdmin):
     filter_horizontal = ("tags",)
+    readonly_fields = ("reference",)
 
 
 @admin.register(ComplianceActionPlan)
 class ComplianceActionPlanAdmin(admin.ModelAdmin):
     filter_horizontal = ("tags",)
+    readonly_fields = ("reference",)
 
 
 admin.site.register(Section)

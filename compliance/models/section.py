@@ -21,7 +21,7 @@ class Section(models.Model):
         related_name="children",
         verbose_name=_("Parent section"),
     )
-    reference = models.CharField(_("Reference"), max_length=50)
+    reference = models.CharField(_("Reference"), max_length=50, blank=True)
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"), blank=True, default="")
     order = models.PositiveIntegerField(_("Order"), default=0)
@@ -44,11 +44,19 @@ class Section(models.Model):
             models.UniqueConstraint(
                 fields=["framework", "reference"],
                 name="unique_section_reference_per_framework",
+                condition=~models.Q(reference=""),
             )
         ]
 
     def __str__(self):
         return f"{self.reference} : {self.name}"
+
+    def save(self, *args, **kwargs):
+        if not self.reference:
+            # Auto-generate a section reference within the framework
+            existing = Section.objects.filter(framework=self.framework).count()
+            self.reference = f"SEC-{existing + 1}"
+        super().save(*args, **kwargs)
 
     def recalculate_compliance(self):
         """RC-02: section compliance = average of applicable requirements + subsections."""

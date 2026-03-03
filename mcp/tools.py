@@ -568,17 +568,18 @@ def _register_compliance_tools(server):
                    scope_filtered=False,
                    has_approve=False)
 
-    req_fields = ["id", "reference", "name", "description", "type", "compliance_status",
-                  "compliance_level", "priority", "is_applicable",
+    req_fields = ["id", "reference", "requirement_number", "name", "description", "type",
+                  "compliance_status", "compliance_level", "priority", "is_applicable",
                   "framework_id", "section_id", "is_approved", "created_at"]
-    req_writable = ["name", "description", "type", "compliance_status", "compliance_level",
+    req_writable = ["requirement_number", "name", "description", "type",
+                    "compliance_status", "compliance_level",
                     "priority", "is_applicable", "compliance_evidence", "compliance_gaps",
                     "framework_id", "section_id", "owner_id"]
 
     _register_crud(server, "requirement", Requirement, "compliance.requirement",
                    list_fields=req_fields,
                    writable_fields=req_writable,
-                   search_fields=["reference", "name", "description"],
+                   search_fields=["reference", "requirement_number", "name", "description"],
                    filters=["framework_id", "section_id", "compliance_status", "type", "priority"],
                    scope_filtered=False)
 

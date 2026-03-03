@@ -378,9 +378,6 @@ def validate_parsed_data(parsed, existing_framework=None):
     fw = parsed.get("framework", {})
 
     # Framework required fields — name is always required (used to rename)
-    if not existing_framework:
-        if not fw.get("reference"):
-            errors.append(_("The framework 'reference' field is required."))
     if not fw.get("name"):
         errors.append(_("The framework 'name' field is required."))
 
@@ -406,14 +403,6 @@ def validate_parsed_data(parsed, existing_framework=None):
                 }
             )
 
-        # Check for existing framework with same reference
-        if fw.get("reference") and Framework.objects.filter(reference=fw["reference"]).exists():
-            errors.append(
-                _("A framework with the reference '%(reference)s' already exists in the database.") % {
-                    "reference": fw["reference"],
-                }
-            )
-
     # Collect existing refs when importing into existing framework
     existing_section_refs = set()
     existing_req_refs = set()
@@ -422,7 +411,7 @@ def validate_parsed_data(parsed, existing_framework=None):
             existing_framework.sections.values_list("reference", flat=True)
         )
         existing_req_refs = set(
-            existing_framework.requirements.values_list("reference", flat=True)
+            existing_framework.requirements.values_list("requirement_number", flat=True)
         )
 
     # Section validation
@@ -535,7 +524,6 @@ def execute_import(parsed, owner, created_by, existing_framework=None):
             }
         else:
             framework = Framework.objects.create(
-                reference=fw_data["reference"],
                 name=fw_data["name"],
                 short_name=fw_data.get("short_name", ""),
                 description=fw_data.get("description", ""),
@@ -583,7 +571,7 @@ def _create_requirement(framework, section, req_data, created_by):
     Requirement.objects.create(
         framework=framework,
         section=section,
-        reference=req_data["reference"],
+        requirement_number=req_data.get("reference", ""),
         name=req_data["name"],
         description=req_data.get("description", ""),
         guidance=req_data.get("guidance", ""),

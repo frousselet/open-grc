@@ -45,7 +45,7 @@ class EssentialAssetAdmin(SimpleHistoryAdmin):
     )
     list_filter = ("type", "category", "status", "data_classification", "personal_data")
     search_fields = ("reference", "name", "description")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("related_activities", "tags")
     inlines = [EssentialDependencyInline, AssetValuationInline]
 
@@ -60,7 +60,7 @@ class SupportAssetAdmin(SimpleHistoryAdmin):
     list_filter = ("type", "category", "status", "environment", "exposure_level")
     search_fields = ("reference", "name", "description", "hostname", "ip_address")
     readonly_fields = (
-        "id", "created_at", "updated_at",
+        "id", "reference", "created_at", "updated_at",
         "inherited_confidentiality", "inherited_integrity", "inherited_availability",
     )
     filter_horizontal = ("tags",)
@@ -133,7 +133,7 @@ class SupplierAdmin(SimpleHistoryAdmin):
     )
     list_filter = ("type", "criticality", "status")
     search_fields = ("reference", "name", "description", "contact_name", "contact_email")
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("tags",)
     inlines = [SupplierRequirementInline]
 

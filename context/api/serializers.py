@@ -124,7 +124,7 @@ class ObjectiveSerializer(serializers.ModelSerializer):
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
-        read_only_fields = ["id", "created_by", "created_at", "updated_at", "is_approved", "approved_by", "approved_at", "version"]
+        read_only_fields = ["id", "reference", "created_by", "created_at", "updated_at", "is_approved", "approved_by", "approved_at", "version"]
 
 
 class SwotItemSerializer(serializers.ModelSerializer):
@@ -217,4 +217,4 @@ class ActivitySerializer(serializers.ModelSerializer):
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
-        read_only_fields = ["id", "created_by", "created_at", "updated_at", "is_approved", "approved_by", "approved_at", "version"]
+        read_only_fields = ["id", "reference", "created_by", "created_at", "updated_at", "is_approved", "approved_by", "approved_at", "version"]

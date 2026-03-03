@@ -63,7 +63,7 @@ class EssentialAssetSerializer(serializers.ModelSerializer):
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
-        read_only_fields = ["id", "created_by", "created_at", "updated_at", "is_approved", "approved_by", "approved_at", "version"]
+        read_only_fields = ["id", "reference", "created_by", "created_at", "updated_at", "is_approved", "approved_by", "approved_at", "version"]
 
 
 class EssentialAssetListSerializer(serializers.ModelSerializer):
@@ -77,7 +77,7 @@ class EssentialAssetListSerializer(serializers.ModelSerializer):
             "confidentiality_level", "integrity_level", "availability_level",
             "data_classification", "personal_data", "status", "created_at",
         ]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "reference", "created_at"]
 
 
 class SupportAssetSerializer(serializers.ModelSerializer):
@@ -99,7 +99,7 @@ class SupportAssetSerializer(serializers.ModelSerializer):
             "created_by", "created_at", "updated_at",
         ]
         read_only_fields = [
-            "id", "created_by", "created_at", "updated_at",
+            "id", "reference", "created_by", "created_at", "updated_at",
             "inherited_confidentiality", "inherited_integrity",
             "inherited_availability",
             "is_approved", "approved_by", "approved_at",
@@ -120,7 +120,7 @@ class SupportAssetListSerializer(serializers.ModelSerializer):
             "environment", "exposure_level", "status",
             "end_of_life_date", "created_at",
         ]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "reference", "created_at"]
 
 
 class AssetGroupSerializer(serializers.ModelSerializer):
@@ -191,7 +191,7 @@ class SupplierSerializer(serializers.ModelSerializer):
             "created_by", "created_at", "updated_at",
         ]
         read_only_fields = [
-            "id", "created_by", "created_at", "updated_at",
+            "id", "reference", "created_by", "created_at", "updated_at",
             "is_approved", "approved_by", "approved_at", "version",
         ]
 
@@ -210,7 +210,7 @@ class SupplierListSerializer(serializers.ModelSerializer):
             "status", "contract_end_date", "requirement_count",
             "created_at",
         ]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "reference", "created_at"]
 
 
 class SupplierDependencySerializer(serializers.ModelSerializer):
