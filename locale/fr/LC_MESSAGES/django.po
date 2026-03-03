@@ -976,8 +976,16 @@ msgid "Dashboard indicators"
 msgstr "Indicateurs du tableau de bord"
 
 #: accounts/models/user.py:65
-msgid "List of indicator IDs pinned to the dashboard (max 6)."
-msgstr "Liste des identifiants d'indicateurs épinglés au tableau de bord (max 6)."
+msgid "List of indicator IDs pinned to the dashboard (max 10)."
+msgstr "Liste des identifiants d'indicateurs épinglés au tableau de bord (max 10)."
+
+#: accounts/models/user.py:68
+msgid "Indicator charts"
+msgstr "Graphiques d'indicateurs"
+
+#: accounts/models/user.py:71
+msgid "List of indicator IDs whose sparkline is visible on the dashboard."
+msgstr "Liste des identifiants d'indicateurs dont le graphique est visible sur le tableau de bord."
 
 #: accounts/templates/accounts/access_log_list.html:4
 msgid "Access log — Open GRC"
@@ -5265,6 +5273,10 @@ msgstr "Vrai"
 msgid "False"
 msgstr "Faux"
 
+#: context/forms.py:410
+msgid "Notes (optional)"
+msgstr "Notes (facultatif)"
+
 #: context/forms.py:424
 msgid "Please enter a valid number."
 msgstr "Veuillez saisir un nombre valide."
@@ -5724,6 +5736,10 @@ msgstr "Enregistrer"
 #: context/templates/context/indicator_detail.html:136
 msgid "This is a predefined indicator. You can refresh its value from Open GRC data."
 msgstr "Cet indicateur est prédéfini. Vous pouvez rafraîchir sa valeur depuis les données Open GRC."
+
+#: context/templates/context/indicator_detail.html:149
+msgid "Refresh the value from Open GRC data."
+msgstr "Rafraîchir la valeur depuis les données Open GRC."
 
 #: context/templates/context/indicator_detail.html:139
 msgid "Refresh"
