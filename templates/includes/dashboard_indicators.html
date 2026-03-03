@@ -301,18 +301,24 @@
       '</svg>';
 
     // Animate: draw the line, then fade in the area
+    // Double rAF ensures the browser paints the initial state before
+    // triggering the transition (required for Safari).
     var lineEl = el.querySelector('.sparkline-line');
     var areaEl = el.querySelector('.sparkline-area');
     if (lineEl) {
       var len = lineEl.getTotalLength();
       lineEl.style.strokeDasharray = len;
       lineEl.style.strokeDashoffset = len;
-      lineEl.style.transition = 'stroke-dashoffset .8s ease-out';
       areaEl.style.opacity = '0';
+      // Force layout so initial values are committed
+      lineEl.getBoundingClientRect();
+      lineEl.style.transition = 'stroke-dashoffset .8s ease-out';
       areaEl.style.transition = 'opacity .5s ease-out .4s';
       requestAnimationFrame(function() {
-        lineEl.style.strokeDashoffset = '0';
-        areaEl.style.opacity = '1';
+        requestAnimationFrame(function() {
+          lineEl.style.strokeDashoffset = '0';
+          areaEl.style.opacity = '1';
+        });
       });
     }
   });
