@@ -10,11 +10,12 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="user",
-            name="dashboard_show_indicator_chart",
-            field=models.BooleanField(
-                default=False,
-                help_text="Display the indicator evolution chart on the dashboard.",
-                verbose_name="Show indicator chart",
+            name="dashboard_indicator_charts",
+            field=models.JSONField(
+                blank=True,
+                default=list,
+                help_text="List of indicator IDs whose sparkline is visible on the dashboard.",
+                verbose_name="Indicator charts",
             ),
         ),
     ]
