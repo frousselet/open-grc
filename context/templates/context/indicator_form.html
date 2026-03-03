@@ -108,6 +108,24 @@
               </div>
             </div>
           </div>
+          <div class="row" id="threshold-minmax-fields">
+            <div class="col-sm-6">
+              <div class="mb-3 mb-sm-0">
+                <label for="{{ form.critical_threshold_min.id_for_label }}" class="form-label">{{ form.critical_threshold_min.label }}</label>
+                {{ form.critical_threshold_min }}
+                <small class="form-text text-muted">{% trans "Critical if value falls below this." %}</small>
+                {% for error in form.critical_threshold_min.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="mb-3 mb-sm-0">
+                <label for="{{ form.critical_threshold_max.id_for_label }}" class="form-label">{{ form.critical_threshold_max.label }}</label>
+                {{ form.critical_threshold_max }}
+                <small class="form-text text-muted">{% trans "Critical if value exceeds this." %}</small>
+                {% for error in form.critical_threshold_max.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -164,15 +182,21 @@
   var formatSelect = document.getElementById('id_format');
   var unitField = document.getElementById('unit-field');
   var thresholdValueField = document.getElementById('threshold-value-field');
+  var thresholdMinMaxFields = document.getElementById('threshold-minmax-fields');
   var operatorSelect = document.getElementById('id_critical_threshold_operator');
 
   function updateFields() {
     var isBoolean = (formatSelect.value === 'boolean');
     unitField.style.display = isBoolean ? 'none' : '';
     thresholdValueField.style.display = isBoolean ? 'none' : '';
+    thresholdMinMaxFields.style.display = isBoolean ? 'none' : '';
     if (isBoolean) {
       unitField.querySelector('input').value = '';
       thresholdValueField.querySelector('input').value = '';
+      var minInput = thresholdMinMaxFields.querySelector('#id_critical_threshold_min');
+      var maxInput = thresholdMinMaxFields.querySelector('#id_critical_threshold_max');
+      if (minInput) minInput.value = '';
+      if (maxInput) maxInput.value = '';
     }
     if (operatorSelect) {
       Array.from(operatorSelect.options).forEach(function(opt) {

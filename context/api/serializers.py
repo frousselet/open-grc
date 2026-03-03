@@ -243,6 +243,7 @@ class IndicatorSerializer(serializers.ModelSerializer):
             "indicator_type", "collection_method", "format", "unit",
             "current_value", "expected_level",
             "critical_threshold_operator", "critical_threshold_value",
+            "critical_threshold_min", "critical_threshold_max",
             "review_frequency", "first_review_date", "status",
             "is_internal", "internal_source", "internal_source_parameter",
             "is_critical", "measurements",

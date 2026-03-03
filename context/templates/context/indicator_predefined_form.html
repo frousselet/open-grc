@@ -107,10 +107,28 @@
               </div>
             </div>
             <div class="col-sm-6">
-              <div class="mb-3 mb-sm-0">
+              <div class="mb-3">
                 <label for="{{ form.critical_threshold_value.id_for_label }}" class="form-label">{{ form.critical_threshold_value.label }}</label>
                 {{ form.critical_threshold_value }}
                 {% for error in form.critical_threshold_value.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="mb-3 mb-sm-0">
+                <label for="{{ form.critical_threshold_min.id_for_label }}" class="form-label">{{ form.critical_threshold_min.label }}</label>
+                {{ form.critical_threshold_min }}
+                <small class="form-text text-muted">{% trans "Critical if value falls below this." %}</small>
+                {% for error in form.critical_threshold_min.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="mb-3 mb-sm-0">
+                <label for="{{ form.critical_threshold_max.id_for_label }}" class="form-label">{{ form.critical_threshold_max.label }}</label>
+                {{ form.critical_threshold_max }}
+                <small class="form-text text-muted">{% trans "Critical if value exceeds this." %}</small>
+                {% for error in form.critical_threshold_max.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
               </div>
             </div>
           </div>

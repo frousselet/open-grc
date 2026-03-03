@@ -5338,6 +5338,38 @@ msgstr "Valeur du seuil critique"
 msgid "For numbers only. For booleans, the operator defines the threshold."
 msgstr "Pour les nombres uniquement. Pour les booléens, l'opérateur définit le seuil."
 
+#: context/models/indicator.py
+msgid "Minimum threshold"
+msgstr "Seuil minimum"
+
+#: context/models/indicator.py
+msgid "Critical if the value falls below this minimum (numbers only)."
+msgstr "Critique si la valeur passe en dessous de ce minimum (nombres uniquement)."
+
+#: context/models/indicator.py
+msgid "Maximum threshold"
+msgstr "Seuil maximum"
+
+#: context/models/indicator.py
+msgid "Critical if the value exceeds this maximum (numbers only)."
+msgstr "Critique si la valeur dépasse ce maximum (nombres uniquement)."
+
+#: context/models/indicator.py
+msgid "Min/max thresholds are only applicable to number indicators."
+msgstr "Les seuils min/max ne s'appliquent qu'aux indicateurs numériques."
+
+#: context/models/indicator.py
+msgid "The minimum threshold must be less than the maximum threshold."
+msgstr "Le seuil minimum doit être inférieur au seuil maximum."
+
+#: context/templates/context/indicator_form.html
+msgid "Critical if value falls below this."
+msgstr "Critique si la valeur passe en dessous."
+
+#: context/templates/context/indicator_form.html
+msgid "Critical if value exceeds this."
+msgstr "Critique si la valeur dépasse ce seuil."
+
 #: context/models/indicator.py:79
 #: context/templates/context/indicator_detail.html:60
 msgid "Review frequency"
