@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n table_tags %}
 
 {% block title %}{% trans "ISO 27005 analyses" %} — Open GRC{% endblock %}
 
@@ -18,18 +18,19 @@
 </div>
 {% help_modal "risks.iso27005_risk_list" %}
 
+{% include "includes/table_search.html" %}
 <div class="card">
   <div class="table-responsive">
     <table class="table table-hover mb-0">
       <thead>
         <tr>
-          <th>{% trans "Ref." %}</th>
+          {% sortable_th "reference" "Ref." %}
           <th>{% trans "Assessment" %}</th>
-          <th>{% trans "Threat" %}</th>
-          <th>{% trans "Vulnerability" %}</th>
-          <th>{% trans "Combined likelihood" %}</th>
-          <th>{% trans "Max impact" %}</th>
-          <th>{% trans "Risk level" %}</th>
+          {% sortable_th "threat" "Threat" %}
+          {% sortable_th "vulnerability" "Vulnerability" %}
+          {% sortable_th "likelihood" "Combined likelihood" %}
+          {% sortable_th "impact" "Max impact" %}
+          {% sortable_th "risk_level" "Risk level" %}
           <th>{% trans "Consolidated risk" %}</th>
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
@@ -57,13 +58,5 @@
   </div>
 </div>
 
-{% if is_paginated %}
-<nav>
-  <ul class="pagination justify-content-center">
-    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Previous" %}</a></li>{% endif %}
-    <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
-    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Next" %}</a></li>{% endif %}
-  </ul>
-</nav>
-{% endif %}
+{% include "includes/pagination.html" %}
 {% endblock %}

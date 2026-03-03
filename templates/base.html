@@ -1013,6 +1013,16 @@
       box-shadow: 0 2px 8px rgba(245,158,11,.2);
     }
 
+    /* ── Sortable table headers ──────────────────────── */
+    .sortable-th {
+      cursor: pointer;
+      user-select: none;
+    }
+    .sortable-th:hover {
+      color: var(--accent) !important;
+    }
+    .sortable-th:hover .bi { opacity: .7 !important; }
+
     /* ── Tom Select overrides ─────────────────────────── */
     .ts-wrapper.multi .ts-control > .item {
       background: var(--accent);

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load table_tags %}
 
 {% block title %}{% trans "Sites" %} — Open GRC{% endblock %}
 
@@ -12,6 +13,7 @@
 </div>
 {% help_modal "context.site_list" %}
 
+{% include "includes/table_search.html" %}
 <div class="card">
   <div class="table-responsive">
     <table class="table table-hover mb-0">

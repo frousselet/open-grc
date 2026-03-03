@@ -21,6 +21,7 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
+from core.mixins import SortableListMixin
 from .constants import CollectionMethod, IndicatorType, PREDEFINED_SOURCE_FORMAT
 from .forms import (
     ActivityForm,
@@ -330,11 +331,21 @@ class ScopeDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Issue ───────────────────────────────────────────────────
 
-class IssueListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class IssueListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Issue
     template_name = "context/issue_list.html"
     context_object_name = "issues"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "type": "type",
+        "category": "category",
+        "impact": "impact_level",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name"]
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related("scopes")
@@ -386,11 +397,22 @@ class IssueDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Stakeholder ─────────────────────────────────────────────
 
-class StakeholderListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class StakeholderListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Stakeholder
     template_name = "context/stakeholder_list.html"
     context_object_name = "stakeholders"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "type": "type",
+        "category": "category",
+        "influence": "influence_level",
+        "interest": "interest_level",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name"]
 
     def get_queryset(self):
         return super().get_queryset().prefetch_related("scopes")
@@ -438,11 +460,21 @@ class StakeholderDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Objective ───────────────────────────────────────────────
 
-class ObjectiveListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class ObjectiveListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Objective
     template_name = "context/objective_list.html"
     context_object_name = "objectives"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "category": "category",
+        "progress": "progress_percentage",
+        "status": "status",
+        "target_date": "target_date",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name"]
 
     def get_queryset(self):
         return super().get_queryset().prefetch_related("scopes").select_related("owner")
@@ -487,11 +519,19 @@ class ObjectiveDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── SWOT ────────────────────────────────────────────────────
 
-class SwotListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class SwotListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = SwotAnalysis
     template_name = "context/swot_list.html"
     context_object_name = "analyses"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "date": "analysis_date",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name"]
 
 
 class SwotDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
@@ -537,11 +577,19 @@ class SwotDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Role ────────────────────────────────────────────────────
 
-class RoleListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class RoleListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Role
     template_name = "context/role_list.html"
     context_object_name = "roles"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "type": "type",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name"]
 
     def get_queryset(self):
         return super().get_queryset().annotate(
@@ -593,11 +641,20 @@ class RoleDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Activity ────────────────────────────────────────────────
 
-class ActivityListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class ActivityListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Activity
     template_name = "context/activity_list.html"
     context_object_name = "activities"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "type": "type",
+        "criticality": "criticality",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name"]
 
     def get_queryset(self):
         return super().get_queryset().prefetch_related("scopes").select_related("owner")
@@ -771,12 +828,20 @@ def dashboard_indicator_chart_toggle(request):
     return JsonResponse({"action": action, "chart_ids": chart_ids})
 
 
-class IndicatorListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class IndicatorListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Indicator
     template_name = "context/indicator_list.html"
     context_object_name = "indicators"
     paginate_by = 25
     indicator_type = None
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "format": "format",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name"]
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related("scopes")

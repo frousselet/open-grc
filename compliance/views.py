@@ -22,6 +22,7 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
+from core.mixins import SortableListMixin
 from .forms import (
     ComplianceActionPlanForm,
     ComplianceAssessmentForm,
@@ -139,11 +140,21 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
 # ── Framework ──────────────────────────────────────────────
 
-class FrameworkListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class FrameworkListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Framework
     template_name = "compliance/framework_list.html"
     context_object_name = "frameworks"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "type": "type",
+        "category": "category",
+        "compliance": "compliance_level",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name", "short_name"]
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related("scopes").select_related("owner")
@@ -354,11 +365,22 @@ class FrameworkImportSampleView(LoginRequiredMixin, View):
 
 # ── Requirement ────────────────────────────────────────────
 
-class RequirementListView(LoginRequiredMixin, ListView):
+class RequirementListView(LoginRequiredMixin, SortableListMixin, ListView):
     model = Requirement
     template_name = "compliance/requirement_list.html"
     context_object_name = "requirements"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "requirement_number": "requirement_number",
+        "name": "name",
+        "framework": "framework__name",
+        "type": "type",
+        "compliance": "compliance_status",
+        "priority": "priority",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "requirement_number", "name", "framework__name"]
 
     def get_queryset(self):
         qs = super().get_queryset().select_related("framework", "section")
@@ -414,11 +436,20 @@ class RequirementDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Assessment ─────────────────────────────────────────────
 
-class AssessmentListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class AssessmentListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = ComplianceAssessment
     template_name = "compliance/assessment_list.html"
     context_object_name = "assessments"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "framework": "framework__name",
+        "date": "assessment_date",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name", "framework__name"]
 
     def get_queryset(self):
         return super().get_queryset().prefetch_related("scopes").select_related("framework", "assessor")
@@ -475,11 +506,24 @@ class AssessmentDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Mapping ────────────────────────────────────────────────
 
-class MappingListView(LoginRequiredMixin, ListView):
+class MappingListView(LoginRequiredMixin, SortableListMixin, ListView):
     model = RequirementMapping
     template_name = "compliance/mapping_list.html"
     context_object_name = "mappings"
     paginate_by = 25
+    sortable_fields = {
+        "source": "source_requirement__reference",
+        "target": "target_requirement__reference",
+        "type": "mapping_type",
+        "coverage": "coverage_level",
+    }
+    default_sort = "source"
+    search_fields = [
+        "source_requirement__reference",
+        "source_requirement__name",
+        "target_requirement__reference",
+        "target_requirement__name",
+    ]
 
     def get_queryset(self):
         return super().get_queryset().select_related(
@@ -520,11 +564,21 @@ class MappingDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Action Plan ────────────────────────────────────────────
 
-class ActionPlanListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class ActionPlanListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = ComplianceActionPlan
     template_name = "compliance/action_plan_list.html"
     context_object_name = "action_plans"
     paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "priority": "priority",
+        "target_date": "target_date",
+        "progress": "progress_percentage",
+        "status": "status",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name", "requirement__reference"]
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related("scopes").select_related("owner", "requirement")

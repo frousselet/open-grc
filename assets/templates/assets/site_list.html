@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load table_tags %}
 
 {% block title %}{% trans "Sites" %} — Open GRC{% endblock %}
 
@@ -11,6 +12,8 @@
   <a href="{% url 'assets:site-create' %}" class="btn btn-primary ms-auto">{% trans "New site" %}</a>
 </div>
 {% help_modal "context.site_list" %}
+
+{% include "includes/table_search.html" %}
 
 <div class="card">
   <div class="table-responsive">
