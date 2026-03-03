@@ -1,5 +1,5 @@
 from .tag import Tag
-from .base import BaseModel, ScopedModel
+from .base import BaseModel, ReferenceGeneratorMixin, ScopedModel
 from .scope import Scope
 from .site import Site
 from .issue import Issue
@@ -12,6 +12,7 @@ from .activity import Activity
 __all__ = [
     "Tag",
     "BaseModel",
+    "ReferenceGeneratorMixin",
     "ScopedModel",
     "Scope",
     "Site",

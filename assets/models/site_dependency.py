@@ -11,10 +11,13 @@ from assets.constants import (
     SiteSupplierDependencyType,
 )
 from context.constants import Criticality
+from context.models.base import ReferenceGeneratorMixin
 
 
-class SiteAssetDependency(models.Model):
+class SiteAssetDependency(ReferenceGeneratorMixin):
     """A support asset depends on a site (e.g. a server is located at a datacenter)."""
+
+    REFERENCE_PREFIX = "SADP"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     support_asset = models.ForeignKey(
@@ -87,8 +90,10 @@ class SiteAssetDependency(models.Model):
         return f"{self.support_asset.reference} → {self.site.reference}"
 
 
-class SiteSupplierDependency(models.Model):
+class SiteSupplierDependency(ReferenceGeneratorMixin):
     """A site depends on a supplier (e.g. a datacenter is maintained by a provider)."""
+
+    REFERENCE_PREFIX = "SSDP"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     site = models.ForeignKey(

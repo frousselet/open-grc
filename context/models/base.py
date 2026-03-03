@@ -6,8 +6,43 @@ from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 
-class BaseModel(models.Model):
+class ReferenceGeneratorMixin(models.Model):
+    """Mixin that adds an auto-generated reference field (PREFIX-N)."""
+
     REFERENCE_PREFIX = ""
+
+    reference = models.CharField(_("Reference"), max_length=50, unique=True, blank=True)
+
+    @classmethod
+    def _generate_next_reference(cls):
+        """Generate the next unique reference in the format PREFIX-N."""
+        prefix = cls.REFERENCE_PREFIX
+        if not prefix:
+            return ""
+        prefix_with_dash = f"{prefix}-"
+        existing_refs = cls.objects.filter(
+            reference__startswith=prefix_with_dash
+        ).values_list("reference", flat=True)
+        max_num = 0
+        prefix_len = len(prefix_with_dash)
+        for ref in existing_refs:
+            try:
+                num = int(ref[prefix_len:])
+                max_num = max(max_num, num)
+            except (ValueError, IndexError):
+                continue
+        return f"{prefix}-{max_num + 1}"
+
+    def save(self, *args, **kwargs):
+        if not self.reference and self.REFERENCE_PREFIX:
+            self.reference = self._generate_next_reference()
+        super().save(*args, **kwargs)
+
+    class Meta:
+        abstract = True
+
+
+class BaseModel(ReferenceGeneratorMixin):
     REQUIRED_PREFIX_LENGTH = 4
 
     def __init_subclass__(cls, **kwargs):
@@ -20,7 +55,6 @@ class BaseModel(models.Model):
             )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    reference = models.CharField(_("Reference"), max_length=50, unique=True, blank=True)
     created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
     created_by = models.ForeignKey(
@@ -48,31 +82,6 @@ class BaseModel(models.Model):
         related_name="%(app_label)s_%(class)s_set",
         verbose_name=_("Tags"),
     )
-
-    @classmethod
-    def _generate_next_reference(cls):
-        """Generate the next unique reference in the format PREFIX-N."""
-        prefix = cls.REFERENCE_PREFIX
-        if not prefix:
-            return ""
-        prefix_with_dash = f"{prefix}-"
-        existing_refs = cls.objects.filter(
-            reference__startswith=prefix_with_dash
-        ).values_list("reference", flat=True)
-        max_num = 0
-        prefix_len = len(prefix_with_dash)
-        for ref in existing_refs:
-            try:
-                num = int(ref[prefix_len:])
-                max_num = max(max_num, num)
-            except (ValueError, IndexError):
-                continue
-        return f"{prefix}-{max_num + 1}"
-
-    def save(self, *args, **kwargs):
-        if not self.reference and self.REFERENCE_PREFIX:
-            self.reference = self._generate_next_reference()
-        super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
