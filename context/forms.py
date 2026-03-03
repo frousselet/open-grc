@@ -406,8 +406,8 @@ class IndicatorMeasurementForm(forms.ModelForm):
         model = IndicatorMeasurement
         fields = ["value", "notes"]
         widgets = {
-            "value": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
-            "notes": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "value": forms.TextInput(attrs={**FORM_WIDGET_ATTRS, "placeholder": _("Value")}),
+            "notes": forms.TextInput(attrs={**FORM_WIDGET_ATTRS, "placeholder": _("Notes (optional)")}),
         }
 
     def __init__(self, *args, indicator_format=None, **kwargs):
