@@ -79,13 +79,8 @@ class Migration(migrations.Migration):
                 verbose_name="Requirement number",
             ),
         ),
-        # Step 3: Copy reference -> requirement_number and clear reference
-        migrations.RunPython(
-            copy_reference_to_requirement_number,
-            migrations.RunPython.noop,
-        ),
-        # Step 4: Alter requirement.reference to max_length=50 + blank
-        # WITHOUT unique=True yet (references are empty at this point)
+        # Step 3: Alter all fields (requirement.reference WITHOUT unique
+        # because data migration below will clear it first)
         migrations.AlterField(
             model_name="requirement",
             name="reference",
@@ -93,7 +88,6 @@ class Migration(migrations.Migration):
                 blank=True, max_length=50, verbose_name="Reference"
             ),
         ),
-        # Step 5: Alter other fields (these already have unique values)
         migrations.AlterField(
             model_name="complianceactionplan",
             name="reference",
@@ -139,35 +133,14 @@ class Migration(migrations.Migration):
             name="reference",
             field=models.CharField(blank=True, max_length=50, verbose_name="Reference"),
         ),
-        # Step 6: Generate auto-references for ALL compliance models
+        # Step 4: Data migration - copy refs and generate auto-references
+        # Must be AFTER schema changes and BEFORE unique constraint (next migration)
+        migrations.RunPython(
+            copy_reference_to_requirement_number,
+            migrations.RunPython.noop,
+        ),
         migrations.RunPython(
             generate_auto_references,
             migrations.RunPython.noop,
-        ),
-        # Step 7: NOW add unique=True to requirement.reference
-        # (all references are populated at this point)
-        migrations.AlterField(
-            model_name="requirement",
-            name="reference",
-            field=models.CharField(
-                blank=True, max_length=50, unique=True, verbose_name="Reference"
-            ),
-        ),
-        # Step 8: Add new constraints
-        migrations.AddConstraint(
-            model_name="requirement",
-            constraint=models.UniqueConstraint(
-                condition=models.Q(("requirement_number", ""), _negated=True),
-                fields=("framework", "requirement_number"),
-                name="unique_requirement_number_per_framework",
-            ),
-        ),
-        migrations.AddConstraint(
-            model_name="section",
-            constraint=models.UniqueConstraint(
-                condition=models.Q(("reference", ""), _negated=True),
-                fields=("framework", "reference"),
-                name="unique_section_reference_per_framework",
-            ),
         ),
     ]
