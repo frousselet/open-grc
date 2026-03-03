@@ -130,6 +130,8 @@ class ObjectiveType(models.TextChoices):
 
 
 class MeasurementFrequency(models.TextChoices):
+    DAILY = "daily", _("Daily")
+    WEEKLY = "weekly", _("Weekly")
     MONTHLY = "monthly", _("Monthly")
     QUARTERLY = "quarterly", _("Quarterly")
     SEMI_ANNUAL = "semi_annual", _("Semi-annual")

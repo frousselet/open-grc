@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-03 12:57+0100\n"
+"POT-Creation-Date: 2026-03-03 13:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -485,7 +485,7 @@ msgstr "Évaluer"
 msgid "Validate"
 msgstr "Valider"
 
-#: accounts/constants.py:280 context/apps.py:8 context/constants.py:161
+#: accounts/constants.py:280 context/apps.py:8 context/constants.py:163
 #: context/templates/context/dashboard.html:4
 #: context/templates/context/dashboard.html:10 templates/base.html:1057
 #: templates/home.html:219
@@ -939,8 +939,8 @@ msgstr "Fuseau horaire"
 #: assets/constants.py:185 assets/constants.py:243 assets/constants.py:250
 #: assets/templates/assets/supplier_list.html:16 compliance/constants.py:33
 #: compliance/constants.py:65 context/constants.py:7 context/constants.py:71
-#: context/constants.py:112 context/constants.py:141 context/constants.py:168
-#: context/constants.py:193 context/constants.py:222 mcp/models/oauth.py:53
+#: context/constants.py:112 context/constants.py:143 context/constants.py:170
+#: context/constants.py:195 context/constants.py:224 mcp/models/oauth.py:53
 #: risks/constants.py:20 risks/constants.py:88 risks/constants.py:135
 #: risks/templates/risks/acceptance_list.html:17
 #: risks/templates/risks/criteria_list.html:17
@@ -1661,8 +1661,8 @@ msgstr "Verrouillé"
 #: accounts/templates/accounts/user_detail.html:58
 #: accounts/templates/accounts/user_list.html:25
 #: accounts/templates/accounts/user_list.html:70 assets/constants.py:244
-#: context/constants.py:113 context/constants.py:169 context/constants.py:194
-#: context/constants.py:223 risks/constants.py:136
+#: context/constants.py:113 context/constants.py:171 context/constants.py:196
+#: context/constants.py:225 risks/constants.py:136
 msgid "Inactive"
 msgstr "Inactif"
 
@@ -1807,7 +1807,7 @@ msgstr "Négligeable"
 #: assets/constants.py:9 assets/constants.py:257
 #: assets/templatetags/dic_tags.py:17 compliance/constants.py:71
 #: context/constants.py:57 context/constants.py:93 context/constants.py:105
-#: context/constants.py:186 risks/constants.py:48 risks/constants.py:157
+#: context/constants.py:188 risks/constants.py:48 risks/constants.py:157
 #: risks/constants.py:190
 msgid "Low"
 msgstr "Faible"
@@ -1815,21 +1815,21 @@ msgstr "Faible"
 #: assets/constants.py:10 assets/constants.py:258
 #: assets/templatetags/dic_tags.py:18 compliance/constants.py:72
 #: context/constants.py:58 context/constants.py:94 context/constants.py:106
-#: context/constants.py:187 risks/constants.py:49 risks/constants.py:158
+#: context/constants.py:189 risks/constants.py:49 risks/constants.py:158
 msgid "Medium"
 msgstr "Moyen"
 
 #: assets/constants.py:11 assets/constants.py:259
 #: assets/templatetags/dic_tags.py:19 compliance/constants.py:73
 #: context/constants.py:59 context/constants.py:95 context/constants.py:107
-#: context/constants.py:188 risks/constants.py:50 risks/constants.py:159
+#: context/constants.py:190 risks/constants.py:50 risks/constants.py:159
 #: risks/constants.py:194 risks/templates/risks/risk_list.html:27
 msgid "High"
 msgstr "Élevé"
 
 #: assets/constants.py:12 assets/constants.py:260
 #: assets/templatetags/dic_tags.py:20 compliance/constants.py:74
-#: context/constants.py:60 context/constants.py:108 context/constants.py:189
+#: context/constants.py:60 context/constants.py:108 context/constants.py:191
 #: context/templates/context/indicator_detail.html:89 risks/constants.py:51
 #: risks/constants.py:160 risks/templates/risks/risk_list.html:26
 #: templates/includes/dashboard_indicators.html:70
@@ -2082,15 +2082,15 @@ msgstr "Développeur"
 msgid "Other person"
 msgstr "Autre personne"
 
-#: assets/constants.py:121 context/constants.py:252
+#: assets/constants.py:121 context/constants.py:254
 msgid "Datacenter"
 msgstr "Centre de données"
 
-#: assets/constants.py:122 context/constants.py:249
+#: assets/constants.py:122 context/constants.py:251
 msgid "Office"
 msgstr "Bureau"
 
-#: assets/constants.py:123 context/constants.py:253
+#: assets/constants.py:123 context/constants.py:255
 msgid "Remote site"
 msgstr "Site distant"
 
@@ -2213,7 +2213,7 @@ msgstr "Protégé par"
 #: assets/constants.py:200 assets/constants.py:218 assets/constants.py:227
 #: assets/constants.py:237 compliance/constants.py:14
 #: compliance/constants.py:28 compliance/constants.py:53
-#: context/constants.py:89 context/constants.py:129 context/constants.py:254
+#: context/constants.py:89 context/constants.py:129 context/constants.py:256
 #: risks/constants.py:98 risks/constants.py:106
 msgid "Other"
 msgstr "Autre"
@@ -2280,7 +2280,7 @@ msgstr "Suspendu"
 
 #: assets/constants.py:253 assets/templates/assets/supplier_list.html:19
 #: compliance/constants.py:36 compliance/constants.py:84 context/constants.py:8
-#: context/constants.py:150 risks/constants.py:15 risks/constants.py:21
+#: context/constants.py:152 risks/constants.py:15 risks/constants.py:21
 msgid "Archived"
 msgstr "Archivé"
 
@@ -4033,7 +4033,7 @@ msgid "Internal policies"
 msgstr "Politiques internes"
 
 #: compliance/constants.py:32 compliance/constants.py:80 context/constants.py:6
-#: context/constants.py:140 context/constants.py:148 context/constants.py:224
+#: context/constants.py:142 context/constants.py:150 context/constants.py:226
 #: risks/constants.py:11 risks/constants.py:19
 #: risks/templates/risks/assessment_list.html:17
 msgid "Draft"
@@ -4059,12 +4059,12 @@ msgstr "Recommandé"
 msgid "Optional"
 msgstr "Optionnel"
 
-#: compliance/constants.py:48 context/constants.py:40 context/constants.py:199
+#: compliance/constants.py:48 context/constants.py:40 context/constants.py:201
 #: context/templates/context/scope_detail.html:88 templates/base.html:1083
 msgid "Organizational"
 msgstr "Organisationnel"
 
-#: compliance/constants.py:49 context/constants.py:42 context/constants.py:200
+#: compliance/constants.py:49 context/constants.py:42 context/constants.py:202
 #: context/templates/context/scope_detail.html:89 risks/constants.py:105
 #: templates/base.html:1084
 msgid "Technical"
@@ -4104,7 +4104,7 @@ msgstr "En cours"
 msgid "Completed"
 msgstr "Terminé"
 
-#: compliance/constants.py:83 context/constants.py:149 risks/constants.py:14
+#: compliance/constants.py:83 context/constants.py:151 risks/constants.py:14
 #: risks/templates/risks/assessment_list.html:20
 msgid "Validated"
 msgstr "Validé"
@@ -4133,12 +4133,12 @@ msgstr "Associé"
 msgid "Minimal"
 msgstr "Minimal"
 
-#: compliance/constants.py:106 context/constants.py:195 risks/constants.py:73
+#: compliance/constants.py:106 context/constants.py:197 risks/constants.py:73
 #: risks/constants.py:81 risks/templates/risks/treatment_plan_list.html:17
 msgid "Planned"
 msgstr "Planifié"
 
-#: compliance/constants.py:109 context/constants.py:144 risks/constants.py:76
+#: compliance/constants.py:109 context/constants.py:146 risks/constants.py:76
 #: risks/constants.py:84
 msgid "Cancelled"
 msgstr "Annulé"
@@ -5089,7 +5089,7 @@ msgstr "Attente"
 msgid "Need"
 msgstr "Besoin"
 
-#: context/constants.py:121 context/constants.py:162
+#: context/constants.py:121 context/constants.py:164
 msgid "Operational"
 msgstr "Opérationnel"
 
@@ -5102,42 +5102,50 @@ msgid "Business"
 msgstr "Métier"
 
 #: context/constants.py:133
+msgid "Daily"
+msgstr "Quotidien"
+
+#: context/constants.py:134
+msgid "Weekly"
+msgstr "Hebdomadaire"
+
+#: context/constants.py:135
 msgid "Monthly"
 msgstr "Mensuel"
 
-#: context/constants.py:134
+#: context/constants.py:136
 msgid "Quarterly"
 msgstr "Trimestriel"
 
-#: context/constants.py:135
+#: context/constants.py:137
 msgid "Semi-annual"
 msgstr "Semestriel"
 
-#: context/constants.py:136
+#: context/constants.py:138
 msgid "Annual"
 msgstr "Annuel"
 
-#: context/constants.py:142
+#: context/constants.py:144
 msgid "Achieved"
 msgstr "Atteint"
 
-#: context/constants.py:143
+#: context/constants.py:145
 msgid "Not achieved"
 msgstr "Non atteint"
 
-#: context/constants.py:154
+#: context/constants.py:156
 msgid "Strength"
 msgstr "Force"
 
-#: context/constants.py:155
+#: context/constants.py:157
 msgid "Weakness"
 msgstr "Faiblesse"
 
-#: context/constants.py:156
+#: context/constants.py:158
 msgid "Opportunity"
 msgstr "Opportunité"
 
-#: context/constants.py:157 risks/models/iso27005_risk.py:21
+#: context/constants.py:159 risks/models/iso27005_risk.py:21
 #: risks/models/threat.py:37 risks/templates/risks/assessment_detail.html:177
 #: risks/templates/risks/iso27005_risk_detail.html:33
 #: risks/templates/risks/iso27005_risk_list.html:28
@@ -5145,107 +5153,107 @@ msgstr "Opportunité"
 msgid "Threat"
 msgstr "Menace"
 
-#: context/constants.py:163 context/constants.py:181
+#: context/constants.py:165 context/constants.py:183
 msgid "Support"
 msgstr "Support"
 
-#: context/constants.py:164
+#: context/constants.py:166
 msgid "Control"
 msgstr "Contrôler"
 
-#: context/constants.py:173
+#: context/constants.py:175
 msgid "Responsible (R)"
 msgstr "Responsable (R)"
 
-#: context/constants.py:174
+#: context/constants.py:176
 msgid "Accountable (A)"
 msgstr "Approbateur (A)"
 
-#: context/constants.py:175
+#: context/constants.py:177
 msgid "Consulted (C)"
 msgstr "Consulté (C)"
 
-#: context/constants.py:176
+#: context/constants.py:178
 msgid "Informed (I)"
 msgstr "Informé (I)"
 
-#: context/constants.py:180
+#: context/constants.py:182
 msgid "Core business"
 msgstr "Cœur de métier"
 
-#: context/constants.py:182
+#: context/constants.py:184
 msgid "Management"
 msgstr "Gestion"
 
-#: context/constants.py:204
+#: context/constants.py:206
 msgid "Number"
 msgstr "Nombre"
 
-#: context/constants.py:205
+#: context/constants.py:207
 msgid "Boolean"
 msgstr "Booléen"
 
-#: context/constants.py:209
+#: context/constants.py:211
 msgid "Falls below"
 msgstr "Descend sous"
 
-#: context/constants.py:210
+#: context/constants.py:212
 msgid "Exceeds"
 msgstr "Dépasse"
 
-#: context/constants.py:211
+#: context/constants.py:213
 msgid "Is false"
 msgstr "Est faux"
 
-#: context/constants.py:212
+#: context/constants.py:214
 msgid "Is true"
 msgstr "Est vrai"
 
-#: context/constants.py:216
+#: context/constants.py:218
 msgid "Manual"
 msgstr "Manuel"
 
-#: context/constants.py:217
+#: context/constants.py:219
 msgid "API"
 msgstr "API"
 
-#: context/constants.py:218 context/templates/context/indicator_detail.html:12
+#: context/constants.py:220 context/templates/context/indicator_detail.html:12
 msgid "Predefined Open GRC"
 msgstr "Prédéfini Open GRC"
 
-#: context/constants.py:228
+#: context/constants.py:230
 msgid "Global compliance rate"
 msgstr "Taux de conformité global"
 
-#: context/constants.py:229
+#: context/constants.py:231
 msgid "Compliance rate by framework"
 msgstr "Taux de conformité par référentiel"
 
-#: context/constants.py:230
+#: context/constants.py:232
 msgid "Objective progress rate"
 msgstr "Taux de progression des objectifs"
 
-#: context/constants.py:231
+#: context/constants.py:233
 msgid "Risk treatment rate"
 msgstr "Taux de traitement des risques"
 
-#: context/constants.py:232
+#: context/constants.py:234
 msgid "Approved scopes rate"
 msgstr "Taux de périmètres approuvés"
 
-#: context/constants.py:233
+#: context/constants.py:235
 msgid "Mandatory roles coverage rate"
 msgstr "Taux de couverture des rôles obligatoires"
 
-#: context/constants.py:248
+#: context/constants.py:250
 msgid "Headquarters"
 msgstr "Siège social"
 
-#: context/constants.py:250
+#: context/constants.py:252
 msgid "Factory"
 msgstr "Usine"
 
-#: context/constants.py:251
+#: context/constants.py:253
 msgid "Warehouse"
 msgstr "Entrepôt"
 
@@ -7782,6 +7790,3 @@ msgstr "Aucun historique disponible."
 
 #~ msgid "No ISO 27005 sources."
 #~ msgstr "Aucune source ISO 27005."
-
-#~ msgid "Week"
-#~ msgstr "Semaine"
