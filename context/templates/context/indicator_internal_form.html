@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "internal indicator" %} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0">{% if form.instance.pk %}{% trans "Edit internal indicator" %}{% else %}{% trans "New internal Open GRC indicator" %}{% endif %}</h1>
+  <a href="{% url 'context:indicator-organizational-list' %}" class="btn btn-outline-secondary">{% trans "Back to list" %}</a>
+</div>
+
+{% if not form.instance.pk %}
+<div class="alert alert-info mb-4">
+  <i class="bi bi-info-circle me-1"></i>
+  {% trans "An internal indicator is automatically populated from Open GRC data. It is always of organizational type. The first measurement will be taken automatically upon creation." %}
+</div>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  <div class="row">
+    {# ── Left column: core fields ────────────────────── #}
+    <div class="col-lg-8">
+
+      {# ── Identity ──────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-bar-chart-line me-2" style="color:var(--accent)"></i>{% trans "Identity" %}</h6></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-8">
+              <div class="mb-3">
+                <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
+                {{ form.name }}
+                {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="mb-3">
+                <label for="{{ form.scopes.id_for_label }}" class="form-label">{{ form.scopes.label }}</label>
+                {{ form.scopes }}
+                {% for error in form.scopes.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="mb-0">
+            <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+            {{ form.description }}
+            {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# ── Internal data source ──────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-database me-2" style="color:var(--accent)"></i>{% trans "Internal data source" %}</h6></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <label for="{{ form.internal_source.id_for_label }}" class="form-label">{{ form.internal_source.label }} *</label>
+                {{ form.internal_source }}
+                {% for error in form.internal_source.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <label for="{{ form.internal_source_parameter.id_for_label }}" class="form-label">{{ form.internal_source_parameter.label }}</label>
+                {{ form.internal_source_parameter }}
+                <small class="form-text text-muted">{% trans "Optional. E.g. framework ID for compliance rate by framework." %}</small>
+                {% for error in form.internal_source_parameter.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ── Format & Values ──────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-sliders me-2" style="color:var(--accent)"></i>{% trans "Format & Values" %}</h6></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="mb-3">
+                <label for="{{ form.format.id_for_label }}" class="form-label">{{ form.format.label }} *</label>
+                {{ form.format }}
+                {% for error in form.format.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="mb-3">
+                <label for="{{ form.unit.id_for_label }}" class="form-label">{{ form.unit.label }}</label>
+                {{ form.unit }}
+                {% for error in form.unit.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="mb-3">
+                <label for="{{ form.expected_level.id_for_label }}" class="form-label">{{ form.expected_level.label }}</label>
+                {{ form.expected_level }}
+                {% for error in form.expected_level.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ── Critical threshold ────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-exclamation-triangle me-2" style="color:var(--accent)"></i>{% trans "Critical threshold" %}</h6></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="mb-3">
+                <label for="{{ form.critical_threshold_operator.id_for_label }}" class="form-label">{{ form.critical_threshold_operator.label }}</label>
+                {{ form.critical_threshold_operator }}
+                {% for error in form.critical_threshold_operator.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="mb-3 mb-sm-0">
+                <label for="{{ form.critical_threshold_value.id_for_label }}" class="form-label">{{ form.critical_threshold_value.label }}</label>
+                {{ form.critical_threshold_value }}
+                {% for error in form.critical_threshold_value.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ── Right column: status, dates, tags ────────── #}
+    <div class="col-lg-4">
+
+      {# ── Status ──────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-info-circle me-2" style="color:var(--accent)"></i>{% trans "Status" %}</h6></div>
+        <div class="card-body">
+          <div class="mb-0">
+            <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }} *</label>
+            {{ form.status }}
+            {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# ── Review ──────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-calendar-event me-2" style="color:var(--accent)"></i>{% trans "Review" %}</h6></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="{{ form.review_frequency.id_for_label }}" class="form-label">{{ form.review_frequency.label }} *</label>
+            {{ form.review_frequency }}
+            {% for error in form.review_frequency.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="mb-0">
+            <label for="{{ form.first_review_date.id_for_label }}" class="form-label">{{ form.first_review_date.label }} *</label>
+            {{ form.first_review_date }}
+            {% for error in form.first_review_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# ── Tags ──────────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-tags me-2" style="color:var(--accent)"></i>{% trans "Tags" %}</h6></div>
+        <div class="card-body">
+          {{ form.tags }}
+          {% for error in form.tags.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ── Actions ───────────────────────────────────── #}
+  <div class="d-flex gap-2 pt-3 mb-4" style="border-top:1px solid var(--border-light)">
+    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{% trans "Save" %}</button>
+    <a href="{% url 'context:indicator-organizational-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% load i18n scope_tags %}
+{% load help_tags %}
+
+{% block title %}{{ indicator.name }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="mb-0">{{ indicator.name }}</h1>
+    <small class="ref">{{ indicator.reference }}</small>
+    {% if indicator.is_internal %}<span class="badge text-bg-info ms-2">{% trans "Internal Open GRC" %}</span>{% endif %}
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'context:indicator-update' indicator.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    {% if indicator.indicator_type == "organizational" %}
+    <a href="{% url 'context:indicator-organizational-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+    {% else %}
+    <a href="{% url 'context:indicator-technical-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+    {% endif %}
+  </div>
+</div>
+{% include "includes/approval_badge.html" %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#thresholds">{% trans "Thresholds" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#measurements">{% trans "Measurements" %}<span class="badge text-bg-secondary ms-1">{{ measurements|length }}</span></a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
+</ul>
+
+<div class="tab-content">
+  {# ── General ──────────────────────────────────── #}
+  <div class="tab-pane fade show active" id="general">
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt>
+          <dd class="col-sm-9">{% grouped_scope_badges indicator.scopes.all %}{% if not indicator.scopes.all %}<span style="color:var(--text-muted)">—</span>{% endif %}</dd>
+
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Indicator type" %}</dt>
+          <dd class="col-sm-9">{{ indicator.get_indicator_type_display }}</dd>
+
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Collection method" %}</dt>
+          <dd class="col-sm-9">{{ indicator.get_collection_method_display }}</dd>
+
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Format" %}</dt>
+          <dd class="col-sm-9">{{ indicator.get_format_display }}{% if indicator.unit %} ({{ indicator.unit }}){% endif %}</dd>
+
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt>
+          <dd class="col-sm-9">{{ indicator.description|default:"—"|linebreaksbr }}</dd>
+
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if indicator.status == 'active' %}success{% elif indicator.status == 'draft' %}secondary{% else %}warning{% endif %}">
+              {{ indicator.get_status_display }}
+            </span>
+          </dd>
+
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Review frequency" %}</dt>
+          <dd class="col-sm-9">{{ indicator.get_review_frequency_display }}</dd>
+
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "First review date" %}</dt>
+          <dd class="col-sm-9">{{ indicator.first_review_date }}</dd>
+
+          {% if indicator.is_internal %}
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Internal data source" %}</dt>
+          <dd class="col-sm-9">{{ indicator.get_internal_source_display }}{% if indicator.internal_source_parameter %} ({{ indicator.internal_source_parameter }}){% endif %}</dd>
+          {% endif %}
+
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
+          <dd class="col-sm-9">{% for tag in indicator.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  {# ── Thresholds ───────────────────────────────── #}
+  <div class="tab-pane fade" id="thresholds">
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Current value" %}</dt>
+          <dd class="col-sm-9">
+            {% if indicator.current_value %}
+              <span class="{% if indicator.is_critical %}text-danger fw-bold{% endif %}">
+                {{ indicator.current_value }}{% if indicator.unit %} {{ indicator.unit }}{% endif %}
+              </span>
+              {% if indicator.is_critical %}<span class="badge text-bg-danger ms-1">{% trans "Critical" %}</span>{% endif %}
+            {% else %}—{% endif %}
+          </dd>
+
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Expected level" %}</dt>
+          <dd class="col-sm-9">{{ indicator.expected_level|default:"—" }}{% if indicator.unit and indicator.expected_level %} {{ indicator.unit }}{% endif %}</dd>
+
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Critical threshold" %}</dt>
+          <dd class="col-sm-9">
+            {% if indicator.critical_threshold_operator %}
+              {{ indicator.get_critical_threshold_operator_display }}
+              {% if indicator.critical_threshold_value %} {{ indicator.critical_threshold_value }}{% if indicator.unit %} {{ indicator.unit }}{% endif %}{% endif %}
+            {% else %}—{% endif %}
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  {# ── Measurements ──────────────────────────────── #}
+  <div class="tab-pane fade" id="measurements">
+    {# Record a new measurement #}
+    {% if not indicator.is_internal or indicator.collection_method == "manual" %}
+    <div class="card mb-3">
+      <div class="card-header"><h6 class="mb-0"><i class="bi bi-plus-circle me-2" style="color:var(--accent)"></i>{% trans "Record a measurement" %}</h6></div>
+      <div class="card-body">
+        <form method="post" action="{% url 'context:indicator-record' indicator.pk %}" class="row g-3 align-items-end">
+          {% csrf_token %}
+          <div class="col-sm-4">
+            <label for="id_value" class="form-label">{% trans "Value" %} *</label>
+            {{ measurement_form.value }}
+          </div>
+          <div class="col-sm-5">
+            <label for="id_notes" class="form-label">{% trans "Notes" %}</label>
+            {{ measurement_form.notes }}
+          </div>
+          <div class="col-sm-3">
+            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check-lg me-1"></i>{% trans "Record" %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if indicator.is_internal %}
+    <div class="card mb-3">
+      <div class="card-body d-flex align-items-center">
+        <span class="me-3">{% trans "This is an internal indicator. You can refresh its value from Open GRC data." %}</span>
+        <form method="post" action="{% url 'context:indicator-refresh' indicator.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-primary"><i class="bi bi-arrow-clockwise me-1"></i>{% trans "Refresh" %}</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    {# Measurement history #}
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>{% trans "Date" %}</th>
+              <th>{% trans "Value" %}</th>
+              <th>{% trans "Recorded by" %}</th>
+              <th>{% trans "Notes" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in measurements %}
+            <tr>
+              <td>{{ m.recorded_at|date:"Y-m-d H:i" }}</td>
+              <td>{{ m.value }}{% if indicator.unit %} {{ indicator.unit }}{% endif %}</td>
+              <td>{{ m.recorded_by|default:"—" }}</td>
+              <td>{{ m.notes|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center py-4" style="color:var(--text-muted)">{% trans "No measurement recorded." %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {# ── History ──────────────────────────────────── #}
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

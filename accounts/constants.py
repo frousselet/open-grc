@@ -76,6 +76,10 @@ PERMISSION_REGISTRY = {
             "actions": ["create", "read", "update", "delete", "approve"],
             "label": _("Activities"),
         },
+        "indicator": {
+            "actions": ["create", "read", "update", "delete", "approve"],
+            "label": _("Indicators"),
+        },
         "site": {
             "actions": ["create", "read", "update", "delete", "approve"],
             "label": _("Sites"),

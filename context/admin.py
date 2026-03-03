@@ -3,6 +3,8 @@ from simple_history.admin import SimpleHistoryAdmin
 
 from .models import (
     Activity,
+    Indicator,
+    IndicatorMeasurement,
     Issue,
     Objective,
     Responsibility,
@@ -124,3 +126,22 @@ class ActivityAdmin(SimpleHistoryAdmin):
     search_fields = ("reference", "name", "description")
     readonly_fields = ("id", "reference", "created_at", "updated_at")
     filter_horizontal = ("scopes", "related_stakeholders", "related_objectives", "tags")
+
+
+class IndicatorMeasurementInline(admin.TabularInline):
+    model = IndicatorMeasurement
+    extra = 0
+    readonly_fields = ("id", "recorded_at")
+
+
+@admin.register(Indicator)
+class IndicatorAdmin(SimpleHistoryAdmin):
+    list_display = (
+        "reference", "name", "indicator_type", "format",
+        "current_value", "status", "is_internal", "collection_method",
+    )
+    list_filter = ("indicator_type", "format", "status", "collection_method", "is_internal")
+    search_fields = ("reference", "name", "description")
+    readonly_fields = ("id", "reference", "created_at", "updated_at")
+    filter_horizontal = ("scopes", "tags")
+    inlines = [IndicatorMeasurementInline]

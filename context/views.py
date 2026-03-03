@@ -21,8 +21,12 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
+from .constants import CollectionMethod, IndicatorType
 from .forms import (
     ActivityForm,
+    IndicatorForm,
+    IndicatorMeasurementForm,
+    InternalIndicatorForm,
     IssueForm,
     ObjectiveForm,
     RoleForm,
@@ -32,6 +36,8 @@ from .forms import (
 )
 from .models import (
     Activity,
+    Indicator,
+    IndicatorMeasurement,
     Issue,
     Objective,
     Role,
@@ -585,3 +591,167 @@ class TagDeleteView(LoginRequiredMixin, DeleteView):
     model = Tag
     template_name = "context/confirm_delete.html"
     success_url = reverse_lazy("context:tag-list")
+
+
+# ── Indicators ─────────────────────────────────────────────
+
+class IndicatorListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+    model = Indicator
+    template_name = "context/indicator_list.html"
+    context_object_name = "indicators"
+    paginate_by = 25
+    indicator_type = None
+
+    def get_queryset(self):
+        qs = super().get_queryset().prefetch_related("scopes")
+        if self.indicator_type:
+            qs = qs.filter(indicator_type=self.indicator_type)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["indicator_type"] = self.indicator_type
+        ctx["indicator_type_label"] = (
+            dict(IndicatorType.choices).get(self.indicator_type, "")
+            if self.indicator_type else ""
+        )
+        return ctx
+
+
+class IndicatorDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+    model = Indicator
+    template_name = "context/indicator_detail.html"
+    context_object_name = "indicator"
+    approve_url_name = "context:indicator-approve"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["measurements"] = self.object.measurements.select_related("recorded_by")[:50]
+        ctx["measurement_form"] = IndicatorMeasurementForm()
+        return ctx
+
+
+class IndicatorCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+    model = Indicator
+    template_name = "context/indicator_form.html"
+
+    def get_form_class(self):
+        return IndicatorForm
+
+    def get_success_url(self):
+        return reverse_lazy("context:indicator-detail", kwargs={"pk": self.object.pk})
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["indicator_type_preselect"] = self.request.GET.get("type", "")
+        return ctx
+
+    def get_initial(self):
+        initial = super().get_initial()
+        indicator_type = self.request.GET.get("type", "")
+        if indicator_type:
+            initial["indicator_type"] = indicator_type
+        return initial
+
+
+class InternalIndicatorCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+    model = Indicator
+    form_class = InternalIndicatorForm
+    template_name = "context/indicator_internal_form.html"
+
+    def get_success_url(self):
+        return reverse_lazy("context:indicator-detail", kwargs={"pk": self.object.pk})
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        form.instance.is_internal = True
+        form.instance.indicator_type = IndicatorType.ORGANIZATIONAL
+        form.instance.collection_method = CollectionMethod.INTERNAL
+        response = super().form_valid(form)
+        # Trigger first measurement on creation
+        value = self.object.compute_internal_value()
+        if value is not None:
+            self.object.record_measurement(
+                value=value,
+                recorded_by=self.request.user,
+                notes=_("Initial measurement (automatic)."),
+            )
+        return response
+
+
+class IndicatorUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+    model = Indicator
+    template_name = "context/indicator_form.html"
+
+    def get_form_class(self):
+        if self.object.is_internal:
+            return InternalIndicatorForm
+        return IndicatorForm
+
+    def get_template_names(self):
+        if self.object.is_internal:
+            return ["context/indicator_internal_form.html"]
+        return ["context/indicator_form.html"]
+
+    def get_success_url(self):
+        return reverse_lazy("context:indicator-detail", kwargs={"pk": self.object.pk})
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+
+class IndicatorDeleteView(LoginRequiredMixin, DeleteView):
+    model = Indicator
+    template_name = "context/confirm_delete.html"
+    success_url = reverse_lazy("context:indicator-organizational-list")
+
+
+class IndicatorRecordMeasurementView(LoginRequiredMixin, View):
+    """Record a measurement for an indicator (manual)."""
+
+    def post(self, request, pk):
+        indicator = get_object_or_404(Indicator, pk=pk)
+        form = IndicatorMeasurementForm(request.POST)
+        if form.is_valid():
+            indicator.record_measurement(
+                value=form.cleaned_data["value"],
+                recorded_by=request.user,
+                notes=form.cleaned_data.get("notes", ""),
+            )
+            messages.success(request, _("Measurement recorded."))
+        else:
+            messages.error(request, _("Invalid measurement data."))
+        return redirect("context:indicator-detail", pk=pk)
+
+
+class IndicatorRefreshInternalView(LoginRequiredMixin, View):
+    """Trigger a refresh of an internal indicator's value."""
+
+    def post(self, request, pk):
+        indicator = get_object_or_404(Indicator, pk=pk)
+        if not indicator.is_internal:
+            messages.error(request, _("This indicator is not an internal indicator."))
+            return redirect("context:indicator-detail", pk=pk)
+        value = indicator.compute_internal_value()
+        if value is not None:
+            indicator.record_measurement(
+                value=value,
+                recorded_by=request.user,
+                notes=_("Manual refresh."),
+            )
+            messages.success(request, _("Indicator refreshed."))
+        else:
+            messages.warning(request, _("Could not compute the indicator value."))
+        return redirect("context:indicator-detail", pk=pk)

@@ -2,6 +2,8 @@ from django import forms
 
 from .models import (
     Activity,
+    Indicator,
+    IndicatorMeasurement,
     Issue,
     Objective,
     Role,
@@ -332,4 +334,73 @@ class TagForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "color": forms.TextInput(attrs={**FORM_WIDGET_ATTRS, "type": "color", "style": "width:80px;height:38px;padding:4px"}),
+        }
+
+
+class IndicatorForm(ScopedFormMixin, forms.ModelForm):
+    class Meta:
+        model = Indicator
+        fields = [
+            "scopes", "name", "description", "indicator_type",
+            "collection_method", "format", "unit",
+            "expected_level", "critical_threshold_operator",
+            "critical_threshold_value", "review_frequency",
+            "first_review_date", "status", "tags",
+        ]
+        widgets = {
+            "scopes": ScopeTreeWidget(),
+            "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
+            "indicator_type": forms.Select(attrs=SELECT_ATTRS),
+            "collection_method": forms.Select(attrs=SELECT_ATTRS),
+            "format": forms.Select(attrs=SELECT_ATTRS),
+            "unit": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "expected_level": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "critical_threshold_operator": forms.Select(attrs=SELECT_ATTRS),
+            "critical_threshold_value": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "review_frequency": forms.Select(attrs=SELECT_ATTRS),
+            "first_review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+        }
+
+
+class InternalIndicatorForm(ScopedFormMixin, forms.ModelForm):
+    """Form for creating internal Open GRC indicators."""
+
+    class Meta:
+        model = Indicator
+        fields = [
+            "scopes", "name", "description",
+            "internal_source", "internal_source_parameter",
+            "format", "unit",
+            "expected_level", "critical_threshold_operator",
+            "critical_threshold_value", "review_frequency",
+            "first_review_date", "status", "tags",
+        ]
+        widgets = {
+            "scopes": ScopeTreeWidget(),
+            "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
+            "internal_source": forms.Select(attrs=SELECT_ATTRS),
+            "internal_source_parameter": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "format": forms.Select(attrs=SELECT_ATTRS),
+            "unit": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "expected_level": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "critical_threshold_operator": forms.Select(attrs=SELECT_ATTRS),
+            "critical_threshold_value": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "review_frequency": forms.Select(attrs=SELECT_ATTRS),
+            "first_review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+        }
+
+
+class IndicatorMeasurementForm(forms.ModelForm):
+    class Meta:
+        model = IndicatorMeasurement
+        fields = ["value", "notes"]
+        widgets = {
+            "value": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "notes": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
         }
