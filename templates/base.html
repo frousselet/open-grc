@@ -1515,19 +1515,27 @@
   })();
   </script>
   <script>
-  /* ── Persist active tab in URL hash ─────────────── */
+  /* ── Persist active tab (hash + sessionStorage) ── */
   (function() {
     var tabs = document.querySelectorAll('[data-bs-toggle="tab"]');
     if (!tabs.length) return;
-    /* On tab change, update the URL hash (no scroll jump) */
+    var storageKey = 'activeTab:' + location.pathname;
+
+    /* On tab change → update URL hash + sessionStorage */
     tabs.forEach(function(tab) {
       tab.addEventListener('shown.bs.tab', function(e) {
         var id = e.target.getAttribute('href') || e.target.dataset.bsTarget;
-        if (id) history.replaceState(null, '', id);
+        if (!id) return;
+        history.replaceState(null, '', id);
+        try { sessionStorage.setItem(storageKey, id); } catch(e) {}
       });
     });
-    /* On page load, restore tab from hash */
+
+    /* On page load → restore from hash (refresh) or sessionStorage (form submit) */
     var hash = location.hash;
+    if (!hash) {
+      try { hash = sessionStorage.getItem(storageKey); } catch(e) {}
+    }
     if (hash) {
       var target = document.querySelector('[data-bs-toggle="tab"][href="' + hash + '"]');
       if (target) {
