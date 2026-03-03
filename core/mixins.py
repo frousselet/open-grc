@@ -1,16 +1,14 @@
-from django.db.models import Q
-
-
 class SortableListMixin:
-    """Mixin for ListView that adds server-side sorting and text search.
+    """Mixin for ListView that adds server-side sorting.
+
+    Sort preferences are persisted per user via JS (no URL params).
+    Search/filtering is handled client-side via JS.
 
     Class attributes:
-        sortable_fields: dict mapping URL param names to ORM field paths.
+        sortable_fields: dict mapping field names to ORM field paths.
             Example: {"name": "name", "owner": "owner__last_name"}
         default_sort: default sort field (must be a key in sortable_fields).
         default_sort_order: "asc" or "desc".
-        search_fields: list of ORM field paths to search with ?q= param.
-            Example: ["name", "reference", "owner__last_name"]
         sort_view_key: unique key to persist sort preferences per user.
             Defaults to "app_label.model_name" from the view's model.
     """
@@ -18,7 +16,6 @@ class SortableListMixin:
     sortable_fields = {}
     default_sort = None
     default_sort_order = "asc"
-    search_fields = []
     sort_view_key = ""
 
     def _get_sort_view_key(self):
@@ -49,34 +46,17 @@ class SortableListMixin:
     def _resolve_sort(self):
         """Determine the effective sort field and order.
 
-        Priority: URL params > saved preference > class defaults.
+        Priority: saved user preference > class defaults.
         """
-        url_sort = self.request.GET.get("sort")
-        url_order = self.request.GET.get("order")
-
-        if url_sort and url_sort in self.sortable_fields:
-            return url_sort, url_order or self.default_sort_order
-
         saved_sort, saved_order = self._get_saved_preference()
         if saved_sort:
             return saved_sort, saved_order
-
         return self.default_sort, self.default_sort_order
 
     def get_queryset(self):
         qs = super().get_queryset()
-        qs = self._apply_search(qs)
         qs = self._apply_sorting(qs)
         return qs
-
-    def _apply_search(self, qs):
-        query = self.request.GET.get("q", "").strip()
-        if not query or not self.search_fields:
-            return qs
-        q_objects = Q()
-        for field in self.search_fields:
-            q_objects |= Q(**{f"{field}__icontains": query})
-        return qs.filter(q_objects)
 
     def _apply_sorting(self, qs):
         sort_field, order = self._resolve_sort()
@@ -92,6 +72,5 @@ class SortableListMixin:
         sort_field, order = self._resolve_sort()
         ctx["current_sort"] = sort_field or ""
         ctx["current_order"] = order or "asc"
-        ctx["search_query"] = self.request.GET.get("q", "")
         ctx["sort_view_key"] = self._get_sort_view_key()
         return ctx

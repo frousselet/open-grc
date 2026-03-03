@@ -1,28 +1,13 @@
 {% load i18n %}
 <div class="table-toolbar" data-sort-view-key="{{ sort_view_key }}">
-  <form method="get" class="table-toolbar-search">
-    {# Preserve existing filter params (status, type, sort, order, etc.) but not q/page #}
-    {% for key, value in request.GET.items %}
-      {% if key != "q" and key != "page" %}
-        <input type="hidden" name="{{ key }}" value="{{ value }}">
-      {% endif %}
-    {% endfor %}
+  <div class="table-toolbar-search">
     <i class="bi bi-search table-toolbar-icon"></i>
-    <input type="search" name="q" class="table-toolbar-input"
+    <input type="search" class="table-toolbar-input"
            placeholder="{% trans 'Search…' %}"
-           value="{{ search_query }}"
            aria-label="{% trans 'Search' %}"
            autocomplete="off">
-    {% if search_query %}
-      <a href="?{% for key, value in request.GET.items %}{% if key != 'q' and key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}"
-         class="table-toolbar-clear" title="{% trans 'Clear' %}">
-        <i class="bi bi-x-circle-fill"></i>
-      </a>
-    {% endif %}
-  </form>
-  {% if search_query %}
-    <span class="table-toolbar-badge">
-      <i class="bi bi-funnel-fill me-1" style="font-size:.65rem"></i>{% trans "Filtered" %}
-    </span>
-  {% endif %}
+    <a href="#" class="table-toolbar-clear" title="{% trans 'Clear' %}" style="display:none">
+      <i class="bi bi-x-circle-fill"></i>
+    </a>
+  </div>
 </div>
