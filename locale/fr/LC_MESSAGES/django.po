@@ -4130,6 +4130,12 @@ msgstr ""
 msgid "Compliance by framework"
 msgstr "Conformité par référentiel"
 
+msgid "Active objectives progression"
+msgstr "Progression des objectifs actifs"
+
+msgid "Target:"
+msgstr "Échéance :"
+
 #, python-format
 msgid "%(count)s requirement%(count|pluralize:\"s\")s"
 msgstr "%(count)s exigence%(count|pluralize:\"s\")s"
