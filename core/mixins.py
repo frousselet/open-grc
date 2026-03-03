@@ -1,3 +1,8 @@
+from django.db.models import F
+
+from core.db import NaturalSortKey
+
+
 class SortableListMixin:
     """Mixin for ListView that adds server-side sorting.
 
@@ -11,12 +16,16 @@ class SortableListMixin:
         default_sort_order: "asc" or "desc".
         sort_view_key: unique key to persist sort preferences per user.
             Defaults to "app_label.model_name" from the view's model.
+        natural_sort_fields: set of ORM field suffixes that should use
+            natural sorting (pads numbers for correct ordering).
+            Defaults to {"reference", "requirement_number"}.
     """
 
     sortable_fields = {}
     default_sort = None
     default_sort_order = "asc"
     sort_view_key = ""
+    natural_sort_fields = {"reference", "requirement_number"}
 
     def _get_sort_view_key(self):
         if self.sort_view_key:
@@ -53,6 +62,11 @@ class SortableListMixin:
             return saved_sort, saved_order
         return self.default_sort, self.default_sort_order
 
+    def _needs_natural_sort(self, orm_field):
+        """Check if the ORM field path needs natural sorting."""
+        field_name = orm_field.rsplit("__", 1)[-1]
+        return field_name in self.natural_sort_fields
+
     def get_queryset(self):
         qs = super().get_queryset()
         qs = self._apply_sorting(qs)
@@ -62,9 +76,13 @@ class SortableListMixin:
         sort_field, order = self._resolve_sort()
         if sort_field and sort_field in self.sortable_fields:
             orm_field = self.sortable_fields[sort_field]
-            if order == "desc":
-                orm_field = f"-{orm_field}"
-            qs = qs.order_by(orm_field)
+            if self._needs_natural_sort(orm_field):
+                ann_name = f"_nsort_{sort_field}"
+                qs = qs.annotate(**{ann_name: NaturalSortKey(F(orm_field))})
+                order_field = f"-{ann_name}" if order == "desc" else ann_name
+            else:
+                order_field = f"-{orm_field}" if order == "desc" else orm_field
+            qs = qs.order_by(order_field)
         return qs
 
     def get_context_data(self, **kwargs):
