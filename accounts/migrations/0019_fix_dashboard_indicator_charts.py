@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
     was created by the original version of migration 0017."""
 
     dependencies = [
-        ("accounts", "0017_add_dashboard_show_indicator_chart"),
+        ("accounts", "0018_alter_user_dashboard_indicators"),
     ]
 
     operations = [
