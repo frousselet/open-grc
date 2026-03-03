@@ -62,7 +62,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         _("Dashboard indicators"),
         default=list,
         blank=True,
-        help_text=_("List of indicator IDs pinned to the dashboard (max 6)."),
+        help_text=_("List of indicator IDs pinned to the dashboard (max 10)."),
+    )
+    dashboard_show_indicator_chart = models.BooleanField(
+        _("Show indicator chart"),
+        default=False,
+        help_text=_("Display the indicator evolution chart on the dashboard."),
     )
 
     created_by = models.ForeignKey(

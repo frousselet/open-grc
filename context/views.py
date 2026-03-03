@@ -90,7 +90,7 @@ class ApproveView(LoginRequiredMixin, View):
 
 # ── Dashboard indicator helpers ──────────────────────────────
 
-DASHBOARD_INDICATOR_SLOTS = 6
+DASHBOARD_INDICATOR_SLOTS = 10
 
 
 def get_dashboard_indicator_slots(user):
@@ -204,6 +204,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ctx["available_indicators"] = Indicator.objects.filter(
             status="active",
         ).order_by("indicator_type", "name")
+        ctx["dashboard_show_indicator_chart"] = user.dashboard_show_indicator_chart
 
         return ctx
 
@@ -664,7 +665,7 @@ class TagDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Indicators ─────────────────────────────────────────────
 
-MAX_DASHBOARD_INDICATORS = 6
+MAX_DASHBOARD_INDICATORS = 10
 
 
 @login_required
@@ -702,6 +703,54 @@ def dashboard_indicator_toggle(request):
     user.dashboard_indicators = pinned
     user.save(update_fields=["dashboard_indicators"])
     return JsonResponse({"action": action, "pinned": pinned})
+
+
+@login_required
+@require_POST
+def dashboard_indicator_chart_toggle(request):
+    """Toggle the indicator evolution chart on/off (AJAX)."""
+    user = request.user
+    user.dashboard_show_indicator_chart = not user.dashboard_show_indicator_chart
+    user.save(update_fields=["dashboard_show_indicator_chart"])
+    return JsonResponse({"show_chart": user.dashboard_show_indicator_chart})
+
+
+@login_required
+def dashboard_indicator_chart_data(request):
+    """Return JSON data for the indicator evolution chart."""
+    user = request.user
+    pinned_ids = user.dashboard_indicators or []
+    if not pinned_ids:
+        return JsonResponse({"datasets": []})
+
+    indicators = Indicator.objects.filter(
+        id__in=pinned_ids, format="number",
+    ).prefetch_related("measurements")
+
+    datasets = []
+    for ind in indicators:
+        measurements = list(
+            ind.measurements.order_by("recorded_at").values("recorded_at", "value")[:50]
+        )
+        if not measurements:
+            continue
+        data_points = []
+        for m in measurements:
+            try:
+                data_points.append({
+                    "x": m["recorded_at"].strftime("%Y-%m-%d"),
+                    "y": float(m["value"]),
+                })
+            except (ValueError, TypeError):
+                continue
+        if data_points:
+            datasets.append({
+                "label": ind.name,
+                "unit": ind.unit or "",
+                "data": data_points,
+            })
+
+    return JsonResponse({"datasets": datasets})
 
 
 class IndicatorListView(LoginRequiredMixin, ScopeFilterMixin, ListView):

@@ -10,6 +10,8 @@ urlpatterns = [
     # Dashboard
     path("", views.DashboardView.as_view(), name="dashboard"),
     path("dashboard/indicator-toggle/", views.dashboard_indicator_toggle, name="dashboard-indicator-toggle"),
+    path("dashboard/indicator-chart-toggle/", views.dashboard_indicator_chart_toggle, name="dashboard-indicator-chart-toggle"),
+    path("dashboard/indicator-chart-data/", views.dashboard_indicator_chart_data, name="dashboard-indicator-chart-data"),
     # Scopes
     path("scopes/", views.ScopeListView.as_view(), name="scope-list"),
     path("scopes/create/", views.ScopeCreateView.as_view(), name="scope-create"),
