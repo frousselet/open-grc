@@ -28,7 +28,7 @@
   {% for slot in dashboard_indicator_slots %}
     {% if slot %}
     <a href="{% url 'context:indicator-detail' slot.indicator.pk %}" class="text-decoration-none d-block">
-      <div class="stat-card h-100 position-relative" style="border-left:3px solid {% if slot.indicator.is_critical %}var(--bs-danger){% else %}var(--accent){% endif %};min-height:130px;overflow:hidden">
+      <div class="stat-card h-100 position-relative" style="border-left:3px solid {% if not slot.indicator.current_value %}var(--accent){% elif slot.indicator.is_critical %}var(--bs-danger){% else %}var(--success){% endif %};min-height:130px;overflow:hidden">
         <div style="position:relative;z-index:1">
           <div class="d-flex justify-content-between align-items-start mb-1">
             <small class="text-muted text-truncate me-2" style="max-width:70%" title="{{ slot.indicator.name }}">{{ slot.indicator.name }}</small>
