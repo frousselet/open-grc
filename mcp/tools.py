@@ -281,8 +281,11 @@ def _register_context_tools(server):
     SwotAnalysis = _get_model("context", "SwotAnalysis")
     SwotItem = _get_model("context", "SwotItem")
     Role = _get_model("context", "Role")
+    Responsibility = _get_model("context", "Responsibility")
     Activity = _get_model("context", "Activity")
     Site = _get_model("context", "Site")
+    Indicator = _get_model("context", "Indicator")
+    IndicatorMeasurement = _get_model("context", "IndicatorMeasurement")
     Tag = _get_model("context", "Tag")
 
     scope_fields = ["id", "reference", "name", "description", "status", "type",
@@ -414,6 +417,56 @@ def _register_context_tools(server):
         ),
     )
 
+    # Indicator (scoped, with approve)
+    indicator_fields = ["id", "reference", "name", "description", "indicator_type",
+                        "collection_method", "format", "unit", "current_value",
+                        "expected_level", "critical_threshold_operator",
+                        "critical_threshold_value", "critical_threshold_min",
+                        "critical_threshold_max", "review_frequency",
+                        "first_review_date", "status", "is_internal",
+                        "internal_source", "internal_source_parameter",
+                        "is_approved", "created_at"]
+    indicator_writable = ["name", "description", "indicator_type", "collection_method",
+                          "format", "unit", "expected_level",
+                          "critical_threshold_operator", "critical_threshold_value",
+                          "critical_threshold_min", "critical_threshold_max",
+                          "review_frequency", "first_review_date", "status",
+                          "is_internal", "internal_source", "internal_source_parameter"]
+
+    _register_crud(server, "indicator", Indicator, "context.indicator",
+                   list_fields=indicator_fields,
+                   writable_fields=indicator_writable,
+                   search_fields=["reference", "name", "description"],
+                   filters=["indicator_type", "status", "format", "collection_method"])
+
+    # Indicator measurements (child of Indicator, no approve)
+    measurement_fields = ["id", "indicator_id", "value", "recorded_at",
+                          "recorded_by_id", "notes"]
+    measurement_writable = ["indicator_id", "value", "notes"]
+
+    _register_crud(server, "indicator_measurement", IndicatorMeasurement,
+                   "context.indicator",
+                   list_fields=measurement_fields,
+                   writable_fields=measurement_writable,
+                   search_fields=["notes"],
+                   filters=["indicator_id"],
+                   scope_filtered=False,
+                   has_approve=False)
+
+    # Responsibility (child of Role, no approve)
+    responsibility_fields = ["id", "role_id", "description", "raci_type",
+                             "related_activity_id", "created_at"]
+    responsibility_writable = ["role_id", "description", "raci_type",
+                               "related_activity_id"]
+
+    _register_crud(server, "responsibility", Responsibility, "context.role",
+                   list_fields=responsibility_fields,
+                   writable_fields=responsibility_writable,
+                   search_fields=["description"],
+                   filters=["role_id", "raci_type"],
+                   scope_filtered=False,
+                   has_approve=False)
+
 
 # ── Assets Module ──────────────────────────────────────────
 
@@ -424,6 +477,13 @@ def _register_assets_tools(server):
     AssetGroup = _get_model("assets", "AssetGroup")
     Supplier = _get_model("assets", "Supplier")
     SupplierDependency = _get_model("assets", "SupplierDependency")
+    SiteAssetDependency = _get_model("assets", "SiteAssetDependency")
+    SiteSupplierDependency = _get_model("assets", "SiteSupplierDependency")
+    AssetValuation = _get_model("assets", "AssetValuation")
+    SupplierType = _get_model("assets", "SupplierType")
+    SupplierTypeRequirement = _get_model("assets", "SupplierTypeRequirement")
+    SupplierRequirement = _get_model("assets", "SupplierRequirement")
+    SupplierRequirementReview = _get_model("assets", "SupplierRequirementReview")
 
     ea_fields = ["id", "reference", "name", "description", "type", "category",
                  "status", "confidentiality_level", "integrity_level",
@@ -498,6 +558,108 @@ def _register_assets_tools(server):
                    search_fields=[],
                    filters=["support_asset_id", "supplier_id"],
                    scope_filtered=False)
+
+    # Site-asset dependencies (has approve)
+    sad_fields = ["id", "reference", "support_asset_id", "site_id", "dependency_type",
+                  "criticality", "description", "is_single_point_of_failure",
+                  "redundancy_level", "is_approved", "created_at"]
+    sad_writable = ["support_asset_id", "site_id", "dependency_type", "criticality",
+                    "description", "is_single_point_of_failure", "redundancy_level"]
+
+    _register_crud(server, "site_asset_dependency", SiteAssetDependency, "assets.dependency",
+                   list_fields=sad_fields,
+                   writable_fields=sad_writable,
+                   search_fields=["description"],
+                   filters=["support_asset_id", "site_id", "dependency_type", "criticality"],
+                   scope_filtered=False)
+
+    # Site-supplier dependencies (has approve)
+    ssd_fields = ["id", "reference", "site_id", "supplier_id", "dependency_type",
+                  "criticality", "description", "is_single_point_of_failure",
+                  "redundancy_level", "is_approved", "created_at"]
+    ssd_writable = ["site_id", "supplier_id", "dependency_type", "criticality",
+                    "description", "is_single_point_of_failure", "redundancy_level"]
+
+    _register_crud(server, "site_supplier_dependency", SiteSupplierDependency,
+                   "assets.supplier_dependency",
+                   list_fields=ssd_fields,
+                   writable_fields=ssd_writable,
+                   search_fields=["description"],
+                   filters=["site_id", "supplier_id", "dependency_type", "criticality"],
+                   scope_filtered=False)
+
+    # Asset valuations (no approve)
+    av_fields = ["id", "essential_asset_id", "evaluation_date",
+                 "confidentiality_level", "integrity_level", "availability_level",
+                 "evaluated_by_id", "justification", "context", "created_at"]
+    av_writable = ["essential_asset_id", "evaluation_date",
+                   "confidentiality_level", "integrity_level", "availability_level",
+                   "evaluated_by_id", "justification", "context"]
+
+    _register_crud(server, "asset_valuation", AssetValuation,
+                   "assets.essential_asset",
+                   list_fields=av_fields,
+                   writable_fields=av_writable,
+                   search_fields=["justification"],
+                   filters=["essential_asset_id"],
+                   scope_filtered=False,
+                   has_approve=False)
+
+    # Supplier types (config, no approve)
+    st_fields = ["id", "name", "description", "created_at"]
+    st_writable = ["name", "description"]
+
+    _register_crud(server, "supplier_type", SupplierType, "assets.config",
+                   list_fields=st_fields,
+                   writable_fields=st_writable,
+                   search_fields=["name", "description"],
+                   filters=[],
+                   scope_filtered=False,
+                   has_approve=False)
+
+    # Supplier type requirements (config, no approve)
+    str_fields = ["id", "supplier_type_id", "title", "description", "created_at"]
+    str_writable = ["supplier_type_id", "title", "description"]
+
+    _register_crud(server, "supplier_type_requirement", SupplierTypeRequirement,
+                   "assets.config",
+                   list_fields=str_fields,
+                   writable_fields=str_writable,
+                   search_fields=["title", "description"],
+                   filters=["supplier_type_id"],
+                   scope_filtered=False,
+                   has_approve=False)
+
+    # Supplier requirements (no approve)
+    sr_fields = ["id", "supplier_id", "source_type_requirement_id", "requirement_id",
+                 "title", "description", "compliance_status", "evidence",
+                 "due_date", "verified_at", "verified_by_id", "created_at"]
+    sr_writable = ["supplier_id", "source_type_requirement_id", "requirement_id",
+                   "title", "description", "compliance_status", "evidence", "due_date"]
+
+    _register_crud(server, "supplier_requirement", SupplierRequirement,
+                   "assets.supplier",
+                   list_fields=sr_fields,
+                   writable_fields=sr_writable,
+                   search_fields=["title", "description"],
+                   filters=["supplier_id", "compliance_status"],
+                   scope_filtered=False,
+                   has_approve=False)
+
+    # Supplier requirement reviews (no approve)
+    srr_fields = ["id", "supplier_requirement_id", "review_date", "reviewer_id",
+                  "result", "comment", "created_at"]
+    srr_writable = ["supplier_requirement_id", "review_date", "reviewer_id",
+                    "result", "comment"]
+
+    _register_crud(server, "supplier_requirement_review", SupplierRequirementReview,
+                   "assets.supplier",
+                   list_fields=srr_fields,
+                   writable_fields=srr_writable,
+                   search_fields=["comment"],
+                   filters=["supplier_requirement_id", "result"],
+                   scope_filtered=False,
+                   has_approve=False)
 
 
 # ── Compliance Module ──────────────────────────────────────
@@ -641,8 +803,11 @@ def _register_compliance_tools(server):
 def _register_risks_tools(server):
     RiskAssessment = _get_model("risks", "RiskAssessment")
     RiskCriteria = _get_model("risks", "RiskCriteria")
+    ScaleLevel = _get_model("risks", "ScaleLevel")
+    RiskLevel = _get_model("risks", "RiskLevel")
     Risk = _get_model("risks", "Risk")
     RiskTreatmentPlan = _get_model("risks", "RiskTreatmentPlan")
+    TreatmentAction = _get_model("risks", "TreatmentAction")
     RiskAcceptance = _get_model("risks", "RiskAcceptance")
     Threat = _get_model("risks", "Threat")
     Vulnerability = _get_model("risks", "Vulnerability")
@@ -667,6 +832,34 @@ def _register_risks_tools(server):
                    writable_fields=rc_writable,
                    search_fields=["name", "description"],
                    filters=["status"],
+                   has_approve=False)
+
+    # Scale levels (child of RiskCriteria, no approve)
+    sl_fields = ["id", "criteria_id", "scale_type", "level", "name",
+                 "description", "color"]
+    sl_writable = ["criteria_id", "scale_type", "level", "name",
+                   "description", "color"]
+
+    _register_crud(server, "scale_level", ScaleLevel, "risks.criteria",
+                   list_fields=sl_fields,
+                   writable_fields=sl_writable,
+                   search_fields=["name", "description"],
+                   filters=["criteria_id", "scale_type"],
+                   scope_filtered=False,
+                   has_approve=False)
+
+    # Risk levels (child of RiskCriteria, no approve)
+    rl_fields = ["id", "criteria_id", "level", "name", "description",
+                 "color", "requires_treatment"]
+    rl_writable = ["criteria_id", "level", "name", "description",
+                   "color", "requires_treatment"]
+
+    _register_crud(server, "risk_level", RiskLevel, "risks.criteria",
+                   list_fields=rl_fields,
+                   writable_fields=rl_writable,
+                   search_fields=["name", "description"],
+                   filters=["criteria_id", "requires_treatment"],
+                   scope_filtered=False,
                    has_approve=False)
 
     risk_fields = ["id", "reference", "name", "description", "status", "priority",
@@ -696,6 +889,20 @@ def _register_risks_tools(server):
                    search_fields=["reference", "name", "description"],
                    filters=["status", "risk_id"],
                    scope_filtered=False)
+
+    # Treatment actions (child of RiskTreatmentPlan, no approve)
+    ta_fields = ["id", "treatment_plan_id", "description", "owner_id",
+                 "target_date", "completion_date", "status", "order", "created_at"]
+    ta_writable = ["treatment_plan_id", "description", "owner_id",
+                   "target_date", "completion_date", "status", "order"]
+
+    _register_crud(server, "treatment_action", TreatmentAction, "risks.treatment",
+                   list_fields=ta_fields,
+                   writable_fields=ta_writable,
+                   search_fields=["description"],
+                   filters=["treatment_plan_id", "status"],
+                   scope_filtered=False,
+                   has_approve=False)
 
     acc_fields = ["id", "risk_id", "status", "justification", "conditions",
                   "valid_until", "accepted_by_id", "created_at"]
