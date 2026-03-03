@@ -13,6 +13,11 @@ class AssetsConfig(AppConfig):
         # In dev mode (runserver), Django spawns two processes; only start
         # the scheduler in the reloader child (RUN_MAIN=true).
         # In production (gunicorn/wsgi), RUN_MAIN is not set — always start.
+        # Never start during tests (managed by pytest-django).
+        import sys
+
+        if "pytest" in sys.modules or "test" in sys.argv:
+            return
         if os.environ.get("RUN_MAIN", "true") == "true":
             from assets.services.spof_scheduler import start_spof_scheduler
 
