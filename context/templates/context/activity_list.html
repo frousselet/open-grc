@@ -13,6 +13,19 @@
 </div>
 {% help_modal "context.activity_list" %}
 
+<div class="mb-3 d-flex gap-2 flex-wrap align-items-center">
+  <a href="{% url 'context:activity-list' %}" class="filter-chip {% if not request.GET.criticality and not request.GET.status %}active{% endif %}">{% trans "All" %}</a>
+  <span class="filter-chip-divider"></span>
+  <a href="?criticality=critical" class="filter-chip {% if request.GET.criticality == 'critical' %}active-danger{% endif %}">{% trans "Critical" %}</a>
+  <a href="?criticality=high" class="filter-chip {% if request.GET.criticality == 'high' %}active-warning{% endif %}">{% trans "High" %}</a>
+  <a href="?criticality=medium" class="filter-chip {% if request.GET.criticality == 'medium' %}active{% endif %}">{% trans "Medium" %}</a>
+  <a href="?criticality=low" class="filter-chip {% if request.GET.criticality == 'low' %}active{% endif %}">{% trans "Low" %}</a>
+  <span class="filter-chip-divider"></span>
+  <a href="?status=active" class="filter-chip {% if request.GET.status == 'active' %}active{% endif %}">{% trans "Active" %}</a>
+  <a href="?status=planned" class="filter-chip {% if request.GET.status == 'planned' %}active{% endif %}">{% trans "Planned" %}</a>
+  <a href="?status=inactive" class="filter-chip {% if request.GET.status == 'inactive' %}active{% endif %}">{% trans "Inactive" %}</a>
+</div>
+
 {% include "includes/table_search.html" %}
 <div class="card">
   <div class="table-responsive">

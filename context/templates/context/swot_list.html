@@ -13,6 +13,13 @@
 </div>
 {% help_modal "context.swot_list" %}
 
+<div class="mb-3 d-flex gap-2 flex-wrap align-items-center">
+  <a href="{% url 'context:swot-list' %}" class="filter-chip {% if not request.GET.status %}active{% endif %}">{% trans "All" %}</a>
+  <a href="?status=draft" class="filter-chip {% if request.GET.status == 'draft' %}active{% endif %}">{% trans "Draft" %}</a>
+  <a href="?status=validated" class="filter-chip {% if request.GET.status == 'validated' %}active{% endif %}">{% trans "Validated" %}</a>
+  <a href="?status=archived" class="filter-chip {% if request.GET.status == 'archived' %}active{% endif %}">{% trans "Archived" %}</a>
+</div>
+
 {% include "includes/table_search.html" %}
 <div class="card">
   <div class="table-responsive">
