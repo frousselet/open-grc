@@ -7,7 +7,7 @@ from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.utils import timezone
+from django.utils import formats, timezone
 from django.utils.translation import gettext as _
 from django.views import View
 from django.views.decorators.http import require_POST
@@ -93,6 +93,18 @@ class ApproveView(LoginRequiredMixin, View):
 DASHBOARD_INDICATOR_SLOTS = 10
 
 
+def _format_number(value):
+    """Format a numeric string with locale-aware thousand separators."""
+    try:
+        num = float(value)
+    except (ValueError, TypeError):
+        return value
+    # Use integer display when there is no fractional part
+    if num == int(num):
+        return formats.number_format(int(num), use_l10n=True)
+    return formats.number_format(num, decimal_pos=1, use_l10n=True)
+
+
 def get_dashboard_indicator_slots(user):
     """Load pinned indicators with trend + sparkline data, padded to 10 slots."""
     pinned_ids = user.dashboard_indicators or []
@@ -114,6 +126,7 @@ def get_dashboard_indicator_slots(user):
 
             trend = None
             trend_value = None
+            delta_display = ""
             if current and previous and ind.format == "number":
                 try:
                     cur_val = float(current.value)
@@ -122,8 +135,10 @@ def get_dashboard_indicator_slots(user):
                     trend_value = diff
                     if diff > 0:
                         trend = "up"
+                        delta_display = "+" + _format_number(diff)
                     elif diff < 0:
                         trend = "down"
+                        delta_display = _format_number(diff)
                     else:
                         trend = "stable"
                 except (ValueError, TypeError):
@@ -135,6 +150,11 @@ def get_dashboard_indicator_slots(user):
                     trend = "changed"
                 else:
                     trend = "stable"
+
+            # Formatted current value with thousand separators
+            formatted_value = None
+            if ind.format == "number" and ind.current_value:
+                formatted_value = _format_number(ind.current_value)
 
             # Build sparkline values (chronological, numeric only)
             sparkline_data = []
@@ -151,6 +171,8 @@ def get_dashboard_indicator_slots(user):
                 "previous_measurement": previous,
                 "trend": trend,
                 "trend_value": trend_value,
+                "delta_display": delta_display,
+                "formatted_value": formatted_value,
                 "show_chart": show_chart,
                 "sparkline_data": sparkline_data,
             }
