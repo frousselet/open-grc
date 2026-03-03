@@ -1,16 +1,22 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Indicators" %} — {{ indicator_type_label }} — Open GRC{% endblock %}
+{% block title %}
+{% if indicator_type == "organizational" %}{% trans "Organizational indicators" %}{% else %}{% trans "Technical indicators" %}{% endif %} — Open GRC
+{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Indicators" %} — {{ indicator_type_label }}</h1>
+  <h1 class="mb-0">{% if indicator_type == "organizational" %}{% trans "Organizational indicators" %}{% else %}{% trans "Technical indicators" %}{% endif %}</h1>
   <div class="ms-auto d-flex gap-2">
-    <a href="{% url 'context:indicator-create' %}?type={{ indicator_type }}" class="btn btn-primary">{% trans "New indicator" %}</a>
-    <a href="{% url 'context:indicator-internal-create' %}" class="btn btn-outline-primary">{% trans "New internal indicator" %}</a>
+    {% if indicator_type == "organizational" %}
+      <a href="{% url 'context:indicator-organizational-create' %}" class="btn btn-primary">{% trans "New indicator" %}</a>
+      <a href="{% url 'context:indicator-predefined-create' %}" class="btn btn-outline-primary">{% trans "New predefined indicator" %}</a>
+    {% else %}
+      <a href="{% url 'context:indicator-technical-create' %}" class="btn btn-primary">{% trans "New indicator" %}</a>
+    {% endif %}
   </div>
 </div>
 
@@ -38,7 +44,7 @@
           <td><a href="{% url 'context:indicator-detail' indicator.pk %}" class="ref" style="text-decoration:none">{{ indicator.reference }}</a></td>
           <td>
             {{ indicator.name }}
-            {% if indicator.is_internal %}<span class="badge text-bg-info ms-1" style="font-size:.65rem">{% trans "Internal" %}</span>{% endif %}
+            {% if indicator.is_internal %}<span class="badge text-bg-info ms-1" style="font-size:.65rem">{% trans "Predefined" %}</span>{% endif %}
           </td>
           <td>{{ indicator.get_format_display }}</td>
           <td>

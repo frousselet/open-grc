@@ -9,7 +9,7 @@
   <div>
     <h1 class="mb-0">{{ indicator.name }}</h1>
     <small class="ref">{{ indicator.reference }}</small>
-    {% if indicator.is_internal %}<span class="badge text-bg-info ms-2">{% trans "Internal Open GRC" %}</span>{% endif %}
+    {% if indicator.is_internal %}<span class="badge text-bg-info ms-2">{% trans "Predefined Open GRC" %}</span>{% endif %}
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'context:indicator-update' indicator.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
@@ -64,7 +64,7 @@
           <dd class="col-sm-9">{{ indicator.first_review_date }}</dd>
 
           {% if indicator.is_internal %}
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Internal data source" %}</dt>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Predefined data source" %}</dt>
           <dd class="col-sm-9">{{ indicator.get_internal_source_display }}{% if indicator.internal_source_parameter %} ({{ indicator.internal_source_parameter }}){% endif %}</dd>
           {% endif %}
 
@@ -133,7 +133,7 @@
     {% if indicator.is_internal %}
     <div class="card mb-3">
       <div class="card-body d-flex align-items-center">
-        <span class="me-3">{% trans "This is an internal indicator. You can refresh its value from Open GRC data." %}</span>
+        <span class="me-3">{% trans "This is a predefined indicator. You can refresh its value from Open GRC data." %}</span>
         <form method="post" action="{% url 'context:indicator-refresh' indicator.pk %}">
           {% csrf_token %}
           <button type="submit" class="btn btn-outline-primary"><i class="bi bi-arrow-clockwise me-1"></i>{% trans "Refresh" %}</button>

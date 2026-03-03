@@ -13,7 +13,8 @@ from context.constants import (
     IndicatorFormat,
     IndicatorStatus,
     IndicatorType,
-    InternalIndicatorSource,
+    PREDEFINED_SOURCE_FORMAT,
+    PredefinedIndicatorSource,
     MeasurementFrequency,
 )
 from .base import ScopedModel
@@ -88,15 +89,15 @@ class Indicator(ScopedModel):
         choices=IndicatorStatus.choices,
         default=IndicatorStatus.ACTIVE,
     )
-    # Internal Open GRC indicator fields
+    # Predefined Open GRC indicator fields
     is_internal = models.BooleanField(
-        _("Internal Open GRC indicator"),
+        _("Predefined Open GRC indicator"),
         default=False,
     )
     internal_source = models.CharField(
-        _("Internal data source"),
+        _("Predefined data source"),
         max_length=50,
-        choices=InternalIndicatorSource.choices,
+        choices=PredefinedIndicatorSource.choices,
         blank=True,
         default="",
     )
@@ -150,21 +151,21 @@ class Indicator(ScopedModel):
                         )
                     }
                 )
-        # Internal indicators must be organizational
+        # Predefined indicators must be organizational
         if self.is_internal and self.indicator_type != IndicatorType.ORGANIZATIONAL:
             raise ValidationError(
                 {
                     "indicator_type": _(
-                        "Internal Open GRC indicators must be of organizational type."
+                        "Predefined Open GRC indicators must be of organizational type."
                     )
                 }
             )
-        # Internal indicators must have a source
+        # Predefined indicators must have a source
         if self.is_internal and not self.internal_source:
             raise ValidationError(
                 {
                     "internal_source": _(
-                        "An internal indicator must have a data source."
+                        "A predefined indicator must have a data source."
                     )
                 }
             )
@@ -213,17 +214,17 @@ class Indicator(ScopedModel):
 
         source = self.internal_source
 
-        if source == InternalIndicatorSource.GLOBAL_COMPLIANCE_RATE:
+        if source == PredefinedIndicatorSource.GLOBAL_COMPLIANCE_RATE:
             return self._compute_global_compliance_rate()
-        elif source == InternalIndicatorSource.FRAMEWORK_COMPLIANCE_RATE:
+        elif source == PredefinedIndicatorSource.FRAMEWORK_COMPLIANCE_RATE:
             return self._compute_framework_compliance_rate()
-        elif source == InternalIndicatorSource.OBJECTIVE_PROGRESS:
+        elif source == PredefinedIndicatorSource.OBJECTIVE_PROGRESS:
             return self._compute_objective_progress()
-        elif source == InternalIndicatorSource.RISK_TREATMENT_RATE:
+        elif source == PredefinedIndicatorSource.RISK_TREATMENT_RATE:
             return self._compute_risk_treatment_rate()
-        elif source == InternalIndicatorSource.APPROVED_SCOPES_RATE:
+        elif source == PredefinedIndicatorSource.APPROVED_SCOPES_RATE:
             return self._compute_approved_scopes_rate()
-        elif source == InternalIndicatorSource.MANDATORY_ROLES_COVERAGE:
+        elif source == PredefinedIndicatorSource.MANDATORY_ROLES_COVERAGE:
             return self._compute_mandatory_roles_coverage()
         return None
 

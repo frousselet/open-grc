@@ -21,12 +21,12 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
-from .constants import CollectionMethod, IndicatorType
+from .constants import CollectionMethod, IndicatorType, PREDEFINED_SOURCE_FORMAT
 from .forms import (
     ActivityForm,
     IndicatorForm,
     IndicatorMeasurementForm,
-    InternalIndicatorForm,
+    PredefinedIndicatorForm,
     IssueForm,
     ObjectiveForm,
     RoleForm,
@@ -611,10 +611,6 @@ class IndicatorListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["indicator_type"] = self.indicator_type
-        ctx["indicator_type_label"] = (
-            dict(IndicatorType.choices).get(self.indicator_type, "")
-            if self.indicator_type else ""
-        )
         return ctx
 
 
@@ -633,10 +629,9 @@ class IndicatorDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextM
 
 class IndicatorCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
     model = Indicator
+    form_class = IndicatorForm
     template_name = "context/indicator_form.html"
-
-    def get_form_class(self):
-        return IndicatorForm
+    indicator_type = None
 
     def get_success_url(self):
         return reverse_lazy("context:indicator-detail", kwargs={"pk": self.object.pk})
@@ -648,21 +643,18 @@ class IndicatorCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["indicator_type_preselect"] = self.request.GET.get("type", "")
+        ctx["indicator_type"] = self.indicator_type
         return ctx
 
-    def get_initial(self):
-        initial = super().get_initial()
-        indicator_type = self.request.GET.get("type", "")
-        if indicator_type:
-            initial["indicator_type"] = indicator_type
-        return initial
+    def form_valid(self, form):
+        form.instance.indicator_type = self.indicator_type
+        return super().form_valid(form)
 
 
-class InternalIndicatorCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class PredefinedIndicatorCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
     model = Indicator
-    form_class = InternalIndicatorForm
-    template_name = "context/indicator_internal_form.html"
+    form_class = PredefinedIndicatorForm
+    template_name = "context/indicator_predefined_form.html"
 
     def get_success_url(self):
         return reverse_lazy("context:indicator-detail", kwargs={"pk": self.object.pk})
@@ -677,6 +669,11 @@ class InternalIndicatorCreateView(LoginRequiredMixin, CreatedByMixin, CreateView
         form.instance.is_internal = True
         form.instance.indicator_type = IndicatorType.ORGANIZATIONAL
         form.instance.collection_method = CollectionMethod.INTERNAL
+        # Auto-determine format and unit from source
+        source = form.instance.internal_source
+        fmt, unit = PREDEFINED_SOURCE_FORMAT.get(source, ("number", ""))
+        form.instance.format = fmt
+        form.instance.unit = unit
         response = super().form_valid(form)
         # Trigger first measurement on creation
         value = self.object.compute_internal_value()
@@ -695,12 +692,12 @@ class IndicatorUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilter
 
     def get_form_class(self):
         if self.object.is_internal:
-            return InternalIndicatorForm
+            return PredefinedIndicatorForm
         return IndicatorForm
 
     def get_template_names(self):
         if self.object.is_internal:
-            return ["context/indicator_internal_form.html"]
+            return ["context/indicator_predefined_form.html"]
         return ["context/indicator_form.html"]
 
     def get_success_url(self):
@@ -711,11 +708,21 @@ class IndicatorUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilter
         kwargs["user"] = self.request.user
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["indicator_type"] = self.object.indicator_type
+        return ctx
+
 
 class IndicatorDeleteView(LoginRequiredMixin, DeleteView):
     model = Indicator
     template_name = "context/confirm_delete.html"
-    success_url = reverse_lazy("context:indicator-organizational-list")
+
+    def get_success_url(self):
+        indicator = self.get_object()
+        if indicator.indicator_type == IndicatorType.TECHNICAL:
+            return reverse_lazy("context:indicator-technical-list")
+        return reverse_lazy("context:indicator-organizational-list")
 
 
 class IndicatorRecordMeasurementView(LoginRequiredMixin, View):
@@ -736,13 +743,13 @@ class IndicatorRecordMeasurementView(LoginRequiredMixin, View):
         return redirect("context:indicator-detail", pk=pk)
 
 
-class IndicatorRefreshInternalView(LoginRequiredMixin, View):
-    """Trigger a refresh of an internal indicator's value."""
+class IndicatorRefreshView(LoginRequiredMixin, View):
+    """Trigger a refresh of a predefined indicator's value."""
 
     def post(self, request, pk):
         indicator = get_object_or_404(Indicator, pk=pk)
         if not indicator.is_internal:
-            messages.error(request, _("This indicator is not an internal indicator."))
+            messages.error(request, _("This indicator is not a predefined indicator."))
             return redirect("context:indicator-detail", pk=pk)
         value = indicator.compute_internal_value()
         if value is not None:
