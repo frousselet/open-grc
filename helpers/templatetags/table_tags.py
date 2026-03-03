@@ -8,27 +8,19 @@ register = template.Library()
 def sortable_th(context, field_name, label, css_class=""):
     """Render a sortable <th> element.
 
+    Sorting is persisted via JS (saved to user preferences).
+    No sort params are added to the URL.
+
     Usage: {% sortable_th "name" "Name" %}
            {% sortable_th "name" "Name" "text-end" %}
     """
-    request = context.get("request")
     current_sort = context.get("current_sort", "")
     current_order = context.get("current_order", "asc")
-
-    # Build the new URL preserving existing query params
-    params = request.GET.copy()
 
     if current_sort == field_name:
         new_order = "desc" if current_order == "asc" else "asc"
     else:
         new_order = "asc"
-
-    params["sort"] = field_name
-    params["order"] = new_order
-    # Reset page when sorting changes
-    params.pop("page", None)
-
-    url = "?" + params.urlencode()
 
     # Sort indicator
     if current_sort == field_name:
@@ -42,11 +34,10 @@ def sortable_th(context, field_name, label, css_class=""):
     class_attr = f' class="{css_class}"' if css_class else ""
 
     return format_html(
-        '<th{class_attr}><a href="{url}" class="sortable-th text-decoration-none text-reset"'
+        '<th{class_attr}><a href="#" class="sortable-th text-decoration-none text-reset"'
         ' data-sort-field="{field}" data-sort-order="{order}"'
         ' style="white-space:nowrap">{label}{icon}</a></th>',
         class_attr=format_html(class_attr),
-        url=url,
         field=field_name,
         order=new_order,
         label=label,

@@ -1767,29 +1767,72 @@
     document.addEventListener('click', function(e) {
       var link = e.target.closest('a.sortable-th');
       if (!link) return;
+      e.preventDefault();
       var field = link.dataset.sortField;
       var order = link.dataset.sortOrder;
-      var viewKey = document.querySelector('[data-sort-view-key]');
-      if (!field || !viewKey) return;
-      viewKey = viewKey.dataset.sortViewKey;
+      var viewKeyEl = document.querySelector('[data-sort-view-key]');
+      if (!field || !viewKeyEl) return;
+      var viewKey = viewKeyEl.dataset.sortViewKey;
       var csrf = (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '';
       fetch('{% url "helpers:save-sort" %}', {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrf},
         body: JSON.stringify({view: viewKey, sort: field, order: order})
-      });
+      }).then(function() { location.reload(); });
     });
   })();
 
-  /* ── Dynamic search debounce ────────────────────── */
+  /* ── Dynamic client-side table filtering ──────────── */
   (function() {
     var input = document.querySelector('.table-toolbar-input');
     if (!input) return;
-    var timer;
-    input.addEventListener('input', function() {
-      clearTimeout(timer);
-      timer = setTimeout(function() { input.closest('form').submit(); }, 400);
+    var tbody = document.querySelector('.table-toolbar ~ .card tbody');
+    if (!tbody) return;
+    var rows = Array.from(tbody.querySelectorAll('tr'));
+    var emptyRow = tbody.querySelector('tr td[colspan]');
+    if (emptyRow) emptyRow = emptyRow.closest('tr');
+
+    /* Build text index once */
+    var rowData = rows.filter(function(r) { return r !== emptyRow; }).map(function(r) {
+      return { el: r, text: r.textContent.toLowerCase() };
     });
+
+    var clearBtn = input.parentElement.querySelector('.table-toolbar-clear');
+
+    function filter() {
+      var q = input.value.trim().toLowerCase();
+      var visible = 0;
+      rowData.forEach(function(rd) {
+        var show = !q || rd.text.indexOf(q) !== -1;
+        rd.el.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      /* Show/hide empty message */
+      if (emptyRow) {
+        emptyRow.style.display = (visible === 0 && q) ? '' : (rowData.length === 0 ? '' : 'none');
+      }
+      /* Show/hide clear button */
+      if (clearBtn) clearBtn.style.display = q ? '' : 'none';
+    }
+
+    input.addEventListener('input', filter);
+
+    /* Prevent form submission — filtering is client-side */
+    var form = input.closest('form');
+    if (form) form.addEventListener('submit', function(e) { e.preventDefault(); });
+
+    /* Handle clear button click */
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        input.value = '';
+        filter();
+        input.focus();
+      });
+    }
+
+    /* Initial filter in case of browser back-fill */
+    filter();
   })();
   </script>
   {% block extra_js %}{% endblock %}
