@@ -1514,6 +1514,29 @@
     });
   })();
   </script>
+  <script>
+  /* ── Persist active tab in URL hash ─────────────── */
+  (function() {
+    var tabs = document.querySelectorAll('[data-bs-toggle="tab"]');
+    if (!tabs.length) return;
+    /* On tab change, update the URL hash (no scroll jump) */
+    tabs.forEach(function(tab) {
+      tab.addEventListener('shown.bs.tab', function(e) {
+        var id = e.target.getAttribute('href') || e.target.dataset.bsTarget;
+        if (id) history.replaceState(null, '', id);
+      });
+    });
+    /* On page load, restore tab from hash */
+    var hash = location.hash;
+    if (hash) {
+      var target = document.querySelector('[data-bs-toggle="tab"][href="' + hash + '"]');
+      if (target) {
+        var bsTab = new bootstrap.Tab(target);
+        bsTab.show();
+      }
+    }
+  })();
+  </script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>
