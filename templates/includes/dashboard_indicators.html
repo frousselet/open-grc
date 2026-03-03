@@ -4,18 +4,18 @@
 <style>
   .indicator-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     grid-auto-rows: 1fr;
     gap: 1rem;
   }
   @media (max-width: 1199.98px) {
-    .indicator-grid { grid-template-columns: repeat(3, 1fr); }
+    .indicator-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
   @media (max-width: 767.98px) {
-    .indicator-grid { grid-template-columns: repeat(2, 1fr); }
+    .indicator-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 575.98px) {
-    .indicator-grid { grid-template-columns: 1fr; }
+    .indicator-grid { grid-template-columns: minmax(0, 1fr); }
   }
 </style>
 <div class="d-flex align-items-center mb-3">
