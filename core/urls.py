@@ -20,6 +20,7 @@ urlpatterns = [
     path("api/calendar-events/", CalendarEventsView.as_view(), name="calendar-events"),
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
+    path("helpers/", include("helpers.urls")),
     path("context/", include("context.urls")),
     path("assets/", include("assets.urls")),
     path("compliance/", include("compliance.urls")),

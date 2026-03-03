@@ -20,6 +20,7 @@ urlpatterns = [
 
     # Profile
     path("profile/", views.ProfileView.as_view(), name="profile"),
+    path("profile/reset-helpers/", views.ResetHelpersView.as_view(), name="reset-helpers"),
     path("password/change/", views.PasswordChangeView.as_view(), name="password-change"),
 
     # Users
