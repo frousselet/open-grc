@@ -1,109 +1,102 @@
 {% load i18n %}
 
-{# ── Indicator boxes (always 10 slots, 5 per row) ── #}
+{# ── Indicator boxes (10 slots, 5 per row) ─────── #}
 <div class="d-flex align-items-center mb-3">
   <h5 class="mb-0"><i class="bi bi-speedometer2 me-1" style="color:var(--accent)"></i> {% trans "Indicators" %}</h5>
-  <div class="dropdown ms-auto">
-    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-      <i class="bi bi-gear me-1"></i>{% trans "Configure" %}
-    </button>
-    <ul class="dropdown-menu dropdown-menu-end">
-      <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#indicatorPickerModal"><i class="bi bi-speedometer2 me-2"></i>{% trans "Choose indicators" %}</a></li>
-      <li><hr class="dropdown-divider"></li>
-      <li>
-        <a class="dropdown-item d-flex align-items-center" href="#" id="toggleChartBtn">
-          <i class="bi bi-graph-up me-2"></i>{% trans "Evolution chart" %}
-          <span class="ms-auto">
-            <i class="bi {% if dashboard_show_indicator_chart %}bi-toggle-on text-primary{% else %}bi-toggle-off text-muted{% endif %}" id="toggleChartIcon" style="font-size:1.2rem"></i>
-          </span>
-        </a>
-      </li>
-    </ul>
-  </div>
+  <button class="btn btn-sm btn-outline-primary ms-auto" data-bs-toggle="modal" data-bs-target="#indicatorPickerModal">
+    <i class="bi bi-gear me-1"></i>{% trans "Configure" %}
+  </button>
 </div>
 <div class="row g-3 mb-4">
   {% for slot in dashboard_indicator_slots %}
   <div class="col-xl col-md-4 col-sm-6" style="flex:0 0 20%;max-width:20%">
     {% if slot %}
     <a href="{% url 'context:indicator-detail' slot.indicator.pk %}" class="text-decoration-none d-block h-100">
-      <div class="stat-card h-100" style="border-left:3px solid {% if slot.indicator.is_critical %}var(--bs-danger){% else %}var(--accent){% endif %}">
-        <div class="d-flex justify-content-between align-items-start mb-1">
-          <small class="text-muted text-truncate me-2" style="max-width:70%" title="{{ slot.indicator.name }}">{{ slot.indicator.name }}</small>
-          {% if slot.indicator.indicator_type == "organizational" %}
-          <span class="badge text-bg-primary" style="font-size:.6rem">{% trans "Org." %}</span>
-          {% else %}
-          <span class="badge text-bg-secondary" style="font-size:.6rem">{% trans "Tech." %}</span>
-          {% endif %}
-        </div>
-        <div class="d-flex align-items-baseline gap-2">
-          <span class="stat-card-value mb-0" style="{% if slot.indicator.is_critical %}color:var(--bs-danger){% endif %}">
-            {% if slot.indicator.format == "boolean" %}
-              {% if slot.indicator.current_value == "true" or slot.indicator.current_value == "1" or slot.indicator.current_value == "yes" %}
-                <i class="bi bi-check-circle-fill text-success"></i>
-              {% elif slot.indicator.current_value %}
-                <i class="bi bi-x-circle-fill text-danger"></i>
-              {% else %}
-                <span style="color:var(--text-muted)">—</span>
-              {% endif %}
+      <div class="stat-card h-100 position-relative" style="border-left:3px solid {% if slot.indicator.is_critical %}var(--bs-danger){% else %}var(--accent){% endif %};min-height:130px;overflow:hidden">
+        <div style="position:relative;z-index:1">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <small class="text-muted text-truncate me-2" style="max-width:70%" title="{{ slot.indicator.name }}">{{ slot.indicator.name }}</small>
+            {% if slot.indicator.indicator_type == "organizational" %}
+            <span class="badge text-bg-primary" style="font-size:.6rem">{% trans "Org." %}</span>
             {% else %}
-              {{ slot.indicator.current_value|default:"—" }}
+            <span class="badge text-bg-secondary" style="font-size:.6rem">{% trans "Tech." %}</span>
             {% endif %}
-          </span>
-          {% if slot.indicator.unit and slot.indicator.format != "boolean" %}
-          <small class="text-muted">{{ slot.indicator.unit }}</small>
+          </div>
+          <div class="d-flex align-items-baseline gap-2">
+            <span class="stat-card-value mb-0" style="{% if slot.indicator.is_critical %}color:var(--bs-danger){% endif %}">
+              {% if slot.indicator.format == "boolean" %}
+                {% if slot.indicator.current_value == "true" or slot.indicator.current_value == "1" or slot.indicator.current_value == "yes" %}
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                {% elif slot.indicator.current_value %}
+                  <i class="bi bi-x-circle-fill text-danger"></i>
+                {% else %}
+                  <span style="color:var(--text-muted)">—</span>
+                {% endif %}
+              {% else %}
+                {{ slot.indicator.current_value|default:"—" }}
+              {% endif %}
+            </span>
+            {% if slot.indicator.unit and slot.indicator.format != "boolean" %}
+            <small class="text-muted">{{ slot.indicator.unit }}</small>
+            {% endif %}
+            {% if slot.trend == "up" %}
+              <span class="ms-auto" title="{% trans 'Trend' %}: +{{ slot.trend_value|floatformat:1 }}">
+                <i class="bi bi-arrow-up-short fs-5 text-success"></i>
+              </span>
+            {% elif slot.trend == "down" %}
+              <span class="ms-auto" title="{% trans 'Trend' %}: {{ slot.trend_value|floatformat:1 }}">
+                <i class="bi bi-arrow-down-short fs-5 text-danger"></i>
+              </span>
+            {% elif slot.trend == "stable" %}
+              <span class="ms-auto" title="{% trans 'Stable' %}">
+                <i class="bi bi-dash fs-5 text-muted"></i>
+              </span>
+            {% elif slot.trend == "changed" %}
+              <span class="ms-auto" title="{% trans 'Changed' %}">
+                <i class="bi bi-arrow-left-right fs-5 text-warning"></i>
+              </span>
+            {% endif %}
+          </div>
+          {% if slot.current_measurement %}
+          <small class="text-muted" style="font-size:.72rem">
+            {% trans "Last:" %} {{ slot.current_measurement.recorded_at|date:"d/m/Y" }}
+            {% if slot.previous_measurement and slot.indicator.format == "number" %}
+              · {% trans "Previous:" %} {{ slot.previous_measurement.value }}{{ slot.indicator.unit }}
+            {% endif %}
+          </small>
+          {% else %}
+          <small class="text-muted" style="font-size:.72rem">{% trans "No measurement" %}</small>
           {% endif %}
-          {% if slot.trend == "up" %}
-            <span class="ms-auto" title="{% trans 'Trend' %}: +{{ slot.trend_value|floatformat:1 }}">
-              <i class="bi bi-arrow-up-short fs-5 text-success"></i>
-            </span>
-          {% elif slot.trend == "down" %}
-            <span class="ms-auto" title="{% trans 'Trend' %}: {{ slot.trend_value|floatformat:1 }}">
-              <i class="bi bi-arrow-down-short fs-5 text-danger"></i>
-            </span>
-          {% elif slot.trend == "stable" %}
-            <span class="ms-auto" title="{% trans 'Stable' %}">
-              <i class="bi bi-dash fs-5 text-muted"></i>
-            </span>
-          {% elif slot.trend == "changed" %}
-            <span class="ms-auto" title="{% trans 'Changed' %}">
-              <i class="bi bi-arrow-left-right fs-5 text-warning"></i>
-            </span>
+          {% if slot.indicator.is_critical %}
+          <div class="mt-1"><span class="badge text-bg-danger" style="font-size:.65rem">{% trans "Critical" %}</span></div>
           {% endif %}
         </div>
-        {% if slot.current_measurement %}
-        <small class="text-muted" style="font-size:.72rem">
-          {% trans "Last:" %} {{ slot.current_measurement.recorded_at|date:"d/m/Y" }}
-          {% if slot.previous_measurement and slot.indicator.format == "number" %}
-            · {% trans "Previous:" %} {{ slot.previous_measurement.value }}{{ slot.indicator.unit }}
-          {% endif %}
-        </small>
-        {% else %}
-        <small class="text-muted" style="font-size:.72rem">{% trans "No measurement" %}</small>
-        {% endif %}
-        {% if slot.indicator.is_critical %}
-        <div class="mt-1"><span class="badge text-bg-danger" style="font-size:.65rem">{% trans "Critical" %}</span></div>
+        {# Sparkline at the bottom of the card #}
+        {% if slot.sparkline_data %}
+        <div class="sparkline-slot" data-sparkline="{{ slot.sparkline_data|join:',' }}" data-trend="{{ slot.trend }}"
+             style="position:absolute;bottom:0;left:0;right:0;height:30px;z-index:0;pointer-events:none"></div>
         {% endif %}
       </div>
     </a>
     {% else %}
-    <div class="stat-card h-100 d-flex flex-column align-items-center justify-content-center text-center" style="border:2px dashed var(--border-light);background:transparent;min-height:120px;cursor:pointer" data-bs-toggle="modal" data-bs-target="#indicatorPickerModal">
-      <i class="bi bi-plus-circle d-block mb-1" style="font-size:1.5rem;color:var(--text-muted);opacity:.5"></i>
-      <small style="color:var(--text-muted);font-size:.75rem">{% trans "Select an indicator" %}</small>
+    {# Empty placeholder — skeleton bars + "+" overlay #}
+    <div class="stat-card h-100 position-relative" style="min-height:130px;overflow:hidden;cursor:pointer;border:1px solid var(--border-light);background:var(--surface-raised)"
+         data-bs-toggle="modal" data-bs-target="#indicatorPickerModal">
+      <div style="opacity:.35">
+        <div style="height:8px;width:65%;background:var(--border-light);border-radius:4px;margin-bottom:14px"></div>
+        <div style="height:18px;width:35%;background:var(--border-light);border-radius:4px;margin-bottom:12px"></div>
+        <div style="height:6px;width:55%;background:var(--border-light);border-radius:4px;margin-bottom:10px"></div>
+        <div style="height:5px;width:45%;background:var(--border-light);border-radius:4px"></div>
+      </div>
+      <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
+        <div class="d-flex align-items-center justify-content-center" style="width:36px;height:36px;border-radius:50%;background:var(--accent-soft)">
+          <i class="bi bi-plus" style="font-size:1.25rem;color:var(--accent)"></i>
+        </div>
+      </div>
     </div>
     {% endif %}
   </div>
   {% endfor %}
-</div>
-
-{# ── Indicator Evolution Chart ─────────────── #}
-<div id="indicatorChartWrapper" class="card mb-4" style="{% if not dashboard_show_indicator_chart %}display:none{% endif %}">
-  <div class="card-body">
-    <h6 class="card-title mb-3"><i class="bi bi-graph-up me-2" style="color:var(--accent)"></i>{% trans "Indicator evolution" %}</h6>
-    <div style="position:relative;height:300px">
-      <canvas id="indicatorEvolutionChart"></canvas>
-    </div>
-    <p class="text-muted text-center mt-2 mb-0" id="indicatorChartEmpty" style="display:none"><small>{% trans "No numeric data available for the selected indicators." %}</small></p>
-  </div>
 </div>
 
 {# ── Indicator Picker Modal ──────────────────── #}
@@ -138,6 +131,15 @@
             {% if ind.current_value %}
             <span class="badge text-bg-light" style="font-size:.72rem">{{ ind.current_value }}{% if ind.unit %} {{ ind.unit }}{% endif %}</span>
             {% endif %}
+            {% if ind.format == "number" %}
+            <button type="button"
+                    class="btn btn-sm p-1 indicator-chart-btn {% if ind.pk|stringformat:'s' in dashboard_indicator_chart_ids %}text-primary{% else %}text-muted{% endif %}"
+                    data-indicator-id="{{ ind.pk }}"
+                    title="{% trans 'Toggle sparkline' %}"
+                    style="border:none;background:none;line-height:1">
+              <i class="bi bi-graph-up"></i>
+            </button>
+            {% endif %}
           </label>
           {% endfor %}
         </div>
@@ -153,16 +155,14 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 (function() {
   var toggleUrl = '{% url "context:dashboard-indicator-toggle" %}';
   var chartToggleUrl = '{% url "context:dashboard-indicator-chart-toggle" %}';
-  var chartDataUrl = '{% url "context:dashboard-indicator-chart-data" %}';
   var csrfToken = '{{ csrf_token }}';
   var maxPinned = 10;
 
-  // ── Indicator picker ──────────────────────────
+  // ── Indicator picker (pin/unpin) ──────────────
   var searchInput = document.getElementById('indicatorPickerSearch');
   if (searchInput) {
     searchInput.addEventListener('input', function() {
@@ -195,137 +195,82 @@
 
       fetch(toggleUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken,
-        },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
         body: JSON.stringify({indicator_id: indicatorId}),
       })
       .then(function(resp) {
-        if (!resp.ok) {
-          checkbox.checked = !checkbox.checked;
-          return resp.json().then(function(d) { alert(d.error || 'Error'); });
-        }
+        if (!resp.ok) { checkbox.checked = !checkbox.checked; }
         return resp.json();
       })
-      .then(function() {
-        updateCount();
+      .then(function() { updateCount(); });
+    });
+  });
+
+  // ── Chart toggle per indicator ────────────────
+  document.querySelectorAll('.indicator-chart-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var indicatorId = this.getAttribute('data-indicator-id');
+      var icon = this;
+      fetch(chartToggleUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+        body: JSON.stringify({indicator_id: indicatorId}),
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.action === 'shown') {
+          icon.classList.remove('text-muted');
+          icon.classList.add('text-primary');
+        } else {
+          icon.classList.remove('text-primary');
+          icon.classList.add('text-muted');
+        }
       });
     });
   });
 
   var modal = document.getElementById('indicatorPickerModal');
   if (modal) {
-    modal.addEventListener('hidden.bs.modal', function() {
-      location.reload();
+    modal.addEventListener('hidden.bs.modal', function() { location.reload(); });
+  }
+
+  // ── SVG sparklines ────────────────────────────
+  document.querySelectorAll('.sparkline-slot').forEach(function(el) {
+    var raw = el.getAttribute('data-sparkline');
+    var trend = el.getAttribute('data-trend');
+    if (!raw) return;
+    var values = raw.split(',').map(Number).filter(function(v) { return !isNaN(v); });
+    if (values.length < 2) return;
+
+    var w = el.clientWidth || 160;
+    var h = 30;
+    var min = Math.min.apply(null, values);
+    var max = Math.max.apply(null, values);
+    var range = max - min || 1;
+    var pad = 2;
+
+    var points = values.map(function(v, i) {
+      var x = (i / (values.length - 1)) * w;
+      var y = h - pad - ((v - min) / range) * (h - pad * 2);
+      return x.toFixed(1) + ',' + y.toFixed(1);
     });
-  }
 
-  // ── Chart toggle ──────────────────────────────
-  var chartWrapper = document.getElementById('indicatorChartWrapper');
-  var toggleChartBtn = document.getElementById('toggleChartBtn');
-  var toggleChartIcon = document.getElementById('toggleChartIcon');
-  var chartLoaded = false;
+    var color = trend === 'up' ? '#10b981' : trend === 'down' ? '#ef4444' : '#6366f1';
+    var uid = 'sp' + Math.random().toString(36).substr(2, 6);
+    var line = 'M' + points.join(' L');
+    var area = line + ' L' + w + ',' + h + ' L0,' + h + ' Z';
 
-  if (toggleChartBtn) {
-    toggleChartBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      fetch(chartToggleUrl, {
-        method: 'POST',
-        headers: { 'X-CSRFToken': csrfToken },
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.show_chart) {
-          chartWrapper.style.display = '';
-          toggleChartIcon.className = 'bi bi-toggle-on text-primary';
-          if (!chartLoaded) loadChart();
-        } else {
-          chartWrapper.style.display = 'none';
-          toggleChartIcon.className = 'bi bi-toggle-off text-muted';
-        }
-      });
-    });
-  }
-
-  // ── Chart rendering ───────────────────────────
-  var CHART_COLORS = [
-    '#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ef4444',
-    '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#64748b',
-  ];
-  var chartInstance = null;
-
-  function loadChart() {
-    chartLoaded = true;
-    fetch(chartDataUrl)
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        var canvas = document.getElementById('indicatorEvolutionChart');
-        var emptyMsg = document.getElementById('indicatorChartEmpty');
-        if (!data.datasets || !data.datasets.length) {
-          canvas.style.display = 'none';
-          emptyMsg.style.display = '';
-          return;
-        }
-        canvas.style.display = '';
-        emptyMsg.style.display = 'none';
-
-        var datasets = data.datasets.map(function(ds, i) {
-          var color = CHART_COLORS[i % CHART_COLORS.length];
-          return {
-            label: ds.label + (ds.unit ? ' (' + ds.unit + ')' : ''),
-            data: ds.data,
-            borderColor: color,
-            backgroundColor: color + '18',
-            fill: false,
-            tension: 0.3,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-          };
-        });
-
-        if (chartInstance) chartInstance.destroy();
-        chartInstance = new Chart(canvas, {
-          type: 'line',
-          data: { datasets: datasets },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            scales: {
-              x: {
-                type: 'category',
-                grid: { display: false },
-                ticks: { font: { size: 11 }, maxRotation: 45 },
-              },
-              y: {
-                grid: { color: 'rgba(0,0,0,.06)' },
-                ticks: { font: { size: 11 } },
-              },
-            },
-            plugins: {
-              legend: {
-                position: 'bottom',
-                labels: { usePointStyle: true, padding: 16, font: { size: 12 } },
-              },
-              tooltip: {
-                backgroundColor: 'rgba(30,41,59,.92)',
-                titleFont: { size: 12 },
-                bodyFont: { size: 12 },
-                padding: 10,
-                cornerRadius: 8,
-              },
-            },
-          },
-        });
-      });
-  }
-
-  // Load chart on page load if enabled
-  if (chartWrapper && chartWrapper.style.display !== 'none') {
-    loadChart();
-  }
+    el.innerHTML =
+      '<svg width="' + w + '" height="' + h + '" style="display:block">' +
+        '<defs><linearGradient id="' + uid + '" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0%" stop-color="' + color + '" stop-opacity=".22"/>' +
+          '<stop offset="100%" stop-color="' + color + '" stop-opacity=".02"/>' +
+        '</linearGradient></defs>' +
+        '<path d="' + area + '" fill="url(#' + uid + ')"/>' +
+        '<path d="' + line + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '</svg>';
+  });
 })();
 </script>

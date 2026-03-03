@@ -189,7 +189,7 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
         ctx["available_indicators"] = Indicator.objects.filter(
             status="active",
         ).order_by("indicator_type", "name")
-        ctx["dashboard_show_indicator_chart"] = self.request.user.dashboard_show_indicator_chart
+        ctx["dashboard_indicator_chart_ids"] = self.request.user.dashboard_indicator_charts or []
 
         ctx["requirement_count"] = Requirement.objects.count()
         ctx["non_compliant_count"] = Requirement.objects.filter(

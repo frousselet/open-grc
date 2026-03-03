@@ -94,8 +94,9 @@ DASHBOARD_INDICATOR_SLOTS = 10
 
 
 def get_dashboard_indicator_slots(user):
-    """Load pinned indicators with trend data, padded to 6 slots (None for empty)."""
+    """Load pinned indicators with trend + sparkline data, padded to 10 slots."""
     pinned_ids = user.dashboard_indicators or []
+    chart_ids = {str(i) for i in (user.dashboard_indicator_charts or [])}
 
     indicator_map = {}
     if pinned_ids:
@@ -104,7 +105,10 @@ def get_dashboard_indicator_slots(user):
         ).prefetch_related("measurements")
 
         for ind in indicators:
-            measurements = list(ind.measurements.order_by("-recorded_at")[:2])
+            show_chart = str(ind.pk) in chart_ids
+            # Fetch enough measurements for sparklines when chart is enabled
+            limit = 20 if show_chart else 2
+            measurements = list(ind.measurements.order_by("-recorded_at")[:limit])
             current = measurements[0] if measurements else None
             previous = measurements[1] if len(measurements) > 1 else None
 
@@ -132,12 +136,23 @@ def get_dashboard_indicator_slots(user):
                 else:
                     trend = "stable"
 
+            # Build sparkline values (chronological, numeric only)
+            sparkline_data = []
+            if show_chart and ind.format == "number" and len(measurements) >= 2:
+                for m in reversed(measurements):
+                    try:
+                        sparkline_data.append(float(m.value))
+                    except (ValueError, TypeError):
+                        continue
+
             indicator_map[str(ind.pk)] = {
                 "indicator": ind,
                 "current_measurement": current,
                 "previous_measurement": previous,
                 "trend": trend,
                 "trend_value": trend_value,
+                "show_chart": show_chart,
+                "sparkline_data": sparkline_data,
             }
 
     # Build ordered list, padded with None for empty slots
@@ -204,7 +219,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ctx["available_indicators"] = Indicator.objects.filter(
             status="active",
         ).order_by("indicator_type", "name")
-        ctx["dashboard_show_indicator_chart"] = user.dashboard_show_indicator_chart
+        ctx["dashboard_indicator_chart_ids"] = user.dashboard_indicator_charts or []
 
         return ctx
 
@@ -708,49 +723,29 @@ def dashboard_indicator_toggle(request):
 @login_required
 @require_POST
 def dashboard_indicator_chart_toggle(request):
-    """Toggle the indicator evolution chart on/off (AJAX)."""
+    """Toggle sparkline visibility for a single indicator (AJAX)."""
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    indicator_id = data.get("indicator_id", "").strip()
+    if not indicator_id:
+        return JsonResponse({"error": "indicator_id is required"}, status=400)
+
     user = request.user
-    user.dashboard_show_indicator_chart = not user.dashboard_show_indicator_chart
-    user.save(update_fields=["dashboard_show_indicator_chart"])
-    return JsonResponse({"show_chart": user.dashboard_show_indicator_chart})
+    chart_ids = list(user.dashboard_indicator_charts or [])
 
+    if indicator_id in chart_ids:
+        chart_ids.remove(indicator_id)
+        action = "hidden"
+    else:
+        chart_ids.append(indicator_id)
+        action = "shown"
 
-@login_required
-def dashboard_indicator_chart_data(request):
-    """Return JSON data for the indicator evolution chart."""
-    user = request.user
-    pinned_ids = user.dashboard_indicators or []
-    if not pinned_ids:
-        return JsonResponse({"datasets": []})
-
-    indicators = Indicator.objects.filter(
-        id__in=pinned_ids, format="number",
-    ).prefetch_related("measurements")
-
-    datasets = []
-    for ind in indicators:
-        measurements = list(
-            ind.measurements.order_by("recorded_at").values("recorded_at", "value")[:50]
-        )
-        if not measurements:
-            continue
-        data_points = []
-        for m in measurements:
-            try:
-                data_points.append({
-                    "x": m["recorded_at"].strftime("%Y-%m-%d"),
-                    "y": float(m["value"]),
-                })
-            except (ValueError, TypeError):
-                continue
-        if data_points:
-            datasets.append({
-                "label": ind.name,
-                "unit": ind.unit or "",
-                "data": data_points,
-            })
-
-    return JsonResponse({"datasets": datasets})
+    user.dashboard_indicator_charts = chart_ids
+    user.save(update_fields=["dashboard_indicator_charts"])
+    return JsonResponse({"action": action, "chart_ids": chart_ids})
 
 
 class IndicatorListView(LoginRequiredMixin, ScopeFilterMixin, ListView):
