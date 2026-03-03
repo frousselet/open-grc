@@ -559,7 +559,7 @@
       font-weight: 600;
     }
 
-    /* ── Alerts ────────────────────────────────────────── */
+    /* ── Alerts (inline) ───────────────────────────────── */
     .alert {
       border-radius: var(--radius-md);
       border: 1px solid;
@@ -589,6 +589,107 @@
       color: #155e75;
     }
     [data-bs-theme="dark"] .alert-info { color: var(--info); }
+
+    /* ── Toast stack (bottom-right overlay) ────────────── */
+    .toast-stack {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 1080;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: .625rem;
+      pointer-events: none;
+      max-width: 26rem;
+    }
+    .toast-stack .toast-item {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .75rem 1rem;
+      border-radius: var(--radius-md);
+      border: 1px solid;
+      font-size: .8125rem;
+      line-height: 1.4;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      animation: toastSlideIn .35s cubic-bezier(.21,1.02,.73,1) forwards;
+      will-change: transform, opacity;
+    }
+    .toast-stack .toast-item.toast-hiding {
+      animation: toastSlideOut .28s cubic-bezier(.55,.06,.68,.19) forwards;
+    }
+    .toast-stack .toast-item .toast-icon {
+      flex-shrink: 0;
+      font-size: 1.125rem;
+    }
+    .toast-stack .toast-item .toast-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .toast-stack .toast-item .toast-close {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      opacity: .5;
+      padding: .125rem;
+      font-size: .875rem;
+      line-height: 1;
+      transition: opacity .15s;
+    }
+    .toast-stack .toast-item .toast-close:hover { opacity: 1; }
+    .toast-stack .toast-item .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      animation: toastProgress 5s linear forwards;
+    }
+    .toast-item.toast-success {
+      background: var(--success-soft);
+      border-color: rgba(16,185,129,.2);
+      color: #065f46;
+    }
+    .toast-item.toast-success .toast-progress { background: rgba(16,185,129,.4); }
+    .toast-item.toast-danger, .toast-item.toast-error {
+      background: var(--danger-soft);
+      border-color: rgba(239,68,68,.2);
+      color: var(--danger);
+    }
+    .toast-item.toast-danger .toast-progress,
+    .toast-item.toast-error .toast-progress { background: rgba(239,68,68,.4); }
+    .toast-item.toast-warning {
+      background: var(--warning-soft);
+      border-color: rgba(245,158,11,.2);
+      color: #92400e;
+    }
+    .toast-item.toast-warning .toast-progress { background: rgba(245,158,11,.4); }
+    .toast-item.toast-info {
+      background: var(--info-soft);
+      border-color: rgba(6,182,212,.2);
+      color: #155e75;
+    }
+    .toast-item.toast-info .toast-progress { background: rgba(6,182,212,.4); }
+    [data-bs-theme="dark"] .toast-item.toast-success { color: var(--success); }
+    [data-bs-theme="dark"] .toast-item.toast-warning { color: var(--warning); }
+    [data-bs-theme="dark"] .toast-item.toast-info { color: var(--info); }
+
+    @keyframes toastSlideIn {
+      from { transform: translateX(calc(100% + 1.5rem)); opacity: 0; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes toastSlideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to   { transform: translateX(calc(100% + 1.5rem)); opacity: 0; }
+    }
+    @keyframes toastProgress {
+      from { width: 100%; }
+      to   { width: 0%; }
+    }
 
     /* ── Forms ─────────────────────────────────────────── */
     .form-control, .form-select {
@@ -1258,17 +1359,28 @@
     </div>
   </button>
 
+  {# ── Toast notifications ──────────────────────────────── #}
+  {% if messages %}
+  <div class="toast-stack" id="toast-stack">
+    {% for message in messages %}
+    <div class="toast-item toast-{{ message.tags|default:'info' }}" role="alert">
+      <span class="toast-icon">
+        {% if message.tags == 'success' %}<i class="bi bi-check-circle-fill"></i>
+        {% elif message.tags == 'error' or message.tags == 'danger' %}<i class="bi bi-exclamation-circle-fill"></i>
+        {% elif message.tags == 'warning' %}<i class="bi bi-exclamation-triangle-fill"></i>
+        {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+      </span>
+      <span class="toast-body">{{ message }}</span>
+      <button type="button" class="toast-close" onclick="dismissToast(this)">&times;</button>
+      <span class="toast-progress"></span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   {# ── Main content ─────────────────────────────────────── #}
   <main class="main-content">
     <div class="container-xl">
-      {% if messages %}
-      {% for message in messages %}
-      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-      {% endfor %}
-      {% endif %}
       {% block content %}{% endblock %}
     </div>
   </main>
@@ -1386,13 +1498,19 @@
     })();
   </script>
   <script>
-  /* Auto-dismiss alerts after 5 seconds */
+  /* ── Toast notification management ──────────────── */
+  function dismissToast(btn) {
+    var item = btn.closest('.toast-item');
+    if (!item || item.classList.contains('toast-hiding')) return;
+    item.classList.add('toast-hiding');
+    item.addEventListener('animationend', function() { item.remove(); }, { once: true });
+  }
   (function() {
-    document.querySelectorAll('.main-content > .container-xl > .alert-dismissible').forEach(function(el) {
-      setTimeout(function() {
-        var alert = bootstrap.Alert.getOrCreateInstance(el);
-        alert.close();
-      }, 5000);
+    document.querySelectorAll('.toast-item').forEach(function(el, i) {
+      /* Stagger entrance animation */
+      el.style.animationDelay = (i * 80) + 'ms';
+      /* Auto-dismiss after 5 seconds (staggered) */
+      setTimeout(function() { dismissToast(el.querySelector('.toast-close')); }, 5000 + i * 200);
     });
   })();
   </script>
