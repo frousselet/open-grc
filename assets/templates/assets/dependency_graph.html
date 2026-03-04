@@ -5,29 +5,17 @@
 
 {% block extra_css %}
 <style>
-  /* Let the wrapper fill vertical space but keep normal content padding */
-  .main-content:has(.graph-page-wrapper) {
-    padding-bottom: 0 !important;
-    overflow: hidden;
-  }
-  .graph-page-wrapper {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 2.5rem);
-    overflow: hidden;
-  }
-  /* Graph container breaks out of container-xl to go edge-to-edge */
+  /* Graph fills the remaining viewport below the header via fixed position */
   #graph-container {
-    flex: 1 1 0;
-    min-height: 0;
+    position: fixed;
+    left: calc(var(--sidebar-w) + var(--sidebar-inset, 0px) * 2);
+    right: 0;
+    bottom: 0;
     overflow: hidden;
-    position: relative;
     background: transparent;
-    margin-left: calc(-3rem - var(--bs-gutter-x, 0.75rem));
-    margin-right: calc(-3rem - var(--bs-gutter-x, 0.75rem));
   }
   @media (max-width: 991.98px) {
-    #graph-container { margin-left: -1rem; margin-right: -1rem; }
+    #graph-container { left: 0; }
   }
   #graph-container svg { width: 100%; height: 100%; }
   .node-label {
@@ -91,7 +79,6 @@
 {% endblock %}
 
 {% block content %}
-<div class="graph-page-wrapper">
 <div class="d-flex align-items-center mb-2">
   <h1 class="mb-0" style="font-size:1.25rem">{% trans "Dependency graph" %}</h1>
 </div>
@@ -116,7 +103,14 @@
 <div id="graph-container">
   <svg id="graph-svg"></svg>
 </div>
-</div><!-- .graph-page-wrapper -->
+<script>
+  // Position graph container right below the stats bar
+  (function() {
+    var bar = document.querySelector('.graph-stats-bar');
+    var rect = bar.getBoundingClientRect();
+    document.getElementById('graph-container').style.top = Math.ceil(rect.bottom) + 'px';
+  })();
+</script>
 {% endblock %}
 
 {% block extra_js %}
