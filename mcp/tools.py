@@ -554,18 +554,52 @@ def _register_assets_tools(server):
     # Custom tool: update supplier logo with automatic variant generation
     server.register_tool(
         "update_supplier_logo",
-        "Update a supplier's logo. Accepts a base64 data URI (e.g. 'data:image/png;base64,...') "
-        "and automatically generates 16x16, 32x32, and 64x64 variants.",
+        "Update a supplier's logo. Provide EITHER a base64 data URI via 'logo' OR a public "
+        "image URL via 'image_url'. The image is resized to 128x128 and 64x64, 32x32, 16x16 "
+        "variants are generated automatically.",
         {
             "type": "object",
             "properties": {
                 "id": {"type": "string", "description": "UUID of the supplier"},
                 "logo": {"type": "string", "description": "Base64 data URI of the logo image (e.g. 'data:image/png;base64,...')"},
+                "image_url": {"type": "string", "description": "Public URL of an image to download as the logo"},
             },
-            "required": ["id", "logo"],
+            "required": ["id"],
         },
         require_perm("assets.supplier.update")(
             _update_supplier_logo_handler
+        ),
+    )
+
+    # Override create_supplier to support image_url
+    create_sup_props = {f: {"type": "string", "description": f} for f in sup_writable}
+    create_sup_props["image_url"] = {
+        "type": "string",
+        "description": "Public URL of an image to use as the supplier logo",
+    }
+    server.register_tool(
+        "create_supplier",
+        "Create a new supplier. Optionally provide 'image_url' to set a logo from a URL.",
+        _obj_schema(create_sup_props),
+        require_perm("assets.supplier.create")(
+            _create_supplier_handler(Supplier, sup_writable)
+        ),
+    )
+
+    # Override update_supplier to support image_url
+    update_sup_props = {"id": {"type": "string", "description": "UUID of the object to update"}}
+    for f in sup_writable:
+        update_sup_props[f] = {"type": "string", "description": f}
+    update_sup_props["image_url"] = {
+        "type": "string",
+        "description": "Public URL of an image to use as the supplier logo",
+    }
+    server.register_tool(
+        "update_supplier",
+        "Update an existing supplier. Optionally provide 'image_url' to set a logo from a URL.",
+        _obj_schema(update_sup_props, ["id"]),
+        require_perm("assets.supplier.update")(
+            _update_supplier_with_logo_handler(Supplier, sup_writable)
         ),
     )
 
@@ -1112,18 +1146,93 @@ def _register_accounts_tools(server):
     )
 
 
-# ── Custom supplier logo handler ──────────────────────────
+# ── Custom supplier handlers (with image_url support) ─────
+
+def _apply_logo_from_url(obj, image_url):
+    """Download image from *image_url*, set logo and variants on *obj*."""
+    from helpers.image_utils import download_image_to_data_uri, generate_image_variants
+
+    logo_uri = download_image_to_data_uri(image_url)
+    variants = generate_image_variants(logo_uri)
+    obj.logo = logo_uri
+    obj.logo_16 = variants[16]
+    obj.logo_32 = variants[32]
+    obj.logo_64 = variants[64]
+
+
+def _create_supplier_handler(model_class, writable_fields):
+    """Create handler for supplier that supports image_url."""
+    def handler(user, arguments):
+        image_url = arguments.pop("image_url", None)
+        kwargs = {}
+        for field_name in writable_fields:
+            if field_name in arguments:
+                kwargs[field_name] = arguments[field_name]
+        if hasattr(model_class, "created_by"):
+            kwargs["created_by"] = user
+        try:
+            obj = model_class(**kwargs)
+            if image_url:
+                _apply_logo_from_url(obj, image_url)
+            obj.full_clean()
+            obj.save()
+        except (ValueError, ValidationError, Exception) as e:
+            return _error(str(e))
+        fields = [f.name for f in model_class._meta.fields]
+        return _serialize_obj(obj, fields)
+    return handler
+
+
+def _update_supplier_with_logo_handler(model_class, writable_fields):
+    """Update handler for supplier that supports image_url."""
+    def handler(user, arguments):
+        image_url = arguments.pop("image_url", None)
+        pk = arguments.get("id")
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        try:
+            obj = model_class.objects.get(pk=pk)
+        except model_class.DoesNotExist:
+            return _error(f"{model_class.__name__} not found.")
+        qs = _filter_by_scopes(model_class.objects.filter(pk=pk), user)
+        if not qs.exists():
+            return _error("Access denied: object is outside your allowed scopes.")
+        for field_name in writable_fields:
+            if field_name in arguments:
+                setattr(obj, field_name, arguments[field_name])
+        if image_url:
+            try:
+                _apply_logo_from_url(obj, image_url)
+            except ValueError as e:
+                return _error(str(e))
+        # Reset approval on update (like ApprovableAPIMixin)
+        if hasattr(obj, "is_approved"):
+            obj.is_approved = False
+            obj.approved_by = None
+            obj.approved_at = None
+        if hasattr(obj, "version"):
+            obj.version = (obj.version or 0) + 1
+        try:
+            obj.full_clean()
+            obj.save()
+        except (ValidationError, Exception) as e:
+            return _error(str(e))
+        fields = [f.name for f in model_class._meta.fields]
+        return _serialize_obj(obj, fields)
+    return handler
+
 
 def _update_supplier_logo_handler(user, arguments):
     """Update a supplier's logo and generate size variants."""
-    from helpers.image_utils import generate_image_variants
+    from helpers.image_utils import download_image_to_data_uri, generate_image_variants
 
     pk = arguments.get("id")
     logo_uri = arguments.get("logo")
+    image_url = arguments.get("image_url")
     if not pk:
         raise InvalidParamsError("id is required.")
-    if not logo_uri:
-        raise InvalidParamsError("logo is required.")
+    if not logo_uri and not image_url:
+        raise InvalidParamsError("Either 'logo' (base64 data URI) or 'image_url' is required.")
 
     Supplier = apps.get_model("assets", "Supplier")
     try:
@@ -1134,6 +1243,13 @@ def _update_supplier_logo_handler(user, arguments):
     qs = _filter_by_scopes(Supplier.objects.filter(pk=pk), user)
     if not qs.exists():
         return _error("Access denied: object is outside your allowed scopes.")
+
+    # Resolve logo data URI from URL if provided.
+    if image_url and not logo_uri:
+        try:
+            logo_uri = download_image_to_data_uri(image_url)
+        except ValueError as e:
+            return _error(str(e))
 
     try:
         variants = generate_image_variants(logo_uri)
