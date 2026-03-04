@@ -534,18 +534,40 @@ def _register_assets_tools(server):
                    filters=["type", "status"])
 
     sup_fields = ["id", "reference", "name", "description", "type", "criticality",
-                  "status", "contact_name", "contact_email",
-                  "contract_end_date", "is_approved", "created_at"]
+                  "status", "contact_name", "contact_email", "contact_phone",
+                  "website", "address", "country",
+                  "contract_reference", "contract_start_date", "contract_end_date",
+                  "logo", "logo_16", "logo_32", "logo_64",
+                  "notes", "is_approved", "created_at"]
     sup_writable = ["name", "description", "type", "criticality", "status",
                     "contact_name", "contact_email", "contact_phone",
-                    "website", "contract_start_date", "contract_end_date",
-                    "owner_id"]
+                    "website", "address", "country",
+                    "contract_reference", "contract_start_date", "contract_end_date",
+                    "notes", "owner_id"]
 
     _register_crud(server, "supplier", Supplier, "assets.supplier",
                    list_fields=sup_fields,
                    writable_fields=sup_writable,
                    search_fields=["reference", "name", "description", "contact_name"],
                    filters=["type", "criticality", "status"])
+
+    # Custom tool: update supplier logo with automatic variant generation
+    server.register_tool(
+        "update_supplier_logo",
+        "Update a supplier's logo. Accepts a base64 data URI (e.g. 'data:image/png;base64,...') "
+        "and automatically generates 16x16, 32x32, and 64x64 variants.",
+        {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string", "description": "UUID of the supplier"},
+                "logo": {"type": "string", "description": "Base64 data URI of the logo image (e.g. 'data:image/png;base64,...')"},
+            },
+            "required": ["id", "logo"],
+        },
+        require_perm("assets.supplier.update")(
+            _update_supplier_logo_handler
+        ),
+    )
 
     sd_fields = ["id", "support_asset_id", "supplier_id", "dependency_type",
                  "criticality", "created_at"]
@@ -1088,6 +1110,56 @@ def _register_accounts_tools(server):
                           scope_filtered=False)
         ),
     )
+
+
+# ── Custom supplier logo handler ──────────────────────────
+
+def _update_supplier_logo_handler(user, arguments):
+    """Update a supplier's logo and generate size variants."""
+    from helpers.image_utils import generate_image_variants
+
+    pk = arguments.get("id")
+    logo_uri = arguments.get("logo")
+    if not pk:
+        raise InvalidParamsError("id is required.")
+    if not logo_uri:
+        raise InvalidParamsError("logo is required.")
+
+    Supplier = apps.get_model("assets", "Supplier")
+    try:
+        supplier = Supplier.objects.get(pk=pk)
+    except Supplier.DoesNotExist:
+        return _error("Supplier not found.")
+
+    qs = _filter_by_scopes(Supplier.objects.filter(pk=pk), user)
+    if not qs.exists():
+        return _error("Access denied: object is outside your allowed scopes.")
+
+    try:
+        variants = generate_image_variants(logo_uri)
+    except Exception as e:
+        return _error(f"Invalid image data: {e}")
+
+    supplier.logo = logo_uri
+    supplier.logo_16 = variants[16]
+    supplier.logo_32 = variants[32]
+    supplier.logo_64 = variants[64]
+
+    if hasattr(supplier, "is_approved"):
+        supplier.is_approved = False
+        supplier.approved_by = None
+        supplier.approved_at = None
+    if hasattr(supplier, "version"):
+        supplier.version = (supplier.version or 0) + 1
+
+    try:
+        supplier.full_clean()
+        supplier.save()
+    except (ValidationError, Exception) as e:
+        return _error(str(e))
+
+    fields = [f.name for f in Supplier._meta.fields]
+    return _serialize_obj(supplier, fields)
 
 
 # ── Generic CRUD registration helper ──────────────────────
