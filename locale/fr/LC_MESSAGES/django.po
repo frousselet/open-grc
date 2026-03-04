@@ -1248,6 +1248,68 @@ msgstr "Aucun périmètre disponible."
 msgid "Save scopes"
 msgstr "Enregistrer les périmètres"
 
+#: accounts/templates/accounts/group_detail.html
+msgid "Quick apply:"
+msgstr "Application rapide :"
+
+#: accounts/templates/accounts/group_detail.html
+msgid "Read-only"
+msgstr "Lecture seule"
+
+#: accounts/templates/accounts/group_detail.html
+msgid "Full CRUD"
+msgstr "CRUD complet"
+
+#: accounts/templates/accounts/group_detail.html
+msgid "Select all"
+msgstr "Tout sélectionner"
+
+#: accounts/templates/accounts/group_detail.html
+msgid "Clear all"
+msgstr "Tout effacer"
+
+#: accounts/templates/accounts/group_detail.html
+msgid "Toggle column"
+msgstr "Basculer la colonne"
+
+#: accounts/templates/accounts/group_detail.html
+msgid "Select row"
+msgstr "Sélectionner la ligne"
+
+#: accounts/templates/accounts/group_detail.html
+msgid "Remove selected"
+msgstr "Retirer les sélectionnés"
+
+#: accounts/templates/accounts/group_detail.html
+msgid "Remove"
+msgstr "Retirer"
+
+#: accounts/templates/accounts/group_detail.html
+msgid "Add users"
+msgstr "Ajouter des utilisateurs"
+
+#: accounts/templates/accounts/group_detail.html
+msgid "Search by name or email..."
+msgstr "Rechercher par nom ou e-mail…"
+
+#: accounts/templates/accounts/group_detail.html
+msgid "Add selected"
+msgstr "Ajouter les sélectionnés"
+
+#: accounts/templates/accounts/group_detail.html
+msgid "Select all visible"
+msgstr "Sélectionner tous les visibles"
+
+#: accounts/views.py
+#, python-format
+msgid "%(count)d users added to the group."
+msgstr "%(count)d utilisateurs ajoutés au groupe."
+
+#: accounts/views.py
+#, python-format
+msgid "%(count)d users removed from the group."
+msgstr "%(count)d utilisateurs retirés du groupe."
+
 #: accounts/templates/accounts/group_form.html:27
 #: accounts/templates/accounts/profile.html:125
 #: accounts/templates/accounts/user_form.html:39
@@ -7808,9 +7870,6 @@ msgstr "Aucun historique disponible."
 #, python-format
 #~ msgid "%(count)d single point(s) of failure (SPOF) to review"
 #~ msgstr "%(count)d point(s) de défaillance unique (SPOF) à examiner"
-
-#~ msgid "Remove"
-#~ msgstr "Retirer"
 
 #~ msgid "Default requirements"
 #~ msgstr "Exigences par défaut"
