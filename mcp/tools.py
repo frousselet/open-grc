@@ -878,9 +878,13 @@ def _register_risks_tools(server):
                    filters=["status", "priority", "assessment_id"],
                    scope_filtered=False)
 
-    tp_fields = ["id", "reference", "name", "description", "status", "target_date",
+    tp_fields = ["id", "reference", "name", "description", "treatment_type", "status",
+                 "expected_residual_likelihood", "expected_residual_impact",
+                 "cost_estimate", "start_date", "target_date", "completion_date",
                  "progress_percentage", "risk_id", "is_approved", "created_at"]
-    tp_writable = ["name", "description", "status", "target_date",
+    tp_writable = ["name", "description", "treatment_type", "status",
+                   "expected_residual_likelihood", "expected_residual_impact",
+                   "cost_estimate", "start_date", "target_date", "completion_date",
                    "progress_percentage", "risk_id", "owner_id"]
 
     _register_crud(server, "risk_treatment_plan", RiskTreatmentPlan, "risks.treatment",
@@ -888,7 +892,14 @@ def _register_risks_tools(server):
                    writable_fields=tp_writable,
                    search_fields=["reference", "name", "description"],
                    filters=["status", "risk_id"],
-                   scope_filtered=False)
+                   scope_filtered=False,
+                   field_overrides={
+                       "treatment_type": {
+                           "type": "string",
+                           "description": "Treatment strategy type",
+                           "enum": ["mitigate", "transfer", "avoid"],
+                       },
+                   })
 
     # Treatment actions (child of RiskTreatmentPlan, no approve)
     ta_fields = ["id", "treatment_plan_id", "description", "owner_id",
@@ -1083,7 +1094,8 @@ def _register_accounts_tools(server):
 
 def _register_crud(server, entity_name, model_class, perm_prefix,
                    list_fields, writable_fields, search_fields=None,
-                   filters=None, scope_filtered=True, has_approve=True):
+                   filters=None, scope_filtered=True, has_approve=True,
+                   field_overrides=None):
     """Register list, get, create, update, delete (and optionally approve) tools for an entity."""
 
     display_name = entity_name.replace("_", " ")
@@ -1112,9 +1124,10 @@ def _register_crud(server, entity_name, model_class, perm_prefix,
     )
 
     # Create
+    overrides = field_overrides or {}
     create_props = {}
     for f in writable_fields:
-        create_props[f] = {"type": "string", "description": f}
+        create_props[f] = overrides.get(f, {"type": "string", "description": f})
     server.register_tool(
         f"create_{entity_name}",
         f"Create a new {display_name}",
@@ -1127,7 +1140,7 @@ def _register_crud(server, entity_name, model_class, perm_prefix,
     # Update
     update_props = {"id": {"type": "string", "description": "UUID of the object to update"}}
     for f in writable_fields:
-        update_props[f] = {"type": "string", "description": f}
+        update_props[f] = overrides.get(f, {"type": "string", "description": f})
     server.register_tool(
         f"update_{entity_name}",
         f"Update an existing {display_name}",
