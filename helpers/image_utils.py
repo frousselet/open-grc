@@ -2,10 +2,14 @@
 
 import base64
 import io
+import urllib.request
 
 from PIL import Image
 
 IMAGE_VARIANT_SIZES = (16, 32, 64)
+
+# Limit download size to 5 MB to prevent abuse.
+_MAX_DOWNLOAD_BYTES = 5 * 1024 * 1024
 
 
 def _data_uri_to_pil(data_uri):
@@ -39,3 +43,30 @@ def generate_image_variants(data_uri):
         resized = img.resize((size, size), Image.LANCZOS)
         variants[size] = _pil_to_data_uri(resized)
     return variants
+
+
+def download_image_to_data_uri(url):
+    """Download an image from *url*, resize to 128×128, and return a PNG data URI.
+
+    Raises ``ValueError`` on download or image-processing errors.
+    """
+    req = urllib.request.Request(url, headers={"User-Agent": "OpenGRC/1.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
+            content_length = resp.headers.get("Content-Length")
+            if content_length and int(content_length) > _MAX_DOWNLOAD_BYTES:
+                raise ValueError("Image too large (max 5 MB).")
+            data = resp.read(_MAX_DOWNLOAD_BYTES + 1)
+            if len(data) > _MAX_DOWNLOAD_BYTES:
+                raise ValueError("Image too large (max 5 MB).")
+    except urllib.error.URLError as exc:
+        raise ValueError(f"Failed to download image: {exc}") from exc
+
+    try:
+        img = Image.open(io.BytesIO(data))
+        img = img.convert("RGBA")
+        img = img.resize((128, 128), Image.LANCZOS)
+    except Exception as exc:
+        raise ValueError(f"Invalid image data: {exc}") from exc
+
+    return _pil_to_data_uri(img)
