@@ -45,26 +45,19 @@
     display: inline-block;
     vertical-align: middle;
   }
-  .graph-toolbar {
-    position: absolute;
-    top: .75rem;
-    right: .75rem;
-    display: flex;
-    gap: .5rem;
-    z-index: 10;
-  }
-  .graph-toolbar .btn {
-    background: var(--surface-raised);
-    border-color: var(--border-light);
+  .graph-stats-bar .btn {
+    padding: .15rem .4rem;
+    font-size: .75rem;
+    line-height: 1;
   }
   /* Compact stats + legend bar */
   .graph-stats-bar {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 1rem;
     flex-wrap: wrap;
-    padding: .5rem .75rem;
+    padding: .4rem .75rem;
     margin-bottom: .5rem;
     font-size: .8rem;
     color: var(--text-secondary);
@@ -104,14 +97,13 @@
   <span class="graph-stat"><span class="legend-dot" style="background:#fbbf24"></span> {% trans "Supplier" %}</span>
   <span class="graph-stat"><span class="legend-line" style="background:#94a3b8"></span> {% trans "Dependency" %}</span>
   <span class="graph-stat"><span class="legend-line" style="background:#f87171"></span> SPOF</span>
+  <span class="graph-stat-sep"></span>
+  <button class="btn btn-sm btn-outline-secondary" onclick="resetZoom()" title="{% trans 'Reset zoom' %}"><i class="bi bi-arrows-fullscreen"></i></button>
+  <button class="btn btn-sm btn-outline-secondary" onclick="zoomIn()" title="{% trans 'Zoom in' %}"><i class="bi bi-zoom-in"></i></button>
+  <button class="btn btn-sm btn-outline-secondary" onclick="zoomOut()" title="{% trans 'Zoom out' %}"><i class="bi bi-zoom-out"></i></button>
 </div>
 
 <div id="graph-container">
-  <div class="graph-toolbar">
-    <button class="btn btn-sm btn-outline-secondary" onclick="resetZoom()" title="{% trans 'Reset zoom' %}"><i class="bi bi-arrows-fullscreen"></i></button>
-    <button class="btn btn-sm btn-outline-secondary" onclick="zoomIn()" title="{% trans 'Zoom in' %}"><i class="bi bi-zoom-in"></i></button>
-    <button class="btn btn-sm btn-outline-secondary" onclick="zoomOut()" title="{% trans 'Zoom out' %}"><i class="bi bi-zoom-out"></i></button>
-  </div>
   <svg id="graph-svg"></svg>
 </div>
 </div><!-- .graph-page-wrapper -->
