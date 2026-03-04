@@ -27,10 +27,6 @@ class OAuthTokenAuthentication(BaseAuthentication):
         except OAuthAccessToken.DoesNotExist:
             raise AuthenticationFailed("Invalid or expired token.")
 
-        if token.is_expired:
-            token.delete()
-            raise AuthenticationFailed("Token has expired.")
-
         app = token.application
         if not app.is_active:
             raise AuthenticationFailed("OAuth application is disabled.")

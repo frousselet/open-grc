@@ -122,7 +122,8 @@ class OAuthAccessToken(models.Model):
 
     @property
     def is_expired(self):
-        return timezone.now() >= self.expires_at
+        # MCP tokens never expire; they remain valid until explicitly revoked.
+        return False
 
     @staticmethod
     def hash_token(raw_token):
@@ -138,13 +139,19 @@ class OAuthAccessToken(models.Model):
         return dk.hex()
 
     @classmethod
-    def create_token(cls, application, lifetime_seconds=3600):
-        """Create a new access token and return (instance, raw_token)."""
+    def create_token(cls, application):
+        """Create a new access token and return (instance, raw_token).
+
+        Tokens do not expire; they remain valid until explicitly revoked.
+        """
         raw_token = secrets.token_urlsafe(48)
+        # Set expires_at to a far-future sentinel value since the column is
+        # non-nullable.  Expiration is never enforced.
+        far_future = timezone.now() + timezone.timedelta(days=365 * 100)
         token = cls(
             application=application,
             token_hash=cls.hash_token(raw_token),
-            expires_at=timezone.now() + timezone.timedelta(seconds=lifetime_seconds),
+            expires_at=far_future,
         )
         token.save()
         return token, raw_token

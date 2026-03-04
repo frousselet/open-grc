@@ -198,13 +198,9 @@ class TestMcpEndpoint:
         response = client.delete("/api/v1/mcp")
         assert response.status_code == 200
 
-    def test_mcp_delete_session_with_expired_token(self, client):
-        """DELETE should succeed even when the token has expired."""
+    def test_mcp_delete_session_with_old_token(self, client):
+        """DELETE should succeed even with an old token (tokens never expire)."""
         user, token = self._create_authenticated_token()
-        # Manually expire the token
-        from django.utils import timezone
-        from datetime import timedelta
-        OAuthAccessToken.objects.update(expires_at=timezone.now() - timedelta(hours=1))
 
         response = client.delete(
             "/api/v1/mcp",
