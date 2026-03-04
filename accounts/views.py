@@ -359,23 +359,43 @@ class GroupPermissionsUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Vi
 
 
 class GroupUsersUpdateView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    """Add/remove users from a group."""
+    """Add/remove users from a group (single or bulk)."""
 
     permission_required = "system.groups.update"
 
     def post(self, request, pk):
         group = get_object_or_404(Group, pk=pk)
         action = request.POST.get("action")
-        user_id = request.POST.get("user_id")
 
-        if action == "add" and user_id:
-            user = get_object_or_404(User, pk=user_id)
-            group.users.add(user)
-            messages.success(request, _("%(name)s added to the group.") % {"name": user.display_name})
-        elif action == "remove" and user_id:
-            user = get_object_or_404(User, pk=user_id)
-            group.users.remove(user)
-            messages.success(request, _("%(name)s removed from the group.") % {"name": user.display_name})
+        if action == "add":
+            # Support both single user_id and multiple user_ids
+            user_ids = request.POST.getlist("user_ids")
+            user_id = request.POST.get("user_id")
+            if user_id and not user_ids:
+                user_ids = [user_id]
+            if user_ids:
+                users = User.objects.filter(pk__in=user_ids)
+                group.users.add(*users)
+                count = users.count()
+                if count == 1:
+                    messages.success(request, _("%(name)s added to the group.") % {"name": users.first().display_name})
+                else:
+                    messages.success(request, _("%(count)d users added to the group.") % {"count": count})
+
+        elif action == "remove":
+            user_id = request.POST.get("user_id")
+            if user_id:
+                user = get_object_or_404(User, pk=user_id)
+                group.users.remove(user)
+                messages.success(request, _("%(name)s removed from the group.") % {"name": user.display_name})
+
+        elif action == "bulk_remove":
+            user_ids = request.POST.getlist("user_ids")
+            if user_ids:
+                users = User.objects.filter(pk__in=user_ids)
+                count = users.count()
+                group.users.remove(*users)
+                messages.success(request, _("%(count)d users removed from the group.") % {"count": count})
 
         return redirect("accounts:group-detail", pk=group.pk)
 
