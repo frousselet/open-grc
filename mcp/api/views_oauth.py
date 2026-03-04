@@ -109,13 +109,12 @@ class OAuthTokenView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
-        # Issue access token
-        token_obj, raw_token = OAuthAccessToken.create_token(app, lifetime_seconds=3600)
+        # Issue access token (never expires)
+        token_obj, raw_token = OAuthAccessToken.create_token(app)
 
         return Response({
             "access_token": raw_token,
             "token_type": "Bearer",
-            "expires_in": 3600,
         })
 
     def _handle_client_credentials(self, request):
@@ -157,13 +156,12 @@ class OAuthTokenView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        # Issue access token (1 hour lifetime)
-        token_obj, raw_token = OAuthAccessToken.create_token(app, lifetime_seconds=3600)
+        # Issue access token (never expires)
+        token_obj, raw_token = OAuthAccessToken.create_token(app)
 
         return Response({
             "access_token": raw_token,
             "token_type": "Bearer",
-            "expires_in": 3600,
         })
 
 

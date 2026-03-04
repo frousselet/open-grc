@@ -49,7 +49,7 @@ class TestOAuthAccessToken:
         app.set_secret(raw_secret)
         app.save()
 
-        token_obj, raw_token = OAuthAccessToken.create_token(app, lifetime_seconds=3600)
+        token_obj, raw_token = OAuthAccessToken.create_token(app)
         assert raw_token
         assert not token_obj.is_expired
         assert token_obj.application == app
@@ -66,21 +66,16 @@ class TestOAuthAccessToken:
         found = OAuthAccessToken.objects.get(token_hash=token_hash)
         assert found.pk == token_obj.pk
 
-    def test_expired_token(self):
-        from django.utils import timezone
-        from datetime import timedelta
-
+    def test_token_never_expires(self):
+        """MCP tokens never expire; they remain valid until revoked."""
         user = UserFactory()
         raw_secret = _generate_client_secret()
         app = OAuthApplication(name="Test", user=user)
         app.set_secret(raw_secret)
         app.save()
 
-        token_obj, _ = OAuthAccessToken.create_token(app, lifetime_seconds=0)
-        # Force expiry in the past
-        token_obj.expires_at = timezone.now() - timedelta(seconds=10)
-        token_obj.save()
-        assert token_obj.is_expired
+        token_obj, _ = OAuthAccessToken.create_token(app)
+        assert not token_obj.is_expired
 
 
 class TestOAuthTokenEndpoint:
@@ -112,7 +107,7 @@ class TestOAuthTokenEndpoint:
         data = response.json()
         assert "access_token" in data
         assert data["token_type"] == "Bearer"
-        assert data["expires_in"] == 3600
+        assert "expires_in" not in data
 
     def test_token_endpoint_invalid_grant_type(self, client):
         response = client.post(
