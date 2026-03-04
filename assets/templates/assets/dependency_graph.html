@@ -5,11 +5,19 @@
 
 {% block extra_css %}
 <style>
-  /* Full-page graph: stretch to fill viewport below the stats bar */
+  /* Cancel main-content padding so the graph is truly edge-to-edge */
+  .main-content:has(.graph-page-wrapper) {
+    padding: 0 !important;
+  }
+  .main-content:has(.graph-page-wrapper) > .container-xl {
+    max-width: none;
+    padding: 0;
+  }
   .graph-page-wrapper {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 2.5rem);
+    height: 100vh;
+    overflow: hidden;
   }
   #graph-container {
     width: 100%;
@@ -50,20 +58,18 @@
     font-size: .75rem;
     line-height: 1;
   }
-  /* Compact stats + legend bar */
+  /* Compact stats + legend bar — flush to edges */
   .graph-stats-bar {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 1rem;
     flex-wrap: wrap;
-    padding: .4rem .75rem;
-    margin-bottom: .5rem;
+    padding: .4rem 1rem;
     font-size: .8rem;
     color: var(--text-secondary);
     background: var(--surface-raised);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
   }
   .graph-stat {
     display: inline-flex;
@@ -82,11 +88,9 @@
 
 {% block content %}
 <div class="graph-page-wrapper">
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Dependency graph" %}</h1>
-</div>
-
 <div class="graph-stats-bar">
+  <span class="graph-stat" style="font-weight:600;color:var(--text-primary)"><i class="bi bi-diagram-3"></i> {% trans "Dependency graph" %}</span>
+  <span class="graph-stat-sep"></span>
   <span class="graph-stat"><i class="bi bi-diagram-3 text-primary"></i> {% trans "Asset dep." %} <strong>{{ asset_dep_count }}</strong></span>
   <span class="graph-stat"><i class="bi bi-truck text-info"></i> {% trans "Supplier dep." %} <strong>{{ supplier_dep_count }}</strong></span>
   <span class="graph-stat"><i class="bi bi-building" style="color:#06b6d4"></i> {% trans "Site dep." %} <strong>{{ site_asset_dep_count|add:site_supplier_dep_count }}</strong></span>
