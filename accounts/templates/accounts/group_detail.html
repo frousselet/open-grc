@@ -26,7 +26,7 @@
 {% endif %}
 
 <ul class="nav nav-tabs mb-4" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#perms-tab">{% trans "Permissions" %}</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#perms-tab">{% trans "Permissions" %} <span id="perm-counter" class="badge bg-primary ms-1">0</span></a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#users-tab">{% blocktrans with count=group_users|length %}Users ({{ count }}){% endblocktrans %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#scopes-tab">{% trans "Scopes" %}</a></li>
 </ul>
@@ -34,36 +34,86 @@
 <div class="tab-content">
   <!-- Permissions Matrix -->
   <div class="tab-pane fade show active" id="perms-tab">
-    <form method="post" action="{% url 'accounts:group-permissions-update' group.pk %}">
+    <form method="post" action="{% url 'accounts:group-permissions-update' group.pk %}" id="perm-form">
       {% csrf_token %}
+
+      {% if not group.is_system %}
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="text-muted small align-self-center me-1">{% trans "Quick apply:" %}</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="presetReadOnly()">
+          <i class="bi bi-eye me-1"></i>{% trans "Read-only" %}
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="presetFullCrud()">
+          <i class="bi bi-pencil-square me-1"></i>{% trans "Full CRUD" %}
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="presetSelectAll()">
+          <i class="bi bi-check-all me-1"></i>{% trans "Select all" %}
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="presetClearAll()">
+          <i class="bi bi-x-lg me-1"></i>{% trans "Clear all" %}
+        </button>
+      </div>
+      {% endif %}
+
       {% regroup permission_matrix by module_label as module_groups %}
       {% for module_group in module_groups %}
-      <div class="card mb-3">
-        <div class="card-header"><strong>{{ module_group.grouper }}</strong></div>
+      <div class="card mb-3" data-module="{{ module_group.grouper }}">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>{{ module_group.grouper }}</strong>
+          {% if not group.is_system %}
+          <div class="form-check form-check-inline mb-0">
+            <input type="checkbox" class="form-check-input module-toggle" id="module-toggle-{{ forloop.counter }}"
+              data-module-idx="{{ forloop.counter }}">
+            <label class="form-check-label small text-muted" for="module-toggle-{{ forloop.counter }}">{% trans "Select all" %}</label>
+          </div>
+          {% endif %}
+        </div>
         <div class="card-body p-0">
-          <table class="table table-sm mb-0">
+          <table class="table table-sm mb-0" data-module-table="{{ forloop.counter }}">
             <thead class="table-light">
               <tr>
-                <th style="width:35%">{% trans "Feature" %}</th>
-                <th class="text-center">{% trans "Create" %}</th>
-                <th class="text-center">{% trans "Read" %}</th>
-                <th class="text-center">{% trans "Edit" %}</th>
-                <th class="text-center">{% trans "Delete" %}</th>
-                <th class="text-center">{% trans "Access" %}</th>
-                <th class="text-center">{% trans "Approve" %}</th>
+                <th style="width:30%">{% trans "Feature" %}</th>
+                {% if not group.is_system %}
+                <th style="width:4%" class="text-center">
+                  <input type="checkbox" class="form-check-input row-all-toggle" title="{% trans 'Select row' %}" style="visibility:hidden">
+                </th>
+                {% endif %}
+                <th class="text-center"><span class="d-block">{% trans "Create" %}</span>
+                  {% if not group.is_system %}<input type="checkbox" class="form-check-input col-toggle" data-action="create" data-module-idx="{{ forloop.counter }}" title="{% trans 'Toggle column' %}">{% endif %}
+                </th>
+                <th class="text-center"><span class="d-block">{% trans "Read" %}</span>
+                  {% if not group.is_system %}<input type="checkbox" class="form-check-input col-toggle" data-action="read" data-module-idx="{{ forloop.counter }}" title="{% trans 'Toggle column' %}">{% endif %}
+                </th>
+                <th class="text-center"><span class="d-block">{% trans "Edit" %}</span>
+                  {% if not group.is_system %}<input type="checkbox" class="form-check-input col-toggle" data-action="update" data-module-idx="{{ forloop.counter }}" title="{% trans 'Toggle column' %}">{% endif %}
+                </th>
+                <th class="text-center"><span class="d-block">{% trans "Delete" %}</span>
+                  {% if not group.is_system %}<input type="checkbox" class="form-check-input col-toggle" data-action="delete" data-module-idx="{{ forloop.counter }}" title="{% trans 'Toggle column' %}">{% endif %}
+                </th>
+                <th class="text-center"><span class="d-block">{% trans "Access" %}</span>
+                  {% if not group.is_system %}<input type="checkbox" class="form-check-input col-toggle" data-action="access" data-module-idx="{{ forloop.counter }}" title="{% trans 'Toggle column' %}">{% endif %}
+                </th>
+                <th class="text-center"><span class="d-block">{% trans "Approve" %}</span>
+                  {% if not group.is_system %}<input type="checkbox" class="form-check-input col-toggle" data-action="approve" data-module-idx="{{ forloop.counter }}" title="{% trans 'Toggle column' %}">{% endif %}
+                </th>
               </tr>
             </thead>
             <tbody>
               {% for row in module_group.list %}
               <tr>
                 <td>{{ row.feature_label }}</td>
+                {% if not group.is_system %}
+                <td class="text-center">
+                  <input type="checkbox" class="form-check-input row-toggle" data-row-idx="{{ forloop.counter }}" title="{% trans 'Select row' %}">
+                </td>
+                {% endif %}
                 {% for cell in row.cells %}
                 <td class="text-center">
                   {% if cell.has_action %}
                   <input type="checkbox" name="permissions" value="{{ cell.codename }}"
                     {% if cell.checked %}checked{% endif %}
                     {% if group.is_system %}disabled{% endif %}
-                    class="form-check-input">
+                    class="form-check-input perm-cb">
                   {% else %}
                   <span style="color:var(--text-muted)">—</span>
                   {% endif %}
@@ -87,12 +137,42 @@
     <div class="card">
       <div class="card-body">
         {% if group_users %}
+        {% if not group.is_system %}
+        {% has_perm "system.groups.update" as can_edit_group %}
+        {% if can_edit_group %}
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <button type="button" class="btn btn-sm btn-outline-danger" id="bulk-remove-btn" disabled onclick="bulkRemoveUsers()">
+            <i class="bi bi-x-circle me-1"></i>{% trans "Remove selected" %} (<span id="remove-count">0</span>)
+          </button>
+          <div class="form-check form-check-inline mb-0 ms-auto">
+            <input type="checkbox" class="form-check-input" id="select-all-users-remove" onchange="toggleAllUserRemove(this)">
+            <label class="form-check-label small text-muted" for="select-all-users-remove">{% trans "Select all" %}</label>
+          </div>
+        </div>
+        {% endif %}
+        {% endif %}
         <div class="table-responsive">
           <table class="table table-hover mb-0">
-            <thead><tr><th>{% trans "Name" %}</th><th>{% trans "Email" %}</th><th></th></tr></thead>
+            <thead><tr>
+              {% if not group.is_system %}
+              {% has_perm "system.groups.update" as can_edit_group %}
+              {% if can_edit_group %}
+              <th style="width:40px"></th>
+              {% endif %}
+              {% endif %}
+              <th>{% trans "Name" %}</th><th>{% trans "Email" %}</th><th></th>
+            </tr></thead>
             <tbody>
               {% for u in group_users %}
               <tr>
+                {% if not group.is_system %}
+                {% has_perm "system.groups.update" as can_edit_group %}
+                {% if can_edit_group %}
+                <td>
+                  <input type="checkbox" class="form-check-input user-remove-cb" value="{{ u.pk }}" onchange="updateRemoveCount()">
+                </td>
+                {% endif %}
+                {% endif %}
                 <td><a href="{% url 'accounts:user-detail' u.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ u.display_name }}</a></td>
                 <td>{{ u.email }}</td>
                 <td class="text-end">
@@ -103,7 +183,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="action" value="remove">
                     <input type="hidden" name="user_id" value="{{ u.pk }}">
-                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="bi bi-x-circle"></i></button>
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="{% trans 'Remove' %}"><i class="bi bi-x-circle"></i></button>
                   </form>
                   {% endif %}
                   {% endif %}
@@ -120,19 +200,37 @@
         {% if not group.is_system %}
         {% has_perm "system.groups.update" as can_edit_group %}
         {% if can_edit_group and all_users %}
-        <div class="inline-form-bar mt-3">
-          <form method="post" action="{% url 'accounts:group-users-update' group.pk %}" class="d-flex align-items-center gap-3">
+        <div class="mt-4 pt-3" style="border-top:1px solid var(--border-light)">
+          <h6 class="mb-3"><i class="bi bi-person-plus me-1"></i>{% trans "Add users" %}</h6>
+          <div class="mb-2">
+            <input type="text" class="form-control form-control-sm" id="user-search"
+              placeholder="{% trans 'Search by name or email...' %}"
+              onkeyup="filterAvailableUsers()">
+          </div>
+          <form method="post" action="{% url 'accounts:group-users-update' group.pk %}" id="add-users-form">
             {% csrf_token %}
             <input type="hidden" name="action" value="add">
-            <span class="inline-form-label"><i class="bi bi-person-plus me-1"></i>{% trans "Add" %}</span>
-            <div style="flex:1;min-width:12rem">
-              <select name="user_id" class="form-select form-select-sm">
-                {% for u in all_users %}
-                <option value="{{ u.pk }}">{{ u.display_name }} ({{ u.email }})</option>
-                {% endfor %}
-              </select>
+            <div style="max-height:250px;overflow-y:auto;border:1px solid var(--border-light);border-radius:.375rem" class="mb-3">
+              <table class="table table-hover table-sm mb-0">
+                <tbody id="available-users-list">
+                  {% for u in all_users %}
+                  <tr class="available-user-row" data-search="{{ u.display_name|lower }} {{ u.email|lower }}">
+                    <td style="width:40px">
+                      <input type="checkbox" class="form-check-input user-add-cb" name="user_ids" value="{{ u.pk }}" onchange="updateAddCount()">
+                    </td>
+                    <td>{{ u.display_name }}</td>
+                    <td class="text-muted">{{ u.email }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
             </div>
-            <button type="submit" class="btn btn-sm btn-primary">{% trans "Add" %}</button>
+            <div class="d-flex align-items-center gap-2">
+              <button type="submit" class="btn btn-sm btn-primary" id="add-users-btn" disabled>
+                <i class="bi bi-person-plus me-1"></i>{% trans "Add selected" %} (<span id="add-count">0</span>)
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAllUserAdd()">{% trans "Select all visible" %}</button>
+            </div>
           </form>
         </div>
         {% endif %}
@@ -173,4 +271,252 @@
     </div>
   </div>
 </div>
+
+{% if not group.is_system %}
+<script>
+(function() {
+  // ── Permission counter ─────────────────────────────
+  function updatePermCounter() {
+    const count = document.querySelectorAll('.perm-cb:checked').length;
+    const badge = document.getElementById('perm-counter');
+    if (badge) badge.textContent = count;
+  }
+  document.querySelectorAll('.perm-cb').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      updatePermCounter();
+      syncRowToggle(cb);
+      syncColToggle(cb);
+      syncModuleToggle(cb);
+    });
+  });
+  updatePermCounter();
+
+  // ── Row toggle (select all actions for a feature) ──
+  document.querySelectorAll('.row-toggle').forEach(function(toggle) {
+    toggle.addEventListener('change', function() {
+      var row = toggle.closest('tr');
+      var cbs = row.querySelectorAll('.perm-cb:not([disabled])');
+      cbs.forEach(function(cb) { cb.checked = toggle.checked; });
+      updatePermCounter();
+      syncAllColToggles(toggle.closest('table'));
+      syncModuleToggleFromTable(toggle.closest('table'));
+    });
+  });
+
+  function syncRowToggle(cb) {
+    var row = cb.closest('tr');
+    var rowToggle = row.querySelector('.row-toggle');
+    if (!rowToggle) return;
+    var cbs = row.querySelectorAll('.perm-cb:not([disabled])');
+    rowToggle.checked = Array.from(cbs).every(function(c) { return c.checked; });
+    rowToggle.indeterminate = !rowToggle.checked && Array.from(cbs).some(function(c) { return c.checked; });
+  }
+
+  // Init row toggles
+  document.querySelectorAll('.row-toggle').forEach(function(toggle) {
+    syncRowToggle(toggle.closest('tr').querySelector('.perm-cb') || toggle);
+  });
+
+  // ── Column toggle (select all features for an action) ──
+  var actionIndex = { create: 0, read: 1, update: 2, delete: 3, access: 4, approve: 5 };
+
+  document.querySelectorAll('.col-toggle').forEach(function(toggle) {
+    toggle.addEventListener('change', function() {
+      var moduleIdx = toggle.dataset.moduleIdx;
+      var action = toggle.dataset.action;
+      var table = document.querySelector('[data-module-table="' + moduleIdx + '"]');
+      var colIdx = actionIndex[action];
+      table.querySelectorAll('tbody tr').forEach(function(row) {
+        var cells = row.querySelectorAll('td');
+        // offset: feature td + row-toggle td + action cells
+        var cell = cells[colIdx + 2]; // +2 for feature + row-toggle columns
+        if (cell) {
+          var cb = cell.querySelector('.perm-cb:not([disabled])');
+          if (cb) cb.checked = toggle.checked;
+        }
+      });
+      updatePermCounter();
+      // sync row toggles
+      table.querySelectorAll('.row-toggle').forEach(function(rt) {
+        var row = rt.closest('tr');
+        var first = row.querySelector('.perm-cb');
+        if (first) syncRowToggle(first);
+      });
+      syncModuleToggleFromTable(table);
+    });
+  });
+
+  function syncColToggle(cb) {
+    var table = cb.closest('table');
+    syncAllColToggles(table);
+  }
+
+  function syncAllColToggles(table) {
+    table.querySelectorAll('.col-toggle').forEach(function(toggle) {
+      var action = toggle.dataset.action;
+      var colIdx = actionIndex[action];
+      var all = [], checked = [];
+      table.querySelectorAll('tbody tr').forEach(function(row) {
+        var cells = row.querySelectorAll('td');
+        var cell = cells[colIdx + 2];
+        if (cell) {
+          var c = cell.querySelector('.perm-cb:not([disabled])');
+          if (c) { all.push(c); if (c.checked) checked.push(c); }
+        }
+      });
+      toggle.checked = all.length > 0 && all.length === checked.length;
+      toggle.indeterminate = !toggle.checked && checked.length > 0;
+    });
+  }
+
+  // Init column toggles
+  document.querySelectorAll('[data-module-table]').forEach(function(table) {
+    syncAllColToggles(table);
+  });
+
+  // ── Module toggle (select all in module) ───────────
+  document.querySelectorAll('.module-toggle').forEach(function(toggle) {
+    toggle.addEventListener('change', function() {
+      var moduleIdx = toggle.dataset.moduleIdx;
+      var table = document.querySelector('[data-module-table="' + moduleIdx + '"]');
+      table.querySelectorAll('.perm-cb:not([disabled])').forEach(function(cb) {
+        cb.checked = toggle.checked;
+      });
+      table.querySelectorAll('.row-toggle').forEach(function(rt) { rt.checked = toggle.checked; rt.indeterminate = false; });
+      syncAllColToggles(table);
+      updatePermCounter();
+    });
+  });
+
+  function syncModuleToggle(cb) {
+    syncModuleToggleFromTable(cb.closest('table'));
+  }
+
+  function syncModuleToggleFromTable(table) {
+    var moduleIdx = table.dataset.moduleTable;
+    var toggle = document.getElementById('module-toggle-' + moduleIdx);
+    if (!toggle) return;
+    var all = table.querySelectorAll('.perm-cb:not([disabled])');
+    var checked = table.querySelectorAll('.perm-cb:not([disabled]):checked');
+    toggle.checked = all.length > 0 && all.length === checked.length;
+    toggle.indeterminate = !toggle.checked && checked.length > 0;
+  }
+
+  // Init module toggles
+  document.querySelectorAll('[data-module-table]').forEach(function(table) {
+    syncModuleToggleFromTable(table);
+  });
+
+  // ── Presets ────────────────────────────────────────
+  window.presetReadOnly = function() {
+    document.querySelectorAll('.perm-cb:not([disabled])').forEach(function(cb) {
+      cb.checked = cb.value.endsWith('.read');
+    });
+    refreshAllToggles();
+  };
+
+  window.presetFullCrud = function() {
+    document.querySelectorAll('.perm-cb:not([disabled])').forEach(function(cb) {
+      var v = cb.value;
+      cb.checked = v.endsWith('.create') || v.endsWith('.read') || v.endsWith('.update') || v.endsWith('.delete');
+    });
+    refreshAllToggles();
+  };
+
+  window.presetSelectAll = function() {
+    document.querySelectorAll('.perm-cb:not([disabled])').forEach(function(cb) { cb.checked = true; });
+    refreshAllToggles();
+  };
+
+  window.presetClearAll = function() {
+    document.querySelectorAll('.perm-cb:not([disabled])').forEach(function(cb) { cb.checked = false; });
+    refreshAllToggles();
+  };
+
+  function refreshAllToggles() {
+    updatePermCounter();
+    document.querySelectorAll('[data-module-table]').forEach(function(table) {
+      table.querySelectorAll('.row-toggle').forEach(function(rt) {
+        var first = rt.closest('tr').querySelector('.perm-cb');
+        if (first) syncRowToggle(first);
+      });
+      syncAllColToggles(table);
+      syncModuleToggleFromTable(table);
+    });
+  }
+
+  // ── Users: bulk add ────────────────────────────────
+  window.updateAddCount = function() {
+    var checked = document.querySelectorAll('.user-add-cb:checked');
+    var countEl = document.getElementById('add-count');
+    var btn = document.getElementById('add-users-btn');
+    if (countEl) countEl.textContent = checked.length;
+    if (btn) btn.disabled = checked.length === 0;
+  };
+
+  window.toggleAllUserAdd = function() {
+    var visibleCbs = document.querySelectorAll('.available-user-row:not([style*="display: none"]):not([style*="display:none"]) .user-add-cb');
+    var allChecked = Array.from(visibleCbs).every(function(cb) { return cb.checked; });
+    visibleCbs.forEach(function(cb) { cb.checked = !allChecked; });
+    updateAddCount();
+  };
+
+  window.filterAvailableUsers = function() {
+    var query = document.getElementById('user-search').value.toLowerCase();
+    document.querySelectorAll('.available-user-row').forEach(function(row) {
+      var text = row.dataset.search || '';
+      row.style.display = text.indexOf(query) !== -1 ? '' : 'none';
+    });
+  };
+
+  // ── Users: bulk remove ─────────────────────────────
+  window.updateRemoveCount = function() {
+    var checked = document.querySelectorAll('.user-remove-cb:checked');
+    var countEl = document.getElementById('remove-count');
+    var btn = document.getElementById('bulk-remove-btn');
+    if (countEl) countEl.textContent = checked.length;
+    if (btn) btn.disabled = checked.length === 0;
+  };
+
+  window.toggleAllUserRemove = function(toggle) {
+    document.querySelectorAll('.user-remove-cb').forEach(function(cb) {
+      cb.checked = toggle.checked;
+    });
+    updateRemoveCount();
+  };
+
+  window.bulkRemoveUsers = function() {
+    var checked = document.querySelectorAll('.user-remove-cb:checked');
+    if (checked.length === 0) return;
+    var form = document.createElement('form');
+    form.method = 'post';
+    form.action = '{% url "accounts:group-users-update" group.pk %}';
+    var csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    var csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden'; csrfInput.name = 'csrfmiddlewaretoken'; csrfInput.value = csrf;
+    form.appendChild(csrfInput);
+    var actionInput = document.createElement('input');
+    actionInput.type = 'hidden'; actionInput.name = 'action'; actionInput.value = 'bulk_remove';
+    form.appendChild(actionInput);
+    checked.forEach(function(cb) {
+      var input = document.createElement('input');
+      input.type = 'hidden'; input.name = 'user_ids'; input.value = cb.value;
+      form.appendChild(input);
+    });
+    document.body.appendChild(form);
+    form.submit();
+  };
+
+})();
+</script>
+{% else %}
+<script>
+(function() {
+  // Permission counter for system groups (read-only)
+  var count = document.querySelectorAll('.perm-cb:checked').length;
+  var badge = document.getElementById('perm-counter');
+  if (badge) badge.textContent = count;
+})();
+</script>
+{% endif %}
 {% endblock %}
