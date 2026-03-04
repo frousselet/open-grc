@@ -3173,39 +3173,47 @@ msgid "New dependency"
 msgstr "Nouvelle dépendance"
 
 #: assets/templates/assets/dependency_graph.html:4
-#: assets/templates/assets/dependency_graph.html:67
+#: assets/templates/assets/dependency_graph.html
 msgid "Dependency graph"
 msgstr "Graphe de dépendances"
 
-#: assets/templates/assets/dependency_graph.html:74 templates/base.html:1121
+#: templates/base.html
 msgid "Asset dependencies"
 msgstr "Dépendances d'actifs"
 
-#: assets/templates/assets/dependency_graph.html:88
+#: assets/templates/assets/dependency_graph.html
+msgid "Asset dep."
+msgstr "Dép. actifs"
+
+#: assets/templates/assets/dependency_graph.html
+msgid "Supplier dep."
+msgstr "Dép. fournisseurs"
+
+#: assets/templates/assets/dependency_graph.html
+msgid "Site dep."
+msgstr "Dép. sites"
+
+#: assets/templates/assets/dependency_graph.html
 msgid "Site dependencies"
 msgstr "Dépendances sites"
 
-#: assets/templates/assets/dependency_graph.html:94
-msgid "Legend"
-msgstr "Légende"
-
-#: assets/templates/assets/dependency_graph.html:100
+#: assets/templates/assets/dependency_graph.html
 msgid "Dependency"
 msgstr "Dépendance"
 
-#: assets/templates/assets/dependency_graph.html:109
+#: assets/templates/assets/dependency_graph.html
 msgid "Reset zoom"
 msgstr "Réinitialiser le zoom"
 
-#: assets/templates/assets/dependency_graph.html:110
+#: assets/templates/assets/dependency_graph.html
 msgid "Zoom in"
 msgstr "Zoom avant"
 
-#: assets/templates/assets/dependency_graph.html:111
+#: assets/templates/assets/dependency_graph.html
 msgid "Zoom out"
 msgstr "Zoom arrière"
 
-#: assets/templates/assets/dependency_graph.html:126
+#: assets/templates/assets/dependency_graph.html
 msgid "No dependencies to display."
 msgstr "Aucune dépendance à afficher."
 
