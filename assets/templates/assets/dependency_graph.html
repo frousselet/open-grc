@@ -33,18 +33,6 @@
     fill: var(--text-muted);
     pointer-events: none;
   }
-  .legend {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: .4rem;
-    font-size: .82rem;
-    color: var(--text-secondary);
-  }
   .legend-dot {
     width: 12px;
     height: 12px;
@@ -69,6 +57,33 @@
     background: var(--surface-raised);
     border-color: var(--border-light);
   }
+  /* Compact stats + legend bar */
+  .graph-stats-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: .5rem .75rem;
+    margin-bottom: .5rem;
+    font-size: .8rem;
+    color: var(--text-secondary);
+    background: var(--surface-raised);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+  }
+  .graph-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    white-space: nowrap;
+  }
+  .graph-stat strong { color: var(--text-primary); }
+  .graph-stat-sep {
+    width: 1px;
+    height: 1rem;
+    background: var(--border-light);
+  }
 </style>
 {% endblock %}
 
@@ -78,41 +93,17 @@
   <h1 class="mb-0">{% trans "Dependency graph" %}</h1>
 </div>
 
-<div class="row g-3 mb-3">
-  <div class="col-md-3">
-    <div class="stat-card">
-      <div class="stat-card-icon accent"><i class="bi bi-diagram-3"></i></div>
-      <div class="stat-card-label">{% trans "Asset dependencies" %}</div>
-      <div class="stat-card-value">{{ asset_dep_count }}</div>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="stat-card">
-      <div class="stat-card-icon info"><i class="bi bi-truck"></i></div>
-      <div class="stat-card-label">{% trans "Supplier dependencies" %}</div>
-      <div class="stat-card-value">{{ supplier_dep_count }}</div>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="stat-card">
-      <div class="stat-card-icon" style="background:#06b6d410;color:#06b6d4"><i class="bi bi-building"></i></div>
-      <div class="stat-card-label">{% trans "Site dependencies" %}</div>
-      <div class="stat-card-value">{{ site_asset_dep_count|add:site_supplier_dep_count }}</div>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="stat-card">
-      <div class="stat-card-label">{% trans "Legend" %}</div>
-      <div class="legend mt-2">
-        <div class="legend-item"><span class="legend-dot" style="background:#818cf8"></span> {% trans "Essential asset" %}</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#34d399"></span> {% trans "Support asset" %}</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#22d3ee"></span> {% trans "Site" %}</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#fbbf24"></span> {% trans "Supplier" %}</div>
-        <div class="legend-item"><span class="legend-line" style="background:#94a3b8"></span> {% trans "Dependency" %}</div>
-        <div class="legend-item"><span class="legend-line" style="background:#f87171"></span> SPOF</div>
-      </div>
-    </div>
-  </div>
+<div class="graph-stats-bar">
+  <span class="graph-stat"><i class="bi bi-diagram-3 text-primary"></i> {% trans "Asset dep." %} <strong>{{ asset_dep_count }}</strong></span>
+  <span class="graph-stat"><i class="bi bi-truck text-info"></i> {% trans "Supplier dep." %} <strong>{{ supplier_dep_count }}</strong></span>
+  <span class="graph-stat"><i class="bi bi-building" style="color:#06b6d4"></i> {% trans "Site dep." %} <strong>{{ site_asset_dep_count|add:site_supplier_dep_count }}</strong></span>
+  <span class="graph-stat-sep"></span>
+  <span class="graph-stat"><span class="legend-dot" style="background:#818cf8"></span> {% trans "Essential asset" %}</span>
+  <span class="graph-stat"><span class="legend-dot" style="background:#34d399"></span> {% trans "Support asset" %}</span>
+  <span class="graph-stat"><span class="legend-dot" style="background:#22d3ee"></span> {% trans "Site" %}</span>
+  <span class="graph-stat"><span class="legend-dot" style="background:#fbbf24"></span> {% trans "Supplier" %}</span>
+  <span class="graph-stat"><span class="legend-line" style="background:#94a3b8"></span> {% trans "Dependency" %}</span>
+  <span class="graph-stat"><span class="legend-line" style="background:#f87171"></span> SPOF</span>
 </div>
 
 <div id="graph-container">
