@@ -575,11 +575,15 @@ def _register_assets_tools(server):
     create_sup_props = {f: {"type": "string", "description": f} for f in sup_writable}
     create_sup_props["image_url"] = {
         "type": "string",
-        "description": "Public URL of an image to use as the supplier logo",
+        "description": "Public URL of an image to use as the supplier logo (PNG, JPG, WebP, etc.). "
+                       "The image is downloaded, resized to 128x128, and size variants are generated.",
     }
     server.register_tool(
         "create_supplier",
-        "Create a new supplier. Optionally provide 'image_url' to set a logo from a URL.",
+        "Create a new supplier. Optionally provide 'image_url' (a public URL pointing to an "
+        "image file) to set the supplier logo. The image will be downloaded, resized to 128x128, "
+        "and 64x64, 32x32, 16x16 variants will be generated automatically. "
+        "Prefer 'image_url' over 'update_supplier_logo' when the logo is available as a URL.",
         _obj_schema(create_sup_props),
         require_perm("assets.supplier.create")(
             _create_supplier_handler(Supplier, sup_writable)
@@ -592,11 +596,15 @@ def _register_assets_tools(server):
         update_sup_props[f] = {"type": "string", "description": f}
     update_sup_props["image_url"] = {
         "type": "string",
-        "description": "Public URL of an image to use as the supplier logo",
+        "description": "Public URL of an image to use as the supplier logo (PNG, JPG, WebP, etc.). "
+                       "The image is downloaded, resized to 128x128, and size variants are generated.",
     }
     server.register_tool(
         "update_supplier",
-        "Update an existing supplier. Optionally provide 'image_url' to set a logo from a URL.",
+        "Update an existing supplier. Optionally provide 'image_url' (a public URL pointing to "
+        "an image file) to set or replace the supplier logo. The image will be downloaded, "
+        "resized to 128x128, and 64x64, 32x32, 16x16 variants will be generated automatically. "
+        "Prefer 'image_url' over 'update_supplier_logo' when the logo is available as a URL.",
         _obj_schema(update_sup_props, ["id"]),
         require_perm("assets.supplier.update")(
             _update_supplier_with_logo_handler(Supplier, sup_writable)
