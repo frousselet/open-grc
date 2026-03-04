@@ -5,14 +5,19 @@
 
 {% block extra_css %}
 <style>
+  /* Full-page graph: stretch to fill viewport below the stats bar */
+  .graph-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 2.5rem);
+  }
   #graph-container {
     width: 100%;
-    height: 70vh;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-lg);
-    background: var(--surface-raised);
+    flex: 1 1 0;
+    min-height: 0;
     overflow: hidden;
     position: relative;
+    background: transparent;
   }
   #graph-container svg { width: 100%; height: 100%; }
   .node-label {
@@ -20,6 +25,7 @@
     font-family: 'Inter', sans-serif;
     pointer-events: none;
     fill: var(--text-primary);
+    font-weight: 500;
   }
   .link-label {
     font-size: 9px;
@@ -59,10 +65,15 @@
     gap: .5rem;
     z-index: 10;
   }
+  .graph-toolbar .btn {
+    background: var(--surface-raised);
+    border-color: var(--border-light);
+  }
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="graph-page-wrapper">
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Dependency graph" %}</h1>
 </div>
@@ -93,12 +104,12 @@
     <div class="stat-card">
       <div class="stat-card-label">{% trans "Legend" %}</div>
       <div class="legend mt-2">
-        <div class="legend-item"><span class="legend-dot" style="background:#6366f1"></span> {% trans "Essential asset" %}</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span> {% trans "Support asset" %}</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#06b6d4"></span> {% trans "Site" %}</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> {% trans "Supplier" %}</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#818cf8"></span> {% trans "Essential asset" %}</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#34d399"></span> {% trans "Support asset" %}</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#22d3ee"></span> {% trans "Site" %}</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#fbbf24"></span> {% trans "Supplier" %}</div>
         <div class="legend-item"><span class="legend-line" style="background:#94a3b8"></span> {% trans "Dependency" %}</div>
-        <div class="legend-item"><span class="legend-line" style="background:#ef4444"></span> SPOF</div>
+        <div class="legend-item"><span class="legend-line" style="background:#f87171"></span> SPOF</div>
       </div>
     </div>
   </div>
@@ -112,6 +123,7 @@
   </div>
   <svg id="graph-svg"></svg>
 </div>
+</div><!-- .graph-page-wrapper -->
 {% endblock %}
 
 {% block extra_js %}
@@ -136,12 +148,12 @@
 
   var g = svg.append('g');
 
-  // Colors
+  // Colors — slightly brighter for readability on page background
   var colorMap = {
-    essential: '#6366f1',
-    support: '#10b981',
-    site: '#06b6d4',
-    supplier: '#f59e0b'
+    essential: '#818cf8',
+    support: '#34d399',
+    site: '#22d3ee',
+    supplier: '#fbbf24'
   };
 
   var sizeMap = {
@@ -184,14 +196,14 @@
       .attr('markerHeight', 6)
       .attr('orient', 'auto')
     .append('path')
-      .attr('fill', function(d) { return d === 'spof' ? '#ef4444' : '#94a3b8'; })
+      .attr('fill', function(d) { return d === 'spof' ? '#f87171' : '#94a3b8'; })
       .attr('d', 'M0,-5L10,0L0,5');
 
   var link = g.append('g')
     .selectAll('line')
     .data(links)
     .join('line')
-      .attr('stroke', function(d) { return d.is_spof ? '#ef4444' : '#94a3b8'; })
+      .attr('stroke', function(d) { return d.is_spof ? '#f87171' : '#94a3b8'; })
       .attr('stroke-width', function(d) { return d.is_spof ? 2.5 : 1.5; })
       .attr('marker-end', function(d) {
         return d.is_spof ? 'url(#arrow-spof)' : 'url(#arrow-default)';
@@ -303,9 +315,32 @@
     event.subject.fy = null;
   }
 
+  // Zoom-to-fit: compute bounding box of all nodes and fit the view
+  function zoomToFit(duration) {
+    if (nodes.length === 0) return;
+    var padding = 60;
+    var xMin = d3.min(nodes, function(d) { return d.x; });
+    var xMax = d3.max(nodes, function(d) { return d.x; });
+    var yMin = d3.min(nodes, function(d) { return d.y; });
+    var yMax = d3.max(nodes, function(d) { return d.y; });
+    var bboxW = xMax - xMin + padding * 2;
+    var bboxH = yMax - yMin + padding * 2;
+    var midX = (xMin + xMax) / 2;
+    var midY = (yMin + yMax) / 2;
+    var scale = Math.min(width / bboxW, height / bboxH, 1.5);
+    scale = Math.max(scale, 0.2);
+    var tx = width / 2 - midX * scale;
+    var ty = height / 2 - midY * scale;
+    var t = d3.zoomIdentity.translate(tx, ty).scale(scale);
+    svg.transition().duration(duration || 0).call(zoom.transform, t);
+  }
+
+  // Auto-fit once simulation settles
+  simulation.on('end', function() { zoomToFit(600); });
+
   // Toolbar functions
   window.resetZoom = function() {
-    svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
+    zoomToFit(500);
   };
   window.zoomIn = function() {
     svg.transition().duration(300).call(zoom.scaleBy, 1.3);
