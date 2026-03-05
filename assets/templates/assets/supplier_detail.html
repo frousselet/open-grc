@@ -60,8 +60,8 @@
               {{ supplier.get_status_display }}
             </span>
           </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ supplier.description|default:"—"|linebreaksbr }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Notes" %}</dt><dd class="col-sm-9">{{ supplier.notes|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ supplier.description|default:"—"|safe }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Notes" %}</dt><dd class="col-sm-9">{{ supplier.notes|default:"—"|safe }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
           <dd class="col-sm-9">{% for tag in supplier.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
         </dl>
@@ -77,7 +77,7 @@
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contact email" %}</dt><dd class="col-sm-9">{% if supplier.contact_email %}<a href="mailto:{{ supplier.contact_email }}">{{ supplier.contact_email }}</a>{% else %}—{% endif %}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contact phone" %}</dt><dd class="col-sm-9">{{ supplier.contact_phone|default:"—" }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Website" %}</dt><dd class="col-sm-9">{% if supplier.website %}<a href="{{ supplier.website }}" target="_blank" rel="noopener">{{ supplier.website }}</a>{% else %}—{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Address" %}</dt><dd class="col-sm-9">{{ supplier.address|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Address" %}</dt><dd class="col-sm-9">{{ supplier.address|default:"—"|safe }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Country" %}</dt><dd class="col-sm-9">{{ supplier.country|default:"—" }}</dd>
         </dl>
       </div>

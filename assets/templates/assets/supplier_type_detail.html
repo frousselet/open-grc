@@ -21,7 +21,7 @@
   <div class="card-body">
     <dl class="row mb-0">
       <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt>
-      <dd class="col-sm-9">{{ supplier_type.description|default:"—"|linebreaksbr }}</dd>
+      <dd class="col-sm-9">{{ supplier_type.description|default:"—"|safe }}</dd>
     </dl>
   </div>
 </div>

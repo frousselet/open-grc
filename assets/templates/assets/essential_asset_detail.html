@@ -44,7 +44,7 @@
               {{ asset.get_status_display }}
             </span>
           </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ asset.description|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ asset.description|default:"—"|safe }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
           <dd class="col-sm-9">{% for tag in asset.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
         </dl>
@@ -102,7 +102,7 @@
           {% if asset.personal_data and asset.personal_data_categories %}
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "GDPR categories" %}</dt><dd class="col-sm-9">{{ asset.personal_data_categories }}</dd>
           {% endif %}
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Regulatory constraints" %}</dt><dd class="col-sm-9">{{ asset.regulatory_constraints|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Regulatory constraints" %}</dt><dd class="col-sm-9">{{ asset.regulatory_constraints|default:"—"|safe }}</dd>
         </dl>
       </div>
     </div>

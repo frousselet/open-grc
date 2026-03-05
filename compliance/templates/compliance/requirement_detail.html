@@ -67,8 +67,8 @@
           </dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Level" %}</dt><dd class="col-sm-9">{{ requirement.compliance_level }}%</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Last assessment" %}</dt><dd class="col-sm-9">{{ requirement.last_assessment_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Evidence" %}</dt><dd class="col-sm-9">{{ requirement.compliance_evidence|default:"—"|linebreaksbr }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Gaps" %}</dt><dd class="col-sm-9">{{ requirement.compliance_gaps|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Evidence" %}</dt><dd class="col-sm-9">{{ requirement.compliance_evidence|default:"—"|safe }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Gaps" %}</dt><dd class="col-sm-9">{{ requirement.compliance_gaps|default:"—"|safe }}</dd>
         </dl>
       </div>
     </div>

@@ -51,7 +51,7 @@
             {% if not risk.impact_confidentiality and not risk.impact_integrity and not risk.impact_availability %}—{% endif %}
           </dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Review date" %}</dt><dd class="col-sm-9">{{ risk.review_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ risk.description|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ risk.description|default:"—"|safe }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
           <dd class="col-sm-9">{% for tag in risk.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
         </dl>
@@ -93,7 +93,7 @@
       <div class="card-body">
         <dl class="row mb-0">
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Treatment decision" %}</dt><dd class="col-sm-9">{{ risk.get_treatment_decision_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ risk.treatment_justification|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ risk.treatment_justification|default:"—"|safe }}</dd>
         </dl>
       </div>
     </div>

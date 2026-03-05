@@ -45,8 +45,8 @@
               {{ site.get_status_display }}
             </span>
           </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Address" %}</dt><dd class="col-sm-9">{{ site.address|default:"—"|linebreaksbr }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ site.description|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Address" %}</dt><dd class="col-sm-9">{{ site.address|default:"—"|safe }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ site.description|default:"—"|safe }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Parent site" %}</dt>
           <dd class="col-sm-9">
             {% if site.parent_site %}

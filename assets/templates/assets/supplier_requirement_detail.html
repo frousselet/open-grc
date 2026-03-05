@@ -30,7 +30,7 @@
       <dd class="col-sm-9"><span class="ref">{{ req.requirement.reference }}</span> {{ req.requirement.name }}</dd>
       {% endif %}
       <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt>
-      <dd class="col-sm-9">{{ req.description|default:"—"|linebreaksbr }}</dd>
+      <dd class="col-sm-9">{{ req.description|default:"—"|safe }}</dd>
       <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Compliance status" %}</dt>
       <dd class="col-sm-9">
         <span class="badge text-bg-{% if req.compliance_status == 'compliant' %}success{% elif req.compliance_status == 'non_compliant' %}danger{% elif req.compliance_status == 'partially_compliant' %}warning{% else %}secondary{% endif %}">
@@ -70,7 +70,7 @@
     {% if review.comment %}
     <div class="mb-2">
       <strong style="font-size:.82rem;color:var(--text-muted)">{% trans "Justification" %}</strong>
-      <p class="mb-0 mt-1">{{ review.comment|linebreaksbr }}</p>
+      <p class="mb-0 mt-1">{{ review.comment|safe }}</p>
     </div>
     {% endif %}
     {% if review.evidence_file %}
