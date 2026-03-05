@@ -75,11 +75,52 @@
     height: 1rem;
     background: var(--border-light);
   }
+
+  /* ── Mobile optimizations ─────────────────────── */
+  @media (max-width: 991.98px) {
+    /* Reduce main-content top padding for this page */
+    .main-content { padding-top: 3.5rem !important; }
+
+    /* Hide the page title on mobile — the stats bar is self-explanatory */
+    .graph-page-header { display: none; }
+
+    /* Tighter stats bar */
+    .graph-stats-bar {
+      gap: .35rem .6rem;
+      padding: .3rem .5rem;
+      margin-bottom: .25rem;
+      font-size: .7rem;
+    }
+    .graph-stats-bar .btn {
+      padding: .1rem .3rem;
+      font-size: .65rem;
+      min-height: unset;
+    }
+    .graph-stat { gap: .2rem; }
+    .legend-dot { width: 9px; height: 9px; }
+    .legend-line { width: 16px; }
+
+    /* Hide the legend on small screens — use a collapsible toggle */
+    .graph-legend-group { display: none; }
+    .graph-legend-toggle { display: inline-flex !important; }
+    .graph-legend-group.show { display: contents; }
+  }
+  @media (max-width: 575.98px) {
+    .main-content { padding-top: 3rem !important; }
+    .graph-stats-bar {
+      gap: .25rem .5rem;
+      padding: .25rem .4rem;
+      font-size: .65rem;
+    }
+    .graph-stat-sep { display: none; }
+  }
+  /* Toggle button hidden on desktop */
+  .graph-legend-toggle { display: none !important; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-2">
+<div class="d-flex align-items-center mb-2 graph-page-header">
   <h1 class="mb-0" style="font-size:1.25rem">{% trans "Dependency graph" %}</h1>
 </div>
 
@@ -88,12 +129,15 @@
   <span class="graph-stat"><i class="bi bi-truck text-info"></i> {% trans "Supplier dep." %} <strong>{{ supplier_dep_count }}</strong></span>
   <span class="graph-stat"><i class="bi bi-building" style="color:#06b6d4"></i> {% trans "Site dep." %} <strong>{{ site_asset_dep_count|add:site_supplier_dep_count }}</strong></span>
   <span class="graph-stat-sep"></span>
-  <span class="graph-stat"><span class="legend-dot" style="background:#818cf8"></span> {% trans "Essential asset" %}</span>
-  <span class="graph-stat"><span class="legend-dot" style="background:#34d399"></span> {% trans "Support asset" %}</span>
-  <span class="graph-stat"><span class="legend-dot" style="background:#22d3ee"></span> {% trans "Site" %}</span>
-  <span class="graph-stat"><span class="legend-dot" style="background:#fbbf24"></span> {% trans "Supplier" %}</span>
-  <span class="graph-stat"><span class="legend-line" style="background:#94a3b8"></span> {% trans "Dependency" %}</span>
-  <span class="graph-stat"><span class="legend-line" style="background:#f87171"></span> SPOF</span>
+  <button class="btn btn-sm btn-outline-secondary graph-legend-toggle" onclick="this.nextElementSibling.classList.toggle('show')" title="{% trans 'Legend' %}"><i class="bi bi-palette"></i></button>
+  <span class="graph-legend-group">
+    <span class="graph-stat"><span class="legend-dot" style="background:#818cf8"></span> {% trans "Essential asset" %}</span>
+    <span class="graph-stat"><span class="legend-dot" style="background:#34d399"></span> {% trans "Support asset" %}</span>
+    <span class="graph-stat"><span class="legend-dot" style="background:#22d3ee"></span> {% trans "Site" %}</span>
+    <span class="graph-stat"><span class="legend-dot" style="background:#fbbf24"></span> {% trans "Supplier" %}</span>
+    <span class="graph-stat"><span class="legend-line" style="background:#94a3b8"></span> {% trans "Dependency" %}</span>
+    <span class="graph-stat"><span class="legend-line" style="background:#f87171"></span> SPOF</span>
+  </span>
   <span class="graph-stat-sep"></span>
   <button class="btn btn-sm btn-outline-secondary" onclick="resetZoom()" title="{% trans 'Reset zoom' %}"><i class="bi bi-arrows-fullscreen"></i></button>
   <button class="btn btn-sm btn-outline-secondary" onclick="zoomIn()" title="{% trans 'Zoom in' %}"><i class="bi bi-zoom-in"></i></button>
