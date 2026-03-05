@@ -1,11 +1,13 @@
 from django import template
 from django.utils.html import format_html
+from django.utils.translation import gettext as _
 
 register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
 def sortable_th(context, field_name, label, css_class=""):
+    label = _(label)
     """Render a sortable <th> element.
 
     Sorting is persisted via JS (saved to user preferences).
