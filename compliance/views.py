@@ -418,14 +418,18 @@ class RequirementCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
     model = Requirement
     form_class = RequirementForm
     template_name = "compliance/requirement_form.html"
-    success_url = reverse_lazy("compliance:requirement-list")
+
+    def get_success_url(self):
+        return reverse("compliance:requirement-detail", kwargs={"pk": self.object.pk})
 
 
 class RequirementUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
     model = Requirement
     form_class = RequirementForm
     template_name = "compliance/requirement_form.html"
-    success_url = reverse_lazy("compliance:requirement-list")
+
+    def get_success_url(self):
+        return reverse("compliance:requirement-detail", kwargs={"pk": self.object.pk})
 
 
 class RequirementDeleteView(LoginRequiredMixin, DeleteView):
