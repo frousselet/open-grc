@@ -577,6 +577,5 @@ def _create_requirement(framework, section, req_data, created_by):
         guidance=req_data.get("guidance", ""),
         type=req_data.get("type") or "mandatory",
         category=req_data.get("category", ""),
-        order=req_data.get("order", 0),
         created_by=created_by,
     )
