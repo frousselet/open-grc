@@ -104,3 +104,6 @@ Detailed specs live in `features_spec/` (M0–M4 markdown files covering users, 
 - **API endpoints are mandatory**: Every new feature must include corresponding DRF endpoints in the app's `api/` directory (serializers, viewsets, URL routes under `/api/v1/`).
 - **UI quality in both themes**: All templates and CSS must render correctly in light and dark mode. Test both themes when adding or modifying UI components.
 - **Audit-grade rigor**: This platform supports real compliance audits. Data integrity, traceability, and correctness are critical — approval workflows, versioning, history tracking, and permission checks must never be bypassed or degraded.
+- **Mobile-first care**: Always test and ensure UI components render well on mobile. Pay special attention to multi-select widgets, sticky bars, and form layouts on small screens.
+- **Systematic French translations**: Every new user-facing string must be wrapped with `_()` or `{% trans %}` and have a corresponding French translation in `locale/fr/LC_MESSAGES/django.po`. Never leave untranslated strings.
+- **Persistent instructions**: When the user asks to "always do something" or to "remember something", add it to this `CLAUDE.md` file so it persists across sessions.
