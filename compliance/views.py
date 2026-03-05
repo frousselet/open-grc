@@ -180,7 +180,7 @@ class FrameworkDetailView(
         fw = self.object
         ctx["sections"] = fw.sections.filter(parent_section__isnull=True).order_by("order")
         ctx["requirements"] = fw.requirements.select_related("section", "owner").order_by(
-            "section__order", "order"
+            "section__order", "requirement_number"
         )
         ctx["assessments"] = fw.assessments.order_by("-assessment_date")[:10]
         return ctx
@@ -467,7 +467,7 @@ class AssessmentDetailView(
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["results"] = self.object.results.select_related("requirement").order_by(
-            "requirement__order"
+            "requirement__requirement_number"
         )
         return ctx
 

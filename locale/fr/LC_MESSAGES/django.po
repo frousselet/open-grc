@@ -4622,8 +4622,8 @@ msgid "Requirement number"
 msgstr "Numéro d'exigence"
 
 #: compliance/models/requirement.py:39
-msgid "Implementation guidance"
-msgstr "Guide de mise en œuvre"
+msgid "Implementation recommendations"
+msgstr "Recommandations de mise en œuvre"
 
 #: compliance/models/requirement.py:64
 msgid "Compliance evidence"

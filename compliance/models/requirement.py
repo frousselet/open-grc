@@ -36,7 +36,7 @@ class Requirement(BaseModel):
     name = models.CharField(_("Title"), max_length=500)
     description = models.TextField(_("Description"))
     guidance = models.TextField(
-        _("Implementation guidance"), blank=True, default=""
+        _("Implementation recommendations"), blank=True, default=""
     )
     type = models.CharField(
         _("Type"), max_length=20, choices=RequirementType.choices
@@ -105,7 +105,6 @@ class Requirement(BaseModel):
         related_name="linked_requirements",
         verbose_name=_("Linked stakeholder expectations"),
     )
-    order = models.PositiveIntegerField(_("Order"), default=0)
     status = models.CharField(
         _("Status"),
         max_length=20,
