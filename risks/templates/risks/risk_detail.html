@@ -23,6 +23,7 @@
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#evaluation">{% trans "Evaluation" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#treatment">{% trans "Treatment" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#assets">{% trans "Affected assets" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#requirements">{% trans "Requirements" %}</a></li>
   {% if iso27005_sources %}<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#sources">{% trans "Methodology sources" %}</a></li>{% endif %}
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
@@ -175,6 +176,37 @@
           <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No affected support assets." %}</p>
           {% endfor %}
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="requirements">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{% trans "Linked requirements" %}</h5>
+        {% if risk.linked_requirements.all %}
+        <div class="table-responsive mt-2">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>{% trans "Reference" %}</th><th>{% trans "Title" %}</th><th>{% trans "Framework" %}</th><th>{% trans "Compliance" %}</th></tr></thead>
+            <tbody>
+              {% for req in risk.linked_requirements.all %}
+              <tr>
+                <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ req.requirement_number|default:req.reference }}</td>
+                <td><a href="{% url 'compliance:requirement-detail' req.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ req.name }}</a></td>
+                <td style="font-size:.85rem">{{ req.framework.name }}</td>
+                <td>
+                  <span class="badge text-bg-{% if req.compliance_status == 'compliant' %}success{% elif req.compliance_status == 'partially_compliant' %}warning{% elif req.compliance_status == 'non_compliant' %}danger{% else %}secondary{% endif %}">
+                    {{ req.get_compliance_status_display }}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p style="color:var(--text-muted);font-size:.85rem" class="mb-0 mt-2">{% trans "No linked requirements." %}</p>
+        {% endif %}
       </div>
     </div>
   </div>

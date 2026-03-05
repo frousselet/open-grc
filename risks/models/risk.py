@@ -117,9 +117,14 @@ class Risk(BaseModel):
         default=RiskStatus.IDENTIFIED,
     )
     review_date = models.DateField(_("Review date"), null=True, blank=True)
+    linked_requirements = models.ManyToManyField(
+        "compliance.Requirement",
+        blank=True,
+        related_name="linked_risks",
+        verbose_name=_("Linked requirements"),
+    )
     # FK to unimplemented modules
     # linked_measures = ...
-    # linked_requirements = ...
     # linked_incidents = ...
     history = HistoricalRecords()
 
