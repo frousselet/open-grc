@@ -259,6 +259,15 @@ def _obj_schema(properties, required=None):
     return schema
 
 
+def _html_field(label):
+    """Return a field override dict indicating an HTML rich-text field."""
+    return {"type": "string", "description": f"{label} (HTML rich text)"}
+
+
+# Common override for entities that only have a description rich-text field.
+_HTML_DESC = {"description": _html_field("Description")}
+
+
 # ── Tool registration ──────────────────────────────────────
 
 def register_all_tools(server):
@@ -297,7 +306,8 @@ def _register_context_tools(server):
                    list_fields=scope_fields,
                    writable_fields=scope_writable,
                    search_fields=["name", "description"],
-                   filters=["status", "type"])
+                   filters=["status", "type"],
+                   field_overrides={"description": _html_field("Description")})
 
     issue_fields = ["id", "reference", "name", "description", "category", "severity",
                     "status", "is_approved", "created_at"]
@@ -307,7 +317,8 @@ def _register_context_tools(server):
                    list_fields=issue_fields,
                    writable_fields=issue_writable,
                    search_fields=["name", "description"],
-                   filters=["category", "severity", "status"])
+                   filters=["category", "severity", "status"],
+                   field_overrides=_HTML_DESC)
 
     stakeholder_fields = ["id", "reference", "name", "description", "type", "influence_level",
                           "status", "is_approved", "created_at"]
@@ -317,7 +328,8 @@ def _register_context_tools(server):
                    list_fields=stakeholder_fields,
                    writable_fields=stakeholder_writable,
                    search_fields=["name", "description"],
-                   filters=["type", "status"])
+                   filters=["type", "status"],
+                   field_overrides=_HTML_DESC)
 
     expectation_fields = ["id", "reference", "name", "description", "type", "priority",
                           "stakeholder_id", "created_at"]
@@ -328,7 +340,8 @@ def _register_context_tools(server):
                    writable_fields=expectation_writable,
                    search_fields=["name", "description"],
                    filters=["stakeholder_id", "type"],
-                   scope_filtered=False)
+                   scope_filtered=False,
+                   field_overrides=_HTML_DESC)
 
     objective_fields = ["id", "reference", "name", "description", "type", "priority",
                         "status", "target_date", "is_approved", "created_at"]
@@ -338,7 +351,8 @@ def _register_context_tools(server):
                    list_fields=objective_fields,
                    writable_fields=objective_writable,
                    search_fields=["name", "description"],
-                   filters=["type", "status", "priority"])
+                   filters=["type", "status", "priority"],
+                   field_overrides=_HTML_DESC)
 
     swot_fields = ["id", "reference", "name", "description", "status", "is_approved", "created_at"]
     swot_writable = ["name", "description", "status"]
@@ -347,7 +361,8 @@ def _register_context_tools(server):
                    list_fields=swot_fields,
                    writable_fields=swot_writable,
                    search_fields=["name", "description"],
-                   filters=["status"])
+                   filters=["status"],
+                   field_overrides=_HTML_DESC)
 
     swot_item_fields = ["id", "reference", "type", "title", "description", "impact",
                         "priority", "order", "analysis_id", "created_at"]
@@ -358,7 +373,8 @@ def _register_context_tools(server):
                    writable_fields=swot_item_writable,
                    search_fields=["title", "description"],
                    filters=["analysis_id", "type"],
-                   scope_filtered=False)
+                   scope_filtered=False,
+                   field_overrides=_HTML_DESC)
 
     role_fields = ["id", "reference", "name", "description", "type", "status",
                    "is_approved", "created_at"]
@@ -368,7 +384,8 @@ def _register_context_tools(server):
                    list_fields=role_fields,
                    writable_fields=role_writable,
                    search_fields=["name", "description"],
-                   filters=["type", "status"])
+                   filters=["type", "status"],
+                   field_overrides=_HTML_DESC)
 
     activity_fields = ["id", "reference", "name", "description", "type", "status",
                        "is_approved", "created_at"]
@@ -378,7 +395,8 @@ def _register_context_tools(server):
                    list_fields=activity_fields,
                    writable_fields=activity_writable,
                    search_fields=["name", "description"],
-                   filters=["type", "status"])
+                   filters=["type", "status"],
+                   field_overrides=_HTML_DESC)
 
     site_fields = ["id", "reference", "name", "description", "type", "status",
                    "address", "city", "country", "is_approved", "created_at"]
@@ -389,7 +407,8 @@ def _register_context_tools(server):
                    list_fields=site_fields,
                    writable_fields=site_writable,
                    search_fields=["name", "description", "city"],
-                   filters=["type", "status", "country"])
+                   filters=["type", "status", "country"],
+                   field_overrides=_HTML_DESC)
 
     # Tags (simple CRUD, no approve)
     server.register_tool(
@@ -437,7 +456,8 @@ def _register_context_tools(server):
                    list_fields=indicator_fields,
                    writable_fields=indicator_writable,
                    search_fields=["reference", "name", "description"],
-                   filters=["indicator_type", "status", "format", "collection_method"])
+                   filters=["indicator_type", "status", "format", "collection_method"],
+                   field_overrides=_HTML_DESC)
 
     # Indicator measurements (child of Indicator, no approve)
     measurement_fields = ["id", "indicator_id", "value", "recorded_at",
@@ -465,7 +485,8 @@ def _register_context_tools(server):
                    search_fields=["description"],
                    filters=["role_id", "raci_type"],
                    scope_filtered=False,
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides=_HTML_DESC)
 
 
 # ── Assets Module ──────────────────────────────────────────
@@ -496,7 +517,8 @@ def _register_assets_tools(server):
                    list_fields=ea_fields,
                    writable_fields=ea_writable,
                    search_fields=["reference", "name", "description"],
-                   filters=["type", "category", "status"])
+                   filters=["type", "category", "status"],
+                   field_overrides=_HTML_DESC)
 
     sa_fields = ["id", "reference", "name", "description", "type", "category",
                  "status", "hostname", "ip_address",
@@ -510,7 +532,8 @@ def _register_assets_tools(server):
                    list_fields=sa_fields,
                    writable_fields=sa_writable,
                    search_fields=["reference", "name", "description", "hostname", "ip_address"],
-                   filters=["type", "category", "status"])
+                   filters=["type", "category", "status"],
+                   field_overrides=_HTML_DESC)
 
     dep_fields = ["id", "essential_asset_id", "support_asset_id", "dependency_type",
                   "criticality", "is_single_point_of_failure", "created_at"]
@@ -522,7 +545,8 @@ def _register_assets_tools(server):
                    writable_fields=dep_writable,
                    search_fields=[],
                    filters=["essential_asset_id", "support_asset_id", "dependency_type", "criticality"],
-                   scope_filtered=False)
+                   scope_filtered=False,
+                   field_overrides=_HTML_DESC)
 
     ag_fields = ["id", "name", "description", "type", "status", "is_approved", "created_at"]
     ag_writable = ["name", "description", "type", "status", "owner_id"]
@@ -531,7 +555,8 @@ def _register_assets_tools(server):
                    list_fields=ag_fields,
                    writable_fields=ag_writable,
                    search_fields=["name", "description"],
-                   filters=["type", "status"])
+                   filters=["type", "status"],
+                   field_overrides=_HTML_DESC)
 
     sup_fields = ["id", "reference", "name", "description", "type", "criticality",
                   "status", "contact_name", "contact_email", "contact_phone",
@@ -549,7 +574,11 @@ def _register_assets_tools(server):
                    list_fields=sup_fields,
                    writable_fields=sup_writable,
                    search_fields=["reference", "name", "description", "contact_name"],
-                   filters=["type", "criticality", "status"])
+                   filters=["type", "criticality", "status"],
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "notes": _html_field("Notes"),
+                   })
 
     # Custom tool: update supplier logo with automatic variant generation
     server.register_tool(
@@ -572,7 +601,8 @@ def _register_assets_tools(server):
     )
 
     # Override create_supplier to support image_url
-    create_sup_props = {f: {"type": "string", "description": f} for f in sup_writable}
+    _sup_html = {"description": _html_field("Description"), "notes": _html_field("Notes")}
+    create_sup_props = {f: _sup_html.get(f, {"type": "string", "description": f}) for f in sup_writable}
     create_sup_props["image_url"] = {
         "type": "string",
         "description": "Public URL of an image to use as the supplier logo (PNG, JPG, WebP, etc.). "
@@ -593,7 +623,7 @@ def _register_assets_tools(server):
     # Override update_supplier to support image_url
     update_sup_props = {"id": {"type": "string", "description": "UUID of the object to update"}}
     for f in sup_writable:
-        update_sup_props[f] = {"type": "string", "description": f}
+        update_sup_props[f] = _sup_html.get(f, {"type": "string", "description": f})
     update_sup_props["image_url"] = {
         "type": "string",
         "description": "Public URL of an image to use as the supplier logo (PNG, JPG, WebP, etc.). "
@@ -621,7 +651,8 @@ def _register_assets_tools(server):
                    writable_fields=sd_writable,
                    search_fields=[],
                    filters=["support_asset_id", "supplier_id"],
-                   scope_filtered=False)
+                   scope_filtered=False,
+                   field_overrides=_HTML_DESC)
 
     # Site-asset dependencies (has approve)
     sad_fields = ["id", "reference", "support_asset_id", "site_id", "dependency_type",
@@ -635,7 +666,8 @@ def _register_assets_tools(server):
                    writable_fields=sad_writable,
                    search_fields=["description"],
                    filters=["support_asset_id", "site_id", "dependency_type", "criticality"],
-                   scope_filtered=False)
+                   scope_filtered=False,
+                   field_overrides=_HTML_DESC)
 
     # Site-supplier dependencies (has approve)
     ssd_fields = ["id", "reference", "site_id", "supplier_id", "dependency_type",
@@ -650,7 +682,8 @@ def _register_assets_tools(server):
                    writable_fields=ssd_writable,
                    search_fields=["description"],
                    filters=["site_id", "supplier_id", "dependency_type", "criticality"],
-                   scope_filtered=False)
+                   scope_filtered=False,
+                   field_overrides=_HTML_DESC)
 
     # Asset valuations (no approve)
     av_fields = ["id", "essential_asset_id", "evaluation_date",
@@ -667,7 +700,11 @@ def _register_assets_tools(server):
                    search_fields=["justification"],
                    filters=["essential_asset_id"],
                    scope_filtered=False,
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides={
+                       "justification": _html_field("Justification"),
+                       "context": _html_field("Context"),
+                   })
 
     # Supplier types (config, no approve)
     st_fields = ["id", "name", "description", "created_at"]
@@ -679,7 +716,8 @@ def _register_assets_tools(server):
                    search_fields=["name", "description"],
                    filters=[],
                    scope_filtered=False,
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides=_HTML_DESC)
 
     # Supplier type requirements (config, no approve)
     str_fields = ["id", "supplier_type_id", "title", "description", "created_at"]
@@ -692,7 +730,8 @@ def _register_assets_tools(server):
                    search_fields=["title", "description"],
                    filters=["supplier_type_id"],
                    scope_filtered=False,
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides=_HTML_DESC)
 
     # Supplier requirements (no approve)
     sr_fields = ["id", "supplier_id", "source_type_requirement_id", "requirement_id",
@@ -708,7 +747,11 @@ def _register_assets_tools(server):
                    search_fields=["title", "description"],
                    filters=["supplier_id", "compliance_status"],
                    scope_filtered=False,
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "evidence": _html_field("Evidence"),
+                   })
 
     # Supplier requirement reviews (no approve)
     srr_fields = ["id", "supplier_requirement_id", "review_date", "reviewer_id",
@@ -723,7 +766,10 @@ def _register_assets_tools(server):
                    search_fields=["comment"],
                    filters=["supplier_requirement_id", "result"],
                    scope_filtered=False,
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides={
+                       "comment": _html_field("Comment"),
+                   })
 
 
 # ── Compliance Module ──────────────────────────────────────
@@ -746,7 +792,8 @@ def _register_compliance_tools(server):
                    list_fields=fw_fields,
                    writable_fields=fw_writable,
                    search_fields=["reference", "name", "short_name", "description"],
-                   filters=["type", "category", "status"])
+                   filters=["type", "category", "status"],
+                   field_overrides=_HTML_DESC)
 
     # Framework compliance summary (special tool)
     @require_perm("compliance.framework.read")
@@ -792,12 +839,13 @@ def _register_compliance_tools(server):
                    search_fields=["reference", "name"],
                    filters=["framework_id", "parent_section_id"],
                    scope_filtered=False,
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides=_HTML_DESC)
 
     req_fields = ["id", "reference", "requirement_number", "name", "description", "type",
                   "compliance_status", "compliance_level", "priority", "is_applicable",
                   "framework_id", "section_id", "is_approved", "created_at"]
-    req_writable = ["requirement_number", "name", "description", "type",
+    req_writable = ["requirement_number", "name", "description", "guidance", "type",
                     "compliance_status", "compliance_level",
                     "priority", "is_applicable", "compliance_evidence", "compliance_gaps",
                     "framework_id", "section_id", "owner_id"]
@@ -807,7 +855,13 @@ def _register_compliance_tools(server):
                    writable_fields=req_writable,
                    search_fields=["reference", "requirement_number", "name", "description"],
                    filters=["framework_id", "section_id", "compliance_status", "type", "priority"],
-                   scope_filtered=False)
+                   scope_filtered=False,
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "guidance": _html_field("Implementation recommendations"),
+                       "compliance_evidence": _html_field("Compliance evidence"),
+                       "compliance_gaps": _html_field("Identified gaps"),
+                   })
 
     ca_fields = ["id", "name", "description", "assessment_date", "status",
                  "overall_compliance_level", "total_requirements",
@@ -821,7 +875,8 @@ def _register_compliance_tools(server):
                    list_fields=ca_fields,
                    writable_fields=ca_writable,
                    search_fields=["name", "description"],
-                   filters=["framework_id", "status"])
+                   filters=["framework_id", "status"],
+                   field_overrides=_HTML_DESC)
 
     ar_fields = ["id", "assessment_id", "requirement_id", "compliance_status",
                  "compliance_level", "evidence", "gaps", "assessed_at"]
@@ -834,7 +889,11 @@ def _register_compliance_tools(server):
                    search_fields=[],
                    filters=["assessment_id", "requirement_id", "compliance_status"],
                    scope_filtered=False,
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides={
+                       "evidence": _html_field("Evidence"),
+                       "gaps": _html_field("Gaps"),
+                   })
 
     rm_fields = ["id", "source_requirement_id", "target_requirement_id",
                  "mapping_type", "coverage_level", "description", "created_at"]
@@ -847,7 +906,11 @@ def _register_compliance_tools(server):
                    search_fields=["description"],
                    filters=["source_requirement_id", "target_requirement_id", "mapping_type"],
                    scope_filtered=False,
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "justification": _html_field("Justification"),
+                   })
 
     ap_fields = ["id", "reference", "name", "description", "priority", "status",
                  "target_date", "progress_percentage",
@@ -859,7 +922,8 @@ def _register_compliance_tools(server):
                    list_fields=ap_fields,
                    writable_fields=ap_writable,
                    search_fields=["reference", "name", "description"],
-                   filters=["status", "priority", "requirement_id", "assessment_id"])
+                   filters=["status", "priority", "requirement_id", "assessment_id"],
+                   field_overrides=_HTML_DESC)
 
 
 # ── Risks Module ───────────────────────────────────────────
@@ -886,7 +950,8 @@ def _register_risks_tools(server):
                    list_fields=ra_fields,
                    writable_fields=ra_writable,
                    search_fields=["reference", "name", "description"],
-                   filters=["status"])
+                   filters=["status"],
+                   field_overrides=_HTML_DESC)
 
     rc_fields = ["id", "name", "description", "status", "created_at"]
     rc_writable = ["name", "description", "status"]
@@ -896,7 +961,8 @@ def _register_risks_tools(server):
                    writable_fields=rc_writable,
                    search_fields=["name", "description"],
                    filters=["status"],
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides=_HTML_DESC)
 
     # Scale levels (child of RiskCriteria, no approve)
     sl_fields = ["id", "criteria_id", "scale_type", "level", "name",
@@ -910,7 +976,8 @@ def _register_risks_tools(server):
                    search_fields=["name", "description"],
                    filters=["criteria_id", "scale_type"],
                    scope_filtered=False,
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides=_HTML_DESC)
 
     # Risk levels (child of RiskCriteria, no approve)
     rl_fields = ["id", "criteria_id", "level", "name", "description",
@@ -924,7 +991,8 @@ def _register_risks_tools(server):
                    search_fields=["name", "description"],
                    filters=["criteria_id", "requires_treatment"],
                    scope_filtered=False,
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides=_HTML_DESC)
 
     risk_fields = ["id", "reference", "name", "description", "status", "priority",
                    "current_risk_level", "assessment_id",
@@ -940,7 +1008,8 @@ def _register_risks_tools(server):
                    writable_fields=risk_writable,
                    search_fields=["reference", "name", "description"],
                    filters=["status", "priority", "assessment_id"],
-                   scope_filtered=False)
+                   scope_filtered=False,
+                   field_overrides=_HTML_DESC)
 
     tp_fields = ["id", "reference", "name", "description", "treatment_type", "status",
                  "expected_residual_likelihood", "expected_residual_impact",
@@ -958,6 +1027,7 @@ def _register_risks_tools(server):
                    filters=["status", "risk_id"],
                    scope_filtered=False,
                    field_overrides={
+                       "description": _html_field("Description"),
                        "treatment_type": {
                            "type": "string",
                            "description": "Treatment strategy type",
@@ -977,7 +1047,8 @@ def _register_risks_tools(server):
                    search_fields=["description"],
                    filters=["treatment_plan_id", "status"],
                    scope_filtered=False,
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides=_HTML_DESC)
 
     acc_fields = ["id", "risk_id", "status", "justification", "conditions",
                   "valid_until", "accepted_by_id", "created_at"]
@@ -990,7 +1061,11 @@ def _register_risks_tools(server):
                    search_fields=["justification"],
                    filters=["risk_id", "status"],
                    scope_filtered=False,
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides={
+                       "justification": _html_field("Justification"),
+                       "conditions": _html_field("Conditions"),
+                   })
 
     threat_fields = ["id", "reference", "name", "description", "type", "status", "created_at"]
     threat_writable = ["name", "description", "type", "status"]
@@ -999,7 +1074,8 @@ def _register_risks_tools(server):
                    list_fields=threat_fields,
                    writable_fields=threat_writable,
                    search_fields=["reference", "name", "description"],
-                   filters=["type", "status"])
+                   filters=["type", "status"],
+                   field_overrides=_HTML_DESC)
 
     vuln_fields = ["id", "reference", "name", "description", "category",
                    "severity", "status", "created_at"]
@@ -1009,7 +1085,8 @@ def _register_risks_tools(server):
                    list_fields=vuln_fields,
                    writable_fields=vuln_writable,
                    search_fields=["reference", "name", "description"],
-                   filters=["category", "severity", "status"])
+                   filters=["category", "severity", "status"],
+                   field_overrides=_HTML_DESC)
 
     iso_fields = ["id", "assessment_id", "threat_id", "vulnerability_id",
                   "risk_level", "combined_likelihood", "max_impact",
@@ -1023,7 +1100,8 @@ def _register_risks_tools(server):
                    search_fields=["description"],
                    filters=["assessment_id", "threat_id", "vulnerability_id"],
                    scope_filtered=False,
-                   has_approve=False)
+                   has_approve=False,
+                   field_overrides=_HTML_DESC)
 
     # ── Risk ↔ Requirement linking tools ──────────────────────
     #
