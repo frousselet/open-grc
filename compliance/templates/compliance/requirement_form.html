@@ -28,3 +28,43 @@
   </div>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var tsConfig = {
+    plugins: ['remove_button'],
+    maxOptions: 200,
+    searchField: ['text'],
+    render: {
+      option: function(data, escape) {
+        return '<div style="padding:6px 10px;font-size:.85rem">' + escape(data.text) + '</div>';
+      },
+      item: function(data, escape) {
+        var parts = data.text.split(' : ');
+        var label = parts.length > 1 ? parts[0] : data.text;
+        return '<div title="' + escape(data.text) + '">' + escape(label) + '</div>';
+      }
+    }
+  };
+
+  document.querySelectorAll('select[data-ts-risks]').forEach(function(el) {
+    new TomSelect(el, Object.assign({}, tsConfig, {
+      placeholder: '{% trans "Search and select risks..." %}'
+    }));
+  });
+
+  document.querySelectorAll('select[data-ts-assets]').forEach(function(el) {
+    new TomSelect(el, Object.assign({}, tsConfig, {
+      placeholder: '{% trans "Search and select assets..." %}'
+    }));
+  });
+
+  document.querySelectorAll('select[data-ts-expectations]').forEach(function(el) {
+    new TomSelect(el, Object.assign({}, tsConfig, {
+      placeholder: '{% trans "Search and select expectations..." %}'
+    }));
+  });
+});
+</script>
+{% endblock %}

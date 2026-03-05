@@ -95,12 +95,21 @@ class SectionForm(forms.ModelForm):
 
 
 class RequirementForm(forms.ModelForm):
+    linked_risks = forms.ModelMultipleChoiceField(
+        queryset=None,
+        required=False,
+        label=_("Linked risks"),
+        widget=forms.SelectMultiple(attrs={**SELECT_ATTRS, "data-ts-risks": "true"}),
+    )
+
     class Meta:
         model = Requirement
         fields = [
             "framework", "section", "requirement_number", "name",
             "description", "guidance", "type", "category",
             "is_applicable", "applicability_justification",
+            "linked_risks",
+            "linked_assets", "linked_stakeholder_expectations",
             "owner", "priority", "target_date",
             "order", "status", "tags",
         ]
@@ -115,6 +124,8 @@ class RequirementForm(forms.ModelForm):
             "category": forms.Select(attrs=SELECT_ATTRS),
             "is_applicable": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
             "applicability_justification": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "linked_assets": forms.SelectMultiple(attrs={**SELECT_ATTRS, "data-ts-assets": "true"}),
+            "linked_stakeholder_expectations": forms.SelectMultiple(attrs={**SELECT_ATTRS, "data-ts-expectations": "true"}),
             "owner": forms.Select(attrs=SELECT_ATTRS),
             "priority": forms.Select(attrs=SELECT_ATTRS),
             "target_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
@@ -122,6 +133,25 @@ class RequirementForm(forms.ModelForm):
             "status": forms.Select(attrs=SELECT_ATTRS),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from risks.models import Risk
+        self.fields["linked_risks"].queryset = Risk.objects.all()
+        if self.instance and self.instance.pk:
+            self.fields["linked_risks"].initial = self.instance.linked_risks.all()
+
+    def save(self, commit=True):
+        instance = super().save(commit=commit)
+        if commit:
+            instance.linked_risks.set(self.cleaned_data["linked_risks"])
+        else:
+            old_save_m2m = self.save_m2m
+            def save_m2m():
+                old_save_m2m()
+                instance.linked_risks.set(self.cleaned_data["linked_risks"])
+            self.save_m2m = save_m2m
+        return instance
 
 
 class ComplianceAssessmentForm(ScopedFormMixin, forms.ModelForm):
