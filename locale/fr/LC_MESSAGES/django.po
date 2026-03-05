@@ -7917,3 +7917,27 @@ msgstr "Aucun historique disponible."
 
 #~ msgid "No ISO 27005 sources."
 #~ msgstr "Aucune source ISO 27005."
+
+#: compliance/templates/compliance/requirement_form.html
+msgid "Applicability"
+msgstr "Applicabilité"
+
+#: compliance/templates/compliance/requirement_form.html
+msgid "Relationships"
+msgstr "Relations"
+
+#: compliance/templates/compliance/requirement_form.html
+msgid "Ownership"
+msgstr "Responsabilité"
+
+#: compliance/templates/compliance/requirement_form.html
+msgid "Search and select risks..."
+msgstr "Rechercher et sélectionner des risques…"
+
+#: compliance/templates/compliance/requirement_form.html
+msgid "Search and select assets..."
+msgstr "Rechercher et sélectionner des actifs…"
+
+#: compliance/templates/compliance/requirement_form.html
+msgid "Search and select expectations..."
+msgstr "Rechercher et sélectionner des attentes…"
