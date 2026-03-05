@@ -27,7 +27,7 @@
         {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
       </div>
       {% endfor %}
-      <div class="d-flex gap-2 mt-4 pt-3" style="border-top:1px solid var(--border-light)">
+      <div class="d-flex gap-2 form-actions-sticky">
         <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
         <a href="{% url 'risks:risk-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
       </div>
@@ -68,26 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
       sel.appendChild(opt);
     });
   }
-
-  /* ── Tom Select for linked requirements ── */
-  document.querySelectorAll('select[data-ts-requirements]').forEach(function(el) {
-    new TomSelect(el, {
-      plugins: ['remove_button'],
-      maxOptions: 200,
-      searchField: ['text'],
-      placeholder: '{% trans "Search and select requirements..." %}',
-      render: {
-        option: function(data, escape) {
-          return '<div style="padding:6px 10px;font-size:.85rem">' + escape(data.text) + '</div>';
-        },
-        item: function(data, escape) {
-          var parts = data.text.split(' : ');
-          var label = parts.length > 1 ? parts[0] : data.text;
-          return '<div title="' + escape(data.text) + '">' + escape(label) + '</div>';
-        }
-      }
-    });
-  });
 });
 </script>
 {% endblock %}
