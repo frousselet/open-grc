@@ -1,15 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jodit@4.2.27/es2021/jodit.min.css">
-<style>
-  .ts-control .item { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
-  .ts-control { flex-wrap: nowrap !important; }
-  .card > .card-header { background: transparent; border-bottom: 1px solid var(--border-light, rgba(0,0,0,.1)); }
-</style>
-{% endblock %}
-
 {% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "requirement" %} — Open GRC{% endblock %}
 
 {% block content %}
@@ -191,91 +182,10 @@
     </div>
   </div>
 
-  {# ── Actions (barre fixe en bas) ──────────────── #}
-  <div class="d-flex gap-2 pb-3 px-4" style="position:sticky;bottom:0;z-index:1020;background:linear-gradient(to bottom,transparent,var(--bg-body,#f0f2f5) 35%);padding-top:2.5rem">
+  {# ── Actions ───────────────────────────────────── #}
+  <div class="d-flex gap-2 form-actions-sticky">
     <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{% trans "Save" %}</button>
     <a href="{% url 'compliance:requirement-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
   </div>
 </form>
-{% endblock %}
-
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/jodit@4.2.27/es2021/jodit.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-
-  /* ── Config pour les multi-select (risques, actifs, attentes) ── */
-  var tsMultiConfig = {
-    plugins: ['remove_button'],
-    maxOptions: 200,
-    searchField: ['text'],
-    render: {
-      option: function(data, escape) {
-        return '<div style="padding:6px 10px;font-size:.85rem">' + escape(data.text) + '</div>';
-      },
-      item: function(data, escape) {
-        var parts = data.text.split(' : ');
-        var label = parts.length > 1 ? parts[0] : data.text;
-        return '<div title="' + escape(data.text) + '">' + escape(label) + '</div>';
-      }
-    }
-  };
-
-  document.querySelectorAll('select[data-ts-risks]').forEach(function(el) {
-    new TomSelect(el, Object.assign({}, tsMultiConfig, {
-      placeholder: '{% trans "Search and select risks..." %}'
-    }));
-  });
-
-  document.querySelectorAll('select[data-ts-assets]').forEach(function(el) {
-    new TomSelect(el, Object.assign({}, tsMultiConfig, {
-      placeholder: '{% trans "Search and select assets..." %}'
-    }));
-  });
-
-  document.querySelectorAll('select[data-ts-expectations]').forEach(function(el) {
-    new TomSelect(el, Object.assign({}, tsMultiConfig, {
-      placeholder: '{% trans "Search and select expectations..." %}'
-    }));
-  });
-
-  /* ── Tom Select sur toutes les listes déroulantes simples ── */
-  var tsSimpleConfig = {
-    maxOptions: 200,
-    allowEmptyOption: true,
-    searchField: ['text'],
-    render: {
-      option: function(data, escape) {
-        return '<div style="padding:6px 10px;font-size:.85rem">' + escape(data.text) + '</div>';
-      }
-    }
-  };
-
-  document.querySelectorAll('form select:not(.tomselected):not([name="tags"]):not([data-ts-risks]):not([data-ts-assets]):not([data-ts-expectations]):not([multiple])').forEach(function(el) {
-    new TomSelect(el, tsSimpleConfig);
-  });
-
-  /* ── Éditeur de texte riche (Jodit) sur les champs multilignes ── */
-  var joditConfig = {
-    height: 250,
-    language: '{{ LANGUAGE_CODE|default:"en" }}',
-    toolbarButtonSize: 'small',
-    buttons: 'bold,italic,underline,strikethrough,|,ul,ol,|,paragraph,|,link,table,|,hr,|,undo,redo,|,source',
-    showCharsCounter: false,
-    showWordsCounter: false,
-    showXPathInStatusbar: false,
-    askBeforePasteHTML: false,
-    askBeforePasteFromWord: false,
-    defaultActionOnPaste: 'insert_clear_html',
-    style: {
-      font: 'inherit',
-      fontSize: '0.9rem'
-    }
-  };
-
-  document.querySelectorAll('textarea.rich-text').forEach(function(el) {
-    Jodit.make(el, joditConfig);
-  });
-});
-</script>
 {% endblock %}

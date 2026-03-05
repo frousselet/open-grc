@@ -18,6 +18,7 @@
         rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/css/tom-select.bootstrap5.min.css"
         rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jodit@4.2.27/es2021/jodit.min.css">
   <style>
     /* ── Design tokens ────────────────────────────────── */
     :root {
@@ -349,6 +350,7 @@
     .card:hover {
       box-shadow: var(--shadow-md);
     }
+    .card > .card-header { background: transparent; border-bottom: 1px solid var(--border-light); }
     .card-body { padding: 1.375rem 1.5rem; }
     .card-title { font-weight: 600; color: var(--text-primary); font-size: .875rem; }
 
@@ -1160,6 +1162,67 @@
       color: var(--text-primary);
     }
 
+    /* ── TomSelect: single-line truncation ────────────── */
+    .ts-control .item { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+    .ts-control { flex-wrap: nowrap !important; }
+
+    /* ── Jodit dark-theme overrides ───────────────────── */
+    [data-bs-theme="dark"] .jodit-container,
+    [data-bs-theme="dark"] .jodit-container:not(.jodit_inline) {
+      background: var(--surface) !important;
+      border-color: var(--border-light) !important;
+    }
+    [data-bs-theme="dark"] .jodit-toolbar__box,
+    [data-bs-theme="dark"] .jodit-toolbar-editor-collection {
+      background: var(--surface-raised) !important;
+      border-color: var(--border-light) !important;
+    }
+    [data-bs-theme="dark"] .jodit-toolbar-button__button {
+      color: var(--text-secondary) !important;
+    }
+    [data-bs-theme="dark"] .jodit-toolbar-button__button:hover {
+      background: var(--surface-muted) !important;
+      color: var(--text-primary) !important;
+    }
+    [data-bs-theme="dark"] .jodit-workplace,
+    [data-bs-theme="dark"] .jodit-wysiwyg {
+      background: var(--surface) !important;
+      color: var(--text-primary) !important;
+    }
+    [data-bs-theme="dark"] .jodit-placeholder {
+      color: var(--text-muted) !important;
+    }
+    [data-bs-theme="dark"] .jodit-status-bar {
+      background: var(--surface-raised) !important;
+      border-color: var(--border-light) !important;
+      color: var(--text-muted) !important;
+    }
+    [data-bs-theme="dark"] .jodit-toolbar-button__trigger svg,
+    [data-bs-theme="dark"] .jodit-toolbar-button__button svg {
+      fill: var(--text-secondary) !important;
+    }
+    [data-bs-theme="dark"] .jodit-toolbar-button__button:hover svg {
+      fill: var(--text-primary) !important;
+    }
+    [data-bs-theme="dark"] .jodit-ui-separator {
+      border-color: var(--border-light) !important;
+    }
+    [data-bs-theme="dark"] .jodit-popup,
+    [data-bs-theme="dark"] .jodit-popup__content {
+      background: var(--surface-raised) !important;
+      color: var(--text-primary) !important;
+      border-color: var(--border-light) !important;
+    }
+
+    /* ── Sticky form action bar ───────────────────────── */
+    .form-actions-sticky {
+      position: sticky;
+      bottom: 0;
+      z-index: 1020;
+      background: linear-gradient(to bottom, transparent, var(--bg-page, #f0f2f5) 35%);
+      padding: 2.5rem 1rem .75rem 1rem;
+    }
+
     /* ── Smooth focus ring for accessibility ─────────── */
     :focus-visible {
       outline: 2px solid var(--accent);
@@ -1678,6 +1741,80 @@
     }
     /* Re-init after HTMX swaps */
     document.body.addEventListener('htmx:afterSettle', initTagInputs);
+  })();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/jodit@4.2.27/es2021/jodit.min.js"></script>
+  <script>
+  /* ── Global: Rich-text (Jodit) + TomSelect on all forms ──── */
+  (function() {
+    var joditConfig = {
+      height: 250,
+      language: document.documentElement.lang || 'en',
+      toolbarButtonSize: 'small',
+      buttons: 'bold,italic,underline,strikethrough,|,ul,ol,|,paragraph,|,link,table,|,hr,|,undo,redo,|,source',
+      toolbarAdaptive: false,
+      showCharsCounter: false,
+      showWordsCounter: false,
+      showXPathInStatusbar: false,
+      askBeforePasteHTML: false,
+      askBeforePasteFromWord: false,
+      defaultActionOnPaste: 'insert_clear_html',
+      style: { font: 'inherit', fontSize: '0.9rem' },
+      placeholder: ''
+    };
+
+    var tsSimpleConfig = {
+      maxOptions: 200,
+      allowEmptyOption: true,
+      searchField: ['text'],
+      render: {
+        option: function(data, escape) {
+          return '<div style="padding:6px 10px;font-size:.85rem">' + escape(data.text) + '</div>';
+        }
+      }
+    };
+
+    var tsMultiConfig = {
+      plugins: ['remove_button'],
+      maxOptions: 200,
+      searchField: ['text'],
+      render: {
+        option: function(data, escape) {
+          return '<div style="padding:6px 10px;font-size:.85rem">' + escape(data.text) + '</div>';
+        },
+        item: function(data, escape) {
+          var parts = data.text.split(' : ');
+          var label = parts.length > 1 ? parts[0] : data.text;
+          return '<div title="' + escape(data.text) + '">' + escape(label) + '</div>';
+        }
+      }
+    };
+
+    function initGlobalWidgets() {
+      /* Jodit on all textarea.form-control not inside a formset-table */
+      document.querySelectorAll('textarea.form-control:not(.jodit-initialized)').forEach(function(el) {
+        if (el.closest('.formset-table')) return;
+        el.classList.add('jodit-initialized');
+        Jodit.make(el, joditConfig);
+      });
+
+      /* TomSelect on simple selects (not tags, not already init, not multiple) */
+      document.querySelectorAll('form select.form-select:not(.tomselected):not([name="tags"]):not([multiple])').forEach(function(el) {
+        new TomSelect(el, tsSimpleConfig);
+      });
+
+      /* TomSelect on multi-selects with data-ts-* attributes */
+      document.querySelectorAll('select[data-ts-risks]:not(.tomselected), select[data-ts-assets]:not(.tomselected), select[data-ts-expectations]:not(.tomselected), select[data-ts-requirements]:not(.tomselected)').forEach(function(el) {
+        new TomSelect(el, tsMultiConfig);
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initGlobalWidgets);
+    } else {
+      initGlobalWidgets();
+    }
+    document.body.addEventListener('htmx:afterSettle', initGlobalWidgets);
   })();
   </script>
   <script>
