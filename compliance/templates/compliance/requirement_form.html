@@ -3,6 +3,10 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jodit@4.2.27/es2021/jodit.min.css">
+<style>
+  .ts-control .item { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  .ts-control { flex-wrap: nowrap !important; }
+</style>
 {% endblock %}
 
 {% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "requirement" %} — Open GRC{% endblock %}
