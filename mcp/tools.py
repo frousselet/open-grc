@@ -1025,6 +1025,303 @@ def _register_risks_tools(server):
                    scope_filtered=False,
                    has_approve=False)
 
+    # ── Risk ↔ Requirement linking tools ──────────────────────
+    #
+    # These tools manage the many-to-many relationship between risks and
+    # compliance requirements (Risk.linked_requirements / Requirement.linked_risks).
+    #
+    # Available operations:
+    #   - list_risk_requirements     : list all requirements linked to a risk
+    #   - list_requirement_risks     : list all risks linked to a requirement
+    #   - link_risk_requirements     : attach one or more requirements to a risk
+    #   - unlink_risk_requirements   : detach one or more requirements from a risk
+    #   - set_risk_requirements      : replace the full set of linked requirements on a risk
+    #
+    # All operations respect the standard permission model
+    # (risks.risk.read / risks.risk.update).
+
+    Requirement = _get_model("compliance", "Requirement")
+
+    req_link_fields = [
+        "id", "reference", "requirement_number", "name",
+        "compliance_status", "framework_id",
+    ]
+
+    risk_link_fields = [
+        "id", "reference", "name", "current_risk_level",
+        "priority", "status",
+    ]
+
+    # -- list_risk_requirements: list requirements linked to a given risk --
+    def _list_risk_requirements(user, arguments):
+        """Return all compliance requirements linked to a specific risk.
+
+        Parameters
+        ----------
+        risk_id : str (required)
+            UUID of the risk whose linked requirements should be returned.
+
+        Returns
+        -------
+        dict
+            ``{"risk_id": "<uuid>", "total": <int>, "items": [...]}``.
+            Each item contains: id, reference, requirement_number, name,
+            compliance_status, and framework_id.
+        """
+        risk_id = arguments.get("risk_id")
+        if not risk_id:
+            raise InvalidParamsError("risk_id is required.")
+        try:
+            risk = Risk.objects.get(pk=risk_id)
+        except Risk.DoesNotExist:
+            return _error("Risk not found.")
+        reqs = risk.linked_requirements.all()
+        items = [_serialize_obj(r, req_link_fields) for r in reqs]
+        return {"risk_id": str(risk_id), "total": len(items), "items": items}
+
+    server.register_tool(
+        "list_risk_requirements",
+        (
+            "List all compliance requirements linked to a risk. "
+            "Returns requirement id, reference, number, name, compliance_status "
+            "and framework_id for each linked requirement."
+        ),
+        _obj_schema(
+            {"risk_id": {"type": "string", "description": "UUID of the risk"}},
+            required=["risk_id"],
+        ),
+        require_perm("risks.risk.read")(_list_risk_requirements),
+    )
+
+    # -- list_requirement_risks: list risks linked to a given requirement --
+    def _list_requirement_risks(user, arguments):
+        """Return all risks linked to a specific compliance requirement.
+
+        Parameters
+        ----------
+        requirement_id : str (required)
+            UUID of the requirement whose linked risks should be returned.
+
+        Returns
+        -------
+        dict
+            ``{"requirement_id": "<uuid>", "total": <int>, "items": [...]}``.
+            Each item contains: id, reference, name, current_risk_level,
+            priority, and status.
+        """
+        req_id = arguments.get("requirement_id")
+        if not req_id:
+            raise InvalidParamsError("requirement_id is required.")
+        try:
+            req = Requirement.objects.get(pk=req_id)
+        except Requirement.DoesNotExist:
+            return _error("Requirement not found.")
+        risks = req.linked_risks.all()
+        items = [_serialize_obj(r, risk_link_fields) for r in risks]
+        return {"requirement_id": str(req_id), "total": len(items), "items": items}
+
+    server.register_tool(
+        "list_requirement_risks",
+        (
+            "List all risks linked to a compliance requirement. "
+            "Returns risk id, reference, name, current_risk_level, priority "
+            "and status for each linked risk."
+        ),
+        _obj_schema(
+            {"requirement_id": {"type": "string", "description": "UUID of the requirement"}},
+            required=["requirement_id"],
+        ),
+        require_perm("compliance.requirement.read")(_list_requirement_risks),
+    )
+
+    # -- link_risk_requirements: add requirements to a risk --
+    def _link_risk_requirements(user, arguments):
+        """Add one or more requirements to a risk's linked requirements.
+
+        This is an *additive* operation: existing links are preserved and
+        the supplied requirement_ids are added on top.
+
+        Parameters
+        ----------
+        risk_id : str (required)
+            UUID of the risk to link requirements to.
+        requirement_ids : list[str] (required)
+            List of requirement UUIDs to attach.
+
+        Returns
+        -------
+        dict
+            ``{"risk_id": "<uuid>", "added": <int>, "total": <int>}``
+            where *added* is the number of newly created links and *total*
+            is the resulting count of linked requirements.
+        """
+        risk_id = arguments.get("risk_id")
+        req_ids = arguments.get("requirement_ids", [])
+        if not risk_id:
+            raise InvalidParamsError("risk_id is required.")
+        if not req_ids:
+            raise InvalidParamsError("requirement_ids is required and must be a non-empty list.")
+        try:
+            risk = Risk.objects.get(pk=risk_id)
+        except Risk.DoesNotExist:
+            return _error("Risk not found.")
+        existing = set(str(pk) for pk in risk.linked_requirements.values_list("pk", flat=True))
+        reqs = Requirement.objects.filter(pk__in=req_ids)
+        if reqs.count() != len(req_ids):
+            found = set(str(r.pk) for r in reqs)
+            missing = [rid for rid in req_ids if rid not in found]
+            return _error(f"Requirements not found: {missing}")
+        risk.linked_requirements.add(*reqs)
+        added = len(set(req_ids) - existing)
+        total = risk.linked_requirements.count()
+        return {"risk_id": str(risk_id), "added": added, "total": total}
+
+    server.register_tool(
+        "link_risk_requirements",
+        (
+            "Link one or more compliance requirements to a risk. "
+            "This is additive — existing links are preserved. "
+            "Provide a risk_id and a list of requirement_ids to attach."
+        ),
+        _obj_schema(
+            {
+                "risk_id": {"type": "string", "description": "UUID of the risk"},
+                "requirement_ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "List of requirement UUIDs to link to the risk",
+                },
+            },
+            required=["risk_id", "requirement_ids"],
+        ),
+        require_perm("risks.risk.update")(_link_risk_requirements),
+    )
+
+    # -- unlink_risk_requirements: remove requirements from a risk --
+    def _unlink_risk_requirements(user, arguments):
+        """Remove one or more requirements from a risk's linked requirements.
+
+        Only the specified links are removed; other existing links remain
+        untouched.
+
+        Parameters
+        ----------
+        risk_id : str (required)
+            UUID of the risk to unlink requirements from.
+        requirement_ids : list[str] (required)
+            List of requirement UUIDs to detach.
+
+        Returns
+        -------
+        dict
+            ``{"risk_id": "<uuid>", "removed": <int>, "total": <int>}``
+            where *removed* is the number of links that were actually
+            deleted and *total* is the resulting count.
+        """
+        risk_id = arguments.get("risk_id")
+        req_ids = arguments.get("requirement_ids", [])
+        if not risk_id:
+            raise InvalidParamsError("risk_id is required.")
+        if not req_ids:
+            raise InvalidParamsError("requirement_ids is required and must be a non-empty list.")
+        try:
+            risk = Risk.objects.get(pk=risk_id)
+        except Risk.DoesNotExist:
+            return _error("Risk not found.")
+        existing = set(str(pk) for pk in risk.linked_requirements.values_list("pk", flat=True))
+        removed = len(existing & set(req_ids))
+        risk.linked_requirements.remove(*Requirement.objects.filter(pk__in=req_ids))
+        total = risk.linked_requirements.count()
+        return {"risk_id": str(risk_id), "removed": removed, "total": total}
+
+    server.register_tool(
+        "unlink_risk_requirements",
+        (
+            "Remove one or more compliance requirements from a risk. "
+            "Only the specified links are removed; other links are preserved. "
+            "Provide a risk_id and a list of requirement_ids to detach."
+        ),
+        _obj_schema(
+            {
+                "risk_id": {"type": "string", "description": "UUID of the risk"},
+                "requirement_ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "List of requirement UUIDs to unlink from the risk",
+                },
+            },
+            required=["risk_id", "requirement_ids"],
+        ),
+        require_perm("risks.risk.update")(_unlink_risk_requirements),
+    )
+
+    # -- set_risk_requirements: replace all linked requirements on a risk --
+    def _set_risk_requirements(user, arguments):
+        """Replace the entire set of linked requirements on a risk.
+
+        All previous links are removed and replaced by the supplied list.
+        Pass an empty list to clear all links.
+
+        Parameters
+        ----------
+        risk_id : str (required)
+            UUID of the risk whose requirements should be replaced.
+        requirement_ids : list[str] (required)
+            Complete list of requirement UUIDs that should be linked.
+            Pass ``[]`` to remove all links.
+
+        Returns
+        -------
+        dict
+            ``{"risk_id": "<uuid>", "total": <int>}`` with the resulting
+            number of linked requirements.
+        """
+        risk_id = arguments.get("risk_id")
+        req_ids = arguments.get("requirement_ids", [])
+        if not risk_id:
+            raise InvalidParamsError("risk_id is required.")
+        if not isinstance(req_ids, list):
+            raise InvalidParamsError("requirement_ids must be a list.")
+        try:
+            risk = Risk.objects.get(pk=risk_id)
+        except Risk.DoesNotExist:
+            return _error("Risk not found.")
+        if req_ids:
+            reqs = Requirement.objects.filter(pk__in=req_ids)
+            if reqs.count() != len(req_ids):
+                found = set(str(r.pk) for r in reqs)
+                missing = [rid for rid in req_ids if rid not in found]
+                return _error(f"Requirements not found: {missing}")
+            risk.linked_requirements.set(reqs)
+        else:
+            risk.linked_requirements.clear()
+        total = risk.linked_requirements.count()
+        return {"risk_id": str(risk_id), "total": total}
+
+    server.register_tool(
+        "set_risk_requirements",
+        (
+            "Replace the full set of linked requirements on a risk. "
+            "All previous links are removed and replaced by the supplied list. "
+            "Pass an empty requirement_ids list to clear all links."
+        ),
+        _obj_schema(
+            {
+                "risk_id": {"type": "string", "description": "UUID of the risk"},
+                "requirement_ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": (
+                        "Complete list of requirement UUIDs to link. "
+                        "Pass an empty list to remove all links."
+                    ),
+                },
+            },
+            required=["risk_id", "requirement_ids"],
+        ),
+        require_perm("risks.risk.update")(_set_risk_requirements),
+    )
+
 
 # ── Accounts Module ────────────────────────────────────────
 
