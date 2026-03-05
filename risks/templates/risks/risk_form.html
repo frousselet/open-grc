@@ -40,20 +40,20 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var assessmentSelect = document.getElementById('id_assessment');
-  if (!assessmentSelect) return;
-
-  assessmentSelect.addEventListener('change', function() {
-    var id = this.value;
-    if (!id) return;
-    fetch('{% url "risks:api-scale-choices" %}?assessment=' + id)
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        updateSelect('id_initial_likelihood', data.likelihood);
-        updateSelect('id_current_likelihood', data.likelihood);
-        updateSelect('id_initial_impact', data.impact);
-        updateSelect('id_current_impact', data.impact);
-      });
-  });
+  if (assessmentSelect) {
+    assessmentSelect.addEventListener('change', function() {
+      var id = this.value;
+      if (!id) return;
+      fetch('{% url "risks:api-scale-choices" %}?assessment=' + id)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          updateSelect('id_initial_likelihood', data.likelihood);
+          updateSelect('id_current_likelihood', data.likelihood);
+          updateSelect('id_initial_impact', data.impact);
+          updateSelect('id_current_impact', data.impact);
+        });
+    });
+  }
 
   function updateSelect(selectId, choices) {
     var sel = document.getElementById(selectId);
@@ -68,6 +68,26 @@ document.addEventListener('DOMContentLoaded', function() {
       sel.appendChild(opt);
     });
   }
+
+  /* ── Tom Select for linked requirements ── */
+  document.querySelectorAll('select[data-ts-requirements]').forEach(function(el) {
+    new TomSelect(el, {
+      plugins: ['remove_button'],
+      maxOptions: 200,
+      searchField: ['text'],
+      placeholder: '{% trans "Search and select requirements..." %}',
+      render: {
+        option: function(data, escape) {
+          return '<div style="padding:6px 10px;font-size:.85rem">' + escape(data.text) + '</div>';
+        },
+        item: function(data, escape) {
+          var parts = data.text.split(' : ');
+          var label = parts.length > 1 ? parts[0] : data.text;
+          return '<div title="' + escape(data.text) + '">' + escape(label) + '</div>';
+        }
+      }
+    });
+  });
 });
 </script>
 {% endblock %}

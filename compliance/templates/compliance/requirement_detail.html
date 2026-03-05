@@ -22,6 +22,7 @@
 <ul class="nav nav-tabs mb-3" role="tablist">
   <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#compliance_tab">{% trans "Compliance" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#linked_risks">{% trans "Linked risks" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#mappings">{% trans "Mappings" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#plans">{% trans "Action plans" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
@@ -69,6 +70,33 @@
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Evidence" %}</dt><dd class="col-sm-9">{{ requirement.compliance_evidence|default:"—"|linebreaksbr }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Gaps" %}</dt><dd class="col-sm-9">{{ requirement.compliance_gaps|default:"—"|linebreaksbr }}</dd>
         </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="linked_risks">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{% trans "Linked risks" %}</h5>
+        {% if requirement.linked_risks.all %}
+        <div class="table-responsive mt-2">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>{% trans "Reference" %}</th><th>{% trans "Name" %}</th><th>{% trans "Level" %}</th><th>{% trans "Status" %}</th></tr></thead>
+            <tbody>
+              {% for risk in requirement.linked_risks.all %}
+              <tr>
+                <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ risk.reference }}</td>
+                <td><a href="{% url 'risks:risk-detail' risk.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ risk.name }}</a></td>
+                <td style="font-size:.85rem;font-weight:600">{{ risk.current_risk_level|default:"—" }}</td>
+                <td style="font-size:.85rem">{{ risk.get_status_display }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p style="color:var(--text-muted);font-size:.85rem" class="mb-0 mt-2">{% trans "No linked risks." %}</p>
+        {% endif %}
       </div>
     </div>
   </div>

@@ -67,7 +67,7 @@ class RequirementSerializer(serializers.ModelSerializer):
             "compliance_evidence", "compliance_gaps",
             "last_assessment_date", "last_assessed_by",
             "owner", "priority", "target_date",
-            "linked_assets", "linked_stakeholder_expectations",
+            "linked_assets", "linked_stakeholder_expectations", "linked_risks",
             "order", "status", "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",

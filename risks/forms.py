@@ -143,6 +143,7 @@ class RiskForm(forms.ModelForm):
         fields = [
             "assessment", "name", "description", "risk_source",
             "affected_essential_assets", "affected_support_assets",
+            "linked_requirements",
             "impact_confidentiality", "impact_integrity", "impact_availability",
             "initial_likelihood", "initial_impact",
             "current_likelihood", "current_impact",
@@ -156,6 +157,7 @@ class RiskForm(forms.ModelForm):
             "risk_source": forms.Select(attrs=SELECT_ATTRS),
             "affected_essential_assets": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 5}),
             "affected_support_assets": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 5}),
+            "linked_requirements": forms.SelectMultiple(attrs={**SELECT_ATTRS, "data-ts-requirements": "true"}),
             "impact_confidentiality": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
             "impact_integrity": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
             "impact_availability": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),

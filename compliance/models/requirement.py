@@ -98,7 +98,7 @@ class Requirement(BaseModel):
         related_name="linked_requirements",
         verbose_name=_("Linked essential assets"),
     )
-    # linked_risks = models.ManyToManyField("risks.Risk", blank=True)
+    # linked_risks: reverse M2M from risks.Risk.linked_requirements
     linked_stakeholder_expectations = models.ManyToManyField(
         "context.StakeholderExpectation",
         blank=True,

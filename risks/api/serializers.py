@@ -100,7 +100,7 @@ class RiskSerializer(serializers.ModelSerializer):
         fields = [
             "id", "assessment", "reference", "name", "description",
             "risk_source", "source_entity_id", "source_entity_type",
-            "affected_essential_assets", "affected_support_assets",
+            "affected_essential_assets", "affected_support_assets", "linked_requirements",
             "impact_confidentiality", "impact_integrity", "impact_availability",
             "initial_likelihood", "initial_impact", "initial_risk_level",
             "current_likelihood", "current_impact", "current_risk_level",
