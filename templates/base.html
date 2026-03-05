@@ -1164,7 +1164,11 @@
 
     /* ── TomSelect: single-line truncation ────────────── */
     .ts-control .item { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
-    .ts-control { flex-wrap: nowrap !important; }
+    .ts-control { flex-wrap: nowrap !important; overflow: hidden; }
+    @media (max-width: 991.98px) {
+      .ts-control { flex-wrap: wrap !important; max-height: 6.5rem; overflow-y: auto !important; }
+      .ts-control .item { max-width: 45%; font-size: .78rem; }
+    }
 
     /* ── Jodit dark-theme overrides ───────────────────── */
     [data-bs-theme="dark"] .jodit-container,
@@ -1221,6 +1225,15 @@
       z-index: 1020;
       background: linear-gradient(to bottom, transparent, var(--bg-page, #f0f2f5) 35%);
       padding: 2.5rem 1rem .75rem 1rem;
+    }
+    @media (max-width: 991.98px) {
+      .form-actions-sticky {
+        position: sticky;
+        bottom: 0;
+        margin: 0 -1.125rem -.5rem;
+        padding: 1.25rem 1.125rem .75rem;
+        background: linear-gradient(to bottom, transparent 0%, var(--bg-page, #f0f2f5) 25%);
+      }
     }
 
     /* ── Smooth focus ring for accessibility ─────────── */
