@@ -7389,6 +7389,15 @@ msgstr "Aucun bien essentiel affecté."
 msgid "No affected support assets."
 msgstr "Aucun bien support affecté."
 
+#: risks/models/risk.py
+#: risks/templates/risks/risk_detail.html
+msgid "Linked requirements"
+msgstr "Exigences liées"
+
+#: risks/templates/risks/risk_detail.html
+msgid "No linked requirements."
+msgstr "Aucune exigence liée."
+
 #: risks/templates/risks/risk_detail.html:187
 msgid "This risk was identified through ISO 27005 analyses (threat × vulnerability)."
 msgstr "Ce risque a été identifié via des analyses ISO 27005 (menace × vulnérabilité)."
