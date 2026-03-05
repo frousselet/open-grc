@@ -79,3 +79,21 @@ python manage.py collectstatic --noinput  # Collect static files
 **i18n**: Bilingual support (English/French). Translation files are in `locale/`.
 
 **Frontend**: Server-rendered Django templates with Bootstrap 5.3, HTMX for dynamic partial updates, dark mode via OS preference.
+
+**View Mixins** (`core/mixins.py`, `accounts/mixins.py`):
+- `SortableListMixin` — server-side sorting with user preferences persisted in `User.table_preferences` JSON field
+- `CreatedByMixin` — auto-populates `created_by` on form save
+- `ApprovalContextMixin` / `ApprovableUpdateMixin` — two-step approval workflow (submit → approve)
+- `ScopeFilterMixin` — filters querysets by user's assigned scopes
+
+**MCP Server** (`mcp/`): JSON-RPC 2.0 server with 40+ tools across all modules. Tool permissions enforced via `@require_perm` decorator. OAuth 2.0 authorization flow for external clients.
+
+### CI/CD
+
+GitHub Actions (`.github/workflows/`):
+- `tests.yml` — runs `pytest -x -v --cov` on push to main and all PRs (Python 3.12)
+- `docker-publish.yml` — builds and pushes Docker image to Docker Hub on version tags (`v*`)
+
+### Feature Specifications
+
+Detailed specs live in `features_spec/` (M0–M4 markdown files covering users, context, assets, compliance, and risk modules). Reference these when implementing new features in a module.
