@@ -12,26 +12,26 @@
 <form method="post">
   {% csrf_token %}
   <div class="row">
-    {# ── Left column: core fields ────────────────────── #}
+    {# ── Colonne gauche : champs principaux ──────────── #}
     <div class="col-lg-8">
 
-      {# ── Identity ──────────────────────────────────── #}
+      {# ── Identité ──────────────────────────────────── #}
       <div class="card mb-4">
         <div class="card-header"><h6 class="mb-0"><i class="bi bi-card-text me-2" style="color:var(--accent)"></i>{% trans "Identity" %}</h6></div>
         <div class="card-body">
           <div class="row">
-            <div class="col-sm-8">
-              <div class="mb-3">
-                <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
-                {{ form.name }}
-                {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-              </div>
-            </div>
             <div class="col-sm-4">
               <div class="mb-3">
                 <label for="{{ form.requirement_number.id_for_label }}" class="form-label">{{ form.requirement_number.label }}</label>
                 {{ form.requirement_number }}
                 {% for error in form.requirement_number.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            </div>
+            <div class="col-sm-8">
+              <div class="mb-3">
+                <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
+                {{ form.name }}
+                {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
               </div>
             </div>
           </div>
@@ -77,7 +77,7 @@
         </div>
       </div>
 
-      {# ── Description ───────────────────────────────── #}
+      {# ── Contenu ───────────────────────────────────── #}
       <div class="card mb-4">
         <div class="card-header"><h6 class="mb-0"><i class="bi bi-text-paragraph me-2" style="color:var(--accent)"></i>{% trans "Content" %}</h6></div>
         <div class="card-body">
@@ -96,7 +96,7 @@
         </div>
       </div>
 
-      {# ── Applicability ─────────────────────────────── #}
+      {# ── Applicabilité ─────────────────────────────── #}
       <div class="card mb-4">
         <div class="card-header"><h6 class="mb-0"><i class="bi bi-check2-circle me-2" style="color:var(--accent)"></i>{% trans "Applicability" %}</h6></div>
         <div class="card-body">
@@ -115,7 +115,7 @@
         </div>
       </div>
 
-      {# ── Linked items ──────────────────────────────── #}
+      {# ── Relations ─────────────────────────────────── #}
       <div class="card mb-4">
         <div class="card-header"><h6 class="mb-0"><i class="bi bi-diagram-3 me-2" style="color:var(--accent)"></i>{% trans "Relationships" %}</h6></div>
         <div class="card-body">
@@ -140,10 +140,10 @@
 
     </div>
 
-    {# ── Right column: status, ownership, tags ───────── #}
+    {# ── Colonne droite : statut, responsabilité, tags ── #}
     <div class="col-lg-4">
 
-      {# ── Status ────────────────────────────────────── #}
+      {# ── Statut ────────────────────────────────────── #}
       <div class="card mb-4">
         <div class="card-header"><h6 class="mb-0"><i class="bi bi-info-circle me-2" style="color:var(--accent)"></i>{% trans "Status" %}</h6></div>
         <div class="card-body">
@@ -160,7 +160,7 @@
         </div>
       </div>
 
-      {# ── Ownership ─────────────────────────────────── #}
+      {# ── Responsabilité ────────────────────────────── #}
       <div class="card mb-4">
         <div class="card-header"><h6 class="mb-0"><i class="bi bi-person me-2" style="color:var(--accent)"></i>{% trans "Ownership" %}</h6></div>
         <div class="card-body">
@@ -177,7 +177,7 @@
         </div>
       </div>
 
-      {# ── Tags ──────────────────────────────────────── #}
+      {# ── Étiquettes ────────────────────────────────── #}
       <div class="card mb-4">
         <div class="card-header"><h6 class="mb-0"><i class="bi bi-tags me-2" style="color:var(--accent)"></i>{% trans "Tags" %}</h6></div>
         <div class="card-body">
@@ -200,7 +200,9 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  var tsConfig = {
+
+  /* ── Config pour les multi-select (risques, actifs, attentes) ── */
+  var tsMultiConfig = {
     plugins: ['remove_button'],
     maxOptions: 200,
     searchField: ['text'],
@@ -217,21 +219,37 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   document.querySelectorAll('select[data-ts-risks]').forEach(function(el) {
-    new TomSelect(el, Object.assign({}, tsConfig, {
+    new TomSelect(el, Object.assign({}, tsMultiConfig, {
       placeholder: '{% trans "Search and select risks..." %}'
     }));
   });
 
   document.querySelectorAll('select[data-ts-assets]').forEach(function(el) {
-    new TomSelect(el, Object.assign({}, tsConfig, {
+    new TomSelect(el, Object.assign({}, tsMultiConfig, {
       placeholder: '{% trans "Search and select assets..." %}'
     }));
   });
 
   document.querySelectorAll('select[data-ts-expectations]').forEach(function(el) {
-    new TomSelect(el, Object.assign({}, tsConfig, {
+    new TomSelect(el, Object.assign({}, tsMultiConfig, {
       placeholder: '{% trans "Search and select expectations..." %}'
     }));
+  });
+
+  /* ── Tom Select sur toutes les listes déroulantes simples ── */
+  var tsSimpleConfig = {
+    maxOptions: 200,
+    allowEmptyOption: true,
+    searchField: ['text'],
+    render: {
+      option: function(data, escape) {
+        return '<div style="padding:6px 10px;font-size:.85rem">' + escape(data.text) + '</div>';
+      }
+    }
+  };
+
+  document.querySelectorAll('form select:not(.tomselected):not([name="tags"]):not([data-ts-risks]):not([data-ts-assets]):not([data-ts-expectations]):not([multiple])').forEach(function(el) {
+    new TomSelect(el, tsSimpleConfig);
   });
 });
 </script>
