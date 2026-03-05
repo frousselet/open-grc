@@ -31,8 +31,8 @@
 
       <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Mapping type" %}</dt><dd class="col-sm-9">{{ mapping.get_mapping_type_display }}</dd>
       <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Coverage level" %}</dt><dd class="col-sm-9">{{ mapping.get_coverage_level_display|default:"—" }}</dd>
-      <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ mapping.description|default:"—"|linebreaksbr }}</dd>
-      <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ mapping.justification|default:"—"|linebreaksbr }}</dd>
+      <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ mapping.description|default:"—"|safe }}</dd>
+      <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ mapping.justification|default:"—"|safe }}</dd>
       <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Created by" %}</dt><dd class="col-sm-9">{{ mapping.created_by|default:"—" }}</dd>
       <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Creation date" %}</dt><dd class="col-sm-9">{{ mapping.created_at|date:"d/m/Y H:i" }}</dd>
     </dl>

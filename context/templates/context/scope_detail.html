@@ -53,7 +53,7 @@
             <a href="{% url 'context:scope-detail' scope.parent_scope.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ scope.parent_scope.name }}</a>
             {% else %}—{% endif %}
           </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ scope.description|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ scope.description|safe }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Approved by" %}</dt><dd class="col-sm-9">{{ scope.approved_by|default:"—" }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Approval date" %}</dt><dd class="col-sm-9">{{ scope.approved_at|default:"—" }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Effective date" %}</dt><dd class="col-sm-9">{{ scope.effective_date|default:"—" }}</dd>
@@ -84,9 +84,9 @@
     <div class="card">
       <div class="card-body">
         <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Geographic" %}</dt><dd class="col-sm-9">{{ scope.geographic_scope|default:"—"|linebreaksbr }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Organizational" %}</dt><dd class="col-sm-9">{{ scope.organizational_scope|default:"—"|linebreaksbr }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Technical" %}</dt><dd class="col-sm-9">{{ scope.technical_scope|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Geographic" %}</dt><dd class="col-sm-9">{{ scope.geographic_scope|default:"—"|safe }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Organizational" %}</dt><dd class="col-sm-9">{{ scope.organizational_scope|default:"—"|safe }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Technical" %}</dt><dd class="col-sm-9">{{ scope.technical_scope|default:"—"|safe }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Included sites" %}</dt>
           <dd class="col-sm-9">
             {% for site in scope.included_sites.all %}
@@ -111,8 +111,8 @@
     <div class="card">
       <div class="card-body">
         <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Boundaries and exclusions" %}</dt><dd class="col-sm-9">{{ scope.boundaries|default:"—"|linebreaksbr }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ scope.justification_exclusions|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Boundaries and exclusions" %}</dt><dd class="col-sm-9">{{ scope.boundaries|default:"—"|safe }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ scope.justification_exclusions|default:"—"|safe }}</dd>
         </dl>
       </div>
     </div>

@@ -33,7 +33,7 @@
         <dl class="row mb-0">
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Reference" %}</dt><dd class="col-sm-9">{{ action_plan.reference }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Name" %}</dt><dd class="col-sm-9">{{ action_plan.name }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ action_plan.description|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ action_plan.description|default:"—"|safe }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Related requirement" %}</dt>
           <dd class="col-sm-9">
             {% if action_plan.requirement %}
@@ -70,8 +70,8 @@
     <div class="card">
       <div class="card-body">
         <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Gap description" %}</dt><dd class="col-sm-9">{{ action_plan.gap_description|linebreaksbr }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Remediation plan" %}</dt><dd class="col-sm-9">{{ action_plan.remediation_plan|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Gap description" %}</dt><dd class="col-sm-9">{{ action_plan.gap_description|safe }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Remediation plan" %}</dt><dd class="col-sm-9">{{ action_plan.remediation_plan|safe }}</dd>
         </dl>
       </div>
     </div>

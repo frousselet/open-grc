@@ -49,7 +49,7 @@
           <dd class="col-sm-9">{{ indicator.get_format_display }}{% if indicator.unit %} ({{ indicator.unit }}){% endif %}</dd>
 
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt>
-          <dd class="col-sm-9">{{ indicator.description|default:"—"|linebreaksbr }}</dd>
+          <dd class="col-sm-9">{{ indicator.description|default:"—"|safe }}</dd>
 
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
           <dd class="col-sm-9">
