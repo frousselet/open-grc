@@ -140,13 +140,63 @@ def _get_handler(model_class, fields, scope_filtered=True):
     return handler
 
 
+def _coerce_field_value(model_class, field_name, value):
+    """Coerce a value to the correct Python type for a Django model field.
+
+    MCP arguments arrive as strings/JSON; this ensures integer fields get ints,
+    boolean fields get bools, and JSON fields get parsed dicts/lists.
+    """
+    if value is None:
+        return value
+    # Resolve the Django field object — field_name may be 'foo_id' for FK 'foo'
+    try:
+        field = model_class._meta.get_field(field_name)
+    except Exception:
+        # For _id suffixed FK fields, try the base field name
+        if field_name.endswith("_id"):
+            try:
+                field = model_class._meta.get_field(field_name[:-3])
+            except Exception:
+                return value
+        else:
+            return value
+    from django.db.models import (
+        IntegerField, PositiveIntegerField, PositiveSmallIntegerField,
+        SmallIntegerField, BigIntegerField, BooleanField, FloatField,
+        DecimalField, JSONField,
+    )
+    int_types = (IntegerField, PositiveIntegerField, PositiveSmallIntegerField,
+                 SmallIntegerField, BigIntegerField)
+    if isinstance(field, int_types):
+        try:
+            return int(value)
+        except (ValueError, TypeError):
+            return value
+    if isinstance(field, BooleanField):
+        if isinstance(value, str):
+            return value.lower() in ("true", "1", "yes")
+        return bool(value)
+    if isinstance(field, FloatField):
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return value
+    if isinstance(field, JSONField) and isinstance(value, str):
+        try:
+            return json.loads(value)
+        except (json.JSONDecodeError, TypeError):
+            return value
+    return value
+
+
 def _create_handler(model_class, writable_fields, scope_filtered=True):
     """Create a generic create handler."""
     def handler(user, arguments):
         kwargs = {}
         for field_name in writable_fields:
             if field_name in arguments:
-                kwargs[field_name] = arguments[field_name]
+                kwargs[field_name] = _coerce_field_value(
+                    model_class, field_name, arguments[field_name])
         if hasattr(model_class, "created_by"):
             kwargs["created_by"] = user
         try:
@@ -176,7 +226,8 @@ def _update_handler(model_class, writable_fields, scope_filtered=True):
                 return _error("Access denied: object is outside your allowed scopes.")
         for field_name in writable_fields:
             if field_name in arguments:
-                setattr(obj, field_name, arguments[field_name])
+                setattr(obj, field_name, _coerce_field_value(
+                    model_class, field_name, arguments[field_name]))
         # Reset approval on update (like ApprovableAPIMixin)
         if hasattr(obj, "is_approved"):
             obj.is_approved = False
@@ -953,8 +1004,10 @@ def _register_risks_tools(server):
                    filters=["status"],
                    field_overrides=_HTML_DESC)
 
-    rc_fields = ["id", "name", "description", "status", "created_at"]
-    rc_writable = ["name", "description", "status"]
+    rc_fields = ["id", "name", "description", "risk_matrix",
+                 "acceptance_threshold", "is_default", "status", "created_at"]
+    rc_writable = ["name", "description", "risk_matrix",
+                   "acceptance_threshold", "is_default", "status"]
 
     _register_crud(server, "risk_criteria", RiskCriteria, "risks.criteria",
                    list_fields=rc_fields,
@@ -962,7 +1015,31 @@ def _register_risks_tools(server):
                    search_fields=["name", "description"],
                    filters=["status"],
                    has_approve=False,
-                   field_overrides=_HTML_DESC)
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "risk_matrix": {
+                           "type": "object",
+                           "description": (
+                               "Risk matrix as JSON object mapping 'likelihood,impact' to risk level. "
+                               "Example for a 5x5 matrix: {\"1,1\": 1, \"1,2\": 2, ..., \"5,5\": 5}. "
+                               "Can be omitted — the matrix will be auto-built from scale levels "
+                               "and risk levels via rebuild_risk_matrix()."
+                           ),
+                       },
+                       "acceptance_threshold": {
+                           "type": "integer",
+                           "description": "Risk level at or below which risks are automatically acceptable (default 0).",
+                       },
+                       "is_default": {
+                           "type": "boolean",
+                           "description": "Whether this is the default risk criteria.",
+                       },
+                       "status": {
+                           "type": "string",
+                           "description": "Status of the criteria.",
+                           "enum": ["draft", "active", "archived"],
+                       },
+                   })
 
     # Scale levels (child of RiskCriteria, no approve)
     sl_fields = ["id", "criteria_id", "scale_type", "level", "name",
@@ -977,7 +1054,22 @@ def _register_risks_tools(server):
                    filters=["criteria_id", "scale_type"],
                    scope_filtered=False,
                    has_approve=False,
-                   field_overrides=_HTML_DESC)
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "criteria_id": {
+                           "type": "string",
+                           "description": "UUID of the parent RiskCriteria.",
+                       },
+                       "scale_type": {
+                           "type": "string",
+                           "description": "Type of scale.",
+                           "enum": ["likelihood", "impact"],
+                       },
+                       "level": {
+                           "type": "integer",
+                           "description": "Numeric level (e.g. 1-5). Must be unique per criteria + scale_type.",
+                       },
+                   })
 
     # Risk levels (child of RiskCriteria, no approve)
     rl_fields = ["id", "criteria_id", "level", "name", "description",
@@ -1067,32 +1159,101 @@ def _register_risks_tools(server):
                        "conditions": _html_field("Conditions"),
                    })
 
-    threat_fields = ["id", "reference", "name", "description", "type", "status", "created_at"]
-    threat_writable = ["name", "description", "type", "status"]
+    threat_fields = ["id", "reference", "name", "description", "type",
+                     "origin", "category", "typical_likelihood", "status", "created_at"]
+    threat_writable = ["name", "description", "type", "origin", "category",
+                       "typical_likelihood", "status"]
 
     _register_crud(server, "threat", Threat, "risks.threat",
                    list_fields=threat_fields,
                    writable_fields=threat_writable,
                    search_fields=["reference", "name", "description"],
                    filters=["type", "status"],
-                   field_overrides=_HTML_DESC)
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "type": {
+                           "type": "string",
+                           "description": "Threat type.",
+                           "enum": ["deliberate", "accidental", "environmental", "other"],
+                       },
+                       "origin": {
+                           "type": "string",
+                           "description": "Threat origin.",
+                           "enum": ["human_internal", "human_external", "natural", "technical", "other"],
+                       },
+                       "category": {
+                           "type": "string",
+                           "description": "Threat category.",
+                           "enum": [
+                               "malware", "social_engineering", "unauthorized_access",
+                               "denial_of_service", "data_breach", "physical_attack",
+                               "espionage", "fraud", "sabotage", "human_error",
+                               "system_failure", "network_failure", "power_failure",
+                               "natural_disaster", "fire", "water_damage", "theft",
+                               "vandalism", "supply_chain", "insider_threat",
+                               "ransomware", "apt",
+                           ],
+                       },
+                       "typical_likelihood": {
+                           "type": "integer",
+                           "description": "Typical likelihood level (integer, e.g. 1-5).",
+                       },
+                       "status": {
+                           "type": "string",
+                           "description": "Threat status.",
+                           "enum": ["active", "inactive"],
+                       },
+                   })
 
     vuln_fields = ["id", "reference", "name", "description", "category",
-                   "severity", "status", "created_at"]
-    vuln_writable = ["name", "description", "category", "severity", "status"]
+                   "severity", "status", "remediation_guidance", "created_at"]
+    vuln_writable = ["name", "description", "category", "severity", "status",
+                     "remediation_guidance"]
 
     _register_crud(server, "vulnerability", Vulnerability, "risks.vulnerability",
                    list_fields=vuln_fields,
                    writable_fields=vuln_writable,
                    search_fields=["reference", "name", "description"],
                    filters=["category", "severity", "status"],
-                   field_overrides=_HTML_DESC)
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "remediation_guidance": _html_field("Remediation guidance"),
+                       "category": {
+                           "type": "string",
+                           "description": "Vulnerability category.",
+                           "enum": [
+                               "configuration_weakness", "missing_patch", "design_flaw",
+                               "coding_error", "weak_authentication", "insufficient_logging",
+                               "lack_of_encryption", "physical_vulnerability",
+                               "organizational_weakness", "human_factor", "obsolescence",
+                               "insufficient_backup", "network_exposure",
+                               "third_party_dependency",
+                           ],
+                       },
+                       "severity": {
+                           "type": "string",
+                           "description": "Vulnerability severity.",
+                           "enum": ["low", "medium", "high", "critical"],
+                       },
+                       "status": {
+                           "type": "string",
+                           "description": "Vulnerability status.",
+                           "enum": ["identified", "confirmed", "mitigated", "accepted", "closed"],
+                       },
+                   })
 
     iso_fields = ["id", "assessment_id", "threat_id", "vulnerability_id",
-                  "risk_level", "combined_likelihood", "max_impact",
+                  "threat_likelihood", "vulnerability_exposure",
+                  "combined_likelihood",
+                  "impact_confidentiality", "impact_integrity",
+                  "impact_availability", "max_impact",
+                  "risk_level", "existing_controls", "risk_id",
                   "description", "created_at"]
     iso_writable = ["assessment_id", "threat_id", "vulnerability_id",
-                    "combined_likelihood", "max_impact", "description"]
+                    "threat_likelihood", "vulnerability_exposure",
+                    "impact_confidentiality", "impact_integrity",
+                    "impact_availability",
+                    "existing_controls", "risk_id", "description"]
 
     _register_crud(server, "iso27005_risk", ISO27005Risk, "risks.iso27005",
                    list_fields=iso_fields,
@@ -1101,7 +1262,36 @@ def _register_risks_tools(server):
                    filters=["assessment_id", "threat_id", "vulnerability_id"],
                    scope_filtered=False,
                    has_approve=False,
-                   field_overrides=_HTML_DESC)
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "existing_controls": _html_field("Existing controls"),
+                       "threat_likelihood": {
+                           "type": "integer",
+                           "description": (
+                               "Threat likelihood level (integer matching a scale level, e.g. 1-5). "
+                               "combined_likelihood is auto-computed as max(threat_likelihood, vulnerability_exposure)."
+                           ),
+                       },
+                       "vulnerability_exposure": {
+                           "type": "integer",
+                           "description": (
+                               "Vulnerability exposure level (integer matching a scale level, e.g. 1-5). "
+                               "combined_likelihood is auto-computed as max(threat_likelihood, vulnerability_exposure)."
+                           ),
+                       },
+                       "impact_confidentiality": {
+                           "type": "integer",
+                           "description": "Confidentiality impact level (integer matching a scale level, e.g. 1-5).",
+                       },
+                       "impact_integrity": {
+                           "type": "integer",
+                           "description": "Integrity impact level (integer matching a scale level, e.g. 1-5).",
+                       },
+                       "impact_availability": {
+                           "type": "integer",
+                           "description": "Availability impact level (integer matching a scale level, e.g. 1-5).",
+                       },
+                   })
 
     # ── Risk ↔ Requirement linking tools ──────────────────────
     #
