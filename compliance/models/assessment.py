@@ -148,7 +148,7 @@ class AssessmentResult(models.Model):
     class Meta:
         verbose_name = _("Assessment result")
         verbose_name_plural = _("Assessment results")
-        ordering = ["requirement__order"]
+        ordering = ["requirement__requirement_number"]
         constraints = [
             models.UniqueConstraint(
                 fields=["assessment", "requirement"],
