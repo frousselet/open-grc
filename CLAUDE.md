@@ -97,3 +97,10 @@ GitHub Actions (`.github/workflows/`):
 ### Feature Specifications
 
 Detailed specs live in `features_spec/` (M0–M4 markdown files covering users, context, assets, compliance, and risk modules). Reference these when implementing new features in a module.
+
+## Development Guidelines
+
+- **MCP tools are mandatory**: Every new feature must be exposed as MCP tools in `mcp/tools.py` with accurate docstrings and parameter descriptions. MCP is the primary integration surface for external clients.
+- **API endpoints are mandatory**: Every new feature must include corresponding DRF endpoints in the app's `api/` directory (serializers, viewsets, URL routes under `/api/v1/`).
+- **UI quality in both themes**: All templates and CSS must render correctly in light and dark mode. Test both themes when adding or modifying UI components.
+- **Audit-grade rigor**: This platform supports real compliance audits. Data integrity, traceability, and correctness are critical — approval workflows, versioning, history tracking, and permission checks must never be bypassed or degraded.
