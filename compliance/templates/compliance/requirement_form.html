@@ -191,7 +191,7 @@
   </div>
 
   {# ── Actions (barre fixe en bas) ──────────────── #}
-  <div class="d-flex gap-2 py-3 px-4" style="position:sticky;bottom:0;z-index:1020;background:var(--bg-body,#f8f9fa);border-top:1px solid var(--border-light)">
+  <div class="d-flex gap-2 pb-3 px-4" style="position:sticky;bottom:0;z-index:1020;background:linear-gradient(to bottom,transparent,var(--bg-body,#f0f2f5) 35%);padding-top:2.5rem">
     <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{% trans "Save" %}</button>
     <a href="{% url 'compliance:requirement-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
   </div>
