@@ -5,7 +5,7 @@ from django.urls import include, path
 
 from mcp.views import OAuthAuthorizeView, oauth_authorization_server_metadata
 
-from .views import CalendarEventsView, CalendarView, DashboardIndicatorsPartialView, GeneralDashboardView
+from .views import CalendarEventsView, CalendarView, DashboardIndicatorsPartialView, GeneralDashboardView, GlobalSearchView
 
 urlpatterns = [
     # OAuth 2.0 Authorization Server Metadata (RFC 8414) - must be at root
@@ -19,6 +19,7 @@ urlpatterns = [
     path("dashboard/indicators-partial/", DashboardIndicatorsPartialView.as_view(), name="dashboard-indicators-partial"),
     path("calendar/", CalendarView.as_view(), name="calendar"),
     path("api/calendar-events/", CalendarEventsView.as_view(), name="calendar-events"),
+    path("api/search/", GlobalSearchView.as_view(), name="global-search"),
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("helpers/", include("helpers.urls")),
