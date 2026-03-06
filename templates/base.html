@@ -596,6 +596,20 @@
     .card-body { padding: 1.375rem 1.5rem; }
     .card-title { font-weight: 600; color: var(--text-primary); font-size: .875rem; }
 
+    /* ── List group — theme-aware ──────────────────────── */
+    .list-group-item {
+      background-color: var(--surface-raised);
+      border-color: var(--border-light);
+      color: var(--text-primary);
+    }
+    .list-group-flush .list-group-item { background-color: transparent; }
+
+    /* ── Misc Bootstrap overrides for dark mode ────────── */
+    .btn-close { filter: var(--btn-close-filter, none); }
+    [data-bs-theme="dark"] .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+    .alert { color: var(--text-primary); }
+    code { color: var(--accent); }
+
     /* ── Stat cards (bento) ────────────────────────────── */
     .stat-card {
       border: 1px solid var(--border-light);
@@ -1067,6 +1081,7 @@
     .form-control, .form-select {
       border-radius: var(--radius-sm);
       border-color: var(--border-light);
+      background-color: var(--surface);
       font-size: .8125rem;
       padding: .5rem .875rem;
       transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
@@ -1075,6 +1090,12 @@
     .form-control:focus, .form-select:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-glow);
+      background-color: var(--surface);
+    }
+    .form-control:disabled, .form-control[readonly],
+    .form-select:disabled {
+      background-color: var(--surface-muted);
+      color: var(--text-secondary);
     }
     .form-control::placeholder { color: var(--text-muted); opacity: .7; }
     .form-label {
