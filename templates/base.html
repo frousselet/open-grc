@@ -343,6 +343,7 @@
     }
     .sidebar-collapsed .main-content {
       margin-left: calc(var(--sidebar-collapsed-w) + var(--sidebar-inset) * 2);
+      padding-right: calc(var(--sidebar-collapsed-w) + var(--sidebar-inset) * 2);
     }
     /* Brand: hide text, center icon */
     .sidebar-collapsed .sidebar-brand {
@@ -531,7 +532,7 @@
       padding: 2.5rem 3rem 4rem;
       min-height: 100vh;
       background: var(--bg-page);
-      transition: margin-left .35s var(--ease-out-expo);
+      transition: margin-left .35s var(--ease-out-expo), padding .35s var(--ease-out-expo);
     }
 
     /* ── Vertical rhythm ──────────────────────────────── */
