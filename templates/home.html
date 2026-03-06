@@ -759,7 +759,7 @@ window.initSparklines = function(root) {
    * Counts from `from` to `to` over `duration` ms.
    */
   function countTo(el, from, to, suffix, duration) {
-    duration = duration || 1800;
+    duration = duration || 2800;
     suffix = suffix || '';
     if (from === to) { el.textContent = to + suffix; return; }
     // Store target value so WS updates can read the real value
@@ -783,7 +783,7 @@ window.initSparklines = function(root) {
     var val = parseInt(el.textContent.trim(), 10);
     if (!isNaN(val) && val > 0) {
       el.textContent = '0' + suffix;
-      countTo(el, 0, val, suffix, 1800);
+      countTo(el, 0, val, suffix, 2800);
     }
   });
 
@@ -793,7 +793,7 @@ window.initSparklines = function(root) {
     var val = parseFloat(el.textContent.trim());
     if (!isNaN(val) && val !== 0 && /^\d/.test(el.textContent.trim())) {
       el.textContent = '0';
-      countTo(el, 0, Math.round(val), '', 1800);
+      countTo(el, 0, Math.round(val), '', 2800);
     }
   });
 
@@ -809,17 +809,20 @@ window.initSparklines = function(root) {
       el.textContent = newVal + suffix;
       return;
     }
-    countTo(el, oldVal, newVal, suffix, 1800);
+    countTo(el, oldVal, newVal, suffix, 2800);
   }
 
   function refreshIndicators() {
     var container = document.getElementById('ws-indicators-container');
     if (!container) return;
 
-    // Snapshot current indicator values
+    // Build a map: indicator ID → current value (as string)
     var oldValues = {};
     container.querySelectorAll('[data-indicator-id]').forEach(function(card) {
-      oldValues[card.getAttribute('data-indicator-id')] = card.getAttribute('data-indicator-value');
+      var id = card.getAttribute('data-indicator-id');
+      var val = card.getAttribute('data-indicator-value');
+      // Normalize: treat null/undefined/empty as ""
+      oldValues[id] = (val == null) ? '' : val;
     });
 
     fetch('{% url "dashboard-indicators-partial" %}', {
@@ -829,44 +832,44 @@ window.initSparklines = function(root) {
     .then(function(html) {
       if (!html) return;
 
-      // Parse new HTML off-screen
+      // Parse response off-screen
       var tmp = document.createElement('div');
       tmp.innerHTML = html;
 
-      // Only replace the specific card that changed
-      var replacedCount = 0;
+      // Collect all new cards first (avoid modifying DOM during iteration)
+      var updates = [];
       tmp.querySelectorAll('[data-indicator-id]').forEach(function(newCard) {
         var id = newCard.getAttribute('data-indicator-id');
-        var newVal = newCard.getAttribute('data-indicator-value');
-        var oldVal = oldValues[id];
+        var newVal = (newCard.getAttribute('data-indicator-value') == null) ? '' : newCard.getAttribute('data-indicator-value');
+        var oldVal = oldValues.hasOwnProperty(id) ? oldValues[id] : newVal;
 
-        // Skip if value didn't change
-        if (oldVal === undefined || oldVal === newVal) return;
-        replacedCount++;
-        console.log('[WS] Indicator changed:', id, 'old:', oldVal, '→ new:', newVal);
+        // Only queue cards whose value ACTUALLY changed
+        if (oldVal !== newVal) {
+          updates.push({ id: id, newCard: newCard, oldVal: oldVal, newVal: newVal });
+        }
+      });
 
-        var existingCard = container.querySelector('[data-indicator-id="' + id + '"]');
+      // Apply updates one by one
+      updates.forEach(function(u) {
+        var existingCard = container.querySelector('[data-indicator-id="' + u.id + '"]');
         if (!existingCard) return;
         var oldLink = existingCard.closest('a');
-        var newLink = newCard.closest('a');
+        var newLink = u.newCard.closest('a');
         if (!oldLink || !newLink) return;
 
-        // Swap just this one card
         oldLink.parentNode.replaceChild(newLink, oldLink);
         if (window.initSparklines) window.initSparklines(newLink);
 
         // Animate only this card's value
         var valEl = newLink.querySelector('.stat-card-value');
-        if (valEl && newVal && /[\d]/.test(newVal)) {
-          var oldNum = parseFloat(oldVal) || 0;
-          var newNum = Math.round(parseFloat(newVal));
+        if (valEl && u.newVal && /[\d]/.test(u.newVal)) {
+          var oldNum = parseFloat(u.oldVal) || 0;
+          var newNum = Math.round(parseFloat(u.newVal));
           if (!isNaN(newNum)) {
-            countTo(valEl, Math.round(oldNum), newNum, '', 1800);
+            countTo(valEl, Math.round(oldNum), newNum, '', 2800);
           }
         }
       });
-      if (replacedCount === 0) console.log('[WS] No indicator values changed');
-      else console.log('[WS] Replaced', replacedCount, 'indicator card(s)');
     })
     .catch(function() {});
   }
