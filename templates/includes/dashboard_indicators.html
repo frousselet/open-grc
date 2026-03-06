@@ -252,75 +252,7 @@
     modal.addEventListener('hidden.bs.modal', function() { location.reload(); });
   }
 
-  // ── SVG sparklines (color based on threshold) ──
-  document.querySelectorAll('.sparkline-slot').forEach(function(el) {
-    var raw = el.getAttribute('data-sparkline');
-    var trend = el.getAttribute('data-trend');
-    var isCritical = el.getAttribute('data-critical') === '1';
-    if (!raw) return;
-    var values = raw.split(',').map(Number).filter(function(v) { return !isNaN(v); });
-    if (values.length < 2) return;
-
-    var w = el.clientWidth || 160;
-    var h = 30;
-    var min = Math.min.apply(null, values);
-    var max = Math.max.apply(null, values);
-    var range = max - min || 1;
-    var pad = 2;
-
-    var points = values.map(function(v, i) {
-      var x = (i / (values.length - 1)) * w;
-      var y = h - pad - ((v - min) / range) * (h - pad * 2);
-      return x.toFixed(1) + ',' + y.toFixed(1);
-    });
-
-    // Color: red when critical, else green/red/accent based on trend
-    var color;
-    if (isCritical) {
-      color = '#ef4444';
-    } else if (trend === 'up') {
-      color = '#10b981';
-    } else if (trend === 'down') {
-      color = '#ef4444';
-    } else {
-      color = '#6366f1';
-    }
-
-    var uid = 'sp' + Math.random().toString(36).substr(2, 6);
-    var line = 'M' + points.join(' L');
-    var area = line + ' L' + w + ',' + h + ' L0,' + h + ' Z';
-
-    el.innerHTML =
-      '<svg width="' + w + '" height="' + h + '" style="display:block">' +
-        '<defs><linearGradient id="' + uid + '" x1="0" y1="0" x2="0" y2="1">' +
-          '<stop offset="0%" stop-color="' + color + '" stop-opacity=".22"/>' +
-          '<stop offset="100%" stop-color="' + color + '" stop-opacity=".02"/>' +
-        '</linearGradient></defs>' +
-        '<path class="sparkline-area" d="' + area + '" fill="url(#' + uid + ')"/>' +
-        '<path class="sparkline-line" d="' + line + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>' +
-      '</svg>';
-
-    // Animate: draw the line, then fade in the area
-    // Double rAF ensures the browser paints the initial state before
-    // triggering the transition (required for Safari).
-    var lineEl = el.querySelector('.sparkline-line');
-    var areaEl = el.querySelector('.sparkline-area');
-    if (lineEl) {
-      var len = lineEl.getTotalLength();
-      lineEl.style.strokeDasharray = len;
-      lineEl.style.strokeDashoffset = len;
-      areaEl.style.opacity = '0';
-      // Force layout so initial values are committed
-      lineEl.getBoundingClientRect();
-      lineEl.style.transition = 'stroke-dashoffset .8s ease-out';
-      areaEl.style.transition = 'opacity .5s ease-out .4s';
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          lineEl.style.strokeDashoffset = '0';
-          areaEl.style.opacity = '1';
-        });
-      });
-    }
-  });
+  // ── SVG sparklines — delegate to global function ──
+  if (window.initSparklines) window.initSparklines();
 })();
 </script>
