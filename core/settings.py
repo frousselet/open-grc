@@ -32,6 +32,15 @@ APP_VERSION = _detect_version()
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
+# Reverse proxy support — trust X-Forwarded-Proto so Django knows the
+# original request was HTTPS (required for secure cookies, CSRF, etc.).
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Origins allowed to make cross-site requests (needed behind a reverse proxy).
+# Example: CSRF_TRUSTED_ORIGINS=https://grc.example.com,https://grc.rslt.fr
+_trusted = os.environ.get("CSRF_TRUSTED_ORIGINS", "")
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in _trusted.split(",") if o.strip()]
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
