@@ -169,8 +169,8 @@ window.initSparklines = function(root) {
       lineEl.style.strokeDashoffset = len;
       areaEl.style.opacity = '0';
       lineEl.getBoundingClientRect();
-      lineEl.style.transition = 'stroke-dashoffset 1.6s ease-out';
-      areaEl.style.transition = 'opacity 1s ease-out .8s';
+      lineEl.style.transition = 'stroke-dashoffset .8s ease-out';
+      areaEl.style.transition = 'opacity .5s ease-out .4s';
       requestAnimationFrame(function() {
         requestAnimationFrame(function() {
           lineEl.style.strokeDashoffset = '0';
@@ -754,110 +754,18 @@ window.initSparklines = function(root) {
     }
   }
 
-  /**
-   * Slot-machine digit roll.
-   * Each digit spins through 2 full 0-9 cycles then lands on the target.
-   * Non-digit characters (., %, comma, space) stay static.
-   */
-  function slotRoll(el, targetText, opts) {
-    opts = opts || {};
-    var duration = opts.duration || 1500;
-    var color = opts.color || null;
-
-    var oldText = el.textContent.trim();
-    if (oldText === targetText) return;
-
-    // Measure one character's height from the live element
-    var measure = document.createElement('span');
-    measure.textContent = '0';
-    measure.style.visibility = 'hidden';
-    measure.style.position = 'absolute';
-    measure.style.font = getComputedStyle(el).font;
-    document.body.appendChild(measure);
-    var charH = measure.offsetHeight;
-    document.body.removeChild(measure);
-    if (!charH) charH = 24;
-
-    // Build columns
-    var chars = targetText.split('');
-    el.innerHTML = '';
-    el.style.display = 'inline-flex';
-    el.style.alignItems = 'flex-end';
-    var columns = [];
-
-    chars.forEach(function(ch) {
-      if (/\d/.test(ch)) {
-        var target = parseInt(ch, 10);
-        // 3 full cycles (0-9) + partial cycle landing on target
-        var strip = [];
-        for (var c = 0; c < 3; c++)
-          for (var d = 0; d <= 9; d++) strip.push(d);
-        for (var d2 = 0; d2 <= target; d2++) strip.push(d2);
-
-        var col = document.createElement('span');
-        col.style.display = 'inline-block';
-        col.style.overflow = 'hidden';
-        col.style.height = charH + 'px';
-        col.style.width = '0.65em';
-        col.style.textAlign = 'center';
-        col.style.lineHeight = charH + 'px';
-
-        var reel = document.createElement('span');
-        reel.style.display = 'block';
-        reel.innerHTML = strip.map(function(d) {
-          return '<span style="display:block;height:' + charH + 'px;line-height:' + charH + 'px">' + d + '</span>';
-        }).join('');
-        reel.style.transform = 'translateY(0)';
-
-        col.appendChild(reel);
-        el.appendChild(col);
-        columns.push({ reel: reel, steps: strip.length - 1 });
-      } else {
-        var stat = document.createElement('span');
-        stat.textContent = ch;
-        el.appendChild(stat);
-      }
-    });
-
-    // Trigger roll
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        columns.forEach(function(c, i) {
-          var stagger = (i / Math.max(chars.length, 1)) * (duration * 0.3);
-          var colDur = duration - stagger;
-          c.reel.style.transition = 'transform ' + colDur + 'ms cubic-bezier(.12,.8,.22,1)';
-          c.reel.style.transitionDelay = stagger + 'ms';
-          c.reel.style.transform = 'translateY(-' + (c.steps * charH) + 'px)';
-        });
-      });
-    });
-
-    // Color highlight
-    if (color) {
-      el.style.color = color;
-    }
-
-    // Clean up after animation completes
-    setTimeout(function() {
-      el.textContent = targetText;
-      el.style.display = '';
-      if (color) {
-        el.style.transition = 'color 1s ease';
-        setTimeout(function() { el.style.color = ''; el.style.transition = ''; }, 2000);
-      }
-    }, duration + 400);
-  }
-
   function animateValue(el, newVal) {
     var suffix = el.getAttribute('data-ws-suffix') || '';
     var oldVal = parseInt(el.textContent, 10);
-    var targetText = newVal + suffix;
     if (isNaN(oldVal) || oldVal === newVal) {
-      el.textContent = targetText;
+      el.textContent = newVal + suffix;
       return;
     }
-    var color = newVal > oldVal ? 'var(--success)' : 'var(--danger)';
-    slotRoll(el, targetText, { color: color });
+    // Brief highlight animation
+    el.style.transition = 'color .3s ease';
+    el.style.color = newVal > oldVal ? 'var(--success)' : 'var(--danger)';
+    el.textContent = newVal + suffix;
+    setTimeout(function() { el.style.color = ''; }, 1500);
   }
 
   function refreshIndicators() {
@@ -881,23 +789,21 @@ window.initSparklines = function(root) {
       // Re-init sparklines (scripts in innerHTML don't execute)
       if (window.initSparklines) window.initSparklines(container);
 
-      // Slot-roll animate cards whose values changed
+      // Highlight indicator cards whose values changed
       container.querySelectorAll('[data-indicator-id]').forEach(function(card) {
         var id = card.getAttribute('data-indicator-id');
         var newVal = card.getAttribute('data-indicator-value');
         if (oldValues.hasOwnProperty(id) && oldValues[id] !== newVal) {
           var valEl = card.querySelector('.stat-card-value');
-          if (valEl && newVal && /[\d]/.test(newVal)) {
+          if (valEl) {
             var oldNum = parseFloat(oldValues[id]);
             var newNum = parseFloat(newVal);
-            var color = 'var(--accent)';
-            if (!isNaN(oldNum) && !isNaN(newNum)) {
-              color = newNum > oldNum ? 'var(--success)' : newNum < oldNum ? 'var(--danger)' : 'var(--accent)';
-            }
-            // Save new text, put back old text, then roll to new
-            var newText = valEl.textContent.trim();
-            valEl.textContent = oldValues[id];
-            slotRoll(valEl, newText, { color: color, duration: 1800 });
+            var color = (!isNaN(oldNum) && !isNaN(newNum))
+              ? (newNum > oldNum ? 'var(--success)' : 'var(--danger)')
+              : 'var(--success)';
+            valEl.style.transition = 'color .3s ease';
+            valEl.style.color = color;
+            setTimeout(function() { valEl.style.color = ''; }, 1500);
           }
         }
       });
