@@ -2030,29 +2030,24 @@
   })();
   </script>
   <script>
-  /* ── Slot-machine count-up animation for stat cards ── */
+  /* ── Scroll-triggered animations: count-up numbers + progress bars ── */
   (function() {
     var DURATION = 600;
-    /* ease-out cubic */
-    function ease(t) { return 1 - Math.pow(1 - t, 3); }
+    function ease(t) { return 1 - Math.pow(1 - t, 3); } /* ease-out cubic */
 
+    /* ── Number count-up ─────────────────────────────── */
     function animateValue(el) {
       if (el.dataset.countAnimated) return;
       var original = el.textContent.trim();
 
-      /* Skip non-numeric: icons, dashes, empty */
       if (!original || /^[\u2014\u2013—-]$/.test(original)) return;
 
-      /* Split text into leading numeric part and trailing suffix.
-         Numeric part can contain digits, spaces (thousand sep), commas, dots.
-         Examples: "250 000", "1,5", "42", "12.34" */
       var numMatch = original.match(/^([\d\s\u00a0\u202f.,]+)([\s\S]*)$/);
       if (!numMatch) return;
 
       var numPart = numMatch[1].trimEnd();
       var suffix = numMatch[2];
 
-      /* Detect thousand separator: space variants, or comma/dot before 3-digit groups */
       var thousandSep = '';
       var m;
       if ((m = numPart.match(/\d([\s\u00a0\u202f])\d{3}/))) {
@@ -2061,12 +2056,9 @@
         thousandSep = ',';
       }
 
-      /* Strip thousand separators to get raw number */
       var raw = numPart;
       if (thousandSep) raw = raw.split(thousandSep).join('');
 
-      /* Handle decimal comma (French locale): "1,5" → "1.5"
-         Only if comma is NOT the thousand separator */
       var decimalSep = '.';
       if (thousandSep !== ',' && /,\d{1,2}$/.test(raw)) {
         decimalSep = ',';
@@ -2076,7 +2068,6 @@
       var target = parseFloat(raw);
       if (isNaN(target) || target === 0) return;
 
-      /* Determine decimal places from original numeric part */
       var decPos = numPart.lastIndexOf(decimalSep);
       var decimals = 0;
       if (decimalSep === ',' && decPos !== -1) {
@@ -2093,7 +2084,6 @@
         var progress = Math.min((ts - start) / DURATION, 1);
         var current = target * ease(progress);
 
-        /* Format the number to match original style */
         var intPart, decPart = '';
         if (decimals) {
           var fixed = current.toFixed(decimals);
@@ -2104,7 +2094,6 @@
           intPart = Math.round(current).toString();
         }
 
-        /* Re-add thousand separators */
         if (thousandSep) {
           intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandSep);
         }
@@ -2114,36 +2103,83 @@
         if (progress < 1) {
           requestAnimationFrame(step);
         } else {
-          /* Guarantee exact original text at the end */
           el.textContent = original;
         }
       }
       requestAnimationFrame(step);
     }
 
-    function initCountUp() {
-      var els = document.querySelectorAll('.stat-card-value:not([data-count-animated])');
-      if (!els.length) return;
+    /* ── Progress bar grow ───────────────────────────── */
+    function prepareBar(bar) {
+      if (bar.dataset.barPrepared) return;
+      var targetWidth = bar.style.width;
+      if (!targetWidth) return;
+      bar.dataset.barTarget = targetWidth;
+      bar.dataset.barPrepared = '1';
+      /* Start at zero — disable CSS transition so it doesn't flash */
+      bar.style.transition = 'none';
+      bar.style.width = '0%';
+    }
 
-      if ('IntersectionObserver' in window) {
-        var observer = new IntersectionObserver(function(entries) {
-          entries.forEach(function(entry) {
-            if (entry.isIntersecting) {
-              animateValue(entry.target);
-              observer.unobserve(entry.target);
-            }
-          });
-        }, { threshold: 0.1 });
-        els.forEach(function(el) { observer.observe(el); });
-      } else {
-        els.forEach(animateValue);
+    function animateBar(bar) {
+      if (bar.dataset.barAnimated) return;
+      var targetWidth = bar.dataset.barTarget;
+      if (!targetWidth) return;
+      bar.dataset.barAnimated = '1';
+
+      /* Force layout so browser registers the 0% state */
+      void bar.offsetWidth;
+
+      /* Re-enable transition and set target */
+      bar.style.transition = 'width ' + (DURATION / 1000) + 's cubic-bezier(.16,1,.3,1)';
+      bar.style.width = targetWidth;
+    }
+
+    /* ── Unified IntersectionObserver ────────────────── */
+    function initAnimations() {
+      var countEls = document.querySelectorAll('.stat-card-value:not([data-count-animated])');
+      var bars = document.querySelectorAll('.progress-bar[style*="width"]:not([data-bar-prepared])');
+
+      /* Immediately prepare bars (set width to 0) before they're painted */
+      bars.forEach(prepareBar);
+
+      /* Also find the percentage labels next to progress bars inside .fw-bar
+         (objective progression, compliance by framework) and the hero display-4 */
+      var fwBarLabels = document.querySelectorAll('.fw-bar [style*="tabular-nums"]:not([data-count-animated])');
+      var heroLabel = document.querySelectorAll('.hero-section .display-4:not([data-count-animated])');
+
+      if (!('IntersectionObserver' in window)) {
+        countEls.forEach(animateValue);
+        bars.forEach(animateBar);
+        fwBarLabels.forEach(animateValue);
+        heroLabel.forEach(animateValue);
+        return;
       }
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (!entry.isIntersecting) return;
+          var el = entry.target;
+          observer.unobserve(el);
+
+          if (el.classList.contains('progress-bar')) {
+            animateBar(el);
+          } else {
+            animateValue(el);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      countEls.forEach(function(el) { observer.observe(el); });
+      bars.forEach(function(el) { observer.observe(el); });
+      fwBarLabels.forEach(function(el) { observer.observe(el); });
+      heroLabel.forEach(function(el) { observer.observe(el); });
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initCountUp);
+      document.addEventListener('DOMContentLoaded', initAnimations);
     } else {
-      initCountUp();
+      initAnimations();
     }
   })();
   </script>
