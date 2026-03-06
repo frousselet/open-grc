@@ -1368,6 +1368,17 @@
       .user-header-bubble .user-avatar-btn { width: 2rem; height: 2rem; font-size: .75rem; }
     }
 
+    /* ── Modals — theme-aware ─────────────────────────── */
+    .modal-content {
+      background: var(--surface-raised);
+      border: 1px solid var(--border-light);
+      color: var(--text-primary);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+    }
+    .modal-header { border-bottom-color: var(--border-light); }
+    .modal-footer { border-top-color: var(--border-light); }
+
     /* ── About modal ───────────────────────────────────── */
     .about-modal-content { text-align: center; }
     .about-modal-content .about-logo { font-size: 2.5rem; color: var(--accent); margin-bottom: .75rem; }
