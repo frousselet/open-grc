@@ -554,7 +554,7 @@ class ActionLogListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             has_approval = hasattr(hist_model, "is_approved")
             if filter_approval and not has_approval:
                 continue
-            qs = hist_model.objects.all()
+            qs = hist_model.objects.select_related("history_user").all()
             if user_filter:
                 qs = qs.filter(history_user_id=user_filter)
             if action and not filter_approval:
@@ -588,7 +588,10 @@ class ActionLogListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             app, model_label = labels.get(type(entry), ("", ""))
             entry.app_label = MODULE_LABELS.get(app, app)
             entry.model_label = model_label
-            entry.object_repr = str(entry)
+            try:
+                entry.object_repr = str(entry)
+            except Exception:
+                entry.object_repr = "—"
 
             # Detect approval
             approval_status = _detect_approval(entry)
