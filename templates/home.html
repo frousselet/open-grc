@@ -755,134 +755,64 @@ window.initSparklines = function(root) {
   }
 
   /**
-   * Digit-roll animation (slot machine style).
-   * Each digit in targetText scrolls through 3 full 0–9 cycles before
-   * landing on the final value. Non-digit chars are shown statically.
-   *
-   * @param {Element} el        — the DOM element to animate
-   * @param {string}  fromText  — starting text (shown briefly before roll)
-   * @param {string}  toText    — final text after animation
-   * @param {number}  duration  — total animation time in ms (default 1500)
+   * Counting animation: smoothly rolls a number from oldVal to newVal.
+   * Uses easeOutCubic so it starts fast and decelerates naturally.
    */
-  function digitRoll(el, fromText, toText, duration) {
-    duration = duration || 1500;
-    if (fromText === toText) return;
-
-    // Measure one character height using the element's own font
-    var cs = getComputedStyle(el);
-    var probe = document.createElement('span');
-    probe.textContent = '0';
-    probe.style.cssText = 'position:absolute;visibility:hidden;font:' + cs.font + ';line-height:' + cs.lineHeight;
-    document.body.appendChild(probe);
-    var charH = probe.offsetHeight || 28;
-    document.body.removeChild(probe);
-
-    // Build columns
-    var chars = toText.split('');
-    el.innerHTML = '';
-    el.style.display = 'inline-flex';
-    el.style.alignItems = 'baseline';
-    el.style.overflow = 'hidden';
-    var columns = [];
-
-    chars.forEach(function(ch) {
-      if (/\d/.test(ch)) {
-        var target = parseInt(ch, 10);
-        // Build reel: 3 full cycles + partial landing on target
-        var reel = [];
-        for (var c = 0; c < 3; c++)
-          for (var d = 0; d <= 9; d++) reel.push(d);
-        for (var d2 = 0; d2 <= target; d2++) reel.push(d2);
-
-        var col = document.createElement('span');
-        col.style.cssText = 'display:inline-block;overflow:hidden;height:' + charH + 'px;width:0.62em;text-align:center';
-
-        var strip = document.createElement('span');
-        strip.style.cssText = 'display:block;will-change:transform';
-        for (var r = 0; r < reel.length; r++) {
-          var cell = document.createElement('span');
-          cell.style.cssText = 'display:block;height:' + charH + 'px;line-height:' + charH + 'px';
-          cell.textContent = reel[r];
-          strip.appendChild(cell);
-        }
-
-        col.appendChild(strip);
-        el.appendChild(col);
-        columns.push({ strip: strip, steps: reel.length - 1 });
-      } else {
-        var s = document.createElement('span');
-        s.textContent = ch;
-        el.appendChild(s);
-      }
-    });
-
-    // Animate: stagger each column so right digits settle last
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        var n = Math.max(columns.length, 1);
-        columns.forEach(function(c, i) {
-          var delay = (i / n) * (duration * 0.25);
-          var dur = duration - delay;
-          c.strip.style.transition = 'transform ' + dur + 'ms cubic-bezier(.15,.82,.25,1)';
-          c.strip.style.transitionDelay = delay + 'ms';
-          c.strip.style.transform = 'translateY(-' + (c.steps * charH) + 'px)';
-        });
-      });
-    });
-
-    // Clean up: replace DOM columns with plain text
-    setTimeout(function() {
-      el.textContent = toText;
-      el.style.display = '';
-      el.style.overflow = '';
-    }, duration + 300);
+  function countUp(el, from, to, suffix, duration) {
+    duration = duration || 1200;
+    suffix = suffix || '';
+    if (from === to) { el.textContent = to + suffix; return; }
+    var start = null;
+    var diff = to - from;
+    function step(ts) {
+      if (!start) start = ts;
+      var t = Math.min((ts - start) / duration, 1);
+      // easeOutCubic
+      var ease = 1 - Math.pow(1 - t, 3);
+      var current = Math.round(from + diff * ease);
+      el.textContent = current + suffix;
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
   }
 
-  /**
-   * Run digit-roll on all data-ws-field elements and indicator values.
-   * Called on page load and can be called after WS indicator refresh.
-   */
-  function rollAllCounters() {
-    document.querySelectorAll('[data-ws-field]').forEach(function(el) {
-      var text = el.textContent.trim();
-      if (text && /\d/.test(text)) {
-        digitRoll(el, '0', text, 1500);
-      }
-    });
-  }
+  // Animate all counters on page load (roll from 0 to value)
+  document.querySelectorAll('[data-ws-field]').forEach(function(el) {
+    var suffix = el.getAttribute('data-ws-suffix') || '';
+    var text = el.textContent.trim();
+    var val = parseInt(text, 10);
+    if (!isNaN(val) && val > 0) {
+      el.textContent = '0' + suffix;
+      countUp(el, 0, val, suffix, 1200);
+    }
+  });
 
-  function rollIndicatorValues(root) {
-    (root || document).querySelectorAll('.stat-card-value').forEach(function(el) {
-      // Skip elements that also have data-ws-field (already animated by rollAllCounters)
-      if (el.hasAttribute('data-ws-field')) return;
-      var text = el.textContent.trim();
-      if (text && /\d/.test(text)) {
-        digitRoll(el, '0', text, 1500);
-      }
-    });
-  }
-
-  // Run on page load
-  rollAllCounters();
-  rollIndicatorValues();
+  // Animate indicator values on page load
+  document.querySelectorAll('#ws-indicators-container .stat-card-value').forEach(function(el) {
+    if (el.hasAttribute('data-ws-field')) return;
+    var text = el.textContent.trim();
+    var val = parseFloat(text);
+    if (!isNaN(val) && val !== 0 && /^\d/.test(text)) {
+      el.textContent = '0';
+      countUp(el, 0, val, '', 1200);
+    }
+  });
 
   function animateValue(el, newVal) {
     var suffix = el.getAttribute('data-ws-suffix') || '';
     var oldVal = parseInt(el.textContent, 10);
-    var newText = newVal + suffix;
-    var oldText = el.textContent.trim();
     if (isNaN(oldVal) || oldVal === newVal) {
-      el.textContent = newText;
+      el.textContent = newVal + suffix;
       return;
     }
-    digitRoll(el, oldText, newText, 1500);
+    countUp(el, oldVal, newVal, suffix, 1200);
   }
 
   function refreshIndicators() {
     var container = document.getElementById('ws-indicators-container');
     if (!container) return;
 
-    // Snapshot current indicator values before fetching
+    // Snapshot current indicator values and card HTML
     var oldValues = {};
     container.querySelectorAll('[data-indicator-id]').forEach(function(card) {
       oldValues[card.getAttribute('data-indicator-id')] = card.getAttribute('data-indicator-value');
@@ -894,20 +824,42 @@ window.initSparklines = function(root) {
     .then(function(r) { return r.ok ? r.text() : null; })
     .then(function(html) {
       if (!html) return;
-      container.innerHTML = html;
 
-      // Re-init sparklines (scripts in innerHTML don't execute)
-      if (window.initSparklines) window.initSparklines(container);
+      // Parse new HTML in a temp container
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
 
-      // Digit-roll animate indicator cards whose values changed
-      container.querySelectorAll('[data-indicator-id]').forEach(function(card) {
-        var id = card.getAttribute('data-indicator-id');
-        var newVal = card.getAttribute('data-indicator-value');
-        if (oldValues.hasOwnProperty(id) && oldValues[id] !== newVal) {
-          var valEl = card.querySelector('.stat-card-value');
-          if (valEl && newVal && /[\d]/.test(newVal)) {
-            var newText = valEl.textContent.trim();
-            digitRoll(valEl, oldValues[id] || '0', newText, 1500);
+      // Only swap cards whose values actually changed
+      var anyChanged = false;
+      tmp.querySelectorAll('[data-indicator-id]').forEach(function(newCard) {
+        var id = newCard.getAttribute('data-indicator-id');
+        var newVal = newCard.getAttribute('data-indicator-value');
+        var oldVal = oldValues[id];
+        if (oldVal !== undefined && oldVal !== newVal) {
+          anyChanged = true;
+          // Find the existing card and replace it
+          var existing = container.querySelector('[data-indicator-id="' + id + '"]');
+          if (existing) {
+            var oldLink = existing.closest('a');
+            var newLink = newCard.closest('a');
+            if (oldLink && newLink) {
+              oldLink.parentNode.replaceChild(newLink, oldLink);
+              // Init sparkline on the new card
+              var sparkSlot = newLink.querySelector('.sparkline-slot');
+              if (sparkSlot && window.initSparklines) {
+                window.initSparklines(newLink);
+              }
+              // Animate the value
+              var valEl = newLink.querySelector('.stat-card-value');
+              if (valEl && newVal && /[\d]/.test(newVal)) {
+                var oldNum = parseFloat(oldVal);
+                var newNum = parseFloat(newVal);
+                if (!isNaN(oldNum) && !isNaN(newNum)) {
+                  valEl.textContent = oldVal;
+                  countUp(valEl, oldNum, newNum, '', 1200);
+                }
+              }
+            }
           }
         }
       });
@@ -923,7 +875,6 @@ window.initSparklines = function(root) {
         animateValue(el, data[key]);
       }
     });
-    // Also refresh the indicators section
     refreshIndicators();
   }
 
