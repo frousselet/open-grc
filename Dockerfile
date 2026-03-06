@@ -28,11 +28,9 @@ RUN python manage.py collectstatic --noinput 2>/dev/null || true
 EXPOSE 8000
 
 ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["gunicorn", "core.wsgi:application", \
-     "--bind", "0.0.0.0:8000", \
-     "--worker-tmp-dir", "/dev/shm", \
+CMD ["uvicorn", "core.asgi:application", \
+     "--host", "0.0.0.0", "--port", "8000", \
      "--workers", "3", \
-     "--timeout", "120", \
-     "--preload", \
+     "--proxy-headers", \
      "--forwarded-allow-ips", "*", \
-     "--access-logfile", "-"]
+     "--access-log"]

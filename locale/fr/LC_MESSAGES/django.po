@@ -7976,3 +7976,15 @@ msgstr "Rechercher et sélectionner des actifs…"
 #: compliance/templates/compliance/requirement_form.html
 msgid "Search and select expectations..."
 msgstr "Rechercher et sélectionner des attentes…"
+
+#: templates/home.html
+msgid "Real-time connection"
+msgstr "Connexion temps réel"
+
+#: templates/home.html
+msgid "Connected"
+msgstr "Connecté"
+
+#: templates/home.html
+msgid "Reconnecting..."
+msgstr "Reconnexion…"
