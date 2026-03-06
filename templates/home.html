@@ -754,21 +754,128 @@ window.initSparklines = function(root) {
     }
   }
 
+  /**
+   * Digit-roll animation (slot machine style).
+   * Each digit in targetText scrolls through 3 full 0–9 cycles before
+   * landing on the final value. Non-digit chars are shown statically.
+   *
+   * @param {Element} el        — the DOM element to animate
+   * @param {string}  fromText  — starting text (shown briefly before roll)
+   * @param {string}  toText    — final text after animation
+   * @param {number}  duration  — total animation time in ms (default 1500)
+   */
+  function digitRoll(el, fromText, toText, duration) {
+    duration = duration || 1500;
+    if (fromText === toText) return;
+
+    // Measure one character height using the element's own font
+    var cs = getComputedStyle(el);
+    var probe = document.createElement('span');
+    probe.textContent = '0';
+    probe.style.cssText = 'position:absolute;visibility:hidden;font:' + cs.font + ';line-height:' + cs.lineHeight;
+    document.body.appendChild(probe);
+    var charH = probe.offsetHeight || 28;
+    document.body.removeChild(probe);
+
+    // Build columns
+    var chars = toText.split('');
+    el.innerHTML = '';
+    el.style.display = 'inline-flex';
+    el.style.alignItems = 'baseline';
+    el.style.overflow = 'hidden';
+    var columns = [];
+
+    chars.forEach(function(ch) {
+      if (/\d/.test(ch)) {
+        var target = parseInt(ch, 10);
+        // Build reel: 3 full cycles + partial landing on target
+        var reel = [];
+        for (var c = 0; c < 3; c++)
+          for (var d = 0; d <= 9; d++) reel.push(d);
+        for (var d2 = 0; d2 <= target; d2++) reel.push(d2);
+
+        var col = document.createElement('span');
+        col.style.cssText = 'display:inline-block;overflow:hidden;height:' + charH + 'px;width:0.62em;text-align:center';
+
+        var strip = document.createElement('span');
+        strip.style.cssText = 'display:block;will-change:transform';
+        for (var r = 0; r < reel.length; r++) {
+          var cell = document.createElement('span');
+          cell.style.cssText = 'display:block;height:' + charH + 'px;line-height:' + charH + 'px';
+          cell.textContent = reel[r];
+          strip.appendChild(cell);
+        }
+
+        col.appendChild(strip);
+        el.appendChild(col);
+        columns.push({ strip: strip, steps: reel.length - 1 });
+      } else {
+        var s = document.createElement('span');
+        s.textContent = ch;
+        el.appendChild(s);
+      }
+    });
+
+    // Animate: stagger each column so right digits settle last
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        var n = Math.max(columns.length, 1);
+        columns.forEach(function(c, i) {
+          var delay = (i / n) * (duration * 0.25);
+          var dur = duration - delay;
+          c.strip.style.transition = 'transform ' + dur + 'ms cubic-bezier(.15,.82,.25,1)';
+          c.strip.style.transitionDelay = delay + 'ms';
+          c.strip.style.transform = 'translateY(-' + (c.steps * charH) + 'px)';
+        });
+      });
+    });
+
+    // Clean up: replace DOM columns with plain text
+    setTimeout(function() {
+      el.textContent = toText;
+      el.style.display = '';
+      el.style.overflow = '';
+    }, duration + 300);
+  }
+
+  /**
+   * Run digit-roll on all data-ws-field elements and indicator values.
+   * Called on page load and can be called after WS indicator refresh.
+   */
+  function rollAllCounters() {
+    document.querySelectorAll('[data-ws-field]').forEach(function(el) {
+      var text = el.textContent.trim();
+      if (text && /\d/.test(text)) {
+        digitRoll(el, '0', text, 1500);
+      }
+    });
+  }
+
+  function rollIndicatorValues(root) {
+    (root || document).querySelectorAll('.stat-card-value').forEach(function(el) {
+      // Skip elements that also have data-ws-field (already animated by rollAllCounters)
+      if (el.hasAttribute('data-ws-field')) return;
+      var text = el.textContent.trim();
+      if (text && /\d/.test(text)) {
+        digitRoll(el, '0', text, 1500);
+      }
+    });
+  }
+
+  // Run on page load
+  rollAllCounters();
+  rollIndicatorValues();
+
   function animateValue(el, newVal) {
     var suffix = el.getAttribute('data-ws-suffix') || '';
     var oldVal = parseInt(el.textContent, 10);
+    var newText = newVal + suffix;
+    var oldText = el.textContent.trim();
     if (isNaN(oldVal) || oldVal === newVal) {
-      el.textContent = newVal + suffix;
+      el.textContent = newText;
       return;
     }
-    // Highlight animation
-    el.style.transition = 'color .5s ease';
-    el.style.color = newVal > oldVal ? 'var(--success)' : 'var(--danger)';
-    el.textContent = newVal + suffix;
-    setTimeout(function() {
-      el.style.transition = 'color 1.5s ease';
-      el.style.color = '';
-    }, 2500);
+    digitRoll(el, oldText, newText, 1500);
   }
 
   function refreshIndicators() {
@@ -792,24 +899,15 @@ window.initSparklines = function(root) {
       // Re-init sparklines (scripts in innerHTML don't execute)
       if (window.initSparklines) window.initSparklines(container);
 
-      // Highlight indicator cards whose values changed
+      // Digit-roll animate indicator cards whose values changed
       container.querySelectorAll('[data-indicator-id]').forEach(function(card) {
         var id = card.getAttribute('data-indicator-id');
         var newVal = card.getAttribute('data-indicator-value');
         if (oldValues.hasOwnProperty(id) && oldValues[id] !== newVal) {
           var valEl = card.querySelector('.stat-card-value');
-          if (valEl) {
-            var oldNum = parseFloat(oldValues[id]);
-            var newNum = parseFloat(newVal);
-            var color = (!isNaN(oldNum) && !isNaN(newNum))
-              ? (newNum > oldNum ? 'var(--success)' : 'var(--danger)')
-              : 'var(--success)';
-            valEl.style.transition = 'color .5s ease';
-            valEl.style.color = color;
-            setTimeout(function() {
-              valEl.style.transition = 'color 1.5s ease';
-              valEl.style.color = '';
-            }, 2500);
+          if (valEl && newVal && /[\d]/.test(newVal)) {
+            var newText = valEl.textContent.trim();
+            digitRoll(valEl, oldValues[id] || '0', newText, 1500);
           }
         }
       });
@@ -825,7 +923,7 @@ window.initSparklines = function(root) {
         animateValue(el, data[key]);
       }
     });
-    // Also refresh the indicators section (sparklines, values, trends)
+    // Also refresh the indicators section
     refreshIndicators();
   }
 
