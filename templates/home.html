@@ -755,35 +755,65 @@ window.initSparklines = function(root) {
   }
 
   /**
-   * Counting animation: smoothly rolls a number from oldVal to newVal.
-   * Uses easeOutCubic so it starts fast and decelerates naturally.
+   * Slot-reel animation: rapidly cycles through random numbers then
+   * decelerates and lands on the final value. Works even for small
+   * changes (e.g. 3→4) because the reel always spins through many values.
+   *
+   * @param {Element} el       — DOM element to animate
+   * @param {number}  target   — final number to land on
+   * @param {string}  suffix   — text appended after number (e.g. "%")
+   * @param {number}  duration — total animation time in ms
    */
-  function countUp(el, from, to, suffix, duration) {
-    duration = duration || 1200;
+  function spinReel(el, target, suffix, duration) {
+    duration = duration || 2000;
     suffix = suffix || '';
-    if (from === to) { el.textContent = to + suffix; return; }
+
+    // Determine the range of numbers to cycle through
+    var magnitude = Math.max(Math.abs(target), 10);
+    var totalFrames = Math.round(duration / 16); // ~60fps
     var start = null;
-    var diff = to - from;
+
     function step(ts) {
       if (!start) start = ts;
-      var t = Math.min((ts - start) / duration, 1);
-      // easeOutCubic
-      var ease = 1 - Math.pow(1 - t, 3);
-      var current = Math.round(from + diff * ease);
-      el.textContent = current + suffix;
-      if (t < 1) requestAnimationFrame(step);
+      var elapsed = ts - start;
+      var t = Math.min(elapsed / duration, 1);
+
+      if (t >= 1) {
+        // Final: show exact target
+        el.textContent = target + suffix;
+        return;
+      }
+
+      // easeOutQuart — fast start, long deceleration
+      var ease = 1 - Math.pow(1 - t, 4);
+
+      // During the first 70%, show rapidly changing random numbers
+      // During the last 30%, converge toward the target
+      if (t < 0.7) {
+        // Fast spin: random numbers in the same magnitude range
+        var rand = Math.floor(Math.random() * (magnitude + 1));
+        el.textContent = rand + suffix;
+      } else {
+        // Decelerate: interpolate toward target with decreasing jitter
+        var convergence = (t - 0.7) / 0.3; // 0→1 over last 30%
+        var jitter = Math.round((1 - convergence) * magnitude * 0.3);
+        var val = target + Math.round((Math.random() - 0.5) * 2 * jitter);
+        el.textContent = Math.max(0, val) + suffix;
+      }
+
+      requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
   }
 
-  // Animate all counters on page load (roll from 0 to value)
+  // Animate all counters on page load
   document.querySelectorAll('[data-ws-field]').forEach(function(el) {
     var suffix = el.getAttribute('data-ws-suffix') || '';
     var text = el.textContent.trim();
     var val = parseInt(text, 10);
-    if (!isNaN(val) && val > 0) {
+    if (!isNaN(val) && val >= 0) {
       el.textContent = '0' + suffix;
-      countUp(el, 0, val, suffix, 1200);
+      spinReel(el, val, suffix, 2000);
     }
   });
 
@@ -794,7 +824,7 @@ window.initSparklines = function(root) {
     var val = parseFloat(text);
     if (!isNaN(val) && val !== 0 && /^\d/.test(text)) {
       el.textContent = '0';
-      countUp(el, 0, val, '', 1200);
+      spinReel(el, Math.round(val), '', 2000);
     }
   });
 
@@ -805,14 +835,14 @@ window.initSparklines = function(root) {
       el.textContent = newVal + suffix;
       return;
     }
-    countUp(el, oldVal, newVal, suffix, 1200);
+    spinReel(el, newVal, suffix, 2000);
   }
 
   function refreshIndicators() {
     var container = document.getElementById('ws-indicators-container');
     if (!container) return;
 
-    // Snapshot current indicator values and card HTML
+    // Snapshot current indicator values
     var oldValues = {};
     container.querySelectorAll('[data-indicator-id]').forEach(function(card) {
       oldValues[card.getAttribute('data-indicator-id')] = card.getAttribute('data-indicator-value');
@@ -829,37 +859,37 @@ window.initSparklines = function(root) {
       var tmp = document.createElement('div');
       tmp.innerHTML = html;
 
-      // Only swap cards whose values actually changed
-      var anyChanged = false;
+      // For each indicator in the new HTML, check if its value changed
       tmp.querySelectorAll('[data-indicator-id]').forEach(function(newCard) {
         var id = newCard.getAttribute('data-indicator-id');
         var newVal = newCard.getAttribute('data-indicator-value');
         var oldVal = oldValues[id];
-        if (oldVal !== undefined && oldVal !== newVal) {
-          anyChanged = true;
-          // Find the existing card and replace it
-          var existing = container.querySelector('[data-indicator-id="' + id + '"]');
-          if (existing) {
-            var oldLink = existing.closest('a');
-            var newLink = newCard.closest('a');
-            if (oldLink && newLink) {
-              oldLink.parentNode.replaceChild(newLink, oldLink);
-              // Init sparkline on the new card
-              var sparkSlot = newLink.querySelector('.sparkline-slot');
-              if (sparkSlot && window.initSparklines) {
-                window.initSparklines(newLink);
-              }
-              // Animate the value
-              var valEl = newLink.querySelector('.stat-card-value');
-              if (valEl && newVal && /[\d]/.test(newVal)) {
-                var oldNum = parseFloat(oldVal);
-                var newNum = parseFloat(newVal);
-                if (!isNaN(oldNum) && !isNaN(newNum)) {
-                  valEl.textContent = oldVal;
-                  countUp(valEl, oldNum, newNum, '', 1200);
-                }
-              }
-            }
+
+        // Only touch this card if the value actually changed
+        if (oldVal === undefined || oldVal === newVal) return;
+
+        // Find the existing card's <a> wrapper in the live DOM
+        var existingCard = container.querySelector('[data-indicator-id="' + id + '"]');
+        if (!existingCard) return;
+        var oldLink = existingCard.closest('a');
+        if (!oldLink) return;
+
+        // Find the new card's <a> wrapper in the parsed HTML
+        var newLink = newCard.closest('a');
+        if (!newLink) return;
+
+        // Replace only this one card
+        oldLink.parentNode.replaceChild(newLink, oldLink);
+
+        // Init sparkline on the replaced card
+        if (window.initSparklines) window.initSparklines(newLink);
+
+        // Animate the value with spinReel
+        var valEl = newLink.querySelector('.stat-card-value');
+        if (valEl && newVal && /[\d]/.test(newVal)) {
+          var newNum = Math.round(parseFloat(newVal));
+          if (!isNaN(newNum)) {
+            spinReel(valEl, newNum, '', 2000);
           }
         }
       });
