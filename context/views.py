@@ -100,6 +100,10 @@ def _format_number(value):
         num = float(value)
     except (ValueError, TypeError):
         return value
+    # For string values with an explicit decimal point, preserve original precision
+    if isinstance(value, str) and '.' in value:
+        decimal_pos = len(value.strip().split('.')[-1])
+        return formats.number_format(num, decimal_pos=decimal_pos, use_l10n=True)
     # Use integer display when there is no fractional part
     if num == int(num):
         return formats.number_format(int(num), use_l10n=True)
