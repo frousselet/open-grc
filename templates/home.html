@@ -169,8 +169,8 @@ window.initSparklines = function(root) {
       lineEl.style.strokeDashoffset = len;
       areaEl.style.opacity = '0';
       lineEl.getBoundingClientRect();
-      lineEl.style.transition = 'stroke-dashoffset .8s ease-out';
-      areaEl.style.transition = 'opacity .5s ease-out .4s';
+      lineEl.style.transition = 'stroke-dashoffset 1.6s ease-out';
+      areaEl.style.transition = 'opacity 1s ease-out .8s';
       requestAnimationFrame(function() {
         requestAnimationFrame(function() {
           lineEl.style.strokeDashoffset = '0';
@@ -761,7 +761,7 @@ window.initSparklines = function(root) {
    */
   function slotRoll(el, targetText, opts) {
     opts = opts || {};
-    var duration = opts.duration || 900;
+    var duration = opts.duration || 1500;
     var color = opts.color || null;
 
     var oldText = el.textContent.trim();
@@ -788,9 +788,9 @@ window.initSparklines = function(root) {
     chars.forEach(function(ch) {
       if (/\d/.test(ch)) {
         var target = parseInt(ch, 10);
-        // 2 full cycles (0-9) + partial cycle landing on target
+        // 3 full cycles (0-9) + partial cycle landing on target
         var strip = [];
-        for (var c = 0; c < 2; c++)
+        for (var c = 0; c < 3; c++)
           for (var d = 0; d <= 9; d++) strip.push(d);
         for (var d2 = 0; d2 <= target; d2++) strip.push(d2);
 
@@ -842,10 +842,10 @@ window.initSparklines = function(root) {
       el.textContent = targetText;
       el.style.display = '';
       if (color) {
-        el.style.transition = 'color .8s ease';
-        setTimeout(function() { el.style.color = ''; el.style.transition = ''; }, 1500);
+        el.style.transition = 'color 1s ease';
+        setTimeout(function() { el.style.color = ''; el.style.transition = ''; }, 2000);
       }
-    }, duration + 250);
+    }, duration + 400);
   }
 
   function animateValue(el, newVal) {
@@ -894,7 +894,10 @@ window.initSparklines = function(root) {
             if (!isNaN(oldNum) && !isNaN(newNum)) {
               color = newNum > oldNum ? 'var(--success)' : newNum < oldNum ? 'var(--danger)' : 'var(--accent)';
             }
-            slotRoll(valEl, valEl.textContent.trim(), { color: color, duration: 1100 });
+            // Save new text, put back old text, then roll to new
+            var newText = valEl.textContent.trim();
+            valEl.textContent = oldValues[id];
+            slotRoll(valEl, newText, { color: color, duration: 1800 });
           }
         }
       });
