@@ -411,6 +411,7 @@
       justify-content: center;
       padding: .5rem .75rem;
       gap: 0;
+      position: relative;
     }
     .sidebar-collapsed .sidebar-collapse-btn .sidebar-link-text {
       width: 0;
@@ -426,8 +427,7 @@
       width: auto;
     }
     /* Tooltip on hover for collapsed items */
-    .sidebar-collapsed .sidebar-link:hover .sidebar-tooltip,
-    .sidebar-collapsed .sidebar-collapse-btn:hover .sidebar-tooltip {
+    .sidebar-collapsed .sidebar-link:hover .sidebar-tooltip {
       opacity: 1;
       visibility: visible;
       transform: translateX(0);
@@ -455,9 +455,58 @@
       z-index: 1050;
       box-shadow: var(--shadow-md);
     }
+    /* Hide tooltip on collapse-btns (they use flyouts instead) */
+    .sidebar-collapsed .sidebar-collapse-btn .sidebar-tooltip {
+      display: none;
+    }
     /* Sub-items: hidden in collapsed mode */
     .sidebar-collapsed .sidebar-sub {
       display: none;
+    }
+
+    /* ── Sidebar flyout (collapsed sub-menus) ─────────── */
+    .sidebar-flyout {
+      display: none;
+      position: fixed;
+      z-index: 1050;
+      min-width: 180px;
+      background: var(--surface-raised);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      padding: .375rem 0;
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity .18s var(--ease-out-expo), transform .18s var(--ease-out-expo);
+    }
+    .sidebar-flyout.show {
+      display: block;
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .sidebar-flyout .flyout-title {
+      padding: .5rem .875rem .375rem;
+      font-size: .6875rem;
+      font-weight: 650;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-muted);
+    }
+    .sidebar-flyout a {
+      display: block;
+      padding: .375rem .875rem;
+      font-size: .8125rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: background .12s ease, color .12s ease;
+    }
+    .sidebar-flyout a:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .sidebar-flyout a.active {
+      color: var(--accent);
+      font-weight: 600;
     }
 
     /* ── Main content ──────────────────────────────────── */
@@ -1964,6 +2013,7 @@
     </div>
 
   </aside>
+  <div class="sidebar-flyout" id="sidebarFlyout"></div>
 
   {# ── Mobile menu toggle ──────────────────────────────── #}
   <button class="mobile-menu-toggle" onclick="toggleSidebar()">
@@ -2207,9 +2257,103 @@
     }
     /* ── Sidebar collapse (desktop icon-only mode) ──── */
     function toggleSidebarCollapse() {
+      closeSidebarFlyout();
       var collapsed = document.documentElement.classList.toggle('sidebar-collapsed');
       try { localStorage.setItem('sidebar-collapsed', collapsed ? '1' : ''); } catch(e) {}
     }
+    /* ── Sidebar flyout for collapsed sub-menus ─────── */
+    (function() {
+      var flyout = document.getElementById('sidebarFlyout');
+      var activeBtn = null;
+      var hoverTimeout = null;
+
+      function isCollapsed() {
+        return document.documentElement.classList.contains('sidebar-collapsed')
+            && !window.matchMedia('(max-width: 991.98px)').matches;
+      }
+
+      window.closeSidebarFlyout = function() {
+        if (flyout) {
+          flyout.classList.remove('show');
+          flyout.innerHTML = '';
+        }
+        activeBtn = null;
+      };
+
+      function openFlyout(btn) {
+        if (!flyout || activeBtn === btn) return;
+        activeBtn = btn;
+        var collapseTarget = btn.getAttribute('data-bs-target');
+        var collapseEl = collapseTarget ? document.querySelector(collapseTarget) : null;
+        if (!collapseEl) return;
+
+        /* Build flyout content */
+        var titleSpan = btn.querySelector('.sidebar-link-text');
+        var title = titleSpan ? titleSpan.textContent.trim() : '';
+        var html = '<div class="flyout-title">' + title + '</div>';
+        var links = collapseEl.querySelectorAll('a');
+        var currentPath = location.pathname;
+        links.forEach(function(a) {
+          var cls = a.getAttribute('href') === currentPath ? ' class="active"' : '';
+          html += '<a href="' + a.getAttribute('href') + '"' + cls + '>' + a.textContent.trim() + '</a>';
+        });
+
+        flyout.innerHTML = html;
+
+        /* Position: right of the button, vertically aligned */
+        var sidebar = document.getElementById('sidebar');
+        var sidebarRect = sidebar.getBoundingClientRect();
+        var btnRect = btn.getBoundingClientRect();
+        flyout.style.left = (sidebarRect.right + 6) + 'px';
+        flyout.style.top = btnRect.top + 'px';
+
+        /* Show with animation */
+        flyout.classList.add('show');
+
+        /* Adjust if overflows bottom */
+        var flyoutRect = flyout.getBoundingClientRect();
+        if (flyoutRect.bottom > window.innerHeight - 8) {
+          flyout.style.top = Math.max(8, window.innerHeight - flyoutRect.height - 8) + 'px';
+        }
+      }
+
+      /* Intercept clicks on collapse buttons when sidebar is collapsed */
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('.sidebar-collapse-btn');
+        if (btn && isCollapsed()) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          if (activeBtn === btn) {
+            closeSidebarFlyout();
+          } else {
+            openFlyout(btn);
+          }
+          return;
+        }
+        /* Close flyout if clicking outside */
+        if (flyout && !flyout.contains(e.target)) {
+          closeSidebarFlyout();
+        }
+      }, true);
+
+      /* Close on Escape */
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeSidebarFlyout();
+      });
+
+      /* Close flyout when leaving both the button and flyout area */
+      document.addEventListener('mouseover', function(e) {
+        if (!activeBtn || !flyout.classList.contains('show')) return;
+        clearTimeout(hoverTimeout);
+        var overBtn = activeBtn.contains(e.target);
+        var overFlyout = flyout.contains(e.target);
+        if (!overBtn && !overFlyout) {
+          hoverTimeout = setTimeout(function() {
+            closeSidebarFlyout();
+          }, 250);
+        }
+      });
+    })();
     /* Auto-expand and highlight the active sidebar link;
        on mobile, collapse all sections except the one containing the active link */
     (function() {
