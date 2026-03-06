@@ -77,7 +77,44 @@
 {% block content %}
 <div class="d-flex align-items-center mb-4">
   <h1 class="mb-0">{% trans "Dashboard" %}</h1>
-  <span id="ws-status" class="ms-3 badge" style="font-size:.6875rem;display:none" title="{% trans 'Real-time connection' %}"></span>
+  <span id="ws-status" class="ms-3" style="display:none" title="{% trans 'Real-time connection' %}">
+    <span class="d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill" style="font-size:.75rem;font-weight:500" id="ws-status-pill">
+      <span class="ws-dot-wrapper" id="ws-dot">
+        <span class="ws-dot-core"></span>
+        <span class="ws-dot-ping"></span>
+      </span>
+      <span id="ws-status-text"></span>
+    </span>
+  </span>
+  <style>
+    .ws-dot-wrapper {
+      position: relative;
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+    }
+    .ws-dot-core {
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      background: currentColor;
+      z-index: 1;
+    }
+    .ws-dot-ping {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+      opacity: 0;
+    }
+    .ws-connected .ws-dot-ping {
+      animation: ws-sonar 2s ease-out infinite;
+    }
+    @keyframes ws-sonar {
+      0%   { transform: scale(1); opacity: .7; }
+      100% { transform: scale(2.4); opacity: 0; }
+    }
+  </style>
 </div>
 {% help_modal "home" %}
 
@@ -743,14 +780,19 @@ window.initSparklines = function(root) {
   function setStatus(connected) {
     if (!wsStatus) return;
     wsStatus.style.display = '';
+    var pill = document.getElementById('ws-status-pill');
+    var dot = document.getElementById('ws-dot');
+    var txt = document.getElementById('ws-status-text');
     if (connected) {
-      wsStatus.textContent = TXT_CONNECTED;
-      wsStatus.className = 'ms-3 badge text-bg-success';
-      wsStatus.style.fontSize = '.6875rem';
+      txt.textContent = TXT_CONNECTED;
+      pill.style.color = 'var(--bs-success)';
+      pill.style.background = 'rgba(var(--bs-success-rgb), .12)';
+      dot.classList.add('ws-connected');
     } else {
-      wsStatus.textContent = TXT_RECONNECTING;
-      wsStatus.className = 'ms-3 badge text-bg-warning';
-      wsStatus.style.fontSize = '.6875rem';
+      txt.textContent = TXT_RECONNECTING;
+      pill.style.color = 'var(--bs-warning)';
+      pill.style.background = 'rgba(var(--bs-warning-rgb), .12)';
+      dot.classList.remove('ws-connected');
     }
   }
 
