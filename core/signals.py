@@ -42,6 +42,8 @@ def _get_dashboard_models():
     )
     from context.models import (
         Activity,
+        Indicator,
+        IndicatorMeasurement,
         Issue,
         Objective,
         Role,
@@ -63,6 +65,7 @@ def _get_dashboard_models():
     _DASHBOARD_MODELS = {
         # Governance
         Scope, Issue, Stakeholder, Objective, Role, Site, SwotAnalysis, Activity,
+        Indicator, IndicatorMeasurement,
         # Assets
         EssentialAsset, SupportAsset, AssetDependency, AssetGroup,
         Supplier, SupplierDependency, SupplierType,
