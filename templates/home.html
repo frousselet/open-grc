@@ -817,11 +817,11 @@ window.initSparklines = function(root) {
     if (!container) return;
 
     // Build a map: indicator ID → current value (as string)
+    // Use .stat-card to avoid matching chart-toggle buttons in the picker modal
     var oldValues = {};
-    container.querySelectorAll('[data-indicator-id]').forEach(function(card) {
+    container.querySelectorAll('.stat-card[data-indicator-id]').forEach(function(card) {
       var id = card.getAttribute('data-indicator-id');
       var val = card.getAttribute('data-indicator-value');
-      // Normalize: treat null/undefined/empty as ""
       oldValues[id] = (val == null) ? '' : val;
     });
 
@@ -838,7 +838,7 @@ window.initSparklines = function(root) {
 
       // Collect all new cards first (avoid modifying DOM during iteration)
       var updates = [];
-      tmp.querySelectorAll('[data-indicator-id]').forEach(function(newCard) {
+      tmp.querySelectorAll('.stat-card[data-indicator-id]').forEach(function(newCard) {
         var id = newCard.getAttribute('data-indicator-id');
         var newVal = (newCard.getAttribute('data-indicator-value') == null) ? '' : newCard.getAttribute('data-indicator-value');
         var oldVal = oldValues.hasOwnProperty(id) ? oldValues[id] : newVal;
