@@ -317,21 +317,21 @@
     /* ── Sidebar collapse toggle ──────────────────────── */
     .sidebar-collapse-toggle {
       position: fixed;
-      left: calc(var(--sidebar-w) + var(--sidebar-inset) - .75rem);
-      top: calc(var(--sidebar-inset) + 1.375rem);
+      left: calc(var(--sidebar-w) + var(--sidebar-inset) - .875rem);
+      top: calc(var(--sidebar-inset) + 3.625rem);
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 1.5rem;
-      height: 1.5rem;
+      width: 1.75rem;
+      height: 1.75rem;
       border-radius: 50%;
       border: 1px solid var(--border-light);
       background: var(--surface-raised);
       color: var(--text-muted);
       cursor: pointer;
-      font-size: .5625rem;
+      font-size: .625rem;
       padding: 0;
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow-md);
       opacity: 0;
       z-index: 1041;
       transition: opacity .2s ease, left .35s var(--ease-out-expo),
@@ -344,10 +344,10 @@
       opacity: 1;
     }
     .sidebar-collapse-toggle:hover {
-      background: var(--text-primary);
-      border-color: var(--text-primary);
-      color: var(--bg-page);
-      box-shadow: var(--shadow-md);
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 10px var(--accent-glow), var(--shadow-md);
     }
     .sidebar-collapse-toggle:active {
       transform: scale(.88);
@@ -356,7 +356,7 @@
       transition: transform .35s var(--ease-out-expo);
     }
     .sidebar-collapsed .sidebar-collapse-toggle {
-      left: calc(var(--sidebar-collapsed-w) + var(--sidebar-inset) - .75rem);
+      left: calc(var(--sidebar-collapsed-w) + var(--sidebar-inset) - .875rem);
       opacity: 1;
     }
     .sidebar-collapsed .sidebar-collapse-toggle i {
