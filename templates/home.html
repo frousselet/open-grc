@@ -121,7 +121,9 @@
 </div>
 
 {# ── Dashboard Indicators ──────────────────────────────── #}
+<div id="ws-indicators-container">
 {% include "includes/dashboard_indicators.html" %}
+</div>
 
 {# ── Bars per framework ────────────────────────────────── #}
 {% if active_frameworks %}
@@ -704,6 +706,19 @@
     setTimeout(function() { el.style.color = ''; }, 1500);
   }
 
+  function refreshIndicators() {
+    var container = document.getElementById('ws-indicators-container');
+    if (!container) return;
+    fetch('{% url "dashboard-indicators-partial" %}', {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(function(r) { return r.ok ? r.text() : null; })
+    .then(function(html) {
+      if (html) container.innerHTML = html;
+    })
+    .catch(function() {});
+  }
+
   function applyUpdate(data) {
     var fields = document.querySelectorAll('[data-ws-field]');
     fields.forEach(function(el) {
@@ -712,6 +727,8 @@
         animateValue(el, data[key]);
       }
     });
+    // Also refresh the indicators section (sparklines, values, trends)
+    refreshIndicators();
   }
 
   function connect() {

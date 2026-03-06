@@ -160,6 +160,16 @@ class TestSignalIntegration:
         assert mock_notify.called
 
     @pytest.mark.django_db
+    def test_indicator_models_in_dashboard_models(self):
+        """Indicator and IndicatorMeasurement must be in dashboard models."""
+        from context.models import Indicator, IndicatorMeasurement
+        from core.signals import _get_dashboard_models
+
+        models = _get_dashboard_models()
+        assert Indicator in models
+        assert IndicatorMeasurement in models
+
+    @pytest.mark.django_db
     @patch("core.signals._notify_dashboard")
     def test_non_dashboard_model_no_notify(self, mock_notify):
         """Saving a non-dashboard model should NOT trigger a refresh."""

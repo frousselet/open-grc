@@ -255,6 +255,21 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
         return ctx
 
 
+class DashboardIndicatorsPartialView(LoginRequiredMixin, TemplateView):
+    """Return only the indicators partial for WebSocket-triggered refreshes."""
+
+    template_name = "includes/dashboard_indicators.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["dashboard_indicator_slots"] = get_dashboard_indicator_slots(self.request.user)
+        ctx["available_indicators"] = Indicator.objects.filter(
+            status="active",
+        ).order_by("indicator_type", "name")
+        ctx["dashboard_indicator_chart_ids"] = self.request.user.dashboard_indicator_charts or []
+        return ctx
+
+
 class CalendarView(LoginRequiredMixin, TemplateView):
     template_name = "calendar.html"
 
