@@ -8,7 +8,7 @@
   /* Graph fills the remaining viewport below the header via fixed position */
   #graph-container {
     position: fixed;
-    left: calc(var(--sidebar-w) + var(--sidebar-inset, 0px) * 2);
+    left: 0;
     right: 0;
     bottom: 0;
     overflow: hidden;
@@ -32,16 +32,17 @@
     pointer-events: none;
   }
   .legend-dot {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     display: inline-block;
+    flex-shrink: 0;
   }
   .legend-line {
-    width: 24px;
+    width: 20px;
     height: 2px;
     display: inline-block;
-    vertical-align: middle;
+    flex-shrink: 0;
   }
   .graph-stats-bar .btn {
     padding: .15rem .4rem;
@@ -66,13 +67,15 @@
   .graph-stat {
     display: inline-flex;
     align-items: center;
-    gap: .35rem;
+    gap: .3rem;
     white-space: nowrap;
+    line-height: 1;
   }
   .graph-stat strong { color: var(--text-primary); }
   .graph-stat-sep {
     width: 1px;
-    height: 1rem;
+    align-self: stretch;
+    margin: .25rem 0;
     background: var(--border-light);
   }
 
@@ -267,7 +270,11 @@
 
   node.append('circle')
     .attr('r', function(d) { return sizeMap[d.type] || 14; })
-    .attr('fill', function(d) { return colorMap[d.type] || '#94a3b8'; })
+    .attr('fill', function(d) {
+      // White background for suppliers with a logo so the logo is readable
+      if (d.logo) return '#ffffff';
+      return colorMap[d.type] || '#94a3b8';
+    })
     .attr('stroke', '#fff')
     .attr('stroke-width', 2)
     .style('cursor', 'grab');
@@ -276,10 +283,11 @@
   node.filter(function(d) { return d.logo; })
     .append('image')
       .attr('xlink:href', function(d) { return d.logo; })
-      .attr('x', function(d) { return -(sizeMap[d.type] || 14); })
-      .attr('y', function(d) { return -(sizeMap[d.type] || 14); })
-      .attr('width', function(d) { return (sizeMap[d.type] || 14) * 2; })
-      .attr('height', function(d) { return (sizeMap[d.type] || 14) * 2; })
+      .attr('x', function(d) { var r = sizeMap[d.type] || 14; return -r * 0.75; })
+      .attr('y', function(d) { var r = sizeMap[d.type] || 14; return -r * 0.75; })
+      .attr('width', function(d) { var r = sizeMap[d.type] || 14; return r * 1.5; })
+      .attr('height', function(d) { var r = sizeMap[d.type] || 14; return r * 1.5; })
+      .attr('preserveAspectRatio', 'xMidYMid meet')
       .attr('clip-path', function(d) { return 'url(#clip-' + d.id + ')'; })
       .style('pointer-events', 'none');
 
@@ -293,7 +301,7 @@
     .attr('font-family', 'bootstrap-icons')
     .text(function(d) {
       if (d.type === 'essential') return '\uF3E0';
-      if (d.type === 'supplier') return '\uF5E6';
+      if (d.type === 'supplier') return '\uF7A6';
       if (d.type === 'site') return '\uF1E7';
       return '\uF499';
     });
