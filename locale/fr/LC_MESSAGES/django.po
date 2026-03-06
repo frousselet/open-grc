@@ -3658,6 +3658,12 @@ msgstr "Activités associées"
 msgid "All"
 msgstr "Tous"
 
+msgid "Period"
+msgstr "Période"
+
+msgid "Clear"
+msgstr "Effacer"
+
 #: assets/templates/assets/essential_asset_list.html:24
 #: assets/templates/assets/group_detail.html:47
 #: assets/templates/assets/group_list.html:20

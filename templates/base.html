@@ -1373,6 +1373,92 @@
       white-space: nowrap;
     }
 
+    /* ── Filter pills ─────────────────────────────────── */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: .375rem;
+      padding: .75rem 1rem;
+      background: var(--surface-muted);
+      border: 1px solid var(--border-light);
+      border-bottom: none;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      flex-wrap: wrap;
+    }
+    .filter-bar + .card {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+    .filter-bar-group {
+      display: flex;
+      align-items: center;
+      gap: .25rem;
+      flex-wrap: wrap;
+    }
+    .filter-bar-sep {
+      width: 1px;
+      height: 1.25rem;
+      background: var(--border-light);
+      margin: 0 .25rem;
+      flex-shrink: 0;
+    }
+    .filter-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      padding: .3125rem .75rem;
+      font-size: .75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: 100px;
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+    .filter-pill:hover {
+      border-color: var(--text-muted);
+      color: var(--text-primary);
+    }
+    .filter-pill.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+    .filter-pill.active:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+    .filter-pill i { font-size: .6875rem; }
+    .filter-bar-label {
+      font-size: .6875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    .filter-bar .form-control {
+      border-radius: 100px;
+      font-size: .75rem;
+      padding: .3125rem .75rem;
+      width: auto;
+      max-width: 8.5rem;
+    }
+    .filter-bar .table-toolbar-input {
+      font-size: .75rem;
+      padding: .3125rem .625rem .3125rem 1.75rem;
+      border-radius: 100px;
+      border: 1px solid var(--border-light);
+    }
+    .filter-bar .table-toolbar-icon {
+      left: .5rem;
+      font-size: .7rem;
+    }
+
     /* ── Tom Select overrides ─────────────────────────── */
     .ts-wrapper.multi .ts-control > .item {
       background: var(--accent);
