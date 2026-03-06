@@ -834,6 +834,7 @@ window.initSparklines = function(root) {
       tmp.innerHTML = html;
 
       // Only replace the specific card that changed
+      var replacedCount = 0;
       tmp.querySelectorAll('[data-indicator-id]').forEach(function(newCard) {
         var id = newCard.getAttribute('data-indicator-id');
         var newVal = newCard.getAttribute('data-indicator-value');
@@ -841,6 +842,8 @@ window.initSparklines = function(root) {
 
         // Skip if value didn't change
         if (oldVal === undefined || oldVal === newVal) return;
+        replacedCount++;
+        console.log('[WS] Indicator changed:', id, 'old:', oldVal, '→ new:', newVal);
 
         var existingCard = container.querySelector('[data-indicator-id="' + id + '"]');
         if (!existingCard) return;
@@ -862,6 +865,8 @@ window.initSparklines = function(root) {
           }
         }
       });
+      if (replacedCount === 0) console.log('[WS] No indicator values changed');
+      else console.log('[WS] Replaced', replacedCount, 'indicator card(s)');
     })
     .catch(function() {});
   }
