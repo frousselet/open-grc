@@ -2377,24 +2377,42 @@
         }
       }, true);
 
-      /* Close flyout when mouse leaves both button and flyout */
-      document.addEventListener('mouseleave', function(e) {
-        if (!activeBtn || !flyout.classList.contains('show')) return;
-        var leaving = e.target.closest('.sidebar-collapse-btn') || flyout.contains(e.target);
-        if (leaving) {
-          hoverTimeout = setTimeout(function() {
-            closeSidebarFlyout();
-          }, 200);
-        }
-      }, true);
+      /* Check if mouse is inside the safe zone (button + gap + flyout) */
+      function isInSafeZone(mx, my) {
+        if (!activeBtn) return false;
+        var btnRect = activeBtn.getBoundingClientRect();
+        var flyRect = flyout.getBoundingClientRect();
+        /* Expand rects with generous padding */
+        var pad = 12;
+        var inBtn = mx >= btnRect.left - pad && mx <= btnRect.right + pad
+                 && my >= btnRect.top - pad && my <= btnRect.bottom + pad;
+        var inFly = flyout.classList.contains('show')
+                 && mx >= flyRect.left - pad && mx <= flyRect.right + pad
+                 && my >= flyRect.top - pad && my <= flyRect.bottom + pad;
+        /* Bridge zone: horizontal gap between button right and flyout left */
+        var bridgeLeft = btnRect.right - pad;
+        var bridgeRight = flyRect.left + pad;
+        var bridgeTop = Math.min(btnRect.top, flyRect.top) - pad;
+        var bridgeBottom = Math.max(btnRect.bottom, flyRect.bottom) + pad;
+        var inBridge = flyout.classList.contains('show')
+                    && mx >= bridgeLeft && mx <= bridgeRight
+                    && my >= bridgeTop && my <= bridgeBottom;
+        return inBtn || inFly || inBridge;
+      }
 
-      /* Cancel close when re-entering button or flyout */
-      document.addEventListener('mouseenter', function(e) {
+      document.addEventListener('mousemove', function(e) {
         if (!activeBtn || !flyout.classList.contains('show')) return;
-        if (flyout.contains(e.target) || (e.target.closest && e.target.closest('.sidebar-collapse-btn') === activeBtn)) {
+        if (isInSafeZone(e.clientX, e.clientY)) {
           clearTimeout(hoverTimeout);
+        } else {
+          if (!hoverTimeout) {
+            hoverTimeout = setTimeout(function() {
+              hoverTimeout = null;
+              closeSidebarFlyout();
+            }, 300);
+          }
         }
-      }, true);
+      });
 
       /* Close on Escape */
       document.addEventListener('keydown', function(e) {
