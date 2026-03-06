@@ -9,35 +9,56 @@
 </div>
 {% help_modal "accounts.action_log_list" %}
 
-<div class="table-toolbar">
-  <form method="get" class="d-flex align-items-center gap-2 flex-wrap flex-grow-1">
-    <select name="module" class="form-select form-select-sm" style="width:auto;font-size:.8rem">
-      <option value="">{% trans "All modules" %}</option>
-      {% for key, label in module_labels.items %}
-      <option value="{{ key }}" {% if request.GET.module == key %}selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
-    <select name="action" class="form-select form-select-sm" style="width:auto;font-size:.8rem">
-      <option value="">{% trans "All actions" %}</option>
-      <option value="+" {% if request.GET.action == "+" %}selected{% endif %}>{% trans "Creation" %}</option>
-      <option value="~" {% if request.GET.action == "~" %}selected{% endif %}>{% trans "Modification" %}</option>
-      <option value="-" {% if request.GET.action == "-" %}selected{% endif %}>{% trans "Deletion" %}</option>
-      <option value="approval" {% if request.GET.action == "approval" %}selected{% endif %}>{% trans "Approval" %}</option>
-    </select>
-    <select name="user" class="form-select form-select-sm" style="width:auto;font-size:.8rem">
-      <option value="">{% trans "All users" %}</option>
-      {% for u in users %}
-      <option value="{{ u.pk }}" {% if request.GET.user == u.pk|slugify %}selected{% endif %}>{{ u.display_name }}</option>
-      {% endfor %}
-    </select>
-    <input type="date" name="date_from" class="form-control form-control-sm" style="width:auto;font-size:.8rem" value="{{ request.GET.date_from|default:'' }}">
-    <input type="date" name="date_to" class="form-control form-control-sm" style="width:auto;font-size:.8rem" value="{{ request.GET.date_to|default:'' }}">
-    <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="bi bi-funnel"></i></button>
-    {% if request.GET.module or request.GET.action or request.GET.user or request.GET.date_from or request.GET.date_to %}
-      <a href="{% url 'accounts:action-log-list' %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Clear' %}"><i class="bi bi-x-lg"></i></a>
-    {% endif %}
-  </form>
+<form id="filterForm" method="get">
+  <input type="hidden" name="module" value="{{ request.GET.module|default:'' }}">
+  <input type="hidden" name="action" value="{{ request.GET.action|default:'' }}">
+  <input type="hidden" name="user" value="{{ request.GET.user|default:'' }}">
+  <input type="hidden" name="date_from" value="{{ request.GET.date_from|default:'' }}">
+  <input type="hidden" name="date_to" value="{{ request.GET.date_to|default:'' }}">
+</form>
+<div class="filter-bar">
+  <div class="filter-bar-group">
+    <span class="filter-bar-label">{% trans "Module" %}</span>
+    <a href="#" class="filter-pill{% if not request.GET.module %} active{% endif %}" onclick="setPill('module','');return false">{% trans "All" %}</a>
+    {% for key, label in module_labels.items %}
+    <a href="#" class="filter-pill{% if request.GET.module == key %} active{% endif %}" onclick="setPill('module','{{ key }}');return false">{{ label }}</a>
+    {% endfor %}
+  </div>
+  <div class="filter-bar-sep"></div>
+  <div class="filter-bar-group">
+    <span class="filter-bar-label">{% trans "Action" %}</span>
+    <a href="#" class="filter-pill{% if not request.GET.action %} active{% endif %}" onclick="setPill('action','');return false">{% trans "All" %}</a>
+    <a href="#" class="filter-pill{% if request.GET.action == '+' %} active{% endif %}" onclick="setPill('action','+');return false"><i class="bi bi-plus-circle"></i> {% trans "Creation" %}</a>
+    <a href="#" class="filter-pill{% if request.GET.action == '~' %} active{% endif %}" onclick="setPill('action','~');return false"><i class="bi bi-pencil"></i> {% trans "Modification" %}</a>
+    <a href="#" class="filter-pill{% if request.GET.action == '-' %} active{% endif %}" onclick="setPill('action','-');return false"><i class="bi bi-trash"></i> {% trans "Deletion" %}</a>
+    <a href="#" class="filter-pill{% if request.GET.action == 'approval' %} active{% endif %}" onclick="setPill('action','approval');return false"><i class="bi bi-check-circle"></i> {% trans "Approval" %}</a>
+  </div>
+  <div class="filter-bar-sep"></div>
+  <div class="filter-bar-group">
+    <span class="filter-bar-label">{% trans "User" %}</span>
+    <a href="#" class="filter-pill{% if not request.GET.user %} active{% endif %}" onclick="setPill('user','');return false">{% trans "All" %}</a>
+    {% for u in users %}
+    <a href="#" class="filter-pill{% if request.GET.user == u.pk|slugify %} active{% endif %}" onclick="setPill('user','{{ u.pk }}');return false">{{ u.display_name }}</a>
+    {% endfor %}
+  </div>
+  <div class="filter-bar-sep"></div>
+  <div class="filter-bar-group">
+    <span class="filter-bar-label">{% trans "Period" %}</span>
+    <input type="date" name="date_from" form="filterForm" class="form-control" value="{{ request.GET.date_from|default:'' }}" onchange="this.form.submit()">
+    <input type="date" name="date_to" form="filterForm" class="form-control" value="{{ request.GET.date_to|default:'' }}" onchange="this.form.submit()">
+  </div>
+  {% if request.GET.module or request.GET.action or request.GET.user or request.GET.date_from or request.GET.date_to %}
+  <a href="{% url 'accounts:action-log-list' %}" class="filter-pill" title="{% trans 'Clear' %}"><i class="bi bi-x-lg"></i> {% trans "Clear" %}</a>
+  {% endif %}
 </div>
+<script>
+function setPill(param, value) {
+  var f = document.getElementById('filterForm');
+  var input = f.querySelector('input[name="'+param+'"]');
+  if (input) input.value = value;
+  f.submit();
+}
+</script>
 <div class="card">
   <div class="table-responsive">
     <table class="table table-hover table-sm mb-0">

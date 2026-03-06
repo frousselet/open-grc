@@ -10,31 +10,51 @@
 </div>
 {% help_modal "accounts.access_log_list" %}
 
-<div class="table-toolbar" data-sort-view-key="{{ sort_view_key }}">
-  <form method="get" class="d-flex align-items-center gap-2 flex-wrap flex-grow-1">
-    <div class="table-toolbar-search flex-grow-1" style="min-width:160px">
+<form id="filterForm" method="get">
+  <input type="hidden" name="event_type" value="{{ request.GET.event_type|default:'' }}">
+  <input type="hidden" name="email" value="{{ request.GET.email|default:'' }}">
+  <input type="hidden" name="date_from" value="{{ request.GET.date_from|default:'' }}">
+  <input type="hidden" name="date_to" value="{{ request.GET.date_to|default:'' }}">
+</form>
+<div class="filter-bar" data-sort-view-key="{{ sort_view_key }}">
+  <div class="filter-bar-group flex-grow-1" style="min-width:160px;max-width:16rem">
+    <div class="table-toolbar-search w-100">
       <i class="bi bi-search table-toolbar-icon"></i>
-      <input type="search" name="email" class="table-toolbar-input"
+      <input type="search" name="email" form="filterForm" class="table-toolbar-input"
              placeholder="{% trans 'Email…' %}"
              value="{{ request.GET.email|default:'' }}"
-             autocomplete="off">
+             autocomplete="off"
+             onchange="this.form.submit()">
     </div>
-    <select name="event_type" class="form-select form-select-sm" style="width:auto;font-size:.8rem">
-      <option value="">{% trans "All types" %}</option>
-      <option value="login_success" {% if request.GET.event_type == "login_success" %}selected{% endif %}>{% trans "Successful login" %}</option>
-      <option value="login_failed" {% if request.GET.event_type == "login_failed" %}selected{% endif %}>{% trans "Failed login" %}</option>
-      <option value="logout" {% if request.GET.event_type == "logout" %}selected{% endif %}>{% trans "Logout" %}</option>
-      <option value="account_locked" {% if request.GET.event_type == "account_locked" %}selected{% endif %}>{% trans "Account locked" %}</option>
-      <option value="password_change" {% if request.GET.event_type == "password_change" %}selected{% endif %}>{% trans "Password change" %}</option>
-    </select>
-    <input type="date" name="date_from" class="form-control form-control-sm" style="width:auto;font-size:.8rem" value="{{ request.GET.date_from|default:'' }}">
-    <input type="date" name="date_to" class="form-control form-control-sm" style="width:auto;font-size:.8rem" value="{{ request.GET.date_to|default:'' }}">
-    <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="bi bi-funnel"></i></button>
-    {% if request.GET.email or request.GET.event_type or request.GET.date_from or request.GET.date_to %}
-      <a href="{% url 'accounts:access-log-list' %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Clear' %}"><i class="bi bi-x-lg"></i></a>
-    {% endif %}
-  </form>
+  </div>
+  <div class="filter-bar-sep"></div>
+  <div class="filter-bar-group">
+    <span class="filter-bar-label">{% trans "Event" %}</span>
+    <a href="#" class="filter-pill{% if not request.GET.event_type %} active{% endif %}" onclick="setPill('event_type','');return false">{% trans "All" %}</a>
+    <a href="#" class="filter-pill{% if request.GET.event_type == 'login_success' %} active{% endif %}" onclick="setPill('event_type','login_success');return false"><i class="bi bi-check-circle"></i> {% trans "Successful login" %}</a>
+    <a href="#" class="filter-pill{% if request.GET.event_type == 'login_failed' %} active{% endif %}" onclick="setPill('event_type','login_failed');return false"><i class="bi bi-x-circle"></i> {% trans "Failed login" %}</a>
+    <a href="#" class="filter-pill{% if request.GET.event_type == 'logout' %} active{% endif %}" onclick="setPill('event_type','logout');return false"><i class="bi bi-box-arrow-right"></i> {% trans "Logout" %}</a>
+    <a href="#" class="filter-pill{% if request.GET.event_type == 'account_locked' %} active{% endif %}" onclick="setPill('event_type','account_locked');return false"><i class="bi bi-lock"></i> {% trans "Account locked" %}</a>
+    <a href="#" class="filter-pill{% if request.GET.event_type == 'password_change' %} active{% endif %}" onclick="setPill('event_type','password_change');return false"><i class="bi bi-key"></i> {% trans "Password change" %}</a>
+  </div>
+  <div class="filter-bar-sep"></div>
+  <div class="filter-bar-group">
+    <span class="filter-bar-label">{% trans "Period" %}</span>
+    <input type="date" name="date_from" form="filterForm" class="form-control" value="{{ request.GET.date_from|default:'' }}" onchange="this.form.submit()">
+    <input type="date" name="date_to" form="filterForm" class="form-control" value="{{ request.GET.date_to|default:'' }}" onchange="this.form.submit()">
+  </div>
+  {% if request.GET.email or request.GET.event_type or request.GET.date_from or request.GET.date_to %}
+  <a href="{% url 'accounts:access-log-list' %}" class="filter-pill" title="{% trans 'Clear' %}"><i class="bi bi-x-lg"></i> {% trans "Clear" %}</a>
+  {% endif %}
 </div>
+<script>
+function setPill(param, value) {
+  var f = document.getElementById('filterForm');
+  var input = f.querySelector('input[name="'+param+'"]');
+  if (input) input.value = value;
+  f.submit();
+}
+</script>
 <div class="card">
   <div class="table-responsive">
     <table class="table table-hover table-sm mb-0">
