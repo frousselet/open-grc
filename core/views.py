@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Avg, Count, Prefetch, Q
 from django.http import JsonResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views import View
@@ -434,3 +435,220 @@ class CalendarEventsView(LoginRequiredMixin, View):
             return reverse(url_name, kwargs={"pk": obj.pk})
         except Exception:
             return ""
+
+
+class GlobalSearchView(LoginRequiredMixin, View):
+    """Return search results as JSON, grouped by category."""
+
+    MAX_PER_CATEGORY = 5
+
+    def _scope_ids(self):
+        user = self.request.user
+        if user.is_superuser:
+            return None
+        return user.get_allowed_scope_ids()
+
+    def _filter_scoped(self, qs):
+        scope_ids = self._scope_ids()
+        if scope_ids is None:
+            return qs
+        model = qs.model
+        if any(f.name == "scopes" for f in model._meta.many_to_many):
+            return qs.filter(scopes__id__in=scope_ids).distinct()
+        return qs
+
+    def _search_model(self, model, fields, q, url_name, icon):
+        """Search a model on the given fields and return result dicts."""
+        query = Q()
+        for field in fields:
+            query |= Q(**{f"{field}__icontains": q})
+        qs = model.objects.filter(query)
+        qs = self._filter_scoped(qs)
+        results = []
+        for obj in qs[: self.MAX_PER_CATEGORY]:
+            try:
+                url = reverse(url_name, kwargs={"pk": obj.pk})
+            except Exception:
+                url = ""
+            results.append({
+                "title": str(obj),
+                "url": url,
+                "icon": icon,
+            })
+        return results
+
+    def get(self, request):
+        q = request.GET.get("q", "").strip()
+        if len(q) < 2:
+            return JsonResponse({"results": []})
+
+        categories = [
+            {
+                "label": _("Scopes"),
+                "model": Scope,
+                "fields": ["name", "reference", "description"],
+                "url": "context:scope-detail",
+                "icon": "bi-bullseye",
+            },
+            {
+                "label": _("Sites"),
+                "model": Site,
+                "fields": ["name", "reference"],
+                "url": "context:site-detail",
+                "icon": "bi-geo-alt",
+            },
+            {
+                "label": _("Objectives"),
+                "model": Objective,
+                "fields": ["name", "reference", "description"],
+                "url": "context:objective-detail",
+                "icon": "bi-flag",
+            },
+            {
+                "label": _("Issues"),
+                "model": Issue,
+                "fields": ["name", "reference", "description"],
+                "url": "context:issue-detail",
+                "icon": "bi-exclamation-diamond",
+            },
+            {
+                "label": _("Stakeholders"),
+                "model": Stakeholder,
+                "fields": ["name", "reference"],
+                "url": "context:stakeholder-detail",
+                "icon": "bi-people",
+            },
+            {
+                "label": _("Roles"),
+                "model": Role,
+                "fields": ["name", "reference", "description"],
+                "url": "context:role-detail",
+                "icon": "bi-person-badge",
+            },
+            {
+                "label": _("Activities"),
+                "model": Activity,
+                "fields": ["name", "reference", "description"],
+                "url": "context:activity-detail",
+                "icon": "bi-activity",
+            },
+            {
+                "label": _("SWOT Analyses"),
+                "model": SwotAnalysis,
+                "fields": ["name", "reference"],
+                "url": "context:swot-detail",
+                "icon": "bi-grid-3x3",
+            },
+            {
+                "label": _("Indicators"),
+                "model": Indicator,
+                "fields": ["name", "reference", "description"],
+                "url": "context:indicator-detail",
+                "icon": "bi-speedometer2",
+            },
+            {
+                "label": _("Essential Assets"),
+                "model": EssentialAsset,
+                "fields": ["name", "reference", "description"],
+                "url": "assets:essential-asset-detail",
+                "icon": "bi-gem",
+            },
+            {
+                "label": _("Support Assets"),
+                "model": SupportAsset,
+                "fields": ["name", "reference", "description"],
+                "url": "assets:support-asset-detail",
+                "icon": "bi-hdd-network",
+            },
+            {
+                "label": _("Asset Groups"),
+                "model": AssetGroup,
+                "fields": ["name", "reference", "description"],
+                "url": "assets:group-detail",
+                "icon": "bi-collection",
+            },
+            {
+                "label": _("Suppliers"),
+                "model": Supplier,
+                "fields": ["name", "reference"],
+                "url": "assets:supplier-detail",
+                "icon": "bi-truck",
+            },
+            {
+                "label": _("Frameworks"),
+                "model": Framework,
+                "fields": ["name", "reference", "description"],
+                "url": "compliance:framework-detail",
+                "icon": "bi-journal-check",
+            },
+            {
+                "label": _("Requirements"),
+                "model": Requirement,
+                "fields": ["name", "requirement_number", "description"],
+                "url": "compliance:requirement-detail",
+                "icon": "bi-list-check",
+            },
+            {
+                "label": _("Compliance Assessments"),
+                "model": ComplianceAssessment,
+                "fields": ["name", "reference"],
+                "url": "compliance:assessment-detail",
+                "icon": "bi-clipboard-check",
+            },
+            {
+                "label": _("Action Plans"),
+                "model": ComplianceActionPlan,
+                "fields": ["name", "reference", "description"],
+                "url": "compliance:action-plan-detail",
+                "icon": "bi-card-checklist",
+            },
+            {
+                "label": _("Risk Assessments"),
+                "model": RiskAssessment,
+                "fields": ["name", "reference"],
+                "url": "risks:assessment-detail",
+                "icon": "bi-shield-exclamation",
+            },
+            {
+                "label": _("Risks"),
+                "model": Risk,
+                "fields": ["name", "reference", "description"],
+                "url": "risks:risk-detail",
+                "icon": "bi-radioactive",
+            },
+            {
+                "label": _("Threats"),
+                "model": Threat,
+                "fields": ["name", "reference"],
+                "url": "risks:threat-detail",
+                "icon": "bi-bug",
+            },
+            {
+                "label": _("Vulnerabilities"),
+                "model": Vulnerability,
+                "fields": ["name", "reference"],
+                "url": "risks:vulnerability-detail",
+                "icon": "bi-unlock",
+            },
+            {
+                "label": _("Treatment Plans"),
+                "model": RiskTreatmentPlan,
+                "fields": ["name", "reference", "description"],
+                "url": "risks:treatment-plan-detail",
+                "icon": "bi-bandaid",
+            },
+        ]
+
+        grouped = []
+        for cat in categories:
+            items = self._search_model(
+                cat["model"], cat["fields"], q, cat["url"], cat["icon"],
+            )
+            if items:
+                grouped.append({
+                    "label": cat["label"],
+                    "icon": cat["icon"],
+                    "items": items,
+                })
+
+        return JsonResponse({"results": grouped})

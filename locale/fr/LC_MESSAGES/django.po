@@ -7988,3 +7988,47 @@ msgstr "Connecté"
 #: templates/home.html
 msgid "Reconnecting..."
 msgstr "Reconnexion…"
+
+#: core/views.py templates/base.html
+msgid "Search"
+msgstr "Rechercher"
+
+#: templates/base.html
+msgid "Search across all items…"
+msgstr "Rechercher dans tous les éléments…"
+
+#: templates/base.html
+msgid "No results found"
+msgstr "Aucun résultat trouvé"
+
+#: core/views.py
+msgid "SWOT Analyses"
+msgstr "Analyses SWOT"
+
+#: core/views.py
+msgid "Essential Assets"
+msgstr "Biens essentiels"
+
+#: core/views.py
+msgid "Support Assets"
+msgstr "Biens supports"
+
+#: core/views.py
+msgid "Asset Groups"
+msgstr "Groupes d'actifs"
+
+#: core/views.py
+msgid "Compliance Assessments"
+msgstr "Évaluations de conformité"
+
+#: core/views.py
+msgid "Action Plans"
+msgstr "Plans d'action"
+
+#: core/views.py
+msgid "Risk Assessments"
+msgstr "Analyses de risques"
+
+#: core/views.py
+msgid "Treatment Plans"
+msgstr "Plans de traitement"
