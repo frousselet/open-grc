@@ -120,6 +120,68 @@
   </div>
 </div>
 
+{# ── Sparkline init (global, callable after WebSocket refresh) ── #}
+<script>
+window.initSparklines = function(root) {
+  (root || document).querySelectorAll('.sparkline-slot').forEach(function(el) {
+    if (el.querySelector('svg')) return; // already initialized
+    var raw = el.getAttribute('data-sparkline');
+    var trend = el.getAttribute('data-trend');
+    var isCritical = el.getAttribute('data-critical') === '1';
+    if (!raw) return;
+    var values = raw.split(',').map(Number).filter(function(v) { return !isNaN(v); });
+    if (values.length < 2) return;
+
+    var w = el.clientWidth || 160;
+    var h = 30;
+    var min = Math.min.apply(null, values);
+    var max = Math.max.apply(null, values);
+    var range = max - min || 1;
+    var pad = 2;
+
+    var points = values.map(function(v, i) {
+      var x = (i / (values.length - 1)) * w;
+      var y = h - pad - ((v - min) / range) * (h - pad * 2);
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    });
+
+    var color = isCritical ? '#ef4444' : trend === 'up' ? '#10b981' : trend === 'down' ? '#ef4444' : '#6366f1';
+
+    var uid = 'sp' + Math.random().toString(36).substr(2, 6);
+    var line = 'M' + points.join(' L');
+    var area = line + ' L' + w + ',' + h + ' L0,' + h + ' Z';
+
+    el.innerHTML =
+      '<svg width="' + w + '" height="' + h + '" style="display:block">' +
+        '<defs><linearGradient id="' + uid + '" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0%" stop-color="' + color + '" stop-opacity=".22"/>' +
+          '<stop offset="100%" stop-color="' + color + '" stop-opacity=".02"/>' +
+        '</linearGradient></defs>' +
+        '<path class="sparkline-area" d="' + area + '" fill="url(#' + uid + ')"/>' +
+        '<path class="sparkline-line" d="' + line + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '</svg>';
+
+    var lineEl = el.querySelector('.sparkline-line');
+    var areaEl = el.querySelector('.sparkline-area');
+    if (lineEl) {
+      var len = lineEl.getTotalLength();
+      lineEl.style.strokeDasharray = len;
+      lineEl.style.strokeDashoffset = len;
+      areaEl.style.opacity = '0';
+      lineEl.getBoundingClientRect();
+      lineEl.style.transition = 'stroke-dashoffset .8s ease-out';
+      areaEl.style.transition = 'opacity .5s ease-out .4s';
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          lineEl.style.strokeDashoffset = '0';
+          areaEl.style.opacity = '1';
+        });
+      });
+    }
+  });
+};
+</script>
+
 {# ── Dashboard Indicators ──────────────────────────────── #}
 <div id="ws-indicators-container">
 {% include "includes/dashboard_indicators.html" %}
@@ -692,99 +754,98 @@
     }
   }
 
+  /**
+   * Slot-machine digit roll.
+   * Each digit spins through 2 full 0-9 cycles then lands on the target.
+   * Non-digit characters (., %, comma, space) stay static.
+   */
   function slotRoll(el, targetText, opts) {
-    // Slot-machine digit roll animation.
-    // Works for any string: numbers get digit-by-digit rolls,
-    // non-numeric chars are kept static.
     opts = opts || {};
-    var duration = opts.duration || 900;     // total ms
-    var color = opts.color || null;          // highlight color
+    var duration = opts.duration || 900;
+    var color = opts.color || null;
 
     var oldText = el.textContent.trim();
     if (oldText === targetText) return;
 
-    // Wrap element for overflow clipping
-    var origOverflow = el.style.overflow;
-    var origHeight = el.style.height;
-    el.style.overflow = 'hidden';
-    el.style.height = el.offsetHeight ? el.offsetHeight + 'px' : 'auto';
-    el.style.display = 'inline-block';
-    el.style.verticalAlign = 'bottom';
+    // Measure one character's height from the live element
+    var measure = document.createElement('span');
+    measure.textContent = '0';
+    measure.style.visibility = 'hidden';
+    measure.style.position = 'absolute';
+    measure.style.font = getComputedStyle(el).font;
+    document.body.appendChild(measure);
+    var charH = measure.offsetHeight;
+    document.body.removeChild(measure);
+    if (!charH) charH = 24;
 
-    // Build per-character columns
+    // Build columns
     var chars = targetText.split('');
     el.innerHTML = '';
+    el.style.display = 'inline-flex';
+    el.style.alignItems = 'flex-end';
     var columns = [];
 
     chars.forEach(function(ch) {
-      var col = document.createElement('span');
-      col.style.display = 'inline-block';
-      col.style.overflow = 'hidden';
-      col.style.verticalAlign = 'bottom';
-      // Fixed width per character to avoid layout jumps
-      col.style.width = /\d/.test(ch) ? '0.62em' : 'auto';
-      col.style.textAlign = 'center';
-
       if (/\d/.test(ch)) {
         var target = parseInt(ch, 10);
-        // Build a strip of digits: several full 0-9 cycles + land on target
-        var cycles = 2;
+        // 2 full cycles (0-9) + partial cycle landing on target
         var strip = [];
-        for (var c = 0; c < cycles; c++) {
+        for (var c = 0; c < 2; c++)
           for (var d = 0; d <= 9; d++) strip.push(d);
-        }
-        // Final partial cycle landing on target
         for (var d2 = 0; d2 <= target; d2++) strip.push(d2);
 
-        var inner = document.createElement('span');
-        inner.style.display = 'block';
-        inner.style.lineHeight = 'inherit';
-        inner.textContent = strip.join('\n');
-        inner.style.whiteSpace = 'pre';
-        inner.style.transition = 'none';
-        // Start at top (showing first digit)
-        var totalSteps = strip.length - 1;
-        inner.style.marginTop = '0em';
-        col.appendChild(inner);
-        columns.push({ inner: inner, totalSteps: totalSteps });
+        var col = document.createElement('span');
+        col.style.display = 'inline-block';
+        col.style.overflow = 'hidden';
+        col.style.height = charH + 'px';
+        col.style.width = '0.65em';
+        col.style.textAlign = 'center';
+        col.style.lineHeight = charH + 'px';
+
+        var reel = document.createElement('span');
+        reel.style.display = 'block';
+        reel.innerHTML = strip.map(function(d) {
+          return '<span style="display:block;height:' + charH + 'px;line-height:' + charH + 'px">' + d + '</span>';
+        }).join('');
+        reel.style.transform = 'translateY(0)';
+
+        col.appendChild(reel);
+        el.appendChild(col);
+        columns.push({ reel: reel, steps: strip.length - 1 });
       } else {
-        col.textContent = ch;
+        var stat = document.createElement('span');
+        stat.textContent = ch;
+        el.appendChild(stat);
       }
-      el.appendChild(col);
     });
 
-    // Measure line height
-    var lineH = parseFloat(getComputedStyle(el).lineHeight) || el.offsetHeight;
-
-    // Trigger the roll with a slight stagger per column
+    // Trigger roll
     requestAnimationFrame(function() {
       requestAnimationFrame(function() {
         columns.forEach(function(c, i) {
-          var stagger = (i / chars.length) * (duration * 0.3);
-          var colDuration = duration - stagger;
-          c.inner.style.transition = 'margin-top ' + colDuration + 'ms cubic-bezier(.15,.75,.3,1)';
-          c.inner.style.transitionDelay = stagger + 'ms';
-          c.inner.style.marginTop = '-' + (c.totalSteps * lineH) + 'px';
+          var stagger = (i / Math.max(chars.length, 1)) * (duration * 0.3);
+          var colDur = duration - stagger;
+          c.reel.style.transition = 'transform ' + colDur + 'ms cubic-bezier(.12,.8,.22,1)';
+          c.reel.style.transitionDelay = stagger + 'ms';
+          c.reel.style.transform = 'translateY(-' + (c.steps * charH) + 'px)';
         });
       });
     });
 
-    // Apply highlight color
+    // Color highlight
     if (color) {
-      el.style.transition = 'color .2s ease';
       el.style.color = color;
     }
 
-    // Clean up after animation
+    // Clean up after animation completes
     setTimeout(function() {
       el.textContent = targetText;
-      el.style.overflow = origOverflow;
-      el.style.height = origHeight;
+      el.style.display = '';
       if (color) {
-        el.style.transition = 'color .6s ease';
-        setTimeout(function() { el.style.color = ''; }, 1200);
+        el.style.transition = 'color .8s ease';
+        setTimeout(function() { el.style.color = ''; el.style.transition = ''; }, 1500);
       }
-    }, duration + 200);
+    }, duration + 250);
   }
 
   function animateValue(el, newVal) {
@@ -816,6 +877,9 @@
     .then(function(html) {
       if (!html) return;
       container.innerHTML = html;
+
+      // Re-init sparklines (scripts in innerHTML don't execute)
+      if (window.initSparklines) window.initSparklines(container);
 
       // Slot-roll animate cards whose values changed
       container.querySelectorAll('[data-indicator-id]').forEach(function(card) {
