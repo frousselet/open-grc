@@ -1775,7 +1775,7 @@
     </button>
     <button class="user-avatar-btn" type="button" id="userAvatarToggle" aria-label="{% trans 'User menu' %}">
       {% if user.avatar %}
-      <img src="{{ user.avatar_32|default:user.avatar }}" alt="">
+      <img src="{{ user.avatar_64|default:user.avatar }}" alt="">
       {% else %}
       {{ user.display_name|truncatechars:1 }}
       {% endif %}
