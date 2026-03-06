@@ -1243,6 +1243,137 @@
       border-radius: var(--radius-xs);
     }
 
+    /* ── User header bubble ────────────────────────────── */
+    .user-header-bubble {
+      position: fixed;
+      top: .875rem;
+      right: 1.25rem;
+      z-index: 1040;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .user-header-bubble .btn-bubble {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      border: 1px solid var(--border-light);
+      background: var(--surface-raised);
+      box-shadow: var(--shadow-sm);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: box-shadow .2s var(--ease-out-expo), border-color .2s ease, transform .15s ease;
+      padding: 0;
+      font-size: .875rem;
+    }
+    .user-header-bubble .btn-bubble:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .user-header-bubble .btn-bubble:active { transform: scale(.93); }
+    .user-header-bubble .user-avatar-btn {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      border: 2px solid var(--border-light);
+      background: linear-gradient(135deg, var(--accent-soft), rgba(99,102,241,.15));
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .75rem;
+      font-weight: 650;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow .2s var(--ease-out-expo), border-color .2s ease, transform .15s ease;
+      padding: 0;
+      overflow: hidden;
+    }
+    .user-header-bubble .user-avatar-btn:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--accent);
+    }
+    .user-header-bubble .user-avatar-btn:active { transform: scale(.93); }
+    .user-header-bubble .user-avatar-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .user-header-dropdown {
+      position: absolute;
+      top: calc(100% + .5rem);
+      right: 0;
+      min-width: 220px;
+      background: var(--surface-raised);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      padding: .5rem 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-4px);
+      transition: opacity .2s var(--ease-out-expo), transform .2s var(--ease-out-expo), visibility .2s;
+    }
+    .user-header-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .user-header-dropdown .dropdown-header {
+      padding: .625rem 1rem;
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: .25rem;
+    }
+    .user-header-dropdown .dropdown-header .user-name {
+      font-size: .8125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .user-header-dropdown .dropdown-header .user-email {
+      font-size: .75rem;
+      color: var(--text-muted);
+      margin-top: .125rem;
+    }
+    .user-header-dropdown .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .5rem 1rem;
+      font-size: .8125rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: background .15s ease, color .15s ease;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+    }
+    .user-header-dropdown .dropdown-item:hover {
+      background: var(--surface-subtle);
+      color: var(--text-primary);
+    }
+    .user-header-dropdown .dropdown-item i { font-size: .9375rem; width: 1.125rem; text-align: center; }
+    .user-header-dropdown .dropdown-divider {
+      height: 0;
+      border-top: 1px solid var(--border-light);
+      margin: .25rem 0;
+    }
+    @media (max-width: 991.98px) {
+      .user-header-bubble { top: .75rem; right: .75rem; }
+      .user-header-bubble .btn-bubble,
+      .user-header-bubble .user-avatar-btn { width: 2rem; height: 2rem; font-size: .75rem; }
+    }
+
+    /* ── About modal ───────────────────────────────────── */
+    .about-modal-content { text-align: center; }
+    .about-modal-content .about-logo { font-size: 2.5rem; color: var(--accent); margin-bottom: .75rem; }
+    .about-modal-content .about-version { font-size: .8125rem; color: var(--text-muted); margin-top: .25rem; }
+    .about-modal-content .about-license { font-size: .75rem; color: var(--text-muted); margin-top: 1rem; padding-top: .75rem; border-top: 1px solid var(--border-light); }
+
     /* ── Scrollbar global ─────────────────────────────── */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -1441,7 +1572,7 @@
     <div class="sidebar-brand">
       <a href="/">
         <span class="sidebar-brand-icon"><i class="bi bi-shield-check"></i></span>
-        Open GRC {% if APP_VERSION %}<small style="font-size:.7em;opacity:.45">{{ APP_VERSION }}</small>{% endif %}
+        Open GRC {% if APP_VERSION == "dev" %}<small style="font-size:.7em;opacity:.45">dev</small>{% endif %}
       </a>
     </div>
 
@@ -1625,29 +1756,6 @@
       {% endif %}
     </div>
 
-    {# ── Sidebar footer (user) ─────────────────────────── #}
-    {% if user.is_authenticated %}
-    <div class="sidebar-footer">
-      <div class="d-flex align-items-center gap-2">
-        <a href="{% url 'accounts:profile' %}" class="d-flex align-items-center text-decoration-none" style="min-width:0;flex:1">
-          {% if user.avatar %}
-          <img src="{{ user.avatar_32|default:user.avatar }}" alt="" style="width:1.75rem;height:1.75rem;border-radius:var(--radius-sm);object-fit:cover" class="me-2">
-          {% else %}
-          <div style="width:1.75rem;height:1.75rem;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--accent-soft),rgba(99,102,241,.15));color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:650;letter-spacing:-.01em;" class="me-2">
-            {{ user.display_name|truncatechars:1 }}
-          </div>
-          {% endif %}
-          <span class="text-truncate" style="max-width:140px;font-size:.8125rem">{{ user.display_name }}</span>
-        </a>
-        <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-link p-0 d-flex align-items-center" style="color:var(--text-muted);font-size:1rem" title="{% trans 'Sign out' %}">
-            <i class="bi bi-box-arrow-right"></i>
-          </button>
-        </form>
-      </div>
-    </div>
-    {% endif %}
   </aside>
 
   {# ── Mobile menu toggle ──────────────────────────────── #}
@@ -1658,6 +1766,60 @@
       <span></span>
     </div>
   </button>
+
+  {# ── User header bubble (top-right) ─────────────────── #}
+  {% if user.is_authenticated %}
+  <div class="user-header-bubble" id="userHeaderBubble">
+    <button class="btn-bubble" type="button" title="{% trans 'About' %}" data-bs-toggle="modal" data-bs-target="#aboutModal">
+      <i class="bi bi-info-circle"></i>
+    </button>
+    <button class="user-avatar-btn" type="button" id="userAvatarToggle" aria-label="{% trans 'User menu' %}">
+      {% if user.avatar %}
+      <img src="{{ user.avatar_32|default:user.avatar }}" alt="">
+      {% else %}
+      {{ user.display_name|truncatechars:1 }}
+      {% endif %}
+    </button>
+    <div class="user-header-dropdown" id="userDropdown">
+      <div class="dropdown-header">
+        <div class="user-name">{{ user.display_name }}</div>
+        <div class="user-email">{{ user.email }}</div>
+      </div>
+      <a href="{% url 'accounts:profile' %}" class="dropdown-item">
+        <i class="bi bi-person"></i> {% trans "Profile" %}
+      </a>
+      <div class="dropdown-divider"></div>
+      <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
+        {% csrf_token %}
+        <button type="submit" class="dropdown-item" style="color:var(--danger)">
+          <i class="bi bi-box-arrow-right"></i> {% trans "Sign out" %}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  {# ── About modal ──────────────────────────────────────── #}
+  <div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body about-modal-content py-4 px-3">
+          <div class="about-logo"><i class="bi bi-shield-check"></i></div>
+          <h5 id="aboutModalLabel" class="mb-1">Open GRC</h5>
+          <div class="about-version">
+            {% if APP_VERSION %}{% trans "Version" %} {{ APP_VERSION }}{% else %}{% trans "Version" %} dev{% endif %}
+          </div>
+          <div class="about-license">
+            {% trans "MIT License" %}<br>
+            &copy; 2026 Fran&ccedil;ois Rousselet
+          </div>
+          <div class="mt-3">
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 
   {# ── Toast notifications ──────────────────────────────── #}
   {% if messages %}
@@ -1870,6 +2032,26 @@
         if (btn) btn.setAttribute('aria-expanded', 'true');
       }
     })();
+  </script>
+  <script>
+  /* ── User header dropdown toggle ─────────────────── */
+  (function() {
+    var toggle = document.getElementById('userAvatarToggle');
+    var dropdown = document.getElementById('userDropdown');
+    if (!toggle || !dropdown) return;
+    toggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      dropdown.classList.toggle('show');
+    });
+    document.addEventListener('click', function(e) {
+      if (!dropdown.contains(e.target) && e.target !== toggle) {
+        dropdown.classList.remove('show');
+      }
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') dropdown.classList.remove('show');
+    });
+  })();
   </script>
   <script>
   /* ── Toast notification management ──────────────── */

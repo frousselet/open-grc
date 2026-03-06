@@ -7551,9 +7551,25 @@ msgstr "Journaux"
 msgid "Django admin"
 msgstr "Admin Django"
 
-#: templates/base.html:1243
+#: templates/base.html
+msgid "About"
+msgstr "À propos"
+
+#: templates/base.html
+msgid "User menu"
+msgstr "Menu utilisateur"
+
+#: templates/base.html
+msgid "Profile"
+msgstr "Profil"
+
+#: templates/base.html
 msgid "Sign out"
 msgstr "Déconnexion"
+
+#: templates/base.html
+msgid "MIT License"
+msgstr "Licence MIT"
 
 #: templates/calendar.html:145
 msgid "Month"
