@@ -7571,6 +7571,10 @@ msgstr "Déconnexion"
 msgid "MIT License"
 msgstr "Licence MIT"
 
+#: templates/base.html
+msgid "Toggle sidebar"
+msgstr "Réduire le menu"
+
 #: templates/calendar.html:145
 msgid "Month"
 msgstr "Mois"

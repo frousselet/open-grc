@@ -23,6 +23,7 @@
     /* ── Design tokens ────────────────────────────────── */
     :root {
       --sidebar-w: 264px;
+      --sidebar-collapsed-w: 4.25rem;
       --sidebar-inset: .4375rem;
       --radius-xs: .375rem;
       --radius-sm: .5rem;
@@ -142,10 +143,11 @@
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-xs);
       overflow-y: auto;
+      overflow-x: hidden;
       z-index: 1040;
       display: flex;
       flex-direction: column;
-      transition: transform .3s var(--ease-out-expo);
+      transition: width .35s var(--ease-out-expo), transform .3s var(--ease-out-expo);
     }
     .sidebar::-webkit-scrollbar { width: 3px; }
     .sidebar::-webkit-scrollbar-track { background: transparent; margin: 8px 0; }
@@ -305,12 +307,165 @@
     }
     .sidebar-footer .dropdown-toggle:hover { color: var(--accent); }
 
+    /* ── Sidebar collapse toggle ──────────────────────── */
+    .sidebar-collapse-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: var(--radius-xs);
+      border: 1px solid var(--border-light);
+      background: var(--surface-muted);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: .625rem;
+      transition: all .2s ease;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .sidebar-collapse-toggle:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .sidebar-collapse-toggle i {
+      transition: transform .35s var(--ease-out-expo);
+    }
+    body.sidebar-collapsed .sidebar-collapse-toggle i {
+      transform: rotate(180deg);
+    }
+
+    /* ── Sidebar collapsed state (desktop only) ──────── */
+    body.sidebar-collapsed .sidebar {
+      width: var(--sidebar-collapsed-w);
+    }
+    body.sidebar-collapsed .main-content {
+      margin-left: calc(var(--sidebar-collapsed-w) + var(--sidebar-inset) * 2);
+    }
+    /* Brand: hide text, center icon */
+    body.sidebar-collapsed .sidebar-brand {
+      justify-content: center;
+      padding: 1.125rem .5rem;
+      gap: 0;
+      flex-direction: column;
+      align-items: center;
+    }
+    body.sidebar-collapsed .sidebar-brand a {
+      gap: 0;
+    }
+    body.sidebar-collapsed .sidebar-brand .sidebar-link-text {
+      width: 0;
+      height: 0;
+      overflow: hidden;
+      opacity: 0;
+      position: absolute;
+    }
+    body.sidebar-collapsed .sidebar-collapse-toggle {
+      margin-top: .5rem;
+    }
+    /* Hide section headers */
+    body.sidebar-collapsed .sidebar-section {
+      font-size: 0;
+      padding: .75rem 0 .25rem;
+      text-align: center;
+    }
+    body.sidebar-collapsed .sidebar-section::after {
+      content: '';
+      display: block;
+      width: 1rem;
+      height: 1px;
+      background: var(--border-light);
+      margin: 0 auto;
+    }
+    /* Links: icon-only, centered */
+    body.sidebar-collapsed .sidebar-link {
+      justify-content: center;
+      padding: .5rem .75rem;
+      gap: 0;
+      position: relative;
+    }
+    body.sidebar-collapsed .sidebar-link .sidebar-link-text {
+      width: 0;
+      overflow: hidden;
+      opacity: 0;
+      white-space: nowrap;
+      transition: width .35s var(--ease-out-expo), opacity .2s ease;
+    }
+    body.sidebar-collapsed .sidebar-link i {
+      font-size: 1.0625rem;
+      width: auto;
+    }
+    body.sidebar-collapsed .sidebar-link.active::before {
+      top: .25rem;
+      bottom: .25rem;
+    }
+    /* Hide sub-links in collapsed */
+    body.sidebar-collapsed .sidebar-body .collapse,
+    body.sidebar-collapsed .sidebar-body .collapsing {
+      display: none !important;
+    }
+    /* Collapse buttons: icon-only, centered */
+    body.sidebar-collapsed .sidebar-collapse-btn {
+      justify-content: center;
+      padding: .5rem .75rem;
+      gap: 0;
+    }
+    body.sidebar-collapsed .sidebar-collapse-btn .sidebar-link-text {
+      width: 0;
+      overflow: hidden;
+      opacity: 0;
+      white-space: nowrap;
+    }
+    body.sidebar-collapsed .sidebar-collapse-btn i.bi-chevron-down {
+      display: none;
+    }
+    body.sidebar-collapsed .sidebar-collapse-btn i:first-child {
+      font-size: 1.0625rem;
+      width: auto;
+    }
+    /* Tooltip on hover for collapsed items */
+    body.sidebar-collapsed .sidebar-link:hover .sidebar-tooltip,
+    body.sidebar-collapsed .sidebar-collapse-btn:hover .sidebar-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
+    .sidebar-tooltip {
+      display: none;
+    }
+    body.sidebar-collapsed .sidebar-tooltip {
+      display: block;
+      position: absolute;
+      left: calc(100% + .5rem);
+      top: 50%;
+      transform: translateX(-4px) translateY(-50%);
+      background: var(--text-primary);
+      color: var(--bg-page);
+      font-size: .75rem;
+      font-weight: 500;
+      padding: .25rem .625rem;
+      border-radius: var(--radius-xs);
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .15s ease, transform .15s var(--ease-out-expo), visibility .15s;
+      z-index: 1050;
+      box-shadow: var(--shadow-md);
+    }
+    /* Sub-items: hidden in collapsed mode */
+    body.sidebar-collapsed .sidebar-sub {
+      display: none;
+    }
+
     /* ── Main content ──────────────────────────────────── */
     .main-content {
       margin-left: calc(var(--sidebar-w) + var(--sidebar-inset) * 2);
       padding: 2.5rem 3rem 4rem;
       min-height: 100vh;
       background: var(--bg-page);
+      transition: margin-left .35s var(--ease-out-expo);
     }
 
     /* ── Vertical rhythm ──────────────────────────────── */
@@ -1471,6 +1626,21 @@
       .sidebar.show .sidebar-brand { padding-left: 3rem; }
       .sidebar-backdrop.show { display: block; }
       .mobile-menu-toggle { display: flex; }
+      .sidebar-collapse-toggle { display: none !important; }
+      /* Reset collapsed state on mobile */
+      body.sidebar-collapsed .sidebar { width: calc(100vw - var(--sidebar-inset) * 2); max-width: var(--sidebar-w); }
+      body.sidebar-collapsed .main-content { margin-left: 0; }
+      body.sidebar-collapsed .sidebar-link .sidebar-link-text { width: auto; overflow: visible; opacity: 1; }
+      body.sidebar-collapsed .sidebar-collapse-btn .sidebar-link-text { width: auto; overflow: visible; opacity: 1; }
+      body.sidebar-collapsed .sidebar-section { font-size: .625rem; padding: 1.375rem 1.25rem .5rem; }
+      body.sidebar-collapsed .sidebar-section::after { display: none; }
+      body.sidebar-collapsed .sidebar-link { justify-content: flex-start; padding: .4375rem 1.25rem; gap: .625rem; }
+      body.sidebar-collapsed .sidebar-collapse-btn { justify-content: flex-start; padding: .4375rem 1.25rem; gap: .625rem; }
+      body.sidebar-collapsed .sidebar-collapse-btn i.bi-chevron-down { display: inline; }
+      body.sidebar-collapsed .sidebar-body .collapse,
+      body.sidebar-collapsed .sidebar-body .collapsing { display: block !important; }
+      body.sidebar-collapsed .sidebar-sub { display: block; }
+      body.sidebar-collapsed .sidebar-tooltip { display: none !important; }
       .main-content { margin-left: 0; padding: 4.5rem 1rem 3.5rem; }
       .main-content h1 { font-size: 1.25rem; }
       .main-content h2 { font-size: 1.0625rem; }
@@ -1577,27 +1747,34 @@
     <div class="sidebar-brand">
       <a href="/">
         <span class="sidebar-brand-icon"><i class="bi bi-shield-check"></i></span>
-        Open GRC {% if APP_VERSION == "dev" %}<small style="font-size:.7em;opacity:.45">dev</small>{% endif %}
+        <span class="sidebar-link-text">Open GRC {% if APP_VERSION == "dev" %}<small style="font-size:.7em;opacity:.45">dev</small>{% endif %}</span>
       </a>
+      <button class="sidebar-collapse-toggle" onclick="toggleSidebarCollapse()" title="{% trans 'Toggle sidebar' %}">
+        <i class="bi bi-chevron-left"></i>
+      </button>
     </div>
 
     <div class="sidebar-body">
       {# ── General ───────────────────────────────────────── #}
       <a href="{% url 'home' %}" class="sidebar-link">
-        <i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}
+        <i class="bi bi-speedometer2"></i> <span class="sidebar-link-text">{% trans "Dashboard" %}</span>
+        <span class="sidebar-tooltip">{% trans "Dashboard" %}</span>
       </a>
       <a href="{% url 'calendar' %}" class="sidebar-link">
-        <i class="bi bi-calendar3"></i> {% trans "Calendar" %}
+        <i class="bi bi-calendar3"></i> <span class="sidebar-link-text">{% trans "Calendar" %}</span>
+        <span class="sidebar-tooltip">{% trans "Calendar" %}</span>
       </a>
 
       {# ── Gouvernance ─────────────────────────────────── #}
       <div class="sidebar-section">{% trans "Governance" %}</div>
       <a href="{% url 'context:dashboard' %}" class="sidebar-link">
-        <i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}
+        <i class="bi bi-speedometer2"></i> <span class="sidebar-link-text">{% trans "Dashboard" %}</span>
+        <span class="sidebar-tooltip">{% trans "Dashboard" %}</span>
       </a>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navGouv" aria-expanded="true">
-        <i class="bi bi-diagram-3"></i> {% trans "Organization" %}
+        <i class="bi bi-diagram-3"></i> <span class="sidebar-link-text">{% trans "Organization" %}</span>
         <i class="bi bi-chevron-down"></i>
+        <span class="sidebar-tooltip">{% trans "Organization" %}</span>
       </button>
       <div class="collapse show" id="navGouv">
         <a href="{% url 'context:scope-list' %}" class="sidebar-link sidebar-sub">{% trans "Scopes" %}</a>
@@ -1607,14 +1784,17 @@
         <a href="{% url 'context:swot-list' %}" class="sidebar-link sidebar-sub">{% trans "SWOT analyses" %}</a>
       </div>
       <a href="{% url 'context:role-list' %}" class="sidebar-link">
-        <i class="bi bi-person-badge"></i> {% trans "Roles" %}
+        <i class="bi bi-person-badge"></i> <span class="sidebar-link-text">{% trans "Roles" %}</span>
+        <span class="sidebar-tooltip">{% trans "Roles" %}</span>
       </a>
       <a href="{% url 'context:activity-list' %}" class="sidebar-link">
-        <i class="bi bi-activity"></i> {% trans "Activities" %}
+        <i class="bi bi-activity"></i> <span class="sidebar-link-text">{% trans "Activities" %}</span>
+        <span class="sidebar-tooltip">{% trans "Activities" %}</span>
       </a>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navIndicateurs" aria-expanded="true">
-        <i class="bi bi-bar-chart-line"></i> {% trans "Indicators" %}
+        <i class="bi bi-bar-chart-line"></i> <span class="sidebar-link-text">{% trans "Indicators" %}</span>
         <i class="bi bi-chevron-down"></i>
+        <span class="sidebar-tooltip">{% trans "Indicators" %}</span>
       </button>
       <div class="collapse show" id="navIndicateurs">
         <a href="{% url 'context:indicator-organizational-list' %}" class="sidebar-link sidebar-sub">{% trans "Organizational" %}</a>
@@ -1624,11 +1804,13 @@
       {# ── Actifs ──────────────────────────────────────── #}
       <div class="sidebar-section">{% trans "Assets" %}</div>
       <a href="{% url 'assets:dashboard' %}" class="sidebar-link">
-        <i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}
+        <i class="bi bi-speedometer2"></i> <span class="sidebar-link-text">{% trans "Dashboard" %}</span>
+        <span class="sidebar-tooltip">{% trans "Dashboard" %}</span>
       </a>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navActifs" aria-expanded="true">
-        <i class="bi bi-box-seam"></i> {% trans "Goods" %}
+        <i class="bi bi-box-seam"></i> <span class="sidebar-link-text">{% trans "Goods" %}</span>
         <i class="bi bi-chevron-down"></i>
+        <span class="sidebar-tooltip">{% trans "Goods" %}</span>
       </button>
       <div class="collapse show" id="navActifs">
         <a href="{% url 'assets:essential-asset-list' %}" class="sidebar-link sidebar-sub">{% trans "Essential assets" %}</a>
@@ -1636,23 +1818,26 @@
         <a href="{% url 'assets:group-list' %}" class="sidebar-link sidebar-sub">{% trans "Asset groups" %}</a>
       </div>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navSites" aria-expanded="true">
-        <i class="bi bi-building"></i> {% trans "Sites" %}
+        <i class="bi bi-building"></i> <span class="sidebar-link-text">{% trans "Sites" %}</span>
         <i class="bi bi-chevron-down"></i>
+        <span class="sidebar-tooltip">{% trans "Sites" %}</span>
       </button>
       <div class="collapse show" id="navSites">
         <a href="{% url 'assets:site-list' %}" class="sidebar-link sidebar-sub">{% trans "Sites" %}</a>
       </div>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navSuppliers" aria-expanded="true">
-        <i class="bi bi-truck"></i> {% trans "Suppliers" %}
+        <i class="bi bi-truck"></i> <span class="sidebar-link-text">{% trans "Suppliers" %}</span>
         <i class="bi bi-chevron-down"></i>
+        <span class="sidebar-tooltip">{% trans "Suppliers" %}</span>
       </button>
       <div class="collapse show" id="navSuppliers">
         <a href="{% url 'assets:supplier-list' %}" class="sidebar-link sidebar-sub">{% trans "Suppliers" %}</a>
         <a href="{% url 'assets:supplier-type-list' %}" class="sidebar-link sidebar-sub">{% trans "Supplier types" %}</a>
       </div>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navDeps" aria-expanded="true">
-        <i class="bi bi-share"></i> {% trans "Dependencies" %}
+        <i class="bi bi-share"></i> <span class="sidebar-link-text">{% trans "Dependencies" %}</span>
         <i class="bi bi-chevron-down"></i>
+        <span class="sidebar-tooltip">{% trans "Dependencies" %}</span>
       </button>
       <div class="collapse show" id="navDeps">
         <a href="{% url 'assets:dependency-list' %}" class="sidebar-link sidebar-sub">{% trans "Asset dependencies" %}</a>
@@ -1665,19 +1850,22 @@
       {# ── Gestion des risques ───────────────────────── #}
       <div class="sidebar-section">{% trans "Risk management" %}</div>
       <a href="{% url 'risks:dashboard' %}" class="sidebar-link">
-        <i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}
+        <i class="bi bi-speedometer2"></i> <span class="sidebar-link-text">{% trans "Dashboard" %}</span>
+        <span class="sidebar-tooltip">{% trans "Dashboard" %}</span>
       </a>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navRiskAssess" aria-expanded="true">
-        <i class="bi bi-clipboard-data"></i> {% trans "Assessments" %}
+        <i class="bi bi-clipboard-data"></i> <span class="sidebar-link-text">{% trans "Assessments" %}</span>
         <i class="bi bi-chevron-down"></i>
+        <span class="sidebar-tooltip">{% trans "Assessments" %}</span>
       </button>
       <div class="collapse show" id="navRiskAssess">
         <a href="{% url 'risks:assessment-list' %}" class="sidebar-link sidebar-sub">{% trans "Assessments" %}</a>
         <a href="{% url 'risks:criteria-list' %}" class="sidebar-link sidebar-sub">{% trans "Criteria" %}</a>
       </div>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navRiskReg" aria-expanded="true">
-        <i class="bi bi-shield-exclamation"></i> {% trans "Register" %}
+        <i class="bi bi-shield-exclamation"></i> <span class="sidebar-link-text">{% trans "Register" %}</span>
         <i class="bi bi-chevron-down"></i>
+        <span class="sidebar-tooltip">{% trans "Register" %}</span>
       </button>
       <div class="collapse show" id="navRiskReg">
         <a href="{% url 'risks:risk-list' %}" class="sidebar-link sidebar-sub">{% trans "Risks" %}</a>
@@ -1685,8 +1873,9 @@
         <a href="{% url 'risks:acceptance-list' %}" class="sidebar-link sidebar-sub">{% trans "Acceptances" %}</a>
       </div>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navRiskCatalogs" aria-expanded="true">
-        <i class="bi bi-journal-bookmark"></i> {% trans "Catalogs" %}
+        <i class="bi bi-journal-bookmark"></i> <span class="sidebar-link-text">{% trans "Catalogs" %}</span>
         <i class="bi bi-chevron-down"></i>
+        <span class="sidebar-tooltip">{% trans "Catalogs" %}</span>
       </button>
       <div class="collapse show" id="navRiskCatalogs">
         <a href="{% url 'risks:threat-list' %}" class="sidebar-link sidebar-sub">{% trans "Threats" %}</a>
@@ -1696,27 +1885,33 @@
       {# ── Conformité ──────────────────────────────────── #}
       <div class="sidebar-section">{% trans "Compliance" %}</div>
       <a href="{% url 'compliance:dashboard' %}" class="sidebar-link">
-        <i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}
+        <i class="bi bi-speedometer2"></i> <span class="sidebar-link-text">{% trans "Dashboard" %}</span>
+        <span class="sidebar-tooltip">{% trans "Dashboard" %}</span>
       </a>
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navReferentiels" aria-expanded="true">
-        <i class="bi bi-journal-bookmark"></i> {% trans "Frameworks" %}
+        <i class="bi bi-journal-bookmark"></i> <span class="sidebar-link-text">{% trans "Frameworks" %}</span>
         <i class="bi bi-chevron-down"></i>
+        <span class="sidebar-tooltip">{% trans "Frameworks" %}</span>
       </button>
       <div class="collapse show" id="navReferentiels">
         <a href="{% url 'compliance:framework-list' %}" class="sidebar-link sidebar-sub">{% trans "List" %}</a>
         <a href="{% url 'compliance:framework-import' %}" class="sidebar-link sidebar-sub">{% trans "Import" %}</a>
       </div>
       <a href="{% url 'compliance:requirement-list' %}" class="sidebar-link">
-        <i class="bi bi-list-check"></i> {% trans "Requirements" %}
+        <i class="bi bi-list-check"></i> <span class="sidebar-link-text">{% trans "Requirements" %}</span>
+        <span class="sidebar-tooltip">{% trans "Requirements" %}</span>
       </a>
       <a href="{% url 'compliance:assessment-list' %}" class="sidebar-link">
-        <i class="bi bi-clipboard-data"></i> {% trans "Assessments" %}
+        <i class="bi bi-clipboard-data"></i> <span class="sidebar-link-text">{% trans "Assessments" %}</span>
+        <span class="sidebar-tooltip">{% trans "Assessments" %}</span>
       </a>
       <a href="{% url 'compliance:mapping-list' %}" class="sidebar-link">
-        <i class="bi bi-arrow-left-right"></i> {% trans "Mappings" %}
+        <i class="bi bi-arrow-left-right"></i> <span class="sidebar-link-text">{% trans "Mappings" %}</span>
+        <span class="sidebar-tooltip">{% trans "Mappings" %}</span>
       </a>
       <a href="{% url 'compliance:action-plan-list' %}" class="sidebar-link">
-        <i class="bi bi-kanban"></i> {% trans "Action plans" %}
+        <i class="bi bi-kanban"></i> <span class="sidebar-link-text">{% trans "Action plans" %}</span>
+        <span class="sidebar-tooltip">{% trans "Action plans" %}</span>
       </a>
 
       {# ── Administration ──────────────────────────────── #}
@@ -1724,28 +1919,33 @@
       {% if can_admin %}
       <div class="sidebar-section">{% trans "Administration" %}</div>
       <a href="{% url 'context:tag-list' %}" class="sidebar-link">
-        <i class="bi bi-tags"></i> {% trans "Tags" %}
+        <i class="bi bi-tags"></i> <span class="sidebar-link-text">{% trans "Tags" %}</span>
+        <span class="sidebar-tooltip">{% trans "Tags" %}</span>
       </a>
       {% has_perm "system.users.read" as can_users %}
       {% if can_users %}
       <a href="{% url 'accounts:user-list' %}" class="sidebar-link">
-        <i class="bi bi-people"></i> {% trans "Users" %}
+        <i class="bi bi-people"></i> <span class="sidebar-link-text">{% trans "Users" %}</span>
+        <span class="sidebar-tooltip">{% trans "Users" %}</span>
       </a>
       {% endif %}
       {% has_perm "system.groups.read" as can_groups %}
       {% if can_groups %}
       <a href="{% url 'accounts:group-list' %}" class="sidebar-link">
-        <i class="bi bi-shield-lock"></i> {% trans "Groups" %}
+        <i class="bi bi-shield-lock"></i> <span class="sidebar-link-text">{% trans "Groups" %}</span>
+        <span class="sidebar-tooltip">{% trans "Groups" %}</span>
       </a>
       <a href="{% url 'accounts:permission-list' %}" class="sidebar-link">
-        <i class="bi bi-key"></i> {% trans "Permissions" %}
+        <i class="bi bi-key"></i> <span class="sidebar-link-text">{% trans "Permissions" %}</span>
+        <span class="sidebar-tooltip">{% trans "Permissions" %}</span>
       </a>
       {% endif %}
       {% has_perm "system.audit_trail.read" as can_audit %}
       {% if can_audit %}
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navLogs" aria-expanded="true">
-        <i class="bi bi-journal-text"></i> {% trans "Logs" %}
+        <i class="bi bi-journal-text"></i> <span class="sidebar-link-text">{% trans "Logs" %}</span>
         <i class="bi bi-chevron-down"></i>
+        <span class="sidebar-tooltip">{% trans "Logs" %}</span>
       </button>
       <div class="collapse show" id="navLogs">
         <a href="{% url 'accounts:access-log-list' %}" class="sidebar-link sidebar-sub">{% trans "Access log" %}</a>
@@ -1755,7 +1955,8 @@
       {% has_perm "system.admin_django.access" as can_django_admin %}
       {% if can_django_admin %}
       <a href="{% url 'admin:index' %}" class="sidebar-link">
-        <i class="bi bi-gear"></i> {% trans "Django admin" %}
+        <i class="bi bi-gear"></i> <span class="sidebar-link-text">{% trans "Django admin" %}</span>
+        <span class="sidebar-tooltip">{% trans "Django admin" %}</span>
       </a>
       {% endif %}
       {% endif %}
@@ -2003,6 +2204,19 @@
       document.getElementById('sidebarBackdrop').classList.toggle('show');
       document.body.classList.toggle('sidebar-open');
     }
+    /* ── Sidebar collapse (desktop icon-only mode) ──── */
+    function toggleSidebarCollapse() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      try { localStorage.setItem('sidebar-collapsed', collapsed ? '1' : ''); } catch(e) {}
+    }
+    /* Restore collapsed state on load */
+    (function() {
+      try {
+        if (localStorage.getItem('sidebar-collapsed') === '1') {
+          document.body.classList.add('sidebar-collapsed');
+        }
+      } catch(e) {}
+    })();
     /* Auto-expand and highlight the active sidebar link;
        on mobile, collapse all sections except the one containing the active link */
     (function() {
