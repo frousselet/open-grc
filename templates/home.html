@@ -709,12 +709,49 @@
   function refreshIndicators() {
     var container = document.getElementById('ws-indicators-container');
     if (!container) return;
+
+    // Snapshot current indicator values before fetching
+    var oldValues = {};
+    container.querySelectorAll('[data-indicator-id]').forEach(function(card) {
+      oldValues[card.getAttribute('data-indicator-id')] = card.getAttribute('data-indicator-value');
+    });
+
     fetch('{% url "dashboard-indicators-partial" %}', {
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
     .then(function(r) { return r.ok ? r.text() : null; })
     .then(function(html) {
-      if (html) container.innerHTML = html;
+      if (!html) return;
+      container.innerHTML = html;
+
+      // Animate cards whose values changed
+      container.querySelectorAll('[data-indicator-id]').forEach(function(card) {
+        var id = card.getAttribute('data-indicator-id');
+        var newVal = card.getAttribute('data-indicator-value');
+        if (oldValues.hasOwnProperty(id) && oldValues[id] !== newVal) {
+          // Pulse + glow animation
+          card.style.transition = 'transform .3s ease, box-shadow .3s ease';
+          card.style.transform = 'scale(1.04)';
+          card.style.boxShadow = '0 0 16px rgba(99,102,241,.45)';
+          // Flash the value text
+          var valEl = card.querySelector('.stat-card-value');
+          if (valEl) {
+            var oldNum = parseFloat(oldValues[id]);
+            var newNum = parseFloat(newVal);
+            var color = 'var(--accent)';
+            if (!isNaN(oldNum) && !isNaN(newNum)) {
+              color = newNum > oldNum ? 'var(--success)' : newNum < oldNum ? 'var(--danger)' : 'var(--accent)';
+            }
+            valEl.style.transition = 'color .3s ease';
+            valEl.style.color = color;
+          }
+          setTimeout(function() {
+            card.style.transform = '';
+            card.style.boxShadow = '';
+            if (valEl) setTimeout(function() { valEl.style.color = ''; }, 1200);
+          }, 600);
+        }
+      });
     })
     .catch(function() {});
   }
