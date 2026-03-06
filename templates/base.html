@@ -198,6 +198,8 @@
       text-transform: uppercase;
       letter-spacing: .1em;
       color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
     }
 
     .sidebar-link {
@@ -213,6 +215,8 @@
       transition: all var(--transition-fast);
       margin: 0;
       position: relative;
+      white-space: nowrap;
+      overflow: hidden;
     }
     .sidebar-link:hover {
       background: var(--accent-soft);
@@ -242,7 +246,7 @@
     }
     .sidebar-link:hover i,
     .sidebar-link.active i { color: var(--accent); }
-    .sidebar-sub { padding-left: 3.125rem; font-size: .8125rem; color: var(--text-sidebar-sub); }
+    .sidebar-sub { padding-left: 3.125rem; font-size: .8125rem; color: var(--text-sidebar-sub); white-space: nowrap; overflow: hidden; }
 
     .sidebar-body .collapse {
       position: relative;
@@ -274,6 +278,8 @@
       text-align: left;
       cursor: pointer;
       transition: all var(--transition-fast);
+      white-space: nowrap;
+      overflow: hidden;
     }
     .sidebar-collapse-btn:hover {
       background: var(--accent-soft);
