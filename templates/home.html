@@ -692,18 +692,111 @@
     }
   }
 
+  function slotRoll(el, targetText, opts) {
+    // Slot-machine digit roll animation.
+    // Works for any string: numbers get digit-by-digit rolls,
+    // non-numeric chars are kept static.
+    opts = opts || {};
+    var duration = opts.duration || 900;     // total ms
+    var color = opts.color || null;          // highlight color
+
+    var oldText = el.textContent.trim();
+    if (oldText === targetText) return;
+
+    // Wrap element for overflow clipping
+    var origOverflow = el.style.overflow;
+    var origHeight = el.style.height;
+    el.style.overflow = 'hidden';
+    el.style.height = el.offsetHeight ? el.offsetHeight + 'px' : 'auto';
+    el.style.display = 'inline-block';
+    el.style.verticalAlign = 'bottom';
+
+    // Build per-character columns
+    var chars = targetText.split('');
+    el.innerHTML = '';
+    var columns = [];
+
+    chars.forEach(function(ch) {
+      var col = document.createElement('span');
+      col.style.display = 'inline-block';
+      col.style.overflow = 'hidden';
+      col.style.verticalAlign = 'bottom';
+      // Fixed width per character to avoid layout jumps
+      col.style.width = /\d/.test(ch) ? '0.62em' : 'auto';
+      col.style.textAlign = 'center';
+
+      if (/\d/.test(ch)) {
+        var target = parseInt(ch, 10);
+        // Build a strip of digits: several full 0-9 cycles + land on target
+        var cycles = 2;
+        var strip = [];
+        for (var c = 0; c < cycles; c++) {
+          for (var d = 0; d <= 9; d++) strip.push(d);
+        }
+        // Final partial cycle landing on target
+        for (var d2 = 0; d2 <= target; d2++) strip.push(d2);
+
+        var inner = document.createElement('span');
+        inner.style.display = 'block';
+        inner.style.lineHeight = 'inherit';
+        inner.textContent = strip.join('\n');
+        inner.style.whiteSpace = 'pre';
+        inner.style.transition = 'none';
+        // Start at top (showing first digit)
+        var totalSteps = strip.length - 1;
+        inner.style.marginTop = '0em';
+        col.appendChild(inner);
+        columns.push({ inner: inner, totalSteps: totalSteps });
+      } else {
+        col.textContent = ch;
+      }
+      el.appendChild(col);
+    });
+
+    // Measure line height
+    var lineH = parseFloat(getComputedStyle(el).lineHeight) || el.offsetHeight;
+
+    // Trigger the roll with a slight stagger per column
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        columns.forEach(function(c, i) {
+          var stagger = (i / chars.length) * (duration * 0.3);
+          var colDuration = duration - stagger;
+          c.inner.style.transition = 'margin-top ' + colDuration + 'ms cubic-bezier(.15,.75,.3,1)';
+          c.inner.style.transitionDelay = stagger + 'ms';
+          c.inner.style.marginTop = '-' + (c.totalSteps * lineH) + 'px';
+        });
+      });
+    });
+
+    // Apply highlight color
+    if (color) {
+      el.style.transition = 'color .2s ease';
+      el.style.color = color;
+    }
+
+    // Clean up after animation
+    setTimeout(function() {
+      el.textContent = targetText;
+      el.style.overflow = origOverflow;
+      el.style.height = origHeight;
+      if (color) {
+        el.style.transition = 'color .6s ease';
+        setTimeout(function() { el.style.color = ''; }, 1200);
+      }
+    }, duration + 200);
+  }
+
   function animateValue(el, newVal) {
     var suffix = el.getAttribute('data-ws-suffix') || '';
     var oldVal = parseInt(el.textContent, 10);
+    var targetText = newVal + suffix;
     if (isNaN(oldVal) || oldVal === newVal) {
-      el.textContent = newVal + suffix;
+      el.textContent = targetText;
       return;
     }
-    // Brief highlight animation
-    el.style.transition = 'color .3s ease';
-    el.style.color = newVal > oldVal ? 'var(--success)' : 'var(--danger)';
-    el.textContent = newVal + suffix;
-    setTimeout(function() { el.style.color = ''; }, 1500);
+    var color = newVal > oldVal ? 'var(--success)' : 'var(--danger)';
+    slotRoll(el, targetText, { color: color });
   }
 
   function refreshIndicators() {
@@ -724,32 +817,21 @@
       if (!html) return;
       container.innerHTML = html;
 
-      // Animate cards whose values changed
+      // Slot-roll animate cards whose values changed
       container.querySelectorAll('[data-indicator-id]').forEach(function(card) {
         var id = card.getAttribute('data-indicator-id');
         var newVal = card.getAttribute('data-indicator-value');
         if (oldValues.hasOwnProperty(id) && oldValues[id] !== newVal) {
-          // Pulse + glow animation
-          card.style.transition = 'transform .3s ease, box-shadow .3s ease';
-          card.style.transform = 'scale(1.04)';
-          card.style.boxShadow = '0 0 16px rgba(99,102,241,.45)';
-          // Flash the value text
           var valEl = card.querySelector('.stat-card-value');
-          if (valEl) {
+          if (valEl && newVal && /[\d]/.test(newVal)) {
             var oldNum = parseFloat(oldValues[id]);
             var newNum = parseFloat(newVal);
             var color = 'var(--accent)';
             if (!isNaN(oldNum) && !isNaN(newNum)) {
               color = newNum > oldNum ? 'var(--success)' : newNum < oldNum ? 'var(--danger)' : 'var(--accent)';
             }
-            valEl.style.transition = 'color .3s ease';
-            valEl.style.color = color;
+            slotRoll(valEl, valEl.textContent.trim(), { color: color, duration: 1100 });
           }
-          setTimeout(function() {
-            card.style.transform = '';
-            card.style.boxShadow = '';
-            if (valEl) setTimeout(function() { valEl.style.color = ''; }, 1200);
-          }, 600);
         }
       });
     })
