@@ -169,8 +169,8 @@ window.initSparklines = function(root) {
       lineEl.style.strokeDashoffset = len;
       areaEl.style.opacity = '0';
       lineEl.getBoundingClientRect();
-      lineEl.style.transition = 'stroke-dashoffset .8s ease-out';
-      areaEl.style.transition = 'opacity .5s ease-out .4s';
+      lineEl.style.transition = 'stroke-dashoffset 1.8s ease-out';
+      areaEl.style.transition = 'opacity 1s ease-out .9s';
       requestAnimationFrame(function() {
         requestAnimationFrame(function() {
           lineEl.style.strokeDashoffset = '0';
@@ -761,11 +761,14 @@ window.initSparklines = function(root) {
       el.textContent = newVal + suffix;
       return;
     }
-    // Brief highlight animation
-    el.style.transition = 'color .3s ease';
+    // Highlight animation
+    el.style.transition = 'color .5s ease';
     el.style.color = newVal > oldVal ? 'var(--success)' : 'var(--danger)';
     el.textContent = newVal + suffix;
-    setTimeout(function() { el.style.color = ''; }, 1500);
+    setTimeout(function() {
+      el.style.transition = 'color 1.5s ease';
+      el.style.color = '';
+    }, 2500);
   }
 
   function refreshIndicators() {
@@ -801,9 +804,12 @@ window.initSparklines = function(root) {
             var color = (!isNaN(oldNum) && !isNaN(newNum))
               ? (newNum > oldNum ? 'var(--success)' : 'var(--danger)')
               : 'var(--success)';
-            valEl.style.transition = 'color .3s ease';
+            valEl.style.transition = 'color .5s ease';
             valEl.style.color = color;
-            setTimeout(function() { valEl.style.color = ''; }, 1500);
+            setTimeout(function() {
+              valEl.style.transition = 'color 1.5s ease';
+              valEl.style.color = '';
+            }, 2500);
           }
         }
       });
