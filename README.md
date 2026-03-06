@@ -56,6 +56,22 @@ Open-source Governance, Risk and Compliance (GRC) platform built with Django.
 - **Dual Authentication** — session-based (web UI) + JWT with token rotation (API)
 - **Access Logs** — full audit trail of authentication events (login, logout, lockout, password change)
 
+### Real-Time Dashboard
+
+- **WebSocket Updates** — live dashboard statistics pushed via Django Channels, no page refresh needed
+- **Animated Counters** — smooth count-up animations with easeOutExpo easing and locale-aware thousand separators
+- **Connection Status** — visual sonar-style indicator showing WebSocket connection state
+- **Auto-Reconnect** — exponential backoff reconnection (up to 30 s)
+- **Scope-Aware** — each user sees only data matching their assigned scopes
+
+### Indicators (KPI Tracking)
+
+- **Custom Indicators** — manual KPI, metric and compliance metric tracking with number, boolean or percentage formats
+- **Predefined Indicators** — auto-computed metrics (global compliance rate, risk treatment rate, objective progress, etc.)
+- **Thresholds** — critical threshold detection with configurable operators and min/max bounds
+- **Measurement History** — timestamped measurements with trend and delta tracking
+- **Sparklines** — inline charts on the dashboard for numeric indicators
+
 ### Cross-Cutting Capabilities
 
 - **Approval Workflows** — two-step approval (submit / approve) on all domain models with dedicated permissions
@@ -67,6 +83,8 @@ Open-source Governance, Risk and Compliance (GRC) platform built with Django.
 - **Responsive UI** — collapsible sidebar, mobile-friendly layout
 - **REST API** — full CRUD + filtering, search, pagination and export on all resources
 - **HTMX Integration** — dynamic partial updates without full page reloads
+- **Passkey Authentication** — FIDO2 WebAuthn passwordless login with discoverable credentials
+- **MCP Server** — JSON-RPC 2.0 server with 40+ tools and OAuth 2.0 authentication for external clients
 
 ## Tech Stack
 
@@ -74,13 +92,14 @@ Open-source Governance, Risk and Compliance (GRC) platform built with Django.
 |-----------|-----------|
 | Backend | Django 5.2 LTS |
 | Database | PostgreSQL 16 |
+| Real-Time | Django Channels + Redis 7 |
+| ASGI Server | Uvicorn |
 | REST API | Django REST Framework |
-| Authentication | djangorestframework-simplejwt |
+| Authentication | djangorestframework-simplejwt, fido2 (WebAuthn) |
 | Audit Trail | django-simple-history |
 | Filtering | django-filter |
 | Frontend | Bootstrap 5.3 + HTMX |
 | Export | openpyxl |
-| Server | Gunicorn |
 | Container | Docker & Docker Compose |
 
 ## Getting Started
@@ -140,9 +159,23 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_HOST: db
       POSTGRES_PORT: "5432"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   db:
     image: postgres:16
