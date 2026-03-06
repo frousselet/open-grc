@@ -2029,6 +2029,124 @@
     });
   })();
   </script>
+  <script>
+  /* ── Slot-machine count-up animation for stat cards ── */
+  (function() {
+    var DURATION = 600;
+    /* ease-out cubic */
+    function ease(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function animateValue(el) {
+      if (el.dataset.countAnimated) return;
+      var original = el.textContent.trim();
+
+      /* Skip non-numeric: icons, dashes, empty */
+      if (!original || /^[\u2014\u2013—-]$/.test(original)) return;
+
+      /* Split text into leading numeric part and trailing suffix.
+         Numeric part can contain digits, spaces (thousand sep), commas, dots.
+         Examples: "250 000", "1,5", "42", "12.34" */
+      var numMatch = original.match(/^([\d\s\u00a0\u202f.,]+)([\s\S]*)$/);
+      if (!numMatch) return;
+
+      var numPart = numMatch[1].trimEnd();
+      var suffix = numMatch[2];
+
+      /* Detect thousand separator: space variants, or comma/dot before 3-digit groups */
+      var thousandSep = '';
+      var m;
+      if ((m = numPart.match(/\d([\s\u00a0\u202f])\d{3}/))) {
+        thousandSep = m[1];
+      } else if (/\d,\d{3}(?!\d)/.test(numPart) && !/,\d{1,2}$/.test(numPart)) {
+        thousandSep = ',';
+      }
+
+      /* Strip thousand separators to get raw number */
+      var raw = numPart;
+      if (thousandSep) raw = raw.split(thousandSep).join('');
+
+      /* Handle decimal comma (French locale): "1,5" → "1.5"
+         Only if comma is NOT the thousand separator */
+      var decimalSep = '.';
+      if (thousandSep !== ',' && /,\d{1,2}$/.test(raw)) {
+        decimalSep = ',';
+        raw = raw.replace(',', '.');
+      }
+
+      var target = parseFloat(raw);
+      if (isNaN(target) || target === 0) return;
+
+      /* Determine decimal places from original numeric part */
+      var decPos = numPart.lastIndexOf(decimalSep);
+      var decimals = 0;
+      if (decimalSep === ',' && decPos !== -1) {
+        decimals = numPart.length - decPos - 1;
+      } else if (decimalSep === '.' && numPart.indexOf('.') !== -1 && thousandSep !== '.') {
+        decimals = numPart.length - numPart.lastIndexOf('.') - 1;
+      }
+
+      el.dataset.countAnimated = '1';
+      var start = null;
+
+      function step(ts) {
+        if (!start) start = ts;
+        var progress = Math.min((ts - start) / DURATION, 1);
+        var current = target * ease(progress);
+
+        /* Format the number to match original style */
+        var intPart, decPart = '';
+        if (decimals) {
+          var fixed = current.toFixed(decimals);
+          var parts = fixed.split('.');
+          intPart = parts[0];
+          decPart = decimalSep + parts[1];
+        } else {
+          intPart = Math.round(current).toString();
+        }
+
+        /* Re-add thousand separators */
+        if (thousandSep) {
+          intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandSep);
+        }
+
+        el.textContent = intPart + decPart + suffix;
+
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          /* Guarantee exact original text at the end */
+          el.textContent = original;
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    function initCountUp() {
+      var els = document.querySelectorAll('.stat-card-value:not([data-count-animated])');
+      if (!els.length) return;
+
+      if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              animateValue(entry.target);
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+        els.forEach(function(el) { observer.observe(el); });
+      } else {
+        els.forEach(animateValue);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initCountUp);
+    } else {
+      initCountUp();
+    }
+  })();
+  </script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>
