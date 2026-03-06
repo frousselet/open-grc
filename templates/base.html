@@ -426,6 +426,22 @@
       font-size: 1.0625rem;
       width: auto;
     }
+    /* Small right-arrow hint for sub-menus in collapsed mode */
+    .sidebar-collapsed .sidebar-collapse-btn::after {
+      content: '\F285';
+      font-family: 'bootstrap-icons';
+      position: absolute;
+      right: .375rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: .5rem;
+      color: var(--text-muted);
+      opacity: 0;
+      transition: opacity .15s ease;
+    }
+    .sidebar-collapsed .sidebar-collapse-btn:hover::after {
+      opacity: .7;
+    }
     /* Tooltip on hover for collapsed items */
     .sidebar-collapsed .sidebar-link:hover .sidebar-tooltip {
       opacity: 1;
@@ -2323,11 +2339,6 @@
         if (btn && isCollapsed()) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          if (activeBtn === btn) {
-            closeSidebarFlyout();
-          } else {
-            openFlyout(btn);
-          }
           return;
         }
         /* Close flyout if clicking outside */
@@ -2336,22 +2347,37 @@
         }
       }, true);
 
+      /* Open flyout on hover */
+      document.addEventListener('mouseenter', function(e) {
+        var btn = e.target.closest('.sidebar-collapse-btn');
+        if (btn && isCollapsed()) {
+          clearTimeout(hoverTimeout);
+          openFlyout(btn);
+        }
+      }, true);
+
+      /* Close flyout when mouse leaves both button and flyout */
+      document.addEventListener('mouseleave', function(e) {
+        if (!activeBtn || !flyout.classList.contains('show')) return;
+        var leaving = e.target.closest('.sidebar-collapse-btn') || flyout.contains(e.target);
+        if (leaving) {
+          hoverTimeout = setTimeout(function() {
+            closeSidebarFlyout();
+          }, 200);
+        }
+      }, true);
+
+      /* Cancel close when re-entering button or flyout */
+      document.addEventListener('mouseenter', function(e) {
+        if (!activeBtn || !flyout.classList.contains('show')) return;
+        if (flyout.contains(e.target) || (e.target.closest && e.target.closest('.sidebar-collapse-btn') === activeBtn)) {
+          clearTimeout(hoverTimeout);
+        }
+      }, true);
+
       /* Close on Escape */
       document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closeSidebarFlyout();
-      });
-
-      /* Close flyout when leaving both the button and flyout area */
-      document.addEventListener('mouseover', function(e) {
-        if (!activeBtn || !flyout.classList.contains('show')) return;
-        clearTimeout(hoverTimeout);
-        var overBtn = activeBtn.contains(e.target);
-        var overFlyout = flyout.contains(e.target);
-        if (!overBtn && !overFlyout) {
-          hoverTimeout = setTimeout(function() {
-            closeSidebarFlyout();
-          }, 250);
-        }
       });
     })();
     /* Auto-expand and highlight the active sidebar link;
