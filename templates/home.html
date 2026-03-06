@@ -77,6 +77,7 @@
 {% block content %}
 <div class="d-flex align-items-center mb-4">
   <h1 class="mb-0">{% trans "Dashboard" %}</h1>
+  <span id="ws-status" class="ms-3 badge" style="font-size:.6875rem;display:none" title="{% trans 'Real-time connection' %}"></span>
 </div>
 {% help_modal "home" %}
 
@@ -114,7 +115,7 @@
       </div>
     </div>
     <div class="col-lg-2 col-md-4 col-sm-4 text-lg-end text-md-end text-sm-end">
-      <span class="display-4" style="color:#fff;font-variant-numeric:tabular-nums">{{ overall_compliance|floatformat:0 }}%</span>
+      <span class="display-4" style="color:#fff;font-variant-numeric:tabular-nums" data-ws-field="overall_compliance" data-ws-suffix="%">{{ overall_compliance|floatformat:0 }}%</span>
     </div>
   </div>
 </div>
@@ -223,7 +224,7 @@
     <div class="stat-card">
       <div class="stat-card-icon accent"><i class="bi bi-bullseye"></i></div>
       <div class="stat-card-label">{% trans "Scopes" %}</div>
-      <div class="stat-card-value">{{ scope_count }}</div>
+      <div class="stat-card-value" data-ws-field="scope_count">{{ scope_count }}</div>
       <div class="stat-card-footer"><a href="{% url 'context:scope-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
@@ -231,7 +232,7 @@
     <div class="stat-card">
       <div class="stat-card-icon info"><i class="bi bi-flag"></i></div>
       <div class="stat-card-label">{% trans "Issues" %}</div>
-      <div class="stat-card-value">{{ issue_count }}</div>
+      <div class="stat-card-value" data-ws-field="issue_count">{{ issue_count }}</div>
       <div class="stat-card-footer"><a href="{% url 'context:issue-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
@@ -239,7 +240,7 @@
     <div class="stat-card">
       <div class="stat-card-icon success"><i class="bi bi-people"></i></div>
       <div class="stat-card-label">{% trans "Stakeholders" %}</div>
-      <div class="stat-card-value">{{ stakeholder_count }}</div>
+      <div class="stat-card-value" data-ws-field="stakeholder_count">{{ stakeholder_count }}</div>
       <div class="stat-card-footer"><a href="{% url 'context:stakeholder-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
@@ -247,7 +248,7 @@
     <div class="stat-card">
       <div class="stat-card-icon warning"><i class="bi bi-trophy"></i></div>
       <div class="stat-card-label">{% trans "Objectives" %}</div>
-      <div class="stat-card-value">{{ objective_count }}</div>
+      <div class="stat-card-value" data-ws-field="objective_count">{{ objective_count }}</div>
       <div class="stat-card-footer"><a href="{% url 'context:objective-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
@@ -257,7 +258,7 @@
     <div class="stat-card">
       <div class="stat-card-icon accent"><i class="bi bi-person-badge"></i></div>
       <div class="stat-card-label">{% trans "Roles" %}</div>
-      <div class="stat-card-value">{{ role_count }}</div>
+      <div class="stat-card-value" data-ws-field="role_count">{{ role_count }}</div>
       {% if mandatory_roles_no_user %}
       <span class="badge text-bg-danger mt-2" style="font-size:.6875rem">{% blocktrans with count=mandatory_roles_no_user %}{{ count }} mandatory role(s) with no user{% endblocktrans %}</span>
       {% endif %}
@@ -268,7 +269,7 @@
     <div class="stat-card">
       <div class="stat-card-icon info"><i class="bi bi-building"></i></div>
       <div class="stat-card-label">{% trans "Sites" %}</div>
-      <div class="stat-card-value">{{ site_count }}</div>
+      <div class="stat-card-value" data-ws-field="site_count">{{ site_count }}</div>
       <div class="stat-card-footer"><a href="{% url 'assets:site-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
@@ -276,7 +277,7 @@
     <div class="stat-card">
       <div class="stat-card-icon danger"><i class="bi bi-grid-3x3-gap"></i></div>
       <div class="stat-card-label">{% trans "SWOT analyses" %}</div>
-      <div class="stat-card-value">{{ swot_count }}</div>
+      <div class="stat-card-value" data-ws-field="swot_count">{{ swot_count }}</div>
       <div class="stat-card-footer"><a href="{% url 'context:swot-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
@@ -284,7 +285,7 @@
     <div class="stat-card">
       <div class="stat-card-icon success"><i class="bi bi-activity"></i></div>
       <div class="stat-card-label">{% trans "Activities" %}</div>
-      <div class="stat-card-value">{{ activity_count }}</div>
+      <div class="stat-card-value" data-ws-field="activity_count">{{ activity_count }}</div>
       {% if critical_activities_no_owner %}
       <span class="badge text-bg-danger mt-2" style="font-size:.6875rem">{% blocktrans with count=critical_activities_no_owner %}{{ count }} critical without owner{% endblocktrans %}</span>
       {% endif %}
@@ -319,7 +320,7 @@
     <div class="stat-card">
       <div class="stat-card-icon accent"><i class="bi bi-gem"></i></div>
       <div class="stat-card-label">{% trans "Essential assets" %}</div>
-      <div class="stat-card-value">{{ essential_count }}</div>
+      <div class="stat-card-value" data-ws-field="essential_count">{{ essential_count }}</div>
       {% if personal_data_count %}
       <span class="badge mt-2" style="background:var(--warning-soft);color:var(--warning);font-size:.6875rem">{% blocktrans with count=personal_data_count %}{{ count }} with personal data{% endblocktrans %}</span>
       {% endif %}
@@ -330,7 +331,7 @@
     <div class="stat-card">
       <div class="stat-card-icon info"><i class="bi bi-hdd-stack"></i></div>
       <div class="stat-card-label">{% trans "Support assets" %}</div>
-      <div class="stat-card-value">{{ support_count }}</div>
+      <div class="stat-card-value" data-ws-field="support_count">{{ support_count }}</div>
       {% if eol_count %}
       <span class="badge mt-2" style="background:var(--danger-soft);color:var(--danger);font-size:.6875rem">{% blocktrans with count=eol_count %}{{ count }} past end of life{% endblocktrans %}</span>
       {% endif %}
@@ -341,7 +342,7 @@
     <div class="stat-card">
       <div class="stat-card-icon success"><i class="bi bi-share"></i></div>
       <div class="stat-card-label">{% trans "Dependencies" %}</div>
-      <div class="stat-card-value">{{ dependency_count }}</div>
+      <div class="stat-card-value" data-ws-field="dependency_count">{{ dependency_count }}</div>
       {% if spof_count %}
       <span class="badge mt-2" style="background:var(--warning-soft);color:var(--warning);font-size:.6875rem">{{ spof_count }} SPOF</span>
       {% endif %}
@@ -352,7 +353,7 @@
     <div class="stat-card">
       <div class="stat-card-icon warning"><i class="bi bi-truck"></i></div>
       <div class="stat-card-label">{% trans "Suppliers" %}</div>
-      <div class="stat-card-value">{{ supplier_count }}</div>
+      <div class="stat-card-value" data-ws-field="supplier_count">{{ supplier_count }}</div>
       {% if expired_contract_count %}
       <span class="badge mt-2" style="background:var(--danger-soft);color:var(--danger);font-size:.6875rem">{% blocktrans with count=expired_contract_count %}{{ count }} expired contract(s){% endblocktrans %}</span>
       {% endif %}
@@ -365,7 +366,7 @@
     <div class="stat-card">
       <div class="stat-card-icon info"><i class="bi bi-diagram-2"></i></div>
       <div class="stat-card-label">{% trans "Supplier dependencies" %}</div>
-      <div class="stat-card-value">{{ supplier_dep_count }}</div>
+      <div class="stat-card-value" data-ws-field="supplier_dep_count">{{ supplier_dep_count }}</div>
       {% if supplier_spof_count %}
       <span class="badge mt-2" style="background:var(--warning-soft);color:var(--warning);font-size:.6875rem">{{ supplier_spof_count }} SPOF</span>
       {% endif %}
@@ -376,7 +377,7 @@
     <div class="stat-card">
       <div class="stat-card-icon warning"><i class="bi bi-tags"></i></div>
       <div class="stat-card-label">{% trans "Supplier types" %}</div>
-      <div class="stat-card-value">{{ supplier_type_count }}</div>
+      <div class="stat-card-value" data-ws-field="supplier_type_count">{{ supplier_type_count }}</div>
       <div class="stat-card-footer"><a href="{% url 'assets:supplier-type-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
@@ -384,7 +385,7 @@
     <div class="stat-card">
       <div class="stat-card-icon accent"><i class="bi bi-collection"></i></div>
       <div class="stat-card-label">{% trans "Asset groups" %}</div>
-      <div class="stat-card-value">{{ group_count }}</div>
+      <div class="stat-card-value" data-ws-field="group_count">{{ group_count }}</div>
       <div class="stat-card-footer"><a href="{% url 'assets:group-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
@@ -402,7 +403,7 @@
     <div class="stat-card">
       <div class="stat-card-icon accent"><i class="bi bi-clipboard-data"></i></div>
       <div class="stat-card-label">{% trans "Assessments" %}</div>
-      <div class="stat-card-value">{{ risk_assessment_count }}</div>
+      <div class="stat-card-value" data-ws-field="risk_assessment_count">{{ risk_assessment_count }}</div>
       <div class="stat-card-footer"><a href="{% url 'risks:assessment-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
@@ -410,7 +411,7 @@
     <div class="stat-card">
       <div class="stat-card-icon danger"><i class="bi bi-exclamation-diamond"></i></div>
       <div class="stat-card-label">{% trans "Risks" %}</div>
-      <div class="stat-card-value">{{ risk_count }}</div>
+      <div class="stat-card-value" data-ws-field="risk_count">{{ risk_count }}</div>
       {% if critical_risk_count %}
       <span class="badge mt-2" style="background:var(--danger-soft);color:var(--danger);font-size:.6875rem">{% blocktrans with count=critical_risk_count %}{{ count }} critical{% endblocktrans %}</span>
       {% endif %}
@@ -421,7 +422,7 @@
     <div class="stat-card">
       <div class="stat-card-icon warning"><i class="bi bi-tools"></i></div>
       <div class="stat-card-label">{% trans "Treatment plans" %}</div>
-      <div class="stat-card-value">{{ treatment_plan_count }}</div>
+      <div class="stat-card-value" data-ws-field="treatment_plan_count">{{ treatment_plan_count }}</div>
       {% if treatment_in_progress_count %}
       <span class="badge mt-2" style="background:var(--warning-soft);color:var(--warning);font-size:.6875rem">{% blocktrans with count=treatment_in_progress_count %}{{ count }} in progress{% endblocktrans %}</span>
       {% endif %}
@@ -432,7 +433,7 @@
     <div class="stat-card">
       <div class="stat-card-icon success"><i class="bi bi-check2-circle"></i></div>
       <div class="stat-card-label">{% trans "Acceptances" %}</div>
-      <div class="stat-card-value">{{ acceptance_count }}</div>
+      <div class="stat-card-value" data-ws-field="acceptance_count">{{ acceptance_count }}</div>
       {% if expiring_acceptance_count %}
       <span class="badge mt-2" style="background:var(--warning-soft);color:var(--warning);font-size:.6875rem">{% blocktrans with count=expiring_acceptance_count %}{{ count }} expiring soon{% endblocktrans %}</span>
       {% endif %}
@@ -445,7 +446,7 @@
     <div class="stat-card">
       <div class="stat-card-icon info"><i class="bi bi-bug"></i></div>
       <div class="stat-card-label">{% trans "Threats" %}</div>
-      <div class="stat-card-value">{{ threat_count }}</div>
+      <div class="stat-card-value" data-ws-field="threat_count">{{ threat_count }}</div>
       <div class="stat-card-footer"><a href="{% url 'risks:threat-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
@@ -453,7 +454,7 @@
     <div class="stat-card">
       <div class="stat-card-icon warning"><i class="bi bi-shield-slash"></i></div>
       <div class="stat-card-label">{% trans "Vulnerabilities" %}</div>
-      <div class="stat-card-value">{{ vulnerability_count }}</div>
+      <div class="stat-card-value" data-ws-field="vulnerability_count">{{ vulnerability_count }}</div>
       <div class="stat-card-footer"><a href="{% url 'risks:vulnerability-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
@@ -503,7 +504,7 @@
     <div class="stat-card">
       <div class="stat-card-icon accent"><i class="bi bi-journal-bookmark"></i></div>
       <div class="stat-card-label">{% trans "Frameworks" %}</div>
-      <div class="stat-card-value">{{ framework_count }}</div>
+      <div class="stat-card-value" data-ws-field="framework_count">{{ framework_count }}</div>
       <div class="stat-card-footer"><a href="{% url 'compliance:framework-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
@@ -511,7 +512,7 @@
     <div class="stat-card">
       <div class="stat-card-icon info"><i class="bi bi-list-check"></i></div>
       <div class="stat-card-label">{% trans "Requirements" %}</div>
-      <div class="stat-card-value">{{ requirement_count }}</div>
+      <div class="stat-card-value" data-ws-field="requirement_count">{{ requirement_count }}</div>
       {% if non_compliant_count %}
       <span class="badge mt-2" style="background:var(--danger-soft);color:var(--danger);font-size:.6875rem">{% blocktrans with count=non_compliant_count %}{{ count }} non-compliant{% endblocktrans %}</span>
       {% endif %}
@@ -522,7 +523,7 @@
     <div class="stat-card">
       <div class="stat-card-icon success"><i class="bi bi-clipboard-check"></i></div>
       <div class="stat-card-label">{% trans "Assessments" %}</div>
-      <div class="stat-card-value">{{ assessment_count }}</div>
+      <div class="stat-card-value" data-ws-field="assessment_count">{{ assessment_count }}</div>
       <div class="stat-card-footer"><a href="{% url 'compliance:assessment-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
@@ -530,7 +531,7 @@
     <div class="stat-card">
       <div class="stat-card-icon warning"><i class="bi bi-kanban"></i></div>
       <div class="stat-card-label">{% trans "Action plans" %}</div>
-      <div class="stat-card-value">{{ action_plan_count }}</div>
+      <div class="stat-card-value" data-ws-field="action_plan_count">{{ action_plan_count }}</div>
       {% if overdue_plan_count %}
       <span class="badge mt-2" style="background:var(--danger-soft);color:var(--danger);font-size:.6875rem">{% blocktrans with count=overdue_plan_count %}{{ count }} overdue{% endblocktrans %}</span>
       {% endif %}
@@ -543,7 +544,7 @@
     <div class="stat-card">
       <div class="stat-card-icon accent"><i class="bi bi-arrow-left-right"></i></div>
       <div class="stat-card-label">{% trans "Inter-framework mappings" %}</div>
-      <div class="stat-card-value">{{ mapping_count }}</div>
+      <div class="stat-card-value" data-ws-field="mapping_count">{{ mapping_count }}</div>
       <div class="stat-card-footer"><a href="{% url 'compliance:mapping-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
@@ -657,6 +658,108 @@
       document.getElementById('upcomingBody').innerHTML =
         '<div class="upcoming-empty"><i class="bi bi-calendar-check me-1"></i>' + TXT_NOUPCOMING + '</div>';
     });
+})();
+</script>
+
+{# ── WebSocket real-time dashboard ───────────────────── #}
+<script>
+(function() {
+  {% trans "Connected" as t_connected %}
+  {% trans "Reconnecting..." as t_reconnecting %}
+
+  var TXT_CONNECTED = '{{ t_connected|escapejs }}';
+  var TXT_RECONNECTING = '{{ t_reconnecting|escapejs }}';
+
+  var wsStatus = document.getElementById('ws-status');
+  var ws = null;
+  var retryDelay = 1000;
+  var maxRetryDelay = 30000;
+  var retryTimer = null;
+
+  function setStatus(connected) {
+    if (!wsStatus) return;
+    wsStatus.style.display = '';
+    if (connected) {
+      wsStatus.textContent = TXT_CONNECTED;
+      wsStatus.className = 'ms-3 badge text-bg-success';
+      wsStatus.style.fontSize = '.6875rem';
+    } else {
+      wsStatus.textContent = TXT_RECONNECTING;
+      wsStatus.className = 'ms-3 badge text-bg-warning';
+      wsStatus.style.fontSize = '.6875rem';
+    }
+  }
+
+  function animateValue(el, newVal) {
+    var suffix = el.getAttribute('data-ws-suffix') || '';
+    var oldVal = parseInt(el.textContent, 10);
+    if (isNaN(oldVal) || oldVal === newVal) {
+      el.textContent = newVal + suffix;
+      return;
+    }
+    // Brief highlight animation
+    el.style.transition = 'color .3s ease';
+    el.style.color = newVal > oldVal ? 'var(--success)' : 'var(--danger)';
+    el.textContent = newVal + suffix;
+    setTimeout(function() { el.style.color = ''; }, 1500);
+  }
+
+  function applyUpdate(data) {
+    var fields = document.querySelectorAll('[data-ws-field]');
+    fields.forEach(function(el) {
+      var key = el.getAttribute('data-ws-field');
+      if (data.hasOwnProperty(key)) {
+        animateValue(el, data[key]);
+      }
+    });
+  }
+
+  function connect() {
+    var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    ws = new WebSocket(proto + '//' + location.host + '/ws/dashboard/');
+
+    ws.onopen = function() {
+      retryDelay = 1000;
+      setStatus(true);
+    };
+
+    ws.onmessage = function(e) {
+      try {
+        var msg = JSON.parse(e.data);
+        if (msg.type === 'dashboard.update' && msg.data) {
+          applyUpdate(msg.data);
+        }
+      } catch (err) {}
+    };
+
+    ws.onclose = function() {
+      setStatus(false);
+      scheduleReconnect();
+    };
+
+    ws.onerror = function() {
+      ws.close();
+    };
+  }
+
+  function scheduleReconnect() {
+    if (retryTimer) return;
+    retryTimer = setTimeout(function() {
+      retryTimer = null;
+      connect();
+      retryDelay = Math.min(retryDelay * 2, maxRetryDelay);
+    }, retryDelay);
+  }
+
+  // Only connect if the browser supports WebSockets
+  if ('WebSocket' in window) {
+    connect();
+  }
+
+  // Clean up on page unload
+  window.addEventListener('beforeunload', function() {
+    if (ws) ws.close();
+  });
 })();
 </script>
 {% endblock %}
