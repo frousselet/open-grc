@@ -63,11 +63,10 @@
     border: 1px solid var(--border-light);
   }
   .graph-stat {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: .3rem;
     white-space: nowrap;
-    line-height: 1;
   }
   .graph-stat strong { color: var(--text-primary); }
   .graph-stat-sep {
@@ -132,12 +131,12 @@
   <span class="graph-stat-sep"></span>
   <button class="btn btn-sm btn-outline-secondary graph-legend-toggle" onclick="this.nextElementSibling.classList.toggle('show')" title="{% trans 'Legend' %}"><i class="bi bi-palette"></i></button>
   <span class="graph-legend-group">
-    <span class="graph-stat"><span class="legend-dot" style="background:#818cf8"></span> {% trans "Essential asset" %}</span>
-    <span class="graph-stat"><span class="legend-dot" style="background:#34d399"></span> {% trans "Support asset" %}</span>
-    <span class="graph-stat"><span class="legend-dot" style="background:#22d3ee"></span> {% trans "Site" %}</span>
-    <span class="graph-stat"><span class="legend-dot" style="background:#fbbf24"></span> {% trans "Supplier" %}</span>
-    <span class="graph-stat"><span class="legend-line" style="background:#94a3b8"></span> {% trans "Dependency" %}</span>
-    <span class="graph-stat"><span class="legend-line" style="background:#f87171"></span> SPOF</span>
+    <span class="graph-stat"><span class="legend-dot" style="background:#818cf8"></span><span>{% trans "Essential asset" %}</span></span>
+    <span class="graph-stat"><span class="legend-dot" style="background:#34d399"></span><span>{% trans "Support asset" %}</span></span>
+    <span class="graph-stat"><span class="legend-dot" style="background:#22d3ee"></span><span>{% trans "Site" %}</span></span>
+    <span class="graph-stat"><span class="legend-dot" style="background:#fbbf24"></span><span>{% trans "Supplier" %}</span></span>
+    <span class="graph-stat"><span class="legend-line" style="background:#94a3b8"></span><span>{% trans "Dependency" %}</span></span>
+    <span class="graph-stat"><span class="legend-line" style="background:#f87171"></span><span>SPOF</span></span>
   </span>
   <span class="graph-stat-sep"></span>
   <button class="btn btn-sm btn-outline-secondary" onclick="resetZoom()" title="{% trans 'Reset zoom' %}"><i class="bi bi-arrows-fullscreen"></i></button>
