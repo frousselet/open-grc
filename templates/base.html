@@ -316,28 +316,48 @@
 
     /* ── Sidebar collapse toggle ──────────────────────── */
     .sidebar-collapse-toggle {
+      position: fixed;
+      left: calc(var(--sidebar-w) + var(--sidebar-inset) - .75rem);
+      top: calc(var(--sidebar-inset) + 1.375rem);
       display: flex;
       align-items: center;
       justify-content: center;
       width: 1.5rem;
       height: 1.5rem;
-      border-radius: var(--radius-xs);
+      border-radius: 50%;
       border: 1px solid var(--border-light);
-      background: var(--surface-muted);
+      background: var(--surface-raised);
       color: var(--text-muted);
       cursor: pointer;
-      font-size: .625rem;
-      transition: all .2s ease;
+      font-size: .5625rem;
       padding: 0;
-      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+      opacity: 0;
+      z-index: 1041;
+      transition: opacity .2s ease, left .35s var(--ease-out-expo),
+                  background .15s ease, color .15s ease,
+                  border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+    }
+    .sidebar:hover ~ .sidebar-collapse-toggle,
+    .sidebar-collapse-toggle:hover,
+    .sidebar-collapse-toggle:focus-visible {
+      opacity: 1;
     }
     .sidebar-collapse-toggle:hover {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-      color: var(--accent);
+      background: var(--text-primary);
+      border-color: var(--text-primary);
+      color: var(--bg-page);
+      box-shadow: var(--shadow-md);
+    }
+    .sidebar-collapse-toggle:active {
+      transform: scale(.88);
     }
     .sidebar-collapse-toggle i {
       transition: transform .35s var(--ease-out-expo);
+    }
+    .sidebar-collapsed .sidebar-collapse-toggle {
+      left: calc(var(--sidebar-collapsed-w) + var(--sidebar-inset) - .75rem);
+      opacity: 1;
     }
     .sidebar-collapsed .sidebar-collapse-toggle i {
       transform: rotate(180deg);
@@ -354,10 +374,7 @@
     /* Brand: hide text, center icon */
     .sidebar-collapsed .sidebar-brand {
       justify-content: center;
-      padding: 1.125rem .5rem;
-      gap: 0;
-      flex-direction: column;
-      align-items: center;
+      padding: 1.25rem .5rem 1.125rem;
     }
     .sidebar-collapsed .sidebar-brand a {
       gap: 0;
@@ -368,9 +385,6 @@
       overflow: hidden;
       opacity: 0;
       position: absolute;
-    }
-    .sidebar-collapsed .sidebar-collapse-toggle {
-      margin-top: .5rem;
     }
     /* Hide section headers */
     .sidebar-collapsed .sidebar-section {
@@ -1822,9 +1836,6 @@
         <span class="sidebar-brand-icon"><i class="bi bi-shield-check"></i></span>
         <span class="sidebar-link-text">Open GRC {% if APP_VERSION == "dev" %}<small style="font-size:.7em;opacity:.45">dev</small>{% endif %}</span>
       </a>
-      <button class="sidebar-collapse-toggle" onclick="toggleSidebarCollapse()" title="{% trans 'Toggle sidebar' %}">
-        <i class="bi bi-chevron-left"></i>
-      </button>
     </div>
 
     <div class="sidebar-body">
@@ -2036,6 +2047,9 @@
     </div>
 
   </aside>
+  <button class="sidebar-collapse-toggle" onclick="toggleSidebarCollapse()" title="{% trans 'Toggle sidebar' %}">
+    <i class="bi bi-chevron-left"></i>
+  </button>
   <div class="sidebar-flyout" id="sidebarFlyout"></div>
 
   {# ── Mobile menu toggle ──────────────────────────────── #}
