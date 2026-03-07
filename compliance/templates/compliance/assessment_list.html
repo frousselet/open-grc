@@ -14,12 +14,6 @@
             hx-get="{% url 'compliance:assessment-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
       <i class="bi bi-plus-lg"></i>
     </button>
-    <button type="button" class="btn-header-action" data-toggle-search title="{% trans 'Search' %}">
-      <i class="bi bi-search"></i>
-    </button>
-    <button type="button" class="btn-header-action" data-toggle-help title="{% trans 'Help' %}">
-      <i class="bi bi-info-circle"></i>
-    </button>
   </div>
 </div>
 {% help_modal "compliance.assessment_list" %}
