@@ -81,6 +81,8 @@ urlpatterns = [
     path("indicators/technical/create/", views.IndicatorCreateView.as_view(indicator_type=IndicatorType.TECHNICAL), name="indicator-technical-create"),
     # Indicators — Predefined
     path("indicators/predefined/create/", views.PredefinedIndicatorCreateView.as_view(), name="indicator-predefined-create"),
+    # Indicators — table body (HTMX)
+    path("indicators/table-body/", views.IndicatorTableBodyView.as_view(), name="indicator-table-body"),
     # Indicators — shared CRUD
     path("indicators/<uuid:pk>/", views.IndicatorDetailView.as_view(), name="indicator-detail"),
     path("indicators/<uuid:pk>/edit/", views.IndicatorUpdateView.as_view(), name="indicator-update"),

@@ -13,16 +13,19 @@
   <h1 class="mb-0">{% if indicator_type == "organizational" %}{% trans "Organizational indicators" %}{% else %}{% trans "Technical indicators" %}{% endif %}</h1>
   <div class="header-actions">
     {% if indicator_type == "organizational" %}
-      <a href="{% url 'context:indicator-organizational-create' %}" class="btn-header-action" title="{% trans 'New indicator' %}">
+      <button type="button" class="btn-header-action" title="{% trans 'New indicator' %}"
+              hx-get="{% url 'context:indicator-organizational-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
         <i class="bi bi-plus-lg"></i>
-      </a>
-      <a href="{% url 'context:indicator-predefined-create' %}" class="btn-header-action" title="{% trans 'New predefined indicator' %}">
+      </button>
+      <button type="button" class="btn-header-action" title="{% trans 'New predefined indicator' %}"
+              hx-get="{% url 'context:indicator-predefined-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
         <i class="bi bi-list-check"></i>
-      </a>
+      </button>
     {% else %}
-      <a href="{% url 'context:indicator-technical-create' %}" class="btn-header-action" title="{% trans 'New indicator' %}">
+      <button type="button" class="btn-header-action" title="{% trans 'New indicator' %}"
+              hx-get="{% url 'context:indicator-technical-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
         <i class="bi bi-plus-lg"></i>
-      </a>
+      </button>
     {% endif %}
   </div>
 </div>
@@ -57,44 +60,11 @@
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
-      <tbody>
-        {% for indicator in indicators %}
-        <tr>
-          <td><a href="{% url 'context:indicator-detail' indicator.pk %}" class="ref" style="text-decoration:none">{{ indicator.reference }}</a></td>
-          <td>
-            {{ indicator.name }}
-            {% if indicator.is_internal %}<span class="badge text-bg-info ms-1" style="font-size:.65rem">{% trans "Predefined" %}</span>{% endif %}
-          </td>
-          <td>{{ indicator.get_format_display }}</td>
-          <td>
-            {% if indicator.current_value %}
-              <span class="{% if indicator.is_critical %}text-danger fw-bold{% endif %}">
-                {{ indicator.current_value }}{% if indicator.unit %} {{ indicator.unit }}{% endif %}
-              </span>
-            {% else %}—{% endif %}
-          </td>
-          <td>{{ indicator.expected_level|default:"—" }}{% if indicator.unit and indicator.expected_level %} {{ indicator.unit }}{% endif %}</td>
-          <td>{{ indicator.get_collection_method_display }}</td>
-          <td>{{ indicator.get_review_frequency_display }}</td>
-          <td>
-            <span class="badge text-bg-{% if indicator.status == 'active' %}success{% elif indicator.status == 'draft' %}secondary{% else %}warning{% endif %}">
-              {{ indicator.get_status_display }}
-            </span>
-          </td>
-          <td>{% for tag in indicator.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          <td>
-            <span class="badge text-bg-{% if indicator.is_approved %}success{% else %}warning{% endif %}">
-              {% if indicator.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          <td class="text-end">
-            <a href="{% url 'context:indicator-update' indicator.pk %}" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"><i class="bi bi-pencil"></i></a>
-            <a href="{% url 'context:indicator-delete' indicator.pk %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Delete' %}"><i class="bi bi-trash"></i></a>
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No indicator defined." %}</td></tr>
-        {% endfor %}
+      <tbody id="item-table-body"
+             hx-get="{% url 'context:indicator-table-body' %}?indicator_type={{ indicator_type }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}"
+             hx-trigger="refreshTable"
+             hx-swap="innerHTML">
+        {% include "context/indicator_table_body.html" %}
       </tbody>
     </table>
   </div>
