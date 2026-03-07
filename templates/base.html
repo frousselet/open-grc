@@ -2217,12 +2217,43 @@
 
     /* ── Scope widget compact ────────────────────── */
     #itemDrawer .scope-tree-widget {
-      max-height: 11rem;
-      overflow-y: auto;
       border: 1px solid var(--border-light);
       border-radius: var(--radius-xs);
-      padding: .375rem .5rem;
+      padding: .5rem;
       scrollbar-width: thin;
+      background: var(--surface);
+    }
+    #itemDrawer .scope-tree-widget .scope-tree-search {
+      margin-bottom: .375rem !important;
+    }
+    #itemDrawer .scope-tree-widget .scope-tree-container {
+      max-height: 9rem;
+      border: none !important;
+      padding: 0 !important;
+      background: transparent !important;
+    }
+    #itemDrawer .scope-tree-widget .scope-tree-label {
+      font-size: .8rem !important;
+      padding: .1875rem .375rem !important;
+    }
+    #itemDrawer .scope-tree-radio .input-group {
+      border: none;
+    }
+    #itemDrawer .scope-tree-radio .input-group .input-group-text {
+      background: transparent;
+      border: none;
+      padding-left: .25rem;
+      padding-right: 0;
+    }
+    #itemDrawer .scope-tree-radio .input-group .form-control {
+      border: none;
+      box-shadow: none !important;
+      padding-left: .25rem;
+      min-height: unset;
+      font-size: .8rem;
+    }
+    #itemDrawer .scope-tree-radio .input-group .form-control:focus {
+      border: none;
     }
 
     /* ── Tags widget compact ─────────────────────── */
