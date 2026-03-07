@@ -2023,21 +2023,22 @@
 
     /* ── Side-panel drawer (offcanvas) ────────────── */
     #itemDrawer {
-      width: min(56rem, 92vw);
-      border-left: 1px solid var(--border-subtle);
-      background: var(--surface);
-      box-shadow: -4px 0 24px rgba(0,0,0,.08);
+      width: min(54rem, 94vw);
+      border-left: none;
+      background: var(--surface-muted);
+      box-shadow: -8px 0 40px rgba(0,0,0,.1);
     }
     #itemDrawer .offcanvas-header {
-      padding: 1rem 1.5rem;
+      padding: .875rem 1.25rem;
       border-bottom: 1px solid var(--border-subtle);
       background: var(--surface);
-      gap: .75rem;
-      min-height: 3.5rem;
+      gap: .625rem;
+      min-height: auto;
+      flex-shrink: 0;
     }
     #itemDrawer .offcanvas-header .offcanvas-title {
       font-weight: 600;
-      font-size: 1.05rem;
+      font-size: .95rem;
       letter-spacing: -.01em;
       color: var(--text-primary);
       display: flex;
@@ -2045,31 +2046,32 @@
       gap: .5rem;
     }
     #itemDrawer .offcanvas-header .drawer-title-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: var(--radius-sm);
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-xs);
       background: var(--accent-soft);
       color: var(--accent);
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: .85rem;
+      font-size: .8rem;
       flex-shrink: 0;
     }
     #itemDrawer .offcanvas-header .btn-close {
-      opacity: .5;
+      opacity: .4;
+      font-size: .7rem;
       transition: opacity var(--transition-fast);
     }
-    #itemDrawer .offcanvas-header .btn-close:hover { opacity: 1; }
+    #itemDrawer .offcanvas-header .btn-close:hover { opacity: .8; }
 
     #itemDrawer .drawer-body {
-      padding: 1.25rem 1.5rem;
+      padding: 1rem 1.25rem;
       overflow-y: auto;
       flex: 1 1 auto;
       scrollbar-width: thin;
       scrollbar-color: var(--border-light) transparent;
     }
-    #itemDrawer .drawer-body::-webkit-scrollbar { width: 5px; }
+    #itemDrawer .drawer-body::-webkit-scrollbar { width: 4px; }
     #itemDrawer .drawer-body::-webkit-scrollbar-track { background: transparent; }
     #itemDrawer .drawer-body::-webkit-scrollbar-thumb {
       background: var(--border-light);
@@ -2077,75 +2079,99 @@
     }
 
     #itemDrawer .drawer-footer {
-      padding: .875rem 1.5rem;
+      padding: .75rem 1.25rem;
       border-top: 1px solid var(--border-subtle);
-      background: var(--surface-muted);
+      background: var(--surface);
       gap: .5rem;
       display: flex;
       justify-content: flex-end;
+      flex-shrink: 0;
     }
     #itemDrawer .drawer-footer .btn {
-      border-radius: var(--radius-md);
-      padding: .5rem 1.25rem;
+      border-radius: var(--radius-sm);
+      padding: .438rem 1rem;
       font-weight: 550;
-      font-size: .875rem;
+      font-size: .8rem;
       transition: all var(--transition-fast);
     }
     #itemDrawer .drawer-footer .btn-primary {
-      box-shadow: 0 2px 8px rgba(99,102,241,.25);
+      box-shadow: 0 1px 4px rgba(99,102,241,.2);
     }
     #itemDrawer .drawer-footer .btn-primary:hover {
-      box-shadow: 0 4px 16px rgba(99,102,241,.35);
-      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(99,102,241,.3);
     }
 
-    /* Section dividers inside drawer */
-    .modal-section {
-      margin-bottom: 1.25rem;
+    /* ── Section cards inside drawer ─────────────── */
+    .drawer-section {
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: .875rem 1rem;
+      margin-bottom: .75rem;
     }
-    .modal-section:last-child { margin-bottom: 0; }
-    .modal-section-title {
+    .drawer-section:last-child { margin-bottom: 0; }
+    .drawer-section-title {
       display: flex;
       align-items: center;
-      gap: .5rem;
-      font-size: .7rem;
+      gap: .375rem;
+      font-size: .675rem;
       font-weight: 650;
       text-transform: uppercase;
       letter-spacing: .06em;
       color: var(--text-muted);
       margin-bottom: .75rem;
-      padding-bottom: .375rem;
-      border-bottom: 1px solid var(--border-subtle);
     }
-    .modal-section-title i {
-      font-size: .75rem;
+    .drawer-section-title i {
+      font-size: .7rem;
       color: var(--accent);
-      opacity: .8;
     }
 
-    /* Drawer form inputs refinement */
+    /* ── Drawer form field styling ───────────────── */
     #itemDrawer .form-control,
     #itemDrawer .form-select {
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-xs);
       border-color: var(--border-light);
+      background: var(--surface);
       transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-      font-size: .875rem;
+      font-size: .8125rem;
+      padding: .375rem .625rem;
     }
     #itemDrawer .form-control:focus,
     #itemDrawer .form-select:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+      background: var(--surface);
+    }
+    #itemDrawer .form-control::placeholder {
+      color: var(--text-muted);
+      font-size: .8125rem;
     }
     #itemDrawer .form-label {
-      font-size: .8rem;
+      font-size: .75rem;
       font-weight: 550;
       color: var(--text-secondary);
+      margin-bottom: .25rem;
+    }
+    #itemDrawer .form-text {
+      font-size: .7rem;
+      color: var(--text-muted);
+    }
+    #itemDrawer .invalid-feedback {
+      font-size: .7rem;
+    }
+
+    /* Multi-column responsive for drawer context */
+    @media (max-width: 768px) {
+      #itemDrawer .col-lg-4,
+      #itemDrawer .col-lg-8 { flex: 0 0 100%; max-width: 100%; }
     }
 
     /* Faster slide transition */
     #itemDrawer.offcanvas-end {
-      transition: transform .3s cubic-bezier(.32,.72,0,1);
+      transition: transform .28s cubic-bezier(.32,.72,0,1);
     }
+    /* Backdrop */
+    .offcanvas-backdrop.show { opacity: .25; }
 
     /* ── Scope breadcrumb pills ──────────────────────── */
     .scope-crumb { display: inline-flex; align-items: center; flex-wrap: wrap; background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: .15em .65em; font-size: .625rem; font-weight: 500; line-height: 1.4; vertical-align: middle; gap: .1em .3em; margin-bottom: .2em; }
