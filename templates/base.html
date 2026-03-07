@@ -2026,10 +2026,10 @@
       width: min(54rem, 94vw);
       border-left: none;
       background: var(--surface-muted);
-      box-shadow: -8px 0 40px rgba(0,0,0,.1);
+      box-shadow: -8px 0 40px rgba(0,0,0,.12);
     }
     #itemDrawer .offcanvas-header {
-      padding: .875rem 1.25rem;
+      padding: .75rem 1.25rem;
       border-bottom: 1px solid var(--border-subtle);
       background: var(--surface);
       gap: .625rem;
@@ -2064,6 +2064,7 @@
     }
     #itemDrawer .offcanvas-header .btn-close:hover { opacity: .8; }
 
+    /* Drawer body */
     #itemDrawer .drawer-body {
       padding: 1rem 1.25rem;
       overflow-y: auto;
@@ -2078,6 +2079,7 @@
       border-radius: 10px;
     }
 
+    /* Drawer footer */
     #itemDrawer .drawer-footer {
       padding: .75rem 1.25rem;
       border-top: 1px solid var(--border-subtle);
@@ -2089,16 +2091,16 @@
     }
     #itemDrawer .drawer-footer .btn {
       border-radius: var(--radius-sm);
-      padding: .438rem 1rem;
+      padding: .438rem 1.125rem;
       font-weight: 550;
-      font-size: .8rem;
+      font-size: .8125rem;
       transition: all var(--transition-fast);
     }
     #itemDrawer .drawer-footer .btn-primary {
-      box-shadow: 0 1px 4px rgba(99,102,241,.2);
+      box-shadow: 0 1px 3px rgba(99,102,241,.18);
     }
     #itemDrawer .drawer-footer .btn-primary:hover {
-      box-shadow: 0 2px 8px rgba(99,102,241,.3);
+      box-shadow: 0 2px 8px rgba(99,102,241,.25);
     }
 
     /* ── Section cards inside drawer ─────────────── */
@@ -2106,20 +2108,26 @@
       background: var(--surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
-      padding: .875rem 1rem;
+      padding: 1rem 1.125rem;
       margin-bottom: .75rem;
+      transition: border-color var(--transition-fast);
     }
     .drawer-section:last-child { margin-bottom: 0; }
+    .drawer-section:focus-within {
+      border-color: var(--border-light);
+    }
     .drawer-section-title {
       display: flex;
       align-items: center;
       gap: .375rem;
-      font-size: .675rem;
+      font-size: .6875rem;
       font-weight: 650;
       text-transform: uppercase;
-      letter-spacing: .06em;
+      letter-spacing: .05em;
       color: var(--text-muted);
       margin-bottom: .75rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid var(--border-subtle);
     }
     .drawer-section-title i {
       font-size: .7rem;
@@ -2129,22 +2137,30 @@
     /* ── Drawer form field styling ───────────────── */
     #itemDrawer .form-control,
     #itemDrawer .form-select {
-      border-radius: var(--radius-xs);
+      border-radius: var(--radius-sm);
       border-color: var(--border-light);
       background: var(--surface);
-      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+      transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
       font-size: .8125rem;
-      padding: .375rem .625rem;
+      padding: .4375rem .75rem;
+      min-height: 2.25rem;
+    }
+    #itemDrawer .form-control:hover:not(:focus),
+    #itemDrawer .form-select:hover:not(:focus) {
+      border-color: var(--text-muted);
     }
     #itemDrawer .form-control:focus,
     #itemDrawer .form-select:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-glow);
+      box-shadow: 0 0 0 3px var(--accent-glow);
       background: var(--surface);
     }
     #itemDrawer .form-control::placeholder {
       color: var(--text-muted);
       font-size: .8125rem;
+    }
+    #itemDrawer textarea.form-control {
+      min-height: 5rem;
     }
     #itemDrawer .form-label {
       font-size: .75rem;
@@ -2158,6 +2174,23 @@
     }
     #itemDrawer .invalid-feedback {
       font-size: .7rem;
+      margin-top: .25rem;
+    }
+    /* Required asterisk in accent color */
+    #itemDrawer .form-label {
+      /* handled by template text, style * inline */
+    }
+    /* Form check inside drawer */
+    #itemDrawer .form-check-input {
+      border-color: var(--border-light);
+      transition: border-color .15s, box-shadow .15s;
+    }
+    #itemDrawer .form-check-input:checked {
+      background-color: var(--accent);
+      border-color: var(--accent);
+    }
+    #itemDrawer .form-check-input:focus {
+      box-shadow: 0 0 0 3px var(--accent-glow);
     }
 
     /* Multi-column responsive for drawer context */
@@ -2166,12 +2199,12 @@
       #itemDrawer .col-lg-8 { flex: 0 0 100%; max-width: 100%; }
     }
 
-    /* Faster slide transition */
+    /* Slide transition */
     #itemDrawer.offcanvas-end {
       transition: transform .28s cubic-bezier(.32,.72,0,1);
     }
     /* Backdrop */
-    .offcanvas-backdrop.show { opacity: .25; }
+    .offcanvas-backdrop.show { opacity: .2; }
 
     /* ── Scope breadcrumb pills ──────────────────────── */
     .scope-crumb { display: inline-flex; align-items: center; flex-wrap: wrap; background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: .15em .65em; font-size: .625rem; font-weight: 500; line-height: 1.4; vertical-align: middle; gap: .1em .3em; margin-bottom: .2em; }
