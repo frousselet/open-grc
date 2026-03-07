@@ -11,13 +11,22 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% if indicator_type == "organizational" %}{% trans "Organizational indicators" %}{% else %}{% trans "Technical indicators" %}{% endif %}</h1>
-  <div class="ms-auto d-flex gap-2">
+  <div class="header-actions">
     {% if indicator_type == "organizational" %}
-      <a href="{% url 'context:indicator-organizational-create' %}" class="btn btn-primary">{% trans "New indicator" %}</a>
-      <a href="{% url 'context:indicator-predefined-create' %}" class="btn btn-outline-primary">{% trans "New predefined indicator" %}</a>
+      <a href="{% url 'context:indicator-organizational-create' %}" class="btn-header-action" title="{% trans 'New indicator' %}">
+        <i class="bi bi-plus-lg"></i>
+      </a>
+      <a href="{% url 'context:indicator-predefined-create' %}" class="btn-header-action" title="{% trans 'New predefined indicator' %}">
+        <i class="bi bi-list-check"></i>
+      </a>
     {% else %}
-      <a href="{% url 'context:indicator-technical-create' %}" class="btn btn-primary">{% trans "New indicator" %}</a>
+      <a href="{% url 'context:indicator-technical-create' %}" class="btn-header-action" title="{% trans 'New indicator' %}">
+        <i class="bi bi-plus-lg"></i>
+      </a>
     {% endif %}
+    <button type="button" class="btn-header-action" data-toggle-search title="{% trans 'Search' %}">
+      <i class="bi bi-search"></i>
+    </button>
   </div>
 </div>
 

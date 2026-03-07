@@ -7,6 +7,11 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Tags" %}</h1>
+  <div class="header-actions">
+    <button type="button" class="btn-header-action" data-toggle-help title="{% trans 'Help' %}">
+      <i class="bi bi-info-circle"></i>
+    </button>
+  </div>
 </div>
 {% help_modal "context.tag_list" %}
 

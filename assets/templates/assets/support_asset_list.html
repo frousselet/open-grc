@@ -6,8 +6,18 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Support assets" %}</h1>
-  <button type="button" class="btn btn-primary ms-auto"
-          hx-get="{% url 'assets:support-asset-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">{% trans "New support asset" %}</button>
+  <div class="header-actions">
+    <button type="button" class="btn-header-action" title="{% trans 'New support asset' %}"
+            hx-get="{% url 'assets:support-asset-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+    <button type="button" class="btn-header-action" data-toggle-search title="{% trans 'Search' %}">
+      <i class="bi bi-search"></i>
+    </button>
+    <button type="button" class="btn-header-action" data-toggle-help title="{% trans 'Help' %}">
+      <i class="bi bi-info-circle"></i>
+    </button>
+  </div>
 </div>
 {% help_modal "assets.support_asset_list" %}
 

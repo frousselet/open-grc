@@ -1409,6 +1409,40 @@
       margin: 0 .125rem;
     }
 
+    /* ── Header action buttons ─────────────────────────── */
+    .header-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: .375rem;
+      margin-left: .75rem;
+    }
+    .btn-header-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      border: 1px solid var(--border-light);
+      background: var(--surface);
+      color: var(--text-secondary);
+      font-size: .875rem;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      padding: 0;
+      text-decoration: none;
+    }
+    .btn-header-action:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .btn-header-action.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
     /* ── Sortable table headers ──────────────────────── */
     .sortable-th {
       cursor: pointer;
@@ -3124,6 +3158,32 @@
 
       var qs = current.toString();
       window.location.href = window.location.pathname + (qs ? '?' + qs : '');
+    });
+  })();
+
+  /* ── Header action: focus search input ───────────── */
+  (function() {
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-toggle-search]');
+      if (!btn) return;
+      var input = document.querySelector('.table-toolbar-input');
+      if (input) {
+        input.scrollIntoView({behavior: 'smooth', block: 'center'});
+        setTimeout(function() { input.focus(); }, 120);
+      }
+    });
+  })();
+
+  /* ── Header action: toggle help banner ─────────── */
+  (function() {
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-toggle-help]');
+      if (!btn) return;
+      var banner = document.querySelector('.help-banner');
+      if (!banner) return;
+      var hidden = banner.style.display === 'none';
+      banner.style.display = hidden ? '' : 'none';
+      btn.classList.toggle('active', hidden);
     });
   })();
   </script>

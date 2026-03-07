@@ -7,7 +7,17 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Dependency relationships" %}</h1>
-  <a href="{% url 'assets:dependency-create' %}" class="btn btn-primary ms-auto">{% trans "New dependency" %}</a>
+  <div class="header-actions">
+    <a href="{% url 'assets:dependency-create' %}" class="btn-header-action" title="{% trans 'New dependency' %}">
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <button type="button" class="btn-header-action" data-toggle-search title="{% trans 'Search' %}">
+      <i class="bi bi-search"></i>
+    </button>
+    <button type="button" class="btn-header-action" data-toggle-help title="{% trans 'Help' %}">
+      <i class="bi bi-info-circle"></i>
+    </button>
+  </div>
 </div>
 {% help_modal "assets.dependency_list" %}
 
