@@ -1,18 +1,18 @@
 {% load i18n %}
-<div class="modal-header-modern">
-  <h5 class="modal-title">
-    {% block modal_title_icon %}<span class="modal-title-icon"><i class="bi bi-pencil-square"></i></span>{% endblock %}
+<div class="offcanvas-header">
+  <h5 class="offcanvas-title">
+    {% block modal_title_icon %}<span class="drawer-title-icon"><i class="bi bi-pencil-square"></i></span>{% endblock %}
     {{ modal_title }}
   </h5>
-  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+  <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="{% trans 'Close' %}"></button>
 </div>
-<form method="post" hx-post="{{ request.path }}" hx-target="#modal-form-content" hx-swap="innerHTML">
+<form method="post" hx-post="{{ request.path }}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="d-flex flex-column flex-grow-1 overflow-hidden">
   {% csrf_token %}
-  <div class="modal-body-modern">
+  <div class="drawer-body">
     {% block modal_form_fields %}{% endblock %}
   </div>
-  <div class="modal-footer-modern d-flex justify-content-end">
-    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+  <div class="drawer-footer">
+    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">{% trans "Cancel" %}</button>
     <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{% trans "Save" %}</button>
   </div>
 </form>
