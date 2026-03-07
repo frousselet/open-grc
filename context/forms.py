@@ -420,15 +420,19 @@ class IndicatorMeasurementForm(forms.ModelForm):
                 label=self.fields["value"].label,
             )
         elif indicator_format == "number":
-            self.fields["value"].widget = forms.NumberInput(
-                attrs={**FORM_WIDGET_ATTRS, "step": "any"},
+            self.fields["value"].widget = forms.TextInput(
+                attrs={**FORM_WIDGET_ATTRS, "inputmode": "decimal", "placeholder": _("Value")},
             )
 
     def clean_value(self):
         value = self.cleaned_data.get("value", "")
         if self.indicator_format == "number":
+            # Normalize locale-specific separators: strip thousand separators
+            # (space, non-breaking space) and convert decimal comma to dot.
+            normalized = value.replace("\u00a0", "").replace("\u202f", "").replace(" ", "").replace(",", ".")
             try:
-                float(value)
+                float(normalized)
             except (ValueError, TypeError):
                 raise forms.ValidationError(_("Please enter a valid number."))
+            return normalized
         return value
