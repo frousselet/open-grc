@@ -790,20 +790,42 @@ window.initSparklines = function(root) {
   }
 
   /**
-   * Format an integer with locale-aware thousand separators.
+   * Format a number with locale-aware thousand separators,
+   * preserving the given number of decimal places.
    * Uses the browser's Intl API to match Django's formats.number_format output.
    */
   var _locale = document.documentElement.lang || 'en';
-  function fmtNum(n) {
-    return new Intl.NumberFormat(_locale, { maximumFractionDigits: 0 }).format(n);
+  function fmtNum(n, decimals) {
+    decimals = decimals || 0;
+    return new Intl.NumberFormat(_locale, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    }).format(n);
   }
 
   /**
    * Parse a displayed number string back to a plain number,
-   * stripping any thousand separators (space, comma, period, nbsp).
+   * stripping thousand separators but preserving the decimal separator.
+   * Handles both locale formats: 1 234,56 (fr) and 1,234.56 (en).
    */
   function parseDisplayNum(s) {
-    return parseFloat(s.replace(/[\s\u00a0\u202f.,]/g, '')) || 0;
+    // Strip thousand separators (spaces / non-breaking spaces)
+    var cleaned = s.replace(/[\s\u00a0\u202f]/g, '');
+    // Determine decimal separator: if both comma and dot are present,
+    // the last one is the decimal separator.
+    var lastComma = cleaned.lastIndexOf(',');
+    var lastDot = cleaned.lastIndexOf('.');
+    if (lastComma > lastDot) {
+      // Comma is decimal separator (fr): remove dots (thousands), replace comma with dot
+      cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+    } else if (lastDot > lastComma) {
+      // Dot is decimal separator (en): remove commas (thousands)
+      cleaned = cleaned.replace(/,/g, '');
+    } else {
+      // No separator or only one type
+      cleaned = cleaned.replace(/,/g, '.');
+    }
+    return parseFloat(cleaned) || 0;
   }
 
   /**
@@ -811,18 +833,20 @@ window.initSparklines = function(root) {
    * Counts from `from` to `to` over `duration` ms.
    * If `fmt` is true, applies thousand separators during animation.
    */
-  function countTo(el, from, to, suffix, duration, fmt) {
+  function countTo(el, from, to, suffix, duration, fmt, decimals) {
     duration = duration || 2800;
     suffix = suffix || '';
-    if (from === to) { el.textContent = (fmt ? fmtNum(to) : to) + suffix; return; }
+    decimals = decimals || 0;
+    if (from === to) { el.textContent = (fmt ? fmtNum(to, decimals) : to) + suffix; return; }
     el._countTarget = to;
     var start = null;
     function step(ts) {
       if (!start) start = ts;
       var t = Math.min((ts - start) / duration, 1);
       var ease = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-      var cur = Math.round(from + (to - from) * ease);
-      el.textContent = (fmt ? fmtNum(cur) : cur) + suffix;
+      var cur = from + (to - from) * ease;
+      if (decimals === 0) cur = Math.round(cur);
+      el.textContent = (fmt ? fmtNum(cur, decimals) : (decimals ? cur.toFixed(decimals) : cur)) + suffix;
       if (t < 1) requestAnimationFrame(step);
       else el._countTarget = undefined;
     }
@@ -842,12 +866,16 @@ window.initSparklines = function(root) {
   // Page load: animate indicator values from 0 (with thousand separators)
   document.querySelectorAll('#ws-indicators-container .stat-card-value').forEach(function(el) {
     if (el.hasAttribute('data-ws-field')) return;
+    el.setAttribute('data-count-animated', '1');  // prevent base.html animation
     var raw = el.textContent.trim();
     if (!/\d/.test(raw)) return;
     var val = parseDisplayNum(raw);
     if (!isNaN(val) && val !== 0) {
+      // Detect decimal places from the displayed string
+      var decMatch = raw.match(/[,.](\d+)$/);
+      var dec = decMatch ? decMatch[1].length : 0;
       el.textContent = '0';
-      countTo(el, 0, Math.round(val), '', 2800, true);
+      countTo(el, 0, val, '', 2800, true, dec);
     }
   });
 
@@ -917,10 +945,13 @@ window.initSparklines = function(root) {
         // Animate only this card's value
         var valEl = newLink.querySelector('.stat-card-value');
         if (valEl && u.newVal && /[\d]/.test(u.newVal)) {
+          valEl.setAttribute('data-count-animated', '1');  // prevent base.html animation
           var oldNum = parseFloat(u.oldVal) || 0;
-          var newNum = Math.round(parseFloat(u.newVal));
+          var newNum = parseFloat(u.newVal);
+          var decMatch = u.newVal.match(/\.(\d+)$/);
+          var dec = decMatch ? decMatch[1].length : 0;
           if (!isNaN(newNum)) {
-            countTo(valEl, Math.round(oldNum), newNum, '', 2800, true);
+            countTo(valEl, oldNum, newNum, '', 2800, true, dec);
           }
         }
       });
