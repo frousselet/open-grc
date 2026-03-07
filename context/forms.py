@@ -17,7 +17,7 @@ from .models import (
     Responsibility,
     Tag,
 )
-from .widgets import ScopeTreeWidget
+from .widgets import ScopeTreeRadioWidget, ScopeTreeWidget
 
 FORM_WIDGET_ATTRS = {"class": "form-control"}
 SELECT_ATTRS = {"class": "form-select"}
@@ -86,7 +86,7 @@ class ScopeForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
-            "parent_scope": forms.Select(attrs=SELECT_ATTRS),
+            "parent_scope": ScopeTreeRadioWidget(),
             "status": forms.Select(attrs=SELECT_ATTRS),
             "icon": forms.HiddenInput(attrs={"id": "id_icon"}),
             "boundaries": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
@@ -108,7 +108,11 @@ class ScopeForm(forms.ModelForm):
             qs = qs.exclude(pk=self.instance.pk)
         field = self.fields["parent_scope"]
         field.queryset = qs
-        field.choices = [("", field.empty_label or "---------")] + _scope_tree_choices(qs)
+        # Build tree data for the radio widget
+        selected_id = self.instance.parent_scope_id if self.instance.pk else None
+        if self.data and self.add_prefix("parent_scope") in self.data:
+            selected_id = self.data.get(self.add_prefix("parent_scope"))
+        field.widget.build_tree_data(qs, selected_id)
         # Site tree choices for included/excluded
         site_qs = Site.objects.exclude(status="archived")
         site_choices = _site_tree_choices(site_qs)

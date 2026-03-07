@@ -81,3 +81,66 @@ class ScopeTreeWidget(forms.CheckboxSelectMultiple):
 
         self.tree_data = result
         return result
+
+
+class ScopeTreeRadioWidget(forms.RadioSelect):
+    """Renders scopes as a hierarchical tree with radio buttons (single select).
+
+    Used for ForeignKey fields like ``parent_scope``.
+    """
+
+    template_name = "widgets/scope_tree_radio_widget.html"
+
+    def __init__(self, attrs=None):
+        super().__init__(attrs=attrs)
+        self.tree_data = []
+
+    def get_context(self, name, value, attrs):
+        ctx = super().get_context(name, value, attrs)
+        ctx["widget"]["tree_data"] = self.tree_data
+        return ctx
+
+    def build_tree_data(self, queryset, selected_id):
+        """Build a depth-first ordered list of ScopeTreeData nodes."""
+        scopes = list(queryset.select_related("parent_scope"))
+        by_parent = {}
+        for s in scopes:
+            by_parent.setdefault(s.parent_scope_id, []).append(s)
+
+        ids_with_children = (set(by_parent.keys()) - {None}) & {s.pk for s in scopes}
+
+        selected_str = str(selected_id) if selected_id else ""
+
+        result = []
+        visited = set()
+
+        def walk(parent_id, depth, path):
+            for s in sorted(by_parent.get(parent_id, []), key=lambda x: x.name):
+                full_path = path + [s.name]
+                result.append(ScopeTreeData(
+                    pk=s.pk,
+                    name=s.name,
+                    full_path=" / ".join(full_path),
+                    depth=depth,
+                    parent_id=parent_id,
+                    has_children=s.pk in ids_with_children,
+                    selected=str(s.pk) == selected_str,
+                    icon=getattr(s, "icon", "") or "",
+                ))
+                visited.add(s.pk)
+                walk(s.pk, depth + 1, full_path)
+
+        walk(None, 0, [])
+
+        for s in scopes:
+            if s.pk not in visited:
+                result.append(ScopeTreeData(
+                    pk=s.pk, name=s.name, full_path=s.name,
+                    depth=0, parent_id=None,
+                    has_children=s.pk in ids_with_children,
+                    selected=str(s.pk) == selected_str,
+                    icon=getattr(s, "icon", "") or "",
+                ))
+
+        self.tree_data = result
+        return result
