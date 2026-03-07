@@ -9,7 +9,10 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Stakeholders" %}</h1>
-  <a href="{% url 'context:stakeholder-create' %}" class="btn btn-primary ms-auto">{% trans "New stakeholder" %}</a>
+  <button type="button" class="btn btn-primary ms-auto"
+          hx-get="{% url 'context:stakeholder-create' %}" hx-target="#modal-form-content" hx-swap="innerHTML">
+    {% trans "New stakeholder" %}
+  </button>
 </div>
 {% help_modal "context.stakeholder_list" %}
 
@@ -42,34 +45,11 @@
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
-      <tbody>
-        {% for sh in stakeholders %}
-        <tr>
-          <td><a href="{% url 'context:stakeholder-detail' sh.pk %}" class="ref" style="text-decoration:none">{{ sh.reference }}</a></td>
-          <td>{{ sh.name }}</td>
-          <td>{% scope_popover sh.scopes.all %}</td>
-          <td>{{ sh.get_type_display }}</td>
-          <td>{{ sh.get_category_display }}</td>
-          <td>{{ sh.get_influence_level_display }}</td>
-          <td>{{ sh.get_interest_level_display }}</td>
-          <td>
-            <span class="badge text-bg-{% if sh.status == 'active' %}success{% else %}secondary{% endif %}">
-              {{ sh.get_status_display }}
-            </span>
-          </td>
-          <td>{% for tag in sh.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          <td>
-            <span class="badge text-bg-{% if sh.is_approved %}success{% else %}warning{% endif %}">
-              {% if sh.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          <td class="text-end">
-            <a href="{% url 'context:stakeholder-update' sh.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No stakeholder defined." %}</td></tr>
-        {% endfor %}
+      <tbody id="item-table-body"
+             hx-get="{% url 'context:stakeholder-table-body' %}?{{ request.GET.urlencode }}"
+             hx-trigger="refreshTable"
+             hx-swap="innerHTML">
+        {% include "context/stakeholder_table_body.html" %}
       </tbody>
     </table>
   </div>

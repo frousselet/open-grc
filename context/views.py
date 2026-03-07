@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import formats, timezone
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _l
 from django.views import View
 from django.views.decorators.http import require_POST
 from django.views.generic import (
@@ -21,7 +22,7 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
-from core.mixins import SortableListMixin
+from core.mixins import HtmxFormMixin, SortableListMixin
 from .constants import CollectionMethod, IndicatorType, PREDEFINED_SOURCE_FORMAT
 from .forms import (
     ActivityForm,
@@ -332,17 +333,23 @@ class ScopeDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin
         return ctx
 
 
-class ScopeCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class ScopeCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Scope
     form_class = ScopeForm
     template_name = "context/scope_form.html"
+    modal_template_name = "context/scope_form_modal.html"
+    modal_title_create = _l("New scope")
+    modal_title_update = _l("Edit scope")
     success_url = reverse_lazy("context:scope-list")
 
 
-class ScopeUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
+class ScopeUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
     model = Scope
     form_class = ScopeForm
     template_name = "context/scope_form.html"
+    modal_template_name = "context/scope_form_modal.html"
+    modal_title_create = _l("New scope")
+    modal_title_update = _l("Edit scope")
     success_url = reverse_lazy("context:scope-list")
 
 
@@ -391,10 +398,13 @@ class IssueDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin
     approve_url_name = "context:issue-approve"
 
 
-class IssueCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class IssueCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Issue
     form_class = IssueForm
     template_name = "context/issue_form.html"
+    modal_template_name = "context/issue_form_modal.html"
+    modal_title_create = _l("New issue")
+    modal_title_update = _l("Edit issue")
     success_url = reverse_lazy("context:issue-list")
 
     def get_form_kwargs(self):
@@ -403,10 +413,13 @@ class IssueCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return kwargs
 
 
-class IssueUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class IssueUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Issue
     form_class = IssueForm
     template_name = "context/issue_form.html"
+    modal_template_name = "context/issue_form_modal.html"
+    modal_title_create = _l("New issue")
+    modal_title_update = _l("Edit issue")
     success_url = reverse_lazy("context:issue-list")
 
     def get_form_kwargs(self):
@@ -461,10 +474,13 @@ class StakeholderDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContex
         return super().get_queryset().prefetch_related("expectations")
 
 
-class StakeholderCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class StakeholderCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Stakeholder
     form_class = StakeholderForm
     template_name = "context/stakeholder_form.html"
+    modal_template_name = "context/stakeholder_form_modal.html"
+    modal_title_create = _l("New stakeholder")
+    modal_title_update = _l("Edit stakeholder")
     success_url = reverse_lazy("context:stakeholder-list")
 
     def get_form_kwargs(self):
@@ -473,10 +489,13 @@ class StakeholderCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return kwargs
 
 
-class StakeholderUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class StakeholderUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Stakeholder
     form_class = StakeholderForm
     template_name = "context/stakeholder_form.html"
+    modal_template_name = "context/stakeholder_form_modal.html"
+    modal_title_create = _l("New stakeholder")
+    modal_title_update = _l("Edit stakeholder")
     success_url = reverse_lazy("context:stakeholder-list")
 
     def get_form_kwargs(self):
@@ -527,10 +546,13 @@ class ObjectiveDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextM
     approve_url_name = "context:objective-approve"
 
 
-class ObjectiveCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class ObjectiveCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Objective
     form_class = ObjectiveForm
     template_name = "context/objective_form.html"
+    modal_template_name = "context/objective_form_modal.html"
+    modal_title_create = _l("New objective")
+    modal_title_update = _l("Edit objective")
     success_url = reverse_lazy("context:objective-list")
 
     def get_form_kwargs(self):
@@ -539,10 +561,13 @@ class ObjectiveCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return kwargs
 
 
-class ObjectiveUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class ObjectiveUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Objective
     form_class = ObjectiveForm
     template_name = "context/objective_form.html"
+    modal_template_name = "context/objective_form_modal.html"
+    modal_title_create = _l("New objective")
+    modal_title_update = _l("Edit objective")
     success_url = reverse_lazy("context:objective-list")
 
     def get_form_kwargs(self):
@@ -592,10 +617,13 @@ class SwotDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin,
         return super().get_queryset().prefetch_related("items")
 
 
-class SwotCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class SwotCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = SwotAnalysis
     form_class = SwotAnalysisForm
     template_name = "context/swot_form.html"
+    modal_template_name = "context/swot_form_modal.html"
+    modal_title_create = _l("New SWOT analysis")
+    modal_title_update = _l("Edit SWOT analysis")
     success_url = reverse_lazy("context:swot-list")
 
     def get_form_kwargs(self):
@@ -604,10 +632,13 @@ class SwotCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return kwargs
 
 
-class SwotUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class SwotUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = SwotAnalysis
     form_class = SwotAnalysisForm
     template_name = "context/swot_form.html"
+    modal_template_name = "context/swot_form_modal.html"
+    modal_title_create = _l("New SWOT analysis")
+    modal_title_update = _l("Edit SWOT analysis")
     success_url = reverse_lazy("context:swot-list")
 
     def get_form_kwargs(self):
@@ -663,10 +694,13 @@ class RoleDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin,
         )
 
 
-class RoleCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class RoleCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Role
     form_class = RoleForm
     template_name = "context/role_form.html"
+    modal_template_name = "context/role_form_modal.html"
+    modal_title_create = _l("New role")
+    modal_title_update = _l("Edit role")
     success_url = reverse_lazy("context:role-list")
 
     def get_form_kwargs(self):
@@ -675,10 +709,13 @@ class RoleCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return kwargs
 
 
-class RoleUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class RoleUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Role
     form_class = RoleForm
     template_name = "context/role_form.html"
+    modal_template_name = "context/role_form_modal.html"
+    modal_title_create = _l("New role")
+    modal_title_update = _l("Edit role")
     success_url = reverse_lazy("context:role-list")
 
     def get_form_kwargs(self):
@@ -728,10 +765,13 @@ class ActivityDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMi
     approve_url_name = "context:activity-approve"
 
 
-class ActivityCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class ActivityCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Activity
     form_class = ActivityForm
     template_name = "context/activity_form.html"
+    modal_template_name = "context/activity_form_modal.html"
+    modal_title_create = _l("New activity")
+    modal_title_update = _l("Edit activity")
     success_url = reverse_lazy("context:activity-list")
 
     def get_form_kwargs(self):
@@ -740,10 +780,13 @@ class ActivityCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return kwargs
 
 
-class ActivityUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class ActivityUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Activity
     form_class = ActivityForm
     template_name = "context/activity_form.html"
+    modal_template_name = "context/activity_form_modal.html"
+    modal_title_create = _l("New activity")
+    modal_title_update = _l("Edit activity")
     success_url = reverse_lazy("context:activity-list")
 
     def get_form_kwargs(self):
@@ -756,6 +799,137 @@ class ActivityDeleteView(LoginRequiredMixin, DeleteView):
     model = Activity
     template_name = "context/confirm_delete.html"
     success_url = reverse_lazy("context:activity-list")
+
+
+# ── Table body views (HTMX partial refresh) ───────────────
+
+class ScopeTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    model = Scope
+    template_name = "context/scope_table_body.html"
+    context_object_name = "scopes"
+    paginate_by = None
+    sortable_fields = ScopeListView.sortable_fields
+    default_sort = ScopeListView.default_sort
+    search_fields = ["reference", "name"]
+
+    def get_queryset(self):
+        qs = super().get_queryset().select_related("parent_scope").prefetch_related("tags")
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["scopes"] = ScopeListView._build_tree(list(ctx["scopes"]))
+        return ctx
+
+
+class IssueTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    model = Issue
+    template_name = "context/issue_table_body.html"
+    context_object_name = "issues"
+    paginate_by = None
+    sortable_fields = IssueListView.sortable_fields
+    default_sort = IssueListView.default_sort
+    search_fields = ["reference", "name"]
+
+    def get_queryset(self):
+        qs = super().get_queryset().prefetch_related("scopes")
+        for param, field in [("type", "type"), ("status", "status"), ("impact", "impact_level")]:
+            val = self.request.GET.get(param)
+            if val:
+                qs = qs.filter(**{field: val})
+        return qs
+
+
+class StakeholderTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    model = Stakeholder
+    template_name = "context/stakeholder_table_body.html"
+    context_object_name = "stakeholders"
+    paginate_by = None
+    sortable_fields = StakeholderListView.sortable_fields
+    default_sort = StakeholderListView.default_sort
+    search_fields = ["reference", "name"]
+
+    def get_queryset(self):
+        qs = super().get_queryset().prefetch_related("scopes")
+        for param, field in [("type", "type"), ("status", "status")]:
+            val = self.request.GET.get(param)
+            if val:
+                qs = qs.filter(**{field: val})
+        return qs
+
+
+class ObjectiveTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    model = Objective
+    template_name = "context/objective_table_body.html"
+    context_object_name = "objectives"
+    paginate_by = None
+    sortable_fields = ObjectiveListView.sortable_fields
+    default_sort = ObjectiveListView.default_sort
+    search_fields = ["reference", "name"]
+
+    def get_queryset(self):
+        qs = super().get_queryset().prefetch_related("scopes").select_related("owner")
+        for param, field in [("status", "status"), ("category", "category")]:
+            val = self.request.GET.get(param)
+            if val:
+                qs = qs.filter(**{field: val})
+        return qs
+
+
+class SwotTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    model = SwotAnalysis
+    template_name = "context/swot_table_body.html"
+    context_object_name = "analyses"
+    paginate_by = None
+    sortable_fields = SwotListView.sortable_fields
+    default_sort = SwotListView.default_sort
+    search_fields = ["reference", "name"]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        return qs
+
+
+class RoleTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    model = Role
+    template_name = "context/role_table_body.html"
+    context_object_name = "roles"
+    paginate_by = None
+    sortable_fields = RoleListView.sortable_fields
+    default_sort = RoleListView.default_sort
+    search_fields = ["reference", "name"]
+
+    def get_queryset(self):
+        qs = super().get_queryset().annotate(user_count=Count("assigned_users"))
+        for param, field in [("type", "type"), ("status", "status")]:
+            val = self.request.GET.get(param)
+            if val:
+                qs = qs.filter(**{field: val})
+        return qs
+
+
+class ActivityTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    model = Activity
+    template_name = "context/activity_table_body.html"
+    context_object_name = "activities"
+    paginate_by = None
+    sortable_fields = ActivityListView.sortable_fields
+    default_sort = ActivityListView.default_sort
+    search_fields = ["reference", "name"]
+
+    def get_queryset(self):
+        qs = super().get_queryset().prefetch_related("scopes").select_related("owner")
+        for param, field in [("criticality", "criticality"), ("status", "status")]:
+            val = self.request.GET.get(param)
+            if val:
+                qs = qs.filter(**{field: val})
+        return qs
 
 
 @login_required

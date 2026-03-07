@@ -9,7 +9,10 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Activities and processes" %}</h1>
-  <a href="{% url 'context:activity-create' %}" class="btn btn-primary ms-auto">{% trans "New activity" %}</a>
+  <button type="button" class="btn btn-primary ms-auto"
+          hx-get="{% url 'context:activity-create' %}" hx-target="#modal-form-content" hx-swap="innerHTML">
+    {% trans "New activity" %}
+  </button>
 </div>
 {% help_modal "context.activity_list" %}
 
@@ -43,36 +46,11 @@
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
-      <tbody>
-        {% for activity in activities %}
-        <tr>
-          <td><a href="{% url 'context:activity-detail' activity.pk %}" class="ref" style="text-decoration:none">{{ activity.reference }}</a></td>
-          <td>{{ activity.name }}</td>
-          <td>{{ activity.get_type_display }}</td>
-          <td>
-            <span class="badge text-bg-{% if activity.criticality == 'critical' %}danger{% elif activity.criticality == 'high' %}warning{% elif activity.criticality == 'medium' %}info{% else %}secondary{% endif %}">
-              {{ activity.get_criticality_display }}
-            </span>
-          </td>
-          <td>{{ activity.owner }}</td>
-          <td>
-            <span class="badge text-bg-{% if activity.status == 'active' %}success{% elif activity.status == 'planned' %}info{% else %}secondary{% endif %}">
-              {{ activity.get_status_display }}
-            </span>
-          </td>
-          <td>{% for tag in activity.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          <td>
-            <span class="badge text-bg-{% if activity.is_approved %}success{% else %}warning{% endif %}">
-              {% if activity.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          <td class="text-end">
-            <a href="{% url 'context:activity-update' activity.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No activity defined." %}</td></tr>
-        {% endfor %}
+      <tbody id="item-table-body"
+             hx-get="{% url 'context:activity-table-body' %}?{{ request.GET.urlencode }}"
+             hx-trigger="refreshTable"
+             hx-swap="innerHTML">
+        {% include "context/activity_table_body.html" %}
       </tbody>
     </table>
   </div>

@@ -9,7 +9,10 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Scopes" %}</h1>
-  <a href="{% url 'context:scope-create' %}" class="btn btn-primary ms-auto">{% trans "New scope" %}</a>
+  <button type="button" class="btn btn-primary ms-auto"
+          hx-get="{% url 'context:scope-create' %}" hx-target="#modal-form-content" hx-swap="innerHTML">
+    {% trans "New scope" %}
+  </button>
 </div>
 {% help_modal "context.scope_list" %}
 
@@ -37,38 +40,11 @@
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
-      <tbody>
-        {% for scope in scopes %}
-        <tr>
-          <td><a href="{% url 'context:scope-detail' scope.pk %}" class="ref" style="text-decoration:none">{{ scope.reference }}</a></td>
-          <td>
-            <div style="padding-left: {{ scope.tree_indent }}px;">
-              {% if scope.tree_level > 0 %}<span class="text-muted me-1">└</span>{% endif %}
-              {{ scope.name }}
-            </div>
-          </td>
-          <td>{{ scope.version }}</td>
-          <td>
-            <span class="badge text-bg-{% if scope.status == 'active' %}success{% elif scope.status == 'draft' %}secondary{% else %}dark{% endif %}">
-              {{ scope.get_status_display }}
-            </span>
-          </td>
-          <td>{{ scope.effective_date|default:"—" }}</td>
-          <td>{{ scope.review_date|default:"—" }}</td>
-          <td>{% for tag in scope.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          <td>
-            <span class="badge text-bg-{% if scope.is_approved %}success{% else %}warning{% endif %}">
-              {% if scope.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          <td class="text-end">
-            <a href="{% url 'context:scope-update' scope.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
-            <a href="{% url 'context:scope-delete' scope.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No scope defined." %}</td></tr>
-        {% endfor %}
+      <tbody id="item-table-body"
+             hx-get="{% url 'context:scope-table-body' %}{% if request.GET.status %}?status={{ request.GET.status }}{% endif %}"
+             hx-trigger="refreshTable"
+             hx-swap="innerHTML">
+        {% include "context/scope_table_body.html" %}
       </tbody>
     </table>
   </div>

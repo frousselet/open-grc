@@ -9,7 +9,10 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Objectives" %}</h1>
-  <a href="{% url 'context:objective-create' %}" class="btn btn-primary ms-auto">{% trans "New objective" %}</a>
+  <button type="button" class="btn btn-primary ms-auto"
+          hx-get="{% url 'context:objective-create' %}" hx-target="#modal-form-content" hx-swap="innerHTML">
+    {% trans "New objective" %}
+  </button>
 </div>
 {% help_modal "context.objective_list" %}
 
@@ -41,40 +44,11 @@
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
-      <tbody>
-        {% for obj in objectives %}
-        <tr>
-          <td><a href="{% url 'context:objective-detail' obj.pk %}" class="ref" style="text-decoration:none">{{ obj.reference }}</a></td>
-          <td>{{ obj.name }}</td>
-          <td>{{ obj.get_category_display }}</td>
-          <td>{{ obj.owner }}</td>
-          <td>
-            {% if obj.progress_percentage is not None %}
-            <div class="progress" style="min-width: 80px;">
-              <div class="progress-bar {% if obj.progress_percentage == 100 %}bg-success{% elif obj.progress_percentage >= 50 %}bg-info{% else %}bg-warning{% endif %}"
-                   style="width: {{ obj.progress_percentage }}%">{{ obj.progress_percentage }}%</div>
-            </div>
-            {% else %}—{% endif %}
-          </td>
-          <td>
-            <span class="badge text-bg-{% if obj.status == 'achieved' %}success{% elif obj.status == 'active' %}primary{% elif obj.status == 'not_achieved' %}danger{% else %}secondary{% endif %}">
-              {{ obj.get_status_display }}
-            </span>
-          </td>
-          <td>{{ obj.target_date|default:"—" }}</td>
-          <td>{% for tag in obj.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          <td>
-            <span class="badge text-bg-{% if obj.is_approved %}success{% else %}warning{% endif %}">
-              {% if obj.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          <td class="text-end">
-            <a href="{% url 'context:objective-update' obj.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)">{% trans "No objective defined." %}</td></tr>
-        {% endfor %}
+      <tbody id="item-table-body"
+             hx-get="{% url 'context:objective-table-body' %}?{{ request.GET.urlencode }}"
+             hx-trigger="refreshTable"
+             hx-swap="innerHTML">
+        {% include "context/objective_table_body.html" %}
       </tbody>
     </table>
   </div>

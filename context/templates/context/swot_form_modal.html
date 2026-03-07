@@ -1,0 +1,15 @@
+{% extends "includes/modal_form.html" %}
+{% load i18n %}
+
+{% block modal_form_fields %}
+{% for field in form %}
+<div class="mb-3">
+  <label for="{{ field.id_for_label }}" class="form-label mb-1">
+    {{ field.label }}{% if field.field.required %} *{% endif %}
+  </label>
+  {{ field }}
+  {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+  {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+</div>
+{% endfor %}
+{% endblock %}
