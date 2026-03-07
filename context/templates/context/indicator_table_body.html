@@ -1,0 +1,40 @@
+{% load i18n %}
+{% for indicator in indicators %}
+<tr>
+  <td><a href="{% url 'context:indicator-detail' indicator.pk %}" class="ref" style="text-decoration:none">{{ indicator.reference }}</a></td>
+  <td>
+    {{ indicator.name }}
+    {% if indicator.is_internal %}<span class="badge text-bg-info ms-1" style="font-size:.65rem">{% trans "Predefined" %}</span>{% endif %}
+  </td>
+  <td>{{ indicator.get_format_display }}</td>
+  <td>
+    {% if indicator.current_value %}
+      <span class="{% if indicator.is_critical %}text-danger fw-bold{% endif %}">
+        {{ indicator.current_value }}{% if indicator.unit %} {{ indicator.unit }}{% endif %}
+      </span>
+    {% else %}—{% endif %}
+  </td>
+  <td>{{ indicator.expected_level|default:"—" }}{% if indicator.unit and indicator.expected_level %} {{ indicator.unit }}{% endif %}</td>
+  <td>{{ indicator.get_collection_method_display }}</td>
+  <td>{{ indicator.get_review_frequency_display }}</td>
+  <td>
+    <span class="badge text-bg-{% if indicator.status == 'active' %}success{% elif indicator.status == 'draft' %}secondary{% else %}warning{% endif %}">
+      {{ indicator.get_status_display }}
+    </span>
+  </td>
+  <td>{% for tag in indicator.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
+  <td>
+    <span class="badge text-bg-{% if indicator.is_approved %}success{% else %}warning{% endif %}">
+      {% if indicator.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+    </span>
+  </td>
+  <td class="text-end">
+    <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
+            hx-get="{% url 'context:indicator-update' indicator.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </td>
+</tr>
+{% empty %}
+<tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No indicator defined." %}</td></tr>
+{% endfor %}

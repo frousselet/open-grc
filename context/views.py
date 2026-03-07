@@ -1093,6 +1093,26 @@ class IndicatorListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin,
         return ctx
 
 
+class IndicatorTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    model = Indicator
+    template_name = "context/indicator_table_body.html"
+    context_object_name = "indicators"
+    paginate_by = None
+    sortable_fields = IndicatorListView.sortable_fields
+    default_sort = IndicatorListView.default_sort
+    search_fields = ["reference", "name"]
+
+    def get_queryset(self):
+        qs = super().get_queryset().prefetch_related("scopes")
+        indicator_type = self.request.GET.get("indicator_type")
+        if indicator_type:
+            qs = qs.filter(indicator_type=indicator_type)
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        return qs
+
+
 class IndicatorDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = Indicator
     template_name = "context/indicator_detail.html"
@@ -1108,10 +1128,13 @@ class IndicatorDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextM
         return ctx
 
 
-class IndicatorCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class IndicatorCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Indicator
     form_class = IndicatorForm
     template_name = "context/indicator_form.html"
+    modal_template_name = "context/indicator_form_modal.html"
+    modal_title_create = _l("New indicator")
+    modal_title_update = _l("Edit indicator")
     indicator_type = None
 
     def get_success_url(self):
@@ -1132,10 +1155,13 @@ class IndicatorCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return super().form_valid(form)
 
 
-class PredefinedIndicatorCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class PredefinedIndicatorCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Indicator
     form_class = PredefinedIndicatorForm
     template_name = "context/indicator_predefined_form.html"
+    modal_template_name = "context/indicator_predefined_form_modal.html"
+    modal_title_create = _l("New predefined indicator")
+    modal_title_update = _l("Edit predefined indicator")
 
     def get_success_url(self):
         return reverse_lazy("context:indicator-detail", kwargs={"pk": self.object.pk})
@@ -1167,9 +1193,12 @@ class PredefinedIndicatorCreateView(LoginRequiredMixin, CreatedByMixin, CreateVi
         return response
 
 
-class IndicatorUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class IndicatorUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Indicator
     template_name = "context/indicator_form.html"
+    modal_template_name = "context/indicator_form_modal.html"
+    modal_title_create = _l("New indicator")
+    modal_title_update = _l("Edit indicator")
 
     def get_form_class(self):
         if self.object.is_internal:
@@ -1177,6 +1206,10 @@ class IndicatorUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilter
         return IndicatorForm
 
     def get_template_names(self):
+        if self._is_htmx() and self.object.is_internal:
+            return ["context/indicator_predefined_form_modal.html"]
+        if self._is_htmx():
+            return ["context/indicator_form_modal.html"]
         if self.object.is_internal:
             return ["context/indicator_predefined_form.html"]
         return ["context/indicator_form.html"]

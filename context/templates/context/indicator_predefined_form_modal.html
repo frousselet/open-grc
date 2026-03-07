@@ -1,0 +1,120 @@
+{% extends "includes/modal_form.html" %}
+{% load i18n %}
+
+{% block modal_title_icon %}<span class="drawer-title-icon"><i class="bi bi-bar-chart-line"></i></span>{% endblock %}
+
+{% block modal_form_fields %}
+{# ── Metadata bar ── #}
+<div class="drawer-meta">
+  <div>
+    <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }} *</label>
+    {{ form.status }}
+    {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+
+{% if not form.instance.pk %}
+<div class="alert alert-info mb-0 mx-0" style="font-size:.85rem">
+  <i class="bi bi-info-circle me-1"></i>
+  {% trans "A predefined indicator is automatically populated from Open GRC data. The first measurement will be taken automatically upon creation." %}
+</div>
+{% endif %}
+
+{# ── Identity ── #}
+<div class="drawer-section">
+  <div class="mb-3">
+    <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
+    {{ form.name }}
+    {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+    {{ form.description }}
+    {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+
+{# ── Predefined data source ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-database"></i> {% trans "Predefined data source" %}</div>
+  <div class="row g-2">
+    <div class="col-sm-6">
+      <label for="{{ form.internal_source.id_for_label }}" class="form-label">{{ form.internal_source.label }} *</label>
+      {{ form.internal_source }}
+      {% for error in form.internal_source.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="col-sm-6">
+      <label for="{{ form.internal_source_parameter.id_for_label }}" class="form-label">{{ form.internal_source_parameter.label }}</label>
+      {{ form.internal_source_parameter }}
+      <small class="form-text text-muted">{% trans "Optional. E.g. framework ID for compliance rate by framework." %}</small>
+      {% for error in form.internal_source_parameter.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+  </div>
+</div>
+
+{# ── Values & Threshold ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-sliders"></i> {% trans "Values" %}</div>
+  <div class="mb-3">
+    <label for="{{ form.expected_level.id_for_label }}" class="form-label">{{ form.expected_level.label }}</label>
+    {{ form.expected_level }}
+    {% for error in form.expected_level.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div class="row g-2 mb-3">
+    <div class="col-sm-6">
+      <label for="{{ form.critical_threshold_operator.id_for_label }}" class="form-label">{{ form.critical_threshold_operator.label }}</label>
+      {{ form.critical_threshold_operator }}
+      {% for error in form.critical_threshold_operator.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="col-sm-6">
+      <label for="{{ form.critical_threshold_value.id_for_label }}" class="form-label">{{ form.critical_threshold_value.label }}</label>
+      {{ form.critical_threshold_value }}
+      {% for error in form.critical_threshold_value.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+  </div>
+  <div class="row g-2">
+    <div class="col-sm-6">
+      <label for="{{ form.critical_threshold_min.id_for_label }}" class="form-label">{{ form.critical_threshold_min.label }}</label>
+      {{ form.critical_threshold_min }}
+      {% for error in form.critical_threshold_min.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="col-sm-6">
+      <label for="{{ form.critical_threshold_max.id_for_label }}" class="form-label">{{ form.critical_threshold_max.label }}</label>
+      {{ form.critical_threshold_max }}
+      {% for error in form.critical_threshold_max.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+  </div>
+</div>
+
+{# ── Review ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-calendar-event"></i> {% trans "Review" %}</div>
+  <div class="row g-2">
+    <div class="col-sm-6">
+      <label for="{{ form.review_frequency.id_for_label }}" class="form-label">{{ form.review_frequency.label }} *</label>
+      {{ form.review_frequency }}
+      {% for error in form.review_frequency.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="col-sm-6">
+      <label for="{{ form.first_review_date.id_for_label }}" class="form-label">{{ form.first_review_date.label }} *</label>
+      {{ form.first_review_date }}
+      {% for error in form.first_review_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+  </div>
+</div>
+
+{# ── Scope & Tags ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-diagram-3"></i> {% trans "Scope & Tags" %}</div>
+  <div class="mb-3">
+    <label for="{{ form.scopes.id_for_label }}" class="form-label">{{ form.scopes.label }}</label>
+    {{ form.scopes }}
+    {% for error in form.scopes.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.tags.id_for_label }}" class="form-label">{% trans "Tags" %}</label>
+    {{ form.tags }}
+    {% for error in form.tags.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+{% endblock %}
