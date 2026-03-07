@@ -8,7 +8,8 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Suppliers" %}</h1>
-  <a href="{% url 'assets:supplier-create' %}" class="btn btn-primary ms-auto">{% trans "New supplier" %}</a>
+  <button type="button" class="btn btn-primary ms-auto"
+          hx-get="{% url 'assets:supplier-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">{% trans "New supplier" %}</button>
 </div>
 {% help_modal "assets.supplier_list" %}
 
@@ -74,7 +75,7 @@
             </span>
           </td>
           <td class="text-end">
-            <a href="{% url 'assets:supplier-update' supplier.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+            <a hx-get="{% url 'assets:supplier-update' supplier.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}

@@ -8,13 +8,14 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Risk assessments" %}</h1>
-  <a href="{% url 'risks:assessment-create' %}" class="btn btn-primary ms-auto">{% trans "New assessment" %}</a>
+  <button type="button" class="btn btn-primary ms-auto"
+          hx-get="{% url 'risks:assessment-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">{% trans "New assessment" %}</button>
 </div>
 {% help_modal "risks.assessment_list" %}
 
 <div class="mb-3 d-flex gap-2">
-  <a href="{% url 'risks:assessment-list' %}" class="filter-chip {% if not request.GET.status %}active{% endif %}">{% trans "All" %}</a>
-  <a href="?status=draft" class="filter-chip {% if request.GET.status == 'draft' %}active{% endif %}">{% trans "Draft" %}</a>
+  <a href="{% url 'risks:assessment-list' %}" class="filter-chip {% if not request.GET.status %}active{% endif %}">{% trans "All" %}</button>
+  <a href="?status=draft" class="filter-chip {% if request.GET.status == 'draft' %}active{% endif %}">{% trans "Draft" %}</button>
   <a href="?status=in_progress" class="filter-chip {% if request.GET.status == 'in_progress' %}active{% endif %}">{% trans "In progress" %}</a>
   <a href="?status=completed" class="filter-chip {% if request.GET.status == 'completed' %}active{% endif %}">{% trans "Completed" %}</a>
   <a href="?status=validated" class="filter-chip {% if request.GET.status == 'validated' %}active{% endif %}">{% trans "Validated" %}</a>
@@ -59,7 +60,7 @@
             </span>
           </td>
           <td class="text-end">
-            <a href="{% url 'risks:assessment-update' a.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+            <a hx-get="{% url 'risks:assessment-update' a.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}

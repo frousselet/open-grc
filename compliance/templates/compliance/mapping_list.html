@@ -9,7 +9,8 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Cross-framework mappings" %}</h1>
-  <a href="{% url 'compliance:mapping-create' %}" class="btn btn-primary ms-auto">{% trans "New mapping" %}</a>
+  <button type="button" class="btn btn-primary ms-auto"
+          hx-get="{% url 'compliance:mapping-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">{% trans "New mapping" %}</button>
 </div>
 {% help_modal "compliance.mapping_list" %}
 
@@ -38,7 +39,7 @@
           <td>{{ m.get_mapping_type_display }}</td>
           <td>{{ m.get_coverage_level_display|default:"—" }}</td>
           <td class="text-end">
-            <a href="{% url 'compliance:mapping-update' m.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+            <a hx-get="{% url 'compliance:mapping-update' m.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}

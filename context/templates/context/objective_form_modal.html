@@ -108,17 +108,15 @@
 {# ── Scope & Tags ── #}
 <div class="drawer-section">
   <div class="drawer-section-title"><i class="bi bi-diagram-3"></i> {% trans "Scope & Tags" %}</div>
-  <div class="row g-3">
-    <div class="col-sm-7">
-      <label for="{{ form.scopes.id_for_label }}" class="form-label">{{ form.scopes.label }}</label>
-      {{ form.scopes }}
-      {% for error in form.scopes.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-    </div>
-    <div class="col-sm-5">
-      <label for="{{ form.tags.id_for_label }}" class="form-label">{% trans "Tags" %}</label>
-      {{ form.tags }}
-      {% for error in form.tags.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-    </div>
+  <div class="mb-3">
+    <label for="{{ form.scopes.id_for_label }}" class="form-label">{{ form.scopes.label }}</label>
+    {{ form.scopes }}
+    {% for error in form.scopes.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.tags.id_for_label }}" class="form-label">{% trans "Tags" %}</label>
+    {{ form.tags }}
+    {% for error in form.tags.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
   </div>
 </div>
 {% endblock %}

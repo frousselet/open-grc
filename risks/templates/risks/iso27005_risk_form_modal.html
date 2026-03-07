@@ -1,0 +1,88 @@
+{% extends "includes/modal_form.html" %}
+{% load i18n %}
+
+{% block modal_title_icon %}<span class="drawer-title-icon"><i class="bi bi-shield-lock"></i></span>{% endblock %}
+
+{% block modal_form_fields %}
+{# ── Context ── #}
+<div class="drawer-section">
+  <div class="row g-2 mb-3">
+    <div class="col-sm-4">
+      <label for="{{ form.assessment.id_for_label }}" class="form-label">{{ form.assessment.label }} *</label>
+      {{ form.assessment }}
+      {% for error in form.assessment.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="col-sm-4">
+      <label for="{{ form.threat.id_for_label }}" class="form-label">{{ form.threat.label }} *</label>
+      {{ form.threat }}
+      {% for error in form.threat.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="col-sm-4">
+      <label for="{{ form.vulnerability.id_for_label }}" class="form-label">{{ form.vulnerability.label }} *</label>
+      {{ form.vulnerability }}
+      {% for error in form.vulnerability.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+  </div>
+  <div>
+    <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+    {{ form.description }}
+    {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+
+{# ── Evaluation ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-speedometer2"></i> {% trans "Evaluation" %}</div>
+  <div class="row g-2 mb-3">
+    <div class="col-sm-6">
+      <label for="{{ form.threat_likelihood.id_for_label }}" class="form-label">{{ form.threat_likelihood.label }}</label>
+      {{ form.threat_likelihood }}
+    </div>
+    <div class="col-sm-6">
+      <label for="{{ form.vulnerability_exposure.id_for_label }}" class="form-label">{{ form.vulnerability_exposure.label }}</label>
+      {{ form.vulnerability_exposure }}
+    </div>
+  </div>
+  <div class="row g-2 mb-3">
+    <div class="col-sm-4">
+      <label for="{{ form.impact_confidentiality.id_for_label }}" class="form-label">{{ form.impact_confidentiality.label }}</label>
+      {{ form.impact_confidentiality }}
+    </div>
+    <div class="col-sm-4">
+      <label for="{{ form.impact_integrity.id_for_label }}" class="form-label">{{ form.impact_integrity.label }}</label>
+      {{ form.impact_integrity }}
+    </div>
+    <div class="col-sm-4">
+      <label for="{{ form.impact_availability.id_for_label }}" class="form-label">{{ form.impact_availability.label }}</label>
+      {{ form.impact_availability }}
+    </div>
+  </div>
+  <div>
+    <label for="{{ form.existing_controls.id_for_label }}" class="form-label">{{ form.existing_controls.label }}</label>
+    {{ form.existing_controls }}
+    {% for error in form.existing_controls.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+
+{# ── Affected assets ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-hdd-stack"></i> {% trans "Affected assets" %}</div>
+  <div class="mb-3">
+    <label for="{{ form.affected_essential_assets.id_for_label }}" class="form-label">{{ form.affected_essential_assets.label }}</label>
+    {{ form.affected_essential_assets }}
+  </div>
+  <div>
+    <label for="{{ form.affected_support_assets.id_for_label }}" class="form-label">{{ form.affected_support_assets.label }}</label>
+    {{ form.affected_support_assets }}
+  </div>
+</div>
+
+{# ── Tags ── #}
+<div class="drawer-section">
+  <div>
+    <label for="{{ form.tags.id_for_label }}" class="form-label">{% trans "Tags" %}</label>
+    {{ form.tags }}
+    {% for error in form.tags.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+{% endblock %}

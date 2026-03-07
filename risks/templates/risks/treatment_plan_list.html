@@ -8,7 +8,8 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Treatment plans" %}</h1>
-  <a href="{% url 'risks:treatment-plan-create' %}" class="btn btn-primary ms-auto">{% trans "New plan" %}</a>
+  <button type="button" class="btn btn-primary ms-auto"
+          hx-get="{% url 'risks:treatment-plan-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">{% trans "New plan" %}</button>
 </div>
 {% help_modal "risks.treatment_plan_list" %}
 
@@ -58,7 +59,7 @@
           </td>
           <td>{% for tag in p.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
           <td class="text-end">
-            <a href="{% url 'risks:treatment-plan-update' p.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+            <a hx-get="{% url 'risks:treatment-plan-update' p.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}
