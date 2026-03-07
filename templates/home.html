@@ -804,31 +804,6 @@ window.initSparklines = function(root) {
   }
 
   /**
-   * Parse a displayed number string back to a plain number,
-   * stripping thousand separators but preserving the decimal separator.
-   * Handles both locale formats: 1 234,56 (fr) and 1,234.56 (en).
-   */
-  function parseDisplayNum(s) {
-    // Strip thousand separators (spaces / non-breaking spaces)
-    var cleaned = s.replace(/[\s\u00a0\u202f]/g, '');
-    // Determine decimal separator: if both comma and dot are present,
-    // the last one is the decimal separator.
-    var lastComma = cleaned.lastIndexOf(',');
-    var lastDot = cleaned.lastIndexOf('.');
-    if (lastComma > lastDot) {
-      // Comma is decimal separator (fr): remove dots (thousands), replace comma with dot
-      cleaned = cleaned.replace(/\./g, '').replace(',', '.');
-    } else if (lastDot > lastComma) {
-      // Dot is decimal separator (en): remove commas (thousands)
-      cleaned = cleaned.replace(/,/g, '');
-    } else {
-      // No separator or only one type
-      cleaned = cleaned.replace(/,/g, '.');
-    }
-    return parseFloat(cleaned) || 0;
-  }
-
-  /**
    * Smooth count animation with easeOutExpo.
    * Counts from `from` to `to` over `duration` ms.
    * If `fmt` is true, applies thousand separators during animation.
@@ -864,19 +839,20 @@ window.initSparklines = function(root) {
   });
 
   // Page load: animate indicator values from 0 (with thousand separators)
-  document.querySelectorAll('#ws-indicators-container .stat-card-value').forEach(function(el) {
-    if (el.hasAttribute('data-ws-field')) return;
-    el.setAttribute('data-count-animated', '1');  // prevent base.html animation
-    var raw = el.textContent.trim();
-    if (!/\d/.test(raw)) return;
-    var val = parseDisplayNum(raw);
-    if (!isNaN(val) && val !== 0) {
-      // Detect decimal places from the displayed string
-      var decMatch = raw.match(/[,.](\d+)$/);
-      var dec = decMatch ? decMatch[1].length : 0;
-      el.textContent = '0';
-      countTo(el, 0, val, '', 2800, true, dec);
-    }
+  document.querySelectorAll('#ws-indicators-container .stat-card[data-indicator-value]').forEach(function(card) {
+    var valEl = card.querySelector('.stat-card-value');
+    if (!valEl || valEl.hasAttribute('data-ws-field')) return;
+    valEl.setAttribute('data-count-animated', '1');  // prevent base.html animation
+    // Use the raw numeric value (dot-decimal) from the data attribute
+    var rawAttr = card.getAttribute('data-indicator-value');
+    if (!rawAttr || !/\d/.test(rawAttr)) return;
+    var val = parseFloat(rawAttr);
+    if (isNaN(val) || val === 0) return;
+    // Detect decimal places from the raw stored value (uses dot as decimal)
+    var decMatch = rawAttr.match(/\.(\d+)$/);
+    var dec = decMatch ? decMatch[1].length : 0;
+    valEl.textContent = '0';
+    countTo(valEl, 0, val, '', 2800, true, dec);
   });
 
   // Skip the first WS message (initial snapshot on connect,
