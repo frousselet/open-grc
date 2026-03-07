@@ -4,8 +4,13 @@
 {% block title %}{% trans "Permissions — Open GRC" %}{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h2>{% trans "Permissions" %}</h2>
+<div class="d-flex align-items-center mb-3">
+  <h2 class="mb-0">{% trans "Permissions" %}</h2>
+  <div class="header-actions">
+    <button type="button" class="btn-header-action" data-toggle-help title="{% trans 'Help' %}">
+      <i class="bi bi-info-circle"></i>
+    </button>
+  </div>
 </div>
 {% help_modal "accounts.permission_list" %}
 

@@ -6,12 +6,22 @@
 {% block title %}{% trans "Groups — Open GRC" %}{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h2>{% trans "Groups" %}</h2>
-  {% has_perm "system.groups.create" as can_create %}
-  {% if can_create %}
-  <a href="{% url 'accounts:group-create' %}" class="btn btn-primary">{% trans "Create a group" %}</a>
-  {% endif %}
+<div class="d-flex align-items-center mb-3">
+  <h2 class="mb-0">{% trans "Groups" %}</h2>
+  <div class="header-actions">
+    {% has_perm "system.groups.create" as can_create %}
+    {% if can_create %}
+    <a href="{% url 'accounts:group-create' %}" class="btn-header-action" title="{% trans 'Create a group' %}">
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    {% endif %}
+    <button type="button" class="btn-header-action" data-toggle-search title="{% trans 'Search' %}">
+      <i class="bi bi-search"></i>
+    </button>
+    <button type="button" class="btn-header-action" data-toggle-help title="{% trans 'Help' %}">
+      <i class="bi bi-info-circle"></i>
+    </button>
+  </div>
 </div>
 {% help_modal "accounts.group_list" %}
 

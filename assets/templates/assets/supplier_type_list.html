@@ -8,7 +8,17 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Supplier types" %}</h1>
-  <a href="{% url 'assets:supplier-type-create' %}" class="btn btn-primary ms-auto">{% trans "New supplier type" %}</a>
+  <div class="header-actions">
+    <a href="{% url 'assets:supplier-type-create' %}" class="btn-header-action" title="{% trans 'New supplier type' %}">
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <button type="button" class="btn-header-action" data-toggle-search title="{% trans 'Search' %}">
+      <i class="bi bi-search"></i>
+    </button>
+    <button type="button" class="btn-header-action" data-toggle-help title="{% trans 'Help' %}">
+      <i class="bi bi-info-circle"></i>
+    </button>
+  </div>
 </div>
 {% help_modal "assets.supplier_type_list" %}
 

@@ -7839,6 +7839,9 @@ msgstr "Choisir les indicateurs du tableau de bord"
 msgid "Close"
 msgstr "Fermer"
 
+msgid "Help"
+msgstr "Aide"
+
 #: templates/includes/dashboard_indicators.html:93
 #, python-format
 msgid "Select up to %(max)s indicators to display on your dashboard."

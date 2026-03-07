@@ -9,10 +9,18 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Scopes" %}</h1>
-  <button type="button" class="btn btn-primary ms-auto"
-          hx-get="{% url 'context:scope-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
-    {% trans "New scope" %}
-  </button>
+  <div class="header-actions">
+    <button type="button" class="btn-header-action" title="{% trans 'New scope' %}"
+            hx-get="{% url 'context:scope-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+    <button type="button" class="btn-header-action" data-toggle-search title="{% trans 'Search' %}">
+      <i class="bi bi-search"></i>
+    </button>
+    <button type="button" class="btn-header-action" data-toggle-help title="{% trans 'Help' %}">
+      <i class="bi bi-info-circle"></i>
+    </button>
+  </div>
 </div>
 {% help_modal "context.scope_list" %}
 
