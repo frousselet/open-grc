@@ -1,14 +1,17 @@
 {% load i18n %}
-<div class="modal-header" style="border-bottom:1px solid var(--border-light)">
-  <h5 class="modal-title">{{ modal_title }}</h5>
+<div class="modal-header-modern">
+  <h5 class="modal-title">
+    {% block modal_title_icon %}<span class="modal-title-icon"><i class="bi bi-pencil-square"></i></span>{% endblock %}
+    {{ modal_title }}
+  </h5>
   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
 </div>
 <form method="post" hx-post="{{ request.path }}" hx-target="#modal-form-content" hx-swap="innerHTML">
   {% csrf_token %}
-  <div class="modal-body" style="max-height:70vh;overflow-y:auto">
+  <div class="modal-body-modern">
     {% block modal_form_fields %}{% endblock %}
   </div>
-  <div class="modal-footer" style="border-top:1px solid var(--border-light)">
+  <div class="modal-footer-modern d-flex justify-content-end">
     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
     <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{% trans "Save" %}</button>
   </div>
