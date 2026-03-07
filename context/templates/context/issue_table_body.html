@@ -1,0 +1,31 @@
+{% load i18n scope_tags %}
+{% for issue in issues %}
+<tr>
+  <td><a href="{% url 'context:issue-detail' issue.pk %}" class="ref" style="text-decoration:none">{{ issue.reference }}</a></td>
+  <td>{{ issue.name }}</td>
+  <td>{% scope_popover issue.scopes.all %}</td>
+  <td>{{ issue.get_type_display }}</td>
+  <td>{{ issue.get_category_display }}</td>
+  <td>
+    <span class="badge text-bg-{% if issue.impact_level == 'critical' %}danger{% elif issue.impact_level == 'high' %}warning{% elif issue.impact_level == 'medium' %}info{% else %}secondary{% endif %}">
+      {{ issue.get_impact_level_display }}
+    </span>
+  </td>
+  <td>{{ issue.get_trend_display|default:"—" }}</td>
+  <td>{{ issue.get_status_display }}</td>
+  <td>{% for tag in issue.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
+  <td>
+    <span class="badge text-bg-{% if issue.is_approved %}success{% else %}warning{% endif %}">
+      {% if issue.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+    </span>
+  </td>
+  <td class="text-end">
+    <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
+            hx-get="{% url 'context:issue-update' issue.pk %}" hx-target="#modal-form-content" hx-swap="innerHTML">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </td>
+</tr>
+{% empty %}
+<tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No issue defined." %}</td></tr>
+{% endfor %}

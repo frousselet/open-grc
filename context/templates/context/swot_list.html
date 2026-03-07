@@ -9,7 +9,10 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "SWOT analyses" %}</h1>
-  <a href="{% url 'context:swot-create' %}" class="btn btn-primary ms-auto">{% trans "New analysis" %}</a>
+  <button type="button" class="btn btn-primary ms-auto"
+          hx-get="{% url 'context:swot-create' %}" hx-target="#modal-form-content" hx-swap="innerHTML">
+    {% trans "New analysis" %}
+  </button>
 </div>
 {% help_modal "context.swot_list" %}
 
@@ -36,31 +39,11 @@
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
-      <tbody>
-        {% for analysis in analyses %}
-        <tr>
-          <td><a href="{% url 'context:swot-detail' analysis.pk %}" class="ref" style="text-decoration:none">{{ analysis.reference }}</a></td>
-          <td>{{ analysis.name }}</td>
-          <td>{{ analysis.analysis_date }}</td>
-          <td>
-            <span class="badge text-bg-{% if analysis.status == 'validated' %}success{% elif analysis.status == 'draft' %}secondary{% else %}dark{% endif %}">
-              {{ analysis.get_status_display }}
-            </span>
-          </td>
-          <td>{{ analysis.validated_by|default:"—" }}</td>
-          <td>{% for tag in analysis.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          <td>
-            <span class="badge text-bg-{% if analysis.is_approved %}success{% else %}warning{% endif %}">
-              {% if analysis.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          <td class="text-end">
-            <a href="{% url 'context:swot-update' analysis.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted)">{% trans "No SWOT analysis." %}</td></tr>
-        {% endfor %}
+      <tbody id="item-table-body"
+             hx-get="{% url 'context:swot-table-body' %}?{{ request.GET.urlencode }}"
+             hx-trigger="refreshTable"
+             hx-swap="innerHTML">
+        {% include "context/swot_table_body.html" %}
       </tbody>
     </table>
   </div>

@@ -3181,5 +3181,45 @@
   </script>
   {% endif %}
   {% block extra_js %}{% endblock %}
+
+  {# ── Generic HTMX modal for create/edit forms ──── #}
+  <div class="modal fade" id="itemModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content" id="modal-form-content" style="background:var(--surface);border:1px solid var(--border-light)">
+      </div>
+    </div>
+  </div>
+  <script>
+  (function() {
+    var modalEl = document.getElementById('itemModal');
+    var bsModal = null;
+
+    function getModal() {
+      if (!bsModal) bsModal = new bootstrap.Modal(modalEl);
+      return bsModal;
+    }
+
+    /* After HTMX loads content into modal, show it */
+    document.body.addEventListener('htmx:afterSettle', function(evt) {
+      if (evt.detail.target && evt.detail.target.id === 'modal-form-content') {
+        getModal().show();
+      }
+    });
+
+    /* On formSaved trigger from server, close modal and refresh table */
+    document.body.addEventListener('formSaved', function() {
+      getModal().hide();
+      var tableBody = document.getElementById('item-table-body');
+      if (tableBody) {
+        htmx.trigger(tableBody, 'refreshTable');
+      }
+    });
+
+    /* Cleanup modal content on hide */
+    modalEl.addEventListener('hidden.bs.modal', function() {
+      document.getElementById('modal-form-content').innerHTML = '';
+    });
+  })();
+  </script>
 </body>
 </html>

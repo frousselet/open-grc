@@ -1,6 +1,56 @@
 from django.db.models import F
+from django.http import HttpResponse
 
 from core.db import NaturalSortKey
+
+
+class HtmxFormMixin:
+    """Mixin for CreateView/UpdateView to serve modal forms via HTMX.
+
+    When the request is an HTMX request, the view renders a modal-friendly
+    partial template instead of the full-page template. On successful save,
+    it returns an HX-Trigger header to refresh the table body.
+
+    Class attributes:
+        modal_template_name: Template for the modal form partial.
+        modal_title_create: Title for the create modal.
+        modal_title_update: Title for the update modal.
+    """
+
+    modal_template_name = None
+    modal_title_create = ""
+    modal_title_update = ""
+
+    def _is_htmx(self):
+        return self.request.headers.get("HX-Request") == "true"
+
+    def get_template_names(self):
+        if self._is_htmx() and self.modal_template_name:
+            return [self.modal_template_name]
+        return super().get_template_names()
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        if self._is_htmx():
+            is_edit = getattr(self, "object", None) and self.object.pk
+            ctx["modal_title"] = self.modal_title_update if is_edit else self.modal_title_create
+            ctx["is_modal"] = True
+        return ctx
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if self._is_htmx():
+            return HttpResponse(
+                status=204,
+                headers={"HX-Trigger": "formSaved"},
+            )
+        return response
+
+    def form_invalid(self, form):
+        if self._is_htmx():
+            self.object = getattr(self, "object", None)
+            return self.render_to_response(self.get_context_data(form=form))
+        return super().form_invalid(form)
 
 
 class SortableListMixin:

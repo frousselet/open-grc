@@ -1,0 +1,130 @@
+{% extends "includes/modal_form.html" %}
+{% load i18n %}
+
+{% block modal_form_fields %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card mb-3">
+      <div class="card-header py-2"><h6 class="mb-0"><i class="bi bi-diagram-3 me-2" style="color:var(--accent)"></i>{% trans "Identity" %}</h6></div>
+      <div class="card-body py-2">
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="mb-2">
+              <label for="{{ form.name.id_for_label }}" class="form-label mb-1">{{ form.name.label }} *</label>
+              {{ form.name }}
+              {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="mb-2">
+              <label class="form-label mb-1">{{ form.icon.label }}</label>
+              {{ form.icon }}
+              <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-outline-secondary d-flex align-items-center justify-content-center" id="icon-picker-btn" style="width:38px;height:38px;font-size:1.1rem" title="{% trans 'Choose icon' %}">
+                  <i id="icon-preview" class="bi {{ form.icon.value|default:'bi-diagram-3' }}"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-link text-muted p-0" id="icon-clear-btn" title="{% trans 'Reset' %}" style="font-size:.75rem">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="mb-2">
+              <label for="{{ form.parent_scope.id_for_label }}" class="form-label mb-1">{{ form.parent_scope.label }}</label>
+              {{ form.parent_scope }}
+              {% for error in form.parent_scope.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="mb-2">
+              <label for="{{ form.status.id_for_label }}" class="form-label mb-1">{{ form.status.label }} *</label>
+              {{ form.status }}
+              {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="mb-0">
+          <label for="{{ form.description.id_for_label }}" class="form-label mb-1">{{ form.description.label }}</label>
+          {{ form.description }}
+          {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="card mb-3">
+      <div class="card-header py-2"><h6 class="mb-0"><i class="bi bi-bounding-box me-2" style="color:var(--accent)"></i>{% trans "Boundaries" %}</h6></div>
+      <div class="card-body py-2">
+        <div class="mb-2">
+          <label for="{{ form.boundaries.id_for_label }}" class="form-label mb-1">{{ form.boundaries.label }}</label>
+          {{ form.boundaries }}
+          {% for error in form.boundaries.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="mb-0">
+          <label for="{{ form.justification_exclusions.id_for_label }}" class="form-label mb-1">{{ form.justification_exclusions.label }}</label>
+          {{ form.justification_exclusions }}
+          {% for error in form.justification_exclusions.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="card mb-3">
+      <div class="card-header py-2"><h6 class="mb-0"><i class="bi bi-layers me-2" style="color:var(--accent)"></i>{% trans "Scope details" %}</h6></div>
+      <div class="card-body py-2">
+        <div class="mb-2">
+          <label for="{{ form.geographic_scope.id_for_label }}" class="form-label mb-1">{{ form.geographic_scope.label }}</label>
+          {{ form.geographic_scope }}
+          {% for error in form.geographic_scope.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="mb-2">
+          <label for="{{ form.organizational_scope.id_for_label }}" class="form-label mb-1">{{ form.organizational_scope.label }}</label>
+          {{ form.organizational_scope }}
+          {% for error in form.organizational_scope.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="mb-0">
+          <label for="{{ form.technical_scope.id_for_label }}" class="form-label mb-1">{{ form.technical_scope.label }}</label>
+          {{ form.technical_scope }}
+          {% for error in form.technical_scope.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-header py-2"><h6 class="mb-0"><i class="bi bi-geo-alt me-2" style="color:var(--accent)"></i>{% trans "Sites" %}</h6></div>
+      <div class="card-body py-2">
+        <div class="mb-2">
+          <label for="{{ form.included_sites.id_for_label }}" class="form-label mb-1">{{ form.included_sites.label }}</label>
+          {{ form.included_sites }}
+          {% for error in form.included_sites.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="mb-0">
+          <label for="{{ form.excluded_sites.id_for_label }}" class="form-label mb-1">{{ form.excluded_sites.label }}</label>
+          {{ form.excluded_sites }}
+          {% for error in form.excluded_sites.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="card mb-3">
+      <div class="card-header py-2"><h6 class="mb-0"><i class="bi bi-calendar-event me-2" style="color:var(--accent)"></i>{% trans "Dates" %}</h6></div>
+      <div class="card-body py-2">
+        <div class="mb-2">
+          <label for="{{ form.effective_date.id_for_label }}" class="form-label mb-1">{{ form.effective_date.label }}</label>
+          {{ form.effective_date }}
+          {% for error in form.effective_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="mb-0">
+          <label for="{{ form.review_date.id_for_label }}" class="form-label mb-1">{{ form.review_date.label }}</label>
+          {{ form.review_date }}
+          {% for error in form.review_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="card mb-3">
+      <div class="card-header py-2"><h6 class="mb-0"><i class="bi bi-tags me-2" style="color:var(--accent)"></i>{% trans "Tags" %}</h6></div>
+      <div class="card-body py-2">
+        {{ form.tags }}
+        {% for error in form.tags.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

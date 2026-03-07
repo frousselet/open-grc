@@ -9,7 +9,10 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Roles and responsibilities" %}</h1>
-  <a href="{% url 'context:role-create' %}" class="btn btn-primary ms-auto">{% trans "New role" %}</a>
+  <button type="button" class="btn btn-primary ms-auto"
+          hx-get="{% url 'context:role-create' %}" hx-target="#modal-form-content" hx-swap="innerHTML">
+    {% trans "New role" %}
+  </button>
 </div>
 {% help_modal "context.role_list" %}
 
@@ -42,32 +45,11 @@
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
-      <tbody>
-        {% for role in roles %}
-        <tr{% if role.is_mandatory and role.user_count == 0 %} class="table-danger"{% endif %}>
-          <td><a href="{% url 'context:role-detail' role.pk %}" class="ref" style="text-decoration:none">{{ role.reference }}</a></td>
-          <td>{{ role.name }}</td>
-          <td>{{ role.get_type_display }}</td>
-          <td>{{ role.user_count }}</td>
-          <td>{% if role.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</td>
-          <td>
-            <span class="badge text-bg-{% if role.status == 'active' %}success{% else %}secondary{% endif %}">
-              {{ role.get_status_display }}
-            </span>
-          </td>
-          <td>{% for tag in role.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          <td>
-            <span class="badge text-bg-{% if role.is_approved %}success{% else %}warning{% endif %}">
-              {% if role.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          <td class="text-end">
-            <a href="{% url 'context:role-update' role.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No role defined." %}</td></tr>
-        {% endfor %}
+      <tbody id="item-table-body"
+             hx-get="{% url 'context:role-table-body' %}?{{ request.GET.urlencode }}"
+             hx-trigger="refreshTable"
+             hx-swap="innerHTML">
+        {% include "context/role_table_body.html" %}
       </tbody>
     </table>
   </div>

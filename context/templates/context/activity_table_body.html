@@ -1,0 +1,33 @@
+{% load i18n %}
+{% for activity in activities %}
+<tr>
+  <td><a href="{% url 'context:activity-detail' activity.pk %}" class="ref" style="text-decoration:none">{{ activity.reference }}</a></td>
+  <td>{{ activity.name }}</td>
+  <td>{{ activity.get_type_display }}</td>
+  <td>
+    <span class="badge text-bg-{% if activity.criticality == 'critical' %}danger{% elif activity.criticality == 'high' %}warning{% elif activity.criticality == 'medium' %}info{% else %}secondary{% endif %}">
+      {{ activity.get_criticality_display }}
+    </span>
+  </td>
+  <td>{{ activity.owner }}</td>
+  <td>
+    <span class="badge text-bg-{% if activity.status == 'active' %}success{% elif activity.status == 'planned' %}info{% else %}secondary{% endif %}">
+      {{ activity.get_status_display }}
+    </span>
+  </td>
+  <td>{% for tag in activity.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
+  <td>
+    <span class="badge text-bg-{% if activity.is_approved %}success{% else %}warning{% endif %}">
+      {% if activity.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+    </span>
+  </td>
+  <td class="text-end">
+    <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
+            hx-get="{% url 'context:activity-update' activity.pk %}" hx-target="#modal-form-content" hx-swap="innerHTML">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </td>
+</tr>
+{% empty %}
+<tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No activity defined." %}</td></tr>
+{% endfor %}
