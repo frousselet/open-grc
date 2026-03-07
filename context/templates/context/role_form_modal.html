@@ -4,21 +4,23 @@
 {% block modal_title_icon %}<span class="drawer-title-icon"><i class="bi bi-shield-check"></i></span>{% endblock %}
 
 {% block modal_form_fields %}
-{% for field in form %}
-<div class="mb-3">
-  {% if field.field.widget.input_type == 'checkbox' %}
-  <div class="form-check">
+<div class="drawer-section">
+  {% for field in form %}
+  <div class="{% if not forloop.last %}mb-3{% endif %}">
+    {% if field.field.widget.input_type == 'checkbox' %}
+    <div class="form-check">
+      {{ field }}
+      <label for="{{ field.id_for_label }}" class="form-check-label">{{ field.label }}</label>
+    </div>
+    {% else %}
+    <label for="{{ field.id_for_label }}" class="form-label">
+      {{ field.label }}{% if field.field.required %} *{% endif %}
+    </label>
     {{ field }}
-    <label for="{{ field.id_for_label }}" class="form-check-label">{{ field.label }}</label>
+    {% endif %}
+    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+    {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
   </div>
-  {% else %}
-  <label for="{{ field.id_for_label }}" class="form-label mb-1">
-    {{ field.label }}{% if field.field.required %} *{% endif %}
-  </label>
-  {{ field }}
-  {% endif %}
-  {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-  {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  {% endfor %}
 </div>
-{% endfor %}
 {% endblock %}
