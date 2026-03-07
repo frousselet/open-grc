@@ -3161,31 +3161,6 @@
     });
   })();
 
-  /* ── Header action: focus search input ───────────── */
-  (function() {
-    document.addEventListener('click', function(e) {
-      var btn = e.target.closest('[data-toggle-search]');
-      if (!btn) return;
-      var input = document.querySelector('.table-toolbar-input');
-      if (input) {
-        input.scrollIntoView({behavior: 'smooth', block: 'center'});
-        setTimeout(function() { input.focus(); }, 120);
-      }
-    });
-  })();
-
-  /* ── Header action: toggle help banner ─────────── */
-  (function() {
-    document.addEventListener('click', function(e) {
-      var btn = e.target.closest('[data-toggle-help]');
-      if (!btn) return;
-      var banner = document.querySelector('.help-banner');
-      if (!banner) return;
-      var hidden = banner.style.display === 'none';
-      banner.style.display = hidden ? '' : 'none';
-      btn.classList.toggle('active', hidden);
-    });
-  })();
   </script>
   <script>
   /* ── Scroll-triggered animations: count-up numbers + progress bars ── */
