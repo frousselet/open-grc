@@ -24,7 +24,7 @@
   </td>
   <td class="text-end">
     <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
-            hx-get="{% url 'context:scope-update' scope.pk %}" hx-target="#modal-form-content" hx-swap="innerHTML">
+            hx-get="{% url 'context:scope-update' scope.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
       <i class="bi bi-pencil"></i>
     </button>
     <a href="{% url 'context:scope-delete' scope.pk %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Delete' %}"><i class="bi bi-trash"></i></a>
