@@ -6,7 +6,8 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Essential assets" %}</h1>
-  <a href="{% url 'assets:essential-asset-create' %}" class="btn btn-primary ms-auto">{% trans "New essential asset" %}</a>
+  <button type="button" class="btn btn-primary ms-auto"
+          hx-get="{% url 'assets:essential-asset-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">{% trans "New essential asset" %}</button>
 </div>
 {% help_modal "assets.essential_asset_list" %}
 
@@ -60,7 +61,7 @@
             </span>
           </td>
           <td class="text-end">
-            <a href="{% url 'assets:essential-asset-update' asset.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+            <a hx-get="{% url 'assets:essential-asset-update' asset.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}

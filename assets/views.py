@@ -17,7 +17,7 @@ from django.views.generic import (
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
 from assets.services.spof_detection import SpofDetector
-from core.mixins import SortableListMixin
+from core.mixins import HtmxFormMixin, SortableListMixin
 from context.models import Scope, Site
 from .forms import (
     AssetDependencyForm,
@@ -183,10 +183,11 @@ class EssentialAssetDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalCon
         return ctx
 
 
-class EssentialAssetCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class EssentialAssetCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = EssentialAsset
     form_class = EssentialAssetForm
     template_name = "assets/essential_asset_form.html"
+    modal_template_name = "assets/essential_asset_form_modal.html"
     success_url = reverse_lazy("assets:essential-asset-list")
 
     def get_form_kwargs(self):
@@ -195,10 +196,11 @@ class EssentialAssetCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return kwargs
 
 
-class EssentialAssetUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class EssentialAssetUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = EssentialAsset
     form_class = EssentialAssetForm
     template_name = "assets/essential_asset_form.html"
+    modal_template_name = "assets/essential_asset_form_modal.html"
     success_url = reverse_lazy("assets:essential-asset-list")
 
     def get_form_kwargs(self):
@@ -259,10 +261,11 @@ class SupportAssetDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalConte
         return ctx
 
 
-class SupportAssetCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class SupportAssetCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = SupportAsset
     form_class = SupportAssetForm
     template_name = "assets/support_asset_form.html"
+    modal_template_name = "assets/support_asset_form_modal.html"
     success_url = reverse_lazy("assets:support-asset-list")
 
     def get_form_kwargs(self):
@@ -271,10 +274,11 @@ class SupportAssetCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return kwargs
 
 
-class SupportAssetUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class SupportAssetUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = SupportAsset
     form_class = SupportAssetForm
     template_name = "assets/support_asset_form.html"
+    modal_template_name = "assets/support_asset_form_modal.html"
     success_url = reverse_lazy("assets:support-asset-list")
 
     def get_form_kwargs(self):
@@ -365,10 +369,11 @@ class GroupDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin
         return super().get_queryset().prefetch_related("members")
 
 
-class GroupCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class GroupCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = AssetGroup
     form_class = AssetGroupForm
     template_name = "assets/group_form.html"
+    modal_template_name = "assets/group_form_modal.html"
     success_url = reverse_lazy("assets:group-list")
 
     def get_form_kwargs(self):
@@ -377,10 +382,11 @@ class GroupCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return kwargs
 
 
-class GroupUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class GroupUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = AssetGroup
     form_class = AssetGroupForm
     template_name = "assets/group_form.html"
+    modal_template_name = "assets/group_form_modal.html"
     success_url = reverse_lazy("assets:group-list")
 
     def get_form_kwargs(self):
@@ -443,10 +449,11 @@ class SupplierDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMi
         return ctx
 
 
-class SupplierCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class SupplierCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Supplier
     form_class = SupplierForm
     template_name = "assets/supplier_form.html"
+    modal_template_name = "assets/supplier_form_modal.html"
     success_url = reverse_lazy("assets:supplier-list")
 
     def get_form_kwargs(self):
@@ -455,10 +462,11 @@ class SupplierCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return kwargs
 
 
-class SupplierUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class SupplierUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Supplier
     form_class = SupplierForm
     template_name = "assets/supplier_form.html"
+    modal_template_name = "assets/supplier_form_modal.html"
     success_url = reverse_lazy("assets:supplier-list")
 
     def get_form_kwargs(self):
@@ -827,17 +835,19 @@ class SiteDetailView(LoginRequiredMixin, ApprovalContextMixin, HistoryMixin, Det
         return ctx
 
 
-class SiteCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class SiteCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Site
     form_class = SiteForm
     template_name = "assets/site_form.html"
+    modal_template_name = "assets/site_form_modal.html"
     success_url = reverse_lazy("assets:site-list")
 
 
-class SiteUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
+class SiteUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
     model = Site
     form_class = SiteForm
     template_name = "assets/site_form.html"
+    modal_template_name = "assets/site_form_modal.html"
     success_url = reverse_lazy("assets:site-list")
 
 

@@ -64,7 +64,7 @@
           <td style="font-size:.85rem">{{ r.risk_owner|default:"—" }}</td>
           <td>{% for tag in r.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
           <td class="text-end">
-            <a href="{% url 'risks:risk-update' r.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+            <a hx-get="{% url 'risks:risk-update' r.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}

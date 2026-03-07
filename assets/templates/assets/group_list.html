@@ -9,7 +9,8 @@
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Asset groups" %}</h1>
-  <a href="{% url 'assets:group-create' %}" class="btn btn-primary ms-auto">{% trans "New group" %}</a>
+  <button type="button" class="btn btn-primary ms-auto"
+          hx-get="{% url 'assets:group-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">{% trans "New group" %}</button>
 </div>
 {% help_modal "assets.group_list" %}
 
@@ -51,7 +52,7 @@
             </span>
           </td>
           <td class="text-end">
-            <a href="{% url 'assets:group-update' group.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+            <a hx-get="{% url 'assets:group-update' group.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}

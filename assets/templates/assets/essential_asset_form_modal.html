@@ -1,0 +1,145 @@
+{% extends "includes/modal_form.html" %}
+{% load i18n %}
+
+{% block modal_title_icon %}<span class="drawer-title-icon"><i class="bi bi-gem"></i></span>{% endblock %}
+
+{% block modal_form_fields %}
+{# ── Metadata bar ── #}
+<div class="drawer-meta">
+  <div>
+    <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }} *</label>
+    {{ form.status }}
+    {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.type.id_for_label }}" class="form-label">{{ form.type.label }} *</label>
+    {{ form.type }}
+    {% for error in form.type.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.category.id_for_label }}" class="form-label">{{ form.category.label }}</label>
+    {{ form.category }}
+    {% for error in form.category.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.review_date.id_for_label }}" class="form-label">{{ form.review_date.label }}</label>
+    {{ form.review_date }}
+    {% for error in form.review_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+
+{# ── Identity ── #}
+<div class="drawer-section">
+  <div class="mb-3">
+    <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
+    {{ form.name }}
+    {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div class="row g-2 mb-3">
+    <div class="col-sm-6">
+      <label for="{{ form.owner.id_for_label }}" class="form-label">{{ form.owner.label }}</label>
+      {{ form.owner }}
+    </div>
+    <div class="col-sm-6">
+      <label for="{{ form.custodian.id_for_label }}" class="form-label">{{ form.custodian.label }}</label>
+      {{ form.custodian }}
+    </div>
+  </div>
+  <div>
+    <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+    {{ form.description }}
+    {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+
+{# ── DIC Valuation ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-shield-lock"></i> {% trans "DIC Valuation" %}</div>
+  <div class="row g-2 mb-3">
+    <div class="col-sm-4">
+      <label for="{{ form.confidentiality_level.id_for_label }}" class="form-label">{{ form.confidentiality_level.label }}</label>
+      {{ form.confidentiality_level }}
+    </div>
+    <div class="col-sm-4">
+      <label for="{{ form.integrity_level.id_for_label }}" class="form-label">{{ form.integrity_level.label }}</label>
+      {{ form.integrity_level }}
+    </div>
+    <div class="col-sm-4">
+      <label for="{{ form.availability_level.id_for_label }}" class="form-label">{{ form.availability_level.label }}</label>
+      {{ form.availability_level }}
+    </div>
+  </div>
+  <div class="mb-3">
+    <label for="{{ form.confidentiality_justification.id_for_label }}" class="form-label">{{ form.confidentiality_justification.label }}</label>
+    {{ form.confidentiality_justification }}
+  </div>
+  <div class="mb-3">
+    <label for="{{ form.integrity_justification.id_for_label }}" class="form-label">{{ form.integrity_justification.label }}</label>
+    {{ form.integrity_justification }}
+  </div>
+  <div>
+    <label for="{{ form.availability_justification.id_for_label }}" class="form-label">{{ form.availability_justification.label }}</label>
+    {{ form.availability_justification }}
+  </div>
+</div>
+
+{# ── Continuity ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-clock-history"></i> {% trans "Continuity" %}</div>
+  <div class="row g-2 mb-3">
+    <div class="col-sm-4">
+      <label for="{{ form.max_tolerable_downtime.id_for_label }}" class="form-label">{{ form.max_tolerable_downtime.label }}</label>
+      {{ form.max_tolerable_downtime }}
+    </div>
+    <div class="col-sm-4">
+      <label for="{{ form.recovery_time_objective.id_for_label }}" class="form-label">{{ form.recovery_time_objective.label }}</label>
+      {{ form.recovery_time_objective }}
+    </div>
+    <div class="col-sm-4">
+      <label for="{{ form.recovery_point_objective.id_for_label }}" class="form-label">{{ form.recovery_point_objective.label }}</label>
+      {{ form.recovery_point_objective }}
+    </div>
+  </div>
+</div>
+
+{# ── Data ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-database"></i> {% trans "Data classification" %}</div>
+  <div class="row g-2 mb-3">
+    <div class="col-sm-6">
+      <label for="{{ form.data_classification.id_for_label }}" class="form-label">{{ form.data_classification.label }}</label>
+      {{ form.data_classification }}
+    </div>
+    <div class="col-sm-6">
+      <label class="form-label">&nbsp;</label>
+      <div class="form-check mt-1">
+        {{ form.personal_data }}
+        <label for="{{ form.personal_data.id_for_label }}" class="form-check-label">{{ form.personal_data.label }}</label>
+      </div>
+    </div>
+  </div>
+  <div class="mb-3">
+    <label for="{{ form.regulatory_constraints.id_for_label }}" class="form-label">{{ form.regulatory_constraints.label }}</label>
+    {{ form.regulatory_constraints }}
+  </div>
+  <div>
+    <label for="{{ form.related_activities.id_for_label }}" class="form-label">{{ form.related_activities.label }}</label>
+    {{ form.related_activities }}
+  </div>
+</div>
+
+{# ── Scope & Tags ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-diagram-3"></i> {% trans "Scope & Tags" %}</div>
+  <div class="mb-3">
+    <label for="{{ form.scopes.id_for_label }}" class="form-label">{{ form.scopes.label }}</label>
+    {{ form.scopes }}
+    {% for error in form.scopes.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.tags.id_for_label }}" class="form-label">{% trans "Tags" %}</label>
+    {{ form.tags }}
+    {% for error in form.tags.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+{% endblock %}

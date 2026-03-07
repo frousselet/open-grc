@@ -3449,8 +3449,10 @@
     document.body.addEventListener('formSaved', function() {
       getDrawer().hide();
       var tableBody = document.getElementById('item-table-body');
-      if (tableBody) {
+      if (tableBody && tableBody.hasAttribute('hx-trigger')) {
         htmx.trigger(tableBody, 'refreshTable');
+      } else {
+        window.location.reload();
       }
     });
 

@@ -18,7 +18,7 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
-from core.mixins import SortableListMixin
+from core.mixins import HtmxFormMixin, SortableListMixin
 from .constants import (
     DEFAULT_IMPACT_SCALES,
     DEFAULT_LIKELIHOOD_SCALES,
@@ -340,10 +340,11 @@ class RiskAssessmentDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalCon
         return ctx
 
 
-class RiskAssessmentCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class RiskAssessmentCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = RiskAssessment
     form_class = RiskAssessmentForm
     template_name = "risks/assessment_form.html"
+    modal_template_name = "risks/assessment_form_modal.html"
     success_url = reverse_lazy("risks:assessment-list")
 
     def get_form_kwargs(self):
@@ -352,10 +353,11 @@ class RiskAssessmentCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return kwargs
 
 
-class RiskAssessmentUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class RiskAssessmentUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = RiskAssessment
     form_class = RiskAssessmentForm
     template_name = "risks/assessment_form.html"
+    modal_template_name = "risks/assessment_form_modal.html"
     success_url = reverse_lazy("risks:assessment-list")
 
     def get_form_kwargs(self):
@@ -565,10 +567,11 @@ class RiskDetailView(LoginRequiredMixin, ApprovalContextMixin, HistoryMixin, Det
         return ctx
 
 
-class RiskCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class RiskCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Risk
     form_class = RiskForm
     template_name = "risks/risk_form.html"
+    modal_template_name = "risks/risk_form_modal.html"
     success_url = reverse_lazy("risks:risk-list")
 
     def dispatch(self, request, *args, **kwargs):
@@ -589,10 +592,11 @@ class RiskCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return initial
 
 
-class RiskUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
+class RiskUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
     model = Risk
     form_class = RiskForm
     template_name = "risks/risk_form.html"
+    modal_template_name = "risks/risk_form_modal.html"
     success_url = reverse_lazy("risks:risk-list")
 
 
@@ -645,17 +649,19 @@ class TreatmentPlanDetailView(LoginRequiredMixin, ApprovalContextMixin, HistoryM
         return ctx
 
 
-class TreatmentPlanCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class TreatmentPlanCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = RiskTreatmentPlan
     form_class = RiskTreatmentPlanForm
     template_name = "risks/treatment_plan_form.html"
+    modal_template_name = "risks/treatment_plan_form_modal.html"
     success_url = reverse_lazy("risks:treatment-plan-list")
 
 
-class TreatmentPlanUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
+class TreatmentPlanUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
     model = RiskTreatmentPlan
     form_class = RiskTreatmentPlanForm
     template_name = "risks/treatment_plan_form.html"
+    modal_template_name = "risks/treatment_plan_form_modal.html"
     success_url = reverse_lazy("risks:treatment-plan-list")
 
 
@@ -698,17 +704,19 @@ class RiskAcceptanceDetailView(LoginRequiredMixin, HistoryMixin, DetailView):
     context_object_name = "acceptance"
 
 
-class RiskAcceptanceCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class RiskAcceptanceCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = RiskAcceptance
     form_class = RiskAcceptanceForm
     template_name = "risks/acceptance_form.html"
+    modal_template_name = "risks/acceptance_form_modal.html"
     success_url = reverse_lazy("risks:acceptance-list")
 
 
-class RiskAcceptanceUpdateView(LoginRequiredMixin, UpdateView):
+class RiskAcceptanceUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
     model = RiskAcceptance
     form_class = RiskAcceptanceForm
     template_name = "risks/acceptance_form.html"
+    modal_template_name = "risks/acceptance_form_modal.html"
     success_url = reverse_lazy("risks:acceptance-list")
 
 
@@ -752,10 +760,11 @@ class ThreatDetailView(LoginRequiredMixin, ScopeFilterMixin, HistoryMixin, Detai
     context_object_name = "threat"
 
 
-class ThreatCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class ThreatCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Threat
     form_class = ThreatForm
     template_name = "risks/threat_form.html"
+    modal_template_name = "risks/threat_form_modal.html"
     success_url = reverse_lazy("risks:threat-list")
 
     def get_form_kwargs(self):
@@ -764,10 +773,11 @@ class ThreatCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return kwargs
 
 
-class ThreatUpdateView(LoginRequiredMixin, ScopeFilterMixin, UpdateView):
+class ThreatUpdateView(LoginRequiredMixin, HtmxFormMixin, ScopeFilterMixin, UpdateView):
     model = Threat
     form_class = ThreatForm
     template_name = "risks/threat_form.html"
+    modal_template_name = "risks/threat_form_modal.html"
     success_url = reverse_lazy("risks:threat-list")
 
     def get_form_kwargs(self):
@@ -816,10 +826,11 @@ class VulnerabilityDetailView(LoginRequiredMixin, ScopeFilterMixin, HistoryMixin
     context_object_name = "vulnerability"
 
 
-class VulnerabilityCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class VulnerabilityCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Vulnerability
     form_class = VulnerabilityForm
     template_name = "risks/vulnerability_form.html"
+    modal_template_name = "risks/vulnerability_form_modal.html"
     success_url = reverse_lazy("risks:vulnerability-list")
 
     def get_form_kwargs(self):
@@ -828,10 +839,11 @@ class VulnerabilityCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return kwargs
 
 
-class VulnerabilityUpdateView(LoginRequiredMixin, ScopeFilterMixin, UpdateView):
+class VulnerabilityUpdateView(LoginRequiredMixin, HtmxFormMixin, ScopeFilterMixin, UpdateView):
     model = Vulnerability
     form_class = VulnerabilityForm
     template_name = "risks/vulnerability_form.html"
+    modal_template_name = "risks/vulnerability_form_modal.html"
     success_url = reverse_lazy("risks:vulnerability-list")
 
     def get_form_kwargs(self):
@@ -903,10 +915,11 @@ class ISO27005RiskDetailView(LoginRequiredMixin, HistoryMixin, DetailView):
     context_object_name = "analysis"
 
 
-class ISO27005RiskCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class ISO27005RiskCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = ISO27005Risk
     form_class = ISO27005RiskForm
     template_name = "risks/iso27005_risk_form.html"
+    modal_template_name = "risks/iso27005_risk_form_modal.html"
 
     def get_initial(self):
         initial = super().get_initial()
@@ -923,10 +936,11 @@ class ISO27005RiskCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return reverse_lazy("risks:iso27005-list")
 
 
-class ISO27005RiskUpdateView(LoginRequiredMixin, UpdateView):
+class ISO27005RiskUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
     model = ISO27005Risk
     form_class = ISO27005RiskForm
     template_name = "risks/iso27005_risk_form.html"
+    modal_template_name = "risks/iso27005_risk_form_modal.html"
 
     def get_success_url(self):
         if self.object and self.object.assessment_id:

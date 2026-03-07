@@ -22,7 +22,7 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
-from core.mixins import SortableListMixin
+from core.mixins import HtmxFormMixin, SortableListMixin
 from .forms import (
     ComplianceActionPlanForm,
     ComplianceAssessmentForm,
@@ -186,10 +186,11 @@ class FrameworkDetailView(
         return ctx
 
 
-class FrameworkCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class FrameworkCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Framework
     form_class = FrameworkForm
     template_name = "compliance/framework_form.html"
+    modal_template_name = "compliance/framework_form_modal.html"
     success_url = reverse_lazy("compliance:framework-list")
 
     def get_form_kwargs(self):
@@ -198,10 +199,11 @@ class FrameworkCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return kwargs
 
 
-class FrameworkUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class FrameworkUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Framework
     form_class = FrameworkForm
     template_name = "compliance/framework_form.html"
+    modal_template_name = "compliance/framework_form_modal.html"
     success_url = reverse_lazy("compliance:framework-list")
 
     def get_form_kwargs(self):
@@ -476,10 +478,11 @@ class AssessmentDetailView(
         return ctx
 
 
-class AssessmentCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class AssessmentCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = ComplianceAssessment
     form_class = ComplianceAssessmentForm
     template_name = "compliance/assessment_form.html"
+    modal_template_name = "compliance/assessment_form_modal.html"
     success_url = reverse_lazy("compliance:assessment-list")
 
     def get_form_kwargs(self):
@@ -489,11 +492,12 @@ class AssessmentCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
 
 
 class AssessmentUpdateView(
-    LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView
+    LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView
 ):
     model = ComplianceAssessment
     form_class = ComplianceAssessmentForm
     template_name = "compliance/assessment_form.html"
+    modal_template_name = "compliance/assessment_form_modal.html"
     success_url = reverse_lazy("compliance:assessment-list")
 
     def get_form_kwargs(self):
@@ -542,10 +546,11 @@ class MappingDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "mapping"
 
 
-class MappingCreateView(LoginRequiredMixin, CreateView):
+class MappingCreateView(LoginRequiredMixin, HtmxFormMixin, CreateView):
     model = RequirementMapping
     form_class = RequirementMappingForm
     template_name = "compliance/mapping_form.html"
+    modal_template_name = "compliance/mapping_form_modal.html"
     success_url = reverse_lazy("compliance:mapping-list")
 
     def form_valid(self, form):
@@ -553,10 +558,11 @@ class MappingCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class MappingUpdateView(LoginRequiredMixin, UpdateView):
+class MappingUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
     model = RequirementMapping
     form_class = RequirementMappingForm
     template_name = "compliance/mapping_form.html"
+    modal_template_name = "compliance/mapping_form_modal.html"
     success_url = reverse_lazy("compliance:mapping-list")
 
 
@@ -602,10 +608,11 @@ class ActionPlanDetailView(
     approve_url_name = "compliance:action-plan-approve"
 
 
-class ActionPlanCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class ActionPlanCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = ComplianceActionPlan
     form_class = ComplianceActionPlanForm
     template_name = "compliance/action_plan_form.html"
+    modal_template_name = "compliance/action_plan_form_modal.html"
     success_url = reverse_lazy("compliance:action-plan-list")
 
     def get_form_kwargs(self):
@@ -615,11 +622,12 @@ class ActionPlanCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
 
 
 class ActionPlanUpdateView(
-    LoginRequiredMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView
+    LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView
 ):
     model = ComplianceActionPlan
     form_class = ComplianceActionPlanForm
     template_name = "compliance/action_plan_form.html"
+    modal_template_name = "compliance/action_plan_form_modal.html"
     success_url = reverse_lazy("compliance:action-plan-list")
 
     def get_form_kwargs(self):
