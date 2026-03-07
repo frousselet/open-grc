@@ -4,123 +4,118 @@
 {% block modal_title_icon %}<span class="drawer-title-icon"><i class="bi bi-bullseye"></i></span>{% endblock %}
 
 {% block modal_form_fields %}
-<div class="row g-3">
-  <div class="col-lg-8">
-    <div class="drawer-section">
-      <div class="drawer-section-title"><i class="bi bi-bullseye"></i>{% trans "Identity" %}</div>
-      <div class="row g-2 mb-2">
-        <div class="col-sm-6">
-          <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
-          {{ form.name }}
-          {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="col-sm-3">
-          <label for="{{ form.reference.id_for_label }}" class="form-label">{{ form.reference.label }}</label>
-          {{ form.reference }}
-          {% for error in form.reference.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="col-sm-3">
-          <label for="{{ form.scopes.id_for_label }}" class="form-label">{{ form.scopes.label }}</label>
-          {{ form.scopes }}
-          {% for error in form.scopes.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </div>
-      </div>
-      <div class="row g-2 mb-2">
-        <div class="col-sm-4">
-          <label for="{{ form.category.id_for_label }}" class="form-label">{{ form.category.label }} *</label>
-          {{ form.category }}
-          {% for error in form.category.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="col-sm-4">
-          <label for="{{ form.type.id_for_label }}" class="form-label">{{ form.type.label }} *</label>
-          {{ form.type }}
-          {% for error in form.type.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="col-sm-4">
-          <label for="{{ form.owner.id_for_label }}" class="form-label">{{ form.owner.label }}</label>
-          {{ form.owner }}
-          {% for error in form.owner.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </div>
-      </div>
-      <div>
-        <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
-        {{ form.description }}
-        {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-      </div>
-    </div>
+{# ── Metadata bar ── #}
+<div class="drawer-meta">
+  <div>
+    <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }} *</label>
+    {{ form.status }}
+    {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.category.id_for_label }}" class="form-label">{{ form.category.label }} *</label>
+    {{ form.category }}
+    {% for error in form.category.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.type.id_for_label }}" class="form-label">{{ form.type.label }} *</label>
+    {{ form.type }}
+    {% for error in form.type.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.progress_percentage.id_for_label }}" class="form-label">{{ form.progress_percentage.label }}</label>
+    {{ form.progress_percentage }}
+    {% for error in form.progress_percentage.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.target_date.id_for_label }}" class="form-label">{{ form.target_date.label }}</label>
+    {{ form.target_date }}
+    {% for error in form.target_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.review_date.id_for_label }}" class="form-label">{{ form.review_date.label }}</label>
+    {{ form.review_date }}
+    {% for error in form.review_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
 
-    <div class="drawer-section">
-      <div class="drawer-section-title"><i class="bi bi-speedometer"></i>{% trans "Measurement" %}</div>
-      <div class="row g-2 mb-2">
-        <div class="col-sm-4">
-          <label for="{{ form.target_value.id_for_label }}" class="form-label">{{ form.target_value.label }}</label>
-          {{ form.target_value }}
-          {% for error in form.target_value.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="col-sm-4">
-          <label for="{{ form.current_value.id_for_label }}" class="form-label">{{ form.current_value.label }}</label>
-          {{ form.current_value }}
-          {% for error in form.current_value.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="col-sm-4">
-          <label for="{{ form.unit.id_for_label }}" class="form-label">{{ form.unit.label }}</label>
-          {{ form.unit }}
-          {% for error in form.unit.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </div>
-      </div>
-      <div class="row g-2">
-        <div class="col-sm-8">
-          <label for="{{ form.measurement_method.id_for_label }}" class="form-label">{{ form.measurement_method.label }}</label>
-          {{ form.measurement_method }}
-          {% for error in form.measurement_method.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="col-sm-4">
-          <label for="{{ form.measurement_frequency.id_for_label }}" class="form-label">{{ form.measurement_frequency.label }}</label>
-          {{ form.measurement_frequency }}
-          {% for error in form.measurement_frequency.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </div>
-      </div>
+{# ── Identity ── #}
+<div class="drawer-section">
+  <div class="row g-2 mb-3">
+    <div class="col-sm-8">
+      <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
+      {{ form.name }}
+      {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="col-sm-4">
+      <label for="{{ form.reference.id_for_label }}" class="form-label">{{ form.reference.label }}</label>
+      {{ form.reference }}
+      {% for error in form.reference.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
     </div>
   </div>
-
-  <div class="col-lg-4">
-    <div class="drawer-section">
-      <div class="drawer-section-title"><i class="bi bi-info-circle"></i>{% trans "Status & Progress" %}</div>
-      <div class="mb-2">
-        <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }} *</label>
-        {{ form.status }}
-        {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-      </div>
-      <div class="mb-2">
-        <label for="{{ form.progress_percentage.id_for_label }}" class="form-label">{{ form.progress_percentage.label }}</label>
-        {{ form.progress_percentage }}
-        {% for error in form.progress_percentage.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-      </div>
-      <div>
-        <label for="{{ form.parent_objective.id_for_label }}" class="form-label">{{ form.parent_objective.label }}</label>
-        {{ form.parent_objective }}
-        {% for error in form.parent_objective.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-      </div>
+  <div class="row g-2 mb-3">
+    <div class="col-sm-6">
+      <label for="{{ form.owner.id_for_label }}" class="form-label">{{ form.owner.label }}</label>
+      {{ form.owner }}
+      {% for error in form.owner.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
     </div>
-
-    <div class="drawer-section">
-      <div class="drawer-section-title"><i class="bi bi-calendar-event"></i>{% trans "Dates" %}</div>
-      <div class="row g-2">
-        <div class="col-6">
-          <label for="{{ form.target_date.id_for_label }}" class="form-label">{{ form.target_date.label }}</label>
-          {{ form.target_date }}
-          {% for error in form.target_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="col-6">
-          <label for="{{ form.review_date.id_for_label }}" class="form-label">{{ form.review_date.label }}</label>
-          {{ form.review_date }}
-          {% for error in form.review_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </div>
-      </div>
+    <div class="col-sm-6">
+      <label for="{{ form.parent_objective.id_for_label }}" class="form-label">{{ form.parent_objective.label }}</label>
+      {{ form.parent_objective }}
+      {% for error in form.parent_objective.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
     </div>
+  </div>
+  <div>
+    <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+    {{ form.description }}
+    {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
 
-    <div class="drawer-section">
-      <div class="drawer-section-title"><i class="bi bi-tags"></i>{% trans "Tags" %}</div>
+{# ── Measurement ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-speedometer"></i> {% trans "Measurement" %}</div>
+  <div class="row g-2 mb-3">
+    <div class="col-sm-4">
+      <label for="{{ form.target_value.id_for_label }}" class="form-label">{{ form.target_value.label }}</label>
+      {{ form.target_value }}
+      {% for error in form.target_value.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="col-sm-4">
+      <label for="{{ form.current_value.id_for_label }}" class="form-label">{{ form.current_value.label }}</label>
+      {{ form.current_value }}
+      {% for error in form.current_value.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="col-sm-4">
+      <label for="{{ form.unit.id_for_label }}" class="form-label">{{ form.unit.label }}</label>
+      {{ form.unit }}
+      {% for error in form.unit.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+  </div>
+  <div class="row g-2">
+    <div class="col-sm-8">
+      <label for="{{ form.measurement_method.id_for_label }}" class="form-label">{{ form.measurement_method.label }}</label>
+      {{ form.measurement_method }}
+      {% for error in form.measurement_method.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="col-sm-4">
+      <label for="{{ form.measurement_frequency.id_for_label }}" class="form-label">{{ form.measurement_frequency.label }}</label>
+      {{ form.measurement_frequency }}
+      {% for error in form.measurement_frequency.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+  </div>
+</div>
+
+{# ── Scope & Tags ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-diagram-3"></i> {% trans "Scope & Tags" %}</div>
+  <div class="row g-3">
+    <div class="col-sm-7">
+      <label for="{{ form.scopes.id_for_label }}" class="form-label">{{ form.scopes.label }}</label>
+      {{ form.scopes }}
+      {% for error in form.scopes.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="col-sm-5">
+      <label for="{{ form.tags.id_for_label }}" class="form-label">{% trans "Tags" %}</label>
       {{ form.tags }}
       {% for error in form.tags.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
     </div>

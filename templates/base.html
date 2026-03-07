@@ -2021,15 +2021,14 @@
     .scope-tree-locked .scope-tree-label { opacity: .55; cursor: default; }
     .scope-tree-locked .scope-tree-label input { cursor: default; }
 
-    /* ── Side-panel drawer ─────────────────────────
-       Design reference: Ant Design Drawer, Stripe Apps, Linear
-       - Flat white surface, no nested cards
-       - Generous padding (24px body like Ant Design)
-       - Multi-layer shadow (Ant Design pattern)
-       - Simple horizontal dividers between sections
-       ──────────────────────────────────────────────── */
+    /* ══════════════════════════════════════════════════
+       DRAWER PANEL — Linear / Notion / Stripe inspired
+       Single-column flow, metadata bar, clean sections
+       ══════════════════════════════════════════════════ */
+
+    /* ── Container ────────────────────────────────── */
     #itemDrawer {
-      width: min(54rem, 94vw);
+      width: min(42rem, 96vw);
       border-left: none;
       background: var(--surface);
       box-shadow:
@@ -2037,63 +2036,65 @@
         -3px 0 6px -4px rgba(0,0,0,.12),
         -9px 0 28px 8px rgba(0,0,0,.05);
     }
+    #itemDrawer.offcanvas-end {
+      transition: transform .3s cubic-bezier(.2,.9,.3,1);
+    }
+    .offcanvas-backdrop.show { opacity: .18; }
 
-    /* Header — 16px 24px padding (Ant Design) */
+    /* ── Header ───────────────────────────────────── */
     #itemDrawer .offcanvas-header {
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid var(--border-light);
+      padding: .875rem 1.5rem;
+      border-bottom: 1px solid var(--border-subtle);
       background: var(--surface);
-      gap: .625rem;
+      gap: .5rem;
       flex-shrink: 0;
     }
     #itemDrawer .offcanvas-header .offcanvas-title {
       font-weight: 600;
-      font-size: 1rem;
+      font-size: .9375rem;
       color: var(--text-primary);
       display: flex;
       align-items: center;
       gap: .5rem;
     }
     #itemDrawer .offcanvas-header .drawer-title-icon {
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       border-radius: var(--radius-xs);
       background: var(--accent-soft);
       color: var(--accent);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: .85rem;
+      font-size: .8rem;
       flex-shrink: 0;
     }
     #itemDrawer .offcanvas-header .btn-close {
-      opacity: .45;
+      opacity: .4;
       transition: opacity .15s;
+      font-size: .65rem;
     }
-    #itemDrawer .offcanvas-header .btn-close:hover { opacity: .85; }
+    #itemDrawer .offcanvas-header .btn-close:hover { opacity: .8; }
 
-    /* Body — 24px padding (Ant Design) */
+    /* ── Body ─────────────────────────────────────── */
     #itemDrawer .drawer-body {
-      padding: 1.5rem;
+      padding: 1.25rem 1.5rem 1.5rem;
       overflow-y: auto;
       flex: 1 1 auto;
       scrollbar-width: thin;
       scrollbar-color: var(--border-light) transparent;
     }
-    #itemDrawer .drawer-body::-webkit-scrollbar { width: 6px; }
+    #itemDrawer .drawer-body::-webkit-scrollbar { width: 5px; }
     #itemDrawer .drawer-body::-webkit-scrollbar-track { background: transparent; }
     #itemDrawer .drawer-body::-webkit-scrollbar-thumb {
       background: var(--border-light);
       border-radius: 3px;
     }
-    #itemDrawer .drawer-body::-webkit-scrollbar-thumb:hover {
-      background: var(--text-muted);
-    }
 
-    /* Footer — 8px 16px (Ant Design) */
+    /* ── Footer ───────────────────────────────────── */
     #itemDrawer .drawer-footer {
-      padding: .625rem 1.5rem;
-      border-top: 1px solid var(--border-light);
+      padding: .75rem 1.5rem;
+      border-top: 1px solid var(--border-subtle);
       background: var(--surface);
       gap: .5rem;
       display: flex;
@@ -2102,53 +2103,78 @@
     }
     #itemDrawer .drawer-footer .btn {
       border-radius: var(--radius-sm);
-      padding: .5rem 1.25rem;
+      padding: .4375rem 1.125rem;
       font-weight: 500;
-      font-size: .875rem;
+      font-size: .8125rem;
       transition: all .15s;
     }
 
-    /* ── Sections: flat dividers, no cards ────────── */
+    /* ── Sections ─────────────────────────────────── */
     .drawer-section {
-      padding-bottom: 1.25rem;
-      margin-bottom: 1.25rem;
-      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 1.5rem;
     }
     .drawer-section:last-child {
       margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: none;
     }
     .drawer-section-title {
       display: flex;
       align-items: center;
       gap: .375rem;
-      font-size: .75rem;
+      font-size: .6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      margin-bottom: .75rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .drawer-section-title i {
+      font-size: .7rem;
+      opacity: .6;
+    }
+
+    /* ── Metadata grid (Linear-style property rows) ─ */
+    .drawer-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+      gap: .625rem;
+      padding: .875rem;
+      background: var(--surface-muted);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      margin-bottom: 1.5rem;
+    }
+    .drawer-meta .form-label {
+      font-size: .6875rem !important;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: .04em;
       color: var(--text-muted);
-      margin-bottom: .875rem;
+      margin-bottom: .25rem;
     }
-    .drawer-section-title i {
-      font-size: .75rem;
-      color: var(--accent);
+    .drawer-meta .form-control,
+    .drawer-meta .form-select {
+      font-size: .8125rem;
+      padding: .3125rem .625rem;
+      min-height: 2rem;
+      background: var(--surface);
     }
 
     /* ── Form fields ─────────────────────────────── */
     #itemDrawer .form-control,
     #itemDrawer .form-select {
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-xs);
       border: 1px solid var(--border-light);
       background: var(--surface);
-      font-size: .875rem;
-      padding: .5rem .75rem;
-      min-height: 2.375rem;
+      font-size: .8125rem;
+      padding: .4375rem .75rem;
+      min-height: 2.25rem;
       transition: border-color .15s, box-shadow .15s;
     }
     #itemDrawer .form-control:hover:not(:focus),
     #itemDrawer .form-select:hover:not(:focus) {
-      border-color: var(--accent);
+      border-color: color-mix(in srgb, var(--accent) 40%, var(--border-light));
     }
     #itemDrawer .form-control:focus,
     #itemDrawer .form-select:focus {
@@ -2157,23 +2183,24 @@
     }
     #itemDrawer .form-control::placeholder {
       color: var(--text-muted);
+      font-size: .8125rem;
     }
     #itemDrawer textarea.form-control {
-      min-height: 5.5rem;
+      min-height: 5rem;
     }
     #itemDrawer .form-label {
-      font-size: .8125rem;
+      font-size: .75rem;
       font-weight: 500;
       color: var(--text-secondary);
-      margin-bottom: .375rem;
+      margin-bottom: .25rem;
     }
     #itemDrawer .form-text {
-      font-size: .75rem;
+      font-size: .7rem;
       color: var(--text-muted);
     }
     #itemDrawer .invalid-feedback {
-      font-size: .75rem;
-      margin-top: .25rem;
+      font-size: .7rem;
+      margin-top: .125rem;
     }
     #itemDrawer .form-check-input {
       border-color: var(--border-light);
@@ -2187,18 +2214,21 @@
       box-shadow: 0 0 0 2px var(--accent-glow);
     }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-      #itemDrawer .col-lg-4,
-      #itemDrawer .col-lg-8 { flex: 0 0 100%; max-width: 100%; }
+    /* ── Scope widget compact ────────────────────── */
+    #itemDrawer .scope-tree-widget {
+      max-height: 11rem;
+      overflow-y: auto;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xs);
+      padding: .375rem .5rem;
+      scrollbar-width: thin;
     }
 
-    /* Slide animation */
-    #itemDrawer.offcanvas-end {
-      transition: transform .3s cubic-bezier(.2,.9,.3,1);
+    /* ── Tags widget compact ─────────────────────── */
+    #itemDrawer select[multiple] {
+      min-height: 3.5rem;
+      max-height: 5rem;
     }
-    /* Backdrop — subtle like Linear */
-    .offcanvas-backdrop.show { opacity: .15; }
 
     /* ── Scope breadcrumb pills ──────────────────────── */
     .scope-crumb { display: inline-flex; align-items: center; flex-wrap: wrap; background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: .15em .65em; font-size: .625rem; font-weight: 500; line-height: 1.4; vertical-align: middle; gap: .1em .3em; margin-bottom: .2em; }
