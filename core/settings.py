@@ -177,6 +177,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "mcp.api.authentication.OAuthTokenAuthentication",
     ],
     "DEFAULT_PAGINATION_CLASS": "context.api.pagination.StandardPagination",
     "PAGE_SIZE": 25,
