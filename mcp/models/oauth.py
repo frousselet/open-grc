@@ -174,7 +174,7 @@ class OAuthAuthorizationCode(models.Model):
         related_name="oauth_authorization_codes",
         verbose_name=_("User"),
     )
-    redirect_uri = models.URLField(_("Redirect URI"), max_length=2048)
+    redirect_uri = models.CharField(_("Redirect URI"), max_length=2048)
     code_challenge = models.CharField(_("PKCE code challenge"), max_length=128)
     code_challenge_method = models.CharField(
         _("PKCE code challenge method"),
