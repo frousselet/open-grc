@@ -1063,6 +1063,25 @@ def _register_compliance_tools(server):
                    scope_filtered=False,
                    has_approve=False)
 
+    # ── Findings ─────────────────────────────────────────
+    Finding = _get_model("compliance", "Finding")
+    finding_fields = ["id", "reference", "name", "description",
+                      "finding_type",
+                      "audit_id", "control_id",
+                      "is_approved", "created_at"]
+    finding_writable = ["name", "description", "finding_type",
+                        "audit_id", "control_id", "evidence"]
+
+    _register_crud(server, "finding", Finding, "compliance.finding",
+                   list_fields=finding_fields,
+                   writable_fields=finding_writable,
+                   search_fields=["reference", "name", "description"],
+                   filters=["finding_type", "audit_id", "control_id"],
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "evidence": _html_field("Evidence"),
+                   })
+
 
 # ── Risks Module ───────────────────────────────────────────
 

@@ -8,6 +8,7 @@ from compliance.models import (
     ComplianceControl,
     AssessmentResult,
     ControlBody,
+    Finding,
     Framework,
     Requirement,
     RequirementMapping,
@@ -359,5 +360,54 @@ class AuditorListSerializer(serializers.ModelSerializer):
             "id", "reference", "first_name", "last_name",
             "email", "control_body", "control_body_name",
             "certifications", "created_at",
+        ]
+        read_only_fields = ["id", "reference", "created_at"]
+
+
+# ── Finding ──────────────────────────────────────────────
+
+class FindingSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(read_only=True)
+    is_resolved = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = Finding
+        fields = [
+            "id", "scopes", "reference", "name", "description",
+            "finding_type",
+            "audit", "control",
+            "action_plans", "activities", "requirements", "related_findings",
+            "evidence",
+            "status", "is_resolved",
+            "version", "tags",
+            "is_approved", "approved_by", "approved_at",
+            "created_by", "created_at", "updated_at",
+        ]
+        read_only_fields = [
+            "id", "reference", "created_by", "created_at", "updated_at",
+            "is_approved", "approved_by", "approved_at", "version",
+            "status", "is_resolved",
+        ]
+
+
+class FindingListSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(read_only=True)
+    is_resolved = serializers.BooleanField(read_only=True)
+    audit_reference = serializers.CharField(
+        source="audit.reference", read_only=True, default=""
+    )
+    control_reference = serializers.CharField(
+        source="control.reference", read_only=True, default=""
+    )
+
+    class Meta:
+        model = Finding
+        fields = [
+            "id", "scopes", "reference", "name",
+            "finding_type",
+            "audit", "audit_reference",
+            "control", "control_reference",
+            "status", "is_resolved",
+            "created_at",
         ]
         read_only_fields = ["id", "reference", "created_at"]

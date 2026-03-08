@@ -30,6 +30,7 @@ from .forms import (
     ComplianceAuditForm,
     ComplianceControlForm,
     ControlBodyForm,
+    FindingForm,
     FrameworkForm,
     FrameworkImportForm,
     RequirementForm,
@@ -51,6 +52,7 @@ from .models import (
     ComplianceAudit,
     ComplianceControl,
     ControlBody,
+    Finding,
     Framework,
     Requirement,
     RequirementMapping,
@@ -150,6 +152,15 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             ComplianceAudit.objects.all()
         ).count()
         ctx["control_body_count"] = ControlBody.objects.count()
+        ctx["finding_count"] = self._filter_scoped(
+            Finding.objects.all()
+        ).count()
+        ctx["unresolved_finding_count"] = self._filter_scoped(
+            Finding.objects.filter(
+                Q(action_plans__isnull=True) |
+                Q(action_plans__status__in=["planned", "in_progress", "overdue", "cancelled"])
+            ).distinct()
+        ).count()
         return ctx
 
 
@@ -770,6 +781,7 @@ class AuditDetailView(
         ctx = super().get_context_data(**kwargs)
         ctx["audit_frameworks"] = self.object.frameworks.all()
         ctx["audit_sections"] = self.object.sections.select_related("framework").all()
+        ctx["audit_findings_list"] = self.object.audit_findings.prefetch_related("action_plans").all()[:20]
         return ctx
 
 
@@ -894,3 +906,98 @@ class AuditorDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse("compliance:control-body-detail", kwargs={"pk": self.object.control_body_id})
+
+
+# ── Finding ──────────────────────────────────────────────
+
+class FindingListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    model = Finding
+    template_name = "compliance/finding_list.html"
+    context_object_name = "findings"
+    paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "finding_type": "finding_type",
+        "audit": "audit__reference",
+        "control": "control__reference",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name", "description"]
+
+    def get_queryset(self):
+        qs = super().get_queryset().prefetch_related(
+            "scopes", "action_plans"
+        ).select_related("audit", "control")
+        type_filter = self.request.GET.get("finding_type")
+        if type_filter:
+            qs = qs.filter(finding_type=type_filter)
+        status_filter = self.request.GET.get("status")
+        if status_filter == "resolved":
+            # Resolved = has action plans and all are completed
+            qs = qs.filter(action_plans__isnull=False).exclude(
+                action_plans__status__in=["planned", "in_progress", "overdue", "cancelled"]
+            ).distinct()
+        elif status_filter == "unresolved":
+            qs = qs.filter(
+                Q(action_plans__isnull=True) |
+                Q(action_plans__status__in=["planned", "in_progress", "overdue", "cancelled"])
+            ).distinct()
+        audit_filter = self.request.GET.get("audit")
+        if audit_filter:
+            qs = qs.filter(audit_id=audit_filter)
+        control_filter = self.request.GET.get("control")
+        if control_filter:
+            qs = qs.filter(control_id=control_filter)
+        return qs
+
+
+class FindingDetailView(
+    LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView
+):
+    model = Finding
+    template_name = "compliance/finding_detail.html"
+    context_object_name = "finding"
+    approve_url_name = "compliance:finding-approve"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["finding_action_plans"] = self.object.action_plans.all()
+        ctx["finding_activities"] = self.object.activities.all()
+        ctx["finding_requirements"] = self.object.requirements.select_related("framework").all()
+        ctx["finding_related"] = self.object.related_findings.all()
+        return ctx
+
+
+class FindingCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+    model = Finding
+    form_class = FindingForm
+    template_name = "compliance/finding_form.html"
+    modal_template_name = "compliance/finding_form_modal.html"
+    success_url = reverse_lazy("compliance:finding-list")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+
+class FindingUpdateView(
+    LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView
+):
+    model = Finding
+    form_class = FindingForm
+    template_name = "compliance/finding_form.html"
+    modal_template_name = "compliance/finding_form_modal.html"
+    success_url = reverse_lazy("compliance:finding-list")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+
+class FindingDeleteView(LoginRequiredMixin, DeleteView):
+    model = Finding
+    template_name = "compliance/confirm_delete.html"
+    success_url = reverse_lazy("compliance:finding-list")

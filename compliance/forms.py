@@ -13,6 +13,7 @@ from .models import (
     ComplianceControl,
     AssessmentResult,
     ControlBody,
+    Finding,
     Framework,
     Requirement,
     RequirementMapping,
@@ -399,5 +400,31 @@ class AuditorForm(forms.ModelForm):
             "certifications": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "cv": forms.ClearableFileInput(attrs=FORM_WIDGET_ATTRS),
             "specializations": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+        }
+
+
+class FindingForm(ScopedFormMixin, forms.ModelForm):
+    class Meta:
+        model = Finding
+        fields = [
+            "scopes", "name", "description", "finding_type",
+            "audit", "control",
+            "action_plans", "activities", "requirements",
+            "related_findings",
+            "evidence", "tags",
+        ]
+        widgets = {
+            "scopes": ScopeTreeWidget(),
+            "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4, "class": "form-control rich-text"}),
+            "finding_type": forms.Select(attrs=SELECT_ATTRS),
+            "audit": forms.Select(attrs=SELECT_ATTRS),
+            "control": forms.Select(attrs=SELECT_ATTRS),
+            "action_plans": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+            "activities": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+            "requirements": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+            "related_findings": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+            "evidence": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3, "class": "form-control rich-text"}),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }

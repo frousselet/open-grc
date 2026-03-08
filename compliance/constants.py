@@ -153,6 +153,30 @@ class AuditStatus(models.TextChoices):
     ARCHIVED = "archived", _("Archived")
 
 
+# ── Finding ───────────────────────────────────────────────
+
+class FindingType(models.TextChoices):
+    IMPROVEMENT_OPPORTUNITY = "improvement_opportunity", _("Improvement opportunity")
+    OBSERVATION = "observation", _("Observation")
+    MINOR_NON_CONFORMITY = "minor_non_conformity", _("Minor non-conformity")
+    MAJOR_NON_CONFORMITY = "major_non_conformity", _("Major non-conformity")
+    STRENGTH = "strength", _("Strength")
+
+
+FINDING_TYPE_COLORS = {
+    FindingType.IMPROVEMENT_OPPORTUNITY: "warning",
+    FindingType.OBSERVATION: "orange",
+    FindingType.MINOR_NON_CONFORMITY: "danger",
+    FindingType.MAJOR_NON_CONFORMITY: "dark",
+    FindingType.STRENGTH: "success",
+}
+
+
+class FindingStatus(models.TextChoices):
+    UNRESOLVED = "unresolved", _("Unresolved")
+    RESOLVED = "resolved", _("Resolved")
+
+
 # ── Compliance level defaults (status → percentage) ───────
 
 COMPLIANCE_LEVEL_DEFAULTS = {

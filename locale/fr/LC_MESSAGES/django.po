@@ -8448,3 +8448,71 @@ msgstr "auditeur"
 
 #~ msgid "No ISO 27005 sources."
 #~ msgstr "Aucune source ISO 27005."
+
+#: compliance/constants.py
+msgid "Improvement opportunity"
+msgstr "Opportunité d'amélioration"
+
+#: compliance/constants.py
+msgid "Minor non-conformity"
+msgstr "Non-conformité mineure"
+
+#: compliance/constants.py
+msgid "Major non-conformity"
+msgstr "Non-conformité majeure"
+
+#: compliance/constants.py
+msgid "Unresolved"
+msgstr "Non résolu"
+
+#: compliance/constants.py
+msgid "Resolved"
+msgstr "Résolu"
+
+#: compliance/models/finding.py
+msgid "Finding"
+msgstr "Constat"
+
+#: compliance/models/finding.py
+msgid "Finding type"
+msgstr "Type de constat"
+
+#: compliance/models/finding.py
+msgid "Related findings"
+msgstr "Constats liés"
+
+#: compliance/templates/compliance/finding_list.html
+msgid "New finding"
+msgstr "Nouveau constat"
+
+#: compliance/templates/compliance/finding_list.html
+msgid "No finding defined."
+msgstr "Aucun constat défini."
+
+#: compliance/templates/compliance/finding_detail.html
+msgid "Edit finding"
+msgstr "Modifier le constat"
+
+#: compliance/templates/compliance/finding_form.html
+msgid "New finding"
+msgstr "Nouveau constat"
+
+#: compliance/templates/compliance/finding_detail.html
+msgid "No action plan linked."
+msgstr "Aucun plan d'action lié."
+
+#: compliance/templates/compliance/finding_detail.html
+msgid "No requirement linked."
+msgstr "Aucune exigence liée."
+
+#: compliance/templates/compliance/finding_detail.html
+msgid "No activity linked."
+msgstr "Aucune activité liée."
+
+#: compliance/templates/compliance/finding_detail.html
+msgid "No related finding."
+msgstr "Aucun constat lié."
+
+#: compliance/templates/compliance/audit_detail.html
+msgid "No finding linked to this audit."
+msgstr "Aucun constat lié à cet audit."

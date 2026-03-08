@@ -86,12 +86,55 @@
   </div>
 
   <div class="tab-pane fade" id="findings_tab">
-    <div class="card">
+    <div class="card mb-3">
       <div class="card-body">
         <dl class="row mb-0">
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Conclusion" %}</dt><dd class="col-sm-9">{{ audit.conclusion|default:"—"|safe }}</dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Findings summary" %}</dt><dd class="col-sm-9">{{ audit.findings_summary|default:"—"|safe }}</dd>
         </dl>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">{% trans "Findings" %}</h6>
+        <a href="{% url 'compliance:finding-list' %}?audit={{ audit.pk }}" class="btn btn-sm btn-outline-primary">{% trans "View all" %}</a>
+      </div>
+      <div class="card-body">
+        {% if audit_findings_list %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>{% trans "Reference" %}</th>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "Type" %}</th>
+                <th>{% trans "Status" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for f in audit_findings_list %}
+              <tr>
+                <td><a href="{% url 'compliance:finding-detail' f.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ f.reference }}</a></td>
+                <td>{{ f.name }}</td>
+                <td>
+                  <span class="badge text-bg-{% if f.finding_type == 'improvement_opportunity' %}warning{% elif f.finding_type == 'observation' %}warning{% elif f.finding_type == 'minor_non_conformity' %}danger{% elif f.finding_type == 'major_non_conformity' %}dark{% elif f.finding_type == 'strength' %}success{% else %}secondary{% endif %}"
+                    {% if f.finding_type == 'observation' %}style="background-color:#fd7e14!important"{% endif %}>
+                    {{ f.get_finding_type_display }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge text-bg-{% if f.is_resolved %}success{% else %}danger{% endif %}">
+                    {% if f.is_resolved %}{% trans "Resolved" %}{% else %}{% trans "Unresolved" %}{% endif %}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p style="color:var(--text-muted);font-size:.85rem">{% trans "No finding linked to this audit." %}</p>
+        {% endif %}
       </div>
     </div>
   </div>

@@ -12,6 +12,7 @@ from compliance.models import (
     ComplianceControl,
     AssessmentResult,
     ControlBody,
+    Finding,
     Framework,
     Requirement,
     RequirementMapping,
@@ -24,6 +25,7 @@ from .filters import (
     ComplianceAuditFilter,
     ComplianceControlFilter,
     ControlBodyFilter,
+    FindingFilter,
     FrameworkFilter,
     RequirementFilter,
     RequirementMappingFilter,
@@ -44,6 +46,8 @@ from .serializers import (
     ComplianceControlSerializer,
     ControlBodyListSerializer,
     ControlBodySerializer,
+    FindingListSerializer,
+    FindingSerializer,
     FrameworkListSerializer,
     FrameworkSerializer,
     RequirementListSerializer,
@@ -470,3 +474,29 @@ class AuditorViewSet(
         if self.action == "list":
             return AuditorListSerializer
         return AuditorSerializer
+
+
+class FindingViewSet(
+    ScopeFilterAPIMixin,
+    ApprovableAPIMixin,
+    HistoryAPIMixin,
+    CreatedByMixin,
+    viewsets.ModelViewSet,
+):
+    queryset = Finding.objects.select_related(
+        "audit", "control"
+    ).prefetch_related(
+        "scopes", "action_plans", "activities", "requirements", "related_findings"
+    ).all()
+    filterset_class = FindingFilter
+    permission_classes = [CompliancePermission]
+    permission_feature = "finding"
+    search_fields = ["reference", "name", "description"]
+    ordering_fields = [
+        "reference", "name", "finding_type", "created_at",
+    ]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return FindingListSerializer
+        return FindingSerializer

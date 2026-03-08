@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load table_tags %}
+
+{% block title %}{% trans "Findings" %} — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">{% trans "Findings" %}</h1>
+  <div class="header-actions">
+    <button type="button" class="btn-header-action" title="{% trans 'New finding' %}"
+            hx-get="{% url 'compliance:finding-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+  </div>
+</div>
+
+{% include "includes/table_search.html" %}
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          {% sortable_th "reference" "Ref." %}
+          {% sortable_th "name" "Name" %}
+          {% sortable_th "finding_type" "Type" %}
+          {% sortable_th "audit" "Audit" %}
+          {% sortable_th "control" "Control" %}
+          <th>{% trans "Status" %}</th>
+          <th>{% trans "Action plans" %}</th>
+          <th>{% trans "Tags" %}</th>
+          <th>{% trans "Approval" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in findings %}
+        <tr>
+          <td><a href="{% url 'compliance:finding-detail' f.pk %}" class="ref" style="text-decoration:none">{{ f.reference }}</a></td>
+          <td>{{ f.name }}</td>
+          <td>
+            <span class="badge text-bg-{% if f.finding_type == 'improvement_opportunity' %}warning{% elif f.finding_type == 'observation' %}warning{% elif f.finding_type == 'minor_non_conformity' %}danger{% elif f.finding_type == 'major_non_conformity' %}dark{% elif f.finding_type == 'strength' %}success{% else %}secondary{% endif %}"
+              {% if f.finding_type == 'observation' %}style="background-color:#fd7e14!important"{% endif %}>
+              {{ f.get_finding_type_display }}
+            </span>
+          </td>
+          <td>{% if f.audit %}<a href="{% url 'compliance:audit-detail' f.audit.pk %}" style="color:var(--accent);text-decoration:none">{{ f.audit.reference }}</a>{% else %}—{% endif %}</td>
+          <td>{% if f.control %}<a href="{% url 'compliance:control-detail' f.control.pk %}" style="color:var(--accent);text-decoration:none">{{ f.control.reference }}</a>{% else %}—{% endif %}</td>
+          <td>
+            <span class="badge text-bg-{% if f.is_resolved %}success{% else %}danger{% endif %}">
+              {% if f.is_resolved %}{% trans "Resolved" %}{% else %}{% trans "Unresolved" %}{% endif %}
+            </span>
+          </td>
+          <td>{{ f.action_plans.count }}</td>
+          <td>{% for tag in f.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
+          <td>
+            <span class="badge text-bg-{% if f.is_approved %}success{% else %}warning{% endif %}">
+              {% if f.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+            </span>
+          </td>
+          <td class="text-end">
+            <a hx-get="{% url 'compliance:finding-update' f.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)">{% trans "No finding defined." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include "includes/pagination.html" %}
+{% endblock %}

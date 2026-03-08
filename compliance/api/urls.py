@@ -14,6 +14,7 @@ router.register(r"controls", views.ComplianceControlViewSet)
 router.register(r"audits", views.ComplianceAuditViewSet)
 router.register(r"control-bodies", views.ControlBodyViewSet)
 router.register(r"auditors", views.AuditorViewSet)
+router.register(r"findings", views.FindingViewSet)
 
 # Nested routes for assessment results
 assessment_results = views.AssessmentResultViewSet.as_view({

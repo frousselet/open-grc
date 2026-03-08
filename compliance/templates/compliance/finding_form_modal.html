@@ -1,0 +1,94 @@
+{% extends "includes/modal_form.html" %}
+{% load i18n %}
+
+{% block modal_title_icon %}<span class="drawer-title-icon"><i class="bi bi-flag"></i></span>{% endblock %}
+
+{% block modal_form_fields %}
+{# ── Metadata bar ── #}
+<div class="drawer-meta">
+  <div>
+    <label for="{{ form.finding_type.id_for_label }}" class="form-label">{{ form.finding_type.label }} *</label>
+    {{ form.finding_type }}
+    {% for error in form.finding_type.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+
+{# ── Identity ── #}
+<div class="drawer-section">
+  <div class="mb-3">
+    <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
+    {{ form.name }}
+    {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div class="mb-3">
+    <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+    {{ form.description }}
+    {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div class="mb-3">
+    <label for="{{ form.evidence.id_for_label }}" class="form-label">{{ form.evidence.label }}</label>
+    {{ form.evidence }}
+    {% for error in form.evidence.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+
+{# ── Source (Audit or Control) ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-link-45deg"></i> {% trans "Source" %}</div>
+  <div class="row g-2 mb-3">
+    <div class="col-sm-6">
+      <label for="{{ form.audit.id_for_label }}" class="form-label">{{ form.audit.label }}</label>
+      {{ form.audit }}
+      {% for error in form.audit.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="col-sm-6">
+      <label for="{{ form.control.id_for_label }}" class="form-label">{{ form.control.label }}</label>
+      {{ form.control }}
+      {% for error in form.control.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+  </div>
+</div>
+
+{# ── Action plans ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-kanban"></i> {% trans "Action plans" %}</div>
+  <div class="mb-3">
+    <label for="{{ form.action_plans.id_for_label }}" class="form-label">{{ form.action_plans.label }}</label>
+    {{ form.action_plans }}
+    {% for error in form.action_plans.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+
+{# ── Associations ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-diagram-3"></i> {% trans "Associations" %}</div>
+  <div class="mb-3">
+    <label for="{{ form.requirements.id_for_label }}" class="form-label">{{ form.requirements.label }}</label>
+    {{ form.requirements }}
+    {% for error in form.requirements.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div class="mb-3">
+    <label for="{{ form.activities.id_for_label }}" class="form-label">{{ form.activities.label }}</label>
+    {{ form.activities }}
+    {% for error in form.activities.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.related_findings.id_for_label }}" class="form-label">{{ form.related_findings.label }}</label>
+    {{ form.related_findings }}
+    {% for error in form.related_findings.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+
+{# ── Scope & Tags ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-diagram-3"></i> {% trans "Scope & Tags" %}</div>
+  <div class="mb-3">
+    <label for="{{ form.scopes.id_for_label }}" class="form-label">{{ form.scopes.label }}</label>
+    {{ form.scopes }}
+  </div>
+  <div>
+    <label for="{{ form.tags.id_for_label }}" class="form-label">{% trans "Tags" %}</label>
+    {{ form.tags }}
+  </div>
+</div>
+{% endblock %}

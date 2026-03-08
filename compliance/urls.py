@@ -8,6 +8,7 @@ from .models import (
     ComplianceAudit,
     ComplianceControl,
     ControlBody,
+    Finding,
     Framework,
     Requirement,
 )
@@ -79,4 +80,11 @@ urlpatterns = [
     path("auditors/create/", views.AuditorCreateView.as_view(), name="auditor-create"),
     path("auditors/<uuid:pk>/edit/", views.AuditorUpdateView.as_view(), name="auditor-update"),
     path("auditors/<uuid:pk>/delete/", views.AuditorDeleteView.as_view(), name="auditor-delete"),
+    # Findings
+    path("findings/", views.FindingListView.as_view(), name="finding-list"),
+    path("findings/create/", views.FindingCreateView.as_view(), name="finding-create"),
+    path("findings/<uuid:pk>/", views.FindingDetailView.as_view(), name="finding-detail"),
+    path("findings/<uuid:pk>/edit/", views.FindingUpdateView.as_view(), name="finding-update"),
+    path("findings/<uuid:pk>/delete/", views.FindingDeleteView.as_view(), name="finding-delete"),
+    path("findings/<uuid:pk>/approve/", views.ApproveView.as_view(model=Finding, permission_feature="finding", success_url=reverse_lazy("compliance:finding-list")), name="finding-approve"),
 ]

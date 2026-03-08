@@ -53,7 +53,7 @@
 </div>
 
 <div class="row g-3 mb-4">
-  <div class="col-md-4 col-sm-6">
+  <div class="col-md-3 col-sm-6">
     <div class="stat-card">
       <div class="stat-card-icon accent"><i class="bi bi-arrow-left-right"></i></div>
       <div class="stat-card-label">{% trans "Mappings" %}</div>
@@ -61,7 +61,15 @@
       <div class="stat-card-footer"><a href="{% url 'compliance:mapping-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
-  <div class="col-md-4 col-sm-6">
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card">
+      <div class="stat-card-icon info"><i class="bi bi-flag"></i></div>
+      <div class="stat-card-label">{% trans "Findings" %}</div>
+      <div class="stat-card-value">{{ finding_count }}</div>
+      <div class="stat-card-footer"><a href="{% url 'compliance:finding-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
     <div class="stat-card" style="border-left:2px solid var(--danger)">
       <div class="stat-card-icon danger"><i class="bi bi-x-circle"></i></div>
       <div class="stat-card-label">{% trans "Non-compliances" %}</div>
@@ -69,7 +77,7 @@
       <div class="stat-card-footer"><a href="{% url 'compliance:requirement-list' %}?compliance_status=non_compliant" class="stat-card-link" style="color:var(--danger)">{% trans "View" %}</a></div>
     </div>
   </div>
-  <div class="col-md-4 col-sm-6">
+  <div class="col-md-3 col-sm-6">
     <div class="stat-card" style="border-left:2px solid var(--warning)">
       <div class="stat-card-icon warning"><i class="bi bi-clock-history"></i></div>
       <div class="stat-card-label">{% trans "Overdue plans" %}</div>

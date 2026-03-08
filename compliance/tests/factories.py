@@ -8,6 +8,7 @@ from compliance.constants import (
     ControlFrequency,
     ControlResult,
     ControlStatus,
+    FindingType,
     FrameworkCategory,
     FrameworkType,
     MappingType,
@@ -16,6 +17,7 @@ from compliance.constants import (
 from compliance.models.audit import ComplianceAudit
 from compliance.models.control import ComplianceControl
 from compliance.models.control_body import Auditor, ControlBody
+from compliance.models.finding import Finding
 from compliance.models.framework import Framework
 from compliance.models.mapping import RequirementMapping
 from compliance.models.requirement import Requirement
@@ -96,3 +98,12 @@ class AuditorFactory(factory.django.DjangoModelFactory):
     email = factory.LazyAttribute(lambda obj: f"{obj.first_name.lower()}@example.com")
     control_body = factory.SubFactory(ControlBodyFactory)
     certifications = "ISO 27001 Lead Auditor"
+
+
+class FindingFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Finding
+
+    name = factory.Sequence(lambda n: f"Finding {n}")
+    description = "Test finding"
+    finding_type = FindingType.OBSERVATION

@@ -7,6 +7,7 @@ from compliance.models import (
     ComplianceAudit,
     ComplianceControl,
     ControlBody,
+    Finding,
     Framework,
     Requirement,
     RequirementMapping,
@@ -161,4 +162,18 @@ class AuditorFilter(django_filters.FilterSet):
         model = Auditor
         fields = {
             "control_body": ["exact"],
+        }
+
+
+class FindingFilter(django_filters.FilterSet):
+    scope = django_filters.UUIDFilter(field_name="scopes", lookup_expr="exact")
+    audit = django_filters.UUIDFilter(field_name="audit_id")
+    control = django_filters.UUIDFilter(field_name="control_id")
+
+    class Meta:
+        model = Finding
+        fields = {
+            "finding_type": ["exact"],
+            "audit": ["exact"],
+            "control": ["exact"],
         }

@@ -7,6 +7,7 @@ from .action_plan import ComplianceActionPlan
 from .control import ComplianceControl
 from .audit import ComplianceAudit
 from .control_body import ControlBody, Auditor
+from .finding import Finding
 
 __all__ = [
     "Framework",
@@ -20,4 +21,5 @@ __all__ = [
     "ComplianceAudit",
     "ControlBody",
     "Auditor",
+    "Finding",
 ]

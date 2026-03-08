@@ -8,6 +8,7 @@ from .models import (
     ComplianceControl,
     AssessmentResult,
     ControlBody,
+    Finding,
     Framework,
     Requirement,
     RequirementMapping,
@@ -65,4 +66,10 @@ class ControlBodyAdmin(admin.ModelAdmin):
 @admin.register(Auditor)
 class AuditorAdmin(admin.ModelAdmin):
     filter_horizontal = ("tags",)
+    readonly_fields = ("reference",)
+
+
+@admin.register(Finding)
+class FindingAdmin(admin.ModelAdmin):
+    filter_horizontal = ("tags", "action_plans", "activities", "requirements", "related_findings")
     readonly_fields = ("reference",)
