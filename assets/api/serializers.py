@@ -206,7 +206,7 @@ class SupplierListSerializer(serializers.ModelSerializer):
         model = Supplier
         fields = [
             "id", "scopes", "reference", "name", "type", "criticality",
-            "owner", "owner_name",
+            "owner", "owner_name", "logo_32",
             "status", "contract_end_date", "requirement_count",
             "created_at",
         ]
