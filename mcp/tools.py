@@ -976,6 +976,93 @@ def _register_compliance_tools(server):
                    filters=["status", "priority", "requirement_id", "assessment_id"],
                    field_overrides=_HTML_DESC)
 
+    # ── Controls ──────────────────────────────────────────
+    ComplianceControl = _get_model("compliance", "ComplianceControl")
+    ctrl_fields = ["id", "reference", "name", "description", "objective",
+                   "frequency", "status", "result",
+                   "planned_date", "completion_date",
+                   "owner_id", "support_asset_id", "site_id", "supplier_id",
+                   "is_approved", "created_at"]
+    ctrl_writable = ["name", "description", "objective",
+                     "frequency", "status", "result",
+                     "planned_date", "completion_date",
+                     "owner_id", "support_asset_id", "site_id", "supplier_id"]
+
+    _register_crud(server, "compliance_control", ComplianceControl, "compliance.control",
+                   list_fields=ctrl_fields,
+                   writable_fields=ctrl_writable,
+                   search_fields=["reference", "name", "description"],
+                   filters=["status", "result", "frequency", "owner_id",
+                            "support_asset_id", "site_id", "supplier_id"],
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "objective": _html_field("Control objective"),
+                       "evidence": _html_field("Evidence"),
+                       "findings": _html_field("Findings"),
+                   })
+
+    # ── Audits ────────────────────────────────────────────
+    ComplianceAudit = _get_model("compliance", "ComplianceAudit")
+    audit_fields = ["id", "reference", "name", "description",
+                    "audit_type", "status",
+                    "planned_start_date", "planned_end_date",
+                    "actual_start_date", "actual_end_date",
+                    "lead_auditor_id", "control_body_id",
+                    "is_approved", "created_at"]
+    audit_writable = ["name", "description",
+                      "audit_type", "status",
+                      "planned_start_date", "planned_end_date",
+                      "actual_start_date", "actual_end_date",
+                      "lead_auditor_id", "control_body_id"]
+
+    _register_crud(server, "compliance_audit", ComplianceAudit, "compliance.audit",
+                   list_fields=audit_fields,
+                   writable_fields=audit_writable,
+                   search_fields=["reference", "name", "description"],
+                   filters=["audit_type", "status", "lead_auditor_id", "control_body_id"],
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "objectives": _html_field("Audit objectives"),
+                       "conclusion": _html_field("Conclusion"),
+                       "findings_summary": _html_field("Findings summary"),
+                   })
+
+    # ── Control Bodies & Authorities ──────────────────────
+    ControlBody = _get_model("compliance", "ControlBody")
+    cb_fields = ["id", "reference", "name", "description",
+                 "is_accredited", "accreditation_details",
+                 "contact_name", "contact_email", "contact_phone",
+                 "website", "country", "is_approved", "created_at"]
+    cb_writable = ["name", "description",
+                   "is_accredited", "accreditation_details",
+                   "contact_name", "contact_email", "contact_phone",
+                   "website", "address", "country"]
+
+    _register_crud(server, "control_body", ControlBody, "compliance.control_body",
+                   list_fields=cb_fields,
+                   writable_fields=cb_writable,
+                   search_fields=["reference", "name", "description", "country"],
+                   filters=["is_accredited", "country"],
+                   scope_filtered=False,
+                   field_overrides=_HTML_DESC)
+
+    # ── Auditors ──────────────────────────────────────────
+    Auditor = _get_model("compliance", "Auditor")
+    auditor_fields = ["id", "reference", "first_name", "last_name",
+                      "email", "phone", "control_body_id",
+                      "certifications", "specializations", "created_at"]
+    auditor_writable = ["first_name", "last_name", "email", "phone",
+                        "control_body_id", "certifications", "specializations"]
+
+    _register_crud(server, "auditor", Auditor, "compliance.auditor",
+                   list_fields=auditor_fields,
+                   writable_fields=auditor_writable,
+                   search_fields=["reference", "first_name", "last_name",
+                                  "email", "certifications"],
+                   filters=["control_body_id"],
+                   scope_filtered=False,
+                   has_approve=False)
+
 
 # ── Risks Module ───────────────────────────────────────────
 

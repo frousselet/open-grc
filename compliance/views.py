@@ -24,8 +24,12 @@ from django.views.generic import (
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
 from core.mixins import HtmxFormMixin, SortableListMixin
 from .forms import (
+    AuditorForm,
     ComplianceActionPlanForm,
     ComplianceAssessmentForm,
+    ComplianceAuditForm,
+    ComplianceControlForm,
+    ControlBodyForm,
     FrameworkForm,
     FrameworkImportForm,
     RequirementForm,
@@ -41,8 +45,12 @@ from .import_utils import (
     validate_parsed_data,
 )
 from .models import (
+    Auditor,
     ComplianceActionPlan,
     ComplianceAssessment,
+    ComplianceAudit,
+    ComplianceControl,
+    ControlBody,
     Framework,
     Requirement,
     RequirementMapping,
@@ -135,6 +143,13 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             ).exclude(status__in=["completed", "cancelled"])
         ).count()
         ctx["mapping_count"] = RequirementMapping.objects.count()
+        ctx["control_count"] = self._filter_scoped(
+            ComplianceControl.objects.all()
+        ).count()
+        ctx["audit_count"] = self._filter_scoped(
+            ComplianceAudit.objects.all()
+        ).count()
+        ctx["control_body_count"] = ControlBody.objects.count()
         return ctx
 
 
@@ -640,3 +655,242 @@ class ActionPlanDeleteView(LoginRequiredMixin, DeleteView):
     model = ComplianceActionPlan
     template_name = "compliance/confirm_delete.html"
     success_url = reverse_lazy("compliance:action-plan-list")
+
+
+# ── Control ───────────────────────────────────────────────
+
+class ControlListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    model = ComplianceControl
+    template_name = "compliance/control_list.html"
+    context_object_name = "controls"
+    paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "frequency": "frequency",
+        "status": "status",
+        "result": "result",
+        "planned_date": "planned_date",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name", "description"]
+
+    def get_queryset(self):
+        qs = super().get_queryset().prefetch_related("scopes").select_related(
+            "owner", "support_asset", "site", "supplier"
+        )
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        return qs
+
+
+class ControlDetailView(
+    LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView
+):
+    model = ComplianceControl
+    template_name = "compliance/control_detail.html"
+    context_object_name = "control"
+    approve_url_name = "compliance:control-approve"
+
+
+class ControlCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+    model = ComplianceControl
+    form_class = ComplianceControlForm
+    template_name = "compliance/control_form.html"
+    modal_template_name = "compliance/control_form_modal.html"
+    success_url = reverse_lazy("compliance:control-list")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+
+class ControlUpdateView(
+    LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView
+):
+    model = ComplianceControl
+    form_class = ComplianceControlForm
+    template_name = "compliance/control_form.html"
+    modal_template_name = "compliance/control_form_modal.html"
+    success_url = reverse_lazy("compliance:control-list")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+
+class ControlDeleteView(LoginRequiredMixin, DeleteView):
+    model = ComplianceControl
+    template_name = "compliance/confirm_delete.html"
+    success_url = reverse_lazy("compliance:control-list")
+
+
+# ── Audit ─────────────────────────────────────────────────
+
+class AuditListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    model = ComplianceAudit
+    template_name = "compliance/audit_list.html"
+    context_object_name = "audits"
+    paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "audit_type": "audit_type",
+        "status": "status",
+        "planned_start_date": "planned_start_date",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name", "description"]
+
+    def get_queryset(self):
+        qs = super().get_queryset().prefetch_related("scopes", "frameworks").select_related(
+            "lead_auditor", "control_body"
+        )
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        type_filter = self.request.GET.get("audit_type")
+        if type_filter:
+            qs = qs.filter(audit_type=type_filter)
+        return qs
+
+
+class AuditDetailView(
+    LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView
+):
+    model = ComplianceAudit
+    template_name = "compliance/audit_detail.html"
+    context_object_name = "audit"
+    approve_url_name = "compliance:audit-approve"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["audit_frameworks"] = self.object.frameworks.all()
+        ctx["audit_sections"] = self.object.sections.select_related("framework").all()
+        return ctx
+
+
+class AuditCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+    model = ComplianceAudit
+    form_class = ComplianceAuditForm
+    template_name = "compliance/audit_form.html"
+    modal_template_name = "compliance/audit_form_modal.html"
+    success_url = reverse_lazy("compliance:audit-list")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+
+class AuditUpdateView(
+    LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView
+):
+    model = ComplianceAudit
+    form_class = ComplianceAuditForm
+    template_name = "compliance/audit_form.html"
+    modal_template_name = "compliance/audit_form_modal.html"
+    success_url = reverse_lazy("compliance:audit-list")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+
+class AuditDeleteView(LoginRequiredMixin, DeleteView):
+    model = ComplianceAudit
+    template_name = "compliance/confirm_delete.html"
+    success_url = reverse_lazy("compliance:audit-list")
+
+
+# ── Control Body ──────────────────────────────────────────
+
+class ControlBodyListView(LoginRequiredMixin, SortableListMixin, ListView):
+    model = ControlBody
+    template_name = "compliance/control_body_list.html"
+    context_object_name = "control_bodies"
+    paginate_by = 25
+    sortable_fields = {
+        "reference": "reference",
+        "name": "name",
+        "is_accredited": "is_accredited",
+        "country": "country",
+    }
+    default_sort = "reference"
+    search_fields = ["reference", "name", "description", "country"]
+
+    def get_queryset(self):
+        qs = super().get_queryset().prefetch_related("frameworks", "auditors")
+        return qs
+
+
+class ControlBodyDetailView(
+    LoginRequiredMixin, ApprovalContextMixin, HistoryMixin, DetailView
+):
+    model = ControlBody
+    template_name = "compliance/control_body_detail.html"
+    context_object_name = "control_body"
+    approve_url_name = "compliance:control-body-approve"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["auditors"] = self.object.auditors.all()
+        ctx["body_frameworks"] = self.object.frameworks.all()
+        ctx["body_audits"] = self.object.audits.all()[:10]
+        return ctx
+
+
+class ControlBodyCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+    model = ControlBody
+    form_class = ControlBodyForm
+    template_name = "compliance/control_body_form.html"
+    modal_template_name = "compliance/control_body_form_modal.html"
+    success_url = reverse_lazy("compliance:control-body-list")
+
+
+class ControlBodyUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
+    model = ControlBody
+    form_class = ControlBodyForm
+    template_name = "compliance/control_body_form.html"
+    modal_template_name = "compliance/control_body_form_modal.html"
+    success_url = reverse_lazy("compliance:control-body-list")
+
+
+class ControlBodyDeleteView(LoginRequiredMixin, DeleteView):
+    model = ControlBody
+    template_name = "compliance/confirm_delete.html"
+    success_url = reverse_lazy("compliance:control-body-list")
+
+
+# ── Auditor ───────────────────────────────────────────────
+
+class AuditorCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+    model = Auditor
+    form_class = AuditorForm
+    template_name = "compliance/auditor_form.html"
+    modal_template_name = "compliance/auditor_form_modal.html"
+
+    def get_success_url(self):
+        return reverse("compliance:control-body-detail", kwargs={"pk": self.object.control_body_id})
+
+
+class AuditorUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
+    model = Auditor
+    form_class = AuditorForm
+    template_name = "compliance/auditor_form.html"
+    modal_template_name = "compliance/auditor_form_modal.html"
+
+    def get_success_url(self):
+        return reverse("compliance:control-body-detail", kwargs={"pk": self.object.control_body_id})
+
+
+class AuditorDeleteView(LoginRequiredMixin, DeleteView):
+    model = Auditor
+    template_name = "compliance/confirm_delete.html"
+
+    def get_success_url(self):
+        return reverse("compliance:control-body-detail", kwargs={"pk": self.object.control_body_id})

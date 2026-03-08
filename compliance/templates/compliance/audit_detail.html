@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load help_tags %}
+
+{% block title %}{{ audit.name }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="mb-0">{{ audit.name }}</h1>
+    <small class="ref">{{ audit.reference }}</small>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'compliance:audit-update' audit.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'compliance:audit-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+  </div>
+</div>
+
+{% include "includes/approval_badge.html" %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#scope_tab">{% trans "Audit scope" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#findings_tab">{% trans "Findings" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="general">
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Audit type" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if audit.audit_type == 'first_party' %}primary{% elif audit.audit_type == 'second_party' %}info{% else %}dark{% endif %}">
+              {{ audit.get_audit_type_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if audit.status == 'completed' %}success{% elif audit.status == 'in_progress' %}info{% elif audit.status == 'cancelled' or audit.status == 'archived' %}secondary{% else %}warning{% endif %}">
+              {{ audit.get_status_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Lead auditor" %}</dt><dd class="col-sm-9">{{ audit.lead_auditor|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Control body" %}</dt>
+          <dd class="col-sm-9">{% if audit.control_body %}<a href="{% url 'compliance:control-body-detail' audit.control_body.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ audit.control_body.name }}</a>{% else %}—{% endif %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Planned dates" %}</dt><dd class="col-sm-9">{{ audit.planned_start_date|default:"—" }} → {{ audit.planned_end_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Actual dates" %}</dt><dd class="col-sm-9">{{ audit.actual_start_date|default:"—" }} → {{ audit.actual_end_date|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ audit.description|default:"—"|safe }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Audit objectives" %}</dt><dd class="col-sm-9">{{ audit.objectives|default:"—"|safe }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
+          <dd class="col-sm-9">{% for tag in audit.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="scope_tab">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-header"><h6 class="mb-0">{% trans "Frameworks" %}</h6></div>
+          <div class="card-body">
+            {% for fw in audit_frameworks %}
+            <a href="{% url 'compliance:framework-detail' fw.pk %}" class="d-block mb-1" style="color:var(--accent);text-decoration:none;font-weight:500">{{ fw.reference }} — {{ fw.name }}</a>
+            {% empty %}
+            <p style="color:var(--text-muted);font-size:.85rem">{% trans "No framework linked." %}</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-header"><h6 class="mb-0">{% trans "Sections" %}</h6></div>
+          <div class="card-body">
+            {% for sec in audit_sections %}
+            <span class="d-block mb-1"><strong>{{ sec.framework.short_name|default:sec.framework.name }}</strong> — {{ sec.reference }} {{ sec.name }}</span>
+            {% empty %}
+            <p style="color:var(--text-muted);font-size:.85rem">{% trans "No section linked (entire frameworks will be audited)." %}</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="findings_tab">
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Conclusion" %}</dt><dd class="col-sm-9">{{ audit.conclusion|default:"—"|safe }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Findings summary" %}</dt><dd class="col-sm-9">{{ audit.findings_summary|default:"—"|safe }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}

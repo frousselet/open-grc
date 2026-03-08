@@ -1,9 +1,13 @@
 from rest_framework import serializers
 
 from compliance.models import (
+    Auditor,
     ComplianceActionPlan,
     ComplianceAssessment,
+    ComplianceAudit,
+    ComplianceControl,
     AssessmentResult,
+    ControlBody,
     Framework,
     Requirement,
     RequirementMapping,
@@ -222,5 +226,138 @@ class ComplianceActionPlanListSerializer(serializers.ModelSerializer):
             "id", "scopes", "reference", "name",
             "priority", "owner", "target_date",
             "progress_percentage", "status", "created_at",
+        ]
+        read_only_fields = ["id", "reference", "created_at"]
+
+
+# ── Control ───────────────────────────────────────────────
+
+class ComplianceControlSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComplianceControl
+        fields = [
+            "id", "scopes", "reference", "name", "description", "objective",
+            "frequency", "status", "result",
+            "planned_date", "completion_date",
+            "owner", "support_asset", "site", "supplier",
+            "evidence", "findings",
+            "version", "tags",
+            "is_approved", "approved_by", "approved_at",
+            "created_by", "created_at", "updated_at",
+        ]
+        read_only_fields = [
+            "id", "reference", "created_by", "created_at", "updated_at",
+            "is_approved", "approved_by", "approved_at", "version",
+        ]
+
+
+class ComplianceControlListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComplianceControl
+        fields = [
+            "id", "scopes", "reference", "name",
+            "frequency", "status", "result",
+            "planned_date", "owner", "created_at",
+        ]
+        read_only_fields = ["id", "reference", "created_at"]
+
+
+# ── Audit ─────────────────────────────────────────────────
+
+class ComplianceAuditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComplianceAudit
+        fields = [
+            "id", "scopes", "reference", "name", "description",
+            "audit_type", "status",
+            "frameworks", "sections",
+            "lead_auditor", "control_body",
+            "planned_start_date", "planned_end_date",
+            "actual_start_date", "actual_end_date",
+            "objectives", "conclusion", "findings_summary",
+            "version", "tags",
+            "is_approved", "approved_by", "approved_at",
+            "created_by", "created_at", "updated_at",
+        ]
+        read_only_fields = [
+            "id", "reference", "created_by", "created_at", "updated_at",
+            "is_approved", "approved_by", "approved_at", "version",
+        ]
+
+
+class ComplianceAuditListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComplianceAudit
+        fields = [
+            "id", "scopes", "reference", "name",
+            "audit_type", "status",
+            "planned_start_date", "lead_auditor", "control_body",
+            "created_at",
+        ]
+        read_only_fields = ["id", "reference", "created_at"]
+
+
+# ── Control Body ──────────────────────────────────────────
+
+class ControlBodySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ControlBody
+        fields = [
+            "id", "reference", "name", "description",
+            "is_accredited", "accreditation_details",
+            "contact_name", "contact_email", "contact_phone",
+            "website", "address", "country",
+            "frameworks",
+            "version", "tags",
+            "is_approved", "approved_by", "approved_at",
+            "created_by", "created_at", "updated_at",
+        ]
+        read_only_fields = [
+            "id", "reference", "created_by", "created_at", "updated_at",
+            "is_approved", "approved_by", "approved_at", "version",
+        ]
+
+
+class ControlBodyListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ControlBody
+        fields = [
+            "id", "reference", "name",
+            "is_accredited", "country",
+            "created_at",
+        ]
+        read_only_fields = ["id", "reference", "created_at"]
+
+
+# ── Auditor ───────────────────────────────────────────────
+
+class AuditorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Auditor
+        fields = [
+            "id", "reference", "first_name", "last_name",
+            "email", "phone",
+            "control_body",
+            "certifications", "cv", "specializations",
+            "version", "tags",
+            "created_by", "created_at", "updated_at",
+        ]
+        read_only_fields = [
+            "id", "reference", "created_by", "created_at", "updated_at",
+            "version",
+        ]
+
+
+class AuditorListSerializer(serializers.ModelSerializer):
+    control_body_name = serializers.CharField(
+        source="control_body.name", read_only=True
+    )
+
+    class Meta:
+        model = Auditor
+        fields = [
+            "id", "reference", "first_name", "last_name",
+            "email", "control_body", "control_body_name",
+            "certifications", "created_at",
         ]
         read_only_fields = ["id", "reference", "created_at"]

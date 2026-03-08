@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load table_tags %}
+
+{% block title %}{% trans "Controls" %} — Open GRC{% endblock %}
+
+{% load help_tags %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">{% trans "Controls" %}</h1>
+  <div class="header-actions">
+    <button type="button" class="btn-header-action" title="{% trans 'New control' %}"
+            hx-get="{% url 'compliance:control-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+  </div>
+</div>
+
+{% include "includes/table_search.html" %}
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          {% sortable_th "reference" "Ref." %}
+          {% sortable_th "name" "Name" %}
+          {% sortable_th "frequency" "Frequency" %}
+          {% sortable_th "planned_date" "Planned date" %}
+          <th>{% trans "Owner" %}</th>
+          <th>{% trans "Linked to" %}</th>
+          {% sortable_th "result" "Result" %}
+          {% sortable_th "status" "Status" %}
+          <th>{% trans "Tags" %}</th>
+          <th>{% trans "Approval" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in controls %}
+        <tr>
+          <td><a href="{% url 'compliance:control-detail' c.pk %}" class="ref" style="text-decoration:none">{{ c.reference }}</a></td>
+          <td>{{ c.name }}</td>
+          <td>{{ c.get_frequency_display }}</td>
+          <td>{{ c.planned_date|default:"—" }}</td>
+          <td>{{ c.owner|default:"—" }}</td>
+          <td>
+            {% if c.support_asset %}<span class="badge text-bg-info me-1">{{ c.support_asset }}</span>{% endif %}
+            {% if c.site %}<span class="badge text-bg-secondary me-1">{{ c.site }}</span>{% endif %}
+            {% if c.supplier %}<span class="badge text-bg-dark me-1">{{ c.supplier }}</span>{% endif %}
+            {% if not c.support_asset and not c.site and not c.supplier %}—{% endif %}
+          </td>
+          <td>
+            <span class="badge text-bg-{% if c.result == 'conforming' %}success{% elif c.result == 'non_conforming' %}danger{% elif c.result == 'partially_conforming' %}warning{% else %}secondary{% endif %}">
+              {{ c.get_result_display }}
+            </span>
+          </td>
+          <td>
+            <span class="badge text-bg-{% if c.status == 'completed' %}success{% elif c.status == 'in_progress' %}info{% elif c.status == 'cancelled' %}secondary{% elif c.status == 'overdue' %}danger{% else %}warning{% endif %}">
+              {{ c.get_status_display }}
+            </span>
+          </td>
+          <td>{% for tag in c.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
+          <td>
+            <span class="badge text-bg-{% if c.is_approved %}success{% else %}warning{% endif %}">
+              {% if c.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
+            </span>
+          </td>
+          <td class="text-end">
+            <a hx-get="{% url 'compliance:control-update' c.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No control defined." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include "includes/pagination.html" %}
+{% endblock %}

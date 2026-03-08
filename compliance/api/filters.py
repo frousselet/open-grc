@@ -1,8 +1,12 @@
 import django_filters
 
 from compliance.models import (
+    Auditor,
     ComplianceActionPlan,
     ComplianceAssessment,
+    ComplianceAudit,
+    ComplianceControl,
+    ControlBody,
     Framework,
     Requirement,
     RequirementMapping,
@@ -107,4 +111,54 @@ class ComplianceActionPlanFilter(django_filters.FilterSet):
             "priority": ["exact"],
             "owner": ["exact"],
             "status": ["exact"],
+        }
+
+
+class ComplianceControlFilter(django_filters.FilterSet):
+    scope = django_filters.UUIDFilter(field_name="scopes", lookup_expr="exact")
+
+    class Meta:
+        model = ComplianceControl
+        fields = {
+            "frequency": ["exact"],
+            "status": ["exact"],
+            "result": ["exact"],
+            "owner": ["exact"],
+            "support_asset": ["exact"],
+            "site": ["exact"],
+            "supplier": ["exact"],
+        }
+
+
+class ComplianceAuditFilter(django_filters.FilterSet):
+    scope = django_filters.UUIDFilter(field_name="scopes", lookup_expr="exact")
+    framework = django_filters.UUIDFilter(field_name="frameworks", lookup_expr="exact")
+
+    class Meta:
+        model = ComplianceAudit
+        fields = {
+            "audit_type": ["exact"],
+            "status": ["exact"],
+            "lead_auditor": ["exact"],
+            "control_body": ["exact"],
+            "planned_start_date": ["gte", "lte"],
+        }
+
+
+class ControlBodyFilter(django_filters.FilterSet):
+    framework = django_filters.UUIDFilter(field_name="frameworks", lookup_expr="exact")
+
+    class Meta:
+        model = ControlBody
+        fields = {
+            "is_accredited": ["exact"],
+            "country": ["exact"],
+        }
+
+
+class AuditorFilter(django_filters.FilterSet):
+    class Meta:
+        model = Auditor
+        fields = {
+            "control_body": ["exact"],
         }

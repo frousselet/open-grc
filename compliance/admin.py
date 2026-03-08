@@ -1,9 +1,13 @@
 from django.contrib import admin
 
 from .models import (
+    Auditor,
     ComplianceActionPlan,
     ComplianceAssessment,
+    ComplianceAudit,
+    ComplianceControl,
     AssessmentResult,
+    ControlBody,
     Framework,
     Requirement,
     RequirementMapping,
@@ -38,3 +42,27 @@ class ComplianceActionPlanAdmin(admin.ModelAdmin):
 admin.site.register(Section)
 admin.site.register(AssessmentResult)
 admin.site.register(RequirementMapping)
+
+
+@admin.register(ComplianceControl)
+class ComplianceControlAdmin(admin.ModelAdmin):
+    filter_horizontal = ("tags",)
+    readonly_fields = ("reference",)
+
+
+@admin.register(ComplianceAudit)
+class ComplianceAuditAdmin(admin.ModelAdmin):
+    filter_horizontal = ("tags", "frameworks", "sections")
+    readonly_fields = ("reference",)
+
+
+@admin.register(ControlBody)
+class ControlBodyAdmin(admin.ModelAdmin):
+    filter_horizontal = ("tags", "frameworks")
+    readonly_fields = ("reference",)
+
+
+@admin.register(Auditor)
+class AuditorAdmin(admin.ModelAdmin):
+    filter_horizontal = ("tags",)
+    readonly_fields = ("reference",)

@@ -110,6 +110,49 @@ class ActionPlanStatus(models.TextChoices):
     OVERDUE = "overdue", _("Overdue")
 
 
+# ── Control ────────────────────────────────────────────────
+
+class ControlFrequency(models.TextChoices):
+    ONE_TIME = "one_time", _("One-time")
+    DAILY = "daily", _("Daily")
+    WEEKLY = "weekly", _("Weekly")
+    MONTHLY = "monthly", _("Monthly")
+    QUARTERLY = "quarterly", _("Quarterly")
+    SEMI_ANNUAL = "semi_annual", _("Semi-annual")
+    ANNUAL = "annual", _("Annual")
+
+
+class ControlStatus(models.TextChoices):
+    PLANNED = "planned", _("Planned")
+    IN_PROGRESS = "in_progress", _("In progress")
+    COMPLETED = "completed", _("Completed")
+    CANCELLED = "cancelled", _("Cancelled")
+    OVERDUE = "overdue", _("Overdue")
+
+
+class ControlResult(models.TextChoices):
+    CONFORMING = "conforming", _("Conforming")
+    NON_CONFORMING = "non_conforming", _("Non-conforming")
+    PARTIALLY_CONFORMING = "partially_conforming", _("Partially conforming")
+    NOT_ASSESSED = "not_assessed", _("Not assessed")
+
+
+# ── Audit ──────────────────────────────────────────────────
+
+class AuditType(models.TextChoices):
+    FIRST_PARTY = "first_party", _("First party")
+    SECOND_PARTY = "second_party", _("Second party")
+    THIRD_PARTY = "third_party", _("Third party")
+
+
+class AuditStatus(models.TextChoices):
+    PLANNED = "planned", _("Planned")
+    IN_PROGRESS = "in_progress", _("In progress")
+    COMPLETED = "completed", _("Completed")
+    CANCELLED = "cancelled", _("Cancelled")
+    ARCHIVED = "archived", _("Archived")
+
+
 # ── Compliance level defaults (status → percentage) ───────
 
 COMPLIANCE_LEVEL_DEFAULTS = {

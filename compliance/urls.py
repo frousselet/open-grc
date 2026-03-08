@@ -2,8 +2,12 @@ from django.urls import path, reverse_lazy
 
 from . import views
 from .models import (
+    Auditor,
     ComplianceActionPlan,
     ComplianceAssessment,
+    ComplianceAudit,
+    ComplianceControl,
+    ControlBody,
     Framework,
     Requirement,
 )
@@ -50,4 +54,29 @@ urlpatterns = [
     path("action-plans/<uuid:pk>/edit/", views.ActionPlanUpdateView.as_view(), name="action-plan-update"),
     path("action-plans/<uuid:pk>/delete/", views.ActionPlanDeleteView.as_view(), name="action-plan-delete"),
     path("action-plans/<uuid:pk>/approve/", views.ApproveView.as_view(model=ComplianceActionPlan, permission_feature="action_plan", success_url=reverse_lazy("compliance:action-plan-list")), name="action-plan-approve"),
+    # Controls
+    path("controls/", views.ControlListView.as_view(), name="control-list"),
+    path("controls/create/", views.ControlCreateView.as_view(), name="control-create"),
+    path("controls/<uuid:pk>/", views.ControlDetailView.as_view(), name="control-detail"),
+    path("controls/<uuid:pk>/edit/", views.ControlUpdateView.as_view(), name="control-update"),
+    path("controls/<uuid:pk>/delete/", views.ControlDeleteView.as_view(), name="control-delete"),
+    path("controls/<uuid:pk>/approve/", views.ApproveView.as_view(model=ComplianceControl, permission_feature="control", success_url=reverse_lazy("compliance:control-list")), name="control-approve"),
+    # Audits
+    path("audits/", views.AuditListView.as_view(), name="audit-list"),
+    path("audits/create/", views.AuditCreateView.as_view(), name="audit-create"),
+    path("audits/<uuid:pk>/", views.AuditDetailView.as_view(), name="audit-detail"),
+    path("audits/<uuid:pk>/edit/", views.AuditUpdateView.as_view(), name="audit-update"),
+    path("audits/<uuid:pk>/delete/", views.AuditDeleteView.as_view(), name="audit-delete"),
+    path("audits/<uuid:pk>/approve/", views.ApproveView.as_view(model=ComplianceAudit, permission_feature="audit", success_url=reverse_lazy("compliance:audit-list")), name="audit-approve"),
+    # Control Bodies & Authorities
+    path("control-bodies/", views.ControlBodyListView.as_view(), name="control-body-list"),
+    path("control-bodies/create/", views.ControlBodyCreateView.as_view(), name="control-body-create"),
+    path("control-bodies/<uuid:pk>/", views.ControlBodyDetailView.as_view(), name="control-body-detail"),
+    path("control-bodies/<uuid:pk>/edit/", views.ControlBodyUpdateView.as_view(), name="control-body-update"),
+    path("control-bodies/<uuid:pk>/delete/", views.ControlBodyDeleteView.as_view(), name="control-body-delete"),
+    path("control-bodies/<uuid:pk>/approve/", views.ApproveView.as_view(model=ControlBody, permission_feature="control_body", success_url=reverse_lazy("compliance:control-body-list")), name="control-body-approve"),
+    # Auditors
+    path("auditors/create/", views.AuditorCreateView.as_view(), name="auditor-create"),
+    path("auditors/<uuid:pk>/edit/", views.AuditorUpdateView.as_view(), name="auditor-update"),
+    path("auditors/<uuid:pk>/delete/", views.AuditorDeleteView.as_view(), name="auditor-delete"),
 ]

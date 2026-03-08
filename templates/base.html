@@ -2500,6 +2500,16 @@
         <i class="bi bi-clipboard-data"></i> <span class="sidebar-link-text">{% trans "Assessments" %}</span>
         <span class="sidebar-tooltip">{% trans "Assessments" %}</span>
       </a>
+      <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navAuditsControls" aria-expanded="true">
+        <i class="bi bi-shield-check"></i> <span class="sidebar-link-text">{% trans "Audits & controls" %}</span>
+        <i class="bi bi-chevron-down"></i>
+        <span class="sidebar-tooltip">{% trans "Audits & controls" %}</span>
+      </button>
+      <div class="collapse show" id="navAuditsControls">
+        <a href="{% url 'compliance:control-list' %}" class="sidebar-link sidebar-sub">{% trans "Controls" %}</a>
+        <a href="{% url 'compliance:audit-list' %}" class="sidebar-link sidebar-sub">{% trans "Audits" %}</a>
+        <a href="{% url 'compliance:control-body-list' %}" class="sidebar-link sidebar-sub">{% trans "Control bodies & authorities" %}</a>
+      </div>
       <a href="{% url 'compliance:mapping-list' %}" class="sidebar-link">
         <i class="bi bi-arrow-left-right"></i> <span class="sidebar-link-text">{% trans "Mappings" %}</span>
         <span class="sidebar-tooltip">{% trans "Mappings" %}</span>

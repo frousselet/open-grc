@@ -8035,3 +8035,319 @@ msgstr "Analyses de risques"
 #: core/views.py
 msgid "Treatment Plans"
 msgstr "Plans de traitement"
+
+#: compliance/constants.py compliance/models/control.py
+#: compliance/templates/compliance/control_list.html
+#: templates/base.html
+msgid "Controls"
+msgstr "Contrôles"
+
+#: compliance/templates/compliance/control_list.html
+msgid "No control defined."
+msgstr "Aucun contrôle défini."
+
+#: compliance/templates/compliance/control_form.html
+msgid "New control"
+msgstr "Nouveau contrôle"
+
+#: compliance/templates/compliance/control_form.html
+msgid "Edit control"
+msgstr "Modifier le contrôle"
+
+#: compliance/templates/compliance/control_form.html
+msgid "control"
+msgstr "contrôle"
+
+#: compliance/models/control.py
+msgid "Control"
+msgstr "Contrôle"
+
+#: compliance/models/control.py
+msgid "Objective"
+msgstr "Objectif"
+
+#: compliance/constants.py
+msgid "One-time"
+msgstr "Ponctuel"
+
+#: compliance/constants.py
+msgid "Daily"
+msgstr "Quotidien"
+
+#: compliance/constants.py
+msgid "Weekly"
+msgstr "Hebdomadaire"
+
+#: compliance/constants.py
+msgid "Monthly"
+msgstr "Mensuel"
+
+#: compliance/constants.py
+msgid "Quarterly"
+msgstr "Trimestriel"
+
+#: compliance/constants.py
+msgid "Semi-annual"
+msgstr "Semestriel"
+
+#: compliance/constants.py
+msgid "Annual"
+msgstr "Annuel"
+
+#: compliance/constants.py
+msgid "Conforming"
+msgstr "Conforme"
+
+#: compliance/constants.py
+msgid "Non-conforming"
+msgstr "Non conforme"
+
+#: compliance/constants.py
+msgid "Partially conforming"
+msgstr "Partiellement conforme"
+
+#: compliance/models/control.py
+msgid "Planned date"
+msgstr "Date prévue"
+
+#: compliance/models/control.py
+msgid "Completion date"
+msgstr "Date de réalisation"
+
+#: compliance/models/control.py
+msgid "Support asset"
+msgstr "Actif support"
+
+#: compliance/models/control.py
+msgid "Evidence"
+msgstr "Preuve"
+
+#: compliance/models/control.py
+msgid "Findings"
+msgstr "Constats"
+
+#: compliance/templates/compliance/control_form_modal.html
+msgid "Evidence & Findings"
+msgstr "Preuves et constats"
+
+#: compliance/templates/compliance/control_form_modal.html
+msgid "Links"
+msgstr "Liens"
+
+#: compliance/templates/compliance/audit_list.html
+#: templates/base.html
+msgid "Audits"
+msgstr "Audits"
+
+#: compliance/templates/compliance/audit_list.html
+msgid "No audit defined."
+msgstr "Aucun audit défini."
+
+#: compliance/templates/compliance/audit_form.html
+msgid "New audit"
+msgstr "Nouvel audit"
+
+#: compliance/templates/compliance/audit_form.html
+msgid "Edit audit"
+msgstr "Modifier l'audit"
+
+#: compliance/templates/compliance/audit_form.html
+msgid "audit"
+msgstr "audit"
+
+#: compliance/models/audit.py
+msgid "Audit"
+msgstr "Audit"
+
+#: compliance/models/audit.py
+msgid "Audit type"
+msgstr "Type d'audit"
+
+#: compliance/constants.py
+msgid "First party"
+msgstr "Première partie"
+
+#: compliance/constants.py
+msgid "Second party"
+msgstr "Seconde partie"
+
+#: compliance/constants.py
+msgid "Third party"
+msgstr "Tierce partie"
+
+#: compliance/models/audit.py
+msgid "Sections"
+msgstr "Chapitres"
+
+#: compliance/models/audit.py
+msgid "Lead auditor"
+msgstr "Auditeur principal"
+
+#: compliance/models/audit.py
+msgid "Control body"
+msgstr "Bureau de contrôle"
+
+#: compliance/models/audit.py
+msgid "Planned start date"
+msgstr "Date de début prévue"
+
+#: compliance/models/audit.py
+msgid "Planned end date"
+msgstr "Date de fin prévue"
+
+#: compliance/models/audit.py
+msgid "Actual start date"
+msgstr "Date de début effective"
+
+#: compliance/models/audit.py
+msgid "Actual end date"
+msgstr "Date de fin effective"
+
+#: compliance/models/audit.py
+msgid "Audit objectives"
+msgstr "Objectifs de l'audit"
+
+#: compliance/models/audit.py
+msgid "Conclusion"
+msgstr "Conclusion"
+
+#: compliance/models/audit.py
+msgid "Findings summary"
+msgstr "Synthèse des constats"
+
+#: compliance/templates/compliance/audit_detail.html
+msgid "Planned dates"
+msgstr "Dates prévues"
+
+#: compliance/templates/compliance/audit_detail.html
+msgid "Actual dates"
+msgstr "Dates effectives"
+
+#: compliance/templates/compliance/audit_detail.html
+msgid "Audit scope"
+msgstr "Périmètre de l'audit"
+
+#: compliance/templates/compliance/audit_detail.html
+msgid "No framework linked."
+msgstr "Aucun référentiel lié."
+
+#: compliance/templates/compliance/audit_detail.html
+msgid "No section linked (entire frameworks will be audited)."
+msgstr "Aucun chapitre lié (les référentiels entiers seront audités)."
+
+#: templates/base.html
+msgid "Audits & controls"
+msgstr "Audits et contrôles"
+
+#: compliance/templates/compliance/control_body_list.html
+#: templates/base.html
+msgid "Control bodies & authorities"
+msgstr "Bureaux de contrôle et autorités"
+
+#: compliance/templates/compliance/control_body_list.html
+msgid "No control body defined."
+msgstr "Aucun bureau de contrôle défini."
+
+#: compliance/templates/compliance/control_body_form.html
+msgid "New control body"
+msgstr "Nouveau bureau de contrôle"
+
+#: compliance/templates/compliance/control_body_form.html
+msgid "Edit control body"
+msgstr "Modifier le bureau de contrôle"
+
+#: compliance/templates/compliance/control_body_form.html
+msgid "control body"
+msgstr "bureau de contrôle"
+
+#: compliance/models/control_body.py
+msgid "Control body / authority"
+msgstr "Bureau de contrôle / autorité"
+
+#: compliance/models/control_body.py
+msgid "Control bodies & authorities"
+msgstr "Bureaux de contrôle et autorités"
+
+#: compliance/models/control_body.py
+msgid "Accredited"
+msgstr "Accrédité"
+
+#: compliance/models/control_body.py
+msgid "Accreditation details"
+msgstr "Détails de l'accréditation"
+
+#: compliance/models/control_body.py
+msgid "Contact name"
+msgstr "Nom du contact"
+
+#: compliance/models/control_body.py
+msgid "Contact email"
+msgstr "Email du contact"
+
+#: compliance/models/control_body.py
+msgid "Contact phone"
+msgstr "Téléphone du contact"
+
+#: compliance/templates/compliance/control_body_detail.html
+msgid "Auditors"
+msgstr "Auditeurs"
+
+#: compliance/templates/compliance/control_body_detail.html
+msgid "Add auditor"
+msgstr "Ajouter un auditeur"
+
+#: compliance/templates/compliance/control_body_detail.html
+msgid "No auditor registered for this body."
+msgstr "Aucun auditeur enregistré pour ce bureau."
+
+#: compliance/templates/compliance/control_body_detail.html
+msgid "No audit linked to this body."
+msgstr "Aucun audit lié à ce bureau."
+
+#: compliance/templates/compliance/control_body_form_modal.html
+msgid "Frameworks & Tags"
+msgstr "Référentiels et étiquettes"
+
+#: compliance/models/control_body.py
+msgid "Auditor"
+msgstr "Auditeur"
+
+#: compliance/models/control_body.py
+msgid "First name"
+msgstr "Prénom"
+
+#: compliance/models/control_body.py
+msgid "Last name"
+msgstr "Nom"
+
+#: compliance/models/control_body.py
+msgid "Certifications"
+msgstr "Certifications"
+
+#: compliance/models/control_body.py
+msgid "CV"
+msgstr "CV"
+
+#: compliance/models/control_body.py
+msgid "Specializations"
+msgstr "Spécialisations"
+
+#: compliance/templates/compliance/auditor_form.html
+msgid "New auditor"
+msgstr "Nouvel auditeur"
+
+#: compliance/templates/compliance/auditor_form.html
+msgid "Edit auditor"
+msgstr "Modifier l'auditeur"
+
+#: compliance/templates/compliance/auditor_form.html
+msgid "auditor"
+msgstr "auditeur"
+
+#: compliance/templates/compliance/audit_form_modal.html
+msgid "Dates"
+msgstr "Dates"
+
+#: compliance/templates/compliance/control_body_form_modal.html
+msgid "Contact"
+msgstr "Contact"

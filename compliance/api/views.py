@@ -5,17 +5,25 @@ from rest_framework.response import Response
 
 from accounts.api.mixins import ApprovableAPIMixin, HistoryAPIMixin, ScopeFilterAPIMixin
 from compliance.models import (
+    Auditor,
     ComplianceActionPlan,
     ComplianceAssessment,
+    ComplianceAudit,
+    ComplianceControl,
     AssessmentResult,
+    ControlBody,
     Framework,
     Requirement,
     RequirementMapping,
     Section,
 )
 from .filters import (
+    AuditorFilter,
     ComplianceActionPlanFilter,
     ComplianceAssessmentFilter,
+    ComplianceAuditFilter,
+    ComplianceControlFilter,
+    ControlBodyFilter,
     FrameworkFilter,
     RequirementFilter,
     RequirementMappingFilter,
@@ -24,10 +32,18 @@ from .filters import (
 from .permissions import CompliancePermission
 from .serializers import (
     AssessmentResultSerializer,
+    AuditorListSerializer,
+    AuditorSerializer,
     ComplianceActionPlanListSerializer,
     ComplianceActionPlanSerializer,
     ComplianceAssessmentListSerializer,
     ComplianceAssessmentSerializer,
+    ComplianceAuditListSerializer,
+    ComplianceAuditSerializer,
+    ComplianceControlListSerializer,
+    ComplianceControlSerializer,
+    ControlBodyListSerializer,
+    ControlBodySerializer,
     FrameworkListSerializer,
     FrameworkSerializer,
     RequirementListSerializer,
@@ -361,3 +377,96 @@ class ComplianceActionPlanViewSet(
             "by_priority": by_priority,
             "overdue": overdue,
         })
+
+
+class ComplianceControlViewSet(
+    ScopeFilterAPIMixin,
+    ApprovableAPIMixin,
+    HistoryAPIMixin,
+    CreatedByMixin,
+    viewsets.ModelViewSet,
+):
+    queryset = ComplianceControl.objects.select_related(
+        "owner", "support_asset", "site", "supplier"
+    ).prefetch_related("scopes").all()
+    filterset_class = ComplianceControlFilter
+    permission_classes = [CompliancePermission]
+    permission_feature = "control"
+    search_fields = ["reference", "name", "description"]
+    ordering_fields = [
+        "reference", "name", "frequency", "status", "result",
+        "planned_date", "created_at",
+    ]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ComplianceControlListSerializer
+        return ComplianceControlSerializer
+
+
+class ComplianceAuditViewSet(
+    ScopeFilterAPIMixin,
+    ApprovableAPIMixin,
+    HistoryAPIMixin,
+    CreatedByMixin,
+    viewsets.ModelViewSet,
+):
+    queryset = ComplianceAudit.objects.select_related(
+        "lead_auditor", "control_body"
+    ).prefetch_related("scopes", "frameworks", "sections").all()
+    filterset_class = ComplianceAuditFilter
+    permission_classes = [CompliancePermission]
+    permission_feature = "audit"
+    search_fields = ["reference", "name", "description"]
+    ordering_fields = [
+        "reference", "name", "audit_type", "status",
+        "planned_start_date", "created_at",
+    ]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ComplianceAuditListSerializer
+        return ComplianceAuditSerializer
+
+
+class ControlBodyViewSet(
+    ApprovableAPIMixin,
+    HistoryAPIMixin,
+    CreatedByMixin,
+    viewsets.ModelViewSet,
+):
+    queryset = ControlBody.objects.prefetch_related(
+        "frameworks", "auditors"
+    ).all()
+    filterset_class = ControlBodyFilter
+    permission_classes = [CompliancePermission]
+    permission_feature = "control_body"
+    search_fields = ["reference", "name", "description", "country"]
+    ordering_fields = [
+        "reference", "name", "is_accredited", "country", "created_at",
+    ]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ControlBodyListSerializer
+        return ControlBodySerializer
+
+
+class AuditorViewSet(
+    HistoryAPIMixin,
+    CreatedByMixin,
+    viewsets.ModelViewSet,
+):
+    queryset = Auditor.objects.select_related("control_body").all()
+    filterset_class = AuditorFilter
+    permission_classes = [CompliancePermission]
+    permission_feature = "auditor"
+    search_fields = ["reference", "first_name", "last_name", "email", "certifications"]
+    ordering_fields = [
+        "reference", "last_name", "first_name", "created_at",
+    ]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return AuditorListSerializer
+        return AuditorSerializer

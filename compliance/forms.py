@@ -6,9 +6,13 @@ from django.utils.translation import gettext_lazy as _
 from context.models import Scope
 from context.widgets import ScopeTreeWidget
 from .models import (
+    Auditor,
     ComplianceActionPlan,
     ComplianceAssessment,
+    ComplianceAudit,
+    ComplianceControl,
     AssessmentResult,
+    ControlBody,
     Framework,
     Requirement,
     RequirementMapping,
@@ -285,5 +289,115 @@ class ComplianceActionPlanForm(ScopedFormMixin, forms.ModelForm):
             "progress_percentage": forms.NumberInput(attrs={**FORM_WIDGET_ATTRS, "min": 0, "max": 100}),
             "cost_estimate": forms.NumberInput(attrs={**FORM_WIDGET_ATTRS, "step": "0.01"}),
             "status": forms.Select(attrs=SELECT_ATTRS),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+        }
+
+
+class ComplianceControlForm(ScopedFormMixin, forms.ModelForm):
+    class Meta:
+        model = ComplianceControl
+        fields = [
+            "scopes", "name", "description", "objective",
+            "frequency", "status", "result",
+            "planned_date", "completion_date",
+            "owner", "support_asset", "site", "supplier",
+            "evidence", "findings", "tags",
+        ]
+        widgets = {
+            "scopes": ScopeTreeWidget(),
+            "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
+            "objective": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "frequency": forms.Select(attrs=SELECT_ATTRS),
+            "status": forms.Select(attrs=SELECT_ATTRS),
+            "result": forms.Select(attrs=SELECT_ATTRS),
+            "planned_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "completion_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "owner": forms.Select(attrs=SELECT_ATTRS),
+            "support_asset": forms.Select(attrs=SELECT_ATTRS),
+            "site": forms.Select(attrs=SELECT_ATTRS),
+            "supplier": forms.Select(attrs=SELECT_ATTRS),
+            "evidence": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3, "class": "form-control rich-text"}),
+            "findings": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3, "class": "form-control rich-text"}),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+        }
+
+
+class ComplianceAuditForm(ScopedFormMixin, forms.ModelForm):
+    class Meta:
+        model = ComplianceAudit
+        fields = [
+            "scopes", "name", "description",
+            "audit_type", "status",
+            "frameworks", "sections",
+            "lead_auditor", "control_body",
+            "planned_start_date", "planned_end_date",
+            "actual_start_date", "actual_end_date",
+            "objectives", "conclusion", "findings_summary", "tags",
+        ]
+        widgets = {
+            "scopes": ScopeTreeWidget(),
+            "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
+            "audit_type": forms.Select(attrs=SELECT_ATTRS),
+            "status": forms.Select(attrs=SELECT_ATTRS),
+            "frameworks": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+            "sections": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 6}),
+            "lead_auditor": forms.Select(attrs=SELECT_ATTRS),
+            "control_body": forms.Select(attrs=SELECT_ATTRS),
+            "planned_start_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "planned_end_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "actual_start_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "actual_end_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "objectives": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3, "class": "form-control rich-text"}),
+            "conclusion": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3, "class": "form-control rich-text"}),
+            "findings_summary": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3, "class": "form-control rich-text"}),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+        }
+
+
+class ControlBodyForm(forms.ModelForm):
+    class Meta:
+        model = ControlBody
+        fields = [
+            "name", "description",
+            "is_accredited", "accreditation_details",
+            "contact_name", "contact_email", "contact_phone",
+            "website", "address", "country",
+            "frameworks", "tags",
+        ]
+        widgets = {
+            "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
+            "is_accredited": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
+            "accreditation_details": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "contact_name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "contact_email": forms.EmailInput(attrs=FORM_WIDGET_ATTRS),
+            "contact_phone": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "website": forms.URLInput(attrs=FORM_WIDGET_ATTRS),
+            "address": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 2}),
+            "country": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "frameworks": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+            "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+        }
+
+
+class AuditorForm(forms.ModelForm):
+    class Meta:
+        model = Auditor
+        fields = [
+            "first_name", "last_name", "email", "phone",
+            "control_body", "certifications", "cv", "specializations",
+            "tags",
+        ]
+        widgets = {
+            "first_name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "last_name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "email": forms.EmailInput(attrs=FORM_WIDGET_ATTRS),
+            "phone": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
+            "control_body": forms.Select(attrs=SELECT_ATTRS),
+            "certifications": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "cv": forms.ClearableFileInput(attrs=FORM_WIDGET_ATTRS),
+            "specializations": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }

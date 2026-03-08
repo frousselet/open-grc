@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load table_tags %}
+
+{% block title %}{% trans "Control bodies & authorities" %} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">{% trans "Control bodies & authorities" %}</h1>
+  <div class="header-actions">
+    <button type="button" class="btn-header-action" title="{% trans 'New control body' %}"
+            hx-get="{% url 'compliance:control-body-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+  </div>
+</div>
+
+{% include "includes/table_search.html" %}
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          {% sortable_th "reference" "Ref." %}
+          {% sortable_th "name" "Name" %}
+          {% sortable_th "is_accredited" "Accredited" %}
+          {% sortable_th "country" "Country" %}
+          <th>{% trans "Frameworks" %}</th>
+          <th>{% trans "Auditors" %}</th>
+          <th>{% trans "Contact" %}</th>
+          <th>{% trans "Tags" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cb in control_bodies %}
+        <tr>
+          <td><a href="{% url 'compliance:control-body-detail' cb.pk %}" class="ref" style="text-decoration:none">{{ cb.reference }}</a></td>
+          <td>{{ cb.name }}</td>
+          <td>
+            {% if cb.is_accredited %}
+            <span class="badge text-bg-success">{% trans "Yes" %}</span>
+            {% else %}
+            <span class="badge text-bg-secondary">{% trans "No" %}</span>
+            {% endif %}
+          </td>
+          <td>{{ cb.country|default:"—" }}</td>
+          <td>{% for fw in cb.frameworks.all %}<span class="badge text-bg-secondary me-1">{{ fw.short_name|default:fw.name }}</span>{% empty %}—{% endfor %}</td>
+          <td>{{ cb.auditors.count }}</td>
+          <td>{{ cb.contact_name|default:"—" }}</td>
+          <td>{% for tag in cb.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
+          <td class="text-end">
+            <a hx-get="{% url 'compliance:control-body-update' cb.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No control body defined." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include "includes/pagination.html" %}
+{% endblock %}

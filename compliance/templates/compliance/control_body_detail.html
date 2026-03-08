@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load help_tags %}
+
+{% block title %}{{ control_body.name }} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="mb-0">{{ control_body.name }}</h1>
+    <small class="ref">{{ control_body.reference }}</small>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'compliance:control-body-update' control_body.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    <a href="{% url 'compliance:control-body-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+  </div>
+</div>
+
+{% include "includes/approval_badge.html" %}
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#auditors_tab">{% trans "Auditors" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#audits_tab">{% trans "Audits" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="general">
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Accredited" %}</dt>
+          <dd class="col-sm-9">
+            {% if control_body.is_accredited %}
+            <span class="badge text-bg-success">{% trans "Yes" %}</span>
+            {% else %}
+            <span class="badge text-bg-secondary">{% trans "No" %}</span>
+            {% endif %}
+          </dd>
+          {% if control_body.accreditation_details %}
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Accreditation details" %}</dt><dd class="col-sm-9">{{ control_body.accreditation_details|safe }}</dd>
+          {% endif %}
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ control_body.description|default:"—"|safe }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contact name" %}</dt><dd class="col-sm-9">{{ control_body.contact_name|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Email" %}</dt><dd class="col-sm-9">{% if control_body.contact_email %}<a href="mailto:{{ control_body.contact_email }}">{{ control_body.contact_email }}</a>{% else %}—{% endif %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Phone" %}</dt><dd class="col-sm-9">{{ control_body.contact_phone|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Website" %}</dt><dd class="col-sm-9">{% if control_body.website %}<a href="{{ control_body.website }}" target="_blank">{{ control_body.website }}</a>{% else %}—{% endif %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Address" %}</dt><dd class="col-sm-9">{{ control_body.address|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Country" %}</dt><dd class="col-sm-9">{{ control_body.country|default:"—" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Frameworks" %}</dt>
+          <dd class="col-sm-9">{% for fw in body_frameworks %}<a href="{% url 'compliance:framework-detail' fw.pk %}" class="badge text-bg-secondary me-1" style="text-decoration:none">{{ fw.short_name|default:fw.name }}</a>{% empty %}—{% endfor %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
+          <dd class="col-sm-9">{% for tag in control_body.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="auditors_tab">
+    <div class="d-flex justify-content-end mb-2">
+      <button type="button" class="btn btn-sm btn-primary"
+              hx-get="{% url 'compliance:auditor-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
+        <i class="bi bi-plus-lg"></i> {% trans "Add auditor" %}
+      </button>
+    </div>
+    {% if auditors %}
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr>
+            <th>{% trans "Ref." %}</th>
+            <th>{% trans "Name" %}</th>
+            <th>{% trans "Email" %}</th>
+            <th>{% trans "Phone" %}</th>
+            <th>{% trans "Certifications" %}</th>
+            <th>{% trans "CV" %}</th>
+            <th class="text-end">{% trans "Actions" %}</th>
+          </tr></thead>
+          <tbody>
+            {% for auditor in auditors %}
+            <tr>
+              <td class="ref">{{ auditor.reference }}</td>
+              <td>{{ auditor.first_name }} {{ auditor.last_name }}</td>
+              <td>{% if auditor.email %}<a href="mailto:{{ auditor.email }}">{{ auditor.email }}</a>{% else %}—{% endif %}</td>
+              <td>{{ auditor.phone|default:"—" }}</td>
+              <td>{{ auditor.certifications|default:"—"|truncatewords:10 }}</td>
+              <td>{% if auditor.cv %}<a href="{{ auditor.cv.url }}" target="_blank"><i class="bi bi-file-earmark-pdf"></i></a>{% else %}—{% endif %}</td>
+              <td class="text-end">
+                <a hx-get="{% url 'compliance:auditor-update' auditor.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                <a href="{% url 'compliance:auditor-delete' auditor.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% else %}
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No auditor registered for this body." %}</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="audits_tab">
+    {% if body_audits %}
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>{% trans "Ref." %}</th><th>{% trans "Name" %}</th><th>{% trans "Type" %}</th><th>{% trans "Status" %}</th><th>{% trans "Planned start" %}</th></tr></thead>
+          <tbody>
+            {% for a in body_audits %}
+            <tr>
+              <td><a href="{% url 'compliance:audit-detail' a.pk %}" class="ref" style="text-decoration:none">{{ a.reference }}</a></td>
+              <td>{{ a.name }}</td>
+              <td>{{ a.get_audit_type_display }}</td>
+              <td><span class="badge text-bg-{% if a.status == 'completed' %}success{% elif a.status == 'in_progress' %}info{% else %}warning{% endif %}">{{ a.get_status_display }}</span></td>
+              <td>{{ a.planned_start_date|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% else %}
+    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No audit linked to this body." %}</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="history">
+    {% include "includes/history_tab.html" %}
+  </div>
+</div>
+{% endblock %}
