@@ -25,7 +25,7 @@ class OAuthTokenAuthentication(BaseAuthentication):
                 "application__user"
             ).get(token_hash=token_hash)
         except OAuthAccessToken.DoesNotExist:
-            raise AuthenticationFailed("Invalid or expired token.")
+            return None  # Not an OAuth token; let next authenticator try
 
         app = token.application
         if not app.is_active:
