@@ -175,8 +175,8 @@ LOGOUT_REDIRECT_URL = "/accounts/login/"
 # Django REST Framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "mcp.api.authentication.OAuthTokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
+        "mcp.api.authentication.OAuthTokenAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_PAGINATION_CLASS": "context.api.pagination.StandardPagination",
