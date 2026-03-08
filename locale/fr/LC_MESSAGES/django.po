@@ -8493,10 +8493,6 @@ msgstr "Aucun constat défini."
 msgid "Edit finding"
 msgstr "Modifier le constat"
 
-#: compliance/templates/compliance/finding_form.html
-msgid "New finding"
-msgstr "Nouveau constat"
-
 #: compliance/templates/compliance/finding_detail.html
 msgid "No action plan linked."
 msgstr "Aucun plan d'action lié."
