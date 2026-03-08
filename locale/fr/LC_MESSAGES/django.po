@@ -62,15 +62,18 @@ msgstr "Accès"
 msgid "Approve"
 msgstr "Approuver"
 
-#: accounts/constants.py:15 accounts/templates/accounts/access_log_list.html:19
+#: accounts/constants.py:15
+#: accounts/templates/accounts/access_log_list.html:19
 msgid "Successful login"
 msgstr "Connexion réussie"
 
-#: accounts/constants.py:16 accounts/templates/accounts/access_log_list.html:20
+#: accounts/constants.py:16
+#: accounts/templates/accounts/access_log_list.html:20
 msgid "Failed login"
 msgstr "Connexion échouée"
 
-#: accounts/constants.py:17 accounts/templates/accounts/access_log_list.html:21
+#: accounts/constants.py:17
+#: accounts/templates/accounts/access_log_list.html:21
 msgid "Logout"
 msgstr "Déconnexion"
 
@@ -78,7 +81,8 @@ msgstr "Déconnexion"
 msgid "Token refresh"
 msgstr "Renouvellement du jeton"
 
-#: accounts/constants.py:19 accounts/templates/accounts/access_log_list.html:23
+#: accounts/constants.py:19
+#: accounts/templates/accounts/access_log_list.html:23
 msgid "Password change"
 msgstr "Changement de mot de passe"
 
@@ -240,8 +244,8 @@ msgstr "Piste d'audit du contexte"
 #: accounts/constants.py:103 assets/models/essential_asset.py:105
 #: assets/templates/assets/dashboard.html:18
 #: assets/templates/assets/essential_asset_list.html:4
-#: assets/templates/assets/essential_asset_list.html:8 templates/base.html:1097
-#: templates/home.html:321
+#: assets/templates/assets/essential_asset_list.html:8
+#: templates/base.html:1097 templates/home.html:321
 msgid "Essential assets"
 msgstr "Biens essentiels"
 
@@ -533,23 +537,37 @@ msgstr "Système"
 
 #: accounts/constants.py:310
 msgid "Full technical administration of the platform. All permissions."
-msgstr "Administration technique complète de la plateforme. Toutes les permissions."
+msgstr ""
+"Administration technique complète de la plateforme. Toutes les permissions."
 
 #: accounts/constants.py:314
-msgid "Full functional administration. All permissions except Django admin access."
-msgstr "Administration fonctionnelle complète. Toutes les permissions sauf l'accès admin Django."
+msgid ""
+"Full functional administration. All permissions except Django admin access."
+msgstr ""
+"Administration fonctionnelle complète. Toutes les permissions sauf l'accès "
+"admin Django."
 
 #: accounts/constants.py:318
-msgid "GRC system steering. Read, create, update, approve. No deletion or system configuration."
-msgstr "Pilotage du système GRC. Lecture, création, modification, approbation. Pas de suppression ni de configuration système."
+msgid ""
+"GRC system steering. Read, create, update, approve. No deletion or system "
+"configuration."
+msgstr ""
+"Pilotage du système GRC. Lecture, création, modification, approbation. Pas "
+"de suppression ni de configuration système."
 
 #: accounts/constants.py:330
 msgid "Platform consultation and audit. Read-only access to all modules."
-msgstr "Consultation et audit de la plateforme. Accès en lecture seule à tous les modules."
+msgstr ""
+"Consultation et audit de la plateforme. Accès en lecture seule à tous les "
+"modules."
 
 #: accounts/constants.py:334
-msgid "GRC content contribution. Read, create, update. No deletion or system access."
-msgstr "Contribution au contenu GRC. Lecture, création, modification. Pas de suppression ni d'accès système."
+msgid ""
+"GRC content contribution. Read, create, update. No deletion or system "
+"access."
+msgstr ""
+"Contribution au contenu GRC. Lecture, création, modification. Pas de "
+"suppression ni d'accès système."
 
 #: accounts/constants.py:343
 msgid "Read-only access. Read on all modules except system."
@@ -856,7 +874,8 @@ msgstr "Nom de code"
 msgid "Format: module.feature.action"
 msgstr "Format : module.fonctionnalité.action"
 
-#: accounts/models/permission.py:17 risks/templates/risks/criteria_form.html:57
+#: accounts/models/permission.py:17
+#: risks/templates/risks/criteria_form.html:57
 #: risks/templates/risks/criteria_form.html:94
 #: risks/templates/risks/criteria_form.html:131
 msgid "Label"
@@ -977,7 +996,8 @@ msgstr "Indicateurs du tableau de bord"
 
 #: accounts/models/user.py:65
 msgid "List of indicator IDs pinned to the dashboard (max 10)."
-msgstr "Liste des identifiants d'indicateurs épinglés au tableau de bord (max 10)."
+msgstr ""
+"Liste des identifiants d'indicateurs épinglés au tableau de bord (max 10)."
 
 #: accounts/models/user.py:68
 msgid "Indicator charts"
@@ -985,7 +1005,9 @@ msgstr "Graphiques d'indicateurs"
 
 #: accounts/models/user.py:71
 msgid "List of indicator IDs whose sparkline is visible on the dashboard."
-msgstr "Liste des identifiants d'indicateurs dont le graphique est visible sur le tableau de bord."
+msgstr ""
+"Liste des identifiants d'indicateurs dont le graphique est visible sur le "
+"tableau de bord."
 
 #: accounts/templates/accounts/access_log_list.html:4
 msgid "Access log — Open GRC"
@@ -1237,8 +1259,11 @@ msgid "Add"
 msgstr "Ajouter"
 
 #: accounts/templates/accounts/group_detail.html:158
-msgid "If no scope is selected, members of this group have access to all scopes."
-msgstr "Si aucun périmètre n'est sélectionné, les membres de ce groupe ont accès à tous les périmètres."
+msgid ""
+"If no scope is selected, members of this group have access to all scopes."
+msgstr ""
+"Si aucun périmètre n'est sélectionné, les membres de ce groupe ont accès à "
+"tous les périmètres."
 
 #: accounts/templates/accounts/group_detail.html:174
 msgid "No scopes available."
@@ -1457,8 +1482,8 @@ msgstr "Créer un groupe"
 #: context/templates/context/site_list.html:22
 #: context/templates/context/stakeholder_detail.html:33
 #: context/templates/context/stakeholder_detail.html:54
-#: context/templates/context/stakeholder_list.html:23 risks/models/threat.py:15
-#: risks/templates/risks/criteria_detail.html:55
+#: context/templates/context/stakeholder_list.html:23
+#: risks/models/threat.py:15 risks/templates/risks/criteria_detail.html:55
 #: risks/templates/risks/risk_detail.html:108
 #: risks/templates/risks/threat_detail.html:31
 #: risks/templates/risks/threat_list.html:29
@@ -1788,8 +1813,12 @@ msgid "The password must contain at least one special character."
 msgstr "Le mot de passe doit contenir au moins un caractère spécial."
 
 #: accounts/validators.py:36
-msgid "The password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character."
-msgstr "Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial."
+msgid ""
+"The password must contain at least one uppercase letter, one lowercase "
+"letter, one digit, and one special character."
+msgstr ""
+"Le mot de passe doit contenir au moins une lettre majuscule, une lettre "
+"minuscule, un chiffre et un caractère spécial."
 
 #: accounts/views.py:44
 msgid "You do not have the required permissions."
@@ -1797,7 +1826,9 @@ msgstr "Vous n'avez pas les permissions requises."
 
 #: accounts/views.py:73
 msgid "This account is temporarily locked due to multiple failed attempts."
-msgstr "Ce compte est temporairement verrouillé suite à plusieurs tentatives échouées."
+msgstr ""
+"Ce compte est temporairement verrouillé suite à plusieurs tentatives "
+"échouées."
 
 #: accounts/views.py:75 accounts/views.py:77 accounts/views.py:79
 msgid "Invalid credentials."
@@ -2011,7 +2042,8 @@ msgstr "Personne"
 #: assets/templates/assets/dependency_graph.html:98
 #: assets/templates/assets/site_asset_dependency_list.html:21
 #: assets/templates/assets/site_supplier_dependency_list.html:20
-#: assets/templates/assets/support_asset_list.html:19 context/models/site.py:35
+#: assets/templates/assets/support_asset_list.html:19
+#: context/models/site.py:35
 msgid "Site"
 msgstr "Site"
 
@@ -2349,8 +2381,9 @@ msgid "Suspended"
 msgstr "Suspendu"
 
 #: assets/constants.py:253 assets/templates/assets/supplier_list.html:19
-#: compliance/constants.py:36 compliance/constants.py:84 context/constants.py:8
-#: context/constants.py:152 risks/constants.py:15 risks/constants.py:21
+#: compliance/constants.py:36 compliance/constants.py:84
+#: context/constants.py:8 context/constants.py:152 risks/constants.py:15
+#: risks/constants.py:21
 msgid "Archived"
 msgstr "Archivé"
 
@@ -2507,8 +2540,11 @@ msgid "Dependency relationships"
 msgstr "Relations de dépendance"
 
 #: assets/models/dependency.py:97
-msgid "Cannot create a dependency to a decommissioned or disposed support asset."
-msgstr "Impossible de créer une dépendance vers un bien support décommissionné ou éliminé."
+msgid ""
+"Cannot create a dependency to a decommissioned or disposed support asset."
+msgstr ""
+"Impossible de créer une dépendance vers un bien support décommissionné ou "
+"éliminé."
 
 #: assets/models/essential_asset.py:28 assets/models/support_asset.py:29
 #: assets/templates/assets/essential_asset_detail.html:38
@@ -2528,8 +2564,9 @@ msgstr "Impossible de créer une dépendance vers un bien support décommissionn
 #: context/templates/context/objective_detail.html:33
 #: context/templates/context/objective_list.html:22
 #: context/templates/context/stakeholder_detail.html:34
-#: context/templates/context/stakeholder_list.html:24 risks/models/threat.py:21
-#: risks/models/vulnerability.py:15 risks/templates/risks/threat_detail.html:33
+#: context/templates/context/stakeholder_list.html:24
+#: risks/models/threat.py:21 risks/models/vulnerability.py:15
+#: risks/templates/risks/threat_detail.html:33
 #: risks/templates/risks/threat_list.html:31
 #: risks/templates/risks/vulnerability_detail.html:31
 #: risks/templates/risks/vulnerability_list.html:29
@@ -2651,7 +2688,8 @@ msgstr "Un processus métier ne peut avoir qu'une catégorie processus."
 
 #: assets/models/essential_asset.py:119
 msgid "An information asset can only have an information category."
-msgstr "Un actif informationnel ne peut avoir qu'une catégorie informationnelle."
+msgstr ""
+"Un actif informationnel ne peut avoir qu'une catégorie informationnelle."
 
 #: assets/models/group.py:22 assets/templates/assets/group_detail.html:42
 #: assets/templates/assets/group_list.html:23
@@ -2744,22 +2782,26 @@ msgstr "Logo 32×32"
 msgid "Logo 64×64"
 msgstr "Logo 64×64"
 
-#: assets/models/supplier.py:87 assets/templates/assets/supplier_detail.html:76
+#: assets/models/supplier.py:87
+#: assets/templates/assets/supplier_detail.html:76
 #: context/models/stakeholder.py:30
 msgid "Contact name"
 msgstr "Nom du contact"
 
-#: assets/models/supplier.py:90 assets/templates/assets/supplier_detail.html:77
+#: assets/models/supplier.py:90
+#: assets/templates/assets/supplier_detail.html:77
 #: context/models/stakeholder.py:32
 msgid "Contact email"
 msgstr "Email du contact"
 
-#: assets/models/supplier.py:93 assets/templates/assets/supplier_detail.html:78
+#: assets/models/supplier.py:93
+#: assets/templates/assets/supplier_detail.html:78
 #: context/models/stakeholder.py:34
 msgid "Contact phone"
 msgstr "Téléphone du contact"
 
-#: assets/models/supplier.py:95 assets/templates/assets/supplier_detail.html:79
+#: assets/models/supplier.py:95
+#: assets/templates/assets/supplier_detail.html:79
 msgid "Website"
 msgstr "Site web"
 
@@ -2769,7 +2811,8 @@ msgstr "Site web"
 msgid "Address"
 msgstr "Adresse"
 
-#: assets/models/supplier.py:98 assets/templates/assets/supplier_detail.html:81
+#: assets/models/supplier.py:98
+#: assets/templates/assets/supplier_detail.html:81
 msgid "Country"
 msgstr "Pays"
 
@@ -2975,7 +3018,8 @@ msgstr "Catégorie invalide pour le type « %(type)s »."
 
 #: assets/models/support_asset.py:141
 msgid "The child support asset must share at least one scope with its parent."
-msgstr "Le bien support enfant doit partager au moins un périmètre avec son parent."
+msgstr ""
+"Le bien support enfant doit partager au moins un périmètre avec son parent."
 
 #: assets/models/valuation.py:19
 msgid "Evaluation date"
@@ -3067,7 +3111,8 @@ msgstr "Points d'attention"
 
 #: assets/templates/assets/dashboard.html:75 templates/home.html:196
 msgid "single point(s) of failure (SPOF) detected across your dependencies."
-msgstr "point(s) de défaillance unique (SPOF) détecté(s) dans vos dépendances."
+msgstr ""
+"point(s) de défaillance unique (SPOF) détecté(s) dans vos dépendances."
 
 #: assets/templates/assets/dashboard.html:77 templates/home.html:198
 msgid "asset dependency(ies)"
@@ -3920,7 +3965,9 @@ msgstr "Créé le"
 
 #: assets/templates/assets/supplier_requirement_detail.html:94
 msgid "No reviews yet. Add the first review to justify the compliance status."
-msgstr "Aucune revue pour le moment. Ajoutez la première revue pour justifier le statut de conformité."
+msgstr ""
+"Aucune revue pour le moment. Ajoutez la première revue pour justifier le "
+"statut de conformité."
 
 #: assets/templates/assets/supplier_requirement_form.html:4
 #: assets/templates/assets/supplier_type_requirement_form.html:4
@@ -4116,9 +4163,9 @@ msgstr "Exigences contractuelles"
 msgid "Internal policies"
 msgstr "Politiques internes"
 
-#: compliance/constants.py:32 compliance/constants.py:80 context/constants.py:6
-#: context/constants.py:142 context/constants.py:150 context/constants.py:226
-#: risks/constants.py:11 risks/constants.py:19
+#: compliance/constants.py:32 compliance/constants.py:80
+#: context/constants.py:6 context/constants.py:142 context/constants.py:150
+#: context/constants.py:226 risks/constants.py:11 risks/constants.py:19
 #: risks/templates/risks/assessment_list.html:17
 msgid "Draft"
 msgstr "Brouillon"
@@ -4174,15 +4221,15 @@ msgstr "Non applicable"
 msgid "Superseded"
 msgstr "Remplacé"
 
-#: compliance/constants.py:81 compliance/constants.py:107 risks/constants.py:12
-#: risks/constants.py:74 risks/constants.py:82
+#: compliance/constants.py:81 compliance/constants.py:107
+#: risks/constants.py:12 risks/constants.py:74 risks/constants.py:82
 #: risks/templates/risks/assessment_list.html:18
 #: risks/templates/risks/treatment_plan_list.html:18
 msgid "In progress"
 msgstr "En cours"
 
-#: compliance/constants.py:82 compliance/constants.py:108 risks/constants.py:13
-#: risks/constants.py:75 risks/constants.py:83
+#: compliance/constants.py:82 compliance/constants.py:108
+#: risks/constants.py:13 risks/constants.py:75 risks/constants.py:83
 #: risks/templates/risks/assessment_list.html:19
 #: risks/templates/risks/treatment_plan_list.html:19
 msgid "Completed"
@@ -4282,12 +4329,16 @@ msgstr "Le champ 'nom' du référentiel est requis."
 #: compliance/import_utils.py:389
 #, python-format
 msgid "Unknown framework type: '%(type)s'. Accepted values: %(values)s"
-msgstr "Type de référentiel inconnu : « %(type)s ». Valeurs acceptées : %(values)s"
+msgstr ""
+"Type de référentiel inconnu : « %(type)s ». Valeurs acceptées : %(values)s"
 
 #: compliance/import_utils.py:399
 #, python-format
-msgid "Unknown framework category: '%(category)s'. Accepted values: %(values)s"
-msgstr "Catégorie de référentiel inconnue : « %(category)s ». Valeurs acceptées : %(values)s"
+msgid ""
+"Unknown framework category: '%(category)s'. Accepted values: %(values)s"
+msgstr ""
+"Catégorie de référentiel inconnue : « %(category)s ». Valeurs acceptées : "
+"%(values)s"
 
 #: compliance/import_utils.py:424
 msgid "A section has no reference."
@@ -4301,7 +4352,9 @@ msgstr "Référence de section dupliquée : « %(ref)s »."
 #: compliance/import_utils.py:431
 #, python-format
 msgid "Section '%(ref)s' already exists in framework '%(framework_ref)s'."
-msgstr "La section « %(ref)s » existe déjà dans le référentiel « %(framework_ref)s »."
+msgstr ""
+"La section « %(ref)s » existe déjà dans le référentiel « %(framework_ref)s "
+"»."
 
 #: compliance/import_utils.py:439
 #, python-format
@@ -4320,7 +4373,9 @@ msgstr "Référence d'exigence dupliquée : « %(ref)s »."
 #: compliance/import_utils.py:457
 #, python-format
 msgid "Requirement '%(ref)s' already exists in framework '%(framework_ref)s'."
-msgstr "L'exigence « %(ref)s » existe déjà dans le référentiel « %(framework_ref)s »."
+msgstr ""
+"L'exigence « %(ref)s » existe déjà dans le référentiel « %(framework_ref)s "
+"»."
 
 #: compliance/import_utils.py:465
 #, python-format
@@ -4329,13 +4384,21 @@ msgstr "L'exigence « %(ref)s » n'a pas de nom."
 
 #: compliance/import_utils.py:469
 #, python-format
-msgid "Unknown requirement type for '%(ref)s': '%(type)s'. Accepted values: %(values)s"
-msgstr "Type d'exigence inconnu pour « %(ref)s » : « %(type)s ». Valeurs acceptées : %(values)s"
+msgid ""
+"Unknown requirement type for '%(ref)s': '%(type)s'. Accepted values: "
+"%(values)s"
+msgstr ""
+"Type d'exigence inconnu pour « %(ref)s » : « %(type)s ». Valeurs acceptées :"
+" %(values)s"
 
 #: compliance/import_utils.py:479
 #, python-format
-msgid "Unknown requirement category for '%(ref)s': '%(category)s'. Accepted values: %(values)s"
-msgstr "Catégorie d'exigence inconnue pour « %(ref)s » : « %(category)s ». Valeurs acceptées : %(values)s"
+msgid ""
+"Unknown requirement category for '%(ref)s': '%(category)s'. Accepted values:"
+" %(values)s"
+msgstr ""
+"Catégorie d'exigence inconnue pour « %(ref)s » : « %(category)s ». Valeurs "
+"acceptées : %(values)s"
 
 #: compliance/import_utils.py:490
 #, python-format
@@ -4613,8 +4676,11 @@ msgid "Cross-framework mappings"
 msgstr "Correspondances inter-référentiels"
 
 #: compliance/models/mapping.py:74
-msgid "A mapping can only exist between requirements from different frameworks."
-msgstr "Une correspondance ne peut exister qu'entre des exigences de référentiels différents."
+msgid ""
+"A mapping can only exist between requirements from different frameworks."
+msgstr ""
+"Une correspondance ne peut exister qu'entre des exigences de référentiels "
+"différents."
 
 #: compliance/models/requirement.py:31 compliance/models/section.py:40
 #: compliance/templates/compliance/framework_detail.html:94
@@ -4854,12 +4920,24 @@ msgid "Accepted formats"
 msgstr "Formats acceptés"
 
 #: compliance/templates/compliance/framework_import.html:54
-msgid "Tree structure with <code>framework</code>, <code>sections</code> (nested) and <code>requirements</code> in each section."
-msgstr "Structure arborescente avec <code>framework</code>, <code>sections</code> (imbriquées) et <code>requirements</code> dans chaque section."
+msgid ""
+"Tree structure with <code>framework</code>, <code>sections</code> (nested) "
+"and <code>requirements</code> in each section."
+msgstr ""
+"Structure arborescente avec <code>framework</code>, <code>sections</code> "
+"(imbriquées) et <code>requirements</code> dans chaque section."
 
 #: compliance/templates/compliance/framework_import.html:56
-msgid "A single sheet with columns: <code>type</code>, <code>reference</code>, <code>name</code>, <code>description</code>, <code>guidance</code>, <code>req_type</code>, <code>req_category</code>. Hierarchy is inferred from reference prefixes."
-msgstr "Une feuille unique avec les colonnes : <code>type</code>, <code>reference</code>, <code>name</code>, <code>description</code>, <code>guidance</code>, <code>req_type</code>, <code>req_category</code>. La hiérarchie est déduite des préfixes de référence."
+msgid ""
+"A single sheet with columns: <code>type</code>, <code>reference</code>, "
+"<code>name</code>, <code>description</code>, <code>guidance</code>, "
+"<code>req_type</code>, <code>req_category</code>. Hierarchy is inferred from"
+" reference prefixes."
+msgstr ""
+"Une feuille unique avec les colonnes : <code>type</code>, "
+"<code>reference</code>, <code>name</code>, <code>description</code>, "
+"<code>guidance</code>, <code>req_type</code>, <code>req_category</code>. La "
+"hiérarchie est déduite des préfixes de référence."
 
 #: compliance/templates/compliance/framework_import.html:60
 msgid "Sample templates"
@@ -4867,7 +4945,9 @@ msgstr "Modèles d'exemple"
 
 #: compliance/templates/compliance/framework_import.html:62
 msgid "Download a pre-filled sample file to help you prepare your import."
-msgstr "Téléchargez un fichier exemple pré-rempli pour vous aider à préparer votre import."
+msgstr ""
+"Téléchargez un fichier exemple pré-rempli pour vous aider à préparer votre "
+"import."
 
 #: compliance/templates/compliance/framework_import.html:65
 msgid "JSON sample"
@@ -4884,8 +4964,12 @@ msgstr "Aperçu de l'import"
 
 #: compliance/templates/compliance/framework_import_preview.html:14
 #, python-format
-msgid "Import into existing framework <strong>%(ref)s — %(name)s</strong>. The name will be replaced by <strong>%(new_name)s</strong>."
-msgstr "Import dans le référentiel existant <strong>%(ref)s — %(name)s</strong>. Le nom sera remplacé par <strong>%(new_name)s</strong>."
+msgid ""
+"Import into existing framework <strong>%(ref)s — %(name)s</strong>. The name"
+" will be replaced by <strong>%(new_name)s</strong>."
+msgstr ""
+"Import dans le référentiel existant <strong>%(ref)s — %(name)s</strong>. Le "
+"nom sera remplacé par <strong>%(new_name)s</strong>."
 
 #: compliance/templates/compliance/framework_import_preview.html:20
 msgid "Imported data"
@@ -5031,7 +5115,8 @@ msgstr "Erreur de lecture du fichier : %(error)s"
 
 #: compliance/views.py:252
 msgid "No import data in session. Please upload a file first."
-msgstr "Aucune donnée d'import en session. Veuillez d'abord télécharger un fichier."
+msgstr ""
+"Aucune donnée d'import en session. Veuillez d'abord télécharger un fichier."
 
 #: compliance/views.py:277
 msgid "No import data in session."
@@ -5044,13 +5129,21 @@ msgstr "Erreur d'import : %(error)s"
 
 #: compliance/views.py:304
 #, python-format
-msgid "Import into \"%(reference)s — %(name)s\" completed (%(section_count)s sections, %(requirement_count)s requirements added)."
-msgstr "Import dans « %(reference)s — %(name)s » terminé (%(section_count)s sections, %(requirement_count)s exigences ajoutées)."
+msgid ""
+"Import into \"%(reference)s — %(name)s\" completed (%(section_count)s "
+"sections, %(requirement_count)s requirements added)."
+msgstr ""
+"Import dans « %(reference)s — %(name)s » terminé (%(section_count)s "
+"sections, %(requirement_count)s exigences ajoutées)."
 
 #: compliance/views.py:315
 #, python-format
-msgid "Framework \"%(reference)s — %(name)s\" imported successfully (%(section_count)s sections, %(requirement_count)s requirements)."
-msgstr "Référentiel « %(reference)s — %(name)s » importé avec succès (%(section_count)s sections, %(requirement_count)s exigences)."
+msgid ""
+"Framework \"%(reference)s — %(name)s\" imported successfully "
+"(%(section_count)s sections, %(requirement_count)s requirements)."
+msgstr ""
+"Référentiel « %(reference)s — %(name)s » importé avec succès "
+"(%(section_count)s sections, %(requirement_count)s exigences)."
 
 #: context/constants.py:13 context/templates/context/issue_list.html:18
 msgid "External"
@@ -5372,7 +5465,8 @@ msgstr "Activité"
 
 #: context/models/activity.py:74
 msgid "The child activity must share at least one scope with its parent."
-msgstr "L'activité enfant doit partager au moins un périmètre avec son parent."
+msgstr ""
+"L'activité enfant doit partager au moins un périmètre avec son parent."
 
 #: context/models/indicator.py:29
 #: context/templates/context/indicator_detail.html:41
@@ -5424,7 +5518,9 @@ msgstr "Valeur du seuil critique"
 
 #: context/models/indicator.py:76
 msgid "For numbers only. For booleans, the operator defines the threshold."
-msgstr "Pour les nombres uniquement. Pour les booléens, l'opérateur définit le seuil."
+msgstr ""
+"Pour les nombres uniquement. Pour les booléens, l'opérateur définit le "
+"seuil."
 
 #: context/models/indicator.py
 msgid "Minimum threshold"
@@ -5432,7 +5528,8 @@ msgstr "Seuil minimum"
 
 #: context/models/indicator.py
 msgid "Critical if the value falls below this minimum (numbers only)."
-msgstr "Critique si la valeur passe en dessous de ce minimum (nombres uniquement)."
+msgstr ""
+"Critique si la valeur passe en dessous de ce minimum (nombres uniquement)."
 
 #: context/models/indicator.py
 msgid "Maximum threshold"
@@ -5483,8 +5580,11 @@ msgid "Source parameter"
 msgstr "Paramètre de la source"
 
 #: context/models/indicator.py:109
-msgid "Optional parameter, e.g. framework ID for compliance rate by framework."
-msgstr "Paramètre optionnel, ex. : ID du référentiel pour le taux de conformité par référentiel."
+msgid ""
+"Optional parameter, e.g. framework ID for compliance rate by framework."
+msgstr ""
+"Paramètre optionnel, ex. : ID du référentiel pour le taux de conformité par "
+"référentiel."
 
 #: context/models/indicator.py:115 context/models/indicator.py:315
 msgid "Indicator"
@@ -5496,15 +5596,20 @@ msgstr "Un indicateur booléen ne peut pas avoir d'unité."
 
 #: context/models/indicator.py:137
 msgid "A boolean indicator must use 'Is true' or 'Is false' as threshold."
-msgstr "Un indicateur booléen doit utiliser « Est vrai » ou « Est faux » comme seuil."
+msgstr ""
+"Un indicateur booléen doit utiliser « Est vrai » ou « Est faux » comme "
+"seuil."
 
 #: context/models/indicator.py:150
 msgid "A number indicator must use 'Falls below' or 'Exceeds' as threshold."
-msgstr "Un indicateur numérique doit utiliser « Descend sous » ou « Dépasse » comme seuil."
+msgstr ""
+"Un indicateur numérique doit utiliser « Descend sous » ou « Dépasse » comme "
+"seuil."
 
 #: context/models/indicator.py:159
 msgid "Predefined Open GRC indicators must be of organizational type."
-msgstr "Les indicateurs prédéfinis Open GRC doivent être de type organisationnel."
+msgstr ""
+"Les indicateurs prédéfinis Open GRC doivent être de type organisationnel."
 
 #: context/models/indicator.py:168
 msgid "A predefined indicator must have a data source."
@@ -5602,7 +5707,8 @@ msgstr "Un objectif atteint doit avoir une progression de 100 %."
 
 #: context/models/objective.py:112
 msgid "The child objective must share at least one scope with its parent."
-msgstr "L'objectif enfant doit partager au moins un périmètre avec son parent."
+msgstr ""
+"L'objectif enfant doit partager au moins un périmètre avec son parent."
 
 #: context/models/role.py:22
 msgid "Assigned users"
@@ -5677,8 +5783,10 @@ msgid "Icon"
 msgstr "Icône"
 
 #: context/models/scope.py:60
-msgid "Bootstrap Icons class name (e.g. bi-building, bi-globe, bi-shield-lock)."
-msgstr "Nom de classe Bootstrap Icons (ex. bi-building, bi-globe, bi-shield-lock)."
+msgid ""
+"Bootstrap Icons class name (e.g. bi-building, bi-globe, bi-shield-lock)."
+msgstr ""
+"Nom de classe Bootstrap Icons (ex. bi-building, bi-globe, bi-shield-lock)."
 
 #: context/models/scope.py:67 mcp/models/oauth.py:177
 msgid "Scope"
@@ -5810,8 +5918,12 @@ msgid "Record"
 msgstr "Enregistrer"
 
 #: context/templates/context/indicator_detail.html:136
-msgid "This is a predefined indicator. You can refresh its value from Open GRC data."
-msgstr "Cet indicateur est prédéfini. Vous pouvez rafraîchir sa valeur depuis les données Open GRC."
+msgid ""
+"This is a predefined indicator. You can refresh its value from Open GRC "
+"data."
+msgstr ""
+"Cet indicateur est prédéfini. Vous pouvez rafraîchir sa valeur depuis les "
+"données Open GRC."
 
 #: context/templates/context/indicator_detail.html:149
 msgid "Refresh the value from Open GRC data."
@@ -5900,16 +6012,26 @@ msgid "New predefined Open GRC indicator"
 msgstr "Nouvel indicateur prédéfini Open GRC"
 
 #: context/templates/context/indicator_predefined_form.html:15
-msgid "A predefined indicator is automatically populated from Open GRC data. It is always of organizational type. The first measurement will be taken automatically upon creation."
-msgstr "Un indicateur prédéfini est automatiquement alimenté depuis les données Open GRC. Il est toujours de type organisationnel. Le premier relevé sera effectué automatiquement à la création."
+msgid ""
+"A predefined indicator is automatically populated from Open GRC data. It is "
+"always of organizational type. The first measurement will be taken "
+"automatically upon creation."
+msgstr ""
+"Un indicateur prédéfini est automatiquement alimenté depuis les données Open"
+" GRC. Il est toujours de type organisationnel. Le premier relevé sera "
+"effectué automatiquement à la création."
 
 #: context/templates/context/indicator_predefined_form.html:69
 msgid "Optional. E.g. framework ID for compliance rate by framework."
-msgstr "Optionnel. Ex. : ID du référentiel pour le taux de conformité par référentiel."
+msgstr ""
+"Optionnel. Ex. : ID du référentiel pour le taux de conformité par "
+"référentiel."
 
 #: context/templates/context/indicator_predefined_form.html:76
 msgid "Format and unit are determined automatically from the selected source."
-msgstr "Le format et l'unité sont déterminés automatiquement en fonction de la source sélectionnée."
+msgstr ""
+"Le format et l'unité sont déterminés automatiquement en fonction de la "
+"source sélectionnée."
 
 #: context/templates/context/indicator_predefined_form.html:83
 msgid "Values"
@@ -6242,7 +6364,8 @@ msgstr "Clé"
 
 #: helpers/models.py:11
 msgid "Unique identifier of the page or feature (e.g. context.scope_list)."
-msgstr "Identifiant unique de la page ou fonctionnalité (ex. : context.scope_list)."
+msgstr ""
+"Identifiant unique de la page ou fonctionnalité (ex. : context.scope_list)."
 
 #: helpers/models.py:17
 msgid "ISO 639-1 language code (e.g. fr, en)."
@@ -6286,7 +6409,9 @@ msgstr "URIs de redirection (JSON)"
 
 #: mcp/models/oauth.py:40
 msgid "JSON-encoded list of allowed redirect URIs for public clients."
-msgstr "Liste encodée en JSON des URIs de redirection autorisées pour les clients publics."
+msgstr ""
+"Liste encodée en JSON des URIs de redirection autorisées pour les clients "
+"publics."
 
 #: mcp/models/oauth.py:43
 msgid "Token endpoint auth method"
@@ -6684,7 +6809,8 @@ msgid "Moderate-High"
 msgstr "Modéré-Élevé"
 
 #: risks/models/acceptance.py:17 risks/models/risk.py:128
-#: risks/models/treatment.py:27 risks/templates/risks/acceptance_detail.html:30
+#: risks/models/treatment.py:27
+#: risks/templates/risks/acceptance_detail.html:30
 #: risks/templates/risks/acceptance_list.html:27
 #: risks/templates/risks/treatment_plan_detail.html:32
 #: risks/templates/risks/treatment_plan_list.html:29
@@ -6719,7 +6845,8 @@ msgstr "Conditions"
 msgid "Valid until"
 msgstr "Valide jusqu'au"
 
-#: risks/models/acceptance.py:45 risks/templates/risks/acceptance_detail.html:5
+#: risks/models/acceptance.py:45
+#: risks/templates/risks/acceptance_detail.html:5
 msgid "Risk acceptance"
 msgstr "Acceptation de risque"
 
@@ -7024,7 +7151,9 @@ msgstr "Identifier les menaces"
 
 #: risks/templates/risks/assessment_detail.html:59
 msgid "Define or select threats from the catalog that apply to your scope."
-msgstr "Définissez ou sélectionnez les menaces du catalogue qui s'appliquent à votre périmètre."
+msgstr ""
+"Définissez ou sélectionnez les menaces du catalogue qui s'appliquent à votre"
+" périmètre."
 
 #: risks/templates/risks/assessment_detail.html:61
 msgid "threat(s)"
@@ -7052,8 +7181,12 @@ msgid "Analyze risk scenarios"
 msgstr "Analyser les scénarios de risque"
 
 #: risks/templates/risks/assessment_detail.html:77
-msgid "Create threat × vulnerability scenarios and evaluate their likelihood and impact."
-msgstr "Créez des scénarios menace × vulnérabilité et évaluez leur vraisemblance et impact."
+msgid ""
+"Create threat × vulnerability scenarios and evaluate their likelihood and "
+"impact."
+msgstr ""
+"Créez des scénarios menace × vulnérabilité et évaluez leur vraisemblance et "
+"impact."
 
 #: risks/templates/risks/assessment_detail.html:79
 msgid "analysis(es)"
@@ -7065,7 +7198,9 @@ msgstr "Consolider les risques"
 
 #: risks/templates/risks/assessment_detail.html:86
 msgid "Promote analyses to the risk register for treatment planning."
-msgstr "Promouvez les analyses vers le registre des risques pour planifier le traitement."
+msgstr ""
+"Promouvez les analyses vers le registre des risques pour planifier le "
+"traitement."
 
 #: risks/templates/risks/assessment_detail.html:88
 msgid "risk(s)"
@@ -7076,16 +7211,24 @@ msgid "EBIOS RM workflow"
 msgstr "Démarche EBIOS RM"
 
 #: risks/templates/risks/assessment_detail.html:101
-msgid "The EBIOS RM methodology is not yet implemented. It will be available in a future version."
-msgstr "La méthodologie EBIOS RM n'est pas encore implémentée. Elle sera disponible dans une version future."
+msgid ""
+"The EBIOS RM methodology is not yet implemented. It will be available in a "
+"future version."
+msgstr ""
+"La méthodologie EBIOS RM n'est pas encore implémentée. Elle sera disponible "
+"dans une version future."
 
 #: risks/templates/risks/assessment_detail.html:106
 msgid "Define scope and security baseline"
 msgstr "Définir le périmètre et le socle de sécurité"
 
 #: risks/templates/risks/assessment_detail.html:107
-msgid "Workshop 1 — Identify essential assets, business values and the security baseline."
-msgstr "Atelier 1 — Identifier les valeurs métier, les biens essentiels et le socle de sécurité."
+msgid ""
+"Workshop 1 — Identify essential assets, business values and the security "
+"baseline."
+msgstr ""
+"Atelier 1 — Identifier les valeurs métier, les biens essentiels et le socle "
+"de sécurité."
 
 #: risks/templates/risks/assessment_detail.html:113
 msgid "Identify risk origins"
@@ -7100,8 +7243,11 @@ msgid "Build strategic scenarios"
 msgstr "Élaborer les scénarios stratégiques"
 
 #: risks/templates/risks/assessment_detail.html:121
-msgid "Workshop 3 — Define attack paths from threat source to essential assets."
-msgstr "Atelier 3 — Définir les chemins d'attaque de la source de menace aux valeurs métier."
+msgid ""
+"Workshop 3 — Define attack paths from threat source to essential assets."
+msgstr ""
+"Atelier 3 — Définir les chemins d'attaque de la source de menace aux valeurs"
+" métier."
 
 #: risks/templates/risks/assessment_detail.html:127
 msgid "Build operational scenarios"
@@ -7109,7 +7255,9 @@ msgstr "Élaborer les scénarios opérationnels"
 
 #: risks/templates/risks/assessment_detail.html:128
 msgid "Workshop 4 — Detail technical attack sequences on support assets."
-msgstr "Atelier 4 — Détailler les séquences d'attaque techniques sur les biens supports."
+msgstr ""
+"Atelier 4 — Détailler les séquences d'attaque techniques sur les biens "
+"supports."
 
 #: risks/templates/risks/assessment_detail.html:134
 msgid "Treat risks"
@@ -7120,8 +7268,12 @@ msgid "Workshop 5 — Define and track risk treatment measures."
 msgstr "Atelier 5 — Définir et suivre les mesures de traitement des risques."
 
 #: risks/templates/risks/assessment_detail.html:144
-msgid "Unknown methodology. Please edit this assessment and select a valid methodology."
-msgstr "Méthodologie inconnue. Veuillez modifier cette évaluation et sélectionner une méthodologie valide."
+msgid ""
+"Unknown methodology. Please edit this assessment and select a valid "
+"methodology."
+msgstr ""
+"Méthodologie inconnue. Veuillez modifier cette évaluation et sélectionner "
+"une méthodologie valide."
 
 #: risks/templates/risks/assessment_detail.html:154
 msgid "Analyses"
@@ -7145,8 +7297,12 @@ msgid "Consolidate"
 msgstr "Consolider"
 
 #: risks/templates/risks/assessment_detail.html:220
-msgid "No analyses yet. Start by creating threat × vulnerability scenarios to identify risks."
-msgstr "Aucune analyse pour le moment. Commencez par créer des scénarios menace × vulnérabilité pour identifier les risques."
+msgid ""
+"No analyses yet. Start by creating threat × vulnerability scenarios to "
+"identify risks."
+msgstr ""
+"Aucune analyse pour le moment. Commencez par créer des scénarios menace × "
+"vulnérabilité pour identifier les risques."
 
 #: risks/templates/risks/assessment_detail.html:229
 msgid "Associated risks"
@@ -7333,8 +7489,13 @@ msgid "Go to assessments"
 msgstr "Aller aux évaluations"
 
 #: risks/templates/risks/iso27005_risk_list.html:17
-msgid "ISO 27005 analyses are created from within an assessment's methodology workflow. Open an ISO 27005 assessment to create new analyses."
-msgstr "Les analyses ISO 27005 sont créées depuis la démarche méthodologique d'une évaluation. Ouvrez une évaluation ISO 27005 pour créer de nouvelles analyses."
+msgid ""
+"ISO 27005 analyses are created from within an assessment's methodology "
+"workflow. Open an ISO 27005 assessment to create new analyses."
+msgstr ""
+"Les analyses ISO 27005 sont créées depuis la démarche méthodologique d'une "
+"évaluation. Ouvrez une évaluation ISO 27005 pour créer de nouvelles "
+"analyses."
 
 #: risks/templates/risks/iso27005_risk_list.html:53
 msgid "No ISO 27005 analyses."
@@ -7395,8 +7556,7 @@ msgstr "Aucun bien essentiel affecté."
 msgid "No affected support assets."
 msgstr "Aucun bien support affecté."
 
-#: risks/models/risk.py
-#: risks/templates/risks/risk_detail.html
+#: risks/models/risk.py risks/templates/risks/risk_detail.html
 msgid "Linked requirements"
 msgstr "Exigences liées"
 
@@ -7405,8 +7565,12 @@ msgid "No linked requirements."
 msgstr "Aucune exigence liée."
 
 #: risks/templates/risks/risk_detail.html:187
-msgid "This risk was identified through ISO 27005 analyses (threat × vulnerability)."
-msgstr "Ce risque a été identifié via des analyses ISO 27005 (menace × vulnérabilité)."
+msgid ""
+"This risk was identified through ISO 27005 analyses (threat × "
+"vulnerability)."
+msgstr ""
+"Ce risque a été identifié via des analyses ISO 27005 (menace × "
+"vulnérabilité)."
 
 #: risks/templates/risks/risk_form.html:4
 msgid "risk"
@@ -7421,8 +7585,12 @@ msgid "New risk"
 msgstr "Nouveau risque"
 
 #: risks/templates/risks/risk_list.html:17
-msgid "Risks are identified through methodology-driven assessments. Open an assessment and use its methodology workflow to create risks."
-msgstr "Les risques sont identifiés au travers d'évaluations méthodologiques. Ouvrez une évaluation et utilisez sa démarche pour créer des risques."
+msgid ""
+"Risks are identified through methodology-driven assessments. Open an "
+"assessment and use its methodology workflow to create risks."
+msgstr ""
+"Les risques sont identifiés au travers d'évaluations méthodologiques. Ouvrez"
+" une évaluation et utilisez sa démarche pour créer des risques."
 
 #: risks/templates/risks/risk_list.html:70
 msgid "No risks recorded."
@@ -7490,8 +7658,12 @@ msgid "No vulnerabilities."
 msgstr "Aucune vulnérabilité."
 
 #: risks/views.py:547
-msgid "Please select an assessment and use its methodology workflow to create risks."
-msgstr "Veuillez sélectionner une évaluation et utiliser sa démarche méthodologique pour créer des risques."
+msgid ""
+"Please select an assessment and use its methodology workflow to create "
+"risks."
+msgstr ""
+"Veuillez sélectionner une évaluation et utiliser sa démarche méthodologique "
+"pour créer des risques."
 
 #: risks/views.py:876
 msgid "This analysis is already linked to a risk."
@@ -7713,8 +7885,12 @@ msgstr "dans %%(days)s jours"
 
 #: templates/home.html:103
 #, python-format
-msgid "Average of active frameworks — %(count)s requirement%(count|pluralize:\"s\")s total"
-msgstr "Moyenne des référentiels actifs — %(count)s exigence%(count|pluralize:\"s\")s au total"
+msgid ""
+"Average of active frameworks — %(count)s "
+"requirement%(count|pluralize:\"s\")s total"
+msgstr ""
+"Moyenne des référentiels actifs — %(count)s "
+"exigence%(count|pluralize:\"s\")s au total"
 
 #: templates/home.html:129
 msgid "Compliance by framework"
@@ -7845,7 +8021,9 @@ msgstr "Aide"
 #: templates/includes/dashboard_indicators.html:93
 #, python-format
 msgid "Select up to %(max)s indicators to display on your dashboard."
-msgstr "Sélectionnez jusqu'à %(max)s indicateurs à afficher sur votre tableau de bord."
+msgstr ""
+"Sélectionnez jusqu'à %(max)s indicateurs à afficher sur votre tableau de "
+"bord."
 
 #: templates/includes/dashboard_indicators.html:95
 msgid "Search indicators…"
@@ -7878,83 +8056,6 @@ msgstr "Aucun changement détecté"
 #: templates/includes/history_tab.html:100
 msgid "No history available."
 msgstr "Aucun historique disponible."
-
-#~ msgid "No indicator pinned to the dashboard."
-#~ msgstr "Aucun indicateur épinglé au tableau de bord."
-
-#~ msgid "Choose indicators"
-#~ msgstr "Choisir les indicateurs"
-
-#~ msgid "internal indicator"
-#~ msgstr "indicateur interne"
-
-#~ msgid "Edit internal indicator"
-#~ msgstr "Modifier l'indicateur interne"
-
-#~ msgid "New internal Open GRC indicator"
-#~ msgstr "Nouvel indicateur interne Open GRC"
-
-#~ msgid "An internal indicator is automatically populated from Open GRC data. It is always of organizational type. The first measurement will be taken automatically upon creation."
-#~ msgstr "Un indicateur interne est automatiquement alimenté depuis les données Open GRC. Il est toujours de type organisationnel. Le premier relevé sera effectué automatiquement à la création."
-
-#~ msgid "Internal data source"
-#~ msgstr "Source de données interne"
-
-#~ msgid "Internal Open GRC"
-#~ msgstr "Interne Open GRC"
-
-#~ msgid "Internal Open GRC indicator"
-#~ msgstr "Indicateur interne Open GRC"
-
-#~ msgid "The framework 'reference' field is required."
-#~ msgstr "Le champ 'référence' du référentiel est requis."
-
-#, python-format
-#~ msgid "A framework with the reference '%(reference)s' already exists in the database."
-#~ msgstr "Un référentiel avec la référence « %(reference)s » existe déjà dans la base de données."
-
-#, python-format
-#~ msgid "%(count)d single point(s) of failure (SPOF) to review"
-#~ msgstr "%(count)d point(s) de défaillance unique (SPOF) à examiner"
-
-#~ msgid "Default requirements"
-#~ msgstr "Exigences par défaut"
-
-#~ msgid "Cloud provider"
-#~ msgstr "Fournisseur cloud"
-
-#~ msgid "Software vendor"
-#~ msgstr "Éditeur logiciel"
-
-#~ msgid "Hardware vendor"
-#~ msgstr "Fournisseur matériel"
-
-#~ msgid "Consulting"
-#~ msgstr "Conseil"
-
-#~ msgid "Managed services"
-#~ msgstr "Services managés"
-
-#~ msgid "Telecommunications"
-#~ msgstr "Télécommunications"
-
-#~ msgid "Outsourcing"
-#~ msgstr "Externalisation"
-
-#~ msgid "Applied requirements"
-#~ msgstr "Exigences appliquées"
-
-#~ msgid "Add a risk"
-#~ msgstr "Ajouter un risque"
-
-#~ msgid "No ISO 27005 analysis."
-#~ msgstr "Aucune analyse ISO 27005."
-
-#~ msgid "ISO 27005 sources"
-#~ msgstr "Sources ISO 27005"
-
-#~ msgid "No ISO 27005 sources."
-#~ msgstr "Aucune source ISO 27005."
 
 #: compliance/templates/compliance/requirement_form.html
 msgid "Applicability"
@@ -8037,8 +8138,7 @@ msgid "Treatment Plans"
 msgstr "Plans de traitement"
 
 #: compliance/constants.py compliance/models/control.py
-#: compliance/templates/compliance/control_list.html
-#: templates/base.html
+#: compliance/templates/compliance/control_list.html templates/base.html
 msgid "Controls"
 msgstr "Contrôles"
 
@@ -8058,41 +8158,9 @@ msgstr "Modifier le contrôle"
 msgid "control"
 msgstr "contrôle"
 
-#: compliance/models/control.py
-msgid "Control"
-msgstr "Contrôle"
-
-#: compliance/models/control.py
-msgid "Objective"
-msgstr "Objectif"
-
 #: compliance/constants.py
 msgid "One-time"
 msgstr "Ponctuel"
-
-#: compliance/constants.py
-msgid "Daily"
-msgstr "Quotidien"
-
-#: compliance/constants.py
-msgid "Weekly"
-msgstr "Hebdomadaire"
-
-#: compliance/constants.py
-msgid "Monthly"
-msgstr "Mensuel"
-
-#: compliance/constants.py
-msgid "Quarterly"
-msgstr "Trimestriel"
-
-#: compliance/constants.py
-msgid "Semi-annual"
-msgstr "Semestriel"
-
-#: compliance/constants.py
-msgid "Annual"
-msgstr "Annuel"
 
 #: compliance/constants.py
 msgid "Conforming"
@@ -8111,18 +8179,6 @@ msgid "Planned date"
 msgstr "Date prévue"
 
 #: compliance/models/control.py
-msgid "Completion date"
-msgstr "Date de réalisation"
-
-#: compliance/models/control.py
-msgid "Support asset"
-msgstr "Actif support"
-
-#: compliance/models/control.py
-msgid "Evidence"
-msgstr "Preuve"
-
-#: compliance/models/control.py
 msgid "Findings"
 msgstr "Constats"
 
@@ -8134,8 +8190,7 @@ msgstr "Preuves et constats"
 msgid "Links"
 msgstr "Liens"
 
-#: compliance/templates/compliance/audit_list.html
-#: templates/base.html
+#: compliance/templates/compliance/audit_list.html templates/base.html
 msgid "Audits"
 msgstr "Audits"
 
@@ -8156,10 +8211,6 @@ msgid "audit"
 msgstr "audit"
 
 #: compliance/models/audit.py
-msgid "Audit"
-msgstr "Audit"
-
-#: compliance/models/audit.py
 msgid "Audit type"
 msgstr "Type d'audit"
 
@@ -8174,10 +8225,6 @@ msgstr "Seconde partie"
 #: compliance/constants.py
 msgid "Third party"
 msgstr "Tierce partie"
-
-#: compliance/models/audit.py
-msgid "Sections"
-msgstr "Chapitres"
 
 #: compliance/models/audit.py
 msgid "Lead auditor"
@@ -8239,8 +8286,7 @@ msgstr "Aucun chapitre lié (les référentiels entiers seront audités)."
 msgid "Audits & controls"
 msgstr "Audits et contrôles"
 
-#: compliance/templates/compliance/control_body_list.html
-#: templates/base.html
+#: compliance/templates/compliance/control_body_list.html templates/base.html
 msgid "Control bodies & authorities"
 msgstr "Bureaux de contrôle et autorités"
 
@@ -8265,32 +8311,12 @@ msgid "Control body / authority"
 msgstr "Bureau de contrôle / autorité"
 
 #: compliance/models/control_body.py
-msgid "Control bodies & authorities"
-msgstr "Bureaux de contrôle et autorités"
-
-#: compliance/models/control_body.py
 msgid "Accredited"
 msgstr "Accrédité"
 
 #: compliance/models/control_body.py
 msgid "Accreditation details"
 msgstr "Détails de l'accréditation"
-
-#: compliance/models/control_body.py
-msgid "Contact name"
-msgstr "Nom du contact"
-
-#: compliance/models/control_body.py
-msgid "Contact email"
-msgstr "Email du contact"
-
-#: compliance/models/control_body.py
-msgid "Contact phone"
-msgstr "Téléphone du contact"
-
-#: compliance/templates/compliance/control_body_detail.html
-msgid "Auditors"
-msgstr "Auditeurs"
 
 #: compliance/templates/compliance/control_body_detail.html
 msgid "Add auditor"
@@ -8311,14 +8337,6 @@ msgstr "Référentiels et étiquettes"
 #: compliance/models/control_body.py
 msgid "Auditor"
 msgstr "Auditeur"
-
-#: compliance/models/control_body.py
-msgid "First name"
-msgstr "Prénom"
-
-#: compliance/models/control_body.py
-msgid "Last name"
-msgstr "Nom"
 
 #: compliance/models/control_body.py
 msgid "Certifications"
@@ -8344,10 +8362,89 @@ msgstr "Modifier l'auditeur"
 msgid "auditor"
 msgstr "auditeur"
 
-#: compliance/templates/compliance/audit_form_modal.html
-msgid "Dates"
-msgstr "Dates"
+#~ msgid "No indicator pinned to the dashboard."
+#~ msgstr "Aucun indicateur épinglé au tableau de bord."
 
-#: compliance/templates/compliance/control_body_form_modal.html
-msgid "Contact"
-msgstr "Contact"
+#~ msgid "Choose indicators"
+#~ msgstr "Choisir les indicateurs"
+
+#~ msgid "internal indicator"
+#~ msgstr "indicateur interne"
+
+#~ msgid "Edit internal indicator"
+#~ msgstr "Modifier l'indicateur interne"
+
+#~ msgid "New internal Open GRC indicator"
+#~ msgstr "Nouvel indicateur interne Open GRC"
+
+#~ msgid ""
+#~ "An internal indicator is automatically populated from Open GRC data. It is "
+#~ "always of organizational type. The first measurement will be taken "
+#~ "automatically upon creation."
+#~ msgstr ""
+#~ "Un indicateur interne est automatiquement alimenté depuis les données Open "
+#~ "GRC. Il est toujours de type organisationnel. Le premier relevé sera "
+#~ "effectué automatiquement à la création."
+
+#~ msgid "Internal data source"
+#~ msgstr "Source de données interne"
+
+#~ msgid "Internal Open GRC"
+#~ msgstr "Interne Open GRC"
+
+#~ msgid "Internal Open GRC indicator"
+#~ msgstr "Indicateur interne Open GRC"
+
+#~ msgid "The framework 'reference' field is required."
+#~ msgstr "Le champ 'référence' du référentiel est requis."
+
+#, python-format
+#~ msgid ""
+#~ "A framework with the reference '%(reference)s' already exists in the "
+#~ "database."
+#~ msgstr ""
+#~ "Un référentiel avec la référence « %(reference)s » existe déjà dans la base "
+#~ "de données."
+
+#, python-format
+#~ msgid "%(count)d single point(s) of failure (SPOF) to review"
+#~ msgstr "%(count)d point(s) de défaillance unique (SPOF) à examiner"
+
+#~ msgid "Default requirements"
+#~ msgstr "Exigences par défaut"
+
+#~ msgid "Cloud provider"
+#~ msgstr "Fournisseur cloud"
+
+#~ msgid "Software vendor"
+#~ msgstr "Éditeur logiciel"
+
+#~ msgid "Hardware vendor"
+#~ msgstr "Fournisseur matériel"
+
+#~ msgid "Consulting"
+#~ msgstr "Conseil"
+
+#~ msgid "Managed services"
+#~ msgstr "Services managés"
+
+#~ msgid "Telecommunications"
+#~ msgstr "Télécommunications"
+
+#~ msgid "Outsourcing"
+#~ msgstr "Externalisation"
+
+#~ msgid "Applied requirements"
+#~ msgstr "Exigences appliquées"
+
+#~ msgid "Add a risk"
+#~ msgstr "Ajouter un risque"
+
+#~ msgid "No ISO 27005 analysis."
+#~ msgstr "Aucune analyse ISO 27005."
+
+#~ msgid "ISO 27005 sources"
+#~ msgstr "Sources ISO 27005"
+
+#~ msgid "No ISO 27005 sources."
+#~ msgstr "Aucune source ISO 27005."
