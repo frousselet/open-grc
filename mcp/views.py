@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
@@ -119,7 +119,10 @@ class OAuthAuthorizeView(View):
 
         if action == "deny":
             params = urlencode({"error": "access_denied", "state": state})
-            return HttpResponseRedirect(f"{redirect_uri}?{params}")
+            redirect_url = f"{redirect_uri}?{params}"
+            response = HttpResponse(status=302)
+            response["Location"] = redirect_url
+            return response
 
         # Validate client
         try:
@@ -149,7 +152,10 @@ class OAuthAuthorizeView(View):
         params = {"code": raw_code}
         if state:
             params["state"] = state
-        return HttpResponseRedirect(f"{redirect_uri}?{urlencode(params)}")
+        redirect_url = f"{redirect_uri}?{urlencode(params)}"
+        response = HttpResponse(status=302)
+        response["Location"] = redirect_url
+        return response
 
 
 class OAuthAppCreateView(LoginRequiredMixin, View):
