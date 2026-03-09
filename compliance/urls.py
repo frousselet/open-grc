@@ -37,6 +37,12 @@ urlpatterns = [
     path("assessments/<uuid:pk>/edit/", views.AssessmentUpdateView.as_view(), name="assessment-update"),
     path("assessments/<uuid:pk>/delete/", views.AssessmentDeleteView.as_view(), name="assessment-delete"),
     path("assessments/<uuid:pk>/approve/", views.ApproveView.as_view(model=ComplianceAssessment, permission_feature="assessment", success_url=reverse_lazy("compliance:assessment-list")), name="assessment-approve"),
+    # Assessment Results
+    path("assessments/<uuid:pk>/initialize-results/", views.InitializeResultsView.as_view(), name="assessment-initialize-results"),
+    path("assessments/<uuid:pk>/results-table-body/", views.AssessmentResultsTableBodyView.as_view(), name="assessment-results-table-body"),
+    path("assessments/<uuid:assessment_pk>/results/create/", views.AssessmentResultCreateView.as_view(), name="assessment-result-create"),
+    path("assessments/<uuid:assessment_pk>/results/<uuid:pk>/edit/", views.AssessmentResultUpdateView.as_view(), name="assessment-result-update"),
+    path("assessments/<uuid:assessment_pk>/results/<uuid:pk>/delete/", views.AssessmentResultDeleteView.as_view(), name="assessment-result-delete"),
     # Mappings
     path("mappings/", views.MappingListView.as_view(), name="mapping-list"),
     path("mappings/create/", views.MappingCreateView.as_view(), name="mapping-create"),
