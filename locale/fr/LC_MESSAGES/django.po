@@ -3650,6 +3650,7 @@ msgstr "Périmètres et étiquettes"
 #: assets/templates/assets/group_detail.html:47
 #: assets/templates/assets/site_list.html:30
 #: assets/templates/assets/supplier_type_detail.html:66
+#: compliance/templates/compliance/assessment_detail.html
 #: context/templates/context/site_list.html:28
 #: risks/templates/risks/assessment_detail.html:241
 #: risks/templates/risks/risk_detail.html:109
@@ -8456,10 +8457,6 @@ msgstr "Ajouter un résultat"
 msgid "evaluated"
 msgstr "évalué(s)"
 
-#: compliance/templates/compliance/assessment_detail.html
-msgid "Ref."
-msgstr "Réf."
-
 #: compliance/templates/compliance/assessment_results_table_body.html
 msgid "Uncategorized"
 msgstr "Non catégorisé"
@@ -8469,6 +8466,7 @@ msgid "Evaluate"
 msgstr "Évaluer"
 
 #: compliance/templates/compliance/assessment_results_table_body.html
+#: compliance/views.py
 msgid "Edit evaluation"
 msgstr "Modifier l'évaluation"
 
@@ -8479,10 +8477,6 @@ msgstr "Aucune exigence à évaluer. Initialisez les évaluations ou vérifiez q
 #: compliance/views.py
 msgid "Evaluate requirement"
 msgstr "Évaluer l'exigence"
-
-#: compliance/views.py
-msgid "Edit evaluation"
-msgstr "Modifier l'évaluation"
 
 #: compliance/templates/compliance/assessment_result_form_modal.html
 msgid "Evidence & Gaps"
