@@ -70,7 +70,12 @@ class ComplianceAssessment(ScopedModel):
         return f"{self.reference} : {self.name}"
 
     def recalculate_counts(self):
-        """Recompute summary counts from results and propagate to requirements/framework."""
+        """Recompute summary counts from results and propagate to requirements/framework.
+
+        For NOT_ASSESSED results, fall back to the last known result from a
+        previous assessment on the same framework. If no prior result exists,
+        the requirement counts as 0%.  NOT_APPLICABLE always counts as 100%.
+        """
         results = self.results.select_related("requirement").all()
         self.total_requirements = results.count()
         self.compliant_count = results.filter(
@@ -85,13 +90,42 @@ class ComplianceAssessment(ScopedModel):
         self.not_assessed_count = results.filter(
             compliance_status=ComplianceStatus.NOT_ASSESSED
         ).count()
-        if self.total_requirements > 0:
-            # NOT_APPLICABLE → 100%, NOT_ASSESSED → 0% (like non-compliant)
-            total_level = sum(
-                100 if r.compliance_status == ComplianceStatus.NOT_APPLICABLE
-                else (r.compliance_level or 0)
-                for r in results
+
+        # Build fallback map: requirement_id → (status, level) from prior assessments
+        not_assessed_req_ids = [
+            r.requirement_id for r in results
+            if r.compliance_status == ComplianceStatus.NOT_ASSESSED
+        ]
+        prior_map = {}
+        if not_assessed_req_ids:
+            prior_results = (
+                AssessmentResult.objects.filter(
+                    assessment__framework=self.framework,
+                    requirement_id__in=not_assessed_req_ids,
+                )
+                .exclude(assessment=self)
+                .exclude(compliance_status=ComplianceStatus.NOT_ASSESSED)
+                .order_by("-assessed_at")
+                .values_list("requirement_id", "compliance_status", "compliance_level")
             )
+            # Keep only the most recent result per requirement
+            for req_id, status, level in prior_results:
+                if req_id not in prior_map:
+                    prior_map[req_id] = (status, level)
+
+        def _effective_level(result):
+            if result.compliance_status == ComplianceStatus.NOT_APPLICABLE:
+                return 100
+            if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+                prior = prior_map.get(result.requirement_id)
+                if prior:
+                    status, level = prior
+                    return 100 if status == ComplianceStatus.NOT_APPLICABLE else (level or 0)
+                return 0
+            return result.compliance_level or 0
+
+        if self.total_requirements > 0:
+            total_level = sum(_effective_level(r) for r in results)
             self.overall_compliance_level = total_level / self.total_requirements
         else:
             self.overall_compliance_level = 0
@@ -110,9 +144,20 @@ class ComplianceAssessment(ScopedModel):
         affected_section_ids = set()
         for result in results:
             req = result.requirement
+            # For NOT_ASSESSED, propagate the prior status if available
+            if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+                prior = prior_map.get(result.requirement_id)
+                if prior:
+                    eff_status, eff_level = prior
+                else:
+                    eff_status = ComplianceStatus.NOT_ASSESSED
+                    eff_level = 0
+            else:
+                eff_status = result.compliance_status
+                eff_level = result.compliance_level
             Requirement.objects.filter(pk=req.pk).update(
-                compliance_status=result.compliance_status,
-                compliance_level=result.compliance_level,
+                compliance_status=eff_status,
+                compliance_level=eff_level,
             )
             if req.section_id:
                 affected_section_ids.add(req.section_id)
