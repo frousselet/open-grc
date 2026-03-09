@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load accounts_tags %}
 {% load i18n %}
+{% load help_tags %}
 {% block title %}{% trans "Versioning — Open GRC" %}{% endblock %}
 
 {% block content %}
@@ -15,6 +16,7 @@
     {% endif %}
   </div>
 </div>
+{% help_modal "core.versioning_config_list" %}
 
 <p class="text-muted mb-3">
   {% trans "Configure which field changes trigger a version increment and approval reset for each item type. You can also disable the approval workflow entirely." %}

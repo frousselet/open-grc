@@ -11,12 +11,12 @@
     <h1 class="mb-0">{{ asset.name }}</h1>
     <small class="ref">{{ asset.reference }}</small>
   </div>
-{% help_modal "assets.essential_asset_detail" %}
   <div class="d-flex gap-2">
     <a href="{% url 'assets:essential-asset-update' asset.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'assets:essential-asset-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
+{% help_modal "assets.essential_asset_detail" %}
 {% include "includes/approval_badge.html" %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">
