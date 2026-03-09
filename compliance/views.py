@@ -476,7 +476,22 @@ class AssessmentListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin
     search_fields = ["reference", "name", "framework__name"]
 
     def get_queryset(self):
-        return super().get_queryset().prefetch_related("scopes").select_related("framework", "assessor")
+        from django.db.models import Subquery, OuterRef, Value
+        from django.db.models.functions import Cast
+
+        # Number of applicable requirements in the framework
+        fw_req_count = Subquery(
+            Requirement.objects.filter(
+                framework=OuterRef("framework"),
+                is_applicable=True,
+            ).order_by().values("framework").annotate(c=Count("id")).values("c")[:1]
+        )
+        return (
+            super().get_queryset()
+            .prefetch_related("scopes")
+            .select_related("framework", "assessor")
+            .annotate(fw_req_count=fw_req_count)
+        )
 
 
 class AssessmentDetailView(
@@ -506,6 +521,12 @@ class AssessmentDetailView(
         ctx["results_evaluated"] = evaluated
         ctx["results_progress"] = round(evaluated * 100 / total) if total else 0
         ctx["has_results"] = total > 0
+        # Coverage: % of framework requirements included in this assessment
+        fw_req_count = assessment.framework.requirements.filter(
+            is_applicable=True
+        ).count()
+        ctx["fw_req_count"] = fw_req_count
+        ctx["coverage_pct"] = round(total * 100 / fw_req_count) if fw_req_count else 0
         return ctx
 
 

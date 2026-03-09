@@ -8318,8 +8318,6 @@ msgstr "Rechercher…"
 #~ msgid "Contract end"
 #~ msgstr "Fin du contrat"
 
-#~ msgid "Coverage"
-#~ msgstr "Couverture"
 
 #~ msgid "Guidance"
 #~ msgstr "Guide"
@@ -8481,3 +8479,8 @@ msgstr "Évaluer l'exigence"
 #: compliance/templates/compliance/assessment_result_form_modal.html
 msgid "Evidence & Gaps"
 msgstr "Preuves & Écarts"
+
+#: compliance/templates/compliance/assessment_list.html
+#: compliance/templates/compliance/assessment_detail.html
+msgid "Coverage"
+msgstr "Couverture"
