@@ -536,6 +536,17 @@ class AssessmentDeleteView(LoginRequiredMixin, DeleteView):
 # ── Assessment Results ─────────────────────────────────────
 
 
+def _natural_sort_key(value):
+    """Return a sort key that orders numeric parts numerically.
+
+    E.g. "4.1.a" -> [4, '.', 1, '.a'], "10.1" -> [10, '.', 1]
+    so that 4.1 < 5.1 < 10.1 instead of "10.1" < "4.1" < "5.1".
+    """
+    import re
+    parts = re.split(r'(\d+)', value)
+    return [int(p) if p.isdigit() else p.lower() for p in parts]
+
+
 def _build_sections_with_results(assessment):
     """Build a list of sections with their requirements and associated results.
 
@@ -552,7 +563,7 @@ def _build_sections_with_results(assessment):
     }
     requirements = framework.requirements.filter(
         is_applicable=True
-    ).select_related("section").order_by("section__order", "requirement_number")
+    ).select_related("section")
 
     sections_dict = {}  # section_id -> section data
     no_section_reqs = []
@@ -575,13 +586,27 @@ def _build_sections_with_results(assessment):
         else:
             no_section_reqs.append(entry)
 
-    # Sort sections by their order
+    # Sort sections by reference using natural sort (4.1 < 5.1 < 10.1)
     sections_list = sorted(
-        sections_dict.values(), key=lambda s: s["section"].order
+        sections_dict.values(),
+        key=lambda s: _natural_sort_key(s["section"].reference),
     )
+
+    # Sort requirements within each section by requirement_number
+    for section_data in sections_list:
+        section_data["requirements"].sort(
+            key=lambda e: _natural_sort_key(
+                e["requirement"].requirement_number or e["requirement"].reference
+            ),
+        )
 
     # Add requirements with no section at the end
     if no_section_reqs:
+        no_section_reqs.sort(
+            key=lambda e: _natural_sort_key(
+                e["requirement"].requirement_number or e["requirement"].reference
+            ),
+        )
         evaluated = sum(
             1 for e in no_section_reqs
             if e["result"] and e["result"].compliance_status != ComplianceStatus.NOT_ASSESSED
