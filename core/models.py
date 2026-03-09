@@ -1,5 +1,6 @@
 import logging
 
+from django.apps import apps
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -46,6 +47,24 @@ class VersioningConfig(models.Model):
 
     def __str__(self):
         return self.model_label or self.model_name
+
+    @property
+    def major_fields_display(self):
+        """Return major_fields as a list of (field_name, verbose_name) tuples."""
+        if not self.major_fields:
+            return []
+        try:
+            model = apps.get_model(self.model_name)
+            result = []
+            for fname in self.major_fields:
+                try:
+                    field = model._meta.get_field(fname)
+                    result.append((fname, str(field.verbose_name).capitalize()))
+                except Exception:
+                    result.append((fname, fname))
+            return result
+        except (LookupError, ValueError):
+            return [(f, f) for f in self.major_fields]
 
     @classmethod
     def get_config(cls, model_class):

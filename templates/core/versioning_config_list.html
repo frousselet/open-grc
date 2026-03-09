@@ -46,8 +46,8 @@
           </td>
           <td>
             {% if config.major_fields %}
-              {% for f in config.major_fields %}
-                <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.7rem">{{ f }}</span>
+              {% for fname, label in config.major_fields_display %}
+                <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.7rem">{{ label }}</span>
               {% endfor %}
             {% else %}
               <span class="text-muted" style="font-size:.82rem">{% trans "All fields (default)" %}</span>
