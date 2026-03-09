@@ -4,6 +4,7 @@
 {% block title %}{% trans "Essential assets" %} — Open GRC{% endblock %}
 
 {% block content %}
+{% approval_enabled_for "assets.essentialasset" as show_approval %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Essential assets" %}</h1>
   <div class="header-actions">
@@ -38,7 +39,7 @@
           <th class="text-center">A</th>
           {% sortable_th "status" "Status" %}
           <th>{% trans "Tags" %}</th>
-          <th>{% trans "Approval" %}</th>
+          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -59,11 +60,13 @@
             </span>
           </td>
           <td>{% for tag in asset.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
+          {% if show_approval %}
           <td>
             <span class="badge text-bg-{% if asset.is_approved %}success{% else %}warning{% endif %}">
               {% if asset.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
             </span>
           </td>
+          {% endif %}
           <td class="text-end">
             <a hx-get="{% url 'assets:essential-asset-update' asset.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>

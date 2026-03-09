@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% if object.pk %}{% trans "Edit versioning configuration" %}{% else %}{% trans "New versioning configuration" %}{% endif %} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="mb-0">{% if object.pk %}{% trans "Edit versioning configuration" %}{% else %}{% trans "New versioning configuration" %}{% endif %}</h2>
+  <a href="{% url 'core:versioning-config-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post" id="versioning-form">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label for="id_model_name" class="form-label fw-semibold">{{ form.model_name.label }}</label>
+        {{ form.model_name }}
+        {% if form.model_name.errors %}<div class="text-danger small mt-1">{{ form.model_name.errors.0 }}</div>{% endif %}
+        {% if form.model_name.help_text %}<div class="form-text">{{ form.model_name.help_text }}</div>{% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label for="id_model_label" class="form-label fw-semibold">{{ form.model_label.label }}</label>
+        <input type="text" name="model_label" id="id_model_label" class="form-control" value="{{ form.model_label.value|default:'' }}" placeholder="{% trans 'e.g. Scopes, Risks, Frameworks...' %}">
+        {% if form.model_label.errors %}<div class="text-danger small mt-1">{{ form.model_label.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="mb-3">
+        <div class="form-check form-switch">
+          <input type="checkbox" name="approval_enabled" id="id_approval_enabled" class="form-check-input"
+            {% if form.approval_enabled.value %}checked{% endif %}>
+          <label for="id_approval_enabled" class="form-check-label fw-semibold">{{ form.approval_enabled.label }}</label>
+        </div>
+        {% if form.approval_enabled.help_text %}<div class="form-text">{{ form.approval_enabled.help_text }}</div>{% endif %}
+      </div>
+
+      <div class="mb-3" id="major-fields-section">
+        <label class="form-label fw-semibold">{{ form.major_fields.label }}</label>
+        {% if form.major_fields.help_text %}<div class="form-text mb-2">{{ form.major_fields.help_text }}</div>{% endif %}
+        <div id="major-fields-container">
+          {% if form.major_fields.field.choices %}
+            <div class="row">
+            {% for value, label in form.major_fields.field.choices %}
+              <div class="col-sm-6 col-md-4 col-lg-3">
+                <div class="form-check">
+                  <input type="checkbox" name="major_fields" value="{{ value }}" id="id_major_fields_{{ forloop.counter0 }}" class="form-check-input"
+                    {% if value in form.initial.major_fields %}checked{% endif %}>
+                  <label for="id_major_fields_{{ forloop.counter0 }}" class="form-check-label">{{ label }}</label>
+                </div>
+              </div>
+            {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-muted" id="no-fields-msg">{% trans "Select a model to see available fields." %}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+        <a href="{% url 'core:versioning-config-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function() {
+  const modelSelect = document.getElementById('id_model_name');
+  const container = document.getElementById('major-fields-container');
+  const currentMajor = {{ form.initial.major_fields|safe|default:"[]" }};
+
+  if (modelSelect) {
+    // Apply form-select class
+    modelSelect.classList.add('form-select');
+
+    modelSelect.addEventListener('change', function() {
+      const modelName = this.value;
+      if (!modelName) {
+        container.innerHTML = '<p class="text-muted">{% trans "Select a model to see available fields." %}</p>';
+        return;
+      }
+      fetch('{% url "core:versioning-field-choices" %}?model_name=' + encodeURIComponent(modelName))
+        .then(r => r.json())
+        .then(fields => {
+          if (!fields.length) {
+            container.innerHTML = '<p class="text-muted">{% trans "No configurable fields for this model." %}</p>';
+            return;
+          }
+          let html = '<div class="row">';
+          fields.forEach(function(f, i) {
+            const checked = currentMajor.includes(f.value) ? ' checked' : '';
+            html += '<div class="col-sm-6 col-md-4 col-lg-3"><div class="form-check">';
+            html += '<input type="checkbox" name="major_fields" value="' + f.value + '" id="id_major_fields_' + i + '" class="form-check-input"' + checked + '>';
+            html += '<label for="id_major_fields_' + i + '" class="form-check-label">' + f.label + '</label>';
+            html += '</div></div>';
+          });
+          html += '</div>';
+          container.innerHTML = html;
+        });
+    });
+  }
+})();
+</script>
+{% endblock %}

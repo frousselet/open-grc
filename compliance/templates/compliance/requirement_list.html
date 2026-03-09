@@ -5,8 +5,10 @@
 {% block title %}{% trans "Requirements" %} — Open GRC{% endblock %}
 
 {% load help_tags %}
+{% load versioning_tags %}
 
 {% block content %}
+{% approval_enabled_for "compliance.requirement" as show_approval %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Requirements" %}</h1>
   <div class="header-actions">
@@ -32,7 +34,7 @@
           <th>{% trans "Level" %}</th>
           {% sortable_th "priority" "Priority" %}
           <th>{% trans "Tags" %}</th>
-          <th>{% trans "Approval" %}</th>
+          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -58,11 +60,13 @@
             {% else %}—{% endif %}
           </td>
           <td>{% for tag in req.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
+          {% if show_approval %}
           <td>
             <span class="badge text-bg-{% if req.is_approved %}success{% else %}warning{% endif %}">
               {% if req.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
             </span>
           </td>
+          {% endif %}
           <td class="text-end">
             <a href="{% url 'compliance:requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>

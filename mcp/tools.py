@@ -224,17 +224,23 @@ def _update_handler(model_class, writable_fields, scope_filtered=True):
             qs = _filter_by_scopes(model_class.objects.filter(pk=pk), user)
             if not qs.exists():
                 return _error("Access denied: object is outside your allowed scopes.")
+        changed_fields = set()
         for field_name in writable_fields:
             if field_name in arguments:
                 setattr(obj, field_name, _coerce_field_value(
                     model_class, field_name, arguments[field_name]))
-        # Reset approval on update (like ApprovableAPIMixin)
-        if hasattr(obj, "is_approved"):
-            obj.is_approved = False
-            obj.approved_by = None
-            obj.approved_at = None
-        if hasattr(obj, "version"):
-            obj.version = (obj.version or 0) + 1
+                changed_fields.add(field_name)
+        # Reset approval on update (respects VersioningConfig)
+        if hasattr(obj, "is_approved") and hasattr(obj, "version"):
+            from core.models import VersioningConfig
+            if VersioningConfig.is_approval_enabled(model_class):
+                major_fields = VersioningConfig.get_major_fields(model_class)
+                is_major = major_fields is None or bool(changed_fields & major_fields)
+                if is_major:
+                    obj.is_approved = False
+                    obj.approved_by = None
+                    obj.approved_at = None
+                    obj.version = (obj.version or 0) + 1
         try:
             obj.full_clean()
             obj.save()
@@ -1770,21 +1776,27 @@ def _update_supplier_with_logo_handler(model_class, writable_fields):
         qs = _filter_by_scopes(model_class.objects.filter(pk=pk), user)
         if not qs.exists():
             return _error("Access denied: object is outside your allowed scopes.")
+        changed_fields = set()
         for field_name in writable_fields:
             if field_name in arguments:
                 setattr(obj, field_name, arguments[field_name])
+                changed_fields.add(field_name)
         if image_url:
             try:
                 _apply_logo_from_url(obj, image_url)
             except ValueError as e:
                 return _error(str(e))
-        # Reset approval on update (like ApprovableAPIMixin)
-        if hasattr(obj, "is_approved"):
-            obj.is_approved = False
-            obj.approved_by = None
-            obj.approved_at = None
-        if hasattr(obj, "version"):
-            obj.version = (obj.version or 0) + 1
+        # Reset approval on update (respects VersioningConfig)
+        if hasattr(obj, "is_approved") and hasattr(obj, "version"):
+            from core.models import VersioningConfig
+            if VersioningConfig.is_approval_enabled(model_class):
+                major_fields = VersioningConfig.get_major_fields(model_class)
+                is_major = major_fields is None or bool(changed_fields & major_fields)
+                if is_major:
+                    obj.is_approved = False
+                    obj.approved_by = None
+                    obj.approved_at = None
+                    obj.version = (obj.version or 0) + 1
         try:
             obj.full_clean()
             obj.save()
@@ -1834,12 +1846,18 @@ def _update_supplier_logo_handler(user, arguments):
     supplier.logo_32 = variants[32]
     supplier.logo_64 = variants[64]
 
-    if hasattr(supplier, "is_approved"):
-        supplier.is_approved = False
-        supplier.approved_by = None
-        supplier.approved_at = None
-    if hasattr(supplier, "version"):
-        supplier.version = (supplier.version or 0) + 1
+    # Reset approval on update (respects VersioningConfig)
+    if hasattr(supplier, "is_approved") and hasattr(supplier, "version"):
+        from core.models import VersioningConfig
+        if VersioningConfig.is_approval_enabled(supplier.__class__):
+            major_fields = VersioningConfig.get_major_fields(supplier.__class__)
+            # Logo change: check if "logo" is a major field
+            is_major = major_fields is None or "logo" in major_fields
+            if is_major:
+                supplier.is_approved = False
+                supplier.approved_by = None
+                supplier.approved_at = None
+                supplier.version = (supplier.version or 0) + 1
 
     try:
         supplier.full_clean()

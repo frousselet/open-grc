@@ -6,21 +6,41 @@ from context.models import Scope
 
 
 class ApprovableUpdateMixin:
-    """Reset approval status and increment version after a domain object is updated."""
+    """Reset approval status and increment version after a domain object is updated.
+
+    Respects VersioningConfig: only triggers version bump and approval reset
+    when a "major" field has changed. If approval is disabled for the model,
+    the approval fields are left unchanged.
+    """
+
+    def _is_major_change(self, form):
+        """Determine if the form changes include at least one major field."""
+        from core.models import VersioningConfig
+
+        model_class = self.object.__class__
+        if not VersioningConfig.is_approval_enabled(model_class):
+            return False
+        major_fields = VersioningConfig.get_major_fields(model_class)
+        if major_fields is None:
+            # No config or empty major_fields list → all changes are major
+            return True
+        changed = set(form.changed_data)
+        return bool(changed & major_fields)
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.is_approved = False
-        self.object.approved_by = None
-        self.object.approved_at = None
-        self.object.version = (self.object.version or 0) + 1
+        if self._is_major_change(form):
+            self.object.is_approved = False
+            self.object.approved_by = None
+            self.object.approved_at = None
+            self.object.version = (self.object.version or 0) + 1
         self.object.save()
         form.save_m2m()
         return HttpResponseRedirect(self.get_success_url())
 
 
 class ApprovalContextMixin:
-    """Add approval context (can_approve, approve_url) to detail views."""
+    """Add approval context (can_approve, approve_url, approval_enabled) to detail views."""
 
     approval_module = None
     approval_feature = None
@@ -37,7 +57,18 @@ class ApprovalContextMixin:
         return self.model._meta.model_name
 
     def get_context_data(self, **kwargs):
+        from core.models import VersioningConfig
+
         ctx = super().get_context_data(**kwargs)
+
+        # Check if approval is enabled for this model
+        approval_enabled = VersioningConfig.is_approval_enabled(self.model)
+        ctx["approval_enabled"] = approval_enabled
+
+        if not approval_enabled:
+            ctx["can_approve"] = False
+            return ctx
+
         user = self.request.user
         module = self._get_approval_module()
         feature = self._get_approval_feature()

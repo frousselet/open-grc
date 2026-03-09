@@ -5,8 +5,10 @@
 {% block title %}{% trans "Activities" %} — Open GRC{% endblock %}
 
 {% load help_tags %}
+{% load versioning_tags %}
 
 {% block content %}
+{% approval_enabled_for "context.activity" as show_approval %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Activities and processes" %}</h1>
   <div class="header-actions">
@@ -44,7 +46,7 @@
           <th>{% trans "Owner" %}</th>
           {% sortable_th "status" "Status" %}
           <th>{% trans "Tags" %}</th>
-          <th>{% trans "Approval" %}</th>
+          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>

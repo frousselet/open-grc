@@ -1,4 +1,6 @@
 {% load i18n %}
+{% load versioning_tags %}
+{% approval_enabled_for "context.activity" as show_approval %}
 {% for activity in activities %}
 <tr>
   <td><a href="{% url 'context:activity-detail' activity.pk %}" class="ref" style="text-decoration:none">{{ activity.reference }}</a></td>
@@ -16,11 +18,13 @@
     </span>
   </td>
   <td>{% for tag in activity.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
+  {% if show_approval %}
   <td>
     <span class="badge text-bg-{% if activity.is_approved %}success{% else %}warning{% endif %}">
       {% if activity.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
     </span>
   </td>
+  {% endif %}
   <td class="text-end">
     <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
             hx-get="{% url 'context:activity-update' activity.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML">

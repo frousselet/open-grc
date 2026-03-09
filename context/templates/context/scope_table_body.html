@@ -1,4 +1,6 @@
 {% load i18n %}
+{% load versioning_tags %}
+{% approval_enabled_for "context.scope" as show_approval %}
 {% for scope in scopes %}
 <tr>
   <td><a href="{% url 'context:scope-detail' scope.pk %}" class="ref" style="text-decoration:none">{{ scope.reference }}</a></td>
@@ -17,11 +19,13 @@
   <td>{{ scope.effective_date|default:"—" }}</td>
   <td>{{ scope.review_date|default:"—" }}</td>
   <td>{% for tag in scope.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
+  {% if show_approval %}
   <td>
     <span class="badge text-bg-{% if scope.is_approved %}success{% else %}warning{% endif %}">
       {% if scope.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
     </span>
   </td>
+  {% endif %}
   <td class="text-end">
     <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
             hx-get="{% url 'context:scope-update' scope.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML">

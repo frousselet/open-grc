@@ -8035,3 +8035,127 @@ msgstr "Analyses de risques"
 #: core/views.py
 msgid "Treatment Plans"
 msgstr "Plans de traitement"
+
+#: core/models.py
+msgid "Model identifier"
+msgstr "Identifiant du modèle"
+
+#: core/models.py
+msgid "Django model label, e.g. 'context.scope'"
+msgstr "Label du modèle Django, ex. 'context.scope'"
+
+#: core/models.py
+msgid "Display name"
+msgstr "Nom d'affichage"
+
+#: core/models.py
+msgid "Approval enabled"
+msgstr "Approbation activée"
+
+#: core/models.py
+msgid "When disabled, approval workflow is hidden for this item type."
+msgstr "Lorsque désactivée, le workflow d'approbation est masqué pour ce type d'élément."
+
+#: core/models.py
+msgid "Major change fields"
+msgstr "Champs de changement majeur"
+
+#: core/models.py
+msgid "List of field names whose modification triggers a version increment and approval reset. If empty, all field changes are considered major."
+msgstr "Liste des noms de champs dont la modification déclenche une montée de version et une réinitialisation de l'approbation. Si vide, tous les changements de champs sont considérés comme majeurs."
+
+#: core/models.py
+msgid "Versioning configuration"
+msgstr "Configuration du versioning"
+
+#: core/models.py
+msgid "Versioning configurations"
+msgstr "Configurations du versioning"
+
+#: core/forms.py
+msgid "— Select a model —"
+msgstr "— Sélectionner un modèle —"
+
+#: core/forms.py
+msgid "Select the fields whose modification triggers a version increment and approval reset. If none are selected, all changes are considered major."
+msgstr "Sélectionnez les champs dont la modification déclenche une montée de version et une réinitialisation de l'approbation. Si aucun n'est sélectionné, tous les changements sont considérés comme majeurs."
+
+#: core/versioning_views.py
+msgid "Versioning configuration created."
+msgstr "Configuration du versioning créée."
+
+#: core/versioning_views.py
+msgid "Versioning configuration updated."
+msgstr "Configuration du versioning mise à jour."
+
+#: core/versioning_views.py
+msgid "Versioning configuration deleted."
+msgstr "Configuration du versioning supprimée."
+
+#: templates/core/versioning_config_list.html
+msgid "Versioning & approval"
+msgstr "Versioning et approbation"
+
+#: templates/core/versioning_config_list.html
+msgid "Add a configuration"
+msgstr "Ajouter une configuration"
+
+#: templates/core/versioning_config_list.html
+msgid "Configure which field changes trigger a version increment and approval reset for each item type. You can also disable the approval workflow entirely."
+msgstr "Configurez quels changements de champs déclenchent une montée de version et une réinitialisation de l'approbation pour chaque type d'élément. Vous pouvez aussi désactiver complètement le workflow d'approbation."
+
+#: templates/core/versioning_config_list.html
+msgid "Item type"
+msgstr "Type d'élément"
+
+#: templates/core/versioning_config_list.html
+msgid "Major fields"
+msgstr "Champs majeurs"
+
+#: templates/core/versioning_config_list.html
+msgid "Enabled"
+msgstr "Activé"
+
+#: templates/core/versioning_config_list.html
+msgid "Disabled"
+msgstr "Désactivé"
+
+#: templates/core/versioning_config_list.html
+msgid "All fields (default)"
+msgstr "Tous les champs (par défaut)"
+
+#: templates/core/versioning_config_list.html
+msgid "No versioning configuration defined. All models use default behavior (all changes are major, approval enabled)."
+msgstr "Aucune configuration de versioning définie. Tous les modèles utilisent le comportement par défaut (tous les changements sont majeurs, approbation activée)."
+
+#: templates/core/versioning_config_form.html
+msgid "Edit versioning configuration"
+msgstr "Modifier la configuration du versioning"
+
+#: templates/core/versioning_config_form.html
+msgid "New versioning configuration"
+msgstr "Nouvelle configuration du versioning"
+
+#: templates/core/versioning_config_form.html
+msgid "Select a model to see available fields."
+msgstr "Sélectionnez un modèle pour voir les champs disponibles."
+
+#: templates/core/versioning_config_form.html
+msgid "No configurable fields for this model."
+msgstr "Aucun champ configurable pour ce modèle."
+
+#: templates/core/versioning_config_confirm_delete.html
+msgid "Delete versioning configuration"
+msgstr "Supprimer la configuration du versioning"
+
+#: templates/core/versioning_config_confirm_delete.html
+msgid "The model will revert to default behavior: all changes are major and approval is enabled."
+msgstr "Le modèle reviendra au comportement par défaut : tous les changements sont majeurs et l'approbation est activée."
+
+#: templates/base.html
+msgid "Versioning"
+msgstr "Versioning"
+
+#: context/views.py risks/views.py assets/views.py compliance/views.py
+msgid "Approval is disabled for this item type."
+msgstr "L'approbation est désactivée pour ce type d'élément."

@@ -2517,6 +2517,13 @@
         <i class="bi bi-tags"></i> <span class="sidebar-link-text">{% trans "Tags" %}</span>
         <span class="sidebar-tooltip">{% trans "Tags" %}</span>
       </a>
+      {% has_perm "system.config.read" as can_config %}
+      {% if can_config %}
+      <a href="{% url 'core:versioning-config-list' %}" class="sidebar-link">
+        <i class="bi bi-sliders"></i> <span class="sidebar-link-text">{% trans "Versioning" %}</span>
+        <span class="sidebar-tooltip">{% trans "Versioning" %}</span>
+      </a>
+      {% endif %}
       {% has_perm "system.users.read" as can_users %}
       {% if can_users %}
       <a href="{% url 'accounts:user-list' %}" class="sidebar-link">
