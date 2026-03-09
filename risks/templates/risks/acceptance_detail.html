@@ -10,12 +10,12 @@
     <h1 class="mb-0">{% blocktrans with risk=acceptance.risk %}Acceptance — {{ risk }}{% endblocktrans %}</h1>
     <small class="ref">{{ acceptance.reference }}</small>
   </div>
-{% help_modal "risks.acceptance_detail" %}
   <div class="d-flex gap-2">
     <a href="{% url 'risks:acceptance-update' acceptance.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     <a href="{% url 'risks:acceptance-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
+{% help_modal "risks.acceptance_detail" %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">
   <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
