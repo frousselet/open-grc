@@ -184,12 +184,28 @@ class AssessmentResultForm(forms.ModelForm):
         ]
         widgets = {
             "requirement": forms.Select(attrs=SELECT_ATTRS),
-            "compliance_status": forms.Select(attrs=SELECT_ATTRS),
+            "compliance_status": forms.Select(attrs={
+                **SELECT_ATTRS,
+                "data-compliance-level-defaults": '{"not_assessed":0,"non_compliant":0,"partially_compliant":50,"compliant":100,"not_applicable":0}',
+            }),
             "compliance_level": forms.NumberInput(attrs={**FORM_WIDGET_ATTRS, "min": 0, "max": 100}),
             "evidence": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "gaps": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "observations": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
         }
+
+    def __init__(self, *args, assessment=None, requirement_instance=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if assessment:
+            self.fields["requirement"].queryset = Requirement.objects.filter(
+                framework=assessment.framework, is_applicable=True
+            ).order_by("requirement_number")
+        if requirement_instance:
+            self.fields["requirement"].initial = requirement_instance.pk
+            self.fields["requirement"].queryset = Requirement.objects.filter(
+                pk=requirement_instance.pk
+            )
+            self.fields["requirement"].widget.attrs["disabled"] = True
 
 
 class RequirementMappingForm(forms.ModelForm):

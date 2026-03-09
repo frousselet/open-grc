@@ -8443,3 +8443,47 @@ msgstr "Rechercher…"
 
 #~ msgid "Search and select expectations..."
 #~ msgstr "Rechercher et sélectionner des attentes…"
+
+#: compliance/templates/compliance/assessment_detail.html
+msgid "Initialize evaluations"
+msgstr "Initialiser les évaluations"
+
+#: compliance/templates/compliance/assessment_detail.html
+msgid "Add result"
+msgstr "Ajouter un résultat"
+
+#: compliance/templates/compliance/assessment_detail.html
+msgid "evaluated"
+msgstr "évalué(s)"
+
+#: compliance/templates/compliance/assessment_detail.html
+msgid "Ref."
+msgstr "Réf."
+
+#: compliance/templates/compliance/assessment_results_table_body.html
+msgid "Uncategorized"
+msgstr "Non catégorisé"
+
+#: compliance/templates/compliance/assessment_results_table_body.html
+msgid "Evaluate"
+msgstr "Évaluer"
+
+#: compliance/templates/compliance/assessment_results_table_body.html
+msgid "Edit evaluation"
+msgstr "Modifier l'évaluation"
+
+#: compliance/templates/compliance/assessment_results_table_body.html
+msgid "No requirement to evaluate. Initialize evaluations or check that the framework has applicable requirements."
+msgstr "Aucune exigence à évaluer. Initialisez les évaluations ou vérifiez que le référentiel contient des exigences applicables."
+
+#: compliance/views.py
+msgid "Evaluate requirement"
+msgstr "Évaluer l'exigence"
+
+#: compliance/views.py
+msgid "Edit evaluation"
+msgstr "Modifier l'évaluation"
+
+#: compliance/templates/compliance/assessment_result_form_modal.html
+msgid "Evidence & Gaps"
+msgstr "Preuves & Écarts"

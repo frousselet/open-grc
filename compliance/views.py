@@ -24,6 +24,7 @@ from django.views.generic import (
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
 from core.mixins import HtmxFormMixin, SortableListMixin
 from .forms import (
+    AssessmentResultForm,
     ComplianceActionPlanForm,
     ComplianceAssessmentForm,
     FrameworkForm,
@@ -40,7 +41,9 @@ from .import_utils import (
     parse_json,
     validate_parsed_data,
 )
+from .constants import ComplianceStatus
 from .models import (
+    AssessmentResult,
     ComplianceActionPlan,
     ComplianceAssessment,
     Framework,
@@ -477,9 +480,22 @@ class AssessmentDetailView(
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["results"] = self.object.results.select_related("requirement").order_by(
+        assessment = self.object
+        ctx["results"] = assessment.results.select_related("requirement").order_by(
             "requirement__requirement_number"
         )
+        # Build sections_with_results for grouped display
+        ctx["sections_with_results"] = _build_sections_with_results(assessment)
+        # Progress counts
+        results_qs = assessment.results.all()
+        total = results_qs.count()
+        evaluated = results_qs.exclude(
+            compliance_status=ComplianceStatus.NOT_ASSESSED
+        ).count()
+        ctx["results_total"] = total
+        ctx["results_evaluated"] = evaluated
+        ctx["results_progress"] = round(evaluated * 100 / total) if total else 0
+        ctx["has_results"] = total > 0
         return ctx
 
 
@@ -515,6 +531,235 @@ class AssessmentDeleteView(LoginRequiredMixin, DeleteView):
     model = ComplianceAssessment
     template_name = "compliance/confirm_delete.html"
     success_url = reverse_lazy("compliance:assessment-list")
+
+
+# ── Assessment Results ─────────────────────────────────────
+
+
+def _build_sections_with_results(assessment):
+    """Build a list of sections with their requirements and associated results.
+
+    Returns a list of dicts:
+        [{"section": Section|None, "requirements": [{"requirement": Req, "result": Result|None}, ...],
+          "evaluated": int, "total": int}, ...]
+    """
+    framework = assessment.framework
+    results_map = {
+        r.requirement_id: r
+        for r in assessment.results.select_related(
+            "requirement", "assessed_by"
+        ).all()
+    }
+    requirements = framework.requirements.filter(
+        is_applicable=True
+    ).select_related("section").order_by("section__order", "requirement_number")
+
+    sections_dict = {}  # section_id -> section data
+    no_section_reqs = []
+
+    for req in requirements:
+        result = results_map.get(req.pk)
+        entry = {"requirement": req, "result": result}
+        if req.section_id:
+            if req.section_id not in sections_dict:
+                sections_dict[req.section_id] = {
+                    "section": req.section,
+                    "requirements": [],
+                    "evaluated": 0,
+                    "total": 0,
+                }
+            sections_dict[req.section_id]["requirements"].append(entry)
+            sections_dict[req.section_id]["total"] += 1
+            if result and result.compliance_status != ComplianceStatus.NOT_ASSESSED:
+                sections_dict[req.section_id]["evaluated"] += 1
+        else:
+            no_section_reqs.append(entry)
+
+    # Sort sections by their order
+    sections_list = sorted(
+        sections_dict.values(), key=lambda s: s["section"].order
+    )
+
+    # Add requirements with no section at the end
+    if no_section_reqs:
+        evaluated = sum(
+            1 for e in no_section_reqs
+            if e["result"] and e["result"].compliance_status != ComplianceStatus.NOT_ASSESSED
+        )
+        sections_list.append({
+            "section": None,
+            "requirements": no_section_reqs,
+            "evaluated": evaluated,
+            "total": len(no_section_reqs),
+        })
+
+    return sections_list
+
+
+class InitializeResultsView(LoginRequiredMixin, View):
+    """Bulk-create AssessmentResult for all applicable requirements."""
+
+    def post(self, request, pk):
+        assessment = get_object_or_404(ComplianceAssessment, pk=pk)
+        requirements = assessment.framework.requirements.filter(is_applicable=True)
+        existing_req_ids = set(
+            assessment.results.values_list("requirement_id", flat=True)
+        )
+        new_results = [
+            AssessmentResult(
+                assessment=assessment,
+                requirement=req,
+                compliance_status=ComplianceStatus.NOT_ASSESSED,
+                compliance_level=0,
+                assessed_by=request.user,
+                assessed_at=timezone.now(),
+            )
+            for req in requirements
+            if req.pk not in existing_req_ids
+        ]
+        if new_results:
+            AssessmentResult.objects.bulk_create(new_results, ignore_conflicts=True)
+            assessment.recalculate_counts()
+        if request.headers.get("HX-Request") == "true":
+            return HttpResponse(
+                status=204,
+                headers={"HX-Trigger": "formSaved"},
+            )
+        return redirect(reverse("compliance:assessment-detail", args=[pk]))
+
+
+class AssessmentResultCreateView(LoginRequiredMixin, HtmxFormMixin, CreateView):
+    model = AssessmentResult
+    form_class = AssessmentResultForm
+    template_name = "compliance/assessment_result_form.html"
+    modal_template_name = "compliance/assessment_result_form_modal.html"
+    modal_title_create = _("Evaluate requirement")
+
+    def get_assessment(self):
+        return get_object_or_404(
+            ComplianceAssessment, pk=self.kwargs["assessment_pk"]
+        )
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["assessment"] = self.get_assessment()
+        req_pk = self.request.GET.get("requirement")
+        if req_pk:
+            kwargs["requirement_instance"] = get_object_or_404(
+                Requirement, pk=req_pk
+            )
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["assessment"] = self.get_assessment()
+        req_pk = self.request.GET.get("requirement")
+        if req_pk:
+            ctx["requirement_obj"] = get_object_or_404(Requirement, pk=req_pk)
+        return ctx
+
+    def form_valid(self, form):
+        assessment = self.get_assessment()
+        form.instance.assessment = assessment
+        form.instance.assessed_by = self.request.user
+        form.instance.assessed_at = timezone.now()
+        # If requirement was disabled in the form, set it from the URL param
+        req_pk = self.request.GET.get("requirement")
+        if req_pk and not form.cleaned_data.get("requirement"):
+            form.instance.requirement = get_object_or_404(Requirement, pk=req_pk)
+        response = super().form_valid(form)
+        assessment.recalculate_counts()
+        return response
+
+    def get_success_url(self):
+        return reverse(
+            "compliance:assessment-detail",
+            args=[self.kwargs["assessment_pk"]],
+        )
+
+
+class AssessmentResultUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
+    model = AssessmentResult
+    form_class = AssessmentResultForm
+    template_name = "compliance/assessment_result_form.html"
+    modal_template_name = "compliance/assessment_result_form_modal.html"
+    modal_title_update = _("Edit evaluation")
+
+    def get_assessment(self):
+        return get_object_or_404(
+            ComplianceAssessment, pk=self.kwargs["assessment_pk"]
+        )
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["assessment"] = self.get_assessment()
+        kwargs["requirement_instance"] = self.object.requirement
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["assessment"] = self.get_assessment()
+        ctx["requirement_obj"] = self.object.requirement
+        return ctx
+
+    def form_valid(self, form):
+        form.instance.assessed_by = self.request.user
+        form.instance.assessed_at = timezone.now()
+        # Ensure requirement is preserved when field is disabled
+        if not form.cleaned_data.get("requirement"):
+            form.instance.requirement = self.object.requirement
+        response = super().form_valid(form)
+        self.get_assessment().recalculate_counts()
+        return response
+
+    def get_success_url(self):
+        return reverse(
+            "compliance:assessment-detail",
+            args=[self.kwargs["assessment_pk"]],
+        )
+
+
+class AssessmentResultDeleteView(LoginRequiredMixin, DeleteView):
+    model = AssessmentResult
+    template_name = "compliance/confirm_delete.html"
+
+    def get_assessment(self):
+        return get_object_or_404(
+            ComplianceAssessment, pk=self.kwargs["assessment_pk"]
+        )
+
+    def form_valid(self, form):
+        assessment = self.get_assessment()
+        response = super().form_valid(form)
+        assessment.recalculate_counts()
+        if self.request.headers.get("HX-Request") == "true":
+            return HttpResponse(
+                status=204,
+                headers={"HX-Trigger": "formSaved"},
+            )
+        return response
+
+    def get_success_url(self):
+        return reverse(
+            "compliance:assessment-detail",
+            args=[self.kwargs["assessment_pk"]],
+        )
+
+
+class AssessmentResultsTableBodyView(LoginRequiredMixin, View):
+    """Return the results table body partial for HTMX refresh."""
+
+    def get(self, request, pk):
+        from django.template.loader import render_to_string
+
+        assessment = get_object_or_404(ComplianceAssessment, pk=pk)
+        sections_with_results = _build_sections_with_results(assessment)
+        html = render_to_string(
+            "compliance/assessment_results_table_body.html",
+            {"sections_with_results": sections_with_results, "assessment": assessment},
+            request=request,
+        )
+        return HttpResponse(html)
 
 
 # ── Mapping ────────────────────────────────────────────────

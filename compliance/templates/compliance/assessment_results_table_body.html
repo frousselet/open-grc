@@ -1,0 +1,88 @@
+{% load i18n %}
+{% for group in sections_with_results %}
+{# ── Section header row ── #}
+<tr class="table-light">
+  <td colspan="7" class="fw-semibold" style="font-size:.88rem">
+    <div class="d-flex align-items-center justify-content-between">
+      <div>
+        <i class="bi bi-folder2 me-1" style="color:var(--text-muted)"></i>
+        {% if group.section %}
+          {{ group.section.reference }} — {{ group.section.name }}
+        {% else %}
+          {% trans "Uncategorized" %}
+        {% endif %}
+      </div>
+      <div class="d-flex align-items-center gap-2" style="font-size:.78rem;font-weight:400;color:var(--text-muted)">
+        <span>{{ group.evaluated }}/{{ group.total }}</span>
+        <div class="progress" style="width:80px;height:6px">
+          {% widthratio group.evaluated group.total 100 as section_pct %}
+          <div class="progress-bar bg-success" style="width:{% if group.total > 0 %}{% widthratio group.evaluated group.total 100 %}{% else %}0{% endif %}%"></div>
+        </div>
+      </div>
+    </div>
+  </td>
+</tr>
+{# ── Requirement rows ── #}
+{% for entry in group.requirements %}
+<tr>
+  <td>
+    <a href="{% url 'compliance:requirement-detail' entry.requirement.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500;font-size:.85rem">
+      {{ entry.requirement.requirement_number|default:entry.requirement.reference }}
+    </a>
+  </td>
+  <td style="font-size:.85rem;max-width:250px" class="text-truncate">{{ entry.requirement.name }}</td>
+  <td>
+    {% if entry.result %}
+      <span class="badge text-bg-{% if entry.result.compliance_status == 'compliant' %}success{% elif entry.result.compliance_status == 'partially_compliant' %}warning{% elif entry.result.compliance_status == 'non_compliant' %}danger{% elif entry.result.compliance_status == 'not_applicable' %}dark{% else %}secondary{% endif %}">
+        {{ entry.result.get_compliance_status_display }}
+      </span>
+    {% else %}
+      <span class="badge text-bg-secondary">{% trans "Not assessed" %}</span>
+    {% endif %}
+  </td>
+  <td style="font-size:.85rem">
+    {% if entry.result %}
+      <div class="d-flex align-items-center gap-1">
+        <div class="progress" style="width:50px;height:5px">
+          <div class="progress-bar {% if entry.result.compliance_level >= 80 %}bg-success{% elif entry.result.compliance_level >= 40 %}bg-warning{% else %}bg-danger{% endif %}" style="width:{{ entry.result.compliance_level }}%"></div>
+        </div>
+        <span>{{ entry.result.compliance_level }}%</span>
+      </div>
+    {% else %}
+      <span style="color:var(--text-muted)">—</span>
+    {% endif %}
+  </td>
+  <td style="font-size:.82rem;color:var(--text-muted)">
+    {% if entry.result and entry.result.assessed_by %}{{ entry.result.assessed_by }}{% else %}—{% endif %}
+  </td>
+  <td style="font-size:.82rem;color:var(--text-muted)">
+    {% if entry.result and entry.result.assessed_at %}{{ entry.result.assessed_at|date:"d/m/Y" }}{% else %}—{% endif %}
+  </td>
+  <td class="text-end">
+    {% if entry.result %}
+    <button class="btn btn-sm btn-outline-primary"
+            hx-get="{% url 'compliance:assessment-result-update' assessment.pk entry.result.pk %}"
+            hx-target="#drawer-form-content"
+            hx-swap="innerHTML"
+            title="{% trans 'Edit evaluation' %}">
+      <i class="bi bi-pencil"></i>
+    </button>
+    {% else %}
+    <button class="btn btn-sm btn-primary"
+            hx-get="{% url 'compliance:assessment-result-create' assessment.pk %}?requirement={{ entry.requirement.pk }}"
+            hx-target="#drawer-form-content"
+            hx-swap="innerHTML"
+            title="{% trans 'Evaluate' %}">
+      <i class="bi bi-clipboard-check"></i>
+    </button>
+    {% endif %}
+  </td>
+</tr>
+{% endfor %}
+{% empty %}
+<tr>
+  <td colspan="7" class="text-center" style="color:var(--text-muted);font-size:.85rem;padding:2rem">
+    {% trans "No requirement to evaluate. Initialize evaluations or check that the framework has applicable requirements." %}
+  </td>
+</tr>
+{% endfor %}

@@ -1,0 +1,93 @@
+{% extends "includes/modal_form.html" %}
+{% load i18n %}
+
+{% block modal_title_icon %}<span class="drawer-title-icon"><i class="bi bi-clipboard-check"></i></span>{% endblock %}
+
+{% block modal_form_fields %}
+{# ── Requirement context (read-only guidance) ── #}
+{% if requirement_obj %}
+<div class="drawer-section" style="background:var(--bs-tertiary-bg);border-radius:.5rem;padding:.75rem 1rem;margin-bottom:.75rem">
+  <div style="font-size:.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.25rem">{% trans "Requirement" %}</div>
+  <div class="fw-semibold" style="font-size:.95rem">
+    {% if requirement_obj.requirement_number %}{{ requirement_obj.requirement_number }} — {% endif %}{{ requirement_obj.name }}
+  </div>
+  {% if requirement_obj.description %}
+  <div style="font-size:.82rem;color:var(--text-muted);margin-top:.35rem;max-height:6rem;overflow-y:auto">
+    {{ requirement_obj.description|safe }}
+  </div>
+  {% endif %}
+  {% if requirement_obj.section %}
+  <div style="font-size:.78rem;color:var(--text-muted);margin-top:.25rem">
+    <i class="bi bi-folder2 me-1"></i>{{ requirement_obj.section }}
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{# Hidden field for requirement when pre-set #}
+{% if requirement_obj %}
+  <input type="hidden" name="requirement" value="{{ requirement_obj.pk }}">
+  <div style="display:none">{{ form.requirement }}</div>
+{% else %}
+<div class="drawer-section">
+  <div class="mb-3">
+    <label for="{{ form.requirement.id_for_label }}" class="form-label">{{ form.requirement.label }} *</label>
+    {{ form.requirement }}
+    {% for error in form.requirement.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{# ── Evaluation ── #}
+<div class="drawer-meta">
+  <div>
+    <label for="{{ form.compliance_status.id_for_label }}" class="form-label">{{ form.compliance_status.label }} *</label>
+    {{ form.compliance_status }}
+    {% for error in form.compliance_status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.compliance_level.id_for_label }}" class="form-label">{{ form.compliance_level.label }}</label>
+    <div class="input-group">
+      {{ form.compliance_level }}
+      <span class="input-group-text">%</span>
+    </div>
+    {% for error in form.compliance_level.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+
+{# ── Evidence & Gaps ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-file-earmark-text"></i> {% trans "Evidence & Gaps" %}</div>
+  <div class="mb-3">
+    <label for="{{ form.evidence.id_for_label }}" class="form-label">{{ form.evidence.label }}</label>
+    {{ form.evidence }}
+    {% for error in form.evidence.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div class="mb-3">
+    <label for="{{ form.gaps.id_for_label }}" class="form-label">{{ form.gaps.label }}</label>
+    {{ form.gaps }}
+    {% for error in form.gaps.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div>
+    <label for="{{ form.observations.id_for_label }}" class="form-label">{{ form.observations.label }}</label>
+    {{ form.observations }}
+    {% for error in form.observations.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+
+{# ── Auto-fill compliance_level from status ── #}
+<script>
+(function() {
+  var statusSel = document.getElementById('{{ form.compliance_status.id_for_label }}');
+  var levelInput = document.getElementById('{{ form.compliance_level.id_for_label }}');
+  if (!statusSel || !levelInput) return;
+  var defaults = JSON.parse(statusSel.getAttribute('data-compliance-level-defaults') || '{}');
+  statusSel.addEventListener('change', function() {
+    var val = defaults[this.value];
+    if (val !== undefined) {
+      levelInput.value = val;
+    }
+  });
+})();
+</script>
+{% endblock %}
