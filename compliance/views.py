@@ -124,9 +124,19 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         scope_ids = user.get_allowed_scope_ids()
         if scope_ids is not None:
             ctx["user_scopes"] = Scope.objects.filter(id__in=scope_ids).select_related("parent_scope")
+        from django.db.models import OuterRef, Subquery
+
+        latest_assessment = ComplianceAssessment.objects.filter(
+            framework=OuterRef("pk")
+        ).order_by("-assessment_date", "-created_at")
+
         frameworks = self._filter_scoped(Framework.objects.all())
         ctx["framework_count"] = frameworks.count()
-        ctx["frameworks"] = frameworks.filter(status="active")[:10]
+        ctx["frameworks"] = frameworks.filter(status="active").annotate(
+            latest_compliance=Subquery(
+                latest_assessment.values("overall_compliance_level")[:1]
+            ),
+        )[:10]
         ctx["requirement_count"] = self._filter_scoped(Requirement.objects.all()).count()
         ctx["non_compliant_count"] = self._filter_scoped(
             Requirement.objects.filter(compliance_status="non_compliant")
