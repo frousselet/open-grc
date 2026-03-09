@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Avg, Count, Prefetch, Q
+from django.db.models import Avg, Count, Max, Prefetch, Q, Subquery, OuterRef
 from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
@@ -170,19 +170,32 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
         # ── Conformité ───────────────────────────────────
         frameworks = self._filter_scoped(Framework.objects.all())
         ctx["framework_count"] = frameworks.count()
+        from compliance.models import ComplianceAssessment
+
+        latest_assessment = ComplianceAssessment.objects.filter(
+            framework=OuterRef("pk")
+        ).order_by("-assessment_date", "-created_at")
+
         active_frameworks = self._filter_scoped(
             Framework.objects.filter(status="active")
         ).select_related("owner").prefetch_related(
             Prefetch("scopes", queryset=Scope.objects.select_related("parent_scope")),
         ).annotate(
             req_count=Count("requirements", filter=Q(requirements__is_applicable=True)),
+            latest_compliance=Subquery(
+                latest_assessment.values("overall_compliance_level")[:1]
+            ),
         )[:10]
         ctx["active_frameworks"] = active_frameworks
 
-        # Overall compliance: weighted average by applicable requirement count
+        # Overall compliance: average of latest assessment levels
         agg = self._filter_scoped(
             Framework.objects.filter(status="active")
-        ).aggregate(avg=Avg("compliance_level"))
+        ).annotate(
+            latest_compliance=Subquery(
+                latest_assessment.values("overall_compliance_level")[:1]
+            ),
+        ).aggregate(avg=Avg("latest_compliance"))
         ctx["overall_compliance"] = round(agg["avg"] or 0)
 
         # Dashboard indicators
