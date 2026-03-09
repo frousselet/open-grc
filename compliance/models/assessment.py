@@ -70,8 +70,8 @@ class ComplianceAssessment(ScopedModel):
         return f"{self.reference} : {self.name}"
 
     def recalculate_counts(self):
-        """Recompute summary counts from results."""
-        results = self.results.all()
+        """Recompute summary counts from results and propagate to requirements/framework."""
+        results = self.results.select_related("requirement").all()
         self.total_requirements = results.exclude(
             compliance_status=ComplianceStatus.NOT_APPLICABLE
         ).count()
@@ -105,6 +105,28 @@ class ComplianceAssessment(ScopedModel):
             not_assessed_count=self.not_assessed_count,
             overall_compliance_level=self.overall_compliance_level,
         )
+
+        # ── Propagate to requirements ──
+        from compliance.models.requirement import Requirement
+
+        affected_section_ids = set()
+        for result in results:
+            req = result.requirement
+            Requirement.objects.filter(pk=req.pk).update(
+                compliance_status=result.compliance_status,
+                compliance_level=result.compliance_level,
+            )
+            if req.section_id:
+                affected_section_ids.add(req.section_id)
+
+        # ── Propagate to sections ──
+        from compliance.models.section import Section
+
+        for section in Section.objects.filter(pk__in=affected_section_ids):
+            section.recalculate_compliance()
+
+        # ── Propagate to framework ──
+        self.framework.recalculate_compliance()
 
 
 class AssessmentResult(models.Model):
