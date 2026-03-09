@@ -10,14 +10,23 @@ class AssetsConfig(AppConfig):
     verbose_name = _("Assets")
 
     def ready(self):
-        # In dev mode (runserver), Django spawns two processes; only start
-        # the scheduler in the reloader child (RUN_MAIN=true).
-        # In production (gunicorn/wsgi), RUN_MAIN is not set — always start.
-        # Never start during tests (managed by pytest-django).
+        # Only start the SPOF scheduler when running the dev server or
+        # production WSGI/ASGI — never during management commands (migrate,
+        # compilemessages, etc.) or tests.
         import sys
 
         if "pytest" in sys.modules or "test" in sys.argv:
             return
+
+        # When invoked via `manage.py <command>`, only start for runserver.
+        # In production (gunicorn/uvicorn), sys.argv[0] won't be manage.py
+        # and RUN_MAIN is not set — always start in that case.
+        is_managepy = any(
+            arg.endswith("manage.py") or arg == "django" for arg in sys.argv[:1]
+        )
+        if is_managepy and "runserver" not in sys.argv:
+            return
+
         if os.environ.get("RUN_MAIN", "true") == "true":
             from assets.services.spof_scheduler import start_spof_scheduler
 
