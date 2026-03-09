@@ -59,15 +59,18 @@ class Section(models.Model):
         super().save(*args, **kwargs)
 
     def recalculate_compliance(self):
-        """RC-02: section compliance = average of applicable requirements + subsections."""
+        """RC-02: section compliance = average of applicable requirements + subsections.
+
+        NOT_APPLICABLE → 100%, NOT_ASSESSED → 0% (treated as non-compliant).
+        """
         from compliance.constants import ComplianceStatus
 
-        reqs = self.requirements.filter(
-            is_applicable=True
-        ).exclude(
-            compliance_status=ComplianceStatus.NOT_APPLICABLE
-        )
-        levels = [r.compliance_level or 0 for r in reqs]
+        reqs = self.requirements.filter(is_applicable=True)
+        levels = [
+            100 if r.compliance_status == ComplianceStatus.NOT_APPLICABLE
+            else (r.compliance_level or 0)
+            for r in reqs
+        ]
 
         for child in self.children.all():
             child.recalculate_compliance()

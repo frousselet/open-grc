@@ -72,9 +72,7 @@ class ComplianceAssessment(ScopedModel):
     def recalculate_counts(self):
         """Recompute summary counts from results and propagate to requirements/framework."""
         results = self.results.select_related("requirement").all()
-        self.total_requirements = results.exclude(
-            compliance_status=ComplianceStatus.NOT_APPLICABLE
-        ).count()
+        self.total_requirements = results.count()
         self.compliant_count = results.filter(
             compliance_status=ComplianceStatus.COMPLIANT
         ).count()
@@ -88,11 +86,11 @@ class ComplianceAssessment(ScopedModel):
             compliance_status=ComplianceStatus.NOT_ASSESSED
         ).count()
         if self.total_requirements > 0:
+            # NOT_APPLICABLE → 100%, NOT_ASSESSED → 0% (like non-compliant)
             total_level = sum(
-                r.compliance_level or 0
-                for r in results.exclude(
-                    compliance_status=ComplianceStatus.NOT_APPLICABLE
-                )
+                100 if r.compliance_status == ComplianceStatus.NOT_APPLICABLE
+                else (r.compliance_level or 0)
+                for r in results
             )
             self.overall_compliance_level = total_level / self.total_requirements
         else:

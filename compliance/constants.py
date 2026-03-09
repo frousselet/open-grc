@@ -117,5 +117,5 @@ COMPLIANCE_LEVEL_DEFAULTS = {
     ComplianceStatus.NON_COMPLIANT: 0,
     ComplianceStatus.PARTIALLY_COMPLIANT: 50,
     ComplianceStatus.COMPLIANT: 100,
-    # NOT_APPLICABLE is excluded from calculation
+    ComplianceStatus.NOT_APPLICABLE: 100,
 }

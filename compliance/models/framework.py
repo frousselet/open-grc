@@ -79,18 +79,21 @@ class Framework(BaseModel):
         return f"{self.reference} : {self.name}"
 
     def recalculate_compliance(self):
-        """RC-01: compliance level = average of applicable requirements."""
+        """RC-01: compliance level = average of applicable requirements.
+
+        NOT_APPLICABLE → 100%, NOT_ASSESSED → 0% (treated as non-compliant).
+        """
         from compliance.constants import ComplianceStatus
 
-        reqs = self.requirements.filter(
-            is_applicable=True
-        ).exclude(
-            compliance_status=ComplianceStatus.NOT_APPLICABLE
-        )
+        reqs = self.requirements.filter(is_applicable=True)
         if not reqs.exists():
             self.compliance_level = 0
         else:
-            total = sum(r.compliance_level or 0 for r in reqs)
+            total = sum(
+                100 if r.compliance_status == ComplianceStatus.NOT_APPLICABLE
+                else (r.compliance_level or 0)
+                for r in reqs
+            )
             self.compliance_level = total / reqs.count()
         Framework.objects.filter(pk=self.pk).update(
             compliance_level=self.compliance_level
