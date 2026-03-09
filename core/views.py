@@ -176,16 +176,56 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
             framework=OuterRef("pk")
         ).order_by("-assessment_date", "-created_at")
 
-        active_frameworks = self._filter_scoped(
-            Framework.objects.filter(status="active")
-        ).select_related("owner").prefetch_related(
-            Prefetch("scopes", queryset=Scope.objects.select_related("parent_scope")),
-        ).annotate(
-            req_count=Count("requirements", filter=Q(requirements__is_applicable=True)),
-            latest_compliance=Subquery(
-                latest_assessment.values("overall_compliance_level")[:1]
-            ),
-        )[:10]
+        active_frameworks = list(
+            self._filter_scoped(
+                Framework.objects.filter(status="active")
+            ).select_related("owner").prefetch_related(
+                Prefetch("scopes", queryset=Scope.objects.select_related("parent_scope")),
+            ).annotate(
+                req_count=Count("requirements", filter=Q(requirements__is_applicable=True)),
+                latest_compliance=Subquery(
+                    latest_assessment.values("overall_compliance_level")[:1]
+                ),
+                latest_compliant=Subquery(
+                    latest_assessment.values("compliant_count")[:1]
+                ),
+                latest_partially=Subquery(
+                    latest_assessment.values("partially_compliant_count")[:1]
+                ),
+                latest_non_compliant=Subquery(
+                    latest_assessment.values("non_compliant_count")[:1]
+                ),
+                latest_not_assessed=Subquery(
+                    latest_assessment.values("not_assessed_count")[:1]
+                ),
+                latest_total=Subquery(
+                    latest_assessment.values("total_requirements")[:1]
+                ),
+            )[:10]
+        )
+        # Compute segment percentages for stacked progress bars
+        for fw in active_frameworks:
+            total = fw.latest_total or 0
+            rc = fw.req_count or 0
+            if rc > 0 and total > 0:
+                compliant = fw.latest_compliant or 0
+                partially = fw.latest_partially or 0
+                non_compliant = fw.latest_non_compliant or 0
+                not_assessed_in = fw.latest_not_assessed or 0
+                not_applicable = total - compliant - partially - non_compliant - not_assessed_in
+                # Requirements not covered by the assessment count as not assessed
+                uncovered = rc - total
+                fw.seg_compliant = round(compliant * 100 / rc)
+                fw.seg_partial = round(partially * 100 / rc)
+                fw.seg_non_compliant = round(non_compliant * 100 / rc)
+                fw.seg_not_applicable = round(not_applicable * 100 / rc)
+                fw.seg_not_assessed = round((not_assessed_in + uncovered) * 100 / rc)
+            else:
+                fw.seg_compliant = 0
+                fw.seg_partial = 0
+                fw.seg_non_compliant = 0
+                fw.seg_not_applicable = 0
+                fw.seg_not_assessed = 100 if rc > 0 else 0
         ctx["active_frameworks"] = active_frameworks
 
         # Overall compliance: average of latest assessment levels
