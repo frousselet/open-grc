@@ -31,8 +31,8 @@
           {% sortable_th "framework" "Framework" %}
           {% sortable_th "date" "Date" %}
           <th>{% trans "Assessor" %}</th>
+          <th>{% trans "Coverage" %}</th>
           <th>{% trans "Compliance" %}</th>
-          <th>{% trans "Requirements" %}</th>
           {% sortable_th "status" "Status" %}
           <th>{% trans "Tags" %}</th>
           {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
@@ -48,14 +48,23 @@
           <td>{{ a.assessment_date }}</td>
           <td>{{ a.assessor }}</td>
           <td>
-            <div class="progress" style="min-width:80px">
-              <div class="progress-bar {% if a.overall_compliance_level >= 80 %}bg-success{% elif a.overall_compliance_level >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
-                   style="width:{{ a.overall_compliance_level|floatformat:0 }}%">
-                {{ a.overall_compliance_level|floatformat:0 }}%
+            {% widthratio a.total_requirements a.fw_req_count 100 as coverage_pct %}
+            <div class="d-flex align-items-center gap-1">
+              <div class="progress flex-grow-1" style="min-width:60px;height:6px">
+                <div class="progress-bar bg-info" style="width:{{ coverage_pct|default:0 }}%"></div>
               </div>
+              <small style="font-size:.75rem;min-width:2.5rem;text-align:right">{{ a.total_requirements }}/{{ a.fw_req_count|default:"?" }}</small>
             </div>
           </td>
-          <td>{{ a.total_requirements }}</td>
+          <td>
+            <div class="d-flex align-items-center gap-1">
+              <div class="progress flex-grow-1" style="min-width:60px;height:6px">
+                <div class="progress-bar {% if a.overall_compliance_level >= 80 %}bg-success{% elif a.overall_compliance_level >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
+                     style="width:{{ a.overall_compliance_level|floatformat:0 }}%"></div>
+              </div>
+              <small class="fw-semibold" style="font-size:.75rem;min-width:2rem;text-align:right">{{ a.overall_compliance_level|floatformat:0 }}%</small>
+            </div>
+          </td>
           <td>
             <span class="badge text-bg-{% if a.status == 'completed' or a.status == 'validated' %}success{% elif a.status == 'in_progress' %}info{% elif a.status == 'archived' %}secondary{% else %}warning{% endif %}">
               {{ a.get_status_display }}
