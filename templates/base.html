@@ -773,9 +773,11 @@
       border-radius: 50%;
       flex-shrink: 0;
     }
-    /* Tag badges (inline background-color) should not get the dot */
-    .table .badge[style*="background-color"]::before { display: none; }
-    .table .badge[style*="background-color"] { gap: 0; }
+    /* Tag badges and inline-styled badges should not get the dot */
+    .table .badge[style*="background-color"]::before,
+    .table .badge[style*="background:"]::before { display: none; }
+    .table .badge[style*="background-color"],
+    .table .badge[style*="background:"] { gap: 0; }
 
     /* Success — Active, Approved, Compliant, Fulfilled */
     .table .badge.text-bg-success, .table .badge.bg-success,

@@ -42,7 +42,8 @@ def get_model_field_choices(model_label):
         if field.name in base_fields:
             continue
         verbose = getattr(field, "verbose_name", field.name)
-        choices.append((field.name, str(verbose).capitalize()))
+        label = str(verbose)
+        choices.append((field.name, label[:1].upper() + label[1:]))
     choices.sort(key=lambda c: c[1])
     return choices
 
