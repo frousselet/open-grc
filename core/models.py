@@ -59,7 +59,8 @@ class VersioningConfig(models.Model):
             for fname in self.major_fields:
                 try:
                     field = model._meta.get_field(fname)
-                    result.append((fname, str(field.verbose_name).capitalize()))
+                    label = str(field.verbose_name)
+                    result.append((fname, label[:1].upper() + label[1:]))
                 except Exception:
                     result.append((fname, fname))
             return result
