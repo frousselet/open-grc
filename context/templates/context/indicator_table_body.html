@@ -1,4 +1,6 @@
 {% load i18n %}
+{% load versioning_tags %}
+{% approval_enabled_for "context.indicator" as show_approval %}
 {% for indicator in indicators %}
 <tr>
   <td><a href="{% url 'context:indicator-detail' indicator.pk %}" class="ref" style="text-decoration:none">{{ indicator.reference }}</a></td>
@@ -23,11 +25,13 @@
     </span>
   </td>
   <td>{% for tag in indicator.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
+  {% if show_approval %}
   <td>
     <span class="badge text-bg-{% if indicator.is_approved %}success{% else %}warning{% endif %}">
       {% if indicator.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
     </span>
   </td>
+  {% endif %}
   <td class="text-end">
     <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
             hx-get="{% url 'context:indicator-update' indicator.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML">

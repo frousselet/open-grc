@@ -1,4 +1,6 @@
 {% load i18n %}
+{% load versioning_tags %}
+{% approval_enabled_for "context.role" as show_approval %}
 {% for role in roles %}
 <tr{% if role.is_mandatory and role.user_count == 0 %} class="table-danger"{% endif %}>
   <td><a href="{% url 'context:role-detail' role.pk %}" class="ref" style="text-decoration:none">{{ role.reference }}</a></td>
@@ -12,11 +14,13 @@
     </span>
   </td>
   <td>{% for tag in role.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
+  {% if show_approval %}
   <td>
     <span class="badge text-bg-{% if role.is_approved %}success{% else %}warning{% endif %}">
       {% if role.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
     </span>
   </td>
+  {% endif %}
   <td class="text-end">
     <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
             hx-get="{% url 'context:role-update' role.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML">

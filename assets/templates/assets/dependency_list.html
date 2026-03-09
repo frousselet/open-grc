@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}{% load i18n %}{% trans "Dependencies" %} — Open GRC{% endblock %}
+{% block title %}{% load i18n %}
+{% load versioning_tags %}{% trans "Dependencies" %} — Open GRC{% endblock %}
 
 {% load help_tags i18n table_tags %}
 
 {% block content %}
+{% approval_enabled_for "assets.assetdependency" as show_approval %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Dependency relationships" %}</h1>
   <div class="header-actions">
@@ -29,7 +31,7 @@
           {% sortable_th "criticality" "Criticality" %}
           <th>{% trans "SPOF" %}</th>
           <th>{% trans "Redundancy" %}</th>
-          <th>{% trans "Approval" %}</th>
+          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -55,11 +57,13 @@
             {% endif %}
           </td>
           <td>{{ dep.get_redundancy_level_display|default:"—" }}</td>
+          {% if show_approval %}
           <td>
             <span class="badge text-bg-{% if dep.is_approved %}success{% else %}warning{% endif %}">
               {% if dep.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
             </span>
           </td>
+          {% endif %}
           <td class="text-end">
             <a href="{% url 'assets:dependency-update' dep.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
             <a href="{% url 'assets:dependency-delete' dep.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>

@@ -14,11 +14,13 @@
   <td>{{ issue.get_trend_display|default:"—" }}</td>
   <td>{{ issue.get_status_display }}</td>
   <td>{% for tag in issue.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
+  {% if show_approval %}
   <td>
     <span class="badge text-bg-{% if issue.is_approved %}success{% else %}warning{% endif %}">
       {% if issue.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
     </span>
   </td>
+  {% endif %}
   <td class="text-end">
     <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
             hx-get="{% url 'context:issue-update' issue.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML">

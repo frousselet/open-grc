@@ -79,7 +79,12 @@ class ApproveView(LoginRequiredMixin, View):
     success_url = None
 
     def post(self, request, pk):
+        from core.models import VersioningConfig
+
         obj = get_object_or_404(self.model, pk=pk)
+        if not VersioningConfig.is_approval_enabled(self.model):
+            messages.error(request, _("Approval is disabled for this item type."))
+            return redirect(request.META.get("HTTP_REFERER", "/"))
         feature = self.permission_feature or self.model._meta.model_name
         codename = f"compliance.{feature}.approve"
         if not request.user.is_superuser and not request.user.has_perm(codename):

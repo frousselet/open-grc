@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load accounts_tags %}
+{% load i18n %}
+{% block title %}{% trans "Versioning — Open GRC" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h2 class="mb-0">{% trans "Versioning & approval" %}</h2>
+  <div class="header-actions">
+    {% has_perm "system.config.update" as can_update %}
+    {% if can_update %}
+    <a href="{% url 'core:versioning-config-create' %}" class="btn-header-action" title="{% trans 'Add a configuration' %}">
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<p class="text-muted mb-3">
+  {% trans "Configure which field changes trigger a version increment and approval reset for each item type. You can also disable the approval workflow entirely." %}
+</p>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>{% trans "Item type" %}</th>
+          <th>{% trans "Model" %}</th>
+          <th>{% trans "Approval" %}</th>
+          <th>{% trans "Major fields" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for config in configs %}
+        <tr>
+          <td style="font-weight:500">{{ config.model_label|default:config.model_name }}</td>
+          <td><code style="font-size:.8rem">{{ config.model_name }}</code></td>
+          <td>
+            {% if config.approval_enabled %}
+              <span class="badge text-bg-success">{% trans "Enabled" %}</span>
+            {% else %}
+              <span class="badge text-bg-secondary">{% trans "Disabled" %}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if config.major_fields %}
+              {% for f in config.major_fields %}
+                <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.7rem">{{ f }}</span>
+              {% endfor %}
+            {% else %}
+              <span class="text-muted" style="font-size:.82rem">{% trans "All fields (default)" %}</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            {% if can_update %}
+            <a href="{% url 'core:versioning-config-update' config.pk %}" class="btn btn-sm btn-outline-primary me-1" title="{% trans 'Edit' %}">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{% url 'core:versioning-config-delete' config.pk %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Delete' %}">
+              <i class="bi bi-trash"></i>
+            </a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center text-muted py-4">
+            {% trans "No versioning configuration defined. All models use default behavior (all changes are major, approval enabled)." %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

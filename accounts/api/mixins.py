@@ -7,7 +7,12 @@ from context.models import Scope
 
 
 class ApprovableAPIMixin:
-    """Reset approval on update; add approve/reject actions to ViewSets."""
+    """Reset approval on update; add approve/reject actions to ViewSets.
+
+    Respects VersioningConfig: only triggers version bump and approval reset
+    when a "major" field has changed. If approval is disabled for the model,
+    approval fields are left unchanged.
+    """
 
     def _get_approve_codename(self):
         module = getattr(self, "permission_module", None)
@@ -18,14 +23,30 @@ class ApprovableAPIMixin:
             feature = self.queryset.model._meta.model_name
         return f"{module}.{feature}.approve"
 
+    def _is_major_change(self, serializer):
+        """Determine if the update includes at least one major field."""
+        from core.models import VersioningConfig
+
+        model_class = serializer.instance.__class__
+        if not VersioningConfig.is_approval_enabled(model_class):
+            return False
+        major_fields = VersioningConfig.get_major_fields(model_class)
+        if major_fields is None:
+            return True  # All changes are major
+        changed = set(serializer.validated_data.keys())
+        return bool(changed & major_fields)
+
     def perform_update(self, serializer):
-        current_version = serializer.instance.version or 0
-        serializer.save(
-            is_approved=False,
-            approved_by=None,
-            approved_at=None,
-            version=current_version + 1,
-        )
+        if self._is_major_change(serializer):
+            current_version = serializer.instance.version or 0
+            serializer.save(
+                is_approved=False,
+                approved_by=None,
+                approved_at=None,
+                version=current_version + 1,
+            )
+        else:
+            serializer.save()
 
     @action(detail=True, methods=["post"])
     def approve(self, request, **kwargs):

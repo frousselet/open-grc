@@ -7,8 +7,10 @@
 {% endblock %}
 
 {% load help_tags %}
+{% load versioning_tags %}
 
 {% block content %}
+{% approval_enabled_for "context.indicator" as show_approval %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% if indicator_type == "organizational" %}{% trans "Organizational indicators" %}{% else %}{% trans "Technical indicators" %}{% endif %}</h1>
   <div class="header-actions">
@@ -56,7 +58,7 @@
           <th>{% trans "Frequency" %}</th>
           {% sortable_th "status" "Status" %}
           <th>{% trans "Tags" %}</th>
-          <th>{% trans "Approval" %}</th>
+          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>

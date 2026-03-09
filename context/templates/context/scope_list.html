@@ -5,8 +5,10 @@
 {% block title %}{% trans "Scopes" %} — Open GRC{% endblock %}
 
 {% load help_tags %}
+{% load versioning_tags %}
 
 {% block content %}
+{% approval_enabled_for "context.scope" as show_approval %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Scopes" %}</h1>
   <div class="header-actions">
@@ -38,7 +40,7 @@
           {% sortable_th "effective_date" "Effective date" %}
           {% sortable_th "review_date" "Review date" %}
           <th>{% trans "Tags" %}</th>
-          <th>{% trans "Approval" %}</th>
+          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
