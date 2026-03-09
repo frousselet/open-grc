@@ -72,12 +72,18 @@ class VersioningConfigForm(forms.ModelForm):
         model_choices = [("", _("— Select a model —"))] + get_base_model_choices()
         self.fields["model_name"].widget = forms.Select(choices=model_choices)
 
-        # If editing an existing config, populate field choices
-        if self.instance and self.instance.pk and self.instance.model_name:
-            field_choices = get_model_field_choices(self.instance.model_name)
+        # Determine model_name from POST data or existing instance
+        model_name = None
+        if self.data.get("model_name"):
+            model_name = self.data["model_name"]
+        elif self.instance and self.instance.pk and self.instance.model_name:
+            model_name = self.instance.model_name
+
+        if model_name:
+            field_choices = get_model_field_choices(model_name)
             self.fields["major_fields"].choices = field_choices
-            # Set initial from the JSON field
-            if self.instance.major_fields:
+            # Set initial from the JSON field (for edit)
+            if self.instance and self.instance.pk and self.instance.major_fields:
                 self.initial["major_fields"] = self.instance.major_fields
         else:
             self.fields["major_fields"].choices = []
