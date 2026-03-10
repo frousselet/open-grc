@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 from django.shortcuts import redirect
@@ -38,6 +40,7 @@ class SoaReportCreateView(LoginRequiredMixin, FormView):
             report.frameworks.set(frameworks)
             report.file.save(filename, ContentFile(pdf_bytes), save=True)
         except Exception:
+            logging.getLogger(__name__).exception("SoA PDF generation failed")
             Report.objects.create(
                 report_type=ReportType.SOA,
                 name=report_name,
