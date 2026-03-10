@@ -8585,22 +8585,6 @@ msgstr "WT — Éviter"
 msgid "Are you sure you want to delete this item?"
 msgstr "Êtes-vous sûr de vouloir supprimer cet élément ?"
 
-#: context/constants.py
-msgid "SO — Leverage"
-msgstr "SO — Tirer parti"
-
-#: context/constants.py
-msgid "ST — Confront"
-msgstr "ST — Confronter"
-
-#: context/constants.py
-msgid "WO — Improve"
-msgstr "WO — Améliorer"
-
-#: context/constants.py
-msgid "WT — Avoid"
-msgstr "WT — Éviter"
-
 #: context/models/swot.py
 msgid "Strategy quadrant"
 msgstr "Quadrant stratégique"
