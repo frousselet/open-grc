@@ -58,7 +58,7 @@
               <span>{{ quadrant_label }}</span>
               <button type="button" class="btn btn-sm btn-light" title="{% trans 'Add' %}"
                       hx-get="{% url 'context:swot-item-create' analysis.pk %}?quadrant={{ quadrant_value }}"
-                      hx-target="#drawer-form-content" hx-swap="innerHTML">
+                      hx-target="#drawer-form-content" hx-swap="innerHTML" hx-select="unset">
                 <i class="bi bi-plus-lg"></i>
               </button>
             </div>
@@ -72,7 +72,7 @@
                 <div class="d-flex gap-1 ms-2 flex-shrink-0">
                   <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
                           hx-get="{% url 'context:swot-item-update' analysis.pk item.pk %}"
-                          hx-target="#drawer-form-content" hx-swap="innerHTML">
+                          hx-target="#drawer-form-content" hx-swap="innerHTML" hx-select="unset">
                     <i class="bi bi-pencil"></i>
                   </button>
                   <button type="button" class="btn btn-sm btn-outline-danger" title="{% trans 'Delete' %}"
