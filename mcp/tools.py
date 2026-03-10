@@ -936,9 +936,11 @@ def _register_compliance_tools(server):
                    field_overrides=_HTML_DESC)
 
     ar_fields = ["id", "assessment_id", "requirement_id", "compliance_status",
-                 "compliance_level", "evidence", "gaps", "assessed_at"]
+                 "compliance_level", "evidence", "gaps", "observations",
+                 "assessed_by_id", "assessed_at"]
     ar_writable = ["assessment_id", "requirement_id", "compliance_status",
-                   "compliance_level", "evidence", "gaps"]
+                   "compliance_level", "evidence", "gaps", "observations",
+                   "assessed_by_id", "assessed_at"]
 
     _register_crud(server, "assessment_result", AssessmentResult, "compliance.assessment",
                    list_fields=ar_fields,
@@ -950,6 +952,9 @@ def _register_compliance_tools(server):
                    field_overrides={
                        "evidence": _html_field("Evidence"),
                        "gaps": _html_field("Gaps"),
+                       "observations": _html_field("Observations"),
+                       "assessed_by_id": {"type": "string", "description": "UUID of the assessor (user)"},
+                       "assessed_at": {"type": "string", "description": "Assessment date-time in ISO 8601 format (e.g. 2025-01-15T10:30:00Z)"},
                    })
 
     rm_fields = ["id", "source_requirement_id", "target_requirement_id",
