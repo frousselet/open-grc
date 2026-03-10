@@ -8665,6 +8665,10 @@ msgstr "Comment les opportunités peuvent-elles pallier les faiblesses ?"
 msgid "How to minimize weaknesses and avoid threats?"
 msgstr "Comment minimiser les faiblesses et éviter les menaces ?"
 
+#: context/templates/context/swot_detail.html
+msgid "Details"
+msgstr "Détails"
+
 #: context/templates/context/swot_list.html
 msgid "Items"
 msgstr "Éléments"
