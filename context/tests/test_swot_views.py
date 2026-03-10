@@ -18,7 +18,7 @@ class TestSwotDetailView:
         client.force_login(user)
         resp = client.get(reverse("context:swot-detail", args=[analysis.pk]))
         assert resp.status_code == 200
-        assert b"Matrix" in resp.content or "Matrice".encode() in resp.content
+        assert b"Strategies" in resp.content or "Stratégies".encode() in resp.content
 
     def test_detail_shows_items_by_quadrant(self):
         user = UserFactory(is_superuser=True)
