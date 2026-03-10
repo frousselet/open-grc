@@ -158,3 +158,13 @@
   </div>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+document.body.addEventListener('refreshItems', function() {
+  var drawerEl = document.getElementById('itemDrawer');
+  var drawer = bootstrap.Offcanvas.getInstance(drawerEl);
+  if (drawer) drawer.hide();
+});
+</script>
+{% endblock %}
