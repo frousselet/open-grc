@@ -4,7 +4,16 @@
 {% for analysis in analyses %}
 <tr>
   <td><a href="{% url 'context:swot-detail' analysis.pk %}" class="ref" style="text-decoration:none">{{ analysis.reference }}</a></td>
-  <td>{{ analysis.name }}</td>
+  <td><a href="{% url 'context:swot-detail' analysis.pk %}" style="text-decoration:none;color:var(--text-primary);font-weight:500">{{ analysis.name }}</a></td>
+  <td>
+    <div class="d-flex gap-1 flex-nowrap">
+      {% if analysis.strength_count %}<span class="badge rounded-pill" style="font-size:.62rem;background:var(--success);color:#fff" title="{% trans 'Strengths' %}">S {{ analysis.strength_count }}</span>{% endif %}
+      {% if analysis.weakness_count %}<span class="badge rounded-pill" style="font-size:.62rem;background:var(--danger);color:#fff" title="{% trans 'Weaknesses' %}">W {{ analysis.weakness_count }}</span>{% endif %}
+      {% if analysis.opportunity_count %}<span class="badge rounded-pill" style="font-size:.62rem;background:var(--accent);color:#fff" title="{% trans 'Opportunities' %}">O {{ analysis.opportunity_count }}</span>{% endif %}
+      {% if analysis.threat_count %}<span class="badge rounded-pill" style="font-size:.62rem;background:var(--warning);color:#000" title="{% trans 'Threats' %}">T {{ analysis.threat_count }}</span>{% endif %}
+      {% if not analysis.strength_count and not analysis.weakness_count and not analysis.opportunity_count and not analysis.threat_count %}<span style="color:var(--text-muted);font-size:.75rem">—</span>{% endif %}
+    </div>
+  </td>
   <td>{{ analysis.analysis_date }}</td>
   <td>
     <span class="badge text-bg-{% if analysis.status == 'validated' %}success{% elif analysis.status == 'draft' %}secondary{% else %}dark{% endif %}">
@@ -28,5 +37,5 @@
   </td>
 </tr>
 {% empty %}
-<tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted)">{% trans "No SWOT analysis." %}</td></tr>
+<tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No SWOT analysis." %}</td></tr>
 {% endfor %}

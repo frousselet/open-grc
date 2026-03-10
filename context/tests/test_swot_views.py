@@ -225,6 +225,21 @@ class TestSwotStrategyDeleteView:
         assert resp.status_code == 302
 
 
+class TestSwotListView:
+    def test_list_shows_item_count_badges(self):
+        user = UserFactory(is_superuser=True)
+        analysis = SwotAnalysisFactory()
+        SwotItemFactory(swot_analysis=analysis, quadrant=SwotQuadrant.STRENGTH)
+        SwotItemFactory(swot_analysis=analysis, quadrant=SwotQuadrant.STRENGTH)
+        SwotItemFactory(swot_analysis=analysis, quadrant=SwotQuadrant.THREAT)
+        client = Client()
+        client.force_login(user)
+        resp = client.get(reverse("context:swot-list"))
+        assert resp.status_code == 200
+        assert b"S 2" in resp.content
+        assert b"T 1" in resp.content
+
+
 class TestSwotDetailStrategies:
     def test_detail_shows_strategies_in_matrix(self):
         user = UserFactory(is_superuser=True)

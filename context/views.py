@@ -608,7 +608,13 @@ class SwotListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, List
     search_fields = ["reference", "name"]
 
     def get_queryset(self):
-        qs = super().get_queryset()
+        qs = super().get_queryset().annotate(
+            strength_count=Count("items", filter=Q(items__quadrant="strength")),
+            weakness_count=Count("items", filter=Q(items__quadrant="weakness")),
+            opportunity_count=Count("items", filter=Q(items__quadrant="opportunity")),
+            threat_count=Count("items", filter=Q(items__quadrant="threat")),
+            strategy_count=Count("strategies"),
+        )
         status_filter = self.request.GET.get("status")
         if status_filter:
             qs = qs.filter(status=status_filter)
@@ -630,10 +636,10 @@ class SwotDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin,
         items = list(self.object.items.all())
         ctx["items"] = items
         ctx["quadrants"] = [
-            ("strength", _("Strengths"), "success"),
-            ("weakness", _("Weaknesses"), "danger"),
-            ("opportunity", _("Opportunities"), "primary"),
-            ("threat", _("Threats"), "warning"),
+            ("strength", _("Strengths"), "success", "bi-shield-check"),
+            ("weakness", _("Weaknesses"), "danger", "bi-exclamation-triangle"),
+            ("opportunity", _("Opportunities"), "primary", "bi-rocket-takeoff"),
+            ("threat", _("Threats"), "warning", "bi-lightning"),
         ]
         ctx["strengths"] = [i for i in items if i.quadrant == "strength"]
         ctx["weaknesses"] = [i for i in items if i.quadrant == "weakness"]
@@ -1041,7 +1047,13 @@ class SwotTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin,
     search_fields = ["reference", "name"]
 
     def get_queryset(self):
-        qs = super().get_queryset()
+        qs = super().get_queryset().annotate(
+            strength_count=Count("items", filter=Q(items__quadrant="strength")),
+            weakness_count=Count("items", filter=Q(items__quadrant="weakness")),
+            opportunity_count=Count("items", filter=Q(items__quadrant="opportunity")),
+            threat_count=Count("items", filter=Q(items__quadrant="threat")),
+            strategy_count=Count("strategies"),
+        )
         status_filter = self.request.GET.get("status")
         if status_filter:
             qs = qs.filter(status=status_filter)
