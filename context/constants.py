@@ -159,6 +159,13 @@ class SwotQuadrant(models.TextChoices):
     THREAT = "threat", _("Threat")
 
 
+class SwotStrategyQuadrant(models.TextChoices):
+    SO = "so", _("SO — Leverage")
+    ST = "st", _("ST — Confront")
+    WO = "wo", _("WO — Improve")
+    WT = "wt", _("WT — Avoid")
+
+
 class RoleType(models.TextChoices):
     GOVERNANCE = "governance", _("Governance")
     OPERATIONAL = "operational", _("Operational")

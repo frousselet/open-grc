@@ -14,6 +14,7 @@ from context.models import (
     StakeholderExpectation,
     SwotAnalysis,
     SwotItem,
+    SwotStrategy,
     Tag,
 )
 
@@ -140,14 +141,25 @@ class SwotItemSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
+class SwotStrategySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwotStrategy
+        fields = [
+            "id", "swot_analysis", "quadrant", "description", "order",
+            "created_at", "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
 class SwotAnalysisSerializer(serializers.ModelSerializer):
     items = SwotItemSerializer(many=True, read_only=True)
+    strategies = SwotStrategySerializer(many=True, read_only=True)
 
     class Meta:
         model = SwotAnalysis
         fields = [
             "id", "scopes", "name", "description", "analysis_date",
-            "status", "validated_by", "validated_at", "items",
+            "status", "validated_by", "validated_at", "items", "strategies",
             "review_date", "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",

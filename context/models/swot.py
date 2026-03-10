@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
-from context.constants import ImpactLevel, SwotQuadrant, SwotStatus
+from context.constants import ImpactLevel, SwotQuadrant, SwotStatus, SwotStrategyQuadrant
 from .base import ScopedModel
 
 
@@ -81,6 +81,35 @@ class SwotItem(models.Model):
     class Meta:
         verbose_name = _("SWOT item")
         verbose_name_plural = _("SWOT items")
+        ordering = ["quadrant", "order"]
+
+    def __str__(self):
+        return f"{self.get_quadrant_display()} — {self.description[:50]}"
+
+
+class SwotStrategy(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    swot_analysis = models.ForeignKey(
+        SwotAnalysis,
+        on_delete=models.CASCADE,
+        related_name="strategies",
+        verbose_name=_("SWOT analysis"),
+    )
+    quadrant = models.CharField(
+        _("Strategy quadrant"),
+        max_length=2,
+        choices=SwotStrategyQuadrant.choices,
+    )
+    description = models.TextField(_("Description"))
+    order = models.IntegerField(_("Order"), default=0)
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
+
+    history = HistoricalRecords()
+
+    class Meta:
+        verbose_name = _("SWOT strategy")
+        verbose_name_plural = _("SWOT strategies")
         ordering = ["quadrant", "order"]
 
     def __str__(self):

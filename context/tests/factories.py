@@ -12,11 +12,12 @@ from context.constants import (
     ObjectiveType,
     SwotQuadrant,
     SwotStatus,
+    SwotStrategyQuadrant,
 )
 from context.models.issue import Issue
 from context.models.objective import Objective
 from context.models.scope import Scope
-from context.models.swot import SwotAnalysis, SwotItem
+from context.models.swot import SwotAnalysis, SwotItem, SwotStrategy
 
 
 class ScopeFactory(factory.django.DjangoModelFactory):
@@ -75,6 +76,15 @@ class SwotItemFactory(factory.django.DjangoModelFactory):
     quadrant = SwotQuadrant.STRENGTH
     description = factory.Sequence(lambda n: f"SWOT item {n}")
     impact_level = ImpactLevel.MEDIUM
+
+
+class SwotStrategyFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SwotStrategy
+
+    swot_analysis = factory.SubFactory(SwotAnalysisFactory)
+    quadrant = SwotStrategyQuadrant.SO
+    description = factory.Sequence(lambda n: f"SWOT strategy {n}")
 
 
 class ObjectiveFactory(factory.django.DjangoModelFactory):

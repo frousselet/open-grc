@@ -41,6 +41,20 @@ swot_items_reorder = views.SwotItemViewSet.as_view({
     "patch": "reorder",
 })
 
+swot_strategies = views.SwotStrategyViewSet.as_view({
+    "get": "list",
+    "post": "create",
+})
+swot_strategy_detail = views.SwotStrategyViewSet.as_view({
+    "get": "retrieve",
+    "put": "update",
+    "patch": "partial_update",
+    "delete": "destroy",
+})
+swot_strategies_reorder = views.SwotStrategyViewSet.as_view({
+    "patch": "reorder",
+})
+
 role_responsibilities = views.ResponsibilityViewSet.as_view({
     "get": "list",
     "post": "create",
@@ -93,6 +107,22 @@ urlpatterns = [
         "swot-analyses/<uuid:analysis_pk>/items/<uuid:pk>/",
         swot_item_detail,
         name="swot-items-detail",
+    ),
+    # SWOT strategies
+    path(
+        "swot-analyses/<uuid:analysis_pk>/strategies/",
+        swot_strategies,
+        name="swot-strategies-list",
+    ),
+    path(
+        "swot-analyses/<uuid:analysis_pk>/strategies/reorder/",
+        swot_strategies_reorder,
+        name="swot-strategies-reorder",
+    ),
+    path(
+        "swot-analyses/<uuid:analysis_pk>/strategies/<uuid:pk>/",
+        swot_strategy_detail,
+        name="swot-strategies-detail",
     ),
     # Role responsibilities
     path(

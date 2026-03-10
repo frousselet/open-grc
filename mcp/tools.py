@@ -450,6 +450,23 @@ def _register_context_tools(server):
                        "swot_analysis_id": {"type": "string", "description": "UUID of the parent SWOT analysis"},
                    })
 
+    SwotStrategy = _get_model("context", "SwotStrategy")
+    swot_strategy_fields = ["id", "quadrant", "description", "order",
+                            "swot_analysis_id", "created_at"]
+    swot_strategy_writable = ["quadrant", "description", "order",
+                              "swot_analysis_id"]
+
+    _register_crud(server, "swot_strategy", SwotStrategy, "context.swot",
+                   list_fields=swot_strategy_fields,
+                   writable_fields=swot_strategy_writable,
+                   search_fields=["description"],
+                   filters=["swot_analysis_id", "quadrant"],
+                   scope_filtered=False,
+                   field_overrides={
+                       "quadrant": {"type": "string", "description": "Strategy quadrant (so, st, wo, wt)"},
+                       "swot_analysis_id": {"type": "string", "description": "UUID of the parent SWOT analysis"},
+                   })
+
     role_fields = ["id", "reference", "name", "description", "type", "status",
                    "is_approved", "created_at"]
     role_writable = ["name", "description", "type", "status"]

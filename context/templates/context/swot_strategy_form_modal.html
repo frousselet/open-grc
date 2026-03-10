@@ -1,0 +1,34 @@
+{% load i18n %}
+<div class="offcanvas-header">
+  <h5 class="offcanvas-title">
+    <span class="drawer-title-icon"><i class="bi bi-lightbulb"></i></span>
+    {{ modal_title }}
+  </h5>
+  <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="{% trans 'Close' %}"></button>
+</div>
+<form method="post" hx-post="{{ request.path }}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="d-flex flex-column flex-grow-1 overflow-hidden">
+  {% csrf_token %}
+  <div class="drawer-body">
+    <div class="drawer-section">
+      <div class="mb-3">
+        <label for="{{ form.quadrant.id_for_label }}" class="form-label">{{ form.quadrant.label }} *</label>
+        {{ form.quadrant }}
+        {% for error in form.quadrant.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }} *</label>
+        {{ form.description }}
+        {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+      </div>
+      <div>
+        <label for="{{ form.order.id_for_label }}" class="form-label">{{ form.order.label }}</label>
+        {{ form.order }}
+        {% for error in form.order.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">{% trans "Cancel" %}</button>
+    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{% trans "Save" %}</button>
+  </div>
+</form>

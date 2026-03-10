@@ -18,6 +18,7 @@ from context.models import (
     StakeholderExpectation,
     SwotAnalysis,
     SwotItem,
+    SwotStrategy,
     Tag,
 )
 from .filters import (
@@ -50,6 +51,7 @@ from .serializers import (
     SwotAnalysisListSerializer,
     SwotAnalysisSerializer,
     SwotItemSerializer,
+    SwotStrategySerializer,
     TagSerializer,
 )
 
@@ -180,7 +182,7 @@ class ObjectiveViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin,
 
 
 class SwotAnalysisViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
-    queryset = SwotAnalysis.objects.select_related("validated_by").prefetch_related("scopes", "items").all()
+    queryset = SwotAnalysis.objects.select_related("validated_by").prefetch_related("scopes", "items", "strategies").all()
     filterset_class = SwotAnalysisFilter
     permission_classes = [ContextPermission]
     permission_feature = "swot"
@@ -222,6 +224,28 @@ class SwotItemViewSet(viewsets.ModelViewSet):
             SwotItem.objects.filter(
                 id=item_data["id"], swot_analysis_id=analysis_pk
             ).update(order=item_data["order"])
+        return Response({"status": "success"})
+
+
+class SwotStrategyViewSet(viewsets.ModelViewSet):
+    serializer_class = SwotStrategySerializer
+    permission_classes = [ContextPermission]
+
+    def get_queryset(self):
+        return SwotStrategy.objects.filter(
+            swot_analysis_id=self.kwargs["analysis_pk"]
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(swot_analysis_id=self.kwargs["analysis_pk"])
+
+    @action(detail=False, methods=["patch"])
+    def reorder(self, request, analysis_pk=None):
+        strategies_data = request.data.get("strategies", [])
+        for s_data in strategies_data:
+            SwotStrategy.objects.filter(
+                id=s_data["id"], swot_analysis_id=analysis_pk
+            ).update(order=s_data["order"])
         return Response({"status": "success"})
 
 
