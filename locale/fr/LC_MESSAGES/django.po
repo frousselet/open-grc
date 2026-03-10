@@ -8494,16 +8494,8 @@ msgid "Statement of Applicability"
 msgstr "Déclaration d'applicabilité"
 
 #: reports/constants.py
-msgid "Pending"
-msgstr "En attente"
-
-#: reports/constants.py
 msgid "Generating"
 msgstr "En cours de génération"
-
-#: reports/constants.py
-msgid "Completed"
-msgstr "Terminé"
 
 #: reports/constants.py
 msgid "Failed"
@@ -8548,26 +8540,6 @@ msgstr "Générer le PDF"
 #: reports/templates/reports/report_confirm_delete.html
 msgid "Delete report"
 msgstr "Supprimer le rapport"
-
-#: reports/templates/reports/report_confirm_delete.html
-msgid "Confirm deletion"
-msgstr "Confirmer la suppression"
-
-#: reports/templates/reports/soa_pdf.html
-msgid "Requirement"
-msgstr "Exigence"
-
-#: reports/templates/reports/soa_pdf.html
-msgid "Applicability"
-msgstr "Applicabilité"
-
-#: reports/templates/reports/soa_pdf.html
-msgid "Justification"
-msgstr "Justification"
-
-#: reports/templates/reports/soa_pdf.html
-msgid "Risks"
-msgstr "Risques"
 
 #: reports/templates/reports/soa_pdf.html
 msgid "Generated on"
