@@ -354,72 +354,82 @@ def _register_context_tools(server):
     IndicatorMeasurement = _get_model("context", "IndicatorMeasurement")
     Tag = _get_model("context", "Tag")
 
-    scope_fields = ["id", "reference", "name", "description", "status", "type",
+    scope_fields = ["id", "reference", "name", "description", "status",
                     "effective_date", "review_date", "version", "is_approved", "created_at"]
-    scope_writable = ["name", "description", "status", "type", "effective_date",
+    scope_writable = ["name", "description", "status", "effective_date",
                       "review_date", "parent_scope_id"]
 
     _register_crud(server, "scope", Scope, "context.scope",
                    list_fields=scope_fields,
                    writable_fields=scope_writable,
                    search_fields=["name", "description"],
-                   filters=["status", "type"],
+                   filters=["status"],
                    field_overrides={"description": _html_field("Description")})
 
-    issue_fields = ["id", "reference", "name", "description", "category", "severity",
-                    "status", "is_approved", "created_at"]
-    issue_writable = ["name", "description", "category", "severity", "status"]
+    issue_fields = ["id", "reference", "name", "description", "type", "category",
+                    "impact_level", "status", "is_approved", "created_at"]
+    issue_writable = ["name", "description", "type", "category", "impact_level", "status"]
 
     _register_crud(server, "issue", Issue, "context.issue",
                    list_fields=issue_fields,
                    writable_fields=issue_writable,
                    search_fields=["name", "description"],
-                   filters=["category", "severity", "status"],
+                   filters=["type", "category", "impact_level", "status"],
                    field_overrides=_HTML_DESC)
 
-    stakeholder_fields = ["id", "reference", "name", "description", "type", "influence_level",
-                          "status", "is_approved", "created_at"]
-    stakeholder_writable = ["name", "description", "type", "influence_level", "status"]
+    stakeholder_fields = ["id", "reference", "name", "description", "type", "category",
+                          "influence_level", "interest_level", "status", "is_approved",
+                          "created_at"]
+    stakeholder_writable = ["name", "description", "type", "category", "influence_level",
+                            "interest_level", "status"]
 
     _register_crud(server, "stakeholder", Stakeholder, "context.stakeholder",
                    list_fields=stakeholder_fields,
                    writable_fields=stakeholder_writable,
                    search_fields=["name", "description"],
-                   filters=["type", "status"],
+                   filters=["type", "category", "status"],
                    field_overrides=_HTML_DESC)
 
-    expectation_fields = ["id", "reference", "name", "description", "type", "priority",
+    expectation_fields = ["id", "description", "type", "priority",
                           "stakeholder_id", "created_at"]
-    expectation_writable = ["name", "description", "type", "priority", "stakeholder_id"]
+    expectation_writable = ["description", "type", "priority", "stakeholder_id"]
 
     _register_crud(server, "expectation", StakeholderExpectation, "context.expectation",
                    list_fields=expectation_fields,
                    writable_fields=expectation_writable,
-                   search_fields=["name", "description"],
+                   search_fields=["description"],
                    filters=["stakeholder_id", "type"],
                    scope_filtered=False,
-                   field_overrides=_HTML_DESC)
+                   field_overrides={"description": _html_field("Description")})
 
-    objective_fields = ["id", "reference", "name", "description", "type", "priority",
-                        "status", "target_date", "is_approved", "created_at"]
-    objective_writable = ["name", "description", "type", "priority", "status", "target_date"]
+    objective_fields = ["id", "reference", "name", "description", "category", "type",
+                        "status", "target_date", "owner_id", "is_approved", "created_at"]
+    objective_writable = ["name", "description", "category", "type", "status",
+                          "target_date", "owner_id"]
 
     _register_crud(server, "objective", Objective, "context.objective",
                    list_fields=objective_fields,
                    writable_fields=objective_writable,
                    search_fields=["name", "description"],
-                   filters=["type", "status", "priority"],
-                   field_overrides=_HTML_DESC)
+                   filters=["category", "type", "status"],
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "owner_id": {"type": "string", "description": "UUID of the objective owner (user)"},
+                   })
 
-    swot_fields = ["id", "reference", "name", "description", "status", "is_approved", "created_at"]
-    swot_writable = ["name", "description", "status"]
+    swot_fields = ["id", "reference", "name", "description", "analysis_date",
+                   "status", "is_approved", "created_at"]
+    swot_writable = ["name", "description", "analysis_date", "status"]
 
     _register_crud(server, "swot_analysis", SwotAnalysis, "context.swot",
                    list_fields=swot_fields,
                    writable_fields=swot_writable,
                    search_fields=["name", "description"],
                    filters=["status"],
-                   field_overrides=_HTML_DESC)
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "analysis_date": {"type": "string", "description": "Analysis date in ISO 8601 format (e.g. 2025-06-15)"},
+                   })
 
     swot_item_fields = ["id", "quadrant", "description", "impact_level",
                         "order", "swot_analysis_id", "created_at"]
@@ -450,27 +460,31 @@ def _register_context_tools(server):
                    filters=["type", "status"],
                    field_overrides=_HTML_DESC)
 
-    activity_fields = ["id", "reference", "name", "description", "type", "status",
-                       "is_approved", "created_at"]
-    activity_writable = ["name", "description", "type", "status", "parent_activity_id"]
+    activity_fields = ["id", "reference", "name", "description", "type", "criticality",
+                       "owner_id", "status", "is_approved", "created_at"]
+    activity_writable = ["name", "description", "type", "criticality", "owner_id",
+                         "status", "parent_activity_id"]
 
     _register_crud(server, "activity", Activity, "context.activity",
                    list_fields=activity_fields,
                    writable_fields=activity_writable,
                    search_fields=["name", "description"],
-                   filters=["type", "status"],
-                   field_overrides=_HTML_DESC)
+                   filters=["type", "criticality", "status"],
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "owner_id": {"type": "string", "description": "UUID of the activity owner (user)"},
+                   })
 
     site_fields = ["id", "reference", "name", "description", "type", "status",
-                   "address", "city", "country", "is_approved", "created_at"]
-    site_writable = ["name", "description", "type", "status", "address", "city",
-                     "country", "parent_site_id"]
+                   "address", "is_approved", "created_at"]
+    site_writable = ["name", "description", "type", "status", "address",
+                     "parent_site_id"]
 
     _register_crud(server, "site", Site, "context.site",
                    list_fields=site_fields,
                    writable_fields=site_writable,
-                   search_fields=["name", "description", "city"],
-                   filters=["type", "status", "country"],
+                   search_fields=["name", "description"],
+                   filters=["type", "status"],
                    field_overrides=_HTML_DESC)
 
     # Tags (simple CRUD, no approve)
@@ -980,10 +994,12 @@ def _register_compliance_tools(server):
                        "justification": _html_field("Justification"),
                    })
 
-    ap_fields = ["id", "reference", "name", "description", "priority", "status",
+    ap_fields = ["id", "reference", "name", "description", "gap_description",
+                 "remediation_plan", "priority", "status",
                  "target_date", "progress_percentage",
-                 "requirement_id", "assessment_id", "is_approved", "created_at"]
-    ap_writable = ["name", "description", "priority", "status", "target_date",
+                 "requirement_id", "assessment_id", "owner_id", "is_approved", "created_at"]
+    ap_writable = ["name", "description", "gap_description", "remediation_plan",
+                   "priority", "status", "target_date",
                    "progress_percentage", "requirement_id", "assessment_id", "owner_id"]
 
     _register_crud(server, "action_plan", ComplianceActionPlan, "compliance.action_plan",
@@ -991,7 +1007,11 @@ def _register_compliance_tools(server):
                    writable_fields=ap_writable,
                    search_fields=["reference", "name", "description"],
                    filters=["status", "priority", "requirement_id", "assessment_id"],
-                   field_overrides=_HTML_DESC)
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "gap_description": _html_field("Gap description"),
+                       "remediation_plan": _html_field("Remediation plan"),
+                   })
 
 
 # ── Risks Module ───────────────────────────────────────────
@@ -1110,7 +1130,7 @@ def _register_risks_tools(server):
                      "initial_likelihood", "initial_impact",
                      "current_likelihood", "current_impact",
                      "residual_likelihood", "residual_impact",
-                     "treatment_strategy", "assessment_id", "risk_owner_id"]
+                     "treatment_decision", "assessment_id", "risk_owner_id"]
 
     _register_crud(server, "risk", Risk, "risks.risk",
                    list_fields=risk_fields,
