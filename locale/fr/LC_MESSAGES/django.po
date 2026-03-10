@@ -8552,3 +8552,35 @@ msgstr "Généré par"
 #: reports/templates/reports/soa_pdf.html
 msgid "No requirements."
 msgstr "Aucune exigence."
+
+#: context/views.py context/templates/context/swot_item_form_modal.html
+msgid "New SWOT item"
+msgstr "Nouvel élément SWOT"
+
+#: context/views.py context/templates/context/swot_item_form_modal.html
+msgid "Edit SWOT item"
+msgstr "Modifier l'élément SWOT"
+
+#: context/templates/context/swot_detail.html
+msgid "Matrix"
+msgstr "Matrice"
+
+#: context/templates/context/swot_detail.html
+msgid "SO — Leverage"
+msgstr "SO — Tirer parti"
+
+#: context/templates/context/swot_detail.html
+msgid "ST — Confront"
+msgstr "ST — Confronter"
+
+#: context/templates/context/swot_detail.html
+msgid "WO — Improve"
+msgstr "WO — Améliorer"
+
+#: context/templates/context/swot_detail.html
+msgid "WT — Avoid"
+msgstr "WT — Éviter"
+
+#: context/templates/context/swot_detail.html
+msgid "Are you sure you want to delete this item?"
+msgstr "Êtes-vous sûr de vouloir supprimer cet élément ?"

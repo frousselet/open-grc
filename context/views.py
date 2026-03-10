@@ -4,9 +4,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import formats, timezone
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _l
@@ -35,6 +35,7 @@ from .forms import (
     ScopeForm,
     StakeholderForm,
     SwotAnalysisForm,
+    SwotItemForm,
 )
 from .models import (
     Activity,
@@ -47,6 +48,7 @@ from .models import (
     Site,
     Stakeholder,
     SwotAnalysis,
+    SwotItem,
     Tag,
 )
 
@@ -621,6 +623,22 @@ class SwotDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin,
     def get_queryset(self):
         return super().get_queryset().prefetch_related("items")
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        items = list(self.object.items.all())
+        ctx["items"] = items
+        ctx["quadrants"] = [
+            ("strength", _("Strengths"), "success"),
+            ("weakness", _("Weaknesses"), "danger"),
+            ("opportunity", _("Opportunities"), "primary"),
+            ("threat", _("Threats"), "warning"),
+        ]
+        ctx["strengths"] = [i for i in items if i.quadrant == "strength"]
+        ctx["weaknesses"] = [i for i in items if i.quadrant == "weakness"]
+        ctx["opportunities"] = [i for i in items if i.quadrant == "opportunity"]
+        ctx["threats"] = [i for i in items if i.quadrant == "threat"]
+        return ctx
+
 
 class SwotCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = SwotAnalysis
@@ -656,6 +674,67 @@ class SwotDeleteView(LoginRequiredMixin, DeleteView):
     model = SwotAnalysis
     template_name = "context/confirm_delete.html"
     success_url = reverse_lazy("context:swot-list")
+
+
+class SwotItemCreateView(LoginRequiredMixin, CreateView):
+    model = SwotItem
+    form_class = SwotItemForm
+    template_name = "context/swot_item_form_modal.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.analysis = get_object_or_404(SwotAnalysis, pk=kwargs["analysis_pk"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super().get_initial()
+        quadrant = self.request.GET.get("quadrant")
+        if quadrant:
+            initial["quadrant"] = quadrant
+        return initial
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["analysis"] = self.analysis
+        ctx["modal_title"] = _("New SWOT item")
+        return ctx
+
+    def form_valid(self, form):
+        form.instance.swot_analysis = self.analysis
+        form.save()
+        return HttpResponse(status=204, headers={"HX-Trigger": "refreshItems"})
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class SwotItemUpdateView(LoginRequiredMixin, UpdateView):
+    model = SwotItem
+    form_class = SwotItemForm
+    template_name = "context/swot_item_form_modal.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.analysis = get_object_or_404(SwotAnalysis, pk=kwargs["analysis_pk"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["analysis"] = self.analysis
+        ctx["modal_title"] = _("Edit SWOT item")
+        return ctx
+
+    def form_valid(self, form):
+        form.save()
+        return HttpResponse(status=204, headers={"HX-Trigger": "refreshItems"})
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class SwotItemDeleteView(LoginRequiredMixin, View):
+    def post(self, request, analysis_pk, pk):
+        item = get_object_or_404(SwotItem, pk=pk, swot_analysis_id=analysis_pk)
+        item.delete()
+        return HttpResponse(status=204, headers={"HX-Trigger": "refreshItems"})
 
 
 # ── Role ────────────────────────────────────────────────────
