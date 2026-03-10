@@ -2339,7 +2339,7 @@
   </script>
   {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   {% block layout %}
   {# ── Sidebar ────────────────────────────────────────── #}
   <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
