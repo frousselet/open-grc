@@ -8562,8 +8562,8 @@ msgid "Edit SWOT item"
 msgstr "Modifier l'élément SWOT"
 
 #: context/templates/context/swot_detail.html
-msgid "Matrix"
-msgstr "Matrice"
+msgid "Strategies"
+msgstr "Stratégies"
 
 #: context/templates/context/swot_detail.html
 msgid "SO — Leverage"
