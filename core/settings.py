@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "assets",
     "compliance",
     "risks",
+    "reports",
     "mcp",
 ]
 
@@ -165,6 +166,9 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

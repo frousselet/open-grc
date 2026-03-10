@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Statement of Applicability" %} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">{% trans "Generate Statement of Applicability" %}</h1>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="{{ form.frameworks.id_for_label }}" class="form-label fw-semibold">{{ form.frameworks.label }}</label>
+        {{ form.frameworks }}
+        {% if form.frameworks.help_text %}
+        <div class="form-text">{{ form.frameworks.help_text }}</div>
+        {% endif %}
+        {% if form.frameworks.errors %}
+        <div class="invalid-feedback d-block">{{ form.frameworks.errors }}</div>
+        {% endif %}
+      </div>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Generate PDF" %}
+        </button>
+        <a href="{% url 'reports:report-list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
