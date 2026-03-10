@@ -8584,3 +8584,47 @@ msgstr "WT — Éviter"
 #: context/templates/context/swot_detail.html
 msgid "Are you sure you want to delete this item?"
 msgstr "Êtes-vous sûr de vouloir supprimer cet élément ?"
+
+#: context/constants.py
+msgid "SO — Leverage"
+msgstr "SO — Tirer parti"
+
+#: context/constants.py
+msgid "ST — Confront"
+msgstr "ST — Confronter"
+
+#: context/constants.py
+msgid "WO — Improve"
+msgstr "WO — Améliorer"
+
+#: context/constants.py
+msgid "WT — Avoid"
+msgstr "WT — Éviter"
+
+#: context/models/swot.py
+msgid "Strategy quadrant"
+msgstr "Quadrant stratégique"
+
+#: context/models/swot.py
+msgid "SWOT strategy"
+msgstr "Stratégie SWOT"
+
+#: context/models/swot.py
+msgid "SWOT strategies"
+msgstr "Stratégies SWOT"
+
+#: context/views.py
+msgid "New strategy"
+msgstr "Nouvelle stratégie"
+
+#: context/views.py
+msgid "Edit strategy"
+msgstr "Modifier la stratégie"
+
+#: context/templates/context/swot_detail.html
+msgid "Add strategy"
+msgstr "Ajouter une stratégie"
+
+#: context/templates/context/swot_detail.html
+msgid "Are you sure you want to delete this strategy?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette stratégie ?"

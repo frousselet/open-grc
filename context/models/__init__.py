@@ -5,7 +5,7 @@ from .site import Site
 from .issue import Issue
 from .stakeholder import Stakeholder, StakeholderExpectation
 from .objective import Objective
-from .swot import SwotAnalysis, SwotItem
+from .swot import SwotAnalysis, SwotItem, SwotStrategy
 from .role import Role, Responsibility
 from .activity import Activity
 from .indicator import Indicator, IndicatorMeasurement
@@ -23,6 +23,7 @@ __all__ = [
     "Objective",
     "SwotAnalysis",
     "SwotItem",
+    "SwotStrategy",
     "Role",
     "Responsibility",
     "Activity",

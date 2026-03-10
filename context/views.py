@@ -36,6 +36,7 @@ from .forms import (
     StakeholderForm,
     SwotAnalysisForm,
     SwotItemForm,
+    SwotStrategyForm,
 )
 from .models import (
     Activity,
@@ -49,6 +50,7 @@ from .models import (
     Stakeholder,
     SwotAnalysis,
     SwotItem,
+    SwotStrategy,
     Tag,
 )
 
@@ -621,7 +623,7 @@ class SwotDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin,
     approve_url_name = "context:swot-approve"
 
     def get_queryset(self):
-        return super().get_queryset().prefetch_related("items")
+        return super().get_queryset().prefetch_related("items", "strategies")
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -637,6 +639,11 @@ class SwotDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin,
         ctx["weaknesses"] = [i for i in items if i.quadrant == "weakness"]
         ctx["opportunities"] = [i for i in items if i.quadrant == "opportunity"]
         ctx["threats"] = [i for i in items if i.quadrant == "threat"]
+        strategies = list(self.object.strategies.all())
+        ctx["strategies_so"] = [s for s in strategies if s.quadrant == "so"]
+        ctx["strategies_st"] = [s for s in strategies if s.quadrant == "st"]
+        ctx["strategies_wo"] = [s for s in strategies if s.quadrant == "wo"]
+        ctx["strategies_wt"] = [s for s in strategies if s.quadrant == "wt"]
         return ctx
 
 
@@ -734,6 +741,67 @@ class SwotItemDeleteView(LoginRequiredMixin, View):
     def post(self, request, analysis_pk, pk):
         item = get_object_or_404(SwotItem, pk=pk, swot_analysis_id=analysis_pk)
         item.delete()
+        return HttpResponse(status=204, headers={"HX-Trigger": "refreshItems"})
+
+
+class SwotStrategyCreateView(LoginRequiredMixin, CreateView):
+    model = SwotStrategy
+    form_class = SwotStrategyForm
+    template_name = "context/swot_strategy_form_modal.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.analysis = get_object_or_404(SwotAnalysis, pk=kwargs["analysis_pk"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super().get_initial()
+        quadrant = self.request.GET.get("quadrant")
+        if quadrant:
+            initial["quadrant"] = quadrant
+        return initial
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["analysis"] = self.analysis
+        ctx["modal_title"] = _("New strategy")
+        return ctx
+
+    def form_valid(self, form):
+        form.instance.swot_analysis = self.analysis
+        form.save()
+        return HttpResponse(status=204, headers={"HX-Trigger": "refreshItems"})
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class SwotStrategyUpdateView(LoginRequiredMixin, UpdateView):
+    model = SwotStrategy
+    form_class = SwotStrategyForm
+    template_name = "context/swot_strategy_form_modal.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.analysis = get_object_or_404(SwotAnalysis, pk=kwargs["analysis_pk"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["analysis"] = self.analysis
+        ctx["modal_title"] = _("Edit strategy")
+        return ctx
+
+    def form_valid(self, form):
+        form.save()
+        return HttpResponse(status=204, headers={"HX-Trigger": "refreshItems"})
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class SwotStrategyDeleteView(LoginRequiredMixin, View):
+    def post(self, request, analysis_pk, pk):
+        strategy = get_object_or_404(SwotStrategy, pk=pk, swot_analysis_id=analysis_pk)
+        strategy.delete()
         return HttpResponse(status=204, headers={"HX-Trigger": "refreshItems"})
 
 

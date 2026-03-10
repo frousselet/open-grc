@@ -55,6 +55,10 @@ urlpatterns = [
     path("swot/<uuid:analysis_pk>/items/create/", views.SwotItemCreateView.as_view(), name="swot-item-create"),
     path("swot/<uuid:analysis_pk>/items/<uuid:pk>/edit/", views.SwotItemUpdateView.as_view(), name="swot-item-update"),
     path("swot/<uuid:analysis_pk>/items/<uuid:pk>/delete/", views.SwotItemDeleteView.as_view(), name="swot-item-delete"),
+    # SWOT strategies
+    path("swot/<uuid:analysis_pk>/strategies/create/", views.SwotStrategyCreateView.as_view(), name="swot-strategy-create"),
+    path("swot/<uuid:analysis_pk>/strategies/<uuid:pk>/edit/", views.SwotStrategyUpdateView.as_view(), name="swot-strategy-update"),
+    path("swot/<uuid:analysis_pk>/strategies/<uuid:pk>/delete/", views.SwotStrategyDeleteView.as_view(), name="swot-strategy-delete"),
     # Roles
     path("roles/", views.RoleListView.as_view(), name="role-list"),
     path("roles/create/", views.RoleCreateView.as_view(), name="role-create"),

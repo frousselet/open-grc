@@ -14,6 +14,7 @@ from .models import (
     StakeholderExpectation,
     SwotAnalysis,
     SwotItem,
+    SwotStrategy,
     Responsibility,
     Tag,
 )
@@ -237,6 +238,17 @@ class SwotItemForm(forms.ModelForm):
             "quadrant": forms.Select(attrs=SELECT_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3, "class": "form-control no-jodit"}),
             "impact_level": forms.Select(attrs=SELECT_ATTRS),
+            "order": forms.NumberInput(attrs=FORM_WIDGET_ATTRS),
+        }
+
+
+class SwotStrategyForm(forms.ModelForm):
+    class Meta:
+        model = SwotStrategy
+        fields = ["quadrant", "description", "order"]
+        widgets = {
+            "quadrant": forms.Select(attrs=SELECT_ATTRS),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3, "class": "form-control no-jodit"}),
             "order": forms.NumberInput(attrs=FORM_WIDGET_ATTRS),
         }
 
