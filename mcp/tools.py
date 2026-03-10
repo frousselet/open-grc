@@ -421,17 +421,23 @@ def _register_context_tools(server):
                    filters=["status"],
                    field_overrides=_HTML_DESC)
 
-    swot_item_fields = ["id", "reference", "type", "title", "description", "impact",
-                        "priority", "order", "analysis_id", "created_at"]
-    swot_item_writable = ["type", "title", "description", "impact", "priority", "order", "analysis_id"]
+    swot_item_fields = ["id", "quadrant", "description", "impact_level",
+                        "order", "swot_analysis_id", "created_at"]
+    swot_item_writable = ["quadrant", "description", "impact_level", "order",
+                          "swot_analysis_id"]
 
     _register_crud(server, "swot_item", SwotItem, "context.swot",
                    list_fields=swot_item_fields,
                    writable_fields=swot_item_writable,
-                   search_fields=["title", "description"],
-                   filters=["analysis_id", "type"],
+                   search_fields=["description"],
+                   filters=["swot_analysis_id", "quadrant"],
                    scope_filtered=False,
-                   field_overrides=_HTML_DESC)
+                   field_overrides={
+                       "description": _html_field("Description"),
+                       "quadrant": {"type": "string", "description": "SWOT quadrant (strength, weakness, opportunity, threat)"},
+                       "impact_level": {"type": "string", "description": "Impact level (low, medium, high)"},
+                       "swot_analysis_id": {"type": "string", "description": "UUID of the parent SWOT analysis"},
+                   })
 
     role_fields = ["id", "reference", "name", "description", "type", "status",
                    "is_approved", "created_at"]
