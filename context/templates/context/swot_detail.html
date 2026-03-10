@@ -20,6 +20,7 @@
 
 <ul class="nav nav-tabs mb-3" role="tablist">
   <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#analysis">{% trans "Analysis" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#matrix">{% trans "Matrix" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
@@ -43,61 +44,115 @@
       </div>
     </div>
 
-    <div class="row g-3">
-      <div class="col-md-6">
-        <div class="card border-success">
-          <div class="card-header text-bg-success">{% trans "Strengths" %}</div>
-          <ul class="list-group list-group-flush">
-            {% for item in analysis.items.all %}{% if item.quadrant == "strength" %}
-            <li class="list-group-item">
-              <span class="badge text-bg-{% if item.impact_level == 'high' %}warning{% elif item.impact_level == 'medium' %}info{% else %}secondary{% endif %} me-1">{{ item.get_impact_level_display }}</span>
-              {{ item.description }}
-            </li>
-            {% endif %}{% endfor %}
-          </ul>
+    <div id="swot-items"
+         hx-get="{% url 'context:swot-detail' analysis.pk %}"
+         hx-select="#swot-items"
+         hx-target="#swot-items"
+         hx-swap="outerHTML"
+         hx-trigger="refreshItems from:body">
+      <div class="row g-3">
+        {% for quadrant_value, quadrant_label, quadrant_color in quadrants %}
+        <div class="col-md-6">
+          <div class="card border-{{ quadrant_color }}">
+            <div class="card-header text-bg-{{ quadrant_color }} d-flex justify-content-between align-items-center">
+              <span>{{ quadrant_label }}</span>
+              <button type="button" class="btn btn-sm btn-light" title="{% trans 'Add' %}"
+                      hx-get="{% url 'context:swot-item-create' analysis.pk %}?quadrant={{ quadrant_value }}"
+                      hx-target="#drawer-form-content" hx-swap="innerHTML">
+                <i class="bi bi-plus-lg"></i>
+              </button>
+            </div>
+            <ul class="list-group list-group-flush">
+              {% for item in items %}{% if item.quadrant == quadrant_value %}
+              <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div>
+                  <span class="badge text-bg-{% if item.impact_level == 'high' %}warning{% elif item.impact_level == 'medium' %}info{% else %}secondary{% endif %} me-1">{{ item.get_impact_level_display }}</span>
+                  {{ item.description }}
+                </div>
+                <div class="d-flex gap-1 ms-2 flex-shrink-0">
+                  <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
+                          hx-get="{% url 'context:swot-item-update' analysis.pk item.pk %}"
+                          hx-target="#drawer-form-content" hx-swap="innerHTML">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" title="{% trans 'Delete' %}"
+                          hx-post="{% url 'context:swot-item-delete' analysis.pk item.pk %}"
+                          hx-confirm="{% trans 'Are you sure you want to delete this item?' %}">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </li>
+              {% endif %}{% endfor %}
+            </ul>
+          </div>
         </div>
+        {% endfor %}
       </div>
-      <div class="col-md-6">
-        <div class="card border-danger">
-          <div class="card-header text-bg-danger">{% trans "Weaknesses" %}</div>
-          <ul class="list-group list-group-flush">
-            {% for item in analysis.items.all %}{% if item.quadrant == "weakness" %}
-            <li class="list-group-item">
-              <span class="badge text-bg-{% if item.impact_level == 'high' %}warning{% elif item.impact_level == 'medium' %}info{% else %}secondary{% endif %} me-1">{{ item.get_impact_level_display }}</span>
-              {{ item.description }}
-            </li>
-            {% endif %}{% endfor %}
-          </ul>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="card border-primary">
-          <div class="card-header text-bg-primary">{% trans "Opportunities" %}</div>
-          <ul class="list-group list-group-flush">
-            {% for item in analysis.items.all %}{% if item.quadrant == "opportunity" %}
-            <li class="list-group-item">
-              <span class="badge text-bg-{% if item.impact_level == 'high' %}warning{% elif item.impact_level == 'medium' %}info{% else %}secondary{% endif %} me-1">{{ item.get_impact_level_display }}</span>
-              {{ item.description }}
-            </li>
-            {% endif %}{% endfor %}
-          </ul>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="card border-warning">
-          <div class="card-header text-bg-warning">{% trans "Threats" %}</div>
-          <ul class="list-group list-group-flush">
-            {% for item in analysis.items.all %}{% if item.quadrant == "threat" %}
-            <li class="list-group-item">
-              <span class="badge text-bg-{% if item.impact_level == 'high' %}warning{% elif item.impact_level == 'medium' %}info{% else %}secondary{% endif %} me-1">{{ item.get_impact_level_display }}</span>
-              {{ item.description }}
-            </li>
-            {% endif %}{% endfor %}
-          </ul>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="matrix">
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered text-center mb-0">
+            <thead>
+              <tr>
+                <th style="width:15%"></th>
+                <th class="text-bg-primary" style="width:42.5%">{% trans "Opportunities" %}</th>
+                <th class="text-bg-warning" style="width:42.5%">{% trans "Threats" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th class="text-bg-success align-middle">{% trans "Strengths" %}</th>
+                <td class="text-start" style="vertical-align:top">
+                  <p class="fw-bold mb-2" style="font-size:.8rem;color:var(--text-muted)">{% trans "SO — Leverage" %}</p>
+                  {% for s in strengths %}
+                    {% for o in opportunities %}
+                    {% if forloop.parentloop.first %}<div class="mb-1" style="font-size:.85rem"><span class="badge text-bg-success me-1">S</span>{{ s.description|truncatewords:8 }} <i class="bi bi-arrow-right"></i> <span class="badge text-bg-primary me-1">O</span>{{ o.description|truncatewords:8 }}</div>{% endif %}
+                    {% endfor %}
+                  {% endfor %}
+                  {% if not strengths or not opportunities %}<span style="color:var(--text-muted);font-size:.85rem">—</span>{% endif %}
+                </td>
+                <td class="text-start" style="vertical-align:top">
+                  <p class="fw-bold mb-2" style="font-size:.8rem;color:var(--text-muted)">{% trans "ST — Confront" %}</p>
+                  {% for s in strengths %}
+                    {% for t in threats %}
+                    {% if forloop.parentloop.first %}<div class="mb-1" style="font-size:.85rem"><span class="badge text-bg-success me-1">S</span>{{ s.description|truncatewords:8 }} <i class="bi bi-arrow-right"></i> <span class="badge text-bg-warning me-1">T</span>{{ t.description|truncatewords:8 }}</div>{% endif %}
+                    {% endfor %}
+                  {% endfor %}
+                  {% if not strengths or not threats %}<span style="color:var(--text-muted);font-size:.85rem">—</span>{% endif %}
+                </td>
+              </tr>
+              <tr>
+                <th class="text-bg-danger align-middle">{% trans "Weaknesses" %}</th>
+                <td class="text-start" style="vertical-align:top">
+                  <p class="fw-bold mb-2" style="font-size:.8rem;color:var(--text-muted)">{% trans "WO — Improve" %}</p>
+                  {% for w in weaknesses %}
+                    {% for o in opportunities %}
+                    {% if forloop.parentloop.first %}<div class="mb-1" style="font-size:.85rem"><span class="badge text-bg-danger me-1">W</span>{{ w.description|truncatewords:8 }} <i class="bi bi-arrow-right"></i> <span class="badge text-bg-primary me-1">O</span>{{ o.description|truncatewords:8 }}</div>{% endif %}
+                    {% endfor %}
+                  {% endfor %}
+                  {% if not weaknesses or not opportunities %}<span style="color:var(--text-muted);font-size:.85rem">—</span>{% endif %}
+                </td>
+                <td class="text-start" style="vertical-align:top">
+                  <p class="fw-bold mb-2" style="font-size:.8rem;color:var(--text-muted)">{% trans "WT — Avoid" %}</p>
+                  {% for w in weaknesses %}
+                    {% for t in threats %}
+                    {% if forloop.parentloop.first %}<div class="mb-1" style="font-size:.85rem"><span class="badge text-bg-danger me-1">W</span>{{ w.description|truncatewords:8 }} <i class="bi bi-arrow-right"></i> <span class="badge text-bg-warning me-1">T</span>{{ t.description|truncatewords:8 }}</div>{% endif %}
+                    {% endfor %}
+                  {% endfor %}
+                  {% if not weaknesses or not threats %}<span style="color:var(--text-muted);font-size:.85rem">—</span>{% endif %}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   </div>
+
   <div class="tab-pane fade" id="history">
     {% include "includes/history_tab.html" %}
   </div>

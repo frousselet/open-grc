@@ -1,3 +1,5 @@
+import datetime
+
 import factory
 
 from accounts.tests.factories import UserFactory
@@ -8,10 +10,13 @@ from context.constants import (
     ObjectiveCategory,
     ObjectiveStatus,
     ObjectiveType,
+    SwotQuadrant,
+    SwotStatus,
 )
 from context.models.issue import Issue
 from context.models.objective import Objective
 from context.models.scope import Scope
+from context.models.swot import SwotAnalysis, SwotItem
 
 
 class ScopeFactory(factory.django.DjangoModelFactory):
@@ -44,6 +49,32 @@ class IssueFactory(factory.django.DjangoModelFactory):
         if not create or not extracted:
             return
         self.scopes.add(*extracted)
+
+
+class SwotAnalysisFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SwotAnalysis
+
+    name = factory.Sequence(lambda n: f"SWOT Analysis {n}")
+    description = "Test SWOT analysis"
+    analysis_date = factory.LazyFunction(datetime.date.today)
+    status = SwotStatus.DRAFT
+
+    @factory.post_generation
+    def scopes(self, create, extracted, **kwargs):
+        if not create or not extracted:
+            return
+        self.scopes.add(*extracted)
+
+
+class SwotItemFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SwotItem
+
+    swot_analysis = factory.SubFactory(SwotAnalysisFactory)
+    quadrant = SwotQuadrant.STRENGTH
+    description = factory.Sequence(lambda n: f"SWOT item {n}")
+    impact_level = ImpactLevel.MEDIUM
 
 
 class ObjectiveFactory(factory.django.DjangoModelFactory):

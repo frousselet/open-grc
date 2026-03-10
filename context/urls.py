@@ -51,6 +51,10 @@ urlpatterns = [
     path("swot/<uuid:pk>/delete/", views.SwotDeleteView.as_view(), name="swot-delete"),
     path("swot/<uuid:pk>/approve/", views.ApproveView.as_view(model=SwotAnalysis, permission_feature="swot", success_url=reverse_lazy("context:swot-list")), name="swot-approve"),
     path("swot/table-body/", views.SwotTableBodyView.as_view(), name="swot-table-body"),
+    # SWOT items
+    path("swot/<uuid:analysis_pk>/items/create/", views.SwotItemCreateView.as_view(), name="swot-item-create"),
+    path("swot/<uuid:analysis_pk>/items/<uuid:pk>/edit/", views.SwotItemUpdateView.as_view(), name="swot-item-update"),
+    path("swot/<uuid:analysis_pk>/items/<uuid:pk>/delete/", views.SwotItemDeleteView.as_view(), name="swot-item-delete"),
     # Roles
     path("roles/", views.RoleListView.as_view(), name="role-list"),
     path("roles/create/", views.RoleCreateView.as_view(), name="role-create"),
