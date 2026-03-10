@@ -8614,17 +8614,57 @@ msgid "Are you sure you want to delete this strategy?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette stratégie ?"
 
 #: context/templates/context/swot_detail.html
-msgid "No items yet — add strengths and opportunities in the Analysis tab"
-msgstr "Aucun élément — ajoutez des forces et opportunités dans l'onglet Analyse"
+msgid "Internal factors"
+msgstr "Facteurs internes"
 
 #: context/templates/context/swot_detail.html
-msgid "No items yet — add strengths and threats in the Analysis tab"
-msgstr "Aucun élément — ajoutez des forces et menaces dans l'onglet Analyse"
+msgid "External factors"
+msgstr "Facteurs externes"
 
 #: context/templates/context/swot_detail.html
-msgid "No items yet — add weaknesses and opportunities in the Analysis tab"
-msgstr "Aucun élément — ajoutez des faiblesses et opportunités dans l'onglet Analyse"
+msgid "No strengths identified yet"
+msgstr "Aucune force identifiée"
 
 #: context/templates/context/swot_detail.html
-msgid "No items yet — add weaknesses and threats in the Analysis tab"
-msgstr "Aucun élément — ajoutez des faiblesses et menaces dans l'onglet Analyse"
+msgid "No weaknesses identified yet"
+msgstr "Aucune faiblesse identifiée"
+
+#: context/templates/context/swot_detail.html
+msgid "No opportunities identified yet"
+msgstr "Aucune opportunité identifiée"
+
+#: context/templates/context/swot_detail.html
+msgid "No threats identified yet"
+msgstr "Aucune menace identifiée"
+
+#: context/templates/context/swot_detail.html context/views.py
+msgid "Leverage"
+msgstr "Tirer parti"
+
+#: context/templates/context/swot_detail.html context/views.py
+msgid "Confront"
+msgstr "Confronter"
+
+#: context/templates/context/swot_detail.html context/views.py
+msgid "Improve"
+msgstr "Améliorer"
+
+#: context/templates/context/swot_detail.html
+msgid "How can strengths exploit opportunities?"
+msgstr "Comment les forces peuvent-elles exploiter les opportunités ?"
+
+#: context/templates/context/swot_detail.html
+msgid "How can strengths counter threats?"
+msgstr "Comment les forces peuvent-elles contrer les menaces ?"
+
+#: context/templates/context/swot_detail.html
+msgid "How can opportunities overcome weaknesses?"
+msgstr "Comment les opportunités peuvent-elles pallier les faiblesses ?"
+
+#: context/templates/context/swot_detail.html
+msgid "How to minimize weaknesses and avoid threats?"
+msgstr "Comment minimiser les faiblesses et éviter les menaces ?"
+
+#: context/templates/context/swot_list.html
+msgid "Items"
+msgstr "Éléments"
