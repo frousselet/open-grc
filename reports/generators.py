@@ -1,10 +1,7 @@
 """PDF report generators."""
 
-import io
-
 from django.template.loader import render_to_string
 from django.utils import timezone
-from weasyprint import HTML
 
 
 def generate_soa_pdf(frameworks, user):
@@ -12,6 +9,8 @@ def generate_soa_pdf(frameworks, user):
 
     Returns a tuple (filename, content_bytes).
     """
+    from weasyprint import HTML
+
     frameworks_data = []
     for fw in frameworks:
         requirements = fw.requirements.select_related(
