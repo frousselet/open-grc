@@ -111,15 +111,22 @@
             <tbody>
               <tr>
                 <th class="text-bg-success align-middle">{% trans "Strengths" %}</th>
+                {% with row_items=strengths row_color="success" row_letter="S" %}
+                {# ── SO cell ── #}
                 <td class="text-start" style="vertical-align:top">
                   <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="fw-bold" style="font-size:.8rem;color:var(--text-muted)">{% trans "SO — Leverage" %}</span>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" title="{% trans 'Add strategy' %}"
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1" title="{% trans 'Add strategy' %}"
                             hx-get="{% url 'context:swot-strategy-create' analysis.pk %}?quadrant=so"
                             hx-target="#drawer-form-content" hx-swap="innerHTML" hx-select="unset">
                       <i class="bi bi-plus-lg"></i>
                     </button>
                   </div>
+                  <div class="d-flex flex-wrap gap-1 mb-2">
+                    {% for i in row_items %}<span class="badge text-bg-{{ row_color }}" style="font-size:.7rem">{{ row_letter }} {{ i.description|truncatewords:5 }}</span>{% endfor %}
+                    {% for i in opportunities %}<span class="badge text-bg-primary" style="font-size:.7rem">O {{ i.description|truncatewords:5 }}</span>{% endfor %}
+                  </div>
+                  {% if not row_items and not opportunities %}<div class="mb-2"><span class="text-muted" style="font-size:.75rem;font-style:italic">{% trans "No items yet — add strengths and opportunities in the Analysis tab" %}</span></div>{% endif %}
                   {% for s in strategies_so %}
                   <div class="mb-1 d-flex justify-content-between align-items-start" style="font-size:.85rem">
                     <span>{{ s.description }}</span>
@@ -136,17 +143,23 @@
                       </button>
                     </span>
                   </div>
-                  {% empty %}<span style="color:var(--text-muted);font-size:.85rem">—</span>{% endfor %}
+                  {% endfor %}
                 </td>
+                {# ── ST cell ── #}
                 <td class="text-start" style="vertical-align:top">
                   <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="fw-bold" style="font-size:.8rem;color:var(--text-muted)">{% trans "ST — Confront" %}</span>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" title="{% trans 'Add strategy' %}"
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1" title="{% trans 'Add strategy' %}"
                             hx-get="{% url 'context:swot-strategy-create' analysis.pk %}?quadrant=st"
                             hx-target="#drawer-form-content" hx-swap="innerHTML" hx-select="unset">
                       <i class="bi bi-plus-lg"></i>
                     </button>
                   </div>
+                  <div class="d-flex flex-wrap gap-1 mb-2">
+                    {% for i in row_items %}<span class="badge text-bg-{{ row_color }}" style="font-size:.7rem">{{ row_letter }} {{ i.description|truncatewords:5 }}</span>{% endfor %}
+                    {% for i in threats %}<span class="badge text-bg-warning" style="font-size:.7rem">T {{ i.description|truncatewords:5 }}</span>{% endfor %}
+                  </div>
+                  {% if not row_items and not threats %}<div class="mb-2"><span class="text-muted" style="font-size:.75rem;font-style:italic">{% trans "No items yet — add strengths and threats in the Analysis tab" %}</span></div>{% endif %}
                   {% for s in strategies_st %}
                   <div class="mb-1 d-flex justify-content-between align-items-start" style="font-size:.85rem">
                     <span>{{ s.description }}</span>
@@ -163,20 +176,28 @@
                       </button>
                     </span>
                   </div>
-                  {% empty %}<span style="color:var(--text-muted);font-size:.85rem">—</span>{% endfor %}
+                  {% endfor %}
                 </td>
+                {% endwith %}
               </tr>
               <tr>
                 <th class="text-bg-danger align-middle">{% trans "Weaknesses" %}</th>
+                {% with row_items=weaknesses row_color="danger" row_letter="W" %}
+                {# ── WO cell ── #}
                 <td class="text-start" style="vertical-align:top">
                   <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="fw-bold" style="font-size:.8rem;color:var(--text-muted)">{% trans "WO — Improve" %}</span>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" title="{% trans 'Add strategy' %}"
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1" title="{% trans 'Add strategy' %}"
                             hx-get="{% url 'context:swot-strategy-create' analysis.pk %}?quadrant=wo"
                             hx-target="#drawer-form-content" hx-swap="innerHTML" hx-select="unset">
                       <i class="bi bi-plus-lg"></i>
                     </button>
                   </div>
+                  <div class="d-flex flex-wrap gap-1 mb-2">
+                    {% for i in row_items %}<span class="badge text-bg-{{ row_color }}" style="font-size:.7rem">{{ row_letter }} {{ i.description|truncatewords:5 }}</span>{% endfor %}
+                    {% for i in opportunities %}<span class="badge text-bg-primary" style="font-size:.7rem">O {{ i.description|truncatewords:5 }}</span>{% endfor %}
+                  </div>
+                  {% if not row_items and not opportunities %}<div class="mb-2"><span class="text-muted" style="font-size:.75rem;font-style:italic">{% trans "No items yet — add weaknesses and opportunities in the Analysis tab" %}</span></div>{% endif %}
                   {% for s in strategies_wo %}
                   <div class="mb-1 d-flex justify-content-between align-items-start" style="font-size:.85rem">
                     <span>{{ s.description }}</span>
@@ -193,17 +214,23 @@
                       </button>
                     </span>
                   </div>
-                  {% empty %}<span style="color:var(--text-muted);font-size:.85rem">—</span>{% endfor %}
+                  {% endfor %}
                 </td>
+                {# ── WT cell ── #}
                 <td class="text-start" style="vertical-align:top">
                   <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="fw-bold" style="font-size:.8rem;color:var(--text-muted)">{% trans "WT — Avoid" %}</span>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" title="{% trans 'Add strategy' %}"
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1" title="{% trans 'Add strategy' %}"
                             hx-get="{% url 'context:swot-strategy-create' analysis.pk %}?quadrant=wt"
                             hx-target="#drawer-form-content" hx-swap="innerHTML" hx-select="unset">
                       <i class="bi bi-plus-lg"></i>
                     </button>
                   </div>
+                  <div class="d-flex flex-wrap gap-1 mb-2">
+                    {% for i in row_items %}<span class="badge text-bg-{{ row_color }}" style="font-size:.7rem">{{ row_letter }} {{ i.description|truncatewords:5 }}</span>{% endfor %}
+                    {% for i in threats %}<span class="badge text-bg-warning" style="font-size:.7rem">T {{ i.description|truncatewords:5 }}</span>{% endfor %}
+                  </div>
+                  {% if not row_items and not threats %}<div class="mb-2"><span class="text-muted" style="font-size:.75rem;font-style:italic">{% trans "No items yet — add weaknesses and threats in the Analysis tab" %}</span></div>{% endif %}
                   {% for s in strategies_wt %}
                   <div class="mb-1 d-flex justify-content-between align-items-start" style="font-size:.85rem">
                     <span>{{ s.description }}</span>
@@ -220,8 +247,9 @@
                       </button>
                     </span>
                   </div>
-                  {% empty %}<span style="color:var(--text-muted);font-size:.85rem">—</span>{% endfor %}
+                  {% endfor %}
                 </td>
+                {% endwith %}
               </tr>
             </tbody>
           </table>

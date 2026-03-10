@@ -8612,3 +8612,19 @@ msgstr "Ajouter une stratégie"
 #: context/templates/context/swot_detail.html
 msgid "Are you sure you want to delete this strategy?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette stratégie ?"
+
+#: context/templates/context/swot_detail.html
+msgid "No items yet — add strengths and opportunities in the Analysis tab"
+msgstr "Aucun élément — ajoutez des forces et opportunités dans l'onglet Analyse"
+
+#: context/templates/context/swot_detail.html
+msgid "No items yet — add strengths and threats in the Analysis tab"
+msgstr "Aucun élément — ajoutez des forces et menaces dans l'onglet Analyse"
+
+#: context/templates/context/swot_detail.html
+msgid "No items yet — add weaknesses and opportunities in the Analysis tab"
+msgstr "Aucun élément — ajoutez des faiblesses et opportunités dans l'onglet Analyse"
+
+#: context/templates/context/swot_detail.html
+msgid "No items yet — add weaknesses and threats in the Analysis tab"
+msgstr "Aucun élément — ajoutez des faiblesses et menaces dans l'onglet Analyse"
