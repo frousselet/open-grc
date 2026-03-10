@@ -221,7 +221,7 @@ class SwotAnalysisForm(ScopedFormMixin, forms.ModelForm):
         widgets = {
             "scopes": ScopeTreeWidget(),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
-            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4, "class": "form-control no-jodit"}),
             "analysis_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "status": forms.Select(attrs=SELECT_ATTRS),
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
@@ -235,7 +235,7 @@ class SwotItemForm(forms.ModelForm):
         fields = ["quadrant", "description", "impact_level", "order"]
         widgets = {
             "quadrant": forms.Select(attrs=SELECT_ATTRS),
-            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3, "class": "form-control no-jodit"}),
             "impact_level": forms.Select(attrs=SELECT_ATTRS),
             "order": forms.NumberInput(attrs=FORM_WIDGET_ATTRS),
         }

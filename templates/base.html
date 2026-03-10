@@ -2803,7 +2803,7 @@
 
     function initGlobalWidgets() {
       /* Jodit on all textarea.form-control not inside a formset-table */
-      document.querySelectorAll('textarea.form-control:not(.jodit-initialized)').forEach(function(el) {
+      document.querySelectorAll('textarea.form-control:not(.jodit-initialized):not(.no-jodit)').forEach(function(el) {
         if (el.closest('.formset-table')) return;
         el.classList.add('jodit-initialized');
         Jodit.make(el, joditConfig);
