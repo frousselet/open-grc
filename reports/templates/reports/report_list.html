@@ -51,8 +51,8 @@
           <td>{{ report.created_at|date:"d/m/Y H:i" }}</td>
           <td>{{ report.created_by|default:"—" }}</td>
           <td class="text-end">
-            {% if report.file %}
-            <a href="{{ report.file.url }}" class="btn btn-sm btn-outline-primary" title="{% trans 'Download' %}" download>
+            {% if report.file_content %}
+            <a href="{% url 'reports:report-download' report.pk %}" class="btn btn-sm btn-outline-primary" title="{% trans 'Download' %}">
               <i class="bi bi-download"></i>
             </a>
             {% endif %}

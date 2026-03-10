@@ -1,10 +1,11 @@
 import logging
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.files.base import ContentFile
-from django.shortcuts import redirect
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
+from django.views import View
 from django.views.generic import DeleteView, FormView, ListView
 
 from .constants import ReportStatus, ReportType
@@ -36,9 +37,10 @@ class SoaReportCreateView(LoginRequiredMixin, FormView):
                 name=report_name,
                 status=ReportStatus.COMPLETED,
                 created_by=self.request.user,
+                file_content=pdf_bytes,
+                file_name=filename,
             )
             report.frameworks.set(frameworks)
-            report.file.save(filename, ContentFile(pdf_bytes), save=True)
         except Exception:
             logging.getLogger(__name__).exception("SoA PDF generation failed")
             Report.objects.create(
@@ -49,6 +51,23 @@ class SoaReportCreateView(LoginRequiredMixin, FormView):
             )
 
         return redirect("reports:report-list")
+
+
+class ReportDownloadView(LoginRequiredMixin, View):
+    """Serve report file content stored in the database."""
+
+    def get(self, request, pk):
+        report = get_object_or_404(Report, pk=pk)
+        if not report.file_content:
+            raise Http404
+        response = HttpResponse(
+            bytes(report.file_content),
+            content_type="application/pdf",
+        )
+        response["Content-Disposition"] = (
+            f'attachment; filename="{report.file_name}"'
+        )
+        return response
 
 
 class ReportDeleteView(LoginRequiredMixin, DeleteView):

@@ -1,6 +1,5 @@
 import logging
 
-from django.core.files.base import ContentFile
 from django.utils.translation import gettext as _
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -41,9 +40,10 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 name=report_name,
                 status=ReportStatus.COMPLETED,
                 created_by=request.user,
+                file_content=pdf_bytes,
+                file_name=filename,
             )
             report.frameworks.set(frameworks)
-            report.file.save(filename, ContentFile(pdf_bytes), save=True)
         except Exception:
             logging.getLogger(__name__).exception("SoA PDF generation failed")
             report = Report.objects.create(
