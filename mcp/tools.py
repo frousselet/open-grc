@@ -334,6 +334,7 @@ def register_all_tools(server):
     _register_compliance_tools(server)
     _register_risks_tools(server)
     _register_accounts_tools(server)
+    _register_reports_tools(server)
 
 
 # ── Context Module ─────────────────────────────────────────
@@ -1980,3 +1981,118 @@ def _register_crud(server, entity_name, model_class, perm_prefix,
                 _approve_handler(model_class, scope_filtered)
             ),
         )
+
+
+# ── Reports Module ────────────────────────────────────────
+
+def _register_reports_tools(server):
+    Report = _get_model("reports", "Report")
+
+    report_fields = [
+        "id", "report_type", "name", "status", "file",
+        "created_at", "created_by",
+    ]
+
+    # List reports
+    @require_perm("reports.report.read")
+    def list_reports(user, arguments):
+        qs = Report.objects.all()
+        report_type = arguments.get("report_type")
+        if report_type:
+            qs = qs.filter(report_type=report_type)
+        limit = min(int(arguments.get("limit", 50)), 200)
+        offset = int(arguments.get("offset", 0))
+        return _serialize_qs(qs, report_fields, limit, offset)
+
+    server.register_tool(
+        "list_reports",
+        "List generated reports, optionally filtered by report_type",
+        {
+            "type": "object",
+            "properties": {
+                "report_type": {
+                    "type": "string",
+                    "description": "Filter by report type (e.g. 'soa')",
+                },
+                "limit": {"type": "integer", "description": "Max results (default 50)"},
+                "offset": {"type": "integer", "description": "Offset for pagination"},
+            },
+        },
+        list_reports,
+    )
+
+    # Generate SoA report
+    @require_perm("reports.report.create")
+    def generate_soa_report(user, arguments):
+        framework_ids = arguments.get("framework_ids")
+        if not framework_ids:
+            raise InvalidParamsError("framework_ids is required (list of UUIDs).")
+
+        Framework = _get_model("compliance", "Framework")
+        frameworks = Framework.objects.filter(id__in=framework_ids)
+        if not frameworks.exists():
+            return _error("No frameworks found for given IDs.")
+
+        from django.core.files.base import ContentFile
+        from reports.constants import ReportStatus, ReportType
+        from reports.generators import generate_soa_pdf
+
+        fw_names = ", ".join(fw.short_name or fw.name for fw in frameworks)
+        report_name = f"Statement of Applicability — {fw_names}"
+
+        try:
+            filename, pdf_bytes = generate_soa_pdf(frameworks, user)
+            report = Report.objects.create(
+                report_type=ReportType.SOA,
+                name=report_name,
+                status=ReportStatus.COMPLETED,
+                created_by=user,
+            )
+            report.frameworks.set(frameworks)
+            report.file.save(filename, ContentFile(pdf_bytes), save=True)
+        except Exception:
+            report = Report.objects.create(
+                report_type=ReportType.SOA,
+                name=report_name,
+                status=ReportStatus.FAILED,
+                created_by=user,
+            )
+
+        return _serialize_obj(report, report_fields)
+
+    server.register_tool(
+        "generate_soa_report",
+        "Generate a Statement of Applicability (SoA) PDF report for one or more frameworks",
+        {
+            "type": "object",
+            "properties": {
+                "framework_ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "List of framework UUIDs to include in the SoA",
+                },
+            },
+            "required": ["framework_ids"],
+        },
+        generate_soa_report,
+    )
+
+    # Delete report
+    @require_perm("reports.report.delete")
+    def delete_report(user, arguments):
+        pk = arguments.get("id")
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        try:
+            report = Report.objects.get(pk=pk)
+        except Report.DoesNotExist:
+            return _error("Report not found.")
+        report.delete()
+        return {"deleted": True}
+
+    server.register_tool(
+        "delete_report",
+        "Delete a generated report",
+        _id_schema(),
+        delete_report,
+    )

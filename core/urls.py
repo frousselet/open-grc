@@ -27,11 +27,13 @@ urlpatterns = [
     path("assets/", include("assets.urls")),
     path("compliance/", include("compliance.urls")),
     path("risks/", include("risks.urls")),
+    path("reports/", include("reports.urls")),
     path("api/v1/", include("accounts.api.urls")),
     path("api/v1/context/", include("context.api.urls")),
     path("api/v1/assets/", include("assets.api.urls")),
     path("api/v1/compliance/", include("compliance.api.urls")),
     path("api/v1/risks/", include("risks.api.urls")),
+    path("api/v1/reports/", include("reports.api.urls")),
     path("api/v1/", include("mcp.urls")),
     path("config/", include("core.versioning_urls")),
 ]
