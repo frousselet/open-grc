@@ -63,30 +63,13 @@
 <ul class="nav nav-tabs mb-3" role="tablist">
   <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#analysis">{% trans "Analysis" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#matrix">{% trans "Strategies" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#details">{% trans "Details" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   {# ══════ Analysis tab ══════ #}
   <div class="tab-pane fade show active" id="analysis">
-    <div class="card mb-4">
-      <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt><dd class="col-sm-9">{% grouped_scope_badges analysis.scopes.all %}{% if not analysis.scopes.all %}<span style="color:var(--text-muted)">—</span>{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Analysis date" %}</dt><dd class="col-sm-9">{{ analysis.analysis_date }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
-          <dd class="col-sm-9">
-            <span class="badge text-bg-{% if analysis.status == 'validated' %}success{% elif analysis.status == 'draft' %}secondary{% else %}dark{% endif %}">
-              {{ analysis.get_status_display }}
-            </span>
-          </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ analysis.description|default:"—"|linebreaksbr }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
-          <dd class="col-sm-9">{% for tag in analysis.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
-        </dl>
-      </div>
-    </div>
-
     {# ── SWOT quadrant grid ── #}
     <div id="swot-items"
          hx-get="{% url 'context:swot-detail' analysis.pk %}"
@@ -259,6 +242,27 @@
       </div>
       <div class="col-md-5">
         {% include "context/_swot_strategy_cell.html" with cell_label="WT" cell_subtitle=_("Avoid") cell_color="warning" cell_icon="bi-sign-stop" strategies=strategies_wt row_items=weaknesses col_items=threats row_letter="W" col_letter="T" row_color="danger" col_color="warning" empty_msg=_("How to minimize weaknesses and avoid threats?") quadrant_code="wt" %}
+      </div>
+    </div>
+  </div>
+
+  {# ══════ Details tab ══════ #}
+  <div class="tab-pane fade" id="details">
+    <div class="card">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt><dd class="col-sm-9">{% grouped_scope_badges analysis.scopes.all %}{% if not analysis.scopes.all %}<span style="color:var(--text-muted)">—</span>{% endif %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Analysis date" %}</dt><dd class="col-sm-9">{{ analysis.analysis_date }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
+          <dd class="col-sm-9">
+            <span class="badge text-bg-{% if analysis.status == 'validated' %}success{% elif analysis.status == 'draft' %}secondary{% else %}dark{% endif %}">
+              {{ analysis.get_status_display }}
+            </span>
+          </dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ analysis.description|default:"—"|linebreaksbr }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
+          <dd class="col-sm-9">{% for tag in analysis.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
+        </dl>
       </div>
     </div>
   </div>
