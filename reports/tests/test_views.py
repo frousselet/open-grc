@@ -54,7 +54,8 @@ class TestSoaReportCreateView:
         assert resp.status_code == 302
         assert Report.objects.count() == 1
         report = Report.objects.first()
-        assert report.file
+        assert report.file_content
+        assert report.file_name == "SoA_test.pdf"
         assert fw in report.frameworks.all()
         mock_generate.assert_called_once()
 
@@ -73,6 +74,37 @@ class TestSoaReportCreateView:
         assert Report.objects.count() == 1
         report = Report.objects.first()
         assert report.status == "failed"
+
+
+class TestReportDownloadView:
+    def test_login_required(self):
+        report = ReportFactory(file_content=b"%PDF-1.4 fake", file_name="test.pdf")
+        client = Client()
+        resp = client.get(reverse("reports:report-download", args=[report.pk]))
+        assert resp.status_code == 302
+
+    def test_download_pdf(self):
+        user = UserFactory()
+        report = ReportFactory(
+            created_by=user,
+            file_content=b"%PDF-1.4 fake content",
+            file_name="SoA_test.pdf",
+        )
+        client = Client()
+        client.force_login(user)
+        resp = client.get(reverse("reports:report-download", args=[report.pk]))
+        assert resp.status_code == 200
+        assert resp["Content-Type"] == "application/pdf"
+        assert 'filename="SoA_test.pdf"' in resp["Content-Disposition"]
+        assert resp.content == b"%PDF-1.4 fake content"
+
+    def test_download_no_file_returns_404(self):
+        user = UserFactory()
+        report = ReportFactory(created_by=user, file_content=None)
+        client = Client()
+        client.force_login(user)
+        resp = client.get(reverse("reports:report-download", args=[report.pk]))
+        assert resp.status_code == 404
 
 
 class TestReportDeleteView:

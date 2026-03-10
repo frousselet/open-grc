@@ -1989,7 +1989,7 @@ def _register_reports_tools(server):
     Report = _get_model("reports", "Report")
 
     report_fields = [
-        "id", "report_type", "name", "status", "file",
+        "id", "report_type", "name", "status", "file_name",
         "created_at", "created_by",
     ]
 
@@ -2033,7 +2033,6 @@ def _register_reports_tools(server):
         if not frameworks.exists():
             return _error("No frameworks found for given IDs.")
 
-        from django.core.files.base import ContentFile
         from reports.constants import ReportStatus, ReportType
         from reports.generators import generate_soa_pdf
 
@@ -2047,9 +2046,10 @@ def _register_reports_tools(server):
                 name=report_name,
                 status=ReportStatus.COMPLETED,
                 created_by=user,
+                file_content=pdf_bytes,
+                file_name=filename,
             )
             report.frameworks.set(frameworks)
-            report.file.save(filename, ContentFile(pdf_bytes), save=True)
         except Exception:
             report = Report.objects.create(
                 report_type=ReportType.SOA,

@@ -4,15 +4,21 @@ from reports.models import Report
 
 
 class ReportSerializer(serializers.ModelSerializer):
+    has_file = serializers.SerializerMethodField()
+
     class Meta:
         model = Report
         fields = [
             "id", "report_type", "name", "status", "frameworks",
-            "file", "created_at", "created_by",
+            "file_name", "has_file", "created_at", "created_by",
         ]
         read_only_fields = [
-            "id", "file", "created_at", "created_by", "status", "name",
+            "id", "file_name", "has_file", "created_at", "created_by",
+            "status", "name",
         ]
+
+    def get_has_file(self, obj):
+        return bool(obj.file_content)
 
 
 class SoaReportCreateSerializer(serializers.Serializer):

@@ -33,6 +33,18 @@ class Report(models.Model):
         upload_to="reports/%Y/%m/",
         blank=True,
     )
+    file_content = models.BinaryField(
+        _("File content"),
+        blank=True,
+        null=True,
+        editable=False,
+    )
+    file_name = models.CharField(
+        _("File name"),
+        max_length=255,
+        blank=True,
+        default="",
+    )
     created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
