@@ -252,8 +252,10 @@ class ComplianceAssessment(ScopedModel):
                     if new_idx < current_idx:
                         req_worst[req.pk] = finding.finding_type
 
-        # Update results for affected requirements
+        # Update existing results for affected requirements
+        existing_req_ids = set()
         for result in self.results.filter(requirement_id__in=req_worst.keys()):
+            existing_req_ids.add(result.requirement_id)
             worst_type = req_worst[result.requirement_id]
             new_status = FINDING_TYPE_TO_STATUS.get(worst_type)
             new_level = FINDING_TYPE_COMPLIANCE_LEVEL.get(worst_type, 0)
@@ -261,6 +263,37 @@ class ComplianceAssessment(ScopedModel):
                 result.compliance_status = new_status
                 result.compliance_level = new_level
                 result.save(update_fields=["compliance_status", "compliance_level"])
+
+        # Create results for requirements that have findings but no result yet
+        from django.utils import timezone
+
+        missing_req_ids = set(req_worst.keys()) - existing_req_ids
+        if missing_req_ids:
+            now = timezone.now()
+            for req_id in missing_req_ids:
+                worst_type = req_worst[req_id]
+                new_status = FINDING_TYPE_TO_STATUS.get(worst_type)
+                new_level = FINDING_TYPE_COMPLIANCE_LEVEL.get(worst_type, 0)
+                if new_status:
+                    AssessmentResult.objects.create(
+                        assessment=self,
+                        requirement_id=req_id,
+                        compliance_status=new_status,
+                        compliance_level=new_level,
+                        assessed_by=self.assessor,
+                        assessed_at=now,
+                    )
+
+        # Reset results whose findings were all removed back to NOT_ASSESSED
+        finding_statuses = set(FINDING_TYPE_TO_STATUS.values())
+        self.results.filter(
+            compliance_status__in=finding_statuses,
+        ).exclude(
+            requirement_id__in=req_worst.keys(),
+        ).update(
+            compliance_status=ComplianceStatus.NOT_ASSESSED,
+            compliance_level=0,
+        )
 
         # Recalculate counts after applying findings
         self.recalculate_counts()
