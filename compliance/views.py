@@ -1040,16 +1040,20 @@ class FindingDeleteView(LoginRequiredMixin, DeleteView):
             ComplianceAssessment, pk=self.kwargs["assessment_pk"]
         )
 
-    def form_valid(self, form):
+    def delete(self, request, *args, **kwargs):
         assessment = self.get_assessment()
-        response = super().form_valid(form)
+        self.object = self.get_object()
+        self.object.delete()
         assessment.apply_findings_to_results()
-        if self.request.headers.get("HX-Request") == "true":
+        if request.headers.get("HX-Request") == "true":
             return HttpResponse(
                 status=204,
                 headers={"HX-Trigger": "formSaved"},
             )
-        return response
+        return HttpResponseRedirect(self.get_success_url())
+
+    def post(self, request, *args, **kwargs):
+        return self.delete(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse(
