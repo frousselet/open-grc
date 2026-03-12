@@ -66,24 +66,42 @@
       <div class="col-lg-5">
         <div class="card h-100">
           <div class="card-body d-flex flex-column">
-            {# ── Compliance gauge ── #}
-            <div class="text-center mb-3 pb-3" style="border-bottom:1px solid var(--border-light)">
-              <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:100px;height:100px">
-                <svg viewBox="0 0 36 36" style="width:100%;height:100%;transform:rotate(-90deg)">
-                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--border-light)" stroke-width="2.5"/>
-                  <circle cx="18" cy="18" r="15.9" fill="none"
-                          stroke="{% if assessment.overall_compliance_level >= 80 %}var(--success){% elif assessment.overall_compliance_level >= 50 %}var(--warning){% else %}var(--danger){% endif %}"
-                          stroke-width="2.5"
-                          stroke-dasharray="{{ assessment.overall_compliance_level|floatformat:0 }} 100"
-                          stroke-linecap="round"/>
-                </svg>
-                <span style="position:absolute;font-size:1.25rem;font-weight:700;{% if assessment.overall_compliance_level >= 80 %}color:var(--success){% elif assessment.overall_compliance_level >= 50 %}color:var(--warning){% else %}color:var(--danger){% endif %}">
-                  {{ assessment.overall_compliance_level|floatformat:0 }}%
-                </span>
+            {# ── Gauges row ── #}
+            <div class="d-flex justify-content-evenly mb-3 pb-3" style="border-bottom:1px solid var(--border-light)">
+              {# ── Compliance gauge ── #}
+              <div class="text-center">
+                <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:88px;height:88px">
+                  <svg viewBox="0 0 36 36" style="width:100%;height:100%;transform:rotate(-90deg)">
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--border-light)" stroke-width="2.5"/>
+                    <circle cx="18" cy="18" r="15.9" fill="none"
+                            stroke="{% if assessment.overall_compliance_level >= 80 %}var(--success){% elif assessment.overall_compliance_level >= 50 %}var(--warning){% else %}var(--danger){% endif %}"
+                            stroke-width="2.5"
+                            stroke-dasharray="{{ assessment.overall_compliance_level|floatformat:0 }} 100"
+                            stroke-linecap="round"/>
+                  </svg>
+                  <span style="position:absolute;font-size:1.1rem;font-weight:700;{% if assessment.overall_compliance_level >= 80 %}color:var(--success){% elif assessment.overall_compliance_level >= 50 %}color:var(--warning){% else %}color:var(--danger){% endif %}">
+                    {{ assessment.overall_compliance_level|floatformat:0 }}%
+                  </span>
+                </div>
+                <div style="font-size:.78rem;color:var(--text-muted);margin-top:.25rem">{% trans "Overall compliance" %}</div>
               </div>
-              <div style="font-size:.8rem;color:var(--text-muted);margin-top:.25rem">{% trans "Overall compliance" %}</div>
-              <div style="font-size:.75rem;color:var(--text-muted);margin-top:.35rem">
-                <i class="bi bi-check2-circle me-1"></i>{% trans "Coverage" %}: {{ results_total }}/{{ fw_req_count }} ({{ coverage_pct }}%)
+              {# ── Coverage gauge ── #}
+              <div class="text-center">
+                <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:88px;height:88px">
+                  <svg viewBox="0 0 36 36" style="width:100%;height:100%;transform:rotate(-90deg)">
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--border-light)" stroke-width="2.5"/>
+                    <circle cx="18" cy="18" r="15.9" fill="none"
+                            stroke="var(--info)"
+                            stroke-width="2.5"
+                            stroke-dasharray="{{ coverage_pct }} 100"
+                            stroke-linecap="round"/>
+                  </svg>
+                  <span style="position:absolute;font-size:1.1rem;font-weight:700;color:var(--info)">
+                    {{ coverage_pct }}%
+                  </span>
+                </div>
+                <div style="font-size:.78rem;color:var(--text-muted);margin-top:.25rem">{% trans "Coverage" %}</div>
+                <div style="font-size:.7rem;color:var(--text-muted)">{{ results_total }}/{{ fw_req_count }}</div>
               </div>
             </div>
 
