@@ -1,3 +1,5 @@
+import base64
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -5,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from context.models import Scope
 from context.widgets import ScopeTreeWidget
+from helpers.image_utils import generate_image_variants
 from .models import (
     ComplianceActionPlan,
     ComplianceAssessment,
@@ -20,6 +23,21 @@ User = get_user_model()
 FORM_WIDGET_ATTRS = {"class": "form-control"}
 SELECT_ATTRS = {"class": "form-select"}
 CHECKBOX_ATTRS = {"class": "form-check-input"}
+
+
+def _file_to_data_uri(uploaded_file):
+    """Convert an uploaded file to a base64 data URI string."""
+    data = base64.b64encode(uploaded_file.read()).decode()
+    return f"data:{uploaded_file.content_type};base64,{data}"
+
+
+def _set_logo_with_variants(instance, data_uri):
+    """Set the logo field and generate 16/32/64 variants."""
+    instance.logo = data_uri
+    variants = generate_image_variants(data_uri)
+    instance.logo_16 = variants[16]
+    instance.logo_32 = variants[32]
+    instance.logo_64 = variants[64]
 
 
 class ScopedFormMixin:
@@ -44,6 +62,13 @@ class ScopedFormMixin:
 
 
 class FrameworkForm(ScopedFormMixin, forms.ModelForm):
+    logo = forms.ImageField(
+        label=_("Logo"),
+        required=False,
+        widget=forms.FileInput(attrs={**FORM_WIDGET_ATTRS, "accept": "image/*"}),
+    )
+    logo_resized = forms.CharField(required=False, widget=forms.HiddenInput())
+
     class Meta:
         model = Framework
         fields = [
@@ -76,6 +101,18 @@ class FrameworkForm(ScopedFormMixin, forms.ModelForm):
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+
+    def save(self, commit=True):
+        framework = super().save(commit=False)
+        resized = self.cleaned_data.get("logo_resized")
+        if resized:
+            _set_logo_with_variants(framework, resized)
+        elif self.files.get("logo"):
+            _set_logo_with_variants(framework, _file_to_data_uri(self.files["logo"]))
+        if commit:
+            framework.save()
+            self.save_m2m()
+        return framework
 
 
 class SectionForm(forms.ModelForm):

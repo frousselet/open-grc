@@ -879,9 +879,10 @@ def _register_compliance_tools(server):
     ComplianceActionPlan = _get_model("compliance", "ComplianceActionPlan")
 
     fw_fields = ["id", "reference", "name", "short_name", "description", "type",
-                 "category", "compliance_level", "status", "is_approved", "created_at"]
+                 "category", "compliance_level", "status", "logo_32",
+                 "is_approved", "created_at"]
     fw_writable = ["name", "short_name", "description", "type", "category", "status",
-                   "owner_id"]
+                   "owner_id", "logo"]
 
     _register_crud(server, "framework", Framework, "compliance.framework",
                    list_fields=fw_fields,
