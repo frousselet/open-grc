@@ -14,9 +14,20 @@
       </div>
       <div class="d-flex align-items-center gap-2" style="font-size:.78rem;font-weight:400;color:var(--text-muted)">
         <span>{{ group.evaluated }}/{{ group.total }}</span>
+        {% with sc=group.status_counts tot=group.total %}
         <div class="progress" style="width:80px;height:6px">
-          <div class="progress-bar bg-success" style="width:{% if group.total > 0 %}{% widthratio group.evaluated group.total 100 %}{% else %}0{% endif %}%"></div>
+          {% if tot > 0 %}
+          {% if sc.compliant %}<div class="progress-bar bg-success" style="width:{% widthratio sc.compliant tot 100 %}%"></div>{% endif %}
+          {% if sc.strength %}<div class="progress-bar bg-success" style="width:{% widthratio sc.strength tot 100 %}%;opacity:.7"></div>{% endif %}
+          {% if sc.evaluated %}<div class="progress-bar" style="width:{% widthratio sc.evaluated tot 100 %}%;background-color:var(--accent)"></div>{% endif %}
+          {% if sc.improvement %}<div class="progress-bar bg-info" style="width:{% widthratio sc.improvement tot 100 %}%"></div>{% endif %}
+          {% if sc.observation %}<div class="progress-bar bg-warning" style="width:{% widthratio sc.observation tot 100 %}%"></div>{% endif %}
+          {% if sc.minor_nc %}<div class="progress-bar bg-danger" style="width:{% widthratio sc.minor_nc tot 100 %}%;opacity:.7"></div>{% endif %}
+          {% if sc.major_nc %}<div class="progress-bar bg-danger" style="width:{% widthratio sc.major_nc tot 100 %}%"></div>{% endif %}
+          {% if sc.not_assessed %}<div class="progress-bar bg-secondary" style="width:{% widthratio sc.not_assessed tot 100 %}%;opacity:.4"></div>{% endif %}
+          {% endif %}
         </div>
+        {% endwith %}
       </div>
     </div>
   </td>
