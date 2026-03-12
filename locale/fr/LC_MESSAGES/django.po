@@ -4637,6 +4637,8 @@ msgstr "Preuves de conformité"
 msgid "Identified gaps"
 msgstr "Écarts identifiés"
 
+#  Note: "Identified gaps" has been replaced by "Finding" (Constat) in the compliance module
+
 #: compliance/models/requirement.py:75
 msgid "Last assessor"
 msgstr "Dernier évaluateur"
@@ -8477,8 +8479,8 @@ msgid "Evaluate requirement"
 msgstr "Évaluer l'exigence"
 
 #: compliance/templates/compliance/assessment_result_form_modal.html
-msgid "Evidence & Gaps"
-msgstr "Preuves & Écarts"
+msgid "Finding & Evidence"
+msgstr "Constat & Preuves"
 
 #: compliance/templates/compliance/assessment_list.html
 #: compliance/templates/compliance/assessment_detail.html
@@ -8672,3 +8674,26 @@ msgstr "Détails"
 #: context/templates/context/swot_list.html
 msgid "Items"
 msgstr "Éléments"
+
+#: compliance/constants.py — New compliance statuses
+msgid "Major non-conformity"
+msgstr "Non-conformité majeure"
+
+msgid "Minor non-conformity"
+msgstr "Non-conformité mineure"
+
+msgid "Observation"
+msgstr "Observation"
+
+msgid "Improvement opportunity"
+msgstr "Opportunité d'amélioration"
+
+msgid "Strength"
+msgstr "Point fort"
+
+#: compliance/models/assessment.py — New fields
+msgid "Finding"
+msgstr "Constat"
+
+msgid "Auditor recommendations"
+msgstr "Recommandations de l'auditeur"

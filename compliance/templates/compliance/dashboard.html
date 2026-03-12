@@ -66,7 +66,7 @@
       <div class="stat-card-icon danger"><i class="bi bi-x-circle"></i></div>
       <div class="stat-card-label">{% trans "Non-compliances" %}</div>
       <div class="stat-card-value" style="color:var(--danger)">{{ non_compliant_count }}</div>
-      <div class="stat-card-footer"><a href="{% url 'compliance:requirement-list' %}?compliance_status=non_compliant" class="stat-card-link" style="color:var(--danger)">{% trans "View" %}</a></div>
+      <div class="stat-card-footer"><a href="{% url 'compliance:requirement-list' %}?compliance_status=major_non_conformity" class="stat-card-link" style="color:var(--danger)">{% trans "View" %}</a></div>
     </div>
   </div>
   <div class="col-md-4 col-sm-6">

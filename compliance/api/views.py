@@ -155,7 +155,7 @@ class RequirementViewSet(
         serializer.is_valid(raise_exception=True)
         allowed_fields = {
             "compliance_status", "compliance_level",
-            "compliance_evidence", "compliance_gaps",
+            "compliance_evidence", "compliance_finding",
         }
         update_data = {
             k: v for k, v in serializer.validated_data.items()
@@ -208,7 +208,7 @@ class ComplianceAssessmentViewSet(
             req.compliance_status = result.compliance_status
             req.compliance_level = result.compliance_level
             req.compliance_evidence = result.evidence
-            req.compliance_gaps = result.gaps
+            req.compliance_finding = result.finding
             req.last_assessment_date = result.assessed_at.date()
             req.last_assessed_by = result.assessed_by
             req.save()
@@ -229,8 +229,11 @@ class ComplianceAssessmentViewSet(
             "overall_compliance_level": float(assessment.overall_compliance_level),
             "total_requirements": assessment.total_requirements,
             "compliant_count": assessment.compliant_count,
-            "partially_compliant_count": assessment.partially_compliant_count,
-            "non_compliant_count": assessment.non_compliant_count,
+            "major_non_conformity_count": assessment.major_non_conformity_count,
+            "minor_non_conformity_count": assessment.minor_non_conformity_count,
+            "observation_count": assessment.observation_count,
+            "improvement_opportunity_count": assessment.improvement_opportunity_count,
+            "strength_count": assessment.strength_count,
             "not_assessed_count": assessment.not_assessed_count,
         })
 

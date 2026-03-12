@@ -55,39 +55,70 @@
   </div>
 </div>
 
-{# ── Evidence & Gaps ── #}
-<div class="drawer-section">
-  <div class="drawer-section-title"><i class="bi bi-file-earmark-text"></i> {% trans "Evidence & Gaps" %}</div>
-  <div class="mb-3">
+{# ── Finding, Recommendations & Evidence ── #}
+<div class="drawer-section" id="finding-section">
+  <div class="drawer-section-title"><i class="bi bi-file-earmark-text"></i> {% trans "Finding & Evidence" %}</div>
+  <div class="mb-3" id="finding-field-wrapper">
+    <label for="{{ form.finding.id_for_label }}" class="form-label" id="finding-label">{{ form.finding.label }} *</label>
+    {{ form.finding }}
+    {% for error in form.finding.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div class="mb-3" id="recommendations-field-wrapper">
+    <label for="{{ form.auditor_recommendations.id_for_label }}" class="form-label">{{ form.auditor_recommendations.label }}</label>
+    {{ form.auditor_recommendations }}
+    {% for error in form.auditor_recommendations.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div id="evidence-field-wrapper">
     <label for="{{ form.evidence.id_for_label }}" class="form-label">{{ form.evidence.label }}</label>
     {{ form.evidence }}
     {% for error in form.evidence.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
   </div>
-  <div class="mb-3">
-    <label for="{{ form.gaps.id_for_label }}" class="form-label">{{ form.gaps.label }}</label>
-    {{ form.gaps }}
-    {% for error in form.gaps.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-  </div>
-  <div>
-    <label for="{{ form.observations.id_for_label }}" class="form-label">{{ form.observations.label }}</label>
-    {{ form.observations }}
-    {% for error in form.observations.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-  </div>
 </div>
 
-{# ── Auto-fill compliance_level from status ── #}
+{# ── Auto-fill compliance_level from status + conditional fields ── #}
 <script>
 (function() {
   var statusSel = document.getElementById('{{ form.compliance_status.id_for_label }}');
   var levelInput = document.getElementById('{{ form.compliance_level.id_for_label }}');
   if (!statusSel || !levelInput) return;
   var defaults = JSON.parse(statusSel.getAttribute('data-compliance-level-defaults') || '{}');
+
+  // Statuses where finding is relevant
+  var findingStatuses = ['major_non_conformity', 'minor_non_conformity', 'observation', 'improvement_opportunity'];
+  // Statuses where finding is not expected (positive or N/A)
+  var noFindingStatuses = ['not_assessed', 'compliant', 'strength', 'not_applicable'];
+
+  var findingWrapper = document.getElementById('finding-field-wrapper');
+  var findingLabel = document.getElementById('finding-label');
+  var findingSection = document.getElementById('finding-section');
+
+  function updateFieldsVisibility() {
+    var status = statusSel.value;
+    var showFinding = findingStatuses.indexOf(status) !== -1;
+    var isNoFinding = noFindingStatuses.indexOf(status) !== -1;
+
+    // Show/hide finding field based on status
+    if (findingWrapper) {
+      findingWrapper.style.display = isNoFinding ? 'none' : '';
+    }
+    // Update required indicator on finding label
+    if (findingLabel) {
+      findingLabel.textContent = showFinding
+        ? '{{ form.finding.label|escapejs }} *'
+        : '{{ form.finding.label|escapejs }}';
+    }
+  }
+
   statusSel.addEventListener('change', function() {
     var val = defaults[this.value];
     if (val !== undefined) {
       levelInput.value = val;
     }
+    updateFieldsVisibility();
   });
+
+  // Initialize visibility on load
+  updateFieldsVisibility();
 })();
 </script>
 {% endblock %}

@@ -33,7 +33,7 @@
   <td style="font-size:.85rem;max-width:250px" class="text-truncate">{{ entry.requirement.name }}</td>
   <td>
     {% if entry.result %}
-      <span class="badge text-bg-{% if entry.result.compliance_status == 'compliant' %}success{% elif entry.result.compliance_status == 'partially_compliant' %}warning{% elif entry.result.compliance_status == 'non_compliant' %}danger{% elif entry.result.compliance_status == 'not_applicable' %}dark{% else %}secondary{% endif %}">
+      <span class="badge text-bg-{% if entry.result.compliance_status == 'compliant' or entry.result.compliance_status == 'strength' %}success{% elif entry.result.compliance_status == 'observation' or entry.result.compliance_status == 'improvement_opportunity' %}warning{% elif entry.result.compliance_status == 'major_non_conformity' or entry.result.compliance_status == 'minor_non_conformity' %}danger{% elif entry.result.compliance_status == 'not_applicable' %}dark{% else %}secondary{% endif %}">
         {{ entry.result.get_compliance_status_display }}
       </span>
     {% else %}

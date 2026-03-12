@@ -38,10 +38,17 @@ class ComplianceAssessment(ScopedModel):
         _("Total applicable requirements"), default=0
     )
     compliant_count = models.PositiveIntegerField(_("Compliant"), default=0)
-    partially_compliant_count = models.PositiveIntegerField(
-        _("Partially compliant"), default=0
+    major_non_conformity_count = models.PositiveIntegerField(
+        _("Major non-conformity"), default=0
     )
-    non_compliant_count = models.PositiveIntegerField(_("Non-compliant"), default=0)
+    minor_non_conformity_count = models.PositiveIntegerField(
+        _("Minor non-conformity"), default=0
+    )
+    observation_count = models.PositiveIntegerField(_("Observation"), default=0)
+    improvement_opportunity_count = models.PositiveIntegerField(
+        _("Improvement opportunity"), default=0
+    )
+    strength_count = models.PositiveIntegerField(_("Strength"), default=0)
     not_assessed_count = models.PositiveIntegerField(_("Not assessed"), default=0)
     status = models.CharField(
         _("Status"),
@@ -81,11 +88,20 @@ class ComplianceAssessment(ScopedModel):
         self.compliant_count = results.filter(
             compliance_status=ComplianceStatus.COMPLIANT
         ).count()
-        self.partially_compliant_count = results.filter(
-            compliance_status=ComplianceStatus.PARTIALLY_COMPLIANT
+        self.major_non_conformity_count = results.filter(
+            compliance_status=ComplianceStatus.MAJOR_NON_CONFORMITY
         ).count()
-        self.non_compliant_count = results.filter(
-            compliance_status=ComplianceStatus.NON_COMPLIANT
+        self.minor_non_conformity_count = results.filter(
+            compliance_status=ComplianceStatus.MINOR_NON_CONFORMITY
+        ).count()
+        self.observation_count = results.filter(
+            compliance_status=ComplianceStatus.OBSERVATION
+        ).count()
+        self.improvement_opportunity_count = results.filter(
+            compliance_status=ComplianceStatus.IMPROVEMENT_OPPORTUNITY
+        ).count()
+        self.strength_count = results.filter(
+            compliance_status=ComplianceStatus.STRENGTH
         ).count()
         self.not_assessed_count = results.filter(
             compliance_status=ComplianceStatus.NOT_ASSESSED
@@ -132,8 +148,11 @@ class ComplianceAssessment(ScopedModel):
         ComplianceAssessment.objects.filter(pk=self.pk).update(
             total_requirements=self.total_requirements,
             compliant_count=self.compliant_count,
-            partially_compliant_count=self.partially_compliant_count,
-            non_compliant_count=self.non_compliant_count,
+            major_non_conformity_count=self.major_non_conformity_count,
+            minor_non_conformity_count=self.minor_non_conformity_count,
+            observation_count=self.observation_count,
+            improvement_opportunity_count=self.improvement_opportunity_count,
+            strength_count=self.strength_count,
             not_assessed_count=self.not_assessed_count,
             overall_compliance_level=self.overall_compliance_level,
         )
@@ -188,16 +207,18 @@ class AssessmentResult(models.Model):
     )
     compliance_status = models.CharField(
         _("Compliance status"),
-        max_length=25,
+        max_length=30,
         choices=ComplianceStatus.choices,
         default=ComplianceStatus.NOT_ASSESSED,
     )
     compliance_level = models.PositiveIntegerField(
         _("Compliance level (%)"), default=0
     )
+    finding = models.TextField(_("Finding"), blank=True, default="")
+    auditor_recommendations = models.TextField(
+        _("Auditor recommendations"), blank=True, default=""
+    )
     evidence = models.TextField(_("Evidence"), blank=True, default="")
-    gaps = models.TextField(_("Gaps"), blank=True, default="")
-    observations = models.TextField(_("Observations"), blank=True, default="")
     assessed_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
