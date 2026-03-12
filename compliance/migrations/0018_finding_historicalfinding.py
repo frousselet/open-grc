@@ -4,21 +4,7 @@ import django.db.models.deletion
 import simple_history.models
 import uuid
 from django.conf import settings
-from django.db import connection, migrations, models
-
-
-def drop_stale_tables(apps, schema_editor):
-    """Drop leftover tables from a previous failed migration attempt."""
-    tables_to_drop = [
-        "compliance_finding_requirements",
-        "compliance_finding_tags",
-        "compliance_historicalfinding",
-        "compliance_finding",
-    ]
-    existing = set(connection.introspection.table_names())
-    for table in tables_to_drop:
-        if table in existing:
-            schema_editor.execute(f'DROP TABLE "{table}" CASCADE')
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -30,7 +16,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(drop_stale_tables, migrations.RunPython.noop),
         migrations.CreateModel(
             name="Finding",
             fields=[
