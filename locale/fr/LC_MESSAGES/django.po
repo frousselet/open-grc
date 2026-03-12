@@ -8746,3 +8746,13 @@ msgstr "Aucun constat enregistré."
 
 msgid "Are you sure you want to delete this finding?"
 msgstr "Êtes-vous sûr de vouloir supprimer ce constat ?"
+
+#: compliance/templates — Results toggle
+msgid "Status determined by findings"
+msgstr "Statut déterminé par les constats"
+
+msgid "Mark as not evaluated"
+msgstr "Marquer comme non évalué"
+
+msgid "Mark as evaluated"
+msgstr "Marquer comme évalué"

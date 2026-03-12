@@ -2,7 +2,7 @@
 {% for group in sections_with_results %}
 {# ── Section header row ── #}
 <tr>
-  <td colspan="7" class="fw-semibold" style="font-size:.88rem;background:var(--surface-subtle);border-left:3px solid var(--accent)">
+  <td colspan="5" class="fw-semibold" style="font-size:.88rem;background:var(--surface-subtle);border-left:3px solid var(--accent)">
     <div class="d-flex align-items-center justify-content-between">
       <div>
         <i class="bi bi-folder2 me-1" style="color:var(--text-muted)"></i>
@@ -15,7 +15,6 @@
       <div class="d-flex align-items-center gap-2" style="font-size:.78rem;font-weight:400;color:var(--text-muted)">
         <span>{{ group.evaluated }}/{{ group.total }}</span>
         <div class="progress" style="width:80px;height:6px">
-          {% widthratio group.evaluated group.total 100 as section_pct %}
           <div class="progress-bar bg-success" style="width:{% if group.total > 0 %}{% widthratio group.evaluated group.total 100 %}{% else %}0{% endif %}%"></div>
         </div>
       </div>
@@ -32,7 +31,21 @@
   </td>
   <td style="font-size:.85rem;max-width:250px" class="text-truncate">{{ entry.requirement.name }}</td>
   <td>
-    {% if entry.result %}
+    {% if entry.has_findings %}
+      {% with worst=entry.finding_counts %}
+        {% if 'major_nc' in worst %}
+          <span class="badge text-bg-danger">{% trans "Major non-conformity" %}</span>
+        {% elif 'minor_nc' in worst %}
+          <span class="badge text-bg-danger">{% trans "Minor non-conformity" %}</span>
+        {% elif 'observation' in worst %}
+          <span class="badge text-bg-warning">{% trans "Observation" context "compliance" %}</span>
+        {% elif 'improvement' in worst %}
+          <span class="badge text-bg-info">{% trans "Improvement opportunity" %}</span>
+        {% elif 'strength' in worst %}
+          <span class="badge text-bg-success">{% trans "Strength" context "compliance" %}</span>
+        {% endif %}
+      {% endwith %}
+    {% elif entry.result and entry.result.compliance_status != 'not_assessed' %}
       <span class="badge text-bg-{% if entry.result.compliance_status == 'compliant' or entry.result.compliance_status == 'strength' %}success{% elif entry.result.compliance_status == 'observation' or entry.result.compliance_status == 'improvement_opportunity' %}warning{% elif entry.result.compliance_status == 'major_non_conformity' or entry.result.compliance_status == 'minor_non_conformity' %}danger{% elif entry.result.compliance_status == 'not_applicable' %}dark{% else %}secondary{% endif %}">
         {{ entry.result.get_compliance_status_display }}
       </span>
@@ -50,7 +63,14 @@
     {% endif %}
   </td>
   <td style="font-size:.85rem">
-    {% if entry.result %}
+    {% if entry.has_findings and entry.result %}
+      <div class="d-flex align-items-center gap-1">
+        <div class="progress" style="width:50px;height:5px">
+          <div class="progress-bar {% if entry.result.compliance_level >= 80 %}bg-success{% elif entry.result.compliance_level >= 40 %}bg-warning{% else %}bg-danger{% endif %}" style="width:{{ entry.result.compliance_level }}%"></div>
+        </div>
+        <span>{{ entry.result.compliance_level }}%</span>
+      </div>
+    {% elif entry.result and entry.result.compliance_status != 'not_assessed' %}
       <div class="d-flex align-items-center gap-1">
         <div class="progress" style="width:50px;height:5px">
           <div class="progress-bar {% if entry.result.compliance_level >= 80 %}bg-success{% elif entry.result.compliance_level >= 40 %}bg-warning{% else %}bg-danger{% endif %}" style="width:{{ entry.result.compliance_level }}%"></div>
@@ -61,36 +81,28 @@
       <span style="color:var(--text-muted)">—</span>
     {% endif %}
   </td>
-  <td style="font-size:.82rem;color:var(--text-muted)">
-    {% if entry.result and entry.result.assessed_by %}{{ entry.result.assessed_by }}{% else %}—{% endif %}
-  </td>
-  <td style="font-size:.82rem;color:var(--text-muted)">
-    {% if entry.result and entry.result.assessed_at %}{{ entry.result.assessed_at|date:"d/m/Y" }}{% else %}—{% endif %}
-  </td>
   <td class="text-end">
-    {% if entry.result %}
-    <button class="btn btn-sm btn-outline-primary"
-            hx-get="{% url 'compliance:assessment-result-update' assessment.pk entry.result.pk %}"
-            hx-target="#drawer-form-content"
-            hx-swap="innerHTML"
-            title="{% trans 'Edit evaluation' %}">
-      <i class="bi bi-pencil"></i>
+    {% if entry.has_findings %}
+    <span class="btn btn-sm btn-outline-secondary disabled" title="{% trans 'Status determined by findings' %}">
+      <i class="bi bi-lock"></i>
+    </span>
+    {% elif entry.result %}
+    <button class="btn btn-sm {% if entry.result.compliance_status != 'not_assessed' %}btn-success{% else %}btn-outline-secondary{% endif %}"
+            hx-post="{% url 'compliance:assessment-result-toggle' assessment.pk entry.result.pk %}"
+            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+            hx-swap="none"
+            title="{% if entry.result.compliance_status != 'not_assessed' %}{% trans 'Mark as not evaluated' %}{% else %}{% trans 'Mark as evaluated' %}{% endif %}">
+      <i class="bi {% if entry.result.compliance_status != 'not_assessed' %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
     </button>
     {% else %}
-    <button class="btn btn-sm btn-primary"
-            hx-get="{% url 'compliance:assessment-result-create' assessment.pk %}?requirement={{ entry.requirement.pk }}"
-            hx-target="#drawer-form-content"
-            hx-swap="innerHTML"
-            title="{% trans 'Evaluate' %}">
-      <i class="bi bi-clipboard-check"></i>
-    </button>
+    <span style="color:var(--text-muted)">—</span>
     {% endif %}
   </td>
 </tr>
 {% endfor %}
 {% empty %}
 <tr>
-  <td colspan="7" class="text-center" style="color:var(--text-muted);font-size:.85rem;padding:2rem">
+  <td colspan="5" class="text-center" style="color:var(--text-muted);font-size:.85rem;padding:2rem">
     {% trans "No requirement to evaluate. Initialize evaluations or check that the framework has applicable requirements." %}
   </td>
 </tr>
