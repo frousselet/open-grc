@@ -518,28 +518,24 @@ class AssessmentDetailView(
         # Progress counts
         results_qs = assessment.results.all()
         total = results_qs.count()
-        # Coverage = everything except NOT_ASSESSED (i.e. any action taken)
-        covered = results_qs.exclude(
-            compliance_status=ComplianceStatus.NOT_ASSESSED
-        ).count()
-        # Evaluated = only requirements with findings or compliant/strength status
-        # (EVALUATED status = "Evaluation planned", not truly evaluated)
+        # Evaluated = truly assessed (has findings, compliant, NC, etc.)
+        # Excludes NOT_ASSESSED and EVALUATED ("Evaluation planned")
         truly_evaluated = results_qs.exclude(
             compliance_status__in=[
                 ComplianceStatus.NOT_ASSESSED,
                 ComplianceStatus.EVALUATED,
             ]
         ).count()
-        ctx["results_total"] = covered
+        ctx["results_total"] = total
         ctx["results_evaluated"] = truly_evaluated
-        ctx["results_progress"] = round(truly_evaluated * 100 / covered) if covered else 0
+        ctx["results_progress"] = round(truly_evaluated * 100 / total) if total else 0
         ctx["has_results"] = total > 0
         # Coverage: % of framework requirements included in this assessment
         fw_req_count = assessment.framework.requirements.filter(
             is_applicable=True
         ).count()
         ctx["fw_req_count"] = fw_req_count
-        ctx["coverage_pct"] = round(covered * 100 / fw_req_count) if fw_req_count else 0
+        ctx["coverage_pct"] = round(total * 100 / fw_req_count) if fw_req_count else 0
         # Findings (constats)
         findings = assessment.findings.select_related("assessor").prefetch_related(
             "requirements"
