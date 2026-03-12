@@ -110,55 +110,55 @@
             <div class="flex-grow-1">
               <div class="d-flex justify-content-between align-items-center mb-2" style="font-size:.8rem">
                 <span style="color:var(--text-muted)">{% trans "Total applicable requirements" %}</span>
-                <span class="fw-bold">{{ assessment.total_requirements }}</span>
+                <span class="fw-bold">{{ fw_req_count }}</span>
               </div>
               <div class="d-flex flex-column gap-1" style="font-size:.82rem">
                 {% if assessment.strength_count %}
                 <div class="d-flex justify-content-between align-items-center">
                   <span><span class="badge text-bg-success" style="min-width:1.5rem">{{ assessment.strength_count }}</span> <span style="color:var(--text-muted)">{% trans "Strength" context "compliance" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-success" style="width:{% widthratio assessment.strength_count assessment.total_requirements 100 %}%"></div></div>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-success" style="width:{% widthratio assessment.strength_count fw_req_count 100 %}%"></div></div>
                 </div>
                 {% endif %}
                 {% if assessment.compliant_count %}
                 <div class="d-flex justify-content-between align-items-center">
                   <span><span class="badge text-bg-success" style="min-width:1.5rem">{{ assessment.compliant_count }}</span> <span style="color:var(--text-muted)">{% trans "Compliant" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-success" style="width:{% widthratio assessment.compliant_count assessment.total_requirements 100 %}%"></div></div>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-success" style="width:{% widthratio assessment.compliant_count fw_req_count 100 %}%"></div></div>
                 </div>
                 {% endif %}
                 {% if assessment.improvement_opportunity_count %}
                 <div class="d-flex justify-content-between align-items-center">
                   <span><span class="badge text-bg-warning" style="min-width:1.5rem">{{ assessment.improvement_opportunity_count }}</span> <span style="color:var(--text-muted)">{% trans "Improvement opportunity" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-warning" style="width:{% widthratio assessment.improvement_opportunity_count assessment.total_requirements 100 %}%"></div></div>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-warning" style="width:{% widthratio assessment.improvement_opportunity_count fw_req_count 100 %}%"></div></div>
                 </div>
                 {% endif %}
                 {% if assessment.observation_count %}
                 <div class="d-flex justify-content-between align-items-center">
                   <span><span class="badge text-bg-warning" style="min-width:1.5rem">{{ assessment.observation_count }}</span> <span style="color:var(--text-muted)">{% trans "Observation" context "compliance" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-warning" style="width:{% widthratio assessment.observation_count assessment.total_requirements 100 %}%"></div></div>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-warning" style="width:{% widthratio assessment.observation_count fw_req_count 100 %}%"></div></div>
                 </div>
                 {% endif %}
                 {% if assessment.minor_non_conformity_count %}
                 <div class="d-flex justify-content-between align-items-center">
                   <span><span class="badge text-bg-danger" style="min-width:1.5rem">{{ assessment.minor_non_conformity_count }}</span> <span style="color:var(--text-muted)">{% trans "Minor non-conformity" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-danger" style="width:{% widthratio assessment.minor_non_conformity_count assessment.total_requirements 100 %}%"></div></div>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-danger" style="width:{% widthratio assessment.minor_non_conformity_count fw_req_count 100 %}%"></div></div>
                 </div>
                 {% endif %}
                 {% if assessment.major_non_conformity_count %}
                 <div class="d-flex justify-content-between align-items-center">
                   <span><span class="badge text-bg-danger" style="min-width:1.5rem">{{ assessment.major_non_conformity_count }}</span> <span style="color:var(--text-muted)">{% trans "Major non-conformity" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-danger" style="width:{% widthratio assessment.major_non_conformity_count assessment.total_requirements 100 %}%"></div></div>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-danger" style="width:{% widthratio assessment.major_non_conformity_count fw_req_count 100 %}%"></div></div>
                 </div>
                 {% endif %}
                 {% if assessment.evaluated_count %}
                 <div class="d-flex justify-content-between align-items-center">
                   <span><span class="badge" style="min-width:1.5rem;background-color:var(--accent);color:#fff">{{ assessment.evaluated_count }}</span> <span style="color:var(--text-muted)">{% trans "Evaluated" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar" style="width:{% widthratio assessment.evaluated_count assessment.total_requirements 100 %}%;background-color:var(--accent)"></div></div>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar" style="width:{% widthratio assessment.evaluated_count fw_req_count 100 %}%;background-color:var(--accent)"></div></div>
                 </div>
                 {% endif %}
                 {% if assessment.not_assessed_count %}
                 <div class="d-flex justify-content-between align-items-center">
                   <span><span class="badge text-bg-secondary" style="min-width:1.5rem">{{ assessment.not_assessed_count }}</span> <span style="color:var(--text-muted)">{% trans "Not assessed" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-secondary" style="width:{% widthratio assessment.not_assessed_count assessment.total_requirements 100 %}%"></div></div>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-secondary" style="width:{% widthratio assessment.not_assessed_count fw_req_count 100 %}%"></div></div>
                 </div>
                 {% endif %}
               </div>
