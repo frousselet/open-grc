@@ -140,9 +140,12 @@
             <h6>{% trans "Results breakdown" %}</h6>
             <table class="table table-sm mb-0">
               <tr><td>{% trans "Total applicable requirements" %}</td><td class="fw-bold">{{ assessment.total_requirements }}</td></tr>
+              <tr><td><span class="badge text-bg-success">{% trans "Strength" %}</span></td><td>{{ assessment.strength_count }}</td></tr>
               <tr><td><span class="badge text-bg-success">{% trans "Compliant" %}</span></td><td>{{ assessment.compliant_count }}</td></tr>
-              <tr><td><span class="badge text-bg-warning">{% trans "Partially compliant" %}</span></td><td>{{ assessment.partially_compliant_count }}</td></tr>
-              <tr><td><span class="badge text-bg-danger">{% trans "Non-compliant" %}</span></td><td>{{ assessment.non_compliant_count }}</td></tr>
+              <tr><td><span class="badge text-bg-warning">{% trans "Improvement opportunity" %}</span></td><td>{{ assessment.improvement_opportunity_count }}</td></tr>
+              <tr><td><span class="badge text-bg-warning">{% trans "Observation" %}</span></td><td>{{ assessment.observation_count }}</td></tr>
+              <tr><td><span class="badge text-bg-danger">{% trans "Minor non-conformity" %}</span></td><td>{{ assessment.minor_non_conformity_count }}</td></tr>
+              <tr><td><span class="badge text-bg-danger">{% trans "Major non-conformity" %}</span></td><td>{{ assessment.major_non_conformity_count }}</td></tr>
               <tr><td><span class="badge text-bg-secondary">{% trans "Not assessed" %}</span></td><td>{{ assessment.not_assessed_count }}</td></tr>
             </table>
           </div>

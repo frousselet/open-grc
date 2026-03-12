@@ -192,7 +192,7 @@ class DashboardConsumer(AsyncWebsocketConsumer):
         overall_compliance = round(agg["avg"] or 0)
         requirement_count = Requirement.objects.count()
         non_compliant_count = Requirement.objects.filter(
-            compliance_status="non_compliant"
+            compliance_status__in=["major_non_conformity", "minor_non_conformity"]
         ).count()
         assessment_count = filter_scoped(ComplianceAssessment.objects.all()).count()
         action_plan_count = filter_scoped(ComplianceActionPlan.objects.all()).count()

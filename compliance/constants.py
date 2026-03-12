@@ -55,9 +55,12 @@ class RequirementCategory(models.TextChoices):
 
 class ComplianceStatus(models.TextChoices):
     NOT_ASSESSED = "not_assessed", _("Not assessed")
-    NON_COMPLIANT = "non_compliant", _("Non-compliant")
-    PARTIALLY_COMPLIANT = "partially_compliant", _("Partially compliant")
+    MAJOR_NON_CONFORMITY = "major_non_conformity", _("Major non-conformity")
+    MINOR_NON_CONFORMITY = "minor_non_conformity", _("Minor non-conformity")
+    OBSERVATION = "observation", _("Observation")
+    IMPROVEMENT_OPPORTUNITY = "improvement_opportunity", _("Improvement opportunity")
     COMPLIANT = "compliant", _("Compliant")
+    STRENGTH = "strength", _("Strength")
     NOT_APPLICABLE = "not_applicable", _("Not applicable")
 
 
@@ -114,8 +117,34 @@ class ActionPlanStatus(models.TextChoices):
 
 COMPLIANCE_LEVEL_DEFAULTS = {
     ComplianceStatus.NOT_ASSESSED: 0,
-    ComplianceStatus.NON_COMPLIANT: 0,
-    ComplianceStatus.PARTIALLY_COMPLIANT: 50,
+    ComplianceStatus.MAJOR_NON_CONFORMITY: 0,
+    ComplianceStatus.MINOR_NON_CONFORMITY: 30,
+    ComplianceStatus.OBSERVATION: 50,
+    ComplianceStatus.IMPROVEMENT_OPPORTUNITY: 70,
     ComplianceStatus.COMPLIANT: 100,
+    ComplianceStatus.STRENGTH: 100,
     ComplianceStatus.NOT_APPLICABLE: 100,
+}
+
+
+# Statuses that represent non-conformities (gaps/findings are expected)
+NON_CONFORMITY_STATUSES = {
+    ComplianceStatus.MAJOR_NON_CONFORMITY,
+    ComplianceStatus.MINOR_NON_CONFORMITY,
+}
+
+# Statuses that represent observations/improvements (no gaps expected, but finding is)
+FINDING_STATUSES = {
+    ComplianceStatus.MAJOR_NON_CONFORMITY,
+    ComplianceStatus.MINOR_NON_CONFORMITY,
+    ComplianceStatus.OBSERVATION,
+    ComplianceStatus.IMPROVEMENT_OPPORTUNITY,
+}
+
+# Statuses where "finding" field makes no sense (positive or N/A)
+NO_FINDING_STATUSES = {
+    ComplianceStatus.NOT_ASSESSED,
+    ComplianceStatus.COMPLIANT,
+    ComplianceStatus.STRENGTH,
+    ComplianceStatus.NOT_APPLICABLE,
 }

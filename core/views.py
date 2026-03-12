@@ -231,7 +231,7 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
 
         ctx["requirement_count"] = Requirement.objects.count()
         ctx["non_compliant_count"] = Requirement.objects.filter(
-            compliance_status="non_compliant"
+            compliance_status__in=["major_non_conformity", "minor_non_conformity"]
         ).count()
         ctx["assessment_count"] = self._filter_scoped(
             ComplianceAssessment.objects.all()

@@ -54,7 +54,7 @@ class Requirement(BaseModel):
     )
     compliance_status = models.CharField(
         _("Compliance status"),
-        max_length=25,
+        max_length=30,
         choices=ComplianceStatus.choices,
         default=ComplianceStatus.NOT_ASSESSED,
     )
@@ -62,7 +62,7 @@ class Requirement(BaseModel):
         _("Compliance level (%)"), default=0
     )
     compliance_evidence = models.TextField(_("Compliance evidence"), blank=True, default="")
-    compliance_gaps = models.TextField(_("Identified gaps"), blank=True, default="")
+    compliance_finding = models.TextField(_("Finding"), blank=True, default="")
     last_assessment_date = models.DateField(
         _("Last assessment"), null=True, blank=True
     )

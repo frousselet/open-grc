@@ -85,8 +85,8 @@ class TestAssessmentResultCreateView:
                 "compliance_status": ComplianceStatus.COMPLIANT,
                 "compliance_level": 100,
                 "evidence": "All controls implemented",
-                "gaps": "",
-                "observations": "",
+                "finding": "",
+                "auditor_recommendations": "",
             },
             HTTP_HX_REQUEST="true",
         )
@@ -121,18 +121,18 @@ class TestAssessmentResultUpdateView:
             url,
             {
                 "requirement": str(req.pk),
-                "compliance_status": ComplianceStatus.PARTIALLY_COMPLIANT,
-                "compliance_level": 50,
+                "compliance_status": ComplianceStatus.MINOR_NON_CONFORMITY,
+                "compliance_level": 30,
                 "evidence": "Partial",
-                "gaps": "Missing controls",
-                "observations": "",
+                "finding": "Missing controls",
+                "auditor_recommendations": "",
             },
             HTTP_HX_REQUEST="true",
         )
         assert response.status_code == 204
         result.refresh_from_db()
-        assert result.compliance_status == ComplianceStatus.PARTIALLY_COMPLIANT
-        assert result.compliance_level == 50
+        assert result.compliance_status == ComplianceStatus.MINOR_NON_CONFORMITY
+        assert result.compliance_level == 30
 
 
 class TestAssessmentResultDeleteView:
@@ -203,7 +203,7 @@ class TestRecalculateCounts:
         )
         AssessmentResultFactory(
             assessment=assessment, requirement=req2,
-            compliance_status=ComplianceStatus.NON_COMPLIANT, compliance_level=0,
+            compliance_status=ComplianceStatus.MAJOR_NON_CONFORMITY, compliance_level=0,
             assessed_by=user,
         )
         assessment.recalculate_counts()
@@ -211,7 +211,7 @@ class TestRecalculateCounts:
 
         assert assessment.total_requirements == 2
         assert assessment.compliant_count == 1
-        assert assessment.non_compliant_count == 1
+        assert assessment.major_non_conformity_count == 1
         assert assessment.overall_compliance_level == 50
 
 

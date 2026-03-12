@@ -217,18 +217,23 @@ class AssessmentResultForm(forms.ModelForm):
         model = AssessmentResult
         fields = [
             "requirement", "compliance_status", "compliance_level",
-            "evidence", "gaps", "observations",
+            "finding", "auditor_recommendations", "evidence",
         ]
         widgets = {
             "requirement": forms.Select(attrs=SELECT_ATTRS),
             "compliance_status": forms.Select(attrs={
                 **SELECT_ATTRS,
-                "data-compliance-level-defaults": '{"not_assessed":0,"non_compliant":0,"partially_compliant":50,"compliant":100,"not_applicable":0}',
+                "data-compliance-level-defaults": (
+                    '{"not_assessed":0,"major_non_conformity":0,'
+                    '"minor_non_conformity":30,"observation":50,'
+                    '"improvement_opportunity":70,"compliant":100,'
+                    '"strength":100,"not_applicable":100}'
+                ),
             }),
             "compliance_level": forms.NumberInput(attrs={**FORM_WIDGET_ATTRS, "min": 0, "max": 100}),
+            "finding": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "auditor_recommendations": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "evidence": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
-            "gaps": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
-            "observations": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
         }
 
     def __init__(self, *args, assessment=None, requirement_instance=None, **kwargs):
