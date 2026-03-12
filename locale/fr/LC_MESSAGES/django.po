@@ -8682,12 +8682,14 @@ msgstr "Non-conformité majeure"
 msgid "Minor non-conformity"
 msgstr "Non-conformité mineure"
 
+msgctxt "compliance"
 msgid "Observation"
 msgstr "Observation"
 
 msgid "Improvement opportunity"
 msgstr "Opportunité d'amélioration"
 
+msgctxt "compliance"
 msgid "Strength"
 msgstr "Point fort"
 

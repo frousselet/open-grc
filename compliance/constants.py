@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 
 # ── Framework ──────────────────────────────────────────────
@@ -57,10 +58,10 @@ class ComplianceStatus(models.TextChoices):
     NOT_ASSESSED = "not_assessed", _("Not assessed")
     MAJOR_NON_CONFORMITY = "major_non_conformity", _("Major non-conformity")
     MINOR_NON_CONFORMITY = "minor_non_conformity", _("Minor non-conformity")
-    OBSERVATION = "observation", _("Observation")
+    OBSERVATION = "observation", pgettext_lazy("compliance", "Observation")
     IMPROVEMENT_OPPORTUNITY = "improvement_opportunity", _("Improvement opportunity")
     COMPLIANT = "compliant", _("Compliant")
-    STRENGTH = "strength", _("Strength")
+    STRENGTH = "strength", pgettext_lazy("compliance", "Strength")
     NOT_APPLICABLE = "not_applicable", _("Not applicable")
 
 
