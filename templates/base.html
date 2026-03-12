@@ -841,6 +841,12 @@
     }
     .table .badge.text-bg-dark::before, .table .badge.bg-dark::before { background: var(--text-muted); }
 
+    /* Light — requirement pills in findings table (no dot) */
+    .table .badge.text-bg-light, .table .badge.bg-light {
+      gap: 0;
+    }
+    .table .badge.text-bg-light::before, .table .badge.bg-light::before { display: none; }
+
     /* ── Buttons ───────────────────────────────────────── */
     .btn {
       border-radius: var(--radius-sm);

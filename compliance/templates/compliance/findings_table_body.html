@@ -13,7 +13,7 @@
   <td style="font-size:.82rem">
     <div class="d-flex flex-wrap gap-1 align-items-center">
     {% for req in finding.requirements.all %}
-      <span class="badge text-bg-light border text-center" style="font-size:.72rem;padding:.35em .55em;line-height:1">{{ req.requirement_number|default:req.reference }}</span>
+      <span class="badge text-bg-light border" style="font-size:.72rem">{{ req.requirement_number|default:req.reference }}</span>
     {% empty %}
       <span style="color:var(--text-muted)">—</span>
     {% endfor %}
