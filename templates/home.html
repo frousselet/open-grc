@@ -229,7 +229,8 @@ window.initSparklines = function(root) {
     {% for fw in active_frameworks %}
     <div class="fw-bar mb-3">
       <div class="d-flex justify-content-between align-items-center mb-1">
-        <div>
+        <div class="d-flex align-items-center gap-2">
+          {% if fw.logo %}<img src="{{ fw.logo_32|default:fw.logo }}" alt="" style="width:20px;height:20px;object-fit:cover;border-radius:3px">{% endif %}
           <a href="{% url 'compliance:framework-detail' fw.pk %}" class="fw-semibold text-decoration-none" style="color:var(--text-primary);font-size:.8125rem">{{ fw.short_name|default:fw.name }}</a>
           <small class="ms-2" style="color:var(--text-muted);font-size:.75rem">{% blocktrans with count=fw.req_count %}{{ count }} requirement{{ count|pluralize:"s" }}{% endblocktrans %}</small>
           {% grouped_scope_badges fw.scopes.all %}
