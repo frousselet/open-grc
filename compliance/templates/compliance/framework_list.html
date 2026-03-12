@@ -44,7 +44,7 @@
           <td><a href="{% url 'compliance:framework-detail' fw.pk %}" class="ref" style="text-decoration:none">{{ fw.reference }}</a></td>
           <td>
             <span class="d-inline-flex align-items-center gap-2">
-              {% if fw.logo %}<img src="{{ fw.logo_32|default:fw.logo }}" alt="" style="width:24px;height:24px;object-fit:cover;border-radius:4px;background:#fff">{% else %}<span class="d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;border-radius:4px;background:var(--accent-soft);color:var(--accent);font-size:.75rem"><i class="bi bi-journal-bookmark"></i></span>{% endif %}
+              {% if fw.logo %}<img src="{{ fw.logo_32|default:fw.logo }}" alt="" style="width:24px;height:24px;object-fit:cover;border-radius:4px;background:#fff;border:1px solid var(--border-light)">{% else %}<span class="d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;border-radius:4px;background:var(--accent-soft);color:var(--accent);font-size:.75rem;border:1px solid var(--border-light)"><i class="bi bi-journal-bookmark"></i></span>{% endif %}
               {{ fw.name }}
             </span>
           </td>
