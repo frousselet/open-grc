@@ -30,16 +30,37 @@
 
 {# ── Identity ── #}
 <div class="drawer-section">
-  <div class="row g-2 mb-3">
-    <div class="col-sm-8">
-      <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
-      {{ form.name }}
-      {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  <div class="d-flex align-items-center gap-3 mb-3">
+    <div class="position-relative" style="flex-shrink:0">
+      {% if form.instance.pk and form.instance.logo %}
+      <img id="logo-preview" src="{{ form.instance.logo }}" alt=""
+           style="width:56px;height:56px;border-radius:var(--radius-md);object-fit:cover;border:2px solid var(--border-light)">
+      {% else %}
+      <div id="logo-preview"
+           style="width:56px;height:56px;border-radius:var(--radius-md);background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.2rem;border:2px solid var(--border-light)">
+        <i class="bi bi-journal-bookmark"></i>
+      </div>
+      {% endif %}
+      <label for="{{ form.logo.id_for_label }}" class="position-absolute d-flex align-items-center justify-content-center"
+             style="bottom:-4px;right:-4px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;cursor:pointer;font-size:.6rem;border:2px solid var(--card-bg)"
+             title="{% trans 'Change logo' %}">
+        <i class="bi bi-camera-fill"></i>
+      </label>
+      <div style="display:none">{{ form.logo }}{{ form.logo_resized }}</div>
     </div>
-    <div class="col-sm-4">
-      <label for="{{ form.short_name.id_for_label }}" class="form-label">{{ form.short_name.label }}</label>
-      {{ form.short_name }}
-      {% for error in form.short_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    <div class="flex-grow-1">
+      <div class="row g-2">
+        <div class="col-sm-8">
+          <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
+          {{ form.name }}
+          {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="col-sm-4">
+          <label for="{{ form.short_name.id_for_label }}" class="form-label">{{ form.short_name.label }}</label>
+          {{ form.short_name }}
+          {% for error in form.short_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
     </div>
   </div>
   <div class="row g-2 mb-3">
@@ -125,4 +146,28 @@
     {% for error in form.tags.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
   </div>
 </div>
+{% include "includes/image_resize.html" %}
+<script>
+(function() {
+  var inp = document.getElementById('{{ form.logo.id_for_label }}');
+  if (!inp) return;
+  inp.addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    resizeImageFile(file, 128, function(dataUri) {
+      document.getElementById('id_logo_resized').value = dataUri;
+      var el = document.getElementById('logo-preview');
+      if (el.tagName === 'IMG') {
+        el.src = dataUri;
+      } else {
+        var img = document.createElement('img');
+        img.id = 'logo-preview';
+        img.src = dataUri;
+        img.style.cssText = 'width:56px;height:56px;border-radius:var(--radius-md);object-fit:cover;border:2px solid var(--border-light)';
+        el.parentNode.replaceChild(img, el);
+      }
+    });
+  });
+})();
+</script>
 {% endblock %}

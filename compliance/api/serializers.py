@@ -22,7 +22,9 @@ class FrameworkSerializer(serializers.ModelSerializer):
             "is_mandatory", "is_applicable", "applicability_justification",
             "owner", "related_stakeholders",
             "compliance_level", "last_assessment_date",
-            "status", "review_date", "version", "tags",
+            "status", "review_date",
+            "logo", "logo_16", "logo_32", "logo_64",
+            "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -39,7 +41,8 @@ class FrameworkListSerializer(serializers.ModelSerializer):
         fields = [
             "id", "scopes", "reference", "name", "short_name",
             "type", "category", "is_mandatory", "is_applicable",
-            "compliance_level", "status", "owner", "created_at",
+            "compliance_level", "status", "owner", "logo_32",
+            "created_at",
         ]
         read_only_fields = ["id", "reference", "created_at"]
 

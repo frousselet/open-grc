@@ -69,6 +69,11 @@ class Framework(BaseModel):
     )
     review_date = models.DateField(_("Next review date"), null=True, blank=True)
 
+    logo = models.TextField(_("Logo"), blank=True, default="")
+    logo_16 = models.TextField(_("Logo 16×16"), blank=True, default="")
+    logo_32 = models.TextField(_("Logo 32×32"), blank=True, default="")
+    logo_64 = models.TextField(_("Logo 64×64"), blank=True, default="")
+
     history = HistoricalRecords()
 
     class Meta(BaseModel.Meta):

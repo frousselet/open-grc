@@ -8,17 +8,46 @@
 
 <div class="card">
   <div class="card-body">
-    <form method="post" class="mt-0">
+    <form method="post" enctype="multipart/form-data" class="mt-0">
       {% csrf_token %}
-      {% for field in form %}
-      <div class="mb-3">
-        <label for="{{ field.id_for_label }}" class="form-label">
-          {{ field.label }}{% if field.field.required %} *{% endif %}
-        </label>
-        {{ field }}
-        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-        {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+
+      {# ── Logo + Name ── #}
+      <div class="d-flex align-items-center gap-4 mb-4">
+        <div class="position-relative" style="flex-shrink:0">
+          {% if form.instance.pk and form.instance.logo %}
+          <img id="logo-preview" src="{{ form.instance.logo }}" alt=""
+               style="width:72px;height:72px;border-radius:var(--radius-md);object-fit:cover;border:2px solid var(--border-light)">
+          {% else %}
+          <div id="logo-preview"
+               style="width:72px;height:72px;border-radius:var(--radius-md);background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;border:2px solid var(--border-light)">
+            <i class="bi bi-journal-bookmark"></i>
+          </div>
+          {% endif %}
+          <label for="{{ form.logo.id_for_label }}" class="position-absolute d-flex align-items-center justify-content-center"
+                 style="bottom:-4px;right:-4px;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;cursor:pointer;font-size:.7rem;border:2px solid var(--card-bg)"
+                 title="{% trans 'Change logo' %}">
+            <i class="bi bi-camera-fill"></i>
+          </label>
+          <div style="display:none">{{ form.logo }}{{ form.logo_resized }}</div>
+        </div>
+        <div class="flex-grow-1">
+          <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
+          {{ form.name }}
+          {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
       </div>
+
+      {% for field in form %}
+        {% if field.name != "name" and field.name != "logo" and field.name != "logo_resized" %}
+        <div class="mb-3">
+          <label for="{{ field.id_for_label }}" class="form-label">
+            {{ field.label }}{% if field.field.required %} *{% endif %}
+          </label>
+          {{ field }}
+          {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+          {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+        {% endif %}
       {% endfor %}
       <div class="d-flex gap-2 form-actions-sticky">
         <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
@@ -27,4 +56,27 @@
     </form>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{% include "includes/image_resize.html" %}
+<script>
+document.getElementById('{{ form.logo.id_for_label }}').addEventListener('change', function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  resizeImageFile(file, 128, function(dataUri) {
+    document.getElementById('id_logo_resized').value = dataUri;
+    var el = document.getElementById('logo-preview');
+    if (el.tagName === 'IMG') {
+      el.src = dataUri;
+    } else {
+      var img = document.createElement('img');
+      img.id = 'logo-preview';
+      img.src = dataUri;
+      img.style.cssText = 'width:72px;height:72px;border-radius:var(--radius-md);object-fit:cover;border:2px solid var(--border-light)';
+      el.parentNode.replaceChild(img, el);
+    }
+  });
+});
+</script>
 {% endblock %}
