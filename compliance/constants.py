@@ -56,7 +56,7 @@ class RequirementCategory(models.TextChoices):
 
 class ComplianceStatus(models.TextChoices):
     NOT_ASSESSED = "not_assessed", _("Not assessed")
-    EVALUATED = "evaluated", _("Evaluated")
+    EVALUATED = "evaluated", _("Evaluation planned")
     MAJOR_NON_CONFORMITY = "major_non_conformity", _("Major non-conformity")
     MINOR_NON_CONFORMITY = "minor_non_conformity", _("Minor non-conformity")
     OBSERVATION = "observation", pgettext_lazy("compliance", "Observation")
