@@ -55,7 +55,7 @@
     {% elif entry.result and entry.result.compliance_status == 'strength' %}
       <span class="badge text-bg-success">{% trans "Strength" context "compliance" %}</span>
     {% elif entry.result and entry.result.compliance_status == 'evaluated' %}
-      <span class="badge" style="background-color:var(--accent);color:#fff">{% trans "Evaluated" %}</span>
+      <span class="badge" style="background-color:var(--accent);color:#fff">{% trans "Evaluation planned" %}</span>
     {% elif entry.result and entry.result.compliance_status == 'not_applicable' %}
       <span class="badge text-bg-dark">{{ entry.result.get_compliance_status_display }}</span>
     {% elif entry.result and entry.result.compliance_status != 'not_assessed' %}
@@ -95,7 +95,7 @@
             hx-post="{% url 'compliance:assessment-result-toggle' assessment.pk entry.requirement.pk %}"
             hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
             hx-swap="none"
-            title="{% if entry.result and entry.result.compliance_status == 'compliant' %}{% trans 'Mark as not evaluated' %}{% elif entry.result and entry.result.compliance_status == 'evaluated' %}{% trans 'Mark as compliant' %}{% else %}{% trans 'Mark as evaluated' %}{% endif %}">
+            title="{% if entry.result and entry.result.compliance_status == 'compliant' %}{% trans 'Mark as not evaluated' %}{% elif entry.result and entry.result.compliance_status == 'evaluated' %}{% trans 'Mark as compliant' %}{% else %}{% trans 'Mark as evaluation planned' %}{% endif %}">
       <i class="bi {% if entry.result and entry.result.compliance_status == 'compliant' %}bi-check-circle-fill{% elif entry.result and entry.result.compliance_status == 'evaluated' %}bi-circle-half{% else %}bi-circle{% endif %}"></i>
     </button>
     {% endif %}

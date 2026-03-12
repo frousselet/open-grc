@@ -6667,10 +6667,14 @@ msgstr "Non décidé"
 msgid "Analyzed"
 msgstr "Analysé"
 
-#: compliance/constants.py:59 risks/constants.py:57
+#: risks/constants.py:57
 #: risks/templates/risks/risk_list.html:27
 msgid "Evaluated"
 msgstr "Évalué"
+
+#: compliance/constants.py:59
+msgid "Evaluation planned"
+msgstr "Évaluation prévue"
 
 #: risks/constants.py:58
 msgid "Treatment planned"
@@ -8757,6 +8761,9 @@ msgstr "Marquer comme non évalué"
 
 msgid "Mark as evaluated"
 msgstr "Marquer comme évalué"
+
+msgid "Mark as evaluation planned"
+msgstr "Marquer comme évaluation prévue"
 
 msgid "Mark as compliant"
 msgstr "Marquer comme conforme"
