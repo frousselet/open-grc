@@ -354,6 +354,9 @@ msgstr "Évaluations de conformité"
 msgid "Audits & compliance"
 msgstr "Audits et conformité"
 
+msgid "Compliance of requirements covered by the audit"
+msgstr "Conformité des exigences couvertes par l'audit"
+
 #: accounts/constants.py:165 templates/home.html:644
 msgid "Inter-framework mappings"
 msgstr "Correspondances inter-référentiels"
