@@ -9,11 +9,11 @@
       {{ finding.get_finding_type_display }}
     </span>
   </td>
-  <td style="font-size:.85rem;max-width:300px" class="text-truncate">{{ finding.description|striptags|truncatewords:20 }}</td>
+  <td style="font-size:.85rem;max-width:300px"><div style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">{{ finding.description|truncatewords_html:20|safe }}</div></td>
   <td style="font-size:.82rem">
-    <div class="d-flex flex-wrap gap-1 align-items-center">
+    <div class="d-flex flex-wrap gap-1 align-items-center justify-content-center">
     {% for req in finding.requirements.all %}
-      <span class="badge text-bg-light border" style="font-size:.72rem">{{ req.requirement_number|default:req.reference }}</span>
+      <span class="badge text-bg-light border" style="font-size:.72rem;line-height:1.2;padding:.25em .5em;vertical-align:middle">{{ req.requirement_number|default:req.reference }}</span>
     {% empty %}
       <span style="color:var(--text-muted)">—</span>
     {% endfor %}
