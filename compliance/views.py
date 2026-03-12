@@ -627,6 +627,40 @@ def _build_sections_with_results(assessment):
             ft = finding.finding_type
             finding_counts_map[req.pk][ft] = finding_counts_map[req.pk].get(ft, 0) + 1
 
+    def _empty_status_counts():
+        return {
+            "compliant": 0, "strength": 0, "evaluated": 0,
+            "major_nc": 0, "minor_nc": 0, "observation": 0,
+            "improvement": 0, "not_assessed": 0, "not_applicable": 0,
+        }
+
+    # Map finding types to severity for worst-finding detection
+    _FINDING_WORST_KEY = {
+        "major_nc": 0, "minor_nc": 1, "observation": 2,
+        "improvement": 3, "strength": 4,
+    }
+
+    def _classify_entry(entry):
+        """Return the display category key for a requirement entry."""
+        if entry["has_findings"]:
+            worst = min(entry["finding_counts"].keys(),
+                        key=lambda ft: _FINDING_WORST_KEY.get(ft, 99))
+            return worst
+        result = entry["result"]
+        if not result or result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+            return "not_assessed"
+        status_map = {
+            ComplianceStatus.COMPLIANT: "compliant",
+            ComplianceStatus.STRENGTH: "strength",
+            ComplianceStatus.EVALUATED: "evaluated",
+            ComplianceStatus.NOT_APPLICABLE: "not_applicable",
+            ComplianceStatus.MAJOR_NON_CONFORMITY: "major_nc",
+            ComplianceStatus.MINOR_NON_CONFORMITY: "minor_nc",
+            ComplianceStatus.OBSERVATION: "observation",
+            ComplianceStatus.IMPROVEMENT_OPPORTUNITY: "improvement",
+        }
+        return status_map.get(result.compliance_status, "not_assessed")
+
     sections_dict = {}  # section_id -> section data
     no_section_reqs = []
 
@@ -646,9 +680,12 @@ def _build_sections_with_results(assessment):
                     "requirements": [],
                     "evaluated": 0,
                     "total": 0,
+                    "status_counts": _empty_status_counts(),
                 }
             sections_dict[req.section_id]["requirements"].append(entry)
             sections_dict[req.section_id]["total"] += 1
+            cat = _classify_entry(entry)
+            sections_dict[req.section_id]["status_counts"][cat] += 1
             if has_findings or (result and result.compliance_status != ComplianceStatus.NOT_ASSESSED):
                 sections_dict[req.section_id]["evaluated"] += 1
         else:
@@ -679,11 +716,15 @@ def _build_sections_with_results(assessment):
             1 for e in no_section_reqs
             if e["has_findings"] or (e["result"] and e["result"].compliance_status != ComplianceStatus.NOT_ASSESSED)
         )
+        sc = _empty_status_counts()
+        for e in no_section_reqs:
+            sc[_classify_entry(e)] += 1
         sections_list.append({
             "section": None,
             "requirements": no_section_reqs,
             "evaluated": evaluated,
             "total": len(no_section_reqs),
+            "status_counts": sc,
         })
 
     return sections_list
