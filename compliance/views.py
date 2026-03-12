@@ -840,23 +840,40 @@ class AssessmentResultDeleteView(LoginRequiredMixin, DeleteView):
 
 
 class ToggleResultEvaluatedView(LoginRequiredMixin, View):
-    """Toggle a result between evaluated (compliant/100%) and not evaluated."""
+    """Toggle a requirement between evaluated (compliant/100%) and not evaluated.
 
-    def post(self, request, assessment_pk, pk):
-        result = get_object_or_404(AssessmentResult, pk=pk, assessment_id=assessment_pk)
+    Creates the AssessmentResult on the fly if it doesn't exist yet.
+    """
+
+    def post(self, request, assessment_pk, requirement_pk):
+        assessment = get_object_or_404(ComplianceAssessment, pk=assessment_pk)
+        requirement = get_object_or_404(
+            assessment.framework.requirements, pk=requirement_pk
+        )
         # Don't toggle if requirement has findings
-        if result.assessment.findings.filter(requirements=result.requirement).exists():
+        if assessment.findings.filter(requirements=requirement).exists():
             return HttpResponse(status=409)
-        if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
-            result.compliance_status = ComplianceStatus.COMPLIANT
-            result.compliance_level = 100
-        else:
-            result.compliance_status = ComplianceStatus.NOT_ASSESSED
-            result.compliance_level = 0
-        result.assessed_by = request.user
-        result.assessed_at = timezone.now()
-        result.save()
-        result.assessment.recalculate_counts()
+        result, created = AssessmentResult.objects.get_or_create(
+            assessment=assessment,
+            requirement=requirement,
+            defaults={
+                "compliance_status": ComplianceStatus.COMPLIANT,
+                "compliance_level": 100,
+                "assessed_by": request.user,
+                "assessed_at": timezone.now(),
+            },
+        )
+        if not created:
+            if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+                result.compliance_status = ComplianceStatus.COMPLIANT
+                result.compliance_level = 100
+            else:
+                result.compliance_status = ComplianceStatus.NOT_ASSESSED
+                result.compliance_level = 0
+            result.assessed_by = request.user
+            result.assessed_at = timezone.now()
+            result.save()
+        assessment.recalculate_counts()
         return HttpResponse(status=204, headers={"HX-Trigger": "formSaved"})
 
 
