@@ -4,7 +4,21 @@ import django.db.models.deletion
 import simple_history.models
 import uuid
 from django.conf import settings
-from django.db import migrations, models
+from django.db import connection, migrations, models
+
+
+def table_exists(table_name):
+    return table_name in connection.introspection.table_names()
+
+
+class CreateModelIfNotExists(migrations.CreateModel):
+    """CreateModel that silently skips if the table already exists."""
+
+    def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        table_name = f"{app_label}_{self.name.lower()}"
+        if table_exists(table_name):
+            return
+        super().database_forwards(app_label, schema_editor, from_state, to_state)
 
 
 class Migration(migrations.Migration):
@@ -16,7 +30,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
+        CreateModelIfNotExists(
             name="Finding",
             fields=[
                 (
@@ -149,7 +163,7 @@ class Migration(migrations.Migration):
                 "abstract": False,
             },
         ),
-        migrations.CreateModel(
+        CreateModelIfNotExists(
             name="HistoricalFinding",
             fields=[
                 (
