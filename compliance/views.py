@@ -540,6 +540,16 @@ class AssessmentDetailView(
         ).count()
         ctx["fw_req_count"] = fw_req_count
         ctx["coverage_pct"] = round(covered * 100 / fw_req_count) if fw_req_count else 0
+        # Compliance: average level of covered results only (not NOT_ASSESSED)
+        if covered > 0:
+            from django.db.models import Avg
+            covered_qs = results_qs.exclude(
+                compliance_status=ComplianceStatus.NOT_ASSESSED
+            )
+            avg = covered_qs.aggregate(avg=Avg("compliance_level"))["avg"] or 0
+            ctx["compliance_pct"] = round(avg)
+        else:
+            ctx["compliance_pct"] = 0
         # Findings (constats)
         findings = assessment.findings.select_related("assessor").prefetch_related(
             "requirements"
