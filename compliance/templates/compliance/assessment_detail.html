@@ -82,6 +82,9 @@
                 </span>
               </div>
               <div style="font-size:.8rem;color:var(--text-muted);margin-top:.25rem">{% trans "Overall compliance" %}</div>
+              <div style="font-size:.75rem;color:var(--text-muted);margin-top:.35rem">
+                <i class="bi bi-check2-circle me-1"></i>{% trans "Coverage" %}: {{ results_total }}/{{ fw_req_count }} ({{ coverage_pct }}%)
+              </div>
             </div>
 
             {# ── Status breakdown ── #}
