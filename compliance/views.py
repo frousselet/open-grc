@@ -521,7 +521,7 @@ class AssessmentDetailView(
         evaluated = results_qs.exclude(
             compliance_status=ComplianceStatus.NOT_ASSESSED
         ).count()
-        ctx["results_total"] = total
+        ctx["results_total"] = evaluated
         ctx["results_evaluated"] = evaluated
         ctx["results_progress"] = round(evaluated * 100 / total) if total else 0
         ctx["has_results"] = total > 0
@@ -530,7 +530,7 @@ class AssessmentDetailView(
             is_applicable=True
         ).count()
         ctx["fw_req_count"] = fw_req_count
-        ctx["coverage_pct"] = round(total * 100 / fw_req_count) if fw_req_count else 0
+        ctx["coverage_pct"] = round(evaluated * 100 / fw_req_count) if fw_req_count else 0
         # Findings (constats)
         findings = assessment.findings.select_related("assessor").prefetch_related(
             "requirements"
