@@ -841,6 +841,11 @@
     }
     .table .badge.text-bg-dark::before, .table .badge.bg-dark::before { background: var(--text-muted); }
 
+    /* Strip margins from rich-text inside finding description cells */
+    .finding-desc p,
+    .finding-desc h1, .finding-desc h2, .finding-desc h3,
+    .finding-desc ul, .finding-desc ol { margin: 0; }
+
     /* Light — requirement pills in findings table (no dot) */
     .table .badge.text-bg-light, .table .badge.bg-light {
       gap: 0;

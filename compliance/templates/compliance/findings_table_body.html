@@ -9,7 +9,7 @@
       {{ finding.get_finding_type_display }}
     </span>
   </td>
-  <td style="font-size:.85rem;max-width:300px"><div style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">{{ finding.description|truncatewords_html:20|safe }}</div></td>
+  <td class="align-middle" style="font-size:.85rem;max-width:300px"><div class="finding-desc" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">{{ finding.description|truncatewords_html:20|safe }}</div></td>
   <td style="font-size:.82rem">
     <div class="d-flex flex-wrap gap-1 align-items-center">
     {% for req in finding.requirements.all %}
