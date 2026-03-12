@@ -964,6 +964,7 @@ def _register_compliance_tools(server):
                  "compliant_count", "major_non_conformity_count",
                  "minor_non_conformity_count", "observation_count",
                  "improvement_opportunity_count", "strength_count",
+                 "not_applicable_count",
                  "framework_id", "is_approved", "created_at"]
     ca_writable = ["name", "description", "assessment_date", "status",
                    "framework_id", "assessor_id"]

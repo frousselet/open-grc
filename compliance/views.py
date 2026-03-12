@@ -633,9 +633,7 @@ def _build_sections_with_results(assessment):
             "requirement", "assessed_by"
         ).all()
     }
-    requirements = framework.requirements.filter(
-        is_applicable=True
-    ).select_related("section")
+    requirements = framework.requirements.all().select_related("section")
 
     # Build finding counts per requirement for this assessment
     finding_counts_map = {}  # requirement_id -> {finding_type: count}
@@ -750,26 +748,41 @@ def _build_sections_with_results(assessment):
 
 
 class InitializeResultsView(LoginRequiredMixin, View):
-    """Bulk-create AssessmentResult for all applicable requirements."""
+    """Bulk-create AssessmentResult for all requirements (applicable and non-applicable)."""
 
     def post(self, request, pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=pk)
-        requirements = assessment.framework.requirements.filter(is_applicable=True)
+        requirements = assessment.framework.requirements.all()
         existing_req_ids = set(
             assessment.results.values_list("requirement_id", flat=True)
         )
-        new_results = [
-            AssessmentResult(
-                assessment=assessment,
-                requirement=req,
-                compliance_status=ComplianceStatus.NOT_ASSESSED,
-                compliance_level=0,
-                assessed_by=request.user,
-                assessed_at=timezone.now(),
-            )
-            for req in requirements
-            if req.pk not in existing_req_ids
-        ]
+        now = timezone.now()
+        new_results = []
+        for req in requirements:
+            if req.pk in existing_req_ids:
+                continue
+            if req.is_applicable:
+                new_results.append(
+                    AssessmentResult(
+                        assessment=assessment,
+                        requirement=req,
+                        compliance_status=ComplianceStatus.NOT_ASSESSED,
+                        compliance_level=0,
+                        assessed_by=request.user,
+                        assessed_at=now,
+                    )
+                )
+            else:
+                new_results.append(
+                    AssessmentResult(
+                        assessment=assessment,
+                        requirement=req,
+                        compliance_status=ComplianceStatus.NOT_APPLICABLE,
+                        compliance_level=100,
+                        assessed_by=request.user,
+                        assessed_at=now,
+                    )
+                )
         if new_results:
             AssessmentResult.objects.bulk_create(new_results, ignore_conflicts=True)
             assessment.recalculate_counts()
@@ -861,6 +874,10 @@ class AssessmentResultUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
         # Ensure requirement is preserved when field is disabled
         if not form.cleaned_data.get("requirement"):
             form.instance.requirement = self.object.requirement
+        # Enforce non-applicable status for non-applicable requirements
+        if not self.object.requirement.is_applicable:
+            form.instance.compliance_status = ComplianceStatus.NOT_APPLICABLE
+            form.instance.compliance_level = 100
         response = super().form_valid(form)
         self.get_assessment().recalculate_counts()
         return response
@@ -910,6 +927,9 @@ class ToggleResultEvaluatedView(LoginRequiredMixin, View):
         requirement = get_object_or_404(
             assessment.framework.requirements, pk=requirement_pk
         )
+        # Don't toggle if requirement is non-applicable
+        if not requirement.is_applicable:
+            return HttpResponse(status=409)
         # Don't toggle if requirement has findings
         if assessment.findings.filter(requirements=requirement).exists():
             return HttpResponse(status=409)

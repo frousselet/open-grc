@@ -56,6 +56,7 @@ class ComplianceAssessment(ScopedModel):
     strength_count = models.PositiveIntegerField(_("Strength"), default=0)
     evaluated_count = models.PositiveIntegerField(_("Evaluated"), default=0)
     not_assessed_count = models.PositiveIntegerField(_("Not assessed"), default=0)
+    not_applicable_count = models.PositiveIntegerField(_("Not applicable"), default=0)
     status = models.CharField(
         _("Status"),
         max_length=20,
@@ -115,6 +116,9 @@ class ComplianceAssessment(ScopedModel):
         self.not_assessed_count = results.filter(
             compliance_status=ComplianceStatus.NOT_ASSESSED
         ).count()
+        self.not_applicable_count = results.filter(
+            compliance_status=ComplianceStatus.NOT_APPLICABLE
+        ).count()
 
         # Build fallback map for EVALUATED ("Evaluation planned") only:
         # requirement_id → (status, level) from prior assessments.
@@ -170,6 +174,7 @@ class ComplianceAssessment(ScopedModel):
             strength_count=self.strength_count,
             evaluated_count=self.evaluated_count,
             not_assessed_count=self.not_assessed_count,
+            not_applicable_count=self.not_applicable_count,
             overall_compliance_level=self.overall_compliance_level,
         )
 
@@ -249,9 +254,12 @@ class ComplianceAssessment(ScopedModel):
                         req_worst[req.pk] = finding.finding_type
 
         # Update existing results for affected requirements
+        # Skip non-applicable results — findings can be linked but don't change status
         existing_req_ids = set()
         for result in self.results.filter(requirement_id__in=req_worst.keys()):
             existing_req_ids.add(result.requirement_id)
+            if result.compliance_status == ComplianceStatus.NOT_APPLICABLE:
+                continue
             worst_type = req_worst[result.requirement_id]
             new_status = FINDING_TYPE_TO_STATUS.get(worst_type)
             new_level = FINDING_TYPE_COMPLIANCE_LEVEL.get(worst_type, 0)
@@ -281,11 +289,14 @@ class ComplianceAssessment(ScopedModel):
                     )
 
         # Reset results whose findings were all removed back to NOT_ASSESSED
+        # (never reset non-applicable results)
         finding_statuses = set(FINDING_TYPE_TO_STATUS.values())
         self.results.filter(
             compliance_status__in=finding_statuses,
         ).exclude(
             requirement_id__in=req_worst.keys(),
+        ).exclude(
+            requirement__is_applicable=False,
         ).update(
             compliance_status=ComplianceStatus.NOT_ASSESSED,
             compliance_level=0,

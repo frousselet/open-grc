@@ -16,24 +16,31 @@ pytestmark = pytest.mark.django_db
 
 
 class TestInitializeResults:
-    def test_initialize_creates_results_for_all_applicable_requirements(self, client, django_user_model):
+    def test_initialize_creates_results_for_all_requirements(self, client, django_user_model):
         user = django_user_model.objects.create_user(email="u@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req1 = RequirementFactory(framework=fw, is_applicable=True)
         req2 = RequirementFactory(framework=fw, is_applicable=True)
-        RequirementFactory(framework=fw, is_applicable=False)  # not applicable
+        req_na = RequirementFactory(framework=fw, is_applicable=False)
         assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
 
         url = reverse("compliance:assessment-initialize-results", args=[assessment.pk])
         response = client.post(url)
 
         assert response.status_code == 302
-        assert assessment.results.count() == 2
-        assert set(assessment.results.values_list("requirement_id", flat=True)) == {req1.pk, req2.pk}
-        for result in assessment.results.all():
+        assert assessment.results.count() == 3
+        assert set(assessment.results.values_list("requirement_id", flat=True)) == {
+            req1.pk, req2.pk, req_na.pk,
+        }
+        # Applicable requirements: NOT_ASSESSED at 0%
+        for result in assessment.results.filter(requirement__is_applicable=True):
             assert result.compliance_status == ComplianceStatus.NOT_ASSESSED
             assert result.compliance_level == 0
+        # Non-applicable requirements: NOT_APPLICABLE at 100%
+        na_result = assessment.results.get(requirement=req_na)
+        assert na_result.compliance_status == ComplianceStatus.NOT_APPLICABLE
+        assert na_result.compliance_level == 100
 
     def test_initialize_is_idempotent(self, client, django_user_model):
         user = django_user_model.objects.create_user(email="u2@t.com", password="pw")
@@ -213,6 +220,78 @@ class TestRecalculateCounts:
         assert assessment.compliant_count == 1
         assert assessment.major_non_conformity_count == 1
         assert assessment.overall_compliance_level == 50
+
+
+class TestNonApplicableRequirements:
+    def test_toggle_blocked_for_non_applicable(self, client, django_user_model):
+        """Non-applicable requirements cannot be toggled."""
+        user = django_user_model.objects.create_user(email="na1@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req_na = RequirementFactory(framework=fw, is_applicable=False)
+        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req_na,
+            compliance_status=ComplianceStatus.NOT_APPLICABLE,
+            compliance_level=100, assessed_by=user,
+        )
+
+        url = reverse("compliance:assessment-result-toggle",
+                       args=[assessment.pk, req_na.pk])
+        response = client.post(url)
+        assert response.status_code == 409
+
+    def test_findings_dont_change_non_applicable_status(self, django_user_model):
+        """Findings linked to non-applicable requirements don't change their status."""
+        from compliance.tests.factories import FindingFactory
+        from compliance.constants import FindingType
+
+        user = django_user_model.objects.create_user(email="na2@t.com", password="pw")
+        fw = FrameworkFactory()
+        req_na = RequirementFactory(framework=fw, is_applicable=False)
+        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
+        result = AssessmentResultFactory(
+            assessment=assessment, requirement=req_na,
+            compliance_status=ComplianceStatus.NOT_APPLICABLE,
+            compliance_level=100, assessed_by=user,
+        )
+
+        finding = FindingFactory(
+            assessment=assessment,
+            finding_type=FindingType.MAJOR_NON_CONFORMITY,
+            assessor=user,
+        )
+        finding.requirements.add(req_na)
+
+        assessment.apply_findings_to_results()
+        result.refresh_from_db()
+        assert result.compliance_status == ComplianceStatus.NOT_APPLICABLE
+        assert result.compliance_level == 100
+
+    def test_recalculate_counts_includes_not_applicable(self, django_user_model):
+        """recalculate_counts correctly counts not_applicable results."""
+        user = django_user_model.objects.create_user(email="na3@t.com", password="pw")
+        fw = FrameworkFactory()
+        req1 = RequirementFactory(framework=fw, is_applicable=True)
+        req_na = RequirementFactory(framework=fw, is_applicable=False)
+        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
+
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req1,
+            compliance_status=ComplianceStatus.COMPLIANT,
+            compliance_level=100, assessed_by=user,
+        )
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req_na,
+            compliance_status=ComplianceStatus.NOT_APPLICABLE,
+            compliance_level=100, assessed_by=user,
+        )
+
+        assessment.recalculate_counts()
+        assessment.refresh_from_db()
+        assert assessment.not_applicable_count == 1
+        assert assessment.compliant_count == 1
+        assert assessment.total_requirements == 2
 
 
 class TestAssessmentDetailView:

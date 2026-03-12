@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from context.models import Scope
 from context.widgets import ScopeTreeWidget
+from compliance.constants import ComplianceStatus
 from helpers.image_utils import generate_image_variants
 from .models import (
     ComplianceActionPlan,
@@ -242,7 +243,7 @@ class AssessmentResultForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if assessment:
             self.fields["requirement"].queryset = Requirement.objects.filter(
-                framework=assessment.framework, is_applicable=True
+                framework=assessment.framework,
             ).order_by("requirement_number")
         if requirement_instance:
             self.fields["requirement"].initial = requirement_instance.pk
@@ -250,6 +251,20 @@ class AssessmentResultForm(forms.ModelForm):
                 pk=requirement_instance.pk
             )
             self.fields["requirement"].widget.attrs["disabled"] = True
+            # Lock status fields for non-applicable requirements
+            if not requirement_instance.is_applicable:
+                self._is_non_applicable = True
+                self.fields["compliance_status"].initial = ComplianceStatus.NOT_APPLICABLE
+                self.fields["compliance_status"].widget.attrs["disabled"] = True
+                self.fields["compliance_level"].initial = 100
+                self.fields["compliance_level"].widget.attrs["disabled"] = True
+
+    def clean(self):
+        cleaned = super().clean()
+        if getattr(self, "_is_non_applicable", False):
+            cleaned["compliance_status"] = ComplianceStatus.NOT_APPLICABLE
+            cleaned["compliance_level"] = 100
+        return cleaned
 
 
 class FindingForm(forms.ModelForm):
@@ -271,7 +286,7 @@ class FindingForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if assessment:
             self.fields["requirements"].queryset = Requirement.objects.filter(
-                framework=assessment.framework, is_applicable=True
+                framework=assessment.framework,
             ).order_by("requirement_number")
         else:
             self.fields["requirements"].queryset = Requirement.objects.none()

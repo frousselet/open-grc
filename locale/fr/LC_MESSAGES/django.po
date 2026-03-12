@@ -8767,3 +8767,9 @@ msgstr "Marquer comme évaluation prévue"
 
 msgid "Mark as compliant"
 msgstr "Marquer comme conforme"
+
+msgid "Non-applicable requirement"
+msgstr "Exigence non applicable"
+
+msgid "This requirement is non-applicable. Its compliance status cannot be modified."
+msgstr "Cette exigence est non applicable. Son statut de conformité ne peut pas être modifié."
