@@ -22,33 +22,121 @@
 <ul class="nav nav-tabs mb-3" role="tablist">
   <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#results_tab">{% trans "Results" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#summary_tab">{% trans "Summary" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane fade show active" id="general">
-    <div class="card">
-      <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Framework" %}</dt><dd class="col-sm-9"><a href="{% url 'compliance:framework-detail' assessment.framework.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ assessment.framework }}</a></dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Assessment date" %}</dt><dd class="col-sm-9">{{ assessment.assessment_date }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Lead assessor" %}</dt><dd class="col-sm-9">{{ assessment.assessor }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Methodology" %}</dt><dd class="col-sm-9">{{ assessment.methodology|default:"—"|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
-          <dd class="col-sm-9">
-            <span class="badge text-bg-{% if assessment.status == 'completed' or assessment.status == 'validated' %}success{% elif assessment.status == 'in_progress' %}info{% elif assessment.status == 'archived' %}secondary{% else %}warning{% endif %}">
-              {{ assessment.get_status_display }}
-            </span>
-          </dd>
-          {% if assessment.validated_by %}
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Validated by" %}</dt><dd class="col-sm-9">{{ assessment.validated_by }} — {{ assessment.validated_at|date:"d/m/Y H:i" }}</dd>
-          {% endif %}
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ assessment.review_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ assessment.description|default:"—"|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
-          <dd class="col-sm-9">{% for tag in assessment.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
-        </dl>
+    <div class="row g-3">
+      {# ── Left column: general information ── #}
+      <div class="col-lg-7">
+        <div class="card h-100">
+          <div class="card-body">
+            <dl class="row mb-0">
+              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Framework" %}</dt>
+              <dd class="col-sm-8"><a href="{% url 'compliance:framework-detail' assessment.framework.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ assessment.framework }}</a></dd>
+              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Assessment date" %}</dt>
+              <dd class="col-sm-8">{{ assessment.assessment_date }}</dd>
+              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Lead assessor" %}</dt>
+              <dd class="col-sm-8">{{ assessment.assessor }}</dd>
+              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Methodology" %}</dt>
+              <dd class="col-sm-8">{{ assessment.methodology|default:"—"|safe }}</dd>
+              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
+              <dd class="col-sm-8">
+                <span class="badge text-bg-{% if assessment.status == 'completed' or assessment.status == 'validated' %}success{% elif assessment.status == 'in_progress' %}info{% elif assessment.status == 'archived' %}secondary{% else %}warning{% endif %}">
+                  {{ assessment.get_status_display }}
+                </span>
+              </dd>
+              {% if assessment.validated_by %}
+              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Validated by" %}</dt>
+              <dd class="col-sm-8">{{ assessment.validated_by }} — {{ assessment.validated_at|date:"d/m/Y H:i" }}</dd>
+              {% endif %}
+              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Next review" %}</dt>
+              <dd class="col-sm-8">{{ assessment.review_date|default:"—" }}</dd>
+              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt>
+              <dd class="col-sm-8">{{ assessment.description|default:"—"|safe }}</dd>
+              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
+              <dd class="col-sm-8">{% for tag in assessment.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      {# ── Right column: compliance summary ── #}
+      <div class="col-lg-5">
+        <div class="card h-100">
+          <div class="card-body d-flex flex-column">
+            {# ── Compliance gauge ── #}
+            <div class="text-center mb-3 pb-3" style="border-bottom:1px solid var(--border-light)">
+              <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:100px;height:100px">
+                <svg viewBox="0 0 36 36" style="width:100%;height:100%;transform:rotate(-90deg)">
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--border-light)" stroke-width="2.5"/>
+                  <circle cx="18" cy="18" r="15.9" fill="none"
+                          stroke="{% if assessment.overall_compliance_level >= 80 %}var(--success){% elif assessment.overall_compliance_level >= 50 %}var(--warning){% else %}var(--danger){% endif %}"
+                          stroke-width="2.5"
+                          stroke-dasharray="{{ assessment.overall_compliance_level|floatformat:0 }} 100"
+                          stroke-linecap="round"/>
+                </svg>
+                <span style="position:absolute;font-size:1.25rem;font-weight:700;{% if assessment.overall_compliance_level >= 80 %}color:var(--success){% elif assessment.overall_compliance_level >= 50 %}color:var(--warning){% else %}color:var(--danger){% endif %}">
+                  {{ assessment.overall_compliance_level|floatformat:0 }}%
+                </span>
+              </div>
+              <div style="font-size:.8rem;color:var(--text-muted);margin-top:.25rem">{% trans "Overall compliance" %}</div>
+            </div>
+
+            {# ── Status breakdown ── #}
+            <div class="flex-grow-1">
+              <div class="d-flex justify-content-between align-items-center mb-2" style="font-size:.8rem">
+                <span style="color:var(--text-muted)">{% trans "Total applicable requirements" %}</span>
+                <span class="fw-bold">{{ assessment.total_requirements }}</span>
+              </div>
+              <div class="d-flex flex-column gap-1" style="font-size:.82rem">
+                {% if assessment.strength_count %}
+                <div class="d-flex justify-content-between align-items-center">
+                  <span><span class="badge text-bg-success" style="min-width:1.5rem">{{ assessment.strength_count }}</span> <span style="color:var(--text-muted)">{% trans "Strength" context "compliance" %}</span></span>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-success" style="width:{% widthratio assessment.strength_count assessment.total_requirements 100 %}%"></div></div>
+                </div>
+                {% endif %}
+                {% if assessment.compliant_count %}
+                <div class="d-flex justify-content-between align-items-center">
+                  <span><span class="badge text-bg-success" style="min-width:1.5rem">{{ assessment.compliant_count }}</span> <span style="color:var(--text-muted)">{% trans "Compliant" %}</span></span>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-success" style="width:{% widthratio assessment.compliant_count assessment.total_requirements 100 %}%"></div></div>
+                </div>
+                {% endif %}
+                {% if assessment.improvement_opportunity_count %}
+                <div class="d-flex justify-content-between align-items-center">
+                  <span><span class="badge text-bg-warning" style="min-width:1.5rem">{{ assessment.improvement_opportunity_count }}</span> <span style="color:var(--text-muted)">{% trans "Improvement opportunity" %}</span></span>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-warning" style="width:{% widthratio assessment.improvement_opportunity_count assessment.total_requirements 100 %}%"></div></div>
+                </div>
+                {% endif %}
+                {% if assessment.observation_count %}
+                <div class="d-flex justify-content-between align-items-center">
+                  <span><span class="badge text-bg-warning" style="min-width:1.5rem">{{ assessment.observation_count }}</span> <span style="color:var(--text-muted)">{% trans "Observation" context "compliance" %}</span></span>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-warning" style="width:{% widthratio assessment.observation_count assessment.total_requirements 100 %}%"></div></div>
+                </div>
+                {% endif %}
+                {% if assessment.minor_non_conformity_count %}
+                <div class="d-flex justify-content-between align-items-center">
+                  <span><span class="badge text-bg-danger" style="min-width:1.5rem">{{ assessment.minor_non_conformity_count }}</span> <span style="color:var(--text-muted)">{% trans "Minor non-conformity" %}</span></span>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-danger" style="width:{% widthratio assessment.minor_non_conformity_count assessment.total_requirements 100 %}%"></div></div>
+                </div>
+                {% endif %}
+                {% if assessment.major_non_conformity_count %}
+                <div class="d-flex justify-content-between align-items-center">
+                  <span><span class="badge text-bg-danger" style="min-width:1.5rem">{{ assessment.major_non_conformity_count }}</span> <span style="color:var(--text-muted)">{% trans "Major non-conformity" %}</span></span>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-danger" style="width:{% widthratio assessment.major_non_conformity_count assessment.total_requirements 100 %}%"></div></div>
+                </div>
+                {% endif %}
+                {% if assessment.not_assessed_count %}
+                <div class="d-flex justify-content-between align-items-center">
+                  <span><span class="badge text-bg-secondary" style="min-width:1.5rem">{{ assessment.not_assessed_count }}</span> <span style="color:var(--text-muted)">{% trans "Not assessed" %}</span></span>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-secondary" style="width:{% widthratio assessment.not_assessed_count assessment.total_requirements 100 %}%"></div></div>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -124,35 +212,6 @@
     </div>
   </div>
 
-  <div class="tab-pane fade" id="summary_tab">
-    <div class="row mb-3">
-      <div class="col-md-4">
-        <div class="card">
-          <div class="card-body text-center">
-            <h6>{% trans "Overall compliance" %}</h6>
-            <p class="display-4">{{ assessment.overall_compliance_level|floatformat:0 }}%</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-8">
-        <div class="card">
-          <div class="card-body">
-            <h6>{% trans "Results breakdown" %}</h6>
-            <table class="table table-sm mb-0">
-              <tr><td>{% trans "Total applicable requirements" %}</td><td class="fw-bold">{{ assessment.total_requirements }}</td></tr>
-              <tr><td><span class="badge text-bg-success">{% trans "Strength" context "compliance" %}</span></td><td>{{ assessment.strength_count }}</td></tr>
-              <tr><td><span class="badge text-bg-success">{% trans "Compliant" %}</span></td><td>{{ assessment.compliant_count }}</td></tr>
-              <tr><td><span class="badge text-bg-warning">{% trans "Improvement opportunity" %}</span></td><td>{{ assessment.improvement_opportunity_count }}</td></tr>
-              <tr><td><span class="badge text-bg-warning">{% trans "Observation" context "compliance" %}</span></td><td>{{ assessment.observation_count }}</td></tr>
-              <tr><td><span class="badge text-bg-danger">{% trans "Minor non-conformity" %}</span></td><td>{{ assessment.minor_non_conformity_count }}</td></tr>
-              <tr><td><span class="badge text-bg-danger">{% trans "Major non-conformity" %}</span></td><td>{{ assessment.major_non_conformity_count }}</td></tr>
-              <tr><td><span class="badge text-bg-secondary">{% trans "Not assessed" %}</span></td><td>{{ assessment.not_assessed_count }}</td></tr>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <div class="tab-pane fade" id="history">
     {% include "includes/history_tab.html" %}
