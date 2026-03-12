@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load table_tags %}
 
-{% block title %}{% trans "Compliance assessments" %} — Open GRC{% endblock %}
+{% block title %}{% trans "Audits & compliance" %} — Open GRC{% endblock %}
 
 {% load help_tags %}
 {% load versioning_tags %}
@@ -10,7 +10,7 @@
 {% block content %}
 {% approval_enabled_for "compliance.complianceassessment" as show_approval %}
 <div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Compliance assessments" %}</h1>
+  <h1 class="mb-0">{% trans "Audits & compliance" %}</h1>
   <div class="header-actions">
     <button type="button" class="btn-header-action" title="{% trans 'New assessment' %}"
             hx-get="{% url 'compliance:assessment-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
