@@ -165,7 +165,7 @@ class ComplianceAssessmentSerializer(serializers.ModelSerializer):
             "total_requirements", "compliant_count",
             "major_non_conformity_count", "minor_non_conformity_count",
             "observation_count", "improvement_opportunity_count",
-            "strength_count", "not_assessed_count",
+            "strength_count", "not_assessed_count", "not_applicable_count",
             "status", "validated_by", "validated_at",
             "review_date", "version", "tags",
             "is_approved", "approved_by", "approved_at",
@@ -178,7 +178,7 @@ class ComplianceAssessmentSerializer(serializers.ModelSerializer):
             "compliant_count", "major_non_conformity_count",
             "minor_non_conformity_count", "observation_count",
             "improvement_opportunity_count", "strength_count",
-            "not_assessed_count",
+            "not_assessed_count", "not_applicable_count",
             "validated_by", "validated_at",
         ]
 

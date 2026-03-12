@@ -38,17 +38,33 @@
 </div>
 {% endif %}
 
+{# ── Non-applicable banner ── #}
+{% if requirement_obj and not requirement_obj.is_applicable %}
+<div class="alert alert-secondary mb-3" style="font-size:.85rem">
+  <i class="bi bi-lock me-1"></i>{% trans "This requirement is non-applicable. Its compliance status cannot be modified." %}
+  {% if requirement_obj.applicability_justification %}
+  <div style="margin-top:.35rem;font-size:.82rem;color:var(--text-muted)">{{ requirement_obj.applicability_justification|safe }}</div>
+  {% endif %}
+</div>
+{% endif %}
+
 {# ── Evaluation ── #}
 <div class="drawer-meta">
   <div>
     <label for="{{ form.compliance_status.id_for_label }}" class="form-label">{{ form.compliance_status.label }} *</label>
     {{ form.compliance_status }}
+    {% if requirement_obj and not requirement_obj.is_applicable %}
+      <input type="hidden" name="compliance_status" value="not_applicable">
+    {% endif %}
     {% for error in form.compliance_status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
   </div>
   <div>
     <label for="{{ form.compliance_level.id_for_label }}" class="form-label">{{ form.compliance_level.label }}</label>
     <div class="input-group">
       {{ form.compliance_level }}
+      {% if requirement_obj and not requirement_obj.is_applicable %}
+        <input type="hidden" name="compliance_level" value="100">
+      {% endif %}
       <span class="input-group-text">%</span>
     </div>
     {% for error in form.compliance_level.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}

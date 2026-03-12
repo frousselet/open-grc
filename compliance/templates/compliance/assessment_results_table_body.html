@@ -86,7 +86,11 @@
     {% endif %}
   </td>
   <td class="text-end">
-    {% if entry.has_findings %}
+    {% if not entry.requirement.is_applicable %}
+    <span class="btn btn-sm btn-outline-secondary disabled" title="{% trans 'Non-applicable requirement' %}">
+      <i class="bi bi-lock"></i>
+    </span>
+    {% elif entry.has_findings %}
     <span class="btn btn-sm btn-outline-secondary disabled" title="{% trans 'Status determined by findings' %}">
       <i class="bi bi-lock"></i>
     </span>
