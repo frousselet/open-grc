@@ -1,0 +1,47 @@
+{% load i18n %}
+{% for finding in findings %}
+<tr>
+  <td>
+    <span style="font-weight:500;font-size:.85rem">{{ finding.reference }}</span>
+  </td>
+  <td>
+    <span class="badge text-bg-{% if finding.finding_type == 'major_nc' %}danger{% elif finding.finding_type == 'minor_nc' %}danger{% elif finding.finding_type == 'observation' %}warning{% elif finding.finding_type == 'improvement' %}info{% else %}success{% endif %}">
+      {{ finding.get_finding_type_display }}
+    </span>
+  </td>
+  <td style="font-size:.85rem;max-width:300px" class="text-truncate">{{ finding.description|truncatewords:20 }}</td>
+  <td style="font-size:.82rem">
+    {% for req in finding.requirements.all %}
+      <span class="badge text-bg-light border" style="font-size:.72rem">{{ req.requirement_number|default:req.reference }}</span>
+    {% empty %}
+      <span style="color:var(--text-muted)">—</span>
+    {% endfor %}
+  </td>
+  <td style="font-size:.82rem;color:var(--text-muted)">{{ finding.assessor }}</td>
+  <td class="text-end">
+    <div class="d-flex gap-1 justify-content-end">
+      <button class="btn btn-sm btn-outline-primary"
+              hx-get="{% url 'compliance:finding-update' assessment.pk finding.pk %}"
+              hx-target="#drawer-form-content"
+              hx-swap="innerHTML"
+              title="{% trans 'Edit' %}">
+        <i class="bi bi-pencil"></i>
+      </button>
+      <button class="btn btn-sm btn-outline-danger"
+              hx-delete="{% url 'compliance:finding-delete' assessment.pk finding.pk %}"
+              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+              hx-confirm="{% trans 'Are you sure you want to delete this finding?' %}"
+              hx-swap="none"
+              title="{% trans 'Delete' %}">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+  </td>
+</tr>
+{% empty %}
+<tr>
+  <td colspan="6" class="text-center" style="color:var(--text-muted);font-size:.85rem;padding:2rem">
+    {% trans "No findings recorded yet." %}
+  </td>
+</tr>
+{% endfor %}

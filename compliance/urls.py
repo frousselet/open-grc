@@ -43,6 +43,11 @@ urlpatterns = [
     path("assessments/<uuid:assessment_pk>/results/create/", views.AssessmentResultCreateView.as_view(), name="assessment-result-create"),
     path("assessments/<uuid:assessment_pk>/results/<uuid:pk>/edit/", views.AssessmentResultUpdateView.as_view(), name="assessment-result-update"),
     path("assessments/<uuid:assessment_pk>/results/<uuid:pk>/delete/", views.AssessmentResultDeleteView.as_view(), name="assessment-result-delete"),
+    # Findings
+    path("assessments/<uuid:pk>/findings-table-body/", views.FindingsTableBodyView.as_view(), name="assessment-findings-table-body"),
+    path("assessments/<uuid:assessment_pk>/findings/create/", views.FindingCreateView.as_view(), name="finding-create"),
+    path("assessments/<uuid:assessment_pk>/findings/<uuid:pk>/edit/", views.FindingUpdateView.as_view(), name="finding-update"),
+    path("assessments/<uuid:assessment_pk>/findings/<uuid:pk>/delete/", views.FindingDeleteView.as_view(), name="finding-delete"),
     # Mappings
     path("mappings/", views.MappingListView.as_view(), name="mapping-list"),
     path("mappings/create/", views.MappingCreateView.as_view(), name="mapping-create"),

@@ -23,6 +23,18 @@ assessment_result_detail = views.AssessmentResultViewSet.as_view({
     "delete": "destroy",
 })
 
+# Nested routes for assessment findings
+assessment_findings = views.FindingViewSet.as_view({
+    "get": "list",
+    "post": "create",
+})
+assessment_finding_detail = views.FindingViewSet.as_view({
+    "get": "retrieve",
+    "put": "update",
+    "patch": "partial_update",
+    "delete": "destroy",
+})
+
 app_name = "compliance-api"
 
 urlpatterns = [
@@ -37,5 +49,16 @@ urlpatterns = [
         "assessments/<uuid:assessment_pk>/results/<uuid:pk>/",
         assessment_result_detail,
         name="assessment-results-detail",
+    ),
+    # Assessment findings
+    path(
+        "assessments/<uuid:assessment_pk>/findings/",
+        assessment_findings,
+        name="assessment-findings-list",
+    ),
+    path(
+        "assessments/<uuid:assessment_pk>/findings/<uuid:pk>/",
+        assessment_finding_detail,
+        name="assessment-findings-detail",
     ),
 ]

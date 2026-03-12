@@ -4,6 +4,7 @@ from compliance.models import (
     ComplianceActionPlan,
     ComplianceAssessment,
     AssessmentResult,
+    Finding,
     Framework,
     Requirement,
     RequirementMapping,
@@ -119,6 +120,39 @@ class AssessmentResultSerializer(serializers.ModelSerializer):
             "created_at", "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class FindingSerializer(serializers.ModelSerializer):
+    finding_type_display = serializers.CharField(
+        source="get_finding_type_display", read_only=True
+    )
+
+    class Meta:
+        model = Finding
+        fields = [
+            "id", "assessment", "reference",
+            "finding_type", "finding_type_display",
+            "description", "recommendation", "evidence",
+            "assessor", "requirements",
+            "created_by", "created_at", "updated_at",
+        ]
+        read_only_fields = ["id", "reference", "created_by", "created_at", "updated_at"]
+
+
+class FindingListSerializer(serializers.ModelSerializer):
+    finding_type_display = serializers.CharField(
+        source="get_finding_type_display", read_only=True
+    )
+
+    class Meta:
+        model = Finding
+        fields = [
+            "id", "assessment", "reference",
+            "finding_type", "finding_type_display",
+            "description", "assessor",
+            "created_at",
+        ]
+        read_only_fields = ["id", "reference", "created_at"]
 
 
 class ComplianceAssessmentSerializer(serializers.ModelSerializer):

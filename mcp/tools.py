@@ -1034,6 +1034,27 @@ def _register_compliance_tools(server):
                        "remediation_plan": _html_field("Remediation plan"),
                    })
 
+    Finding = _get_model("compliance", "Finding")
+    fi_fields = ["id", "reference", "assessment_id", "finding_type",
+                 "description", "recommendation", "evidence",
+                 "assessor_id", "created_at"]
+    fi_writable = ["assessment_id", "finding_type", "description",
+                   "recommendation", "evidence", "assessor_id"]
+
+    _register_crud(server, "finding", Finding, "compliance.assessment",
+                   list_fields=fi_fields,
+                   writable_fields=fi_writable,
+                   search_fields=["reference", "description"],
+                   filters=["assessment_id", "finding_type"],
+                   scope_filtered=False,
+                   has_approve=False,
+                   field_overrides={
+                       "description": _html_field("Finding description"),
+                       "recommendation": _html_field("Auditor recommendation"),
+                       "evidence": _html_field("Evidence presented"),
+                       "assessor_id": {"type": "string", "description": "UUID of the assessor (user)"},
+                   })
+
 
 # ── Risks Module ───────────────────────────────────────────
 

@@ -27,6 +27,7 @@ from .forms import (
     AssessmentResultForm,
     ComplianceActionPlanForm,
     ComplianceAssessmentForm,
+    FindingForm,
     FrameworkForm,
     FrameworkImportForm,
     RequirementForm,
@@ -41,11 +42,12 @@ from .import_utils import (
     parse_json,
     validate_parsed_data,
 )
-from .constants import ComplianceStatus
+from .constants import ComplianceStatus, FindingType, FINDING_REFERENCE_PREFIXES
 from .models import (
     AssessmentResult,
     ComplianceActionPlan,
     ComplianceAssessment,
+    Finding,
     Framework,
     Requirement,
     RequirementMapping,
@@ -529,6 +531,23 @@ class AssessmentDetailView(
         ).count()
         ctx["fw_req_count"] = fw_req_count
         ctx["coverage_pct"] = round(total * 100 / fw_req_count) if fw_req_count else 0
+        # Findings (constats)
+        findings = assessment.findings.select_related("assessor").prefetch_related(
+            "requirements"
+        ).order_by("reference")
+        ctx["findings"] = findings
+        ctx["findings_count"] = findings.count()
+        # Counts by finding type
+        finding_type_counts = {}
+        for ft in FindingType:
+            count = findings.filter(finding_type=ft.value).count()
+            if count:
+                finding_type_counts[ft.value] = {
+                    "label": ft.label,
+                    "count": count,
+                    "prefix": FINDING_REFERENCE_PREFIXES.get(ft.value, ""),
+                }
+        ctx["finding_type_counts"] = finding_type_counts
         return ctx
 
 
@@ -584,7 +603,8 @@ def _build_sections_with_results(assessment):
     """Build a list of sections with their requirements and associated results.
 
     Returns a list of dicts:
-        [{"section": Section|None, "requirements": [{"requirement": Req, "result": Result|None}, ...],
+        [{"section": Section|None, "requirements": [{"requirement": Req, "result": Result|None,
+          "finding_counts": {type: count}}, ...],
           "evaluated": int, "total": int}, ...]
     """
     framework = assessment.framework
@@ -598,12 +618,25 @@ def _build_sections_with_results(assessment):
         is_applicable=True
     ).select_related("section")
 
+    # Build finding counts per requirement for this assessment
+    finding_counts_map = {}  # requirement_id -> {finding_type: count}
+    for finding in assessment.findings.prefetch_related("requirements").all():
+        for req in finding.requirements.all():
+            if req.pk not in finding_counts_map:
+                finding_counts_map[req.pk] = {}
+            ft = finding.finding_type
+            finding_counts_map[req.pk][ft] = finding_counts_map[req.pk].get(ft, 0) + 1
+
     sections_dict = {}  # section_id -> section data
     no_section_reqs = []
 
     for req in requirements:
         result = results_map.get(req.pk)
-        entry = {"requirement": req, "result": result}
+        entry = {
+            "requirement": req,
+            "result": result,
+            "finding_counts": finding_counts_map.get(req.pk, {}),
+        }
         if req.section_id:
             if req.section_id not in sections_dict:
                 sections_dict[req.section_id] = {
@@ -815,6 +848,111 @@ class AssessmentResultsTableBodyView(LoginRequiredMixin, View):
         html = render_to_string(
             "compliance/assessment_results_table_body.html",
             {"sections_with_results": sections_with_results, "assessment": assessment},
+            request=request,
+        )
+        return HttpResponse(html)
+
+
+# ── Findings ──────────────────────────────────────────────
+
+
+class FindingCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+    model = Finding
+    form_class = FindingForm
+    template_name = "compliance/finding_form.html"
+    modal_template_name = "compliance/finding_form_modal.html"
+    modal_title_create = _("Add finding")
+
+    def get_assessment(self):
+        return get_object_or_404(
+            ComplianceAssessment, pk=self.kwargs["assessment_pk"]
+        )
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["assessment"] = self.get_assessment()
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["assessment"] = self.get_assessment()
+        return ctx
+
+    def form_valid(self, form):
+        assessment = self.get_assessment()
+        form.instance.assessment = assessment
+        form.instance.assessor = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse(
+            "compliance:assessment-detail",
+            args=[self.kwargs["assessment_pk"]],
+        )
+
+
+class FindingUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
+    model = Finding
+    form_class = FindingForm
+    template_name = "compliance/finding_form.html"
+    modal_template_name = "compliance/finding_form_modal.html"
+    modal_title_update = _("Edit finding")
+
+    def get_assessment(self):
+        return get_object_or_404(
+            ComplianceAssessment, pk=self.kwargs["assessment_pk"]
+        )
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["assessment"] = self.get_assessment()
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["assessment"] = self.get_assessment()
+        return ctx
+
+    def get_success_url(self):
+        return reverse(
+            "compliance:assessment-detail",
+            args=[self.kwargs["assessment_pk"]],
+        )
+
+
+class FindingDeleteView(LoginRequiredMixin, DeleteView):
+    model = Finding
+    template_name = "compliance/confirm_delete.html"
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if self.request.headers.get("HX-Request") == "true":
+            return HttpResponse(
+                status=204,
+                headers={"HX-Trigger": "formSaved"},
+            )
+        return response
+
+    def get_success_url(self):
+        return reverse(
+            "compliance:assessment-detail",
+            args=[self.kwargs["assessment_pk"]],
+        )
+
+
+class FindingsTableBodyView(LoginRequiredMixin, View):
+    """Return the findings table body partial for HTMX refresh."""
+
+    def get(self, request, pk):
+        from django.template.loader import render_to_string
+
+        assessment = get_object_or_404(ComplianceAssessment, pk=pk)
+        findings = assessment.findings.select_related("assessor").prefetch_related(
+            "requirements"
+        ).order_by("reference")
+        html = render_to_string(
+            "compliance/findings_table_body.html",
+            {"findings": findings, "assessment": assessment},
             request=request,
         )
         return HttpResponse(html)
