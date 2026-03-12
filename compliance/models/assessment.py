@@ -5,7 +5,12 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
-from compliance.constants import AssessmentStatus, ComplianceStatus
+from compliance.constants import (
+    AssessmentStatus,
+    ComplianceStatus,
+    FINDING_SEVERITY_ORDER,
+    FINDING_TYPE_COMPLIANCE_LEVEL,
+)
 from context.models.base import ScopedModel
 
 
@@ -189,6 +194,59 @@ class ComplianceAssessment(ScopedModel):
 
         # ── Propagate to framework ──
         self.framework.recalculate_compliance()
+
+    def apply_findings_to_results(self):
+        """Update assessment results based on linked findings (worst-finding-wins).
+
+        For each requirement that has findings linked in this assessment,
+        the most severe finding determines the compliance status and level.
+        """
+        from compliance.models.finding import Finding
+
+        # Map finding_type -> ComplianceStatus
+        FINDING_TYPE_TO_STATUS = {
+            "major_nc": ComplianceStatus.MAJOR_NON_CONFORMITY,
+            "minor_nc": ComplianceStatus.MINOR_NON_CONFORMITY,
+            "observation": ComplianceStatus.OBSERVATION,
+            "improvement": ComplianceStatus.IMPROVEMENT_OPPORTUNITY,
+            "strength": ComplianceStatus.STRENGTH,
+        }
+
+        findings = self.findings.prefetch_related("requirements").all()
+        # Build: requirement_id -> worst finding type
+        req_worst = {}  # requirement_id -> finding_type (most severe)
+        for finding in findings:
+            for req in finding.requirements.all():
+                current = req_worst.get(req.pk)
+                if current is None:
+                    req_worst[req.pk] = finding.finding_type
+                else:
+                    # Compare severity: lower index in FINDING_SEVERITY_ORDER = more severe
+                    current_idx = (
+                        FINDING_SEVERITY_ORDER.index(current)
+                        if current in FINDING_SEVERITY_ORDER
+                        else len(FINDING_SEVERITY_ORDER)
+                    )
+                    new_idx = (
+                        FINDING_SEVERITY_ORDER.index(finding.finding_type)
+                        if finding.finding_type in FINDING_SEVERITY_ORDER
+                        else len(FINDING_SEVERITY_ORDER)
+                    )
+                    if new_idx < current_idx:
+                        req_worst[req.pk] = finding.finding_type
+
+        # Update results for affected requirements
+        for result in self.results.filter(requirement_id__in=req_worst.keys()):
+            worst_type = req_worst[result.requirement_id]
+            new_status = FINDING_TYPE_TO_STATUS.get(worst_type)
+            new_level = FINDING_TYPE_COMPLIANCE_LEVEL.get(worst_type, 0)
+            if new_status:
+                result.compliance_status = new_status
+                result.compliance_level = new_level
+                result.save(update_fields=["compliance_status", "compliance_level"])
+
+        # Recalculate counts after applying findings
+        self.recalculate_counts()
 
 
 class AssessmentResult(models.Model):

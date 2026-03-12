@@ -5,12 +5,14 @@ from accounts.tests.factories import UserFactory
 from compliance.constants import (
     AssessmentStatus,
     ComplianceStatus,
+    FindingType,
     FrameworkCategory,
     FrameworkType,
     MappingType,
     RequirementType,
 )
 from compliance.models.assessment import AssessmentResult, ComplianceAssessment
+from compliance.models.finding import Finding
 from compliance.models.framework import Framework
 from compliance.models.mapping import RequirementMapping
 from compliance.models.requirement import Requirement
@@ -70,6 +72,16 @@ class AssessmentResultFactory(factory.django.DjangoModelFactory):
     compliance_level = 0
     assessed_by = factory.SubFactory(UserFactory)
     assessed_at = factory.LazyFunction(timezone.now)
+
+
+class FindingFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Finding
+
+    assessment = factory.SubFactory(ComplianceAssessmentFactory)
+    finding_type = FindingType.MAJOR_NON_CONFORMITY
+    description = factory.Sequence(lambda n: f"Finding description {n}")
+    assessor = factory.SubFactory(UserFactory)
 
 
 class MappingFactory(factory.django.DjangoModelFactory):

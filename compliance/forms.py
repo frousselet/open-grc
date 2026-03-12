@@ -12,6 +12,7 @@ from .models import (
     ComplianceActionPlan,
     ComplianceAssessment,
     AssessmentResult,
+    Finding,
     Framework,
     Requirement,
     RequirementMapping,
@@ -248,6 +249,31 @@ class AssessmentResultForm(forms.ModelForm):
                 pk=requirement_instance.pk
             )
             self.fields["requirement"].widget.attrs["disabled"] = True
+
+
+class FindingForm(forms.ModelForm):
+    class Meta:
+        model = Finding
+        fields = [
+            "finding_type", "description", "recommendation",
+            "evidence", "requirements",
+        ]
+        widgets = {
+            "finding_type": forms.Select(attrs=SELECT_ATTRS),
+            "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
+            "recommendation": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "evidence": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+            "requirements": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 6}),
+        }
+
+    def __init__(self, *args, assessment=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if assessment:
+            self.fields["requirements"].queryset = Requirement.objects.filter(
+                framework=assessment.framework, is_applicable=True
+            ).order_by("requirement_number")
+        else:
+            self.fields["requirements"].queryset = Requirement.objects.none()
 
 
 class RequirementMappingForm(forms.ModelForm):

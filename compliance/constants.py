@@ -114,6 +114,42 @@ class ActionPlanStatus(models.TextChoices):
     OVERDUE = "overdue", _("Overdue")
 
 
+# ── Finding ────────────────────────────────────────────────
+
+class FindingType(models.TextChoices):
+    MAJOR_NON_CONFORMITY = "major_nc", _("Major non-conformity")
+    MINOR_NON_CONFORMITY = "minor_nc", _("Minor non-conformity")
+    OBSERVATION = "observation", pgettext_lazy("finding", "Observation")
+    IMPROVEMENT_OPPORTUNITY = "improvement", _("Improvement opportunity")
+    STRENGTH = "strength", pgettext_lazy("finding", "Strength")
+
+
+FINDING_REFERENCE_PREFIXES = {
+    FindingType.MAJOR_NON_CONFORMITY: "NCMAJ",
+    FindingType.MINOR_NON_CONFORMITY: "NCMIN",
+    FindingType.OBSERVATION: "OBS",
+    FindingType.IMPROVEMENT_OPPORTUNITY: "OA",
+    FindingType.STRENGTH: "STR",
+}
+
+FINDING_TYPE_COMPLIANCE_LEVEL = {
+    FindingType.MAJOR_NON_CONFORMITY: 0,
+    FindingType.MINOR_NON_CONFORMITY: 30,
+    FindingType.OBSERVATION: 50,
+    FindingType.IMPROVEMENT_OPPORTUNITY: 70,
+    FindingType.STRENGTH: 100,
+}
+
+# Severity order for worst-finding-wins calculation (lower index = more severe)
+FINDING_SEVERITY_ORDER = [
+    FindingType.MAJOR_NON_CONFORMITY,
+    FindingType.MINOR_NON_CONFORMITY,
+    FindingType.OBSERVATION,
+    FindingType.IMPROVEMENT_OPPORTUNITY,
+    FindingType.STRENGTH,
+]
+
+
 # ── Compliance level defaults (status → percentage) ───────
 
 COMPLIANCE_LEVEL_DEFAULTS = {

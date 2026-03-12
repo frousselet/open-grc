@@ -8705,3 +8705,44 @@ msgstr "Constat"
 
 msgid "Auditor recommendations"
 msgstr "Recommandations de l'auditeur"
+
+#: compliance/models/finding.py — Finding model
+msgid "Finding type"
+msgstr "Type de constat"
+
+msgid "Auditor recommendation"
+msgstr "Recommandation de l'auditeur"
+
+msgid "Evidence presented"
+msgstr "Pièces présentées"
+
+msgid "Related requirements"
+msgstr "Exigences associées"
+
+msgid "Findings"
+msgstr "Constats"
+
+msgctxt "finding"
+msgid "Observation"
+msgstr "Observation"
+
+msgctxt "finding"
+msgid "Strength"
+msgstr "Point fort"
+
+#: compliance/views.py — Finding views
+msgid "Add finding"
+msgstr "Ajouter un constat"
+
+msgid "Edit finding"
+msgstr "Modifier le constat"
+
+#: compliance/templates — Finding templates
+msgid "Finding details"
+msgstr "Détails du constat"
+
+msgid "No findings recorded yet."
+msgstr "Aucun constat enregistré."
+
+msgid "Are you sure you want to delete this finding?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce constat ?"

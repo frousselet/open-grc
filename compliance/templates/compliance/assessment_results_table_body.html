@@ -39,6 +39,15 @@
     {% else %}
       <span class="badge text-bg-secondary">{% trans "Not assessed" %}</span>
     {% endif %}
+    {% if entry.finding_counts %}
+    <div class="d-flex flex-wrap gap-1 mt-1">
+      {% for ft, count in entry.finding_counts.items %}
+      <span class="badge {% if ft == 'major_nc' or ft == 'minor_nc' %}text-bg-danger{% elif ft == 'observation' %}text-bg-warning{% elif ft == 'improvement' %}text-bg-info{% else %}text-bg-success{% endif %}" style="font-size:.65rem;padding:.15em .4em;opacity:.85">
+        {% if ft == 'major_nc' %}NCMAJ{% elif ft == 'minor_nc' %}NCMIN{% elif ft == 'observation' %}OBS{% elif ft == 'improvement' %}OA{% else %}STR{% endif %}: {{ count }}
+      </span>
+      {% endfor %}
+    </div>
+    {% endif %}
   </td>
   <td style="font-size:.85rem">
     {% if entry.result %}

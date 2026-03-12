@@ -8,6 +8,7 @@ from compliance.models import (
     ComplianceActionPlan,
     ComplianceAssessment,
     AssessmentResult,
+    Finding,
     Framework,
     Requirement,
     RequirementMapping,
@@ -28,6 +29,8 @@ from .serializers import (
     ComplianceActionPlanSerializer,
     ComplianceAssessmentListSerializer,
     ComplianceAssessmentSerializer,
+    FindingListSerializer,
+    FindingSerializer,
     FrameworkListSerializer,
     FrameworkSerializer,
     RequirementListSerializer,
@@ -266,6 +269,32 @@ class AssessmentResultViewSet(viewsets.ModelViewSet):
             pk=self.kwargs["assessment_pk"]
         )
         assessment.recalculate_counts()
+
+
+class FindingViewSet(viewsets.ModelViewSet):
+    serializer_class = FindingSerializer
+    permission_classes = [CompliancePermission]
+    permission_feature = "assessment"
+
+    def get_queryset(self):
+        return Finding.objects.filter(
+            assessment_id=self.kwargs["assessment_pk"]
+        ).select_related("assessor").prefetch_related("requirements")
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return FindingListSerializer
+        return FindingSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(
+            assessment_id=self.kwargs["assessment_pk"],
+            assessor=self.request.user,
+            created_by=self.request.user,
+        )
+
+    def perform_update(self, serializer):
+        serializer.save()
 
 
 class RequirementMappingViewSet(viewsets.ModelViewSet):
