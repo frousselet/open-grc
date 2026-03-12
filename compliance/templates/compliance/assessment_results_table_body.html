@@ -86,16 +86,14 @@
     <span class="btn btn-sm btn-outline-secondary disabled" title="{% trans 'Status determined by findings' %}">
       <i class="bi bi-lock"></i>
     </span>
-    {% elif entry.result %}
-    <button class="btn btn-sm {% if entry.result.compliance_status != 'not_assessed' %}btn-success{% else %}btn-outline-secondary{% endif %}"
-            hx-post="{% url 'compliance:assessment-result-toggle' assessment.pk entry.result.pk %}"
+    {% else %}
+    <button class="btn btn-sm {% if entry.result and entry.result.compliance_status != 'not_assessed' %}btn-success{% else %}btn-outline-secondary{% endif %}"
+            hx-post="{% url 'compliance:assessment-result-toggle' assessment.pk entry.requirement.pk %}"
             hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
             hx-swap="none"
-            title="{% if entry.result.compliance_status != 'not_assessed' %}{% trans 'Mark as not evaluated' %}{% else %}{% trans 'Mark as evaluated' %}{% endif %}">
-      <i class="bi {% if entry.result.compliance_status != 'not_assessed' %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
+            title="{% if entry.result and entry.result.compliance_status != 'not_assessed' %}{% trans 'Mark as not evaluated' %}{% else %}{% trans 'Mark as evaluated' %}{% endif %}">
+      <i class="bi {% if entry.result and entry.result.compliance_status != 'not_assessed' %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
     </button>
-    {% else %}
-    <span style="color:var(--text-muted)">—</span>
     {% endif %}
   </td>
 </tr>
