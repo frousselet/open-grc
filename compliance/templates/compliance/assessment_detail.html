@@ -149,6 +149,12 @@
                   <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-danger" style="width:{% widthratio assessment.major_non_conformity_count assessment.total_requirements 100 %}%"></div></div>
                 </div>
                 {% endif %}
+                {% if assessment.evaluated_count %}
+                <div class="d-flex justify-content-between align-items-center">
+                  <span><span class="badge" style="min-width:1.5rem;background-color:var(--accent);color:#fff">{{ assessment.evaluated_count }}</span> <span style="color:var(--text-muted)">{% trans "Evaluated" %}</span></span>
+                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar" style="width:{% widthratio assessment.evaluated_count assessment.total_requirements 100 %}%;background-color:var(--accent)"></div></div>
+                </div>
+                {% endif %}
                 {% if assessment.not_assessed_count %}
                 <div class="d-flex justify-content-between align-items-center">
                   <span><span class="badge text-bg-secondary" style="min-width:1.5rem">{{ assessment.not_assessed_count }}</span> <span style="color:var(--text-muted)">{% trans "Not assessed" %}</span></span>

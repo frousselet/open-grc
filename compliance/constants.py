@@ -56,6 +56,7 @@ class RequirementCategory(models.TextChoices):
 
 class ComplianceStatus(models.TextChoices):
     NOT_ASSESSED = "not_assessed", _("Not assessed")
+    EVALUATED = "evaluated", _("Evaluated")
     MAJOR_NON_CONFORMITY = "major_non_conformity", _("Major non-conformity")
     MINOR_NON_CONFORMITY = "minor_non_conformity", _("Minor non-conformity")
     OBSERVATION = "observation", pgettext_lazy("compliance", "Observation")
@@ -154,6 +155,7 @@ FINDING_SEVERITY_ORDER = [
 
 COMPLIANCE_LEVEL_DEFAULTS = {
     ComplianceStatus.NOT_ASSESSED: 0,
+    ComplianceStatus.EVALUATED: 50,
     ComplianceStatus.MAJOR_NON_CONFORMITY: 0,
     ComplianceStatus.MINOR_NON_CONFORMITY: 30,
     ComplianceStatus.OBSERVATION: 50,
@@ -181,6 +183,7 @@ FINDING_STATUSES = {
 # Statuses where "finding" field makes no sense (positive or N/A)
 NO_FINDING_STATUSES = {
     ComplianceStatus.NOT_ASSESSED,
+    ComplianceStatus.EVALUATED,
     ComplianceStatus.COMPLIANT,
     ComplianceStatus.STRENGTH,
     ComplianceStatus.NOT_APPLICABLE,

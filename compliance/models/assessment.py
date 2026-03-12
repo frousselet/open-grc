@@ -54,6 +54,7 @@ class ComplianceAssessment(ScopedModel):
         _("Improvement opportunity"), default=0
     )
     strength_count = models.PositiveIntegerField(_("Strength"), default=0)
+    evaluated_count = models.PositiveIntegerField(_("Evaluated"), default=0)
     not_assessed_count = models.PositiveIntegerField(_("Not assessed"), default=0)
     status = models.CharField(
         _("Status"),
@@ -108,6 +109,9 @@ class ComplianceAssessment(ScopedModel):
         self.strength_count = results.filter(
             compliance_status=ComplianceStatus.STRENGTH
         ).count()
+        self.evaluated_count = results.filter(
+            compliance_status=ComplianceStatus.EVALUATED
+        ).count()
         self.not_assessed_count = results.filter(
             compliance_status=ComplianceStatus.NOT_ASSESSED
         ).count()
@@ -115,7 +119,10 @@ class ComplianceAssessment(ScopedModel):
         # Build fallback map: requirement_id → (status, level) from prior assessments
         not_assessed_req_ids = [
             r.requirement_id for r in results
-            if r.compliance_status == ComplianceStatus.NOT_ASSESSED
+            if r.compliance_status in (
+                ComplianceStatus.NOT_ASSESSED,
+                ComplianceStatus.EVALUATED,
+            )
         ]
         prior_map = {}
         if not_assessed_req_ids:
@@ -125,7 +132,10 @@ class ComplianceAssessment(ScopedModel):
                     requirement_id__in=not_assessed_req_ids,
                 )
                 .exclude(assessment=self)
-                .exclude(compliance_status=ComplianceStatus.NOT_ASSESSED)
+                .exclude(compliance_status__in=[
+                    ComplianceStatus.NOT_ASSESSED,
+                    ComplianceStatus.EVALUATED,
+                ])
                 .order_by("-assessed_at")
                 .values_list("requirement_id", "compliance_status", "compliance_level")
             )
@@ -137,7 +147,10 @@ class ComplianceAssessment(ScopedModel):
         def _effective_level(result):
             if result.compliance_status == ComplianceStatus.NOT_APPLICABLE:
                 return 100
-            if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+            if result.compliance_status in (
+                ComplianceStatus.NOT_ASSESSED,
+                ComplianceStatus.EVALUATED,
+            ):
                 prior = prior_map.get(result.requirement_id)
                 if prior:
                     status, level = prior
@@ -158,6 +171,7 @@ class ComplianceAssessment(ScopedModel):
             observation_count=self.observation_count,
             improvement_opportunity_count=self.improvement_opportunity_count,
             strength_count=self.strength_count,
+            evaluated_count=self.evaluated_count,
             not_assessed_count=self.not_assessed_count,
             overall_compliance_level=self.overall_compliance_level,
         )
@@ -168,8 +182,11 @@ class ComplianceAssessment(ScopedModel):
         affected_section_ids = set()
         for result in results:
             req = result.requirement
-            # For NOT_ASSESSED, propagate the prior status if available
-            if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+            # For NOT_ASSESSED/EVALUATED, propagate the prior status if available
+            if result.compliance_status in (
+                ComplianceStatus.NOT_ASSESSED,
+                ComplianceStatus.EVALUATED,
+            ):
                 prior = prior_map.get(result.requirement_id)
                 if prior:
                     eff_status, eff_level = prior

@@ -225,7 +225,8 @@ class AssessmentResultForm(forms.ModelForm):
             "compliance_status": forms.Select(attrs={
                 **SELECT_ATTRS,
                 "data-compliance-level-defaults": (
-                    '{"not_assessed":0,"major_non_conformity":0,'
+                    '{"not_assessed":0,"evaluated":50,'
+                    '"major_non_conformity":0,'
                     '"minor_non_conformity":30,"observation":50,'
                     '"improvement_opportunity":70,"compliant":100,'
                     '"strength":100,"not_applicable":100}'

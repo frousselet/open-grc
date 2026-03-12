@@ -857,14 +857,18 @@ class ToggleResultEvaluatedView(LoginRequiredMixin, View):
             assessment=assessment,
             requirement=requirement,
             defaults={
-                "compliance_status": ComplianceStatus.COMPLIANT,
-                "compliance_level": 100,
+                "compliance_status": ComplianceStatus.EVALUATED,
+                "compliance_level": 50,
                 "assessed_by": request.user,
                 "assessed_at": timezone.now(),
             },
         )
         if not created:
+            # Cycle: NOT_ASSESSED → EVALUATED → COMPLIANT → NOT_ASSESSED
             if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+                result.compliance_status = ComplianceStatus.EVALUATED
+                result.compliance_level = 50
+            elif result.compliance_status == ComplianceStatus.EVALUATED:
                 result.compliance_status = ComplianceStatus.COMPLIANT
                 result.compliance_level = 100
             else:
