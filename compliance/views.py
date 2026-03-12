@@ -703,7 +703,7 @@ def _build_sections_with_results(assessment):
             sections_dict[req.section_id]["total"] += 1
             cat = _classify_entry(entry)
             sections_dict[req.section_id]["status_counts"][cat] += 1
-            if has_findings or (result and result.compliance_status != ComplianceStatus.NOT_ASSESSED):
+            if req.is_applicable and (has_findings or (result and result.compliance_status != ComplianceStatus.NOT_ASSESSED)):
                 sections_dict[req.section_id]["evaluated"] += 1
         else:
             no_section_reqs.append(entry)
@@ -731,7 +731,7 @@ def _build_sections_with_results(assessment):
         )
         evaluated = sum(
             1 for e in no_section_reqs
-            if e["has_findings"] or (e["result"] and e["result"].compliance_status != ComplianceStatus.NOT_ASSESSED)
+            if e["requirement"].is_applicable and (e["has_findings"] or (e["result"] and e["result"].compliance_status != ComplianceStatus.NOT_ASSESSED))
         )
         sc = _empty_status_counts()
         for e in no_section_reqs:

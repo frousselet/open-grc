@@ -42,7 +42,9 @@
   </td>
   <td style="font-size:.85rem;max-width:250px" class="text-truncate">{{ entry.requirement.name }}</td>
   <td>
-    {% if entry.has_findings %}
+    {% if not entry.requirement.is_applicable %}
+      <span class="badge text-bg-dark">{% trans "Not applicable" %}</span>
+    {% elif entry.has_findings %}
       <div class="d-flex flex-wrap gap-1">
         {% for ft, count in entry.finding_counts.items %}
         <span class="badge {% if ft == 'major_nc' or ft == 'minor_nc' %}text-bg-danger{% elif ft == 'observation' %}text-bg-warning{% elif ft == 'improvement' %}text-bg-info{% else %}text-bg-success{% endif %}" style="font-size:.72rem">
@@ -67,7 +69,9 @@
     {% endif %}
   </td>
   <td style="font-size:.85rem">
-    {% if entry.has_findings and entry.result %}
+    {% if not entry.requirement.is_applicable %}
+      <span style="color:var(--text-muted)">—</span>
+    {% elif entry.has_findings and entry.result %}
       <div class="d-flex align-items-center gap-1">
         <div class="progress" style="width:50px;height:5px">
           <div class="progress-bar {% if entry.result.compliance_level >= 80 %}bg-success{% elif entry.result.compliance_level >= 40 %}bg-warning{% else %}bg-danger{% endif %}" style="width:{{ entry.result.compliance_level }}%"></div>
