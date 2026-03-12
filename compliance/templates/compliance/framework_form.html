@@ -16,7 +16,7 @@
         <div class="position-relative" style="flex-shrink:0">
           {% if form.instance.pk and form.instance.logo %}
           <img id="logo-preview" src="{{ form.instance.logo }}" alt=""
-               style="width:72px;height:72px;border-radius:var(--radius-md);object-fit:cover;border:2px solid var(--border-light)">
+               style="width:72px;height:72px;border-radius:var(--radius-md);object-fit:cover;border:2px solid var(--border-light);background:#fff">
           {% else %}
           <div id="logo-preview"
                style="width:72px;height:72px;border-radius:var(--radius-md);background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;border:2px solid var(--border-light)">
