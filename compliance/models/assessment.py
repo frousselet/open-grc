@@ -116,20 +116,19 @@ class ComplianceAssessment(ScopedModel):
             compliance_status=ComplianceStatus.NOT_ASSESSED
         ).count()
 
-        # Build fallback map: requirement_id → (status, level) from prior assessments
-        not_assessed_req_ids = [
+        # Build fallback map for EVALUATED ("Evaluation planned") only:
+        # requirement_id → (status, level) from prior assessments.
+        # NOT_ASSESSED always counts as 0% (no fallback).
+        evaluated_req_ids = [
             r.requirement_id for r in results
-            if r.compliance_status in (
-                ComplianceStatus.NOT_ASSESSED,
-                ComplianceStatus.EVALUATED,
-            )
+            if r.compliance_status == ComplianceStatus.EVALUATED
         ]
         prior_map = {}
-        if not_assessed_req_ids:
+        if evaluated_req_ids:
             prior_results = (
                 AssessmentResult.objects.filter(
                     assessment__framework=self.framework,
-                    requirement_id__in=not_assessed_req_ids,
+                    requirement_id__in=evaluated_req_ids,
                 )
                 .exclude(assessment=self)
                 .exclude(compliance_status__in=[
@@ -139,7 +138,6 @@ class ComplianceAssessment(ScopedModel):
                 .order_by("-assessed_at")
                 .values_list("requirement_id", "compliance_status", "compliance_level")
             )
-            # Keep only the most recent result per requirement
             for req_id, status, level in prior_results:
                 if req_id not in prior_map:
                     prior_map[req_id] = (status, level)
@@ -147,10 +145,9 @@ class ComplianceAssessment(ScopedModel):
         def _effective_level(result):
             if result.compliance_status == ComplianceStatus.NOT_APPLICABLE:
                 return 100
-            if result.compliance_status in (
-                ComplianceStatus.NOT_ASSESSED,
-                ComplianceStatus.EVALUATED,
-            ):
+            if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+                return 0
+            if result.compliance_status == ComplianceStatus.EVALUATED:
                 prior = prior_map.get(result.requirement_id)
                 if prior:
                     status, level = prior
@@ -182,16 +179,15 @@ class ComplianceAssessment(ScopedModel):
         affected_section_ids = set()
         for result in results:
             req = result.requirement
-            # For NOT_ASSESSED/EVALUATED, propagate the prior status if available
-            if result.compliance_status in (
-                ComplianceStatus.NOT_ASSESSED,
-                ComplianceStatus.EVALUATED,
-            ):
+            if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+                eff_status = ComplianceStatus.NOT_ASSESSED
+                eff_level = 0
+            elif result.compliance_status == ComplianceStatus.EVALUATED:
                 prior = prior_map.get(result.requirement_id)
                 if prior:
                     eff_status, eff_level = prior
                 else:
-                    eff_status = ComplianceStatus.NOT_ASSESSED
+                    eff_status = ComplianceStatus.EVALUATED
                     eff_level = 0
             else:
                 eff_status = result.compliance_status
