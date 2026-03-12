@@ -7,18 +7,18 @@ from django.conf import settings
 from django.db import connection, migrations, models
 
 
-def table_exists(table_name):
-    return table_name in connection.introspection.table_names()
-
-
-class CreateModelIfNotExists(migrations.CreateModel):
-    """CreateModel that silently skips if the table already exists."""
-
-    def database_forwards(self, app_label, schema_editor, from_state, to_state):
-        table_name = f"{app_label}_{self.name.lower()}"
-        if table_exists(table_name):
-            return
-        super().database_forwards(app_label, schema_editor, from_state, to_state)
+def drop_stale_tables(apps, schema_editor):
+    """Drop leftover tables from a previous failed migration attempt."""
+    tables_to_drop = [
+        "compliance_finding_requirements",
+        "compliance_finding_tags",
+        "compliance_historicalfinding",
+        "compliance_finding",
+    ]
+    existing = set(connection.introspection.table_names())
+    for table in tables_to_drop:
+        if table in existing:
+            schema_editor.execute(f'DROP TABLE "{table}" CASCADE')
 
 
 class Migration(migrations.Migration):
@@ -30,7 +30,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        CreateModelIfNotExists(
+        migrations.RunPython(drop_stale_tables, migrations.RunPython.noop),
+        migrations.CreateModel(
             name="Finding",
             fields=[
                 (
@@ -163,7 +164,7 @@ class Migration(migrations.Migration):
                 "abstract": False,
             },
         ),
-        CreateModelIfNotExists(
+        migrations.CreateModel(
             name="HistoricalFinding",
             fields=[
                 (
