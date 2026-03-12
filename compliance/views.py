@@ -632,10 +632,12 @@ def _build_sections_with_results(assessment):
 
     for req in requirements:
         result = results_map.get(req.pk)
+        has_findings = req.pk in finding_counts_map
         entry = {
             "requirement": req,
             "result": result,
             "finding_counts": finding_counts_map.get(req.pk, {}),
+            "has_findings": has_findings,
         }
         if req.section_id:
             if req.section_id not in sections_dict:
@@ -647,7 +649,7 @@ def _build_sections_with_results(assessment):
                 }
             sections_dict[req.section_id]["requirements"].append(entry)
             sections_dict[req.section_id]["total"] += 1
-            if result and result.compliance_status != ComplianceStatus.NOT_ASSESSED:
+            if has_findings or (result and result.compliance_status != ComplianceStatus.NOT_ASSESSED):
                 sections_dict[req.section_id]["evaluated"] += 1
         else:
             no_section_reqs.append(entry)
@@ -675,7 +677,7 @@ def _build_sections_with_results(assessment):
         )
         evaluated = sum(
             1 for e in no_section_reqs
-            if e["result"] and e["result"].compliance_status != ComplianceStatus.NOT_ASSESSED
+            if e["has_findings"] or (e["result"] and e["result"].compliance_status != ComplianceStatus.NOT_ASSESSED)
         )
         sections_list.append({
             "section": None,
@@ -837,6 +839,27 @@ class AssessmentResultDeleteView(LoginRequiredMixin, DeleteView):
         )
 
 
+class ToggleResultEvaluatedView(LoginRequiredMixin, View):
+    """Toggle a result between evaluated (compliant/100%) and not evaluated."""
+
+    def post(self, request, assessment_pk, pk):
+        result = get_object_or_404(AssessmentResult, pk=pk, assessment_id=assessment_pk)
+        # Don't toggle if requirement has findings
+        if result.assessment.findings.filter(requirements=result.requirement).exists():
+            return HttpResponse(status=409)
+        if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+            result.compliance_status = ComplianceStatus.COMPLIANT
+            result.compliance_level = 100
+        else:
+            result.compliance_status = ComplianceStatus.NOT_ASSESSED
+            result.compliance_level = 0
+        result.assessed_by = request.user
+        result.assessed_at = timezone.now()
+        result.save()
+        result.assessment.recalculate_counts()
+        return HttpResponse(status=204, headers={"HX-Trigger": "formSaved"})
+
+
 class AssessmentResultsTableBodyView(LoginRequiredMixin, View):
     """Return the results table body partial for HTMX refresh."""
 
@@ -882,7 +905,9 @@ class FindingCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, Creat
         assessment = self.get_assessment()
         form.instance.assessment = assessment
         form.instance.assessor = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        assessment.apply_findings_to_results()
+        return response
 
     def get_success_url(self):
         return reverse(
@@ -913,6 +938,11 @@ class FindingUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
         ctx["assessment"] = self.get_assessment()
         return ctx
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.get_assessment().apply_findings_to_results()
+        return response
+
     def get_success_url(self):
         return reverse(
             "compliance:assessment-detail",
@@ -924,8 +954,15 @@ class FindingDeleteView(LoginRequiredMixin, DeleteView):
     model = Finding
     template_name = "compliance/confirm_delete.html"
 
+    def get_assessment(self):
+        return get_object_or_404(
+            ComplianceAssessment, pk=self.kwargs["assessment_pk"]
+        )
+
     def form_valid(self, form):
+        assessment = self.get_assessment()
         response = super().form_valid(form)
+        assessment.apply_findings_to_results()
         if self.request.headers.get("HX-Request") == "true":
             return HttpResponse(
                 status=204,
