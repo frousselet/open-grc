@@ -254,14 +254,6 @@
         {% endif %}
       </div>
       <div class="d-flex gap-2">
-        {% if not has_results and is_initializable %}
-        <button class="btn btn-outline-primary btn-sm"
-                hx-post="{% url 'compliance:assessment-initialize-results' assessment.pk %}"
-                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                hx-swap="none">
-          <i class="bi bi-lightning me-1"></i>{% trans "Initialize evaluations" %}
-        </button>
-        {% endif %}
       </div>
     </div>
 

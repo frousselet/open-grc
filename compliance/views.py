@@ -583,7 +583,6 @@ class AssessmentDetailView(
         ctx["is_locked"] = assessment.status in ASSESSMENT_LOCKED_STATUSES
         ctx["is_frozen"] = assessment.status not in ASSESSMENT_EDITABLE_STATUSES
         ctx["is_toggleable"] = assessment.status in ASSESSMENT_TOGGLEABLE_STATUSES
-        ctx["is_initializable"] = assessment.status not in ASSESSMENT_FROZEN_STATUSES
         next_statuses = ASSESSMENT_STATUS_TRANSITIONS.get(assessment.status, [])
         ctx["next_status"] = next_statuses[0] if next_statuses else None
         ctx["next_status_label"] = (
@@ -875,56 +874,6 @@ class EditableAssessmentGuardMixin:
         return super().dispatch(request, *args, **kwargs)
 
 
-class InitializeResultsView(LoginRequiredMixin, View):
-    """Bulk-create AssessmentResult for all requirements (applicable and non-applicable)."""
-
-    def post(self, request, pk):
-        assessment = get_object_or_404(ComplianceAssessment, pk=pk)
-        frozen = _check_assessment_not_frozen(assessment)
-        if frozen:
-            return frozen
-        requirements = assessment.get_all_requirements()
-        existing_req_ids = set(
-            assessment.results.values_list("requirement_id", flat=True)
-        )
-        now = timezone.now()
-        new_results = []
-        for req in requirements:
-            if req.pk in existing_req_ids:
-                continue
-            if req.is_applicable:
-                new_results.append(
-                    AssessmentResult(
-                        assessment=assessment,
-                        requirement=req,
-                        compliance_status=ComplianceStatus.NOT_ASSESSED,
-                        compliance_level=0,
-                        assessed_by=request.user,
-                        assessed_at=now,
-                    )
-                )
-            else:
-                new_results.append(
-                    AssessmentResult(
-                        assessment=assessment,
-                        requirement=req,
-                        compliance_status=ComplianceStatus.NOT_APPLICABLE,
-                        compliance_level=100,
-                        assessed_by=request.user,
-                        assessed_at=now,
-                    )
-                )
-        if new_results:
-            AssessmentResult.objects.bulk_create(new_results, ignore_conflicts=True)
-            assessment.recalculate_counts()
-        if request.headers.get("HX-Request") == "true":
-            return HttpResponse(
-                status=204,
-                headers={"HX-Trigger": "formSaved"},
-            )
-        return redirect(reverse("compliance:assessment-detail", args=[pk]))
-
-
 class AssessmentResultCreateView(EditableAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, CreateView):
     model = AssessmentResult
     form_class = AssessmentResultForm
@@ -1048,7 +997,11 @@ class AssessmentResultDeleteView(EditableAssessmentGuardMixin, LoginRequiredMixi
 
 
 class ToggleResultEvaluatedView(LoginRequiredMixin, View):
-    """Toggle a requirement between evaluated (compliant/100%) and not evaluated.
+    """Toggle a requirement's compliance status.
+
+    Phase-dependent behaviour:
+    - DRAFT / PLANNED: NOT_ASSESSED ↔ EVALUATED
+    - IN_PROGRESS: EVALUATED ↔ COMPLIANT (NOT_ASSESSED is frozen → 409)
 
     Creates the AssessmentResult on the fly if it doesn't exist yet.
     """
@@ -1067,36 +1020,62 @@ class ToggleResultEvaluatedView(LoginRequiredMixin, View):
         # Don't toggle if requirement has findings
         if assessment.findings.filter(requirements=requirement).exists():
             return HttpResponse(status=409)
+
+        is_planning = assessment.status in (
+            AssessmentStatus.DRAFT,
+            AssessmentStatus.PLANNED,
+        )
+        now = timezone.now()
+
         result, created = AssessmentResult.objects.get_or_create(
             assessment=assessment,
             requirement=requirement,
             defaults={
-                "compliance_status": ComplianceStatus.EVALUATED,
-                "compliance_level": 50,
+                "compliance_status": ComplianceStatus.EVALUATED if is_planning else ComplianceStatus.COMPLIANT,
+                "compliance_level": 50 if is_planning else 100,
                 "assessed_by": request.user,
-                "assessed_at": timezone.now(),
+                "assessed_at": now,
             },
         )
         if not created:
-            # Cycle: NOT_ASSESSED → EVALUATED → COMPLIANT → NOT_ASSESSED
-            if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
-                result.compliance_status = ComplianceStatus.EVALUATED
-                result.compliance_level = 50
-            elif result.compliance_status == ComplianceStatus.EVALUATED:
-                result.compliance_status = ComplianceStatus.COMPLIANT
-                result.compliance_level = 100
+            if is_planning:
+                # DRAFT / PLANNED: toggle NOT_ASSESSED ↔ EVALUATED
+                if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+                    result.compliance_status = ComplianceStatus.EVALUATED
+                    result.compliance_level = 50
+                elif result.compliance_status == ComplianceStatus.EVALUATED:
+                    result.compliance_status = ComplianceStatus.NOT_ASSESSED
+                    result.compliance_level = 0
+                else:
+                    # Other statuses (shouldn't happen in this phase) → no-op
+                    return HttpResponse(status=204, headers={"HX-Trigger": "formSaved"})
             else:
-                result.compliance_status = ComplianceStatus.NOT_ASSESSED
-                result.compliance_level = 0
+                # IN_PROGRESS: toggle EVALUATED ↔ COMPLIANT; NOT_ASSESSED frozen
+                if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+                    return HttpResponse(status=409)
+                elif result.compliance_status == ComplianceStatus.EVALUATED:
+                    result.compliance_status = ComplianceStatus.COMPLIANT
+                    result.compliance_level = 100
+                elif result.compliance_status == ComplianceStatus.COMPLIANT:
+                    result.compliance_status = ComplianceStatus.EVALUATED
+                    result.compliance_level = 50
+                else:
+                    # Finding-driven statuses → no-op
+                    return HttpResponse(status=204, headers={"HX-Trigger": "formSaved"})
             result.assessed_by = request.user
-            result.assessed_at = timezone.now()
+            result.assessed_at = now
             result.save()
         assessment.recalculate_counts()
         return HttpResponse(status=204, headers={"HX-Trigger": "formSaved"})
 
 
 class BulkToggleEvaluatedView(LoginRequiredMixin, View):
-    """Toggle all applicable requirements (without findings) to EVALUATED or back to NOT_ASSESSED."""
+    """Bulk-toggle applicable requirements (without findings).
+
+    Phase-dependent behaviour:
+    - DRAFT / PLANNED: NOT_ASSESSED ↔ EVALUATED (select/deselect for evaluation)
+    - IN_PROGRESS: EVALUATED ↔ COMPLIANT (mass-validate planned evaluations)
+    """
 
     def post(self, request, pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=pk)
@@ -1105,13 +1084,18 @@ class BulkToggleEvaluatedView(LoginRequiredMixin, View):
             return error
         now = timezone.now()
 
+        is_planning = assessment.status in (
+            AssessmentStatus.DRAFT,
+            AssessmentStatus.PLANNED,
+        )
+
         # IDs of requirements that have findings — those are locked
         finding_req_ids = set(
             assessment.findings.values_list("requirements__id", flat=True)
         )
         finding_req_ids.discard(None)
 
-        # Ensure all requirements have a result (like InitializeResultsView)
+        # Ensure all requirements have a result
         all_requirements = assessment.get_all_requirements()
         existing_req_ids = set(
             assessment.results.values_list("requirement_id", flat=True)
@@ -1140,29 +1124,53 @@ class BulkToggleEvaluatedView(LoginRequiredMixin, View):
         if new_results:
             AssessmentResult.objects.bulk_create(new_results, ignore_conflicts=True)
 
-        # Now toggle all applicable results
+        # Get toggleable results (applicable, no findings)
         results = assessment.results.select_related("requirement").filter(
             requirement__is_applicable=True,
         )
         toggleable = [r for r in results if r.requirement_id not in finding_req_ids]
-        any_not_assessed = any(
-            r.compliance_status == ComplianceStatus.NOT_ASSESSED for r in toggleable
-        )
-        for result in toggleable:
-            if any_not_assessed:
-                if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
-                    result.compliance_status = ComplianceStatus.EVALUATED
-                    result.compliance_level = 50
-                    result.assessed_by = request.user
-                    result.assessed_at = now
-                    result.save()
-            else:
-                if result.compliance_status == ComplianceStatus.EVALUATED:
-                    result.compliance_status = ComplianceStatus.NOT_ASSESSED
-                    result.compliance_level = 0
-                    result.assessed_by = request.user
-                    result.assessed_at = now
-                    result.save()
+
+        if is_planning:
+            # DRAFT / PLANNED: toggle NOT_ASSESSED ↔ EVALUATED
+            any_not_assessed = any(
+                r.compliance_status == ComplianceStatus.NOT_ASSESSED for r in toggleable
+            )
+            for result in toggleable:
+                if any_not_assessed:
+                    if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+                        result.compliance_status = ComplianceStatus.EVALUATED
+                        result.compliance_level = 50
+                        result.assessed_by = request.user
+                        result.assessed_at = now
+                        result.save()
+                else:
+                    if result.compliance_status == ComplianceStatus.EVALUATED:
+                        result.compliance_status = ComplianceStatus.NOT_ASSESSED
+                        result.compliance_level = 0
+                        result.assessed_by = request.user
+                        result.assessed_at = now
+                        result.save()
+        else:
+            # IN_PROGRESS: toggle EVALUATED ↔ COMPLIANT
+            any_evaluated = any(
+                r.compliance_status == ComplianceStatus.EVALUATED for r in toggleable
+            )
+            for result in toggleable:
+                if any_evaluated:
+                    if result.compliance_status == ComplianceStatus.EVALUATED:
+                        result.compliance_status = ComplianceStatus.COMPLIANT
+                        result.compliance_level = 100
+                        result.assessed_by = request.user
+                        result.assessed_at = now
+                        result.save()
+                else:
+                    if result.compliance_status == ComplianceStatus.COMPLIANT:
+                        result.compliance_status = ComplianceStatus.EVALUATED
+                        result.compliance_level = 50
+                        result.assessed_by = request.user
+                        result.assessed_at = now
+                        result.save()
+
         assessment.recalculate_counts()
         return HttpResponse(status=204, headers={"HX-Trigger": "formSaved"})
 

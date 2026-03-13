@@ -179,19 +179,24 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
                 req_count=Count("requirements", filter=Q(requirements__is_applicable=True)),
                 seg_compliant_n=Count(
                     "requirements",
-                    filter=Q(requirements__is_applicable=True, requirements__compliance_status="compliant"),
+                    filter=Q(requirements__is_applicable=True, requirements__compliance_status__in=["compliant", "strength"]),
                 ),
                 seg_partial_n=Count(
                     "requirements",
-                    filter=Q(requirements__is_applicable=True, requirements__compliance_status="partially_compliant"),
+                    filter=Q(
+                        requirements__is_applicable=True,
+                        requirements__compliance_status__in=[
+                            "minor_non_conformity", "observation", "improvement_opportunity",
+                        ],
+                    ),
                 ),
                 seg_non_compliant_n=Count(
                     "requirements",
-                    filter=Q(requirements__is_applicable=True, requirements__compliance_status="non_compliant"),
+                    filter=Q(requirements__is_applicable=True, requirements__compliance_status="major_non_conformity"),
                 ),
-                seg_not_applicable_n=Count(
+                seg_evaluated_n=Count(
                     "requirements",
-                    filter=Q(requirements__is_applicable=True, requirements__compliance_status="not_applicable"),
+                    filter=Q(requirements__is_applicable=True, requirements__compliance_status="evaluated"),
                 ),
                 seg_not_assessed_n=Count(
                     "requirements",
@@ -206,13 +211,13 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
                 fw.seg_compliant = round(fw.seg_compliant_n * 100 / rc)
                 fw.seg_partial = round(fw.seg_partial_n * 100 / rc)
                 fw.seg_non_compliant = round(fw.seg_non_compliant_n * 100 / rc)
-                fw.seg_not_applicable = round(fw.seg_not_applicable_n * 100 / rc)
+                fw.seg_evaluated = round(fw.seg_evaluated_n * 100 / rc)
                 fw.seg_not_assessed = round(fw.seg_not_assessed_n * 100 / rc)
             else:
                 fw.seg_compliant = 0
                 fw.seg_partial = 0
                 fw.seg_non_compliant = 0
-                fw.seg_not_applicable = 0
+                fw.seg_evaluated = 0
                 fw.seg_not_assessed = 0
         ctx["active_frameworks"] = active_frameworks
 

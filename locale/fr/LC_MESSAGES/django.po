@@ -8457,10 +8457,6 @@ msgstr "Rechercher…"
 #~ msgstr "Rechercher et sélectionner des attentes…"
 
 #: compliance/templates/compliance/assessment_detail.html
-msgid "Initialize evaluations"
-msgstr "Initialiser les évaluations"
-
-#: compliance/templates/compliance/assessment_detail.html
 msgid "Add result"
 msgstr "Ajouter un résultat"
 
@@ -8482,8 +8478,8 @@ msgid "Edit evaluation"
 msgstr "Modifier l'évaluation"
 
 #: compliance/templates/compliance/assessment_results_table_body.html
-msgid "No requirement to evaluate. Initialize evaluations or check that the framework has applicable requirements."
-msgstr "Aucune exigence à évaluer. Initialisez les évaluations ou vérifiez que le référentiel contient des exigences applicables."
+msgid "No requirement to evaluate. Use the bulk toggle or check that the framework has applicable requirements."
+msgstr "Aucune exigence à évaluer. Utilisez le bouton de sélection groupée ou vérifiez que le référentiel contient des exigences applicables."
 
 #: compliance/views.py
 msgid "Evaluate requirement"
@@ -8768,6 +8764,12 @@ msgstr "Marquer comme évaluation prévue"
 msgid "Mark as compliant"
 msgstr "Marquer comme conforme"
 
+msgid "Not planned for evaluation"
+msgstr "Non planifié pour évaluation"
+
+msgid "Remove from evaluation plan"
+msgstr "Retirer du plan d'évaluation"
+
 msgid "Non-applicable requirement"
 msgstr "Exigence non applicable"
 
@@ -8794,6 +8796,10 @@ msgstr "La date de fin doit être postérieure à la date de début."
 
 msgid "This assessment is locked and cannot be modified."
 msgstr "Cet audit est verrouillé et ne peut plus être modifié."
+
+#: templates/home.html — dashboard segments
+msgid "Partial compliance"
+msgstr "Conformité partielle"
 
 msgctxt "assessment"
 msgid "Closed"

@@ -95,7 +95,7 @@
   </td>
   <td class="text-end">
     {% if not is_toggleable %}
-    {# Not toggleable: no action buttons #}
+    {# COMPLETED / CLOSED: no action buttons #}
     {% elif not entry.requirement.is_applicable %}
     <span class="btn btn-sm btn-outline-secondary disabled" title="{% trans 'Non-applicable requirement' %}">
       <i class="bi bi-lock"></i>
@@ -104,13 +104,28 @@
     <span class="btn btn-sm btn-outline-secondary disabled" title="{% trans 'Status determined by findings' %}">
       <i class="bi bi-lock"></i>
     </span>
-    {% else %}
-    <button class="btn btn-sm {% if entry.result and entry.result.compliance_status == 'compliant' %}btn-success{% elif entry.result and entry.result.compliance_status == 'evaluated' %}btn-outline-primary{% else %}btn-outline-secondary{% endif %}"
+    {% elif assessment.status == 'in_progress' and entry.result and entry.result.compliance_status == 'not_assessed' %}
+    {# IN_PROGRESS: NOT_ASSESSED is frozen #}
+    <span class="btn btn-sm btn-outline-secondary disabled" title="{% trans 'Not planned for evaluation' %}">
+      <i class="bi bi-circle"></i>
+    </span>
+    {% elif assessment.status == 'in_progress' %}
+    {# IN_PROGRESS: toggle EVALUATED ↔ COMPLIANT #}
+    <button class="btn btn-sm {% if entry.result and entry.result.compliance_status == 'compliant' %}btn-success{% else %}btn-outline-primary{% endif %}"
             hx-post="{% url 'compliance:assessment-result-toggle' assessment.pk entry.requirement.pk %}"
             hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
             hx-swap="none"
-            title="{% if entry.result and entry.result.compliance_status == 'compliant' %}{% trans 'Mark as not evaluated' %}{% elif entry.result and entry.result.compliance_status == 'evaluated' %}{% trans 'Mark as compliant' %}{% else %}{% trans 'Mark as evaluation planned' %}{% endif %}">
-      <i class="bi {% if entry.result and entry.result.compliance_status == 'compliant' %}bi-check-circle-fill{% elif entry.result and entry.result.compliance_status == 'evaluated' %}bi-circle-half{% else %}bi-circle{% endif %}"></i>
+            title="{% if entry.result and entry.result.compliance_status == 'compliant' %}{% trans 'Mark as evaluation planned' %}{% else %}{% trans 'Mark as compliant' %}{% endif %}">
+      <i class="bi {% if entry.result and entry.result.compliance_status == 'compliant' %}bi-check-circle-fill{% else %}bi-circle-half{% endif %}"></i>
+    </button>
+    {% else %}
+    {# DRAFT / PLANNED: toggle NOT_ASSESSED ↔ EVALUATED #}
+    <button class="btn btn-sm {% if entry.result and entry.result.compliance_status == 'evaluated' %}btn-outline-primary{% else %}btn-outline-secondary{% endif %}"
+            hx-post="{% url 'compliance:assessment-result-toggle' assessment.pk entry.requirement.pk %}"
+            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+            hx-swap="none"
+            title="{% if entry.result and entry.result.compliance_status == 'evaluated' %}{% trans 'Remove from evaluation plan' %}{% else %}{% trans 'Mark as evaluation planned' %}{% endif %}">
+      <i class="bi {% if entry.result and entry.result.compliance_status == 'evaluated' %}bi-circle-half{% else %}bi-circle{% endif %}"></i>
     </button>
     {% endif %}
   </td>
@@ -119,7 +134,7 @@
 {% empty %}
 <tr>
   <td colspan="5" class="text-center" style="color:var(--text-muted);font-size:.85rem;padding:2rem">
-    {% trans "No requirement to evaluate. Initialize evaluations or check that the framework has applicable requirements." %}
+    {% trans "No requirement to evaluate. Use the bulk toggle or check that the framework has applicable requirements." %}
   </td>
 </tr>
 {% endfor %}
