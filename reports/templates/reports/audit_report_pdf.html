@@ -8,7 +8,7 @@
     size: A4 portrait;
     margin: 25mm 20mm 25mm 20mm;
     @top-left {
-      content: "{% trans "Confidential" %}";
+      content: "{{ company.name|default:_("Confidential") }}";
       font-size: 8pt;
       color: #888;
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -226,6 +226,10 @@
 {# ── COVER PAGE                                          ── #}
 {# ══════════════════════════════════════════════════════════ #}
 <div class="cover">
+  {% if company.logo %}
+  <img src="{{ company.logo_128|default:company.logo }}" alt="" style="width:24mm;height:24mm;object-fit:contain;margin-bottom:6mm">
+  {% endif %}
+  {% if company.name %}<div style="font-size:12pt;font-weight:600;color:#555;margin-bottom:10mm">{{ company.name }}</div>{% endif %}
   <h1>{% trans "Audit Report" %}</h1>
   <div class="subtitle">{{ assessment.name }}</div>
   <div class="subtitle">{{ assessment.reference }}</div>

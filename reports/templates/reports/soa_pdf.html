@@ -98,7 +98,14 @@
 {% for item in frameworks_data %}
 <div class="framework-section">
   {% if forloop.first %}
-  <h1>{% load i18n %}{% trans "Statement of Applicability" %}</h1>
+  {% load i18n %}
+  <div style="display:flex;align-items:center;gap:4mm;margin-bottom:4mm">
+    {% if company.logo %}
+    <img src="{{ company.logo_64|default:company.logo }}" alt="" style="width:12mm;height:12mm;object-fit:contain">
+    {% endif %}
+    {% if company.name %}<span style="font-size:11pt;font-weight:600;color:#555">{{ company.name }}</span>{% endif %}
+  </div>
+  <h1>{% trans "Statement of Applicability" %}</h1>
   <div class="meta">
     {% trans "Generated on" %}: {{ generated_at|date:"d/m/Y H:i" }}
     &nbsp;|&nbsp;

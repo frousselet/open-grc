@@ -5,6 +5,8 @@ import re
 from django.template.loader import render_to_string
 from django.utils import timezone
 
+from accounts.models import CompanySettings
+
 
 def _clean_html(text):
     """Strip empty HTML paragraphs and whitespace-only tags."""
@@ -62,10 +64,12 @@ def generate_soa_pdf(frameworks, user):
         })
 
     now = timezone.now()
+    company = CompanySettings.get()
     html_string = render_to_string("reports/soa_pdf.html", {
         "frameworks_data": frameworks_data,
         "generated_at": now,
         "generated_by": user,
+        "company": company,
     })
 
     pdf_bytes = HTML(string=html_string).write_pdf()
@@ -323,8 +327,10 @@ def generate_audit_report_pdf(assessment, user):
     annexes_docs.sort(key=lambda d: (d["requirement_ref"], d["filename"]))
 
     now = timezone.now()
+    company = CompanySettings.get()
     html_string = render_to_string("reports/audit_report_pdf.html", {
         "assessment": assessment,
+        "company": company,
         "assessment_description": _clean_html(assessment.description),
         "assessment_limitations": _clean_html(assessment.limitations),
         "scope_tree": scope_tree,
