@@ -1,4 +1,5 @@
 from django.urls import path, reverse_lazy
+from django.views.generic import RedirectView
 
 from . import views
 from .models import (
@@ -11,8 +12,7 @@ from .models import (
 app_name = "compliance"
 
 urlpatterns = [
-    # Dashboard
-    path("", views.DashboardView.as_view(), name="dashboard"),
+    path("", RedirectView.as_view(pattern_name="compliance:assessment-list", permanent=False), name="dashboard"),
     # Frameworks
     path("frameworks/", views.FrameworkListView.as_view(), name="framework-list"),
     path("frameworks/import/", views.FrameworkImportView.as_view(), name="framework-import"),

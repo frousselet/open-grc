@@ -1,4 +1,5 @@
 from django.urls import path, reverse_lazy
+from django.views.generic import RedirectView
 
 from context.models import Site
 from . import views
@@ -7,8 +8,7 @@ from .models import AssetDependency, AssetGroup, EssentialAsset, SiteAssetDepend
 app_name = "assets"
 
 urlpatterns = [
-    # Dashboard
-    path("", views.DashboardView.as_view(), name="dashboard"),
+    path("", RedirectView.as_view(pattern_name="assets:essential-asset-list", permanent=False), name="dashboard"),
     # Essential Assets
     path("essential/", views.EssentialAssetListView.as_view(), name="essential-asset-list"),
     path("essential/create/", views.EssentialAssetCreateView.as_view(), name="essential-asset-create"),

@@ -1,4 +1,5 @@
 from django.urls import path, reverse_lazy
+from django.views.generic import RedirectView
 
 from . import views
 from .constants import IndicatorType
@@ -7,8 +8,7 @@ from .models import Activity, Indicator, Issue, Objective, Role, Scope, Stakehol
 app_name = "context"
 
 urlpatterns = [
-    # Dashboard
-    path("", views.DashboardView.as_view(), name="dashboard"),
+    path("", RedirectView.as_view(pattern_name="context:scope-list", permanent=False), name="dashboard"),
     path("dashboard/indicator-toggle/", views.dashboard_indicator_toggle, name="dashboard-indicator-toggle"),
     path("dashboard/indicator-chart-toggle/", views.dashboard_indicator_chart_toggle, name="dashboard-indicator-chart-toggle"),
     # Scopes

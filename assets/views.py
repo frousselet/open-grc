@@ -16,7 +16,6 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
-from assets.services.spof_detection import SpofDetector
 from core.mixins import HtmxFormMixin, SortableListMixin
 from context.models import Scope, Site
 from .forms import (
@@ -91,56 +90,6 @@ class ApproveView(LoginRequiredMixin, View):
         obj.save(update_fields=["is_approved", "approved_by", "approved_at"])
         messages.success(request, _("Item approved."))
         return redirect(request.META.get("HTTP_REFERER", self.success_url or "/"))
-
-
-# ── Dashboard ───────────────────────────────────────────────
-
-class DashboardView(LoginRequiredMixin, TemplateView):
-    template_name = "assets/dashboard.html"
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        user = self.request.user
-        scope_ids = user.get_allowed_scope_ids()
-        if scope_ids is not None:
-            ctx["user_scopes"] = Scope.objects.filter(id__in=scope_ids).select_related("parent_scope")
-        today = timezone.now().date()
-        ctx["essential_count"] = EssentialAsset.objects.count()
-        ctx["support_count"] = SupportAsset.objects.count()
-        ctx["dependency_count"] = AssetDependency.objects.count()
-        ctx["group_count"] = AssetGroup.objects.count()
-        ctx["essential_by_type"] = (
-            EssentialAsset.objects.values("type")
-            .annotate(count=Count("id"))
-            .order_by("type")
-        )
-        ctx["support_by_type"] = (
-            SupportAsset.objects.values("type")
-            .annotate(count=Count("id"))
-            .order_by("type")
-        )
-        ctx["unsupported_essentials"] = EssentialAsset.objects.filter(
-            dependencies_as_essential__isnull=True
-        ).count()
-        ctx["orphan_supports"] = SupportAsset.objects.filter(
-            dependencies_as_support__isnull=True
-        ).count()
-        spof_results = SpofDetector().detect_all()
-        ctx["spof_count"] = spof_results["total_spof"]
-        ctx["spof_detail"] = {
-            "asset": len([d for d in spof_results["asset_dependencies"] if d["is_spof"]]),
-            "supplier": len([d for d in spof_results["supplier_dependencies"] if d["is_spof"]]),
-            "site_asset": len([d for d in spof_results["site_asset_dependencies"] if d["is_spof"]]),
-            "site_supplier": len([d for d in spof_results["site_supplier_dependencies"] if d["is_spof"]]),
-        }
-        ctx["eol_assets"] = SupportAsset.objects.filter(
-            end_of_life_date__lte=today,
-            status="active",
-        )[:10]
-        ctx["personal_data_count"] = EssentialAsset.objects.filter(
-            personal_data=True
-        ).count()
-        return ctx
 
 
 # ── Essential Asset ─────────────────────────────────────────
