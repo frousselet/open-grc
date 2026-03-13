@@ -15,59 +15,315 @@ from compliance.tests.factories import (
 pytestmark = pytest.mark.django_db
 
 
-class TestInitializeResults:
-    def test_initialize_creates_results_for_all_requirements(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="u@t.com", password="pw")
+# ── Toggle (single requirement) ─────────────────────────────
+
+class TestToggleDraftPlanned:
+    """In DRAFT / PLANNED: toggle cycles NOT_ASSESSED ↔ EVALUATED."""
+
+    @pytest.fixture
+    def setup(self, client, django_user_model):
+        user = django_user_model.objects.create_user(email="td@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req = RequirementFactory(framework=fw, is_applicable=True)
+        assessment = ComplianceAssessmentFactory(
+            framework=fw, assessor=user, status=AssessmentStatus.DRAFT,
+        )
+        result = AssessmentResultFactory(
+            assessment=assessment, requirement=req,
+            compliance_status=ComplianceStatus.NOT_ASSESSED, compliance_level=0,
+            assessed_by=user,
+        )
+        url = reverse("compliance:assessment-result-toggle", args=[assessment.pk, req.pk])
+        return {"client": client, "url": url, "result": result, "assessment": assessment, "req": req}
+
+    def test_draft_not_assessed_to_evaluated(self, setup):
+        response = setup["client"].post(setup["url"])
+        assert response.status_code == 204
+        setup["result"].refresh_from_db()
+        assert setup["result"].compliance_status == ComplianceStatus.EVALUATED
+        assert setup["result"].compliance_level == 50
+
+    def test_draft_evaluated_to_not_assessed(self, setup):
+        # First toggle to EVALUATED
+        setup["client"].post(setup["url"])
+        # Second toggle back to NOT_ASSESSED
+        response = setup["client"].post(setup["url"])
+        assert response.status_code == 204
+        setup["result"].refresh_from_db()
+        assert setup["result"].compliance_status == ComplianceStatus.NOT_ASSESSED
+        assert setup["result"].compliance_level == 0
+
+    def test_planned_same_behaviour(self, client, django_user_model):
+        user = django_user_model.objects.create_user(email="tp@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req = RequirementFactory(framework=fw, is_applicable=True)
+        assessment = ComplianceAssessmentFactory(
+            framework=fw, assessor=user, status=AssessmentStatus.PLANNED,
+        )
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req,
+            compliance_status=ComplianceStatus.NOT_ASSESSED, compliance_level=0,
+            assessed_by=user,
+        )
+        url = reverse("compliance:assessment-result-toggle", args=[assessment.pk, req.pk])
+        response = client.post(url)
+        assert response.status_code == 204
+        r = assessment.results.get(requirement=req)
+        assert r.compliance_status == ComplianceStatus.EVALUATED
+
+    def test_draft_creates_result_as_evaluated(self, client, django_user_model):
+        """When no result exists yet in DRAFT, get_or_create defaults to EVALUATED."""
+        user = django_user_model.objects.create_user(email="tc@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req = RequirementFactory(framework=fw, is_applicable=True)
+        assessment = ComplianceAssessmentFactory(
+            framework=fw, assessor=user, status=AssessmentStatus.DRAFT,
+        )
+        url = reverse("compliance:assessment-result-toggle", args=[assessment.pk, req.pk])
+        response = client.post(url)
+        assert response.status_code == 204
+        r = assessment.results.get(requirement=req)
+        assert r.compliance_status == ComplianceStatus.EVALUATED
+        assert r.compliance_level == 50
+
+
+class TestToggleInProgress:
+    """In IN_PROGRESS: toggle cycles EVALUATED ↔ COMPLIANT; NOT_ASSESSED frozen."""
+
+    def test_evaluated_to_compliant(self, client, django_user_model):
+        user = django_user_model.objects.create_user(email="tip1@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req = RequirementFactory(framework=fw, is_applicable=True)
+        assessment = ComplianceAssessmentFactory(
+            framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS,
+        )
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req,
+            compliance_status=ComplianceStatus.EVALUATED, compliance_level=50,
+            assessed_by=user,
+        )
+        url = reverse("compliance:assessment-result-toggle", args=[assessment.pk, req.pk])
+        response = client.post(url)
+        assert response.status_code == 204
+        r = assessment.results.get(requirement=req)
+        assert r.compliance_status == ComplianceStatus.COMPLIANT
+        assert r.compliance_level == 100
+
+    def test_compliant_to_evaluated(self, client, django_user_model):
+        user = django_user_model.objects.create_user(email="tip2@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req = RequirementFactory(framework=fw, is_applicable=True)
+        assessment = ComplianceAssessmentFactory(
+            framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS,
+        )
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req,
+            compliance_status=ComplianceStatus.COMPLIANT, compliance_level=100,
+            assessed_by=user,
+        )
+        url = reverse("compliance:assessment-result-toggle", args=[assessment.pk, req.pk])
+        response = client.post(url)
+        assert response.status_code == 204
+        r = assessment.results.get(requirement=req)
+        assert r.compliance_status == ComplianceStatus.EVALUATED
+        assert r.compliance_level == 50
+
+    def test_not_assessed_frozen_returns_409(self, client, django_user_model):
+        user = django_user_model.objects.create_user(email="tip3@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req = RequirementFactory(framework=fw, is_applicable=True)
+        assessment = ComplianceAssessmentFactory(
+            framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS,
+        )
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req,
+            compliance_status=ComplianceStatus.NOT_ASSESSED, compliance_level=0,
+            assessed_by=user,
+        )
+        url = reverse("compliance:assessment-result-toggle", args=[assessment.pk, req.pk])
+        response = client.post(url)
+        assert response.status_code == 409
+
+    def test_creates_result_as_compliant(self, client, django_user_model):
+        """When no result exists in IN_PROGRESS, get_or_create defaults to COMPLIANT."""
+        user = django_user_model.objects.create_user(email="tip4@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req = RequirementFactory(framework=fw, is_applicable=True)
+        assessment = ComplianceAssessmentFactory(
+            framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS,
+        )
+        url = reverse("compliance:assessment-result-toggle", args=[assessment.pk, req.pk])
+        response = client.post(url)
+        assert response.status_code == 204
+        r = assessment.results.get(requirement=req)
+        assert r.compliance_status == ComplianceStatus.COMPLIANT
+        assert r.compliance_level == 100
+
+
+class TestToggleCompleted:
+    """In COMPLETED / CLOSED: toggle returns 403."""
+
+    def test_completed_returns_403(self, client, django_user_model):
+        user = django_user_model.objects.create_user(email="tc403@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req = RequirementFactory(framework=fw, is_applicable=True)
+        assessment = ComplianceAssessmentFactory(
+            framework=fw, assessor=user, status=AssessmentStatus.COMPLETED,
+        )
+        url = reverse("compliance:assessment-result-toggle", args=[assessment.pk, req.pk])
+        response = client.post(url)
+        assert response.status_code == 403
+
+
+# ── Bulk toggle ──────────────────────────────────────────────
+
+class TestBulkToggleDraftPlanned:
+    """In DRAFT/PLANNED: bulk toggles NOT_ASSESSED ↔ EVALUATED."""
+
+    def test_bulk_selects_all_not_assessed_to_evaluated(self, client, django_user_model):
+        user = django_user_model.objects.create_user(email="bt1@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req1 = RequirementFactory(framework=fw, is_applicable=True)
         req2 = RequirementFactory(framework=fw, is_applicable=True)
-        req_na = RequirementFactory(framework=fw, is_applicable=False)
-        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
+        assessment = ComplianceAssessmentFactory(
+            framework=fw, assessor=user, status=AssessmentStatus.DRAFT,
+        )
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req1,
+            compliance_status=ComplianceStatus.NOT_ASSESSED, compliance_level=0,
+            assessed_by=user,
+        )
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req2,
+            compliance_status=ComplianceStatus.NOT_ASSESSED, compliance_level=0,
+            assessed_by=user,
+        )
 
-        url = reverse("compliance:assessment-initialize-results", args=[assessment.pk])
+        url = reverse("compliance:assessment-bulk-toggle-evaluated", args=[assessment.pk])
         response = client.post(url)
-
-        assert response.status_code == 302
-        assert assessment.results.count() == 3
-        assert set(assessment.results.values_list("requirement_id", flat=True)) == {
-            req1.pk, req2.pk, req_na.pk,
-        }
-        # Applicable requirements: NOT_ASSESSED at 0%
-        for result in assessment.results.filter(requirement__is_applicable=True):
-            assert result.compliance_status == ComplianceStatus.NOT_ASSESSED
-            assert result.compliance_level == 0
-        # Non-applicable requirements: NOT_APPLICABLE at 100%
-        na_result = assessment.results.get(requirement=req_na)
-        assert na_result.compliance_status == ComplianceStatus.NOT_APPLICABLE
-        assert na_result.compliance_level == 100
-
-    def test_initialize_is_idempotent(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="u2@t.com", password="pw")
-        client.force_login(user)
-        fw = FrameworkFactory()
-        RequirementFactory(framework=fw, is_applicable=True)
-        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
-
-        url = reverse("compliance:assessment-initialize-results", args=[assessment.pk])
-        client.post(url)
-        client.post(url)
-
-        assert assessment.results.count() == 1
-
-    def test_initialize_via_htmx_returns_204(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="u3@t.com", password="pw")
-        client.force_login(user)
-        fw = FrameworkFactory()
-        RequirementFactory(framework=fw, is_applicable=True)
-        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
-
-        url = reverse("compliance:assessment-initialize-results", args=[assessment.pk])
-        response = client.post(url, HTTP_HX_REQUEST="true")
-
         assert response.status_code == 204
-        assert response["HX-Trigger"] == "formSaved"
 
+        r1 = assessment.results.get(requirement=req1)
+        r2 = assessment.results.get(requirement=req2)
+        assert r1.compliance_status == ComplianceStatus.EVALUATED
+        assert r2.compliance_status == ComplianceStatus.EVALUATED
+
+    def test_bulk_deselects_all_evaluated_to_not_assessed(self, client, django_user_model):
+        user = django_user_model.objects.create_user(email="bt2@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req1 = RequirementFactory(framework=fw, is_applicable=True)
+        assessment = ComplianceAssessmentFactory(
+            framework=fw, assessor=user, status=AssessmentStatus.PLANNED,
+        )
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req1,
+            compliance_status=ComplianceStatus.EVALUATED, compliance_level=50,
+            assessed_by=user,
+        )
+
+        url = reverse("compliance:assessment-bulk-toggle-evaluated", args=[assessment.pk])
+        response = client.post(url)
+        assert response.status_code == 204
+
+        r1 = assessment.results.get(requirement=req1)
+        assert r1.compliance_status == ComplianceStatus.NOT_ASSESSED
+
+
+class TestBulkToggleInProgress:
+    """In IN_PROGRESS: bulk toggles EVALUATED ↔ COMPLIANT."""
+
+    def test_bulk_evaluated_to_compliant(self, client, django_user_model):
+        user = django_user_model.objects.create_user(email="bip1@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req1 = RequirementFactory(framework=fw, is_applicable=True)
+        req2 = RequirementFactory(framework=fw, is_applicable=True)
+        assessment = ComplianceAssessmentFactory(
+            framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS,
+        )
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req1,
+            compliance_status=ComplianceStatus.EVALUATED, compliance_level=50,
+            assessed_by=user,
+        )
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req2,
+            compliance_status=ComplianceStatus.EVALUATED, compliance_level=50,
+            assessed_by=user,
+        )
+
+        url = reverse("compliance:assessment-bulk-toggle-evaluated", args=[assessment.pk])
+        response = client.post(url)
+        assert response.status_code == 204
+
+        r1 = assessment.results.get(requirement=req1)
+        r2 = assessment.results.get(requirement=req2)
+        assert r1.compliance_status == ComplianceStatus.COMPLIANT
+        assert r2.compliance_status == ComplianceStatus.COMPLIANT
+
+    def test_bulk_compliant_to_evaluated(self, client, django_user_model):
+        user = django_user_model.objects.create_user(email="bip2@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req1 = RequirementFactory(framework=fw, is_applicable=True)
+        assessment = ComplianceAssessmentFactory(
+            framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS,
+        )
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req1,
+            compliance_status=ComplianceStatus.COMPLIANT, compliance_level=100,
+            assessed_by=user,
+        )
+
+        url = reverse("compliance:assessment-bulk-toggle-evaluated", args=[assessment.pk])
+        response = client.post(url)
+        assert response.status_code == 204
+
+        r1 = assessment.results.get(requirement=req1)
+        assert r1.compliance_status == ComplianceStatus.EVALUATED
+
+    def test_bulk_skips_not_assessed_in_progress(self, client, django_user_model):
+        """NOT_ASSESSED results are not touched when bulk toggling in IN_PROGRESS."""
+        user = django_user_model.objects.create_user(email="bip3@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req_eval = RequirementFactory(framework=fw, is_applicable=True)
+        req_na = RequirementFactory(framework=fw, is_applicable=True)
+        assessment = ComplianceAssessmentFactory(
+            framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS,
+        )
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req_eval,
+            compliance_status=ComplianceStatus.EVALUATED, compliance_level=50,
+            assessed_by=user,
+        )
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req_na,
+            compliance_status=ComplianceStatus.NOT_ASSESSED, compliance_level=0,
+            assessed_by=user,
+        )
+
+        url = reverse("compliance:assessment-bulk-toggle-evaluated", args=[assessment.pk])
+        response = client.post(url)
+        assert response.status_code == 204
+
+        r_eval = assessment.results.get(requirement=req_eval)
+        r_na = assessment.results.get(requirement=req_na)
+        assert r_eval.compliance_status == ComplianceStatus.COMPLIANT
+        assert r_na.compliance_status == ComplianceStatus.NOT_ASSESSED  # untouched
+
+
+# ── CRUD & other existing tests ──────────────────────────────
 
 class TestAssessmentResultCreateView:
     def test_create_result_via_drawer(self, client, django_user_model):
@@ -178,13 +434,13 @@ class TestAssessmentResultsTableBody:
         fw = FrameworkFactory()
         sec1 = SectionFactory(framework=fw, name="Section A", order=1)
         sec2 = SectionFactory(framework=fw, name="Section B", order=2)
-        RequirementFactory(framework=fw, section=sec1, is_applicable=True, name="Req A1")
-        RequirementFactory(framework=fw, section=sec2, is_applicable=True, name="Req B1")
-        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
+        req1 = RequirementFactory(framework=fw, section=sec1, is_applicable=True, name="Req A1")
+        req2 = RequirementFactory(framework=fw, section=sec2, is_applicable=True, name="Req B1")
+        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user, status=AssessmentStatus.DRAFT)
 
-        # Initialize results
-        init_url = reverse("compliance:assessment-initialize-results", args=[assessment.pk])
-        client.post(init_url)
+        # Create results via bulk toggle (creates missing results automatically)
+        bulk_url = reverse("compliance:assessment-bulk-toggle-evaluated", args=[assessment.pk])
+        client.post(bulk_url)
 
         url = reverse("compliance:assessment-results-table-body", args=[assessment.pk])
         response = client.get(url)
@@ -294,56 +550,6 @@ class TestNonApplicableRequirements:
         assert assessment.total_requirements == 2
 
 
-class TestBulkToggleEvaluated:
-    def test_bulk_toggle_selects_all(self, client, django_user_model):
-        """Bulk toggle sets all NOT_ASSESSED to EVALUATED."""
-        user = django_user_model.objects.create_user(email="bt1@t.com", password="pw")
-        client.force_login(user)
-        fw = FrameworkFactory()
-        req1 = RequirementFactory(framework=fw, is_applicable=True)
-        req2 = RequirementFactory(framework=fw, is_applicable=True)
-        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS)
-        AssessmentResultFactory(
-            assessment=assessment, requirement=req1,
-            compliance_status=ComplianceStatus.NOT_ASSESSED, compliance_level=0,
-            assessed_by=user,
-        )
-        AssessmentResultFactory(
-            assessment=assessment, requirement=req2,
-            compliance_status=ComplianceStatus.NOT_ASSESSED, compliance_level=0,
-            assessed_by=user,
-        )
-
-        url = reverse("compliance:assessment-bulk-toggle-evaluated", args=[assessment.pk])
-        response = client.post(url)
-        assert response.status_code == 204
-
-        r1 = assessment.results.get(requirement=req1)
-        r2 = assessment.results.get(requirement=req2)
-        assert r1.compliance_status == ComplianceStatus.EVALUATED
-        assert r2.compliance_status == ComplianceStatus.EVALUATED
-
-    def test_bulk_toggle_deselects_all(self, client, django_user_model):
-        """Bulk toggle sets all EVALUATED back to NOT_ASSESSED when none are NOT_ASSESSED."""
-        user = django_user_model.objects.create_user(email="bt2@t.com", password="pw")
-        client.force_login(user)
-        fw = FrameworkFactory()
-        req1 = RequirementFactory(framework=fw, is_applicable=True)
-        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS)
-        AssessmentResultFactory(
-            assessment=assessment, requirement=req1,
-            compliance_status=ComplianceStatus.EVALUATED, compliance_level=50,
-            assessed_by=user,
-        )
-
-        url = reverse("compliance:assessment-bulk-toggle-evaluated", args=[assessment.pk])
-        response = client.post(url)
-        assert response.status_code == 204
-
-        r1 = assessment.results.get(requirement=req1)
-        assert r1.compliance_status == ComplianceStatus.NOT_ASSESSED
-
-
 class TestAssessmentDetailView:
     def test_detail_shows_results_tab(self, client, django_user_model):
         user = django_user_model.objects.create_superuser(email="det@t.com", password="pw")
@@ -356,4 +562,3 @@ class TestAssessmentDetailView:
         assert response.status_code == 200
         content = response.content.decode()
         assert "results_tab" in content
-        assert "Initialize evaluations" in content or "Initialiser" in content
