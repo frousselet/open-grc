@@ -589,6 +589,24 @@ class AssessmentDetailView(
         ctx["next_status_label"] = (
             AssessmentStatus(next_statuses[0]).label if next_statuses else ""
         )
+        # Workflow stepper: build ordered list of steps with state
+        all_statuses = list(AssessmentStatus)
+        current_idx = next(
+            (i for i, s in enumerate(all_statuses) if s.value == assessment.status), 0
+        )
+        next_idx = current_idx + 1 if next_statuses else None
+        steps = []
+        for i, s in enumerate(all_statuses):
+            if i < current_idx:
+                state = "done"
+            elif i == current_idx:
+                state = "current"
+            elif next_idx is not None and i == next_idx:
+                state = "next"
+            else:
+                state = "future"
+            steps.append({"value": s.value, "label": s.label, "state": state})
+        ctx["workflow_steps"] = steps
         return ctx
 
 
