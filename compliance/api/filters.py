@@ -66,7 +66,7 @@ class RequirementFilter(django_filters.FilterSet):
 
 class ComplianceAssessmentFilter(django_filters.FilterSet):
     scope = django_filters.UUIDFilter(field_name="scope_id")
-    framework = django_filters.UUIDFilter(field_name="framework_id")
+    framework = django_filters.UUIDFilter(field_name="frameworks")
 
     class Meta:
         model = ComplianceAssessment

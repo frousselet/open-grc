@@ -965,16 +965,16 @@ def _register_compliance_tools(server):
                  "minor_non_conformity_count", "observation_count",
                  "improvement_opportunity_count", "strength_count",
                  "not_applicable_count",
-                 "framework_id", "is_approved", "created_at"]
+                 "is_approved", "created_at"]
     ca_writable = ["name", "description", "assessment_date", "status",
-                   "framework_id", "assessor_id"]
+                   "assessor_id"]
 
     _register_crud(server, "compliance_assessment", ComplianceAssessment,
                    "compliance.assessment",
                    list_fields=ca_fields,
                    writable_fields=ca_writable,
                    search_fields=["name", "description"],
-                   filters=["framework_id", "status"],
+                   filters=["status"],
                    field_overrides=_HTML_DESC)
 
     ar_fields = ["id", "assessment_id", "requirement_id", "compliance_status",

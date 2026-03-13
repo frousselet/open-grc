@@ -34,8 +34,14 @@
         <div class="card h-100">
           <div class="card-body">
             <dl class="row mb-0">
-              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Framework" %}</dt>
-              <dd class="col-sm-8"><a href="{% url 'compliance:framework-detail' assessment.framework.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ assessment.framework }}</a></dd>
+              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Frameworks" %}</dt>
+              <dd class="col-sm-8">
+                {% for fw in assessment.frameworks.all %}
+                  <a href="{% url 'compliance:framework-detail' fw.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ fw.short_name|default:fw.name }}</a>{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                  —
+                {% endfor %}
+              </dd>
               <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Assessment date" %}</dt>
               <dd class="col-sm-8">{{ assessment.assessment_date }}</dd>
               <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Lead assessor" %}</dt>

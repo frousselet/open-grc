@@ -32,9 +32,9 @@
   </div>
   <div class="row g-2 mb-3">
     <div class="col-sm-6">
-      <label for="{{ form.framework.id_for_label }}" class="form-label">{{ form.framework.label }} *</label>
-      {{ form.framework }}
-      {% for error in form.framework.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+      <label for="{{ form.frameworks.id_for_label }}" class="form-label">{{ form.frameworks.label }} *</label>
+      {{ form.frameworks }}
+      {% for error in form.frameworks.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
     </div>
     <div class="col-sm-6">
       <label for="{{ form.assessor.id_for_label }}" class="form-label">{{ form.assessor.label }}</label>

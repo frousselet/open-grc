@@ -54,12 +54,34 @@ class SectionFactory(factory.django.DjangoModelFactory):
 class ComplianceAssessmentFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ComplianceAssessment
+        skip_postgeneration_save = True
 
-    framework = factory.SubFactory(FrameworkFactory)
     name = factory.Sequence(lambda n: f"Assessment {n}")
     assessment_date = factory.LazyFunction(lambda: timezone.now().date())
     assessor = factory.SubFactory(UserFactory)
     status = AssessmentStatus.DRAFT
+
+    @factory.post_generation
+    def framework(self, create, extracted, **kwargs):
+        """Accept a single framework and add it to the M2M.
+
+        Usage: ComplianceAssessmentFactory(framework=fw)
+        """
+        if not create:
+            return
+        if extracted:
+            self.frameworks.add(extracted)
+
+    @factory.post_generation
+    def frameworks(self, create, extracted, **kwargs):
+        """Accept a list of frameworks and add them to the M2M.
+
+        Usage: ComplianceAssessmentFactory(frameworks=[fw1, fw2])
+        """
+        if not create:
+            return
+        if extracted:
+            self.frameworks.add(*extracted)
 
 
 class AssessmentResultFactory(factory.django.DjangoModelFactory):

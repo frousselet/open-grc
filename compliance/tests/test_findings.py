@@ -10,6 +10,7 @@ from compliance.models import Finding
 from .factories import (
     ComplianceAssessmentFactory,
     FindingFactory,
+    FrameworkFactory,
     RequirementFactory,
 )
 
@@ -55,9 +56,10 @@ class TestFindingModel:
 
     def test_finding_requirements_m2m(self):
         """Findings can be linked to requirements."""
-        assessment = ComplianceAssessmentFactory()
-        req1 = RequirementFactory(framework=assessment.framework)
-        req2 = RequirementFactory(framework=assessment.framework)
+        fw = FrameworkFactory()
+        assessment = ComplianceAssessmentFactory(framework=fw)
+        req1 = RequirementFactory(framework=fw)
+        req2 = RequirementFactory(framework=fw)
         finding = FindingFactory(assessment=assessment)
         finding.requirements.add(req1, req2)
         assert finding.requirements.count() == 2
