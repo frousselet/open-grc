@@ -9,8 +9,8 @@ from django.views import View
 from django.views.generic import DeleteView, FormView, ListView
 
 from .constants import ReportStatus, ReportType
-from .forms import SoaReportForm
-from .generators import generate_soa_pdf
+from .forms import AuditReportForm, SoaReportForm
+from .generators import generate_audit_report_pdf, generate_soa_pdf
 from .models import Report
 
 
@@ -48,6 +48,41 @@ class SoaReportCreateView(LoginRequiredMixin, FormView):
                 name=report_name,
                 status=ReportStatus.FAILED,
                 created_by=self.request.user,
+            )
+
+        return redirect("reports:report-list")
+
+
+class AuditReportCreateView(LoginRequiredMixin, FormView):
+    form_class = AuditReportForm
+    template_name = "reports/audit_report_form.html"
+
+    def form_valid(self, form):
+        assessment = form.cleaned_data["assessment"]
+        report_name = _("Audit report") + f" — {assessment.reference} : {assessment.name}"
+
+        try:
+            filename, pdf_bytes = generate_audit_report_pdf(
+                assessment, self.request.user
+            )
+            report = Report.objects.create(
+                report_type=ReportType.AUDIT_REPORT,
+                name=report_name,
+                status=ReportStatus.COMPLETED,
+                created_by=self.request.user,
+                assessment=assessment,
+                file_content=pdf_bytes,
+                file_name=filename,
+            )
+            report.frameworks.set(assessment.frameworks.all())
+        except Exception:
+            logging.getLogger(__name__).exception("Audit report PDF generation failed")
+            Report.objects.create(
+                report_type=ReportType.AUDIT_REPORT,
+                name=report_name,
+                status=ReportStatus.FAILED,
+                created_by=self.request.user,
+                assessment=assessment,
             )
 
         return redirect("reports:report-list")

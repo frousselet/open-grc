@@ -8566,6 +8566,42 @@ msgstr "Généré par"
 msgid "No requirements."
 msgstr "Aucune exigence."
 
+#: reports/constants.py
+msgid "Audit report"
+msgstr "Rapport d'audit"
+
+#: reports/templates/reports/audit_report_form.html
+msgid "Generate Audit Report"
+msgstr "Générer le rapport d'audit"
+
+#: reports/templates/reports/report_list.html
+msgid "Generate an audit report for a completed assessment, including summary statistics, findings, and detailed compliance results per requirement."
+msgstr "Générer un rapport d'audit pour un audit terminé, incluant les statistiques de synthèse, les constats et les résultats de conformité détaillés par exigence."
+
+#: reports/forms.py
+msgid "Select a completed or closed audit to generate the report."
+msgstr "Sélectionnez un audit terminé ou clôturé pour générer le rapport."
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Audit Report"
+msgstr "Rapport d'audit"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Assessment information"
+msgstr "Informations sur l'audit"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Total requirements"
+msgstr "Nombre total d'exigences"
+
+#: reports/api/views.py
+msgid "Assessment not found."
+msgstr "Audit non trouvé."
+
+#: reports/api/views.py
+msgid "The assessment must be completed or closed to generate a report."
+msgstr "L'audit doit être terminé ou clôturé pour générer un rapport."
+
 #: context/views.py context/templates/context/swot_item_form_modal.html
 msgid "New SWOT item"
 msgstr "Nouvel élément SWOT"
