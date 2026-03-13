@@ -67,6 +67,45 @@ def generate_soa_pdf(frameworks, user):
     return filename, pdf_bytes
 
 
+def _build_scope_tree(scopes):
+    """Build a tree structure from a flat list of scopes.
+
+    Returns a list of dicts: {scope, depth, children} ordered depth-first.
+    Each scope in the input is placed under its parent if the parent is also
+    in the list; otherwise it becomes a root node.
+    """
+    scope_ids = {s.pk for s in scopes}
+    scope_map = {s.pk: s for s in scopes}
+
+    # Build children mapping
+    children_map = {}  # parent_pk -> [child scopes]
+    roots = []
+    for s in scopes:
+        parent_pk = s.parent_scope_id
+        if parent_pk and parent_pk in scope_ids:
+            children_map.setdefault(parent_pk, []).append(s)
+        else:
+            roots.append(s)
+
+    # Sort roots and children by name
+    roots.sort(key=lambda s: s.name)
+    for k in children_map:
+        children_map[k].sort(key=lambda s: s.name)
+
+    # Flatten depth-first
+    result = []
+
+    def _walk(scope, depth):
+        result.append({"scope": scope, "depth": depth})
+        for child in children_map.get(scope.pk, []):
+            _walk(child, depth + 1)
+
+    for root in roots:
+        _walk(root, 0)
+
+    return result
+
+
 def _compliance_color(status_key):
     """Return a CSS row color class for a compliance status."""
     if status_key in ("compliant", "strength"):
@@ -102,7 +141,8 @@ def generate_audit_report_pdf(assessment, user):
 
     # Gather results grouped by framework
     frameworks = list(assessment.frameworks.all())
-    scopes = list(assessment.scopes.all())
+    scopes = list(assessment.scopes.select_related("parent_scope"))
+    scope_tree = _build_scope_tree(scopes)
     results = list(
         assessment.results
         .select_related("requirement__section", "requirement__framework", "assessed_by")
@@ -236,7 +276,7 @@ def generate_audit_report_pdf(assessment, user):
     now = timezone.now()
     html_string = render_to_string("reports/audit_report_pdf.html", {
         "assessment": assessment,
-        "scopes": scopes,
+        "scope_tree": scope_tree,
         "frameworks": frameworks,
         "frameworks_data": frameworks_data,
         "findings_recap": findings_recap,
