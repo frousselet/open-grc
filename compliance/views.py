@@ -963,23 +963,53 @@ class BulkToggleEvaluatedView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=pk)
+        now = timezone.now()
+
         # IDs of requirements that have findings — those are locked
         finding_req_ids = set(
             assessment.findings.values_list("requirements__id", flat=True)
         )
         finding_req_ids.discard(None)
+
+        # Ensure all requirements have a result (like InitializeResultsView)
+        all_requirements = assessment.get_all_requirements()
+        existing_req_ids = set(
+            assessment.results.values_list("requirement_id", flat=True)
+        )
+        new_results = []
+        for req in all_requirements.filter(is_applicable=True):
+            if req.pk not in existing_req_ids:
+                new_results.append(
+                    AssessmentResult(
+                        assessment=assessment, requirement=req,
+                        compliance_status=ComplianceStatus.NOT_ASSESSED,
+                        compliance_level=0,
+                        assessed_by=request.user, assessed_at=now,
+                    )
+                )
+        for req in all_requirements.filter(is_applicable=False):
+            if req.pk not in existing_req_ids:
+                new_results.append(
+                    AssessmentResult(
+                        assessment=assessment, requirement=req,
+                        compliance_status=ComplianceStatus.NOT_APPLICABLE,
+                        compliance_level=100,
+                        assessed_by=request.user, assessed_at=now,
+                    )
+                )
+        if new_results:
+            AssessmentResult.objects.bulk_create(new_results, ignore_conflicts=True)
+
+        # Now toggle all applicable results
         results = assessment.results.select_related("requirement").filter(
             requirement__is_applicable=True,
         )
-        # Determine direction: if any toggleable result is NOT_ASSESSED → select all, else deselect all
         toggleable = [r for r in results if r.requirement_id not in finding_req_ids]
         any_not_assessed = any(
             r.compliance_status == ComplianceStatus.NOT_ASSESSED for r in toggleable
         )
-        now = timezone.now()
         for result in toggleable:
             if any_not_assessed:
-                # Select all: set NOT_ASSESSED → EVALUATED
                 if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
                     result.compliance_status = ComplianceStatus.EVALUATED
                     result.compliance_level = 50
@@ -987,7 +1017,6 @@ class BulkToggleEvaluatedView(LoginRequiredMixin, View):
                     result.assessed_at = now
                     result.save()
             else:
-                # Deselect all: set EVALUATED → NOT_ASSESSED (don't touch compliant or others)
                 if result.compliance_status == ComplianceStatus.EVALUATED:
                     result.compliance_status = ComplianceStatus.NOT_ASSESSED
                     result.compliance_level = 0
