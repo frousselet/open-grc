@@ -184,44 +184,53 @@ class ComplianceAssessmentViewSet(
     viewsets.ModelViewSet,
 ):
     queryset = ComplianceAssessment.objects.select_related(
-        "assessor", "validated_by"
+        "assessor",
     ).prefetch_related("scopes", "frameworks").all()
     filterset_class = ComplianceAssessmentFilter
     permission_classes = [CompliancePermission]
     permission_feature = "assessment"
     search_fields = ["name", "description"]
-    ordering_fields = ["name", "assessment_date", "overall_compliance_level", "status", "created_at"]
+    ordering_fields = ["name", "assessment_start_date", "overall_compliance_level", "status", "created_at"]
 
     def get_serializer_class(self):
         if self.action == "list":
             return ComplianceAssessmentListSerializer
         return ComplianceAssessmentSerializer
 
-    @action(detail=True, methods=["post"])
-    def validate(self, request, pk=None):
-        """RC-06: Validate assessment and propagate results to requirements."""
+    @action(detail=True, methods=["post"], url_path="transition")
+    def transition(self, request, pk=None):
+        """Advance the assessment to the next status in the workflow."""
         assessment = self.get_object()
-        assessment.validated_by = request.user
-        assessment.validated_at = timezone.now()
-        assessment.status = "validated"
-        assessment.save()
-        # Propagate results to requirements
-        for result in assessment.results.all():
-            req = result.requirement
-            req.compliance_status = result.compliance_status
-            req.compliance_level = result.compliance_level
-            req.compliance_evidence = result.evidence
-            req.compliance_finding = result.finding
-            req.last_assessment_date = result.assessed_at.date()
-            req.last_assessed_by = result.assessed_by
-            req.save()
-        # Recalculate framework compliance
-        for fw in assessment.frameworks.all():
-            fw.recalculate_compliance()
-            Framework.objects.filter(pk=fw.pk).update(
-                last_assessment_date=assessment.assessment_date
+        new_status = request.data.get("status")
+        if not new_status:
+            return Response(
+                {"detail": "status field is required."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        assessment.recalculate_counts()
+        try:
+            assessment.transition_to(new_status)
+        except ValueError as e:
+            return Response(
+                {"detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        # When closing, propagate results to requirements and frameworks
+        if new_status == "closed":
+            for result in assessment.results.all():
+                req = result.requirement
+                req.compliance_status = result.compliance_status
+                req.compliance_level = result.compliance_level
+                req.compliance_evidence = result.evidence
+                req.compliance_finding = result.finding
+                req.last_assessment_date = result.assessed_at.date()
+                req.last_assessed_by = result.assessed_by
+                req.save()
+            for fw in assessment.frameworks.all():
+                fw.recalculate_compliance()
+                if assessment.assessment_end_date:
+                    Framework.objects.filter(pk=fw.pk).update(
+                        last_assessment_date=assessment.assessment_end_date,
+                    )
         return Response(ComplianceAssessmentSerializer(assessment).data)
 
     @action(detail=True, methods=["get"])

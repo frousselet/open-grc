@@ -7,7 +7,13 @@ from django.utils.translation import gettext_lazy as _
 
 from context.models import Scope
 from context.widgets import ScopeTreeWidget
-from compliance.constants import ComplianceStatus
+from compliance.constants import (
+    ASSESSMENT_FROZEN_STATUSES,
+    ASSESSMENT_LOCKED_STATUSES,
+    ASSESSMENT_STATUS_TRANSITIONS,
+    AssessmentStatus,
+    ComplianceStatus,
+)
 from helpers.image_utils import generate_image_variants
 from .models import (
     ComplianceActionPlan,
@@ -197,21 +203,62 @@ class ComplianceAssessmentForm(ScopedFormMixin, forms.ModelForm):
         model = ComplianceAssessment
         fields = [
             "scopes", "frameworks", "name", "description",
-            "assessment_date", "assessor", "methodology",
-            "status", "review_date", "tags",
+            "assessment_start_date", "assessment_end_date",
+            "assessor", "methodology",
+            "status", "tags",
         ]
         widgets = {
             "scopes": ScopeTreeWidget(),
             "frameworks": forms.SelectMultiple(attrs={**SELECT_ATTRS, "data-ts-frameworks": "true"}),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
-            "assessment_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "assessment_start_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
+            "assessment_end_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "assessor": forms.Select(attrs=SELECT_ATTRS),
             "methodology": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "status": forms.Select(attrs=SELECT_ATTRS),
-            "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Restrict status choices to valid transitions
+        if self.instance and self.instance.pk:
+            current = self.instance.status
+            allowed = ASSESSMENT_STATUS_TRANSITIONS.get(current, [])
+            valid_statuses = [current] + allowed
+            self.fields["status"].choices = [
+                (k, v) for k, v in AssessmentStatus.choices if k in valid_statuses
+            ]
+            # Lock metadata fields for IN_PROGRESS+ statuses
+            if current in ASSESSMENT_LOCKED_STATUSES:
+                for field_name in self.fields:
+                    if field_name != "status":
+                        self.fields[field_name].disabled = True
+
+    def clean(self):
+        cleaned = super().clean()
+        status = cleaned.get("status")
+        # Dates required from PLANNED onward
+        if status and status != AssessmentStatus.DRAFT:
+            if not cleaned.get("assessment_start_date"):
+                self.add_error(
+                    "assessment_start_date",
+                    _("Start date is required for this status."),
+                )
+            if not cleaned.get("assessment_end_date"):
+                self.add_error(
+                    "assessment_end_date",
+                    _("End date is required for this status."),
+                )
+        start = cleaned.get("assessment_start_date")
+        end = cleaned.get("assessment_end_date")
+        if start and end and end < start:
+            self.add_error(
+                "assessment_end_date",
+                _("End date must be after start date."),
+            )
+        return cleaned
 
 
 class AssessmentResultForm(forms.ModelForm):

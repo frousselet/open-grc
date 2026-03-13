@@ -57,7 +57,6 @@ class ComplianceAssessmentFactory(factory.django.DjangoModelFactory):
         skip_postgeneration_save = True
 
     name = factory.Sequence(lambda n: f"Assessment {n}")
-    assessment_date = factory.LazyFunction(lambda: timezone.now().date())
     assessor = factory.SubFactory(UserFactory)
     status = AssessmentStatus.DRAFT
 

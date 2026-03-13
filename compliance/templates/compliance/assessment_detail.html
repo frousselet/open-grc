@@ -11,7 +11,18 @@
     <small class="ref">{{ assessment.reference }}</small>
   </div>
   <div class="d-flex gap-2">
+    {% if next_status %}
+    <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}">
+      {% csrf_token %}
+      <input type="hidden" name="status" value="{{ next_status }}">
+      <button type="submit" class="btn btn-outline-success">
+        <i class="bi bi-arrow-right-circle me-1"></i>{{ next_status_label }}
+      </button>
+    </form>
+    {% endif %}
+    {% if not is_locked %}
     <a href="{% url 'compliance:assessment-update' assessment.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+    {% endif %}
     <a href="{% url 'compliance:assessment-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
@@ -42,24 +53,20 @@
                   —
                 {% endfor %}
               </dd>
-              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Assessment date" %}</dt>
-              <dd class="col-sm-8">{{ assessment.assessment_date }}</dd>
+              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Start date" %}</dt>
+              <dd class="col-sm-8">{{ assessment.assessment_start_date|default:"—" }}</dd>
+              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "End date" %}</dt>
+              <dd class="col-sm-8">{{ assessment.assessment_end_date|default:"—" }}</dd>
               <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Lead assessor" %}</dt>
               <dd class="col-sm-8">{{ assessment.assessor }}</dd>
               <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Methodology" %}</dt>
               <dd class="col-sm-8">{{ assessment.methodology|default:"—"|safe }}</dd>
               <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
               <dd class="col-sm-8">
-                <span class="badge text-bg-{% if assessment.status == 'completed' or assessment.status == 'validated' %}success{% elif assessment.status == 'in_progress' %}info{% elif assessment.status == 'archived' %}secondary{% else %}warning{% endif %}">
+                <span class="badge text-bg-{% if assessment.status == 'closed' %}success{% elif assessment.status == 'completed' %}primary{% elif assessment.status == 'in_progress' %}info{% elif assessment.status == 'planned' %}warning{% else %}secondary{% endif %}">
                   {{ assessment.get_status_display }}
                 </span>
               </dd>
-              {% if assessment.validated_by %}
-              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Validated by" %}</dt>
-              <dd class="col-sm-8">{{ assessment.validated_by }} — {{ assessment.validated_at|date:"d/m/Y H:i" }}</dd>
-              {% endif %}
-              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Next review" %}</dt>
-              <dd class="col-sm-8">{{ assessment.review_date|default:"—" }}</dd>
               <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt>
               <dd class="col-sm-8">{{ assessment.description|default:"—"|safe }}</dd>
               <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
@@ -184,12 +191,14 @@
         <span style="font-size:.82rem;color:var(--text-muted)">{% trans "No findings recorded yet." %}</span>
         {% endif %}
       </div>
+      {% if not is_frozen %}
       <button class="btn btn-primary btn-sm"
               hx-get="{% url 'compliance:finding-create' assessment.pk %}"
               hx-target="#drawer-form-content"
               hx-swap="innerHTML">
         <i class="bi bi-plus-lg me-1"></i>{% trans "Add finding" %}
       </button>
+      {% endif %}
     </div>
 
     {# ── Findings table with HTMX refresh ── #}
@@ -245,7 +254,7 @@
         {% endif %}
       </div>
       <div class="d-flex gap-2">
-        {% if not has_results %}
+        {% if not has_results and not is_frozen %}
         <button class="btn btn-outline-primary btn-sm"
                 hx-post="{% url 'compliance:assessment-initialize-results' assessment.pk %}"
                 hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
@@ -267,7 +276,7 @@
               <th style="width:25%">{% trans "Status" %}</th>
               <th style="width:20%">{% trans "Level" %}</th>
               <th style="width:5%" class="text-end">
-                {% if has_results %}
+                {% if has_results and not is_frozen %}
                 <button class="btn btn-sm btn-outline-secondary" style="font-size:.72rem;padding:2px 6px"
                         hx-post="{% url 'compliance:assessment-bulk-toggle-evaluated' assessment.pk %}"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'

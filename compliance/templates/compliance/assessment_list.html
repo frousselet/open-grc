@@ -45,7 +45,7 @@
           <td><a href="{% url 'compliance:assessment-detail' a.pk %}" class="ref" style="text-decoration:none">{{ a.reference }}</a></td>
           <td>{{ a.name }}</td>
           <td>{% for fw in a.frameworks.all %}{{ fw.short_name|default:fw.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
-          <td>{{ a.assessment_date }}</td>
+          <td>{{ a.assessment_start_date|default:"—" }}</td>
           <td>{{ a.assessor }}</td>
           <td>
             <small style="font-size:.75rem">{{ a.total_requirements }}</small>
@@ -60,7 +60,7 @@
             </div>
           </td>
           <td>
-            <span class="badge text-bg-{% if a.status == 'completed' or a.status == 'validated' %}success{% elif a.status == 'in_progress' %}info{% elif a.status == 'archived' %}secondary{% else %}warning{% endif %}">
+            <span class="badge text-bg-{% if a.status == 'closed' %}success{% elif a.status == 'completed' %}primary{% elif a.status == 'in_progress' %}info{% elif a.status == 'planned' %}warning{% else %}secondary{% endif %}">
               {{ a.get_status_display }}
             </span>
           </td>
