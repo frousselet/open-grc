@@ -202,6 +202,22 @@
   .pre-wrap {
     white-space: pre-wrap;
   }
+
+  /* Rendered HTML content inside table cells */
+  .html-content p {
+    margin: 0 0 1.5mm 0;
+    text-align: left;
+  }
+  .html-content p:last-child {
+    margin-bottom: 0;
+  }
+  .html-content ul, .html-content ol {
+    margin: 0 0 1.5mm 0;
+    padding-left: 5mm;
+  }
+  .html-content ul:last-child, .html-content ol:last-child {
+    margin-bottom: 0;
+  }
 </style>
 </head>
 <body>
@@ -459,18 +475,18 @@
   </tr>
   <tr>
     <th>{% trans "Finding" %}</th>
-    <td class="pre-wrap">{{ f.description }}</td>
+    <td class="html-content">{{ f.description|safe }}</td>
   </tr>
   {% if f.recommendation %}
   <tr>
     <th>{% trans "Recommendation" %}</th>
-    <td class="pre-wrap">{{ f.recommendation }}</td>
+    <td class="html-content">{{ f.recommendation|safe }}</td>
   </tr>
   {% endif %}
   {% if f.evidence %}
   <tr>
     <th>{% trans "Evidence presented" %}</th>
-    <td class="pre-wrap">{{ f.evidence }}</td>
+    <td class="html-content">{{ f.evidence|safe }}</td>
   </tr>
   {% endif %}
 </table>
