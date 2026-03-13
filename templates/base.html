@@ -899,16 +899,25 @@
     .btn-danger:hover { box-shadow: 0 4px 12px rgba(239,68,68,.2); }
     .btn-success { box-shadow: 0 1px 2px rgba(16,185,129,.15); }
 
-    /* ── Toggle button loading feedback (HTMX) ────────── */
-    .toggle-btn.htmx-request {
+    /* ── HTMX loading feedback (buttons & form submit) ── */
+    @keyframes htmx-spin {
+      to { transform: rotate(360deg); }
+    }
+    .btn.htmx-request,
+    form.htmx-request button[type="submit"],
+    button[type="submit"].btn-loading {
       pointer-events: none;
       opacity: .55;
       position: relative;
     }
-    .toggle-btn.htmx-request i.bi {
+    .btn.htmx-request i.bi,
+    form.htmx-request button[type="submit"] i.bi,
+    button[type="submit"].btn-loading i.bi {
       visibility: hidden;
     }
-    .toggle-btn.htmx-request::after {
+    .btn.htmx-request::after,
+    form.htmx-request button[type="submit"]::after,
+    button[type="submit"].btn-loading::after {
       content: "";
       position: absolute;
       inset: 0;
@@ -918,33 +927,7 @@
       border: 2px solid currentColor;
       border-right-color: transparent;
       border-radius: 50%;
-      animation: toggle-spin .5s linear infinite;
-    }
-    @keyframes toggle-spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* ── Modal / drawer submit button loading feedback ── */
-    form.htmx-request button[type="submit"].btn-primary {
-      pointer-events: none;
-      opacity: .65;
-      position: relative;
-    }
-    form.htmx-request button[type="submit"].btn-primary i.bi {
-      visibility: hidden;
-    }
-    form.htmx-request button[type="submit"].btn-primary::after {
-      content: "";
-      position: absolute;
-      left: .75rem;
-      top: 50%;
-      margin-top: -.45em;
-      width: .9em;
-      height: .9em;
-      border: 2px solid currentColor;
-      border-right-color: transparent;
-      border-radius: 50%;
-      animation: toggle-spin .5s linear infinite;
+      animation: htmx-spin .5s linear infinite;
     }
 
     /* ── Badges ────────────────────────────────────────── */

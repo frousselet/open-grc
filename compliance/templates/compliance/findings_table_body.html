@@ -35,6 +35,7 @@
               hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
               hx-confirm="{% trans 'Are you sure you want to delete this finding?' %}"
               hx-swap="none"
+              hx-disabled-elt="this"
               title="{% trans 'Delete' %}">
         <i class="bi bi-trash"></i>
       </button>

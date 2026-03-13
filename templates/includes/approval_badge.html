@@ -14,9 +14,10 @@
     </span>
   {% endif %}
   {% if can_approve and not object.is_approved %}
-    <form method="post" action="{{ approve_url }}" class="d-inline ms-2">
+    <form method="post" action="{{ approve_url }}" class="d-inline ms-2"
+          onsubmit="this.querySelector('button[type=submit]').classList.add('btn-loading')">
       {% csrf_token %}
-      <button type="submit" class="btn btn-sm btn-success">{% trans "Approve" %}</button>
+      <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check-lg me-1"></i>{% trans "Approve" %}</button>
     </form>
   {% endif %}
 </div>

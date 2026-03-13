@@ -37,7 +37,8 @@
         </button>
         <button type="button" class="btn btn-sm border-0 p-0" style="color:var(--text-muted);font-size:.78rem" title="{% trans 'Delete' %}"
                 hx-post="{% url 'context:swot-strategy-delete' analysis.pk s.pk %}"
-                hx-confirm="{% trans 'Are you sure you want to delete this strategy?' %}">
+                hx-confirm="{% trans 'Are you sure you want to delete this strategy?' %}"
+                hx-disabled-elt="this">
           <i class="bi bi-trash"></i>
         </button>
       </span>
