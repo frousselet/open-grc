@@ -276,8 +276,8 @@
 <h2>1&emsp;{% trans "Objectives and scope" %}</h2>
 
 <h3>1.1&emsp;{% trans "Context and objectives" %}</h3>
-{% if assessment.description %}
-<p>{{ assessment.description }}</p>
+{% if assessment_description %}
+<div class="html-content">{{ assessment_description|safe }}</div>
 {% else %}
 <p style="color:#999;font-style:italic">—</p>
 {% endif %}
@@ -317,8 +317,8 @@
 </table>
 
 <h3>1.3&emsp;{% trans "Limitations" %}</h3>
-{% if assessment.limitations %}
-<p>{{ assessment.limitations }}</p>
+{% if assessment_limitations %}
+<div class="html-content">{{ assessment_limitations|safe }}</div>
 {% else %}
 <p style="color:#999;font-style:italic">—</p>
 {% endif %}
