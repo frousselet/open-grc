@@ -47,11 +47,6 @@
     {{ form.description }}
     {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
   </div>
-  <div>
-    <label for="{{ form.methodology.id_for_label }}" class="form-label">{{ form.methodology.label }}</label>
-    {{ form.methodology }}
-    {% for error in form.methodology.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-  </div>
 </div>
 
 {# ── Scope & Tags ── #}

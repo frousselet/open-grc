@@ -38,7 +38,6 @@ class ComplianceAssessment(ScopedModel):
         related_name="led_assessments",
         verbose_name=_("Lead assessor"),
     )
-    methodology = models.TextField(_("Methodology"), blank=True, default="")
     overall_compliance_level = models.DecimalField(
         _("Overall compliance level (%)"),
         max_digits=5,

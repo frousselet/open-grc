@@ -204,7 +204,7 @@ class ComplianceAssessmentForm(ScopedFormMixin, forms.ModelForm):
         fields = [
             "scopes", "frameworks", "name", "description",
             "assessment_start_date", "assessment_end_date",
-            "assessor", "methodology",
+            "assessor",
             "status", "tags",
         ]
         widgets = {
@@ -215,7 +215,6 @@ class ComplianceAssessmentForm(ScopedFormMixin, forms.ModelForm):
             "assessment_start_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "assessment_end_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "assessor": forms.Select(attrs=SELECT_ATTRS),
-            "methodology": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "status": forms.Select(attrs=SELECT_ATTRS),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
@@ -255,17 +254,6 @@ class ComplianceAssessmentForm(ScopedFormMixin, forms.ModelForm):
                 self.add_error(
                     "frameworks",
                     _("At least one framework is required for this status."),
-                )
-        # Methodology required from IN_PROGRESS onward
-        if status and status in (
-            AssessmentStatus.IN_PROGRESS,
-            AssessmentStatus.COMPLETED,
-            AssessmentStatus.CLOSED,
-        ):
-            if not cleaned.get("methodology"):
-                self.add_error(
-                    "methodology",
-                    _("Methodology is required for this status."),
                 )
         start = cleaned.get("assessment_start_date")
         end = cleaned.get("assessment_end_date")
