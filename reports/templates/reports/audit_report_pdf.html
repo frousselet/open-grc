@@ -448,7 +448,14 @@
   </tr>
   <tr>
     <th>{% trans "Requirement" %}</th>
-    <td class="pre-wrap">{{ f.requirement_detail }}</td>
+    <td>
+      {% for req in f.requirement_items %}
+      <div{% if not forloop.last %} style="margin-bottom:2mm"{% endif %}>
+        <strong>{{ req.number }} — {{ req.name }}</strong>
+        {% if req.description %}<div class="html-content" style="margin-top:1mm;color:#444">{{ req.description|safe }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </td>
   </tr>
   <tr class="{{ f.color }}">
     <th>{% trans "Finding qualification" %}</th>
