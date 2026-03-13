@@ -8678,6 +8678,54 @@ msgstr "Aucun constat enregistré."
 msgid "Requirements impacted"
 msgstr "Exigences impactées"
 
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Analyzed documents"
+msgstr "Documents analysés"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Document"
+msgstr "Document"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Requirement name"
+msgstr "Nom de l'exigence"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "No documents attached."
+msgstr "Aucun document joint."
+
+#: compliance/models/assessment.py
+msgid "Assessment result attachment"
+msgstr "Pièce jointe de résultat d'audit"
+
+#: compliance/models/assessment.py
+msgid "Assessment result attachments"
+msgstr "Pièces jointes de résultats d'audit"
+
+#: compliance/models/assessment.py
+msgid "File name"
+msgstr "Nom du fichier"
+
+#: compliance/models/assessment.py
+msgid "File size (bytes)"
+msgstr "Taille du fichier (octets)"
+
+#: compliance/models/assessment.py
+msgid "Uploaded by"
+msgstr "Téléversé par"
+
+#: compliance/models/assessment.py
+msgid "Uploaded at"
+msgstr "Téléversé le"
+
+#: compliance/templates/compliance/assessment_result_form_modal.html
+msgid "Accepted formats: PDF, DOC/DOCX, XLS/XLSX, JPEG/JPG, PNG"
+msgstr "Formats acceptés : PDF, DOC/DOCX, XLS/XLSX, JPEG/JPG, PNG"
+
+#: compliance/templates/compliance/assessment_result_form_modal.html
+msgid "Delete this attachment?"
+msgstr "Supprimer cette pièce jointe ?"
+
 #: context/views.py context/templates/context/swot_item_form_modal.html
 msgid "New SWOT item"
 msgstr "Nouvel élément SWOT"

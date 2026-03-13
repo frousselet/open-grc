@@ -42,6 +42,7 @@ urlpatterns = [
     path("assessments/<uuid:assessment_pk>/results/create/", views.AssessmentResultCreateView.as_view(), name="assessment-result-create"),
     path("assessments/<uuid:assessment_pk>/results/<uuid:pk>/edit/", views.AssessmentResultUpdateView.as_view(), name="assessment-result-update"),
     path("assessments/<uuid:assessment_pk>/results/<uuid:pk>/delete/", views.AssessmentResultDeleteView.as_view(), name="assessment-result-delete"),
+    path("assessments/<uuid:assessment_pk>/results/<uuid:result_pk>/attachments/<uuid:attachment_pk>/delete/", views.AssessmentResultAttachmentDeleteView.as_view(), name="assessment-result-attachment-delete"),
     path("assessments/<uuid:pk>/bulk-toggle-evaluated/", views.BulkToggleEvaluatedView.as_view(), name="assessment-bulk-toggle-evaluated"),
     path("assessments/<uuid:pk>/transition/", views.AssessmentTransitionView.as_view(), name="assessment-transition"),
     path("assessments/<uuid:assessment_pk>/requirements/<uuid:requirement_pk>/toggle/", views.ToggleResultEvaluatedView.as_view(), name="assessment-result-toggle"),

@@ -2,6 +2,7 @@
 {% load i18n %}
 
 {% block modal_title_icon %}<span class="drawer-title-icon"><i class="bi bi-clipboard-check"></i></span>{% endblock %}
+{% block form_enctype %}enctype="multipart/form-data"{% endblock %}
 
 {% block modal_form_fields %}
 {# ── Requirement context (read-only guidance) ── #}
@@ -88,6 +89,32 @@
     <label for="{{ form.evidence.id_for_label }}" class="form-label">{{ form.evidence.label }}</label>
     {{ form.evidence }}
     {% for error in form.evidence.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+
+{# ── Analyzed documents (attachments) ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-paperclip"></i> {% trans "Analyzed documents" %}</div>
+  {% if existing_attachments %}
+  <div class="mb-2" style="font-size:.85rem">
+    {% for att in existing_attachments %}
+    <div class="d-flex align-items-center justify-content-between mb-1" style="padding:.25rem .5rem;background:var(--bs-tertiary-bg);border-radius:.375rem">
+      <span><i class="bi bi-file-earmark me-1"></i>{{ att.original_filename }}</span>
+      <button type="button" class="btn btn-sm btn-outline-danger border-0 p-0 px-1"
+              hx-delete="{% url 'compliance:assessment-result-attachment-delete' assessment_pk=assessment.pk result_pk=result_pk attachment_pk=att.pk %}"
+              hx-confirm="{% trans 'Delete this attachment?' %}"
+              hx-target="closest div.d-flex"
+              hx-swap="outerHTML">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div>
+    <input type="file" name="attachments" class="form-control form-control-sm" multiple
+           accept=".pdf,.doc,.docx,.xls,.xlsx,.jpeg,.jpg,.png">
+    <div class="form-text" style="font-size:.75rem">{% trans "Accepted formats: PDF, DOC/DOCX, XLS/XLSX, JPEG/JPG, PNG" %}</div>
   </div>
 </div>
 

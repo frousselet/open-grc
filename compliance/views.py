@@ -53,6 +53,7 @@ from .constants import (
 )
 from .models import (
     AssessmentResult,
+    AssessmentResultAttachment,
     ComplianceActionPlan,
     ComplianceAssessment,
     Finding,
@@ -61,6 +62,7 @@ from .models import (
     RequirementMapping,
     Section,
 )
+from .models.assessment import ALLOWED_ATTACHMENT_EXTENSIONS
 from context.models import Scope
 
 User = get_user_model()
@@ -903,6 +905,23 @@ class EditableAssessmentGuardMixin:
         return super().dispatch(request, *args, **kwargs)
 
 
+def _save_attachments(request, result):
+    """Save uploaded attachment files to an AssessmentResult."""
+    files = request.FILES.getlist("attachments")
+    allowed = {f".{ext}" for ext in ALLOWED_ATTACHMENT_EXTENSIONS}
+    for f in files:
+        ext = "." + f.name.rsplit(".", 1)[-1].lower() if "." in f.name else ""
+        if ext not in allowed:
+            continue
+        AssessmentResultAttachment.objects.create(
+            result=result,
+            file=f,
+            original_filename=f.name,
+            file_size=f.size,
+            uploaded_by=request.user,
+        )
+
+
 class AssessmentResultCreateView(EditableAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, CreateView):
     model = AssessmentResult
     form_class = AssessmentResultForm
@@ -943,6 +962,7 @@ class AssessmentResultCreateView(EditableAssessmentGuardMixin, LoginRequiredMixi
         if req_pk and not form.cleaned_data.get("requirement"):
             form.instance.requirement = get_object_or_404(Requirement, pk=req_pk)
         response = super().form_valid(form)
+        _save_attachments(self.request, self.object)
         assessment.recalculate_counts()
         return response
 
@@ -975,6 +995,8 @@ class AssessmentResultUpdateView(EditableAssessmentGuardMixin, LoginRequiredMixi
         ctx = super().get_context_data(**kwargs)
         ctx["assessment"] = self.get_assessment()
         ctx["requirement_obj"] = self.object.requirement
+        ctx["result_pk"] = self.object.pk
+        ctx["existing_attachments"] = self.object.attachments.all()
         return ctx
 
     def form_valid(self, form):
@@ -988,6 +1010,7 @@ class AssessmentResultUpdateView(EditableAssessmentGuardMixin, LoginRequiredMixi
             form.instance.compliance_status = ComplianceStatus.NOT_APPLICABLE
             form.instance.compliance_level = 100
         response = super().form_valid(form)
+        _save_attachments(self.request, self.object)
         self.get_assessment().recalculate_counts()
         return response
 
@@ -1023,6 +1046,26 @@ class AssessmentResultDeleteView(EditableAssessmentGuardMixin, LoginRequiredMixi
             "compliance:assessment-detail",
             args=[self.kwargs["assessment_pk"]],
         )
+
+
+class AssessmentResultAttachmentDeleteView(EditableAssessmentGuardMixin, LoginRequiredMixin, View):
+    """Delete a single attachment from an assessment result via HTMX."""
+
+    def get_assessment(self):
+        return get_object_or_404(
+            ComplianceAssessment, pk=self.kwargs["assessment_pk"]
+        )
+
+    def delete(self, request, *args, **kwargs):
+        attachment = get_object_or_404(
+            AssessmentResultAttachment,
+            pk=self.kwargs["attachment_pk"],
+            result__pk=self.kwargs["result_pk"],
+            result__assessment__pk=self.kwargs["assessment_pk"],
+        )
+        attachment.file.delete(save=False)
+        attachment.delete()
+        return HttpResponse(status=200)
 
 
 class ToggleResultEvaluatedView(LoginRequiredMixin, View):
