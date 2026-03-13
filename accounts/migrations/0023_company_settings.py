@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("accounts", "0021_add_supplier_indicator_permissions"),
+        ("accounts", "0022_alter_user_dashboard_indicators"),
     ]
 
     operations = [
