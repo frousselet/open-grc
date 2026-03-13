@@ -291,12 +291,12 @@
       {% endfor %}
     </td>
   </tr>
-  {% if scopes %}
+  {% if scope_tree %}
   <tr>
     <th>{% trans "Scopes" %}</th>
     <td>
-      {% for scope in scopes %}
-        {{ scope.name }}{% if not forloop.last %}<br>{% endif %}
+      {% for item in scope_tree %}
+        <span style="padding-left:{{ item.depth }}em">{% if item.depth > 0 %}&#8627; {% endif %}{{ item.scope.name }}</span>{% if not forloop.last %}<br>{% endif %}
       {% endfor %}
     </td>
   </tr>
