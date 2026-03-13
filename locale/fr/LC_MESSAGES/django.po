@@ -8602,6 +8602,78 @@ msgstr "Audit non trouvé."
 msgid "The assessment must be completed or closed to generate a report."
 msgstr "L'audit doit être terminé ou clôturé pour générer un rapport."
 
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Table of contents"
+msgstr "Sommaire"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Objectives and scope"
+msgstr "Objectifs et champ d'application"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Context and objectives"
+msgstr "Contexte et objectifs"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Limitations"
+msgstr "Limites"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Finding qualifications"
+msgstr "Qualification des constats"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Audit results summary"
+msgstr "Synthèse des résultats de l'audit"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Management summary"
+msgstr "Synthèse managériale"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Findings overview"
+msgstr "Récapitulatif des constats"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Detailed results"
+msgstr "Résultats"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Appendices"
+msgstr "Annexes"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Chapter"
+msgstr "Chapitre"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Finding reference"
+msgstr "Référence du constat"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Finding qualification"
+msgstr "Qualification du constat"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Qualification"
+msgstr "Qualification"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Count"
+msgstr "Nombre"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Recommendation"
+msgstr "Recommandation"
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "No findings for this framework."
+msgstr "Aucun constat pour ce référentiel."
+
+#: reports/templates/reports/audit_report_pdf.html
+msgid "No findings recorded."
+msgstr "Aucun constat enregistré."
+
 #: context/views.py context/templates/context/swot_item_form_modal.html
 msgid "New SWOT item"
 msgstr "Nouvel élément SWOT"
