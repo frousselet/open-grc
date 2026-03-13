@@ -524,27 +524,34 @@ class AssessmentDetailView(
             compliance_status__in=[
                 ComplianceStatus.NOT_ASSESSED,
                 ComplianceStatus.EVALUATED,
+                ComplianceStatus.NOT_APPLICABLE,
             ]
         ).count()
-        # Covered = anything actively touched (not NOT_ASSESSED)
+        # Covered = applicable requirements actively touched (not NOT_ASSESSED, not NOT_APPLICABLE)
         covered = results_qs.exclude(
-            compliance_status=ComplianceStatus.NOT_ASSESSED
+            compliance_status__in=[
+                ComplianceStatus.NOT_ASSESSED,
+                ComplianceStatus.NOT_APPLICABLE,
+            ]
         ).count()
         ctx["results_total"] = covered
         ctx["results_evaluated"] = truly_evaluated
         ctx["results_progress"] = round(truly_evaluated * 100 / covered) if covered else 0
         ctx["has_results"] = total > 0
-        # Coverage: % of framework requirements actively covered
+        # Coverage: % of applicable framework requirements actively covered
         fw_req_count = assessment.framework.requirements.filter(
             is_applicable=True
         ).count()
         ctx["fw_req_count"] = fw_req_count
         ctx["coverage_pct"] = round(covered * 100 / fw_req_count) if fw_req_count else 0
-        # Compliance: average level of covered results only (not NOT_ASSESSED)
+        # Compliance: average level of covered applicable results
         if covered > 0:
             from django.db.models import Avg
             covered_qs = results_qs.exclude(
-                compliance_status=ComplianceStatus.NOT_ASSESSED
+                compliance_status__in=[
+                    ComplianceStatus.NOT_ASSESSED,
+                    ComplianceStatus.NOT_APPLICABLE,
+                ]
             )
             avg = covered_qs.aggregate(avg=Avg("compliance_level"))["avg"] or 0
             ctx["compliance_pct"] = round(avg)
