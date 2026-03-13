@@ -43,7 +43,7 @@
   /* ── Cover page ── */
   .cover {
     text-align: center;
-    padding-top: 60mm;
+    padding-top: 30mm;
   }
 
   .cover h1 {
@@ -229,7 +229,7 @@
   {% if company.logo %}
   <img src="{{ company.logo_128|default:company.logo }}" alt="" style="width:24mm;height:24mm;object-fit:contain;margin-bottom:6mm">
   {% endif %}
-  {% if company.name %}<div style="font-size:12pt;font-weight:600;color:#555;margin-bottom:10mm">{{ company.name }}</div>{% endif %}
+  {% if company.name %}<div style="font-size:12pt;font-weight:600;color:#555;margin-bottom:20mm">{{ company.name }}</div>{% endif %}
   <h1>{% trans "Audit Report" %}</h1>
   <div class="subtitle">{{ assessment.name }}</div>
   <div class="subtitle">{{ assessment.reference }}</div>
