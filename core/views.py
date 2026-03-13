@@ -380,10 +380,10 @@ class CalendarEventsView(LoginRequiredMixin, View):
         # ── Compliance assessments ────────────────────────
         if "compliance_assessment" in categories:
             qs = self._filter_scoped(ComplianceAssessment.objects.all())
-            add_events(qs, "assessment_date", "compliance_assessment", "#6366f1",
+            add_events(qs, "assessment_start_date", "compliance_assessment", "#6366f1",
                        "compliance:assessment-detail")
-            add_events(qs, "review_date", "compliance_assessment", "#a5b4fc",
-                       "compliance:assessment-detail", _("Review: "))
+            add_events(qs, "assessment_end_date", "compliance_assessment", "#a5b4fc",
+                       "compliance:assessment-detail", _("End: "))
 
         # ── Compliance action plans ───────────────────────
         if "action_plan" in categories:
