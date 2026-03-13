@@ -514,32 +514,29 @@ class AssessmentDetailView(
         # Progress counts
         results_qs = assessment.results.all()
         total = results_qs.count()
-        # Only consider results for applicable requirements in all stats
-        applicable_results_qs = results_qs.filter(requirement__is_applicable=True)
+        # Applicable results: exclude results for non-applicable requirements
+        # AND results whose status is NOT_APPLICABLE
+        applicable_results_qs = results_qs.exclude(
+            compliance_status=ComplianceStatus.NOT_APPLICABLE,
+        ).filter(requirement__is_applicable=True)
+        # Total applicable requirements (denominator for coverage)
+        fw_req_count = applicable_results_qs.count()
         # Evaluated = truly assessed (has findings, compliant, NC, etc.)
         # Excludes NOT_ASSESSED and EVALUATED ("Evaluation planned")
         truly_evaluated = applicable_results_qs.exclude(
             compliance_status__in=[
                 ComplianceStatus.NOT_ASSESSED,
                 ComplianceStatus.EVALUATED,
-                ComplianceStatus.NOT_APPLICABLE,
             ]
         ).count()
-        # Covered = applicable requirements actively touched (not NOT_ASSESSED, not NOT_APPLICABLE)
+        # Covered = applicable requirements actively touched (not NOT_ASSESSED)
         covered = applicable_results_qs.exclude(
-            compliance_status__in=[
-                ComplianceStatus.NOT_ASSESSED,
-                ComplianceStatus.NOT_APPLICABLE,
-            ]
+            compliance_status=ComplianceStatus.NOT_ASSESSED,
         ).count()
         ctx["results_total"] = covered
         ctx["results_evaluated"] = truly_evaluated
         ctx["results_progress"] = round(truly_evaluated * 100 / covered) if covered else 0
         ctx["has_results"] = total > 0
-        # Coverage: % of applicable framework requirements actively covered
-        fw_req_count = assessment.get_all_requirements().filter(
-            is_applicable=True
-        ).count()
         ctx["fw_req_count"] = fw_req_count
         ctx["coverage_pct"] = round(covered * 100 / fw_req_count) if fw_req_count else 0
         # Compliance: average level of truly assessed results only
