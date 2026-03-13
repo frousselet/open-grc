@@ -138,7 +138,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         latest_assessment = ComplianceAssessment.objects.filter(
             framework=OuterRef("pk")
-        ).order_by("-assessment_date", "-created_at")
+        ).order_by("-assessment_start_date", "-created_at")
 
         frameworks = self._filter_scoped(Framework.objects.all())
         ctx["framework_count"] = frameworks.count()
@@ -212,7 +212,7 @@ class FrameworkDetailView(
         ctx["requirements"] = fw.requirements.select_related("section", "owner").order_by(
             "section__order", "requirement_number"
         )
-        ctx["assessments"] = fw.assessments.order_by("-assessment_date")[:10]
+        ctx["assessments"] = fw.assessments.order_by("-assessment_start_date")[:10]
         return ctx
 
 

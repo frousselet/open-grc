@@ -173,7 +173,7 @@
             {% for a in assessments %}
             <tr>
               <td><a href="{% url 'compliance:assessment-detail' a.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ a.name }}</a></td>
-              <td>{{ a.assessment_date }}</td>
+              <td>{{ a.assessment_start_date }}</td>
               <td>{{ a.assessor }}</td>
               <td>{{ a.overall_compliance_level|floatformat:0 }}%</td>
               <td>{{ a.get_status_display }}</td>
