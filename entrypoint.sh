@@ -25,6 +25,17 @@ done
 echo "Database is ready."
 
 echo "Applying database migrations…"
+# One-time fixup: migration 0022_company_settings was renamed to 0023_company_settings
+python -c "
+import django, os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+django.setup()
+from django.db import connection
+with connection.cursor() as c:
+    c.execute(\"SELECT 1 FROM django_migrations WHERE app='accounts' AND name='0022_company_settings'\")
+    if c.fetchone():
+        c.execute(\"UPDATE django_migrations SET name='0023_company_settings' WHERE app='accounts' AND name='0022_company_settings'\")
+" 2>/dev/null || true
 python manage.py migrate --noinput
 
 echo "Compiling translation files…"
