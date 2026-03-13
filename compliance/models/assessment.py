@@ -116,6 +116,56 @@ class ComplianceAssessment(ScopedModel):
         from compliance.models.requirement import Requirement
         return Requirement.objects.filter(framework__in=self.frameworks.all())
 
+    def sync_results(self, user):
+        """Ensure every requirement has an AssessmentResult.
+
+        Creates missing results (applicable → NOT_ASSESSED, non-applicable →
+        NOT_APPLICABLE) and removes orphan results whose requirement is no
+        longer part of the linked frameworks.  Called automatically when the
+        assessment is created or its frameworks are changed.
+        """
+        from django.utils import timezone
+
+        all_requirements = self.get_all_requirements()
+        all_req_ids = set(all_requirements.values_list("pk", flat=True))
+        existing_req_ids = set(
+            self.results.values_list("requirement_id", flat=True)
+        )
+
+        # Remove orphan results (requirement no longer in linked frameworks)
+        orphan_ids = existing_req_ids - all_req_ids
+        if orphan_ids:
+            self.results.filter(requirement_id__in=orphan_ids).delete()
+
+        # Create missing results
+        missing_ids = all_req_ids - existing_req_ids
+        if missing_ids:
+            now = timezone.now()
+            new_results = []
+            for req in all_requirements.filter(pk__in=missing_ids):
+                if req.is_applicable:
+                    new_results.append(
+                        AssessmentResult(
+                            assessment=self, requirement=req,
+                            compliance_status=ComplianceStatus.NOT_ASSESSED,
+                            compliance_level=0,
+                            assessed_by=user, assessed_at=now,
+                        )
+                    )
+                else:
+                    new_results.append(
+                        AssessmentResult(
+                            assessment=self, requirement=req,
+                            compliance_status=ComplianceStatus.NOT_APPLICABLE,
+                            compliance_level=100,
+                            assessed_by=user, assessed_at=now,
+                        )
+                    )
+            AssessmentResult.objects.bulk_create(new_results, ignore_conflicts=True)
+
+        if missing_ids or orphan_ids:
+            self.recalculate_counts()
+
     def recalculate_counts(self):
         """Recompute summary counts from results and propagate to requirements/framework.
 

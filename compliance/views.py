@@ -603,6 +603,11 @@ class AssessmentCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, Cr
         kwargs["user"] = self.request.user
         return kwargs
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.object.sync_results(self.request.user)
+        return response
+
 
 class AssessmentUpdateView(
     LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView
@@ -617,6 +622,11 @@ class AssessmentUpdateView(
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.object.sync_results(self.request.user)
+        return response
 
 
 class AssessmentTransitionView(LoginRequiredMixin, View):
