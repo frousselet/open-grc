@@ -2121,6 +2121,67 @@ def _register_reports_tools(server):
         generate_soa_report,
     )
 
+    # Generate audit report
+    @require_perm("reports.report.create")
+    def generate_audit_report(user, arguments):
+        assessment_id = arguments.get("assessment_id")
+        if not assessment_id:
+            raise InvalidParamsError("assessment_id is required (UUID).")
+
+        ComplianceAssessment = _get_model("compliance", "ComplianceAssessment")
+        try:
+            assessment = ComplianceAssessment.objects.get(pk=assessment_id)
+        except ComplianceAssessment.DoesNotExist:
+            return _error("Assessment not found.")
+
+        from compliance.constants import AssessmentStatus
+        if assessment.status not in (AssessmentStatus.COMPLETED, AssessmentStatus.CLOSED):
+            return _error("The assessment must be completed or closed to generate a report.")
+
+        from reports.constants import ReportStatus, ReportType
+        from reports.generators import generate_audit_report_pdf
+
+        report_name = f"Audit report — {assessment.reference} : {assessment.name}"
+
+        try:
+            filename, pdf_bytes = generate_audit_report_pdf(assessment, user)
+            report = Report.objects.create(
+                report_type=ReportType.AUDIT_REPORT,
+                name=report_name,
+                status=ReportStatus.COMPLETED,
+                created_by=user,
+                assessment=assessment,
+                file_content=pdf_bytes,
+                file_name=filename,
+            )
+            report.frameworks.set(assessment.frameworks.all())
+        except Exception:
+            report = Report.objects.create(
+                report_type=ReportType.AUDIT_REPORT,
+                name=report_name,
+                status=ReportStatus.FAILED,
+                created_by=user,
+                assessment=assessment,
+            )
+
+        return _serialize_obj(report, report_fields)
+
+    server.register_tool(
+        "generate_audit_report",
+        "Generate an audit report PDF for a completed or closed compliance assessment",
+        {
+            "type": "object",
+            "properties": {
+                "assessment_id": {
+                    "type": "string",
+                    "description": "UUID of the compliance assessment (must be completed or closed)",
+                },
+            },
+            "required": ["assessment_id"],
+        },
+        generate_audit_report,
+    )
+
     # Delete report
     @require_perm("reports.report.delete")
     def delete_report(user, arguments):

@@ -6,11 +6,12 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from compliance.models import Framework
+from compliance.constants import AssessmentStatus
+from compliance.models import ComplianceAssessment, Framework
 from reports.constants import ReportStatus, ReportType
-from reports.generators import generate_soa_pdf
+from reports.generators import generate_audit_report_pdf, generate_soa_pdf
 from reports.models import Report
-from .serializers import ReportSerializer, SoaReportCreateSerializer
+from .serializers import AuditReportCreateSerializer, ReportSerializer, SoaReportCreateSerializer
 
 
 class ReportViewSet(viewsets.ReadOnlyModelViewSet):
@@ -51,6 +52,53 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 name=report_name,
                 status=ReportStatus.FAILED,
                 created_by=request.user,
+            )
+
+        return Response(ReportSerializer(report).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["post"], url_path="generate-audit-report")
+    def generate_audit_report(self, request):
+        ser = AuditReportCreateSerializer(data=request.data)
+        ser.is_valid(raise_exception=True)
+
+        try:
+            assessment = ComplianceAssessment.objects.get(
+                id=ser.validated_data["assessment_id"],
+            )
+        except ComplianceAssessment.DoesNotExist:
+            return Response(
+                {"detail": _("Assessment not found.")},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if assessment.status not in (AssessmentStatus.COMPLETED, AssessmentStatus.CLOSED):
+            return Response(
+                {"detail": _("The assessment must be completed or closed to generate a report.")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        report_name = _("Audit report") + f" — {assessment.reference} : {assessment.name}"
+
+        try:
+            filename, pdf_bytes = generate_audit_report_pdf(assessment, request.user)
+            report = Report.objects.create(
+                report_type=ReportType.AUDIT_REPORT,
+                name=report_name,
+                status=ReportStatus.COMPLETED,
+                created_by=request.user,
+                assessment=assessment,
+                file_content=pdf_bytes,
+                file_name=filename,
+            )
+            report.frameworks.set(assessment.frameworks.all())
+        except Exception:
+            logging.getLogger(__name__).exception("Audit report PDF generation failed")
+            report = Report.objects.create(
+                report_type=ReportType.AUDIT_REPORT,
+                name=report_name,
+                status=ReportStatus.FAILED,
+                created_by=request.user,
+                assessment=assessment,
             )
 
         return Response(ReportSerializer(report).data, status=status.HTTP_201_CREATED)

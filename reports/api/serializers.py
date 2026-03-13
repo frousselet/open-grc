@@ -27,3 +27,9 @@ class SoaReportCreateSerializer(serializers.Serializer):
         min_length=1,
         help_text="List of framework UUIDs to include in the SoA.",
     )
+
+
+class AuditReportCreateSerializer(serializers.Serializer):
+    assessment_id = serializers.UUIDField(
+        help_text="UUID of a completed or closed compliance assessment.",
+    )

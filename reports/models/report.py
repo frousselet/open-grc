@@ -22,6 +22,14 @@ class Report(models.Model):
         choices=ReportStatus.choices,
         default=ReportStatus.COMPLETED,
     )
+    assessment = models.ForeignKey(
+        "compliance.ComplianceAssessment",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reports",
+        verbose_name=_("Assessment"),
+    )
     frameworks = models.ManyToManyField(
         "compliance.Framework",
         related_name="reports",
