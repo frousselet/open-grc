@@ -17,7 +17,6 @@ from django.views.generic import (
     DeleteView,
     DetailView,
     ListView,
-    TemplateView,
     UpdateView,
 )
 
@@ -200,66 +199,6 @@ def get_dashboard_indicator_slots(user):
     while len(slots) < DASHBOARD_INDICATOR_SLOTS:
         slots.append(None)
     return slots
-
-
-# ── Dashboard ───────────────────────────────────────────────
-
-class DashboardView(LoginRequiredMixin, TemplateView):
-    template_name = "context/dashboard.html"
-
-    def _filter_scoped(self, qs):
-        """Filter a ScopedModel queryset by allowed scopes."""
-        user = self.request.user
-        if user.is_superuser:
-            return qs
-        scope_ids = user.get_allowed_scope_ids()
-        if scope_ids is None:
-            return qs
-        return qs.filter(scopes__id__in=scope_ids).distinct()
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        user = self.request.user
-
-        # Scopes — filtered by access
-        scope_ids = user.get_allowed_scope_ids()
-        scopes_qs = Scope.objects.all()
-        if not user.is_superuser and scope_ids is not None:
-            scopes_qs = scopes_qs.filter(id__in=scope_ids)
-        if scope_ids is not None:
-            ctx["user_scopes"] = Scope.objects.filter(id__in=scope_ids).select_related("parent_scope")
-
-        ctx["scope_count"] = scopes_qs.count()
-        ctx["active_scopes"] = scopes_qs.filter(status="active").select_related("parent_scope")
-
-        ctx["issue_count"] = self._filter_scoped(Issue.objects.all()).count()
-        ctx["issues_by_impact"] = (
-            self._filter_scoped(Issue.objects.all())
-            .values("impact_level")
-            .annotate(count=Count("id"))
-            .order_by("impact_level")
-        )
-        ctx["stakeholder_count"] = self._filter_scoped(Stakeholder.objects.all()).count()
-        ctx["objective_count"] = self._filter_scoped(Objective.objects.all()).count()
-        ctx["swot_count"] = self._filter_scoped(SwotAnalysis.objects.all()).count()
-        ctx["role_count"] = self._filter_scoped(Role.objects.all()).count()
-        ctx["mandatory_roles_without_users"] = self._filter_scoped(
-            Role.objects.filter(is_mandatory=True)
-        ).annotate(user_count=Count("assigned_users")).filter(user_count=0)
-        ctx["activity_count"] = self._filter_scoped(Activity.objects.all()).count()
-        ctx["critical_activities_no_owner"] = self._filter_scoped(
-            Activity.objects.filter(criticality="critical")
-        ).count()
-        ctx["site_count"] = Site.objects.count()
-
-        # Dashboard indicators
-        ctx["dashboard_indicator_slots"] = get_dashboard_indicator_slots(user)
-        ctx["available_indicators"] = Indicator.objects.filter(
-            status="active",
-        ).order_by("indicator_type", "name")
-        ctx["dashboard_indicator_chart_ids"] = user.dashboard_indicator_charts or []
-
-        return ctx
 
 
 # ── Scope ───────────────────────────────────────────────────

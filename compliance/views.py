@@ -111,63 +111,6 @@ class ApproveView(LoginRequiredMixin, View):
         return redirect(request.META.get("HTTP_REFERER", self.success_url or "/"))
 
 
-# ── Dashboard ───────────────────────────────────────────────
-
-class DashboardView(LoginRequiredMixin, TemplateView):
-    template_name = "compliance/dashboard.html"
-
-    def _filter_scoped(self, qs):
-        user = self.request.user
-        if user.is_superuser:
-            return qs
-        scope_ids = user.get_allowed_scope_ids()
-        if scope_ids is None:
-            return qs
-        model = qs.model
-        if any(f.name == "scopes" for f in model._meta.many_to_many):
-            return qs.filter(scopes__id__in=scope_ids).distinct()
-        return qs
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        user = self.request.user
-        scope_ids = user.get_allowed_scope_ids()
-        if scope_ids is not None:
-            ctx["user_scopes"] = Scope.objects.filter(id__in=scope_ids).select_related("parent_scope")
-        from django.db.models import OuterRef, Subquery
-
-        latest_assessment = ComplianceAssessment.objects.filter(
-            framework=OuterRef("pk")
-        ).order_by("-assessment_end_date", "-created_at")
-
-        frameworks = self._filter_scoped(Framework.objects.all())
-        ctx["framework_count"] = frameworks.count()
-        ctx["frameworks"] = frameworks.filter(status="active").annotate(
-            latest_compliance=Subquery(
-                latest_assessment.values("overall_compliance_level")[:1]
-            ),
-        )[:10]
-        ctx["requirement_count"] = self._filter_scoped(Requirement.objects.all()).count()
-        ctx["non_compliant_count"] = self._filter_scoped(
-            Requirement.objects.filter(
-                compliance_status__in=["major_non_conformity", "minor_non_conformity"]
-            )
-        ).count()
-        ctx["assessment_count"] = self._filter_scoped(
-            ComplianceAssessment.objects.all()
-        ).count()
-        ctx["action_plan_count"] = self._filter_scoped(
-            ComplianceActionPlan.objects.all()
-        ).count()
-        ctx["overdue_plans"] = self._filter_scoped(
-            ComplianceActionPlan.objects.filter(
-                target_date__lt=timezone.now().date()
-            ).exclude(status__in=["completed", "cancelled"])
-        ).count()
-        ctx["mapping_count"] = RequirementMapping.objects.count()
-        return ctx
-
-
 # ── Framework ──────────────────────────────────────────────
 
 class FrameworkListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):

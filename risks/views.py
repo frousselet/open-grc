@@ -13,7 +13,6 @@ from django.views.generic import (
     DeleteView,
     DetailView,
     ListView,
-    TemplateView,
     UpdateView,
 )
 
@@ -222,69 +221,6 @@ class ApproveView(LoginRequiredMixin, View):
         obj.save(update_fields=["is_approved", "approved_by", "approved_at"])
         messages.success(request, _("Item approved."))
         return redirect(request.META.get("HTTP_REFERER", self.success_url or "/"))
-
-
-# ── Dashboard ───────────────────────────────────────────────
-
-class DashboardView(LoginRequiredMixin, TemplateView):
-    template_name = "risks/dashboard.html"
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        user = self.request.user
-        scope_ids = user.get_allowed_scope_ids()
-        if scope_ids is not None:
-            ctx["user_scopes"] = Scope.objects.filter(id__in=scope_ids).select_related("parent_scope")
-        ctx["assessment_count"] = RiskAssessment.objects.count()
-        ctx["assessment_by_status"] = (
-            RiskAssessment.objects.values("status")
-            .annotate(count=Count("id"))
-            .order_by("status")
-        )
-        ctx["risk_count"] = Risk.objects.count()
-        ctx["risk_by_status"] = (
-            Risk.objects.values("status")
-            .annotate(count=Count("id"))
-            .order_by("status")
-        )
-        ctx["risk_by_priority"] = (
-            Risk.objects.values("priority")
-            .annotate(count=Count("id"))
-            .order_by("priority")
-        )
-        ctx["treatment_plan_count"] = RiskTreatmentPlan.objects.count()
-        ctx["treatment_in_progress"] = RiskTreatmentPlan.objects.filter(
-            status="in_progress"
-        ).count()
-        ctx["threat_count"] = Threat.objects.count()
-        ctx["vulnerability_count"] = Vulnerability.objects.count()
-        ctx["acceptance_count"] = RiskAcceptance.objects.filter(
-            status="active"
-        ).count()
-
-        # Risk matrices (before / after treatment)
-        criteria = RiskCriteria.objects.filter(is_default=True).first()
-        if not criteria:
-            criteria = RiskCriteria.objects.filter(status="active").first()
-        all_risks = Risk.objects.all()
-        if criteria:
-            ctx["matrix_criteria"] = criteria
-            ctx["matrix_current"] = build_risk_matrix(
-                all_risks, criteria, "current_likelihood", "current_impact"
-            )
-            ctx["matrix_residual"] = build_risk_matrix(
-                all_risks, criteria, "residual_likelihood", "residual_impact"
-            )
-        # Fallback to default 5×5 matrix if no criteria or build returned None
-        if not ctx.get("matrix_current"):
-            ctx["matrix_current"] = build_default_risk_matrix(
-                all_risks, "current_likelihood", "current_impact"
-            )
-        if not ctx.get("matrix_residual"):
-            ctx["matrix_residual"] = build_default_risk_matrix(
-                all_risks, "residual_likelihood", "residual_impact"
-            )
-        return ctx
 
 
 # ── Risk Assessment ─────────────────────────────────────────
