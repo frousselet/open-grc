@@ -84,22 +84,73 @@ class Framework(BaseModel):
         return f"{self.reference} : {self.name}"
 
     def recalculate_compliance(self):
-        """RC-01: compliance level = average of applicable requirements.
+        """RC-01: compliance level from latest audit results (by end date).
 
-        NOT_APPLICABLE → 100%, NOT_ASSESSED → 0% (treated as non-compliant).
+        For each applicable requirement, use the result from the latest
+        assessment (by assessment_end_date).  If a requirement is NOT_ASSESSED
+        or EVALUATED in that assessment, fall back to the most recent
+        assessment that truly evaluated it.  If never evaluated → 0%.
+        NOT_APPLICABLE → 100%.
         """
         from compliance.constants import ComplianceStatus
+        from compliance.models.assessment import AssessmentResult, ComplianceAssessment
 
         reqs = self.requirements.filter(is_applicable=True)
         if not reqs.exists():
             self.compliance_level = 0
-        else:
-            total = sum(
-                100 if r.compliance_status == ComplianceStatus.NOT_APPLICABLE
-                else (r.compliance_level or 0)
-                for r in reqs
+            Framework.objects.filter(pk=self.pk).update(
+                compliance_level=self.compliance_level
             )
-            self.compliance_level = total / reqs.count()
+            return
+
+        req_ids = set(reqs.values_list("pk", flat=True))
+
+        # All assessment results for this framework's requirements,
+        # ordered by assessment end date (latest first)
+        all_results = (
+            AssessmentResult.objects.filter(
+                assessment__frameworks=self,
+                requirement_id__in=req_ids,
+            )
+            .select_related("assessment")
+            .order_by("-assessment__assessment_end_date", "-assessment__created_at")
+        )
+
+        # Build best result per requirement: latest assessment's result,
+        # with fallback to the most recent truly-evaluated result
+        NOT_EVALUATED = {ComplianceStatus.NOT_ASSESSED, ComplianceStatus.EVALUATED}
+        latest_result = {}       # req_id → (status, level) from latest assessment
+        fallback_result = {}     # req_id → (status, level) from latest truly-evaluated
+
+        for r in all_results:
+            rid = r.requirement_id
+            if rid not in latest_result:
+                latest_result[rid] = (r.compliance_status, r.compliance_level)
+            if rid not in fallback_result and r.compliance_status not in NOT_EVALUATED:
+                fallback_result[rid] = (r.compliance_status, r.compliance_level)
+
+        total = 0
+        for rid in req_ids:
+            latest = latest_result.get(rid)
+            if latest is None:
+                # No assessment result at all → 0%
+                total += 0
+                continue
+            status, level = latest
+            if status == ComplianceStatus.NOT_APPLICABLE:
+                total += 100
+            elif status in NOT_EVALUATED:
+                # Fall back to latest truly-evaluated result
+                fb = fallback_result.get(rid)
+                if fb:
+                    fb_status, fb_level = fb
+                    total += 100 if fb_status == ComplianceStatus.NOT_APPLICABLE else (fb_level or 0)
+                else:
+                    total += 0  # Never evaluated
+            else:
+                total += level or 0
+
+        self.compliance_level = total / len(req_ids)
         Framework.objects.filter(pk=self.pk).update(
             compliance_level=self.compliance_level
         )

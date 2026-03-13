@@ -300,24 +300,50 @@ class ComplianceAssessment(ScopedModel):
         )
 
         # ── Propagate to requirements ──
+        # For each requirement, find its best effective status across all
+        # assessments: use the latest assessment's result (by end_date),
+        # with fallback for NOT_ASSESSED/EVALUATED to the most recent
+        # truly-evaluated result from any prior assessment.
         from compliance.models.requirement import Requirement
+
+        NOT_EVALUATED = {ComplianceStatus.NOT_ASSESSED, ComplianceStatus.EVALUATED}
+
+        req_ids = [r.requirement_id for r in results]
+        all_results = (
+            AssessmentResult.objects.filter(
+                assessment__frameworks__in=list(self.frameworks.values_list("pk", flat=True)),
+                requirement_id__in=req_ids,
+            )
+            .select_related("assessment")
+            .order_by("-assessment__assessment_end_date", "-assessment__created_at")
+        )
+
+        latest_map = {}     # req_id → (status, level)
+        fallback_map = {}   # req_id → (status, level) from latest truly-evaluated
+
+        for r in all_results:
+            rid = r.requirement_id
+            if rid not in latest_map:
+                latest_map[rid] = (r.compliance_status, r.compliance_level)
+            if rid not in fallback_map and r.compliance_status not in NOT_EVALUATED:
+                fallback_map[rid] = (r.compliance_status, r.compliance_level)
 
         affected_section_ids = set()
         for result in results:
             req = result.requirement
-            if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+            latest = latest_map.get(result.requirement_id)
+            if latest:
+                eff_status, eff_level = latest
+                if eff_status in NOT_EVALUATED:
+                    fb = fallback_map.get(result.requirement_id)
+                    if fb:
+                        eff_status, eff_level = fb
+                    else:
+                        eff_status = ComplianceStatus.NOT_ASSESSED
+                        eff_level = 0
+            else:
                 eff_status = ComplianceStatus.NOT_ASSESSED
                 eff_level = 0
-            elif result.compliance_status == ComplianceStatus.EVALUATED:
-                prior = prior_map.get(result.requirement_id)
-                if prior:
-                    eff_status, eff_level = prior
-                else:
-                    eff_status = ComplianceStatus.EVALUATED
-                    eff_level = 0
-            else:
-                eff_status = result.compliance_status
-                eff_level = result.compliance_level
             Requirement.objects.filter(pk=req.pk).update(
                 compliance_status=eff_status,
                 compliance_level=eff_level,
