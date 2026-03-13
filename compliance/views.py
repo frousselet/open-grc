@@ -968,6 +968,45 @@ class ToggleResultEvaluatedView(LoginRequiredMixin, View):
         return HttpResponse(status=204, headers={"HX-Trigger": "formSaved"})
 
 
+class BulkToggleEvaluatedView(LoginRequiredMixin, View):
+    """Toggle all applicable requirements (without findings) to EVALUATED or back to NOT_ASSESSED."""
+
+    def post(self, request, pk):
+        assessment = get_object_or_404(ComplianceAssessment, pk=pk)
+        # IDs of requirements that have findings — those are locked
+        finding_req_ids = set(
+            assessment.findings.values_list("requirements__id", flat=True)
+        )
+        results = assessment.results.select_related("requirement").filter(
+            requirement__is_applicable=True,
+        )
+        # Determine direction: if any toggleable result is NOT_ASSESSED → select all, else deselect all
+        toggleable = [r for r in results if r.requirement_id not in finding_req_ids]
+        any_not_assessed = any(
+            r.compliance_status == ComplianceStatus.NOT_ASSESSED for r in toggleable
+        )
+        now = timezone.now()
+        for result in toggleable:
+            if any_not_assessed:
+                # Select all: set NOT_ASSESSED → EVALUATED
+                if result.compliance_status == ComplianceStatus.NOT_ASSESSED:
+                    result.compliance_status = ComplianceStatus.EVALUATED
+                    result.compliance_level = 50
+                    result.assessed_by = request.user
+                    result.assessed_at = now
+                    result.save()
+            else:
+                # Deselect all: set EVALUATED → NOT_ASSESSED (don't touch compliant or others)
+                if result.compliance_status == ComplianceStatus.EVALUATED:
+                    result.compliance_status = ComplianceStatus.NOT_ASSESSED
+                    result.compliance_level = 0
+                    result.assessed_by = request.user
+                    result.assessed_at = now
+                    result.save()
+        assessment.recalculate_counts()
+        return HttpResponse(status=204, headers={"HX-Trigger": "formSaved"})
+
+
 class AssessmentResultsTableBodyView(LoginRequiredMixin, View):
     """Return the results table body partial for HTMX refresh."""
 
