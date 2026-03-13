@@ -234,20 +234,41 @@ def generate_audit_report_pdf(assessment, user):
         })
 
     # Summary statistics
+    from collections import Counter
+    finding_type_counts = Counter(f.finding_type for f in findings)
     summary = {
         "total": assessment.total_requirements,
-        "compliant": assessment.compliant_count,
-        "major_nc": assessment.major_non_conformity_count,
-        "minor_nc": assessment.minor_non_conformity_count,
-        "observation": assessment.observation_count,
-        "improvement": assessment.improvement_opportunity_count,
-        "strength": assessment.strength_count,
-        "not_assessed": assessment.not_assessed_count,
-        "not_applicable": assessment.not_applicable_count,
         "overall_compliance": assessment.overall_compliance_level,
         "coverage_pct": assessment.coverage_pct,
-        "compliance_pct": assessment.compliance_pct,
+        "total_findings": len(findings),
     }
+    findings_by_type = [
+        {
+            "label": FindingType.MAJOR_NON_CONFORMITY.label,
+            "count": finding_type_counts.get("major_nc", 0),
+            "color": "row-non-compliant",
+        },
+        {
+            "label": FindingType.MINOR_NON_CONFORMITY.label,
+            "count": finding_type_counts.get("minor_nc", 0),
+            "color": "row-partial",
+        },
+        {
+            "label": FindingType.OBSERVATION.label,
+            "count": finding_type_counts.get("observation", 0),
+            "color": "row-partial",
+        },
+        {
+            "label": FindingType.IMPROVEMENT_OPPORTUNITY.label,
+            "count": finding_type_counts.get("improvement", 0),
+            "color": "row-partial",
+        },
+        {
+            "label": FindingType.STRENGTH.label,
+            "count": finding_type_counts.get("strength", 0),
+            "color": "row-compliant",
+        },
+    ]
 
     # Finding type definitions for section 1.4
     finding_qualifications = [
@@ -281,6 +302,7 @@ def generate_audit_report_pdf(assessment, user):
         "frameworks_data": frameworks_data,
         "findings_recap": findings_recap,
         "summary": summary,
+        "findings_by_type": findings_by_type,
         "finding_qualifications": finding_qualifications,
         "generated_at": now,
         "generated_by": user,
