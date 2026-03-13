@@ -21,6 +21,7 @@
   </td>
   <td style="font-size:.82rem;color:var(--text-muted)">{{ finding.assessor }}</td>
   <td class="text-end">
+    {% if not is_frozen %}
     <div class="d-flex gap-1 justify-content-end">
       <button class="btn btn-sm btn-outline-primary"
               hx-get="{% url 'compliance:finding-update' assessment.pk finding.pk %}"
@@ -38,6 +39,7 @@
         <i class="bi bi-trash"></i>
       </button>
     </div>
+    {% endif %}
   </td>
 </tr>
 {% empty %}
