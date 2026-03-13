@@ -193,10 +193,11 @@
               <th style="width:20%">{% trans "Level" %}</th>
               <th style="width:5%" class="text-end">
                 {% if is_toggleable %}
-                <button class="btn btn-sm btn-outline-secondary" style="font-size:.72rem;padding:2px 6px"
+                <button class="btn btn-sm btn-outline-secondary toggle-btn" style="font-size:.72rem;padding:2px 6px"
                         hx-post="{% url 'compliance:assessment-bulk-toggle-evaluated' assessment.pk %}"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                         hx-swap="none"
+                        hx-disabled-elt="this"
                         hx-on::after-request="htmx.trigger(document.getElementById('item-table-body'), 'refreshTable')"
                         title="{% trans 'Select all / Deselect all for evaluation' %}">
                   <i class="bi bi-ui-checks"></i>
