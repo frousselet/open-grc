@@ -6,6 +6,15 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 
 
+def _clean_html(text):
+    """Strip empty HTML paragraphs and whitespace-only tags."""
+    if not text:
+        return ""
+    # Remove empty paragraphs: <p></p>, <p> </p>, <p>&nbsp;</p>, <p><br></p>
+    cleaned = re.sub(r"<p>\s*(?:&nbsp;|<br\s*/?>)?\s*</p>", "", text)
+    return cleaned.strip()
+
+
 def _natural_sort_key(text):
     """Return a sort key that orders numeric parts numerically."""
     parts = re.split(r"(\d+)", text)
@@ -215,7 +224,7 @@ def generate_audit_report_pdf(assessment, user):
                 req_items = [{
                     "number": r.requirement_number or r.reference,
                     "name": r.name,
-                    "description": r.description,
+                    "description": _clean_html(r.description),
                 } for r in reqs]
                 fw_findings.append({
                     "reference": f.reference,
@@ -224,9 +233,9 @@ def generate_audit_report_pdf(assessment, user):
                     "color": _finding_color(f.finding_type),
                     "requirement_refs": req_display,
                     "requirement_items": req_items,
-                    "description": f.description,
-                    "recommendation": f.recommendation,
-                    "evidence": f.evidence,
+                    "description": _clean_html(f.description),
+                    "recommendation": _clean_html(f.recommendation),
+                    "evidence": _clean_html(f.evidence),
                 })
 
         frameworks_data.append({
@@ -316,6 +325,8 @@ def generate_audit_report_pdf(assessment, user):
     now = timezone.now()
     html_string = render_to_string("reports/audit_report_pdf.html", {
         "assessment": assessment,
+        "assessment_description": _clean_html(assessment.description),
+        "assessment_limitations": _clean_html(assessment.limitations),
         "scope_tree": scope_tree,
         "frameworks": frameworks,
         "frameworks_data": frameworks_data,
