@@ -6,158 +6,192 @@
 <style>
   @page {
     size: A4 portrait;
-    margin: 20mm 15mm 20mm 15mm;
-    @bottom-center {
-      content: "Page " counter(page) " / " counter(pages);
+    margin: 25mm 20mm 25mm 20mm;
+    @top-left {
+      content: "{% trans "Confidential" %}";
       font-size: 8pt;
-      color: #666;
+      color: #888;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
+    @top-right {
+      content: "{% trans "Audit Report" %} — {{ assessment.reference }}";
+      font-size: 8pt;
+      color: #888;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+    @bottom-center {
+      content: counter(page) " / " counter(pages);
+      font-size: 8pt;
+      color: #888;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+  }
+
+  @page :first {
+    @top-left { content: none; }
+    @top-right { content: none; }
+    @bottom-center { content: none; }
   }
 
   body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 9pt;
+    font-size: 10pt;
     color: #222;
-    line-height: 1.4;
+    line-height: 1.5;
   }
 
-  h1 {
-    font-size: 18pt;
-    color: #5b4ccc;
+  /* ── Cover page ── */
+  .cover {
+    text-align: center;
+    padding-top: 60mm;
+  }
+
+  .cover h1 {
+    font-size: 28pt;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 8mm;
+  }
+
+  .cover .subtitle {
+    font-size: 14pt;
+    color: #555;
     margin-bottom: 4mm;
   }
 
+  .cover .meta {
+    font-size: 10pt;
+    color: #777;
+    margin-top: 20mm;
+    line-height: 2;
+  }
+
+  /* ── Section headings ── */
   h2 {
-    font-size: 13pt;
-    color: #333;
-    border-bottom: 2px solid #5b4ccc;
-    padding-bottom: 2mm;
-    margin-bottom: 4mm;
-    margin-top: 8mm;
+    font-size: 16pt;
+    font-weight: 700;
+    color: #222;
+    margin-top: 10mm;
+    margin-bottom: 6mm;
+    -weasy-bookmark-level: 1;
   }
 
   h3 {
-    font-size: 11pt;
-    color: #5b4ccc;
+    font-size: 12pt;
+    font-weight: 700;
+    color: #222;
+    margin-top: 8mm;
+    margin-bottom: 4mm;
+    -weasy-bookmark-level: 2;
+  }
+
+  p {
     margin-bottom: 3mm;
-    margin-top: 6mm;
+    text-align: justify;
   }
 
-  .meta {
-    font-size: 8pt;
-    color: #666;
-    margin-bottom: 6mm;
-  }
-
-  .info-table {
+  /* ── Tables ── */
+  table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 6mm;
   }
 
-  .info-table th {
-    background-color: #f0eef8;
-    color: #333;
-    padding: 2mm 3mm;
-    text-align: left;
-    font-size: 8.5pt;
-    font-weight: 600;
-    width: 30%;
-    border: 0.5pt solid #ddd;
-  }
-
-  .info-table td {
-    padding: 2mm 3mm;
-    border: 0.5pt solid #ddd;
-    font-size: 8.5pt;
-  }
-
-  table.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 6mm;
-  }
-
-  table.data-table th {
-    background-color: #5b4ccc;
-    color: #fff;
+  /* Key-value info table (blue left column) */
+  .kv-table th {
+    background-color: #dce6f0;
+    color: #222;
     padding: 2.5mm 3mm;
     text-align: left;
-    font-size: 8pt;
+    font-size: 9pt;
     font-weight: 600;
+    width: 30%;
+    border: 0.5pt solid #bbb;
   }
 
-  table.data-table td {
-    padding: 2mm 3mm;
-    border-bottom: 0.5pt solid #ddd;
+  .kv-table td {
+    padding: 2.5mm 3mm;
+    border: 0.5pt solid #bbb;
+    font-size: 9pt;
     vertical-align: top;
-    font-size: 8pt;
   }
 
-  table.data-table tr:nth-child(even) td {
-    background-color: #f8f8fc;
-  }
-
-  .badge {
-    display: inline-block;
-    padding: 1mm 2.5mm;
-    border-radius: 2mm;
-    font-size: 7pt;
+  /* Data table with header row */
+  .data-table th {
+    background-color: #dce6f0;
+    color: #222;
+    padding: 2.5mm 3mm;
+    text-align: left;
+    font-size: 9pt;
     font-weight: 600;
-    color: #fff;
+    border: 0.5pt solid #bbb;
   }
 
-  .badge-compliant { background-color: #198754; }
-  .badge-strength { background-color: #0d6efd; }
-  .badge-major-nc { background-color: #dc3545; }
-  .badge-minor-nc { background-color: #fd7e14; }
-  .badge-observation { background-color: #ffc107; color: #222; }
-  .badge-improvement { background-color: #20c997; }
-  .badge-not-assessed { background-color: #6c757d; }
-  .badge-not-applicable { background-color: #adb5bd; color: #222; }
-  .badge-evaluated { background-color: #6f42c1; }
+  .data-table td {
+    padding: 2.5mm 3mm;
+    border: 0.5pt solid #bbb;
+    vertical-align: top;
+    font-size: 9pt;
+  }
 
-  .summary-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 3mm;
+  /* ── Row colors based on compliance ── */
+  .row-compliant td { background-color: #e8f5e9; }
+  .row-partial td { background-color: #fff8e1; }
+  .row-non-compliant td { background-color: #fce4ec; }
+  .row-na td { background-color: #f5f5f5; }
+
+  /* For kv-table: color only the value cell */
+  .kv-table .row-compliant td:last-child { background-color: #e8f5e9; }
+  .kv-table .row-partial td:last-child { background-color: #fff8e1; }
+  .kv-table .row-non-compliant td:last-child { background-color: #fce4ec; }
+  .kv-table .row-compliant th,
+  .kv-table .row-partial th,
+  .kv-table .row-non-compliant th { background-color: #dce6f0; }
+
+  /* ── Finding detail card (key-value table) ── */
+  .finding-detail {
     margin-bottom: 6mm;
+    page-break-inside: avoid;
   }
 
-  .summary-box {
-    border: 0.5pt solid #ddd;
-    border-radius: 2mm;
-    padding: 3mm 4mm;
-    text-align: center;
-    min-width: 25mm;
+  .finding-detail th {
+    background-color: #dce6f0;
+    width: 28%;
   }
 
-  .summary-box .value {
-    font-size: 14pt;
+  /* ── Page breaks ── */
+  .page-break {
+    page-break-before: always;
+  }
+
+  /* ── Table of contents ── */
+  .toc {
+    margin-top: 10mm;
+  }
+
+  .toc-h2 {
     font-weight: 700;
-    color: #5b4ccc;
+    font-size: 10pt;
+    margin-top: 3mm;
+    margin-bottom: 1mm;
   }
 
-  .summary-box .label {
-    font-size: 7pt;
-    color: #666;
-    margin-top: 1mm;
+  .toc-h3 {
+    font-size: 10pt;
+    margin-left: 8mm;
+    margin-bottom: 1mm;
   }
 
-  .stats-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 6mm;
-  }
-
+  /* ── Stats summary table ── */
   .stats-table td {
     padding: 2mm 3mm;
+    border: none;
     border-bottom: 0.5pt solid #eee;
-    font-size: 8.5pt;
+    font-size: 9pt;
   }
 
   .stats-table td:first-child {
-    width: 60%;
+    width: 65%;
   }
 
   .stats-table td:last-child {
@@ -165,228 +199,294 @@
     font-weight: 600;
   }
 
-  .page-break {
-    page-break-before: always;
-  }
-
-  .finding-card {
-    border: 0.5pt solid #ddd;
-    border-radius: 2mm;
-    padding: 3mm 4mm;
-    margin-bottom: 4mm;
-    page-break-inside: avoid;
-  }
-
-  .finding-header {
-    font-weight: 600;
-    font-size: 9pt;
-    margin-bottom: 2mm;
-  }
-
-  .finding-field {
-    margin-bottom: 1.5mm;
-  }
-
-  .finding-label {
-    font-weight: 600;
-    font-size: 8pt;
-    color: #555;
-  }
-
-  .finding-text {
-    font-size: 8pt;
+  .pre-wrap {
     white-space: pre-wrap;
   }
 </style>
 </head>
 <body>
 
-{# ── Cover / Header ── #}
-<h1>{% trans "Audit Report" %}</h1>
-<div class="meta">
-  {% trans "Generated on" %}: {{ generated_at|date:"d/m/Y H:i" }}
-  &nbsp;|&nbsp;
-  {% trans "Generated by" %}: {{ generated_by.get_full_name|default:generated_by.email }}
+{# ══════════════════════════════════════════════════════════ #}
+{# ── COVER PAGE                                          ── #}
+{# ══════════════════════════════════════════════════════════ #}
+<div class="cover">
+  <h1>{% trans "Audit Report" %}</h1>
+  <div class="subtitle">{{ assessment.name }}</div>
+  <div class="subtitle">{{ assessment.reference }}</div>
+  <div class="meta">
+    {% for fw in frameworks %}
+      {{ fw.name }}{% if fw.framework_version %} ({{ fw.framework_version }}){% endif %}{% if not forloop.last %}<br>{% endif %}
+    {% endfor %}
+    <br><br>
+    {% trans "Lead assessor" %}: {{ assessment.assessor.get_full_name|default:assessment.assessor.email }}<br>
+    {% if assessment.assessment_start_date %}{% trans "Start date" %}: {{ assessment.assessment_start_date|date:"d/m/Y" }}{% endif %}
+    {% if assessment.assessment_end_date %} — {% trans "End date" %}: {{ assessment.assessment_end_date|date:"d/m/Y" }}{% endif %}<br>
+    <br>
+    {% trans "Generated on" %}: {{ generated_at|date:"d/m/Y" }}<br>
+    {% trans "Generated by" %}: {{ generated_by.get_full_name|default:generated_by.email }}
+  </div>
 </div>
 
-{# ── Assessment information ── #}
-<h2>{% trans "Assessment information" %}</h2>
-<table class="info-table">
+{# ══════════════════════════════════════════════════════════ #}
+{# ── TABLE OF CONTENTS                                   ── #}
+{# ══════════════════════════════════════════════════════════ #}
+<div class="page-break"></div>
+<h2 style="-weasy-bookmark-level:none">{% trans "Table of contents" %}</h2>
+<div class="toc">
+  <div class="toc-h2">1&emsp;{% trans "Objectives and scope" %}</div>
+  <div class="toc-h3">1.1&emsp;{% trans "Context and objectives" %}</div>
+  <div class="toc-h3">1.2&emsp;{% trans "Scope" %}</div>
+  <div class="toc-h3">1.3&emsp;{% trans "Limitations" %}</div>
+  <div class="toc-h3">1.4&emsp;{% trans "Finding qualifications" %}</div>
+
+  <div class="toc-h2">2&emsp;{% trans "Audit results summary" %}</div>
+  <div class="toc-h3">2.1&emsp;{% trans "Management summary" %}</div>
+  <div class="toc-h3">2.2&emsp;{% trans "Findings overview" %}</div>
+
+  {% for item in frameworks_data %}
+  <div class="toc-h2">{{ item.section_num }}&emsp;{{ item.framework.name }}</div>
+  <div class="toc-h3">{{ item.section_num }}.1&emsp;{% trans "Compliance status" %}</div>
+  <div class="toc-h3">{{ item.section_num }}.2&emsp;{% trans "Detailed results" %}</div>
+  {% endfor %}
+
+  <div class="toc-h2">{{ frameworks_data|length|add:3 }}&emsp;{% trans "Appendices" %}</div>
+</div>
+
+{# ══════════════════════════════════════════════════════════ #}
+{# ── 1. OBJECTIVES AND SCOPE                             ── #}
+{# ══════════════════════════════════════════════════════════ #}
+<div class="page-break"></div>
+<h2>1&emsp;{% trans "Objectives and scope" %}</h2>
+
+<h3>1.1&emsp;{% trans "Context and objectives" %}</h3>
+{% if assessment.description %}
+<p>{{ assessment.description }}</p>
+{% else %}
+<p style="color:#999;font-style:italic">—</p>
+{% endif %}
+
+<h3>1.2&emsp;{% trans "Scope" %}</h3>
+<table class="kv-table">
   <tr>
-    <th>{% trans "Reference" %}</th>
-    <td>{{ assessment.reference }}</td>
+    <th>{% trans "Frameworks" %}</th>
+    <td>
+      {% for fw in frameworks %}
+        {{ fw.name }}{% if fw.framework_version %} ({{ fw.framework_version }}){% endif %}{% if not forloop.last %}<br>{% endif %}
+      {% endfor %}
+    </td>
   </tr>
+  {% if scopes %}
   <tr>
-    <th>{% trans "Name" %}</th>
-    <td>{{ assessment.name }}</td>
+    <th>{% trans "Scopes" %}</th>
+    <td>
+      {% for scope in scopes %}
+        {{ scope.name }}{% if not forloop.last %}<br>{% endif %}
+      {% endfor %}
+    </td>
   </tr>
+  {% endif %}
   <tr>
     <th>{% trans "Lead assessor" %}</th>
     <td>{{ assessment.assessor.get_full_name|default:assessment.assessor.email }}</td>
   </tr>
   <tr>
-    <th>{% trans "Status" %}</th>
-    <td>{{ assessment.get_status_display }}</td>
+    <th>{% trans "Period" %}</th>
+    <td>
+      {% if assessment.assessment_start_date %}{{ assessment.assessment_start_date|date:"d/m/Y" }}{% endif %}
+      {% if assessment.assessment_end_date %} — {{ assessment.assessment_end_date|date:"d/m/Y" }}{% endif %}
+      {% if not assessment.assessment_start_date and not assessment.assessment_end_date %}—{% endif %}
+    </td>
   </tr>
-  <tr>
-    <th>{% trans "Start date" %}</th>
-    <td>{{ assessment.assessment_start_date|date:"d/m/Y"|default:"—" }}</td>
-  </tr>
-  <tr>
-    <th>{% trans "End date" %}</th>
-    <td>{{ assessment.assessment_end_date|date:"d/m/Y"|default:"—" }}</td>
-  </tr>
-  <tr>
-    <th>{% trans "Frameworks" %}</th>
-    <td>{% for fw in assessment.frameworks.all %}{{ fw.name }}{% if fw.framework_version %} ({{ fw.framework_version }}){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
-  </tr>
-  {% if assessment.description %}
-  <tr>
-    <th>{% trans "Description" %}</th>
-    <td>{{ assessment.description }}</td>
-  </tr>
-  {% endif %}
 </table>
 
-{# ── Summary statistics ── #}
-<h2>{% trans "Summary" %}</h2>
+<h3>1.3&emsp;{% trans "Limitations" %}</h3>
+<p style="color:#999;font-style:italic">—</p>
+
+<h3>1.4&emsp;{% trans "Finding qualifications" %}</h3>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th style="width:35%">{% trans "Finding type" %}</th>
+      <th>{% trans "Description" %}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for fq in finding_qualifications %}
+    <tr class="{{ fq.color }}">
+      <td>{{ fq.type }}</td>
+      <td>—</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{# ══════════════════════════════════════════════════════════ #}
+{# ── 2. AUDIT RESULTS SUMMARY                            ── #}
+{# ══════════════════════════════════════════════════════════ #}
+<div class="page-break"></div>
+<h2>2&emsp;{% trans "Audit results summary" %}</h2>
+
+<h3>2.1&emsp;{% trans "Management summary" %}</h3>
 <table class="stats-table">
   <tr>
     <td>{% trans "Overall compliance level" %}</td>
-    <td>{{ summary.overall_compliance|floatformat:1 }}%</td>
+    <td>{{ summary.overall_compliance|floatformat:1 }} %</td>
   </tr>
   <tr>
     <td>{% trans "Coverage" %}</td>
-    <td>{{ summary.coverage_pct }}%</td>
+    <td>{{ summary.coverage_pct }} %</td>
   </tr>
   <tr>
     <td>{% trans "Total requirements" %}</td>
     <td>{{ summary.total }}</td>
   </tr>
-  <tr>
-    <td><span class="badge badge-compliant">{% trans "Compliant" %}</span></td>
-    <td>{{ summary.compliant }}</td>
-  </tr>
-  <tr>
-    <td><span class="badge badge-strength">{% trans "Strength" context "compliance" %}</span></td>
-    <td>{{ summary.strength }}</td>
-  </tr>
-  <tr>
-    <td><span class="badge badge-major-nc">{% trans "Major non-conformity" %}</span></td>
-    <td>{{ summary.major_nc }}</td>
-  </tr>
-  <tr>
-    <td><span class="badge badge-minor-nc">{% trans "Minor non-conformity" %}</span></td>
-    <td>{{ summary.minor_nc }}</td>
-  </tr>
-  <tr>
-    <td><span class="badge badge-observation">{% trans "Observation" context "compliance" %}</span></td>
-    <td>{{ summary.observation }}</td>
-  </tr>
-  <tr>
-    <td><span class="badge badge-improvement">{% trans "Improvement opportunity" %}</span></td>
-    <td>{{ summary.improvement }}</td>
-  </tr>
-  <tr>
-    <td><span class="badge badge-not-assessed">{% trans "Not assessed" %}</span></td>
-    <td>{{ summary.not_assessed }}</td>
-  </tr>
-  <tr>
-    <td><span class="badge badge-not-applicable">{% trans "Not applicable" %}</span></td>
-    <td>{{ summary.not_applicable }}</td>
-  </tr>
 </table>
-
-{# ── Findings ── #}
-{% if findings_data %}
-<div class="page-break"></div>
-<h2>{% trans "Findings" %}</h2>
-
-{% for f in findings_data %}
-<div class="finding-card">
-  <div class="finding-header">
-    {{ f.reference }} —
-    {% if f.finding_type == "major_nc" %}<span class="badge badge-major-nc">{{ f.type_display }}</span>
-    {% elif f.finding_type == "minor_nc" %}<span class="badge badge-minor-nc">{{ f.type_display }}</span>
-    {% elif f.finding_type == "observation" %}<span class="badge badge-observation">{{ f.type_display }}</span>
-    {% elif f.finding_type == "improvement" %}<span class="badge badge-improvement">{{ f.type_display }}</span>
-    {% elif f.finding_type == "strength" %}<span class="badge badge-strength">{{ f.type_display }}</span>
-    {% endif %}
-  </div>
-
-  {% if f.requirements %}
-  <div class="finding-field">
-    <span class="finding-label">{% trans "Related requirements" %}:</span>
-    <span class="finding-text">{{ f.requirements }}</span>
-  </div>
-  {% endif %}
-
-  <div class="finding-field">
-    <span class="finding-label">{% trans "Finding" %}:</span>
-    <div class="finding-text">{{ f.description }}</div>
-  </div>
-
-  {% if f.recommendation %}
-  <div class="finding-field">
-    <span class="finding-label">{% trans "Auditor recommendation" %}:</span>
-    <div class="finding-text">{{ f.recommendation }}</div>
-  </div>
-  {% endif %}
-
-  {% if f.evidence %}
-  <div class="finding-field">
-    <span class="finding-label">{% trans "Evidence presented" %}:</span>
-    <div class="finding-text">{{ f.evidence }}</div>
-  </div>
-  {% endif %}
-</div>
-{% endfor %}
-{% endif %}
-
-{# ── Detailed results per framework ── #}
-{% for item in frameworks_data %}
-<div class="page-break"></div>
-<h2>{{ item.framework.name }}{% if item.framework.framework_version %} ({{ item.framework.framework_version }}){% endif %}</h2>
 
 <table class="data-table">
   <thead>
     <tr>
-      <th style="width:10%">{% trans "Requirement" %}</th>
-      <th style="width:22%">{% trans "Title" %}</th>
-      <th style="width:13%">{% trans "Status" %}</th>
-      <th style="width:7%">{% trans "Level" %}</th>
-      <th style="width:24%">{% trans "Finding" %}</th>
-      <th style="width:24%">{% trans "Evidence" %}</th>
+      <th>{% trans "Status" %}</th>
+      <th style="text-align:right;width:15%">{% trans "Count" %}</th>
     </tr>
   </thead>
   <tbody>
-    {% for row in item.rows %}
-    <tr>
-      <td>{{ row.number }}</td>
-      <td>{{ row.name }}</td>
-      <td>
-        {% if row.status_key == "compliant" %}<span class="badge badge-compliant">{{ row.status }}</span>
-        {% elif row.status_key == "strength" %}<span class="badge badge-strength">{{ row.status }}</span>
-        {% elif row.status_key == "major_non_conformity" %}<span class="badge badge-major-nc">{{ row.status }}</span>
-        {% elif row.status_key == "minor_non_conformity" %}<span class="badge badge-minor-nc">{{ row.status }}</span>
-        {% elif row.status_key == "observation" %}<span class="badge badge-observation">{{ row.status }}</span>
-        {% elif row.status_key == "improvement_opportunity" %}<span class="badge badge-improvement">{{ row.status }}</span>
-        {% elif row.status_key == "not_assessed" %}<span class="badge badge-not-assessed">{{ row.status }}</span>
-        {% elif row.status_key == "not_applicable" %}<span class="badge badge-not-applicable">{{ row.status }}</span>
-        {% elif row.status_key == "evaluated" %}<span class="badge badge-evaluated">{{ row.status }}</span>
-        {% else %}<span class="badge badge-not-assessed">{{ row.status }}</span>
-        {% endif %}
-      </td>
-      <td style="text-align:center">{{ row.compliance_level }}%</td>
-      <td>{{ row.finding|default:"—"|truncatewords:30 }}</td>
-      <td>{{ row.evidence|default:"—"|truncatewords:30 }}</td>
+    <tr class="row-compliant">
+      <td>{% trans "Compliant" %}</td>
+      <td style="text-align:right">{{ summary.compliant }}</td>
     </tr>
-    {% empty %}
-    <tr><td colspan="6" style="text-align:center;color:#999">{% trans "No requirements." %}</td></tr>
+    <tr class="row-compliant">
+      <td>{% trans "Strength" context "compliance" %}</td>
+      <td style="text-align:right">{{ summary.strength }}</td>
+    </tr>
+    <tr class="row-non-compliant">
+      <td>{% trans "Major non-conformity" %}</td>
+      <td style="text-align:right">{{ summary.major_nc }}</td>
+    </tr>
+    <tr class="row-partial">
+      <td>{% trans "Minor non-conformity" %}</td>
+      <td style="text-align:right">{{ summary.minor_nc }}</td>
+    </tr>
+    <tr class="row-partial">
+      <td>{% trans "Observation" context "compliance" %}</td>
+      <td style="text-align:right">{{ summary.observation }}</td>
+    </tr>
+    <tr class="row-partial">
+      <td>{% trans "Improvement opportunity" %}</td>
+      <td style="text-align:right">{{ summary.improvement }}</td>
+    </tr>
+    <tr>
+      <td>{% trans "Not assessed" %}</td>
+      <td style="text-align:right">{{ summary.not_assessed }}</td>
+    </tr>
+    <tr class="row-na">
+      <td>{% trans "Not applicable" %}</td>
+      <td style="text-align:right">{{ summary.not_applicable }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>2.2&emsp;{% trans "Findings overview" %}</h3>
+{% if findings_recap %}
+<table class="data-table">
+  <thead>
+    <tr>
+      <th style="width:15%">{% trans "Finding" %}</th>
+      <th>{% trans "Requirement" %}</th>
+      <th style="width:25%">{% trans "Qualification" %}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for f in findings_recap %}
+    <tr class="{{ f.color }}">
+      <td>{{ f.reference }}</td>
+      <td>{{ f.requirement_refs }}{% if f.requirement_names %}<br><span style="font-size:8pt;color:#555">{{ f.requirement_names }}</span>{% endif %}</td>
+      <td>{{ f.type_display }}</td>
+    </tr>
     {% endfor %}
   </tbody>
 </table>
+{% else %}
+<p style="color:#999;font-style:italic">{% trans "No findings recorded." %}</p>
+{% endif %}
+
+{# ══════════════════════════════════════════════════════════ #}
+{# ── 3+. PER-FRAMEWORK SECTIONS                          ── #}
+{# ══════════════════════════════════════════════════════════ #}
+{% for item in frameworks_data %}
+<div class="page-break"></div>
+<h2>{{ item.section_num }}&emsp;{{ item.framework.name }}{% if item.framework.framework_version %} ({{ item.framework.framework_version }}){% endif %}</h2>
+
+{# ── X.1 Compliance status ── #}
+<h3>{{ item.section_num }}.1&emsp;{% trans "Compliance status" %}</h3>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th style="width:12%">{% trans "Chapter" %}</th>
+      <th>{% trans "Requirement" %}</th>
+      <th style="width:25%">{% trans "Compliance" %}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in item.compliance_rows %}
+    <tr class="{{ row.color }}">
+      <td>{{ row.number }}</td>
+      <td>{{ row.name }}</td>
+      <td>{{ row.status }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3" style="text-align:center;color:#999">{% trans "No requirements." %}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{# ── X.2 Detailed results (finding cards) ── #}
+<h3>{{ item.section_num }}.2&emsp;{% trans "Detailed results" %}</h3>
+
+{% if item.findings %}
+{% for f in item.findings %}
+<table class="kv-table finding-detail">
+  <tr>
+    <th>{% trans "Finding reference" %}</th>
+    <td>{{ f.reference }}</td>
+  </tr>
+  <tr>
+    <th>{% trans "Requirement" %}</th>
+    <td class="pre-wrap">{{ f.requirement_detail }}</td>
+  </tr>
+  <tr class="{{ f.color }}">
+    <th>{% trans "Finding qualification" %}</th>
+    <td>{{ f.type_display }}</td>
+  </tr>
+  <tr>
+    <th>{% trans "Finding" %}</th>
+    <td class="pre-wrap">{{ f.description }}</td>
+  </tr>
+  {% if f.recommendation %}
+  <tr>
+    <th>{% trans "Recommendation" %}</th>
+    <td class="pre-wrap">{{ f.recommendation }}</td>
+  </tr>
+  {% endif %}
+  {% if f.evidence %}
+  <tr>
+    <th>{% trans "Evidence presented" %}</th>
+    <td class="pre-wrap">{{ f.evidence }}</td>
+  </tr>
+  {% endif %}
+</table>
 {% endfor %}
+{% else %}
+<p style="color:#999;font-style:italic">{% trans "No findings for this framework." %}</p>
+{% endif %}
+
+{% endfor %}
+
+{# ══════════════════════════════════════════════════════════ #}
+{# ── APPENDICES                                          ── #}
+{# ══════════════════════════════════════════════════════════ #}
+<div class="page-break"></div>
+<h2>{{ frameworks_data|length|add:3 }}&emsp;{% trans "Appendices" %}</h2>
+<p style="color:#999;font-style:italic">—</p>
 
 </body>
 </html>
