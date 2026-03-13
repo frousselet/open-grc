@@ -1,8 +1,18 @@
 {% load i18n %}
-{% for group in sections_with_results %}
+{% for fw_group in sections_with_results %}
+{% if multi_framework %}
+{# ── Framework header row ── #}
+<tr>
+  <td colspan="5" class="fw-bold" style="font-size:.92rem;background:var(--surface-alt, var(--bs-tertiary-bg));border-left:4px solid var(--accent);padding:.6rem .75rem">
+    <i class="bi bi-journal-bookmark me-1" style="color:var(--accent)"></i>
+    {{ fw_group.framework.name }}
+  </td>
+</tr>
+{% endif %}
+{% for group in fw_group.sections %}
 {# ── Section header row ── #}
 <tr>
-  <td colspan="5" class="fw-semibold" style="font-size:.88rem;background:var(--surface-subtle);border-left:3px solid var(--accent)">
+  <td colspan="5" class="fw-semibold" style="font-size:.88rem;background:var(--surface-subtle);border-left:3px solid var(--accent){% if multi_framework %};padding-left:1.5rem{% endif %}">
     <div class="d-flex align-items-center justify-content-between">
       <div>
         <i class="bi bi-folder2 me-1" style="color:var(--text-muted)"></i>
@@ -110,4 +120,5 @@
     {% trans "No requirement to evaluate. Initialize evaluations or check that the framework has applicable requirements." %}
   </td>
 </tr>
+{% endfor %}
 {% endfor %}
