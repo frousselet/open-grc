@@ -362,19 +362,22 @@
   <thead>
     <tr>
       <th>{% trans "Finding type" %}</th>
-      <th style="text-align:right;width:15%">{% trans "Count" %}</th>
+      <th style="text-align:right;width:20%">{% trans "Findings" %}</th>
+      <th style="text-align:right;width:20%">{% trans "Requirements impacted" %}</th>
     </tr>
   </thead>
   <tbody>
     {% for ft in findings_by_type %}
     <tr class="{{ ft.color }}">
       <td>{{ ft.label }}</td>
-      <td style="text-align:right">{{ ft.count }}</td>
+      <td style="text-align:right">{{ ft.finding_count }}</td>
+      <td style="text-align:right">{{ ft.req_count }}</td>
     </tr>
     {% endfor %}
     <tr>
       <td style="font-weight:600">{% trans "Total" %}</td>
       <td style="text-align:right;font-weight:600">{{ summary.total_findings }}</td>
+      <td style="text-align:right;font-weight:600">{{ summary.total_impacted_reqs }}</td>
     </tr>
   </tbody>
 </table>

@@ -242,33 +242,37 @@ def generate_audit_report_pdf(assessment, user):
         "coverage_pct": assessment.coverage_pct,
         "total_findings": len(findings),
     }
-    findings_by_type = [
-        {
-            "label": FindingType.MAJOR_NON_CONFORMITY.label,
-            "count": finding_type_counts.get("major_nc", 0),
-            "color": "row-non-compliant",
-        },
-        {
-            "label": FindingType.MINOR_NON_CONFORMITY.label,
-            "count": finding_type_counts.get("minor_nc", 0),
-            "color": "row-partial",
-        },
-        {
-            "label": FindingType.OBSERVATION.label,
-            "count": finding_type_counts.get("observation", 0),
-            "color": "row-partial",
-        },
-        {
-            "label": FindingType.IMPROVEMENT_OPPORTUNITY.label,
-            "count": finding_type_counts.get("improvement", 0),
-            "color": "row-partial",
-        },
-        {
-            "label": FindingType.STRENGTH.label,
-            "count": finding_type_counts.get("strength", 0),
-            "color": "row-compliant",
-        },
+    # Count distinct requirements impacted per finding type
+    req_ids_by_type = {}
+    for f in findings:
+        ft = f.finding_type
+        if ft not in req_ids_by_type:
+            req_ids_by_type[ft] = set()
+        for req in f.requirements.all():
+            req_ids_by_type[ft].add(req.pk)
+
+    total_impacted_reqs = len({
+        req_pk for ids in req_ids_by_type.values() for req_pk in ids
+    })
+
+    _type_defs = [
+        ("major_nc", FindingType.MAJOR_NON_CONFORMITY.label, "row-non-compliant"),
+        ("minor_nc", FindingType.MINOR_NON_CONFORMITY.label, "row-partial"),
+        ("observation", FindingType.OBSERVATION.label, "row-partial"),
+        ("improvement", FindingType.IMPROVEMENT_OPPORTUNITY.label, "row-partial"),
+        ("strength", FindingType.STRENGTH.label, "row-compliant"),
     ]
+
+    findings_by_type = []
+    for key, label, color in _type_defs:
+        findings_by_type.append({
+            "label": label,
+            "finding_count": finding_type_counts.get(key, 0),
+            "req_count": len(req_ids_by_type.get(key, set())),
+            "color": color,
+        })
+
+    summary["total_impacted_reqs"] = total_impacted_reqs
 
     # Finding type definitions for section 1.4
     finding_qualifications = [
