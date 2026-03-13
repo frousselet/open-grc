@@ -104,10 +104,15 @@ ASSESSMENT_LOCKED_STATUSES = {
     AssessmentStatus.CLOSED,
 }
 
-# Statuses where findings and results cannot be edited
+# Statuses where findings and results cannot be edited (only IN_PROGRESS allows editing)
 ASSESSMENT_FROZEN_STATUSES = {
     AssessmentStatus.COMPLETED,
     AssessmentStatus.CLOSED,
+}
+
+# Statuses that allow editing findings and toggling results (only IN_PROGRESS)
+ASSESSMENT_EDITABLE_STATUSES = {
+    AssessmentStatus.IN_PROGRESS,
 }
 
 
