@@ -2,7 +2,7 @@ import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from compliance.constants import ComplianceStatus
+from compliance.constants import AssessmentStatus, ComplianceStatus
 from compliance.models.assessment import AssessmentResult
 from compliance.tests.factories import (
     AssessmentResultFactory,
@@ -75,7 +75,7 @@ class TestAssessmentResultCreateView:
         client.force_login(user)
         fw = FrameworkFactory()
         req = RequirementFactory(framework=fw, is_applicable=True)
-        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
+        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS)
 
         create_url = reverse("compliance:assessment-result-create", args=[assessment.pk])
 
@@ -111,7 +111,7 @@ class TestAssessmentResultUpdateView:
         client.force_login(user)
         fw = FrameworkFactory()
         req = RequirementFactory(framework=fw, is_applicable=True)
-        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
+        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS)
         result = AssessmentResultFactory(
             assessment=assessment,
             requirement=req,
@@ -148,7 +148,7 @@ class TestAssessmentResultDeleteView:
         client.force_login(user)
         fw = FrameworkFactory()
         req = RequirementFactory(framework=fw, is_applicable=True)
-        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
+        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS)
         result = AssessmentResultFactory(
             assessment=assessment,
             requirement=req,
@@ -229,7 +229,7 @@ class TestNonApplicableRequirements:
         client.force_login(user)
         fw = FrameworkFactory()
         req_na = RequirementFactory(framework=fw, is_applicable=False)
-        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
+        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS)
         AssessmentResultFactory(
             assessment=assessment, requirement=req_na,
             compliance_status=ComplianceStatus.NOT_APPLICABLE,
@@ -302,7 +302,7 @@ class TestBulkToggleEvaluated:
         fw = FrameworkFactory()
         req1 = RequirementFactory(framework=fw, is_applicable=True)
         req2 = RequirementFactory(framework=fw, is_applicable=True)
-        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
+        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS)
         AssessmentResultFactory(
             assessment=assessment, requirement=req1,
             compliance_status=ComplianceStatus.NOT_ASSESSED, compliance_level=0,
@@ -329,7 +329,7 @@ class TestBulkToggleEvaluated:
         client.force_login(user)
         fw = FrameworkFactory()
         req1 = RequirementFactory(framework=fw, is_applicable=True)
-        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
+        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user, status=AssessmentStatus.IN_PROGRESS)
         AssessmentResultFactory(
             assessment=assessment, requirement=req1,
             compliance_status=ComplianceStatus.EVALUATED, compliance_level=50,

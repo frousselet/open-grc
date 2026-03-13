@@ -43,6 +43,7 @@ from .import_utils import (
     validate_parsed_data,
 )
 from .constants import (
+    ASSESSMENT_EDITABLE_STATUSES,
     ASSESSMENT_FROZEN_STATUSES,
     AssessmentStatus,
     ComplianceStatus,
@@ -579,7 +580,7 @@ class AssessmentDetailView(
             ASSESSMENT_STATUS_TRANSITIONS,
         )
         ctx["is_locked"] = assessment.status in ASSESSMENT_LOCKED_STATUSES
-        ctx["is_frozen"] = assessment.status in ASSESSMENT_FROZEN_STATUSES
+        ctx["is_frozen"] = assessment.status not in ASSESSMENT_EDITABLE_STATUSES
         next_statuses = ASSESSMENT_STATUS_TRANSITIONS.get(assessment.status, [])
         ctx["next_status"] = next_statuses[0] if next_statuses else None
         ctx["next_status_label"] = (
@@ -823,6 +824,16 @@ def _check_assessment_not_frozen(assessment):
     return None
 
 
+def _check_assessment_editable(assessment):
+    """Return an HTTP 403 response if the assessment is not in an editable status, else None."""
+    if assessment.status not in ASSESSMENT_EDITABLE_STATUSES:
+        return HttpResponse(
+            _("This assessment is locked and cannot be modified."),
+            status=403,
+        )
+    return None
+
+
 class FrozenAssessmentGuardMixin:
     """Block POST/PUT/PATCH/DELETE on frozen assessments (COMPLETED/CLOSED)."""
 
@@ -834,6 +845,20 @@ class FrozenAssessmentGuardMixin:
             frozen = _check_assessment_not_frozen(assessment)
             if frozen:
                 return frozen
+        return super().dispatch(request, *args, **kwargs)
+
+
+class EditableAssessmentGuardMixin:
+    """Block POST/PUT/PATCH/DELETE unless assessment is IN_PROGRESS."""
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+            assessment = get_object_or_404(
+                ComplianceAssessment, pk=kwargs.get("assessment_pk")
+            )
+            error = _check_assessment_editable(assessment)
+            if error:
+                return error
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -887,7 +912,7 @@ class InitializeResultsView(LoginRequiredMixin, View):
         return redirect(reverse("compliance:assessment-detail", args=[pk]))
 
 
-class AssessmentResultCreateView(FrozenAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, CreateView):
+class AssessmentResultCreateView(EditableAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, CreateView):
     model = AssessmentResult
     form_class = AssessmentResultForm
     template_name = "compliance/assessment_result_form.html"
@@ -937,7 +962,7 @@ class AssessmentResultCreateView(FrozenAssessmentGuardMixin, LoginRequiredMixin,
         )
 
 
-class AssessmentResultUpdateView(FrozenAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, UpdateView):
+class AssessmentResultUpdateView(EditableAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, UpdateView):
     model = AssessmentResult
     form_class = AssessmentResultForm
     template_name = "compliance/assessment_result_form.html"
@@ -982,7 +1007,7 @@ class AssessmentResultUpdateView(FrozenAssessmentGuardMixin, LoginRequiredMixin,
         )
 
 
-class AssessmentResultDeleteView(FrozenAssessmentGuardMixin, LoginRequiredMixin, DeleteView):
+class AssessmentResultDeleteView(EditableAssessmentGuardMixin, LoginRequiredMixin, DeleteView):
     model = AssessmentResult
     template_name = "compliance/confirm_delete.html"
 
@@ -1017,9 +1042,9 @@ class ToggleResultEvaluatedView(LoginRequiredMixin, View):
 
     def post(self, request, assessment_pk, requirement_pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=assessment_pk)
-        frozen = _check_assessment_not_frozen(assessment)
-        if frozen:
-            return frozen
+        error = _check_assessment_editable(assessment)
+        if error:
+            return error
         requirement = get_object_or_404(
             assessment.get_all_requirements(), pk=requirement_pk
         )
@@ -1062,9 +1087,9 @@ class BulkToggleEvaluatedView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=pk)
-        frozen = _check_assessment_not_frozen(assessment)
-        if frozen:
-            return frozen
+        error = _check_assessment_editable(assessment)
+        if error:
+            return error
         now = timezone.now()
 
         # IDs of requirements that have findings — those are locked
@@ -1143,7 +1168,7 @@ class AssessmentResultsTableBodyView(LoginRequiredMixin, View):
                 "sections_with_results": result_data["framework_groups"],
                 "multi_framework": result_data["multi_framework"],
                 "assessment": assessment,
-                "is_frozen": assessment.status in ASSESSMENT_FROZEN_STATUSES,
+                "is_frozen": assessment.status not in ASSESSMENT_EDITABLE_STATUSES,
             },
             request=request,
         )
@@ -1153,7 +1178,7 @@ class AssessmentResultsTableBodyView(LoginRequiredMixin, View):
 # ── Findings ──────────────────────────────────────────────
 
 
-class FindingCreateView(FrozenAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class FindingCreateView(EditableAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Finding
     form_class = FindingForm
     template_name = "compliance/finding_form.html"
@@ -1190,7 +1215,7 @@ class FindingCreateView(FrozenAssessmentGuardMixin, LoginRequiredMixin, HtmxForm
         )
 
 
-class FindingUpdateView(FrozenAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, UpdateView):
+class FindingUpdateView(EditableAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, UpdateView):
     model = Finding
     form_class = FindingForm
     template_name = "compliance/finding_form.html"
@@ -1224,7 +1249,7 @@ class FindingUpdateView(FrozenAssessmentGuardMixin, LoginRequiredMixin, HtmxForm
         )
 
 
-class FindingDeleteView(FrozenAssessmentGuardMixin, LoginRequiredMixin, DeleteView):
+class FindingDeleteView(EditableAssessmentGuardMixin, LoginRequiredMixin, DeleteView):
     model = Finding
     template_name = "compliance/confirm_delete.html"
 
@@ -1270,7 +1295,7 @@ class FindingsTableBodyView(LoginRequiredMixin, View):
             {
                 "findings": findings,
                 "assessment": assessment,
-                "is_frozen": assessment.status in ASSESSMENT_FROZEN_STATUSES,
+                "is_frozen": assessment.status not in ASSESSMENT_EDITABLE_STATUSES,
             },
             request=request,
         )
