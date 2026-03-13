@@ -235,7 +235,7 @@ window.initSparklines = function(root) {
           <small class="ms-2" style="color:var(--text-muted);font-size:.75rem">{% blocktrans with count=fw.req_count %}{{ count }} requirement{{ count|pluralize:"s" }}{% endblocktrans %}</small>
           {% grouped_scope_badges fw.scopes.all %}
         </div>
-        <span class="fw-semibold" style="font-size:.8125rem;font-variant-numeric:tabular-nums;{% if fw.computed_compliance >= 80 %}color:var(--success){% elif fw.computed_compliance >= 50 %}color:var(--warning){% else %}color:var(--danger){% endif %}">
+        <span class="fw-semibold" style="font-size:.8125rem;font-variant-numeric:tabular-nums;color:var(--text-primary)">
           {{ fw.computed_compliance|default:0 }}%
         </span>
       </div>
