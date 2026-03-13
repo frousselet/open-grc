@@ -967,6 +967,7 @@ class BulkToggleEvaluatedView(LoginRequiredMixin, View):
         finding_req_ids = set(
             assessment.findings.values_list("requirements__id", flat=True)
         )
+        finding_req_ids.discard(None)
         results = assessment.results.select_related("requirement").filter(
             requirement__is_applicable=True,
         )
@@ -994,7 +995,12 @@ class BulkToggleEvaluatedView(LoginRequiredMixin, View):
                     result.assessed_at = now
                     result.save()
         assessment.recalculate_counts()
-        return HttpResponse(status=204, headers={"HX-Trigger": "formSaved"})
+        # Full page redirect to refresh gauges + table
+        detail_url = reverse("compliance:assessment-detail", args=[pk])
+        return HttpResponse(
+            status=204,
+            headers={"HX-Redirect": detail_url},
+        )
 
 
 class AssessmentResultsTableBodyView(LoginRequiredMixin, View):
