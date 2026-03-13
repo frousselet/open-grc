@@ -14,7 +14,6 @@
     {% if not is_locked %}
     <a href="{% url 'compliance:assessment-update' assessment.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
     {% endif %}
-    <a href="{% url 'compliance:assessment-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 
