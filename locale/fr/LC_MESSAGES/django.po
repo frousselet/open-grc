@@ -6411,6 +6411,10 @@ msgstr "%(count)d activité(s) critique(s) sans propriétaire"
 msgid "Review: "
 msgstr "Revue : "
 
+#: core/views.py — calendar compliance assessment end date
+msgid "End: "
+msgstr "Fin : "
+
 #: core/views.py:352 core/views.py:362
 msgid "Start: "
 msgstr "Début : "
