@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Clear stale bytecode from image layer that may conflict with bind-mounted source
+find /app -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+
 echo "Waiting for database to be ready…"
 max_retries=30
 retry_count=0
