@@ -361,42 +361,20 @@
 <table class="data-table">
   <thead>
     <tr>
-      <th>{% trans "Status" %}</th>
+      <th>{% trans "Finding type" %}</th>
       <th style="text-align:right;width:15%">{% trans "Count" %}</th>
     </tr>
   </thead>
   <tbody>
-    <tr class="row-compliant">
-      <td>{% trans "Compliant" %}</td>
-      <td style="text-align:right">{{ summary.compliant }}</td>
+    {% for ft in findings_by_type %}
+    <tr class="{{ ft.color }}">
+      <td>{{ ft.label }}</td>
+      <td style="text-align:right">{{ ft.count }}</td>
     </tr>
-    <tr class="row-compliant">
-      <td>{% trans "Strength" context "compliance" %}</td>
-      <td style="text-align:right">{{ summary.strength }}</td>
-    </tr>
-    <tr class="row-non-compliant">
-      <td>{% trans "Major non-conformity" %}</td>
-      <td style="text-align:right">{{ summary.major_nc }}</td>
-    </tr>
-    <tr class="row-partial">
-      <td>{% trans "Minor non-conformity" %}</td>
-      <td style="text-align:right">{{ summary.minor_nc }}</td>
-    </tr>
-    <tr class="row-partial">
-      <td>{% trans "Observation" context "compliance" %}</td>
-      <td style="text-align:right">{{ summary.observation }}</td>
-    </tr>
-    <tr class="row-partial">
-      <td>{% trans "Improvement opportunity" %}</td>
-      <td style="text-align:right">{{ summary.improvement }}</td>
-    </tr>
+    {% endfor %}
     <tr>
-      <td>{% trans "Not assessed" %}</td>
-      <td style="text-align:right">{{ summary.not_assessed }}</td>
-    </tr>
-    <tr class="row-na">
-      <td>{% trans "Not applicable" %}</td>
-      <td style="text-align:right">{{ summary.not_applicable }}</td>
+      <td style="font-weight:600">{% trans "Total" %}</td>
+      <td style="text-align:right;font-weight:600">{{ summary.total_findings }}</td>
     </tr>
   </tbody>
 </table>
