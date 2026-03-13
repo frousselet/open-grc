@@ -561,4 +561,4 @@ class TestAssessmentDetailView:
         response = client.get(url)
         assert response.status_code == 200
         content = response.content.decode()
-        assert "results_tab" in content
+        assert "item-table-body" in content
