@@ -643,25 +643,57 @@ class AssessmentUpdateView(
 class AssessmentTransitionView(LoginRequiredMixin, View):
     """Advance an assessment to its next workflow status."""
 
+    # Required fields per target status (cumulative as workflow advances)
+    REQUIRED_FIELDS = {
+        AssessmentStatus.PLANNED: [
+            ("assessment_start_date", _("Start date")),
+            ("assessment_end_date", _("End date")),
+            ("frameworks", _("Frameworks")),
+        ],
+        AssessmentStatus.IN_PROGRESS: [
+            ("assessment_start_date", _("Start date")),
+            ("assessment_end_date", _("End date")),
+            ("frameworks", _("Frameworks")),
+            ("methodology", _("Methodology")),
+        ],
+        AssessmentStatus.COMPLETED: [
+            ("assessment_start_date", _("Start date")),
+            ("assessment_end_date", _("End date")),
+            ("frameworks", _("Frameworks")),
+            ("methodology", _("Methodology")),
+        ],
+        AssessmentStatus.CLOSED: [
+            ("assessment_start_date", _("Start date")),
+            ("assessment_end_date", _("End date")),
+            ("frameworks", _("Frameworks")),
+            ("methodology", _("Methodology")),
+        ],
+    }
+
     def post(self, request, pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=pk)
         new_status = request.POST.get("status")
 
         # Validate required fields for the target status
-        if new_status and new_status != AssessmentStatus.DRAFT:
-            missing = []
-            if not assessment.assessment_start_date:
-                missing.append(str(_("Start date")))
-            if not assessment.assessment_end_date:
-                missing.append(str(_("End date")))
-            if missing:
-                messages.warning(
-                    request,
-                    _("Please fill the required fields before advancing: %(fields)s")
-                    % {"fields": ", ".join(missing)},
-                )
-                edit_url = reverse("compliance:assessment-update", args=[pk])
-                return redirect(f"{edit_url}?status={new_status}")
+        required = self.REQUIRED_FIELDS.get(new_status, [])
+        missing = []
+        for field_name, label in required:
+            value = getattr(assessment, field_name)
+            # Handle M2M fields (e.g. frameworks)
+            if hasattr(value, "exists"):
+                if not value.exists():
+                    missing.append(str(label))
+            elif not value:
+                missing.append(str(label))
+
+        if missing:
+            messages.warning(
+                request,
+                _("Please fill the required fields before advancing: %(fields)s")
+                % {"fields": ", ".join(missing)},
+            )
+            edit_url = reverse("compliance:assessment-update", args=[pk])
+            return redirect(f"{edit_url}?status={new_status}")
 
         try:
             assessment.transition_to(new_status)
