@@ -8674,6 +8674,10 @@ msgstr "Aucun constat pour ce référentiel."
 msgid "No findings recorded."
 msgstr "Aucun constat enregistré."
 
+#: reports/templates/reports/audit_report_pdf.html
+msgid "Requirements impacted"
+msgstr "Exigences impactées"
+
 #: context/views.py context/templates/context/swot_item_form_modal.html
 msgid "New SWOT item"
 msgstr "Nouvel élément SWOT"
