@@ -5,16 +5,18 @@
 {% block title %}{{ assessment.name }} — Open GRC{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-start mb-3">
+<div class="d-flex align-items-center mb-3">
   <div>
     <h1 class="mb-0">{{ assessment.name }}</h1>
     <small class="ref">{{ assessment.reference }}</small>
   </div>
-  <div class="d-flex gap-2 align-items-center">
-    {% if not is_locked %}
-    <a href="{% url 'compliance:assessment-update' assessment.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    {% endif %}
+  {% if not is_locked %}
+  <div class="header-actions">
+    <a href="{% url 'compliance:assessment-update' assessment.pk %}" class="btn-header-action" title="{% trans 'Edit' %}">
+      <i class="bi bi-pencil"></i>
+    </a>
   </div>
+  {% endif %}
 </div>
 
 {# ── Workflow stepper ── #}
