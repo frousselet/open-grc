@@ -8801,6 +8801,13 @@ msgstr "Cet audit est verrouillé et ne peut plus être modifié."
 msgid "Please fill the required fields before advancing: %(fields)s"
 msgstr "Veuillez remplir les champs obligatoires avant de poursuivre : %(fields)s"
 
+#: compliance/forms.py — form validation
+msgid "At least one framework is required for this status."
+msgstr "Au moins un référentiel est requis pour ce statut."
+
+msgid "Methodology is required for this status."
+msgstr "La méthodologie est requise pour ce statut."
+
 #: templates/home.html — dashboard segments
 msgid "Partial compliance"
 msgstr "Conformité partielle"

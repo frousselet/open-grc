@@ -251,6 +251,22 @@ class ComplianceAssessmentForm(ScopedFormMixin, forms.ModelForm):
                     "assessment_end_date",
                     _("End date is required for this status."),
                 )
+            if not cleaned.get("frameworks"):
+                self.add_error(
+                    "frameworks",
+                    _("At least one framework is required for this status."),
+                )
+        # Methodology required from IN_PROGRESS onward
+        if status and status in (
+            AssessmentStatus.IN_PROGRESS,
+            AssessmentStatus.COMPLETED,
+            AssessmentStatus.CLOSED,
+        ):
+            if not cleaned.get("methodology"):
+                self.add_error(
+                    "methodology",
+                    _("Methodology is required for this status."),
+                )
         start = cleaned.get("assessment_start_date")
         end = cleaned.get("assessment_end_date")
         if start and end and end < start:
