@@ -514,9 +514,11 @@ class AssessmentDetailView(
         # Progress counts
         results_qs = assessment.results.all()
         total = results_qs.count()
+        # Only consider results for applicable requirements in all stats
+        applicable_results_qs = results_qs.filter(requirement__is_applicable=True)
         # Evaluated = truly assessed (has findings, compliant, NC, etc.)
         # Excludes NOT_ASSESSED and EVALUATED ("Evaluation planned")
-        truly_evaluated = results_qs.exclude(
+        truly_evaluated = applicable_results_qs.exclude(
             compliance_status__in=[
                 ComplianceStatus.NOT_ASSESSED,
                 ComplianceStatus.EVALUATED,
@@ -524,7 +526,7 @@ class AssessmentDetailView(
             ]
         ).count()
         # Covered = applicable requirements actively touched (not NOT_ASSESSED, not NOT_APPLICABLE)
-        covered = results_qs.exclude(
+        covered = applicable_results_qs.exclude(
             compliance_status__in=[
                 ComplianceStatus.NOT_ASSESSED,
                 ComplianceStatus.NOT_APPLICABLE,
@@ -542,7 +544,7 @@ class AssessmentDetailView(
         ctx["coverage_pct"] = round(covered * 100 / fw_req_count) if fw_req_count else 0
         # Compliance: average level of truly assessed results only
         # (exclude NOT_ASSESSED, NOT_APPLICABLE, and EVALUATED which is just "planned")
-        assessed_qs = results_qs.exclude(
+        assessed_qs = applicable_results_qs.exclude(
             compliance_status__in=[
                 ComplianceStatus.NOT_ASSESSED,
                 ComplianceStatus.NOT_APPLICABLE,
