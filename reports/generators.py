@@ -146,6 +146,7 @@ def generate_audit_report_pdf(assessment, user):
     results = list(
         assessment.results
         .select_related("requirement__section", "requirement__framework", "assessed_by")
+        .prefetch_related("attachments")
         .order_by("requirement__framework__name", "requirement__requirement_number")
     )
 
@@ -300,6 +301,18 @@ def generate_audit_report_pdf(assessment, user):
         },
     ]
 
+    # Annexes: list of all analyzed documents (attachments)
+    annexes_docs = []
+    for r in results:
+        for att in r.attachments.all():
+            annexes_docs.append({
+                "filename": att.original_filename,
+                "requirement_ref": r.requirement.requirement_number or r.requirement.reference,
+                "requirement_name": r.requirement.name,
+                "uploaded_at": att.uploaded_at,
+            })
+    annexes_docs.sort(key=lambda d: (d["requirement_ref"], d["filename"]))
+
     now = timezone.now()
     html_string = render_to_string("reports/audit_report_pdf.html", {
         "assessment": assessment,
@@ -310,6 +323,7 @@ def generate_audit_report_pdf(assessment, user):
         "summary": summary,
         "findings_by_type": findings_by_type,
         "finding_qualifications": finding_qualifications,
+        "annexes_docs": annexes_docs,
         "generated_at": now,
         "generated_by": user,
     })

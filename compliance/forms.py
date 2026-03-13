@@ -19,12 +19,14 @@ from .models import (
     ComplianceActionPlan,
     ComplianceAssessment,
     AssessmentResult,
+    AssessmentResultAttachment,
     Finding,
     Framework,
     Requirement,
     RequirementMapping,
     Section,
 )
+from .models.assessment import ALLOWED_ATTACHMENT_EXTENSIONS
 
 User = get_user_model()
 
@@ -202,7 +204,7 @@ class ComplianceAssessmentForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = ComplianceAssessment
         fields = [
-            "scopes", "frameworks", "name", "description",
+            "scopes", "frameworks", "name", "description", "limitations",
             "assessment_start_date", "assessment_end_date",
             "assessor",
             "status", "tags",
@@ -212,6 +214,7 @@ class ComplianceAssessmentForm(ScopedFormMixin, forms.ModelForm):
             "frameworks": forms.SelectMultiple(attrs={**SELECT_ATTRS, "data-ts-frameworks": "true"}),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
+            "limitations": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "assessment_start_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "assessment_end_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "assessor": forms.Select(attrs=SELECT_ATTRS),
@@ -432,3 +435,18 @@ class ComplianceActionPlanForm(ScopedFormMixin, forms.ModelForm):
             "status": forms.Select(attrs=SELECT_ATTRS),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+
+
+class _MultiFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class AssessmentResultAttachmentForm(forms.Form):
+    files = forms.FileField(
+        label=_("Analyzed documents"),
+        widget=_MultiFileInput(attrs={
+            "class": "form-control form-control-sm",
+            "accept": ", ".join(f".{ext}" for ext in ALLOWED_ATTACHMENT_EXTENSIONS),
+        }),
+        required=False,
+    )

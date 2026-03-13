@@ -1,6 +1,7 @@
 import uuid
 
 from django.conf import settings
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
@@ -25,7 +26,8 @@ class ComplianceAssessment(ScopedModel):
         blank=True,
     )
     name = models.CharField(_("Name"), max_length=255)
-    description = models.TextField(_("Description"), blank=True, default="")
+    description = models.TextField(_("Context and objectives"), blank=True, default="")
+    limitations = models.TextField(_("Limitations"), blank=True, default="")
     assessment_start_date = models.DateField(
         _("Start date"), null=True, blank=True
     )
@@ -507,3 +509,45 @@ class AssessmentResult(models.Model):
 
     def __str__(self):
         return f"{self.requirement.reference} — {self.get_compliance_status_display()}"
+
+
+ALLOWED_ATTACHMENT_EXTENSIONS = [
+    "pdf", "doc", "docx", "xls", "xlsx", "jpeg", "jpg", "png",
+]
+
+
+def _attachment_upload_path(instance, filename):
+    return f"assessments/{instance.result.assessment_id}/attachments/{filename}"
+
+
+class AssessmentResultAttachment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    result = models.ForeignKey(
+        AssessmentResult,
+        on_delete=models.CASCADE,
+        related_name="attachments",
+        verbose_name=_("Assessment result"),
+    )
+    file = models.FileField(
+        _("File"),
+        upload_to=_attachment_upload_path,
+        validators=[FileExtensionValidator(allowed_extensions=ALLOWED_ATTACHMENT_EXTENSIONS)],
+    )
+    original_filename = models.CharField(_("File name"), max_length=255)
+    file_size = models.PositiveIntegerField(_("File size (bytes)"), default=0)
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="uploaded_attachments",
+        verbose_name=_("Uploaded by"),
+    )
+    uploaded_at = models.DateTimeField(_("Uploaded at"), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Assessment result attachment")
+        verbose_name_plural = _("Assessment result attachments")
+        ordering = ["uploaded_at"]
+
+    def __str__(self):
+        return self.original_filename

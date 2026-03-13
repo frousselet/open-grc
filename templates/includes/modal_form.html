@@ -6,7 +6,7 @@
   </h5>
   <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="{% trans 'Close' %}"></button>
 </div>
-<form method="post" hx-post="{{ request.path }}" hx-target="#drawer-form-content" hx-swap="innerHTML" hx-disabled-elt="find button[type='submit']" class="d-flex flex-column flex-grow-1 overflow-hidden">
+<form method="post" {% block form_enctype %}{% endblock %} hx-post="{{ request.path }}" hx-target="#drawer-form-content" hx-swap="innerHTML" hx-disabled-elt="find button[type='submit']" class="d-flex flex-column flex-grow-1 overflow-hidden">
   {% csrf_token %}
   <div class="drawer-body">
     {% block modal_form_fields %}{% endblock %}

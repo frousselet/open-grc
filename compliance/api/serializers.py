@@ -159,7 +159,7 @@ class ComplianceAssessmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ComplianceAssessment
         fields = [
-            "id", "scopes", "frameworks", "name", "description",
+            "id", "scopes", "frameworks", "name", "description", "limitations",
             "assessment_start_date", "assessment_end_date",
             "assessor",
             "overall_compliance_level",
