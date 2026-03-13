@@ -9005,11 +9005,5 @@ msgstr "Supprimer le logo"
 msgid "No company name set"
 msgstr "Aucun nom d'entreprise défini"
 
-msgid "Logo 32×32"
-msgstr "Logo 32×32"
-
-msgid "Logo 64×64"
-msgstr "Logo 64×64"
-
 msgid "Logo 128×128"
 msgstr "Logo 128×128"
