@@ -210,33 +210,43 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
                 .order_by("-assessment__assessment_end_date", "-assessment__created_at")
             )
 
-            latest_map = {}
-            fallback_map = {}
+            latest_map = {}    # req_id → (status, level)
+            fallback_map = {}  # req_id → (status, level)
             for r in all_results:
                 rid = r.requirement_id
                 if rid not in latest_map:
-                    latest_map[rid] = r.compliance_status
+                    latest_map[rid] = (r.compliance_status, r.compliance_level)
                 if rid not in fallback_map and r.compliance_status not in NOT_EVALUATED:
-                    fallback_map[rid] = r.compliance_status
+                    fallback_map[rid] = (r.compliance_status, r.compliance_level)
 
             counts = {"compliant": 0, "partial": 0, "non_compliant": 0, "evaluated": 0, "not_assessed": 0}
+            total_level = 0
             for rid in req_ids:
                 latest = latest_map.get(rid)
                 if latest is None:
                     counts["not_assessed"] += 1
                     continue
-                if latest in NOT_EVALUATED:
-                    effective = fallback_map.get(rid, CS.NOT_ASSESSED)
-                else:
-                    effective = latest
+                status, level = latest
+                if status in NOT_EVALUATED:
+                    fb = fallback_map.get(rid)
+                    if fb:
+                        status, level = fb
+                    else:
+                        status, level = CS.NOT_ASSESSED, 0
 
-                if effective in COMPLIANT_STATUSES or effective == CS.NOT_APPLICABLE:
+                if status == CS.NOT_APPLICABLE:
                     counts["compliant"] += 1
-                elif effective in PARTIAL_STATUSES:
+                    total_level += 100
+                elif status in COMPLIANT_STATUSES:
+                    counts["compliant"] += 1
+                    total_level += (level or 0)
+                elif status in PARTIAL_STATUSES:
                     counts["partial"] += 1
-                elif effective == CS.MAJOR_NON_CONFORMITY:
+                    total_level += (level or 0)
+                elif status == CS.MAJOR_NON_CONFORMITY:
                     counts["non_compliant"] += 1
-                elif effective == CS.EVALUATED:
+                    total_level += (level or 0)
+                elif status == CS.EVALUATED:
                     counts["evaluated"] += 1
                 else:
                     counts["not_assessed"] += 1
@@ -246,14 +256,18 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
             fw.seg_non_compliant = round(counts["non_compliant"] * 100 / rc)
             fw.seg_evaluated = round(counts["evaluated"] * 100 / rc)
             fw.seg_not_assessed = round(counts["not_assessed"] * 100 / rc)
+            # Compliance % = average level of truly assessed requirements
+            assessed_n = counts["compliant"] + counts["partial"] + counts["non_compliant"]
+            fw.computed_compliance = round(total_level / assessed_n) if assessed_n else 0
 
         ctx["active_frameworks"] = active_frameworks
 
-        # Overall compliance: average of framework compliance levels
-        agg = self._filter_scoped(
-            Framework.objects.filter(status="active")
-        ).aggregate(avg=Avg("compliance_level"))
-        ctx["overall_compliance"] = round(agg["avg"] or 0)
+        # Overall compliance: average of computed framework compliance levels
+        if active_frameworks:
+            vals = [fw.computed_compliance for fw in active_frameworks]
+            ctx["overall_compliance"] = round(sum(vals) / len(vals))
+        else:
+            ctx["overall_compliance"] = 0
 
         # Dashboard indicators
         ctx["dashboard_indicator_slots"] = get_dashboard_indicator_slots(self.request.user)
