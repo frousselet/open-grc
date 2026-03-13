@@ -221,7 +221,6 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
                     fallback_map[rid] = (r.compliance_status, r.compliance_level)
 
             counts = {"compliant": 0, "partial": 0, "non_compliant": 0, "evaluated": 0, "not_assessed": 0}
-            total_level = 0
             for rid in req_ids:
                 latest = latest_map.get(rid)
                 if latest is None:
@@ -237,16 +236,12 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
 
                 if status == CS.NOT_APPLICABLE:
                     counts["compliant"] += 1
-                    total_level += 100
                 elif status in COMPLIANT_STATUSES:
                     counts["compliant"] += 1
-                    total_level += (level or 0)
                 elif status in PARTIAL_STATUSES:
                     counts["partial"] += 1
-                    total_level += (level or 0)
                 elif status == CS.MAJOR_NON_CONFORMITY:
                     counts["non_compliant"] += 1
-                    total_level += (level or 0)
                 elif status == CS.EVALUATED:
                     counts["evaluated"] += 1
                 else:
@@ -257,9 +252,8 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
             fw.seg_non_compliant = round(counts["non_compliant"] * 100 / rc)
             fw.seg_evaluated = round(counts["evaluated"] * 100 / rc)
             fw.seg_not_assessed = round(counts["not_assessed"] * 100 / rc)
-            # Compliance % = average level of truly assessed requirements
-            assessed_n = counts["compliant"] + counts["partial"] + counts["non_compliant"]
-            fw.computed_compliance = round(total_level / assessed_n) if assessed_n else 0
+            # Compliance % = proportion of compliant requirements (matches green segment)
+            fw.computed_compliance = fw.seg_compliant
 
         ctx["active_frameworks"] = active_frameworks
 
