@@ -924,6 +924,29 @@
       to { transform: rotate(360deg); }
     }
 
+    /* ── Modal / drawer submit button loading feedback ── */
+    form.htmx-request button[type="submit"].btn-primary {
+      pointer-events: none;
+      opacity: .65;
+      position: relative;
+    }
+    form.htmx-request button[type="submit"].btn-primary i.bi {
+      visibility: hidden;
+    }
+    form.htmx-request button[type="submit"].btn-primary::after {
+      content: "";
+      position: absolute;
+      left: .75rem;
+      top: 50%;
+      margin-top: -.45em;
+      width: .9em;
+      height: .9em;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: toggle-spin .5s linear infinite;
+    }
+
     /* ── Badges ────────────────────────────────────────── */
     .badge {
       font-weight: 550;
