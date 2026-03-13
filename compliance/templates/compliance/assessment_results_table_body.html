@@ -94,8 +94,8 @@
     {% endif %}
   </td>
   <td class="text-end">
-    {% if is_frozen %}
-    {# Frozen: no action buttons #}
+    {% if not is_toggleable %}
+    {# Not toggleable: no action buttons #}
     {% elif not entry.requirement.is_applicable %}
     <span class="btn btn-sm btn-outline-secondary disabled" title="{% trans 'Non-applicable requirement' %}">
       <i class="bi bi-lock"></i>
