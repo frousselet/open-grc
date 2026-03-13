@@ -995,12 +995,7 @@ class BulkToggleEvaluatedView(LoginRequiredMixin, View):
                     result.assessed_at = now
                     result.save()
         assessment.recalculate_counts()
-        # Full page redirect to refresh gauges + table
-        detail_url = reverse("compliance:assessment-detail", args=[pk])
-        return HttpResponse(
-            status=204,
-            headers={"HX-Redirect": detail_url},
-        )
+        return HttpResponse(status=204, headers={"HX-Trigger": "formSaved"})
 
 
 class AssessmentResultsTableBodyView(LoginRequiredMixin, View):
