@@ -61,14 +61,4 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Company settings",
             },
         ),
-        migrations.AlterField(
-            model_name="user",
-            name="dashboard_indicators",
-            field=models.JSONField(
-                blank=True,
-                default=list,
-                help_text="List of indicator IDs pinned to the dashboard (max 10).",
-                verbose_name="Dashboard indicators",
-            ),
-        ),
     ]
