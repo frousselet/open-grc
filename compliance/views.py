@@ -544,16 +544,19 @@ class AssessmentDetailView(
         ).count()
         ctx["fw_req_count"] = fw_req_count
         ctx["coverage_pct"] = round(covered * 100 / fw_req_count) if fw_req_count else 0
-        # Compliance: average level of covered applicable results
-        if covered > 0:
+        # Compliance: average level of truly assessed results only
+        # (exclude NOT_ASSESSED, NOT_APPLICABLE, and EVALUATED which is just "planned")
+        assessed_qs = results_qs.exclude(
+            compliance_status__in=[
+                ComplianceStatus.NOT_ASSESSED,
+                ComplianceStatus.NOT_APPLICABLE,
+                ComplianceStatus.EVALUATED,
+            ]
+        )
+        assessed_count = assessed_qs.count()
+        if assessed_count > 0:
             from django.db.models import Avg
-            covered_qs = results_qs.exclude(
-                compliance_status__in=[
-                    ComplianceStatus.NOT_ASSESSED,
-                    ComplianceStatus.NOT_APPLICABLE,
-                ]
-            )
-            avg = covered_qs.aggregate(avg=Avg("compliance_level"))["avg"] or 0
+            avg = assessed_qs.aggregate(avg=Avg("compliance_level"))["avg"] or 0
             ctx["compliance_pct"] = round(avg)
         else:
             ctx["compliance_pct"] = 0
