@@ -82,11 +82,33 @@ class Priority(models.TextChoices):
 # ── Assessment ─────────────────────────────────────────────
 
 class AssessmentStatus(models.TextChoices):
-    DRAFT = "draft", _("Draft")
+    DRAFT = "draft", _("Audit draft")
+    PLANNED = "planned", _("Planned")
     IN_PROGRESS = "in_progress", _("In progress")
     COMPLETED = "completed", _("Completed")
-    VALIDATED = "validated", _("Validated")
-    ARCHIVED = "archived", _("Archived")
+    CLOSED = "closed", pgettext_lazy("assessment", "Closed")
+
+# Valid forward-only status transitions
+ASSESSMENT_STATUS_TRANSITIONS = {
+    AssessmentStatus.DRAFT: [AssessmentStatus.PLANNED],
+    AssessmentStatus.PLANNED: [AssessmentStatus.IN_PROGRESS],
+    AssessmentStatus.IN_PROGRESS: [AssessmentStatus.COMPLETED],
+    AssessmentStatus.COMPLETED: [AssessmentStatus.CLOSED],
+    AssessmentStatus.CLOSED: [],
+}
+
+# Statuses where the assessment metadata cannot be edited
+ASSESSMENT_LOCKED_STATUSES = {
+    AssessmentStatus.IN_PROGRESS,
+    AssessmentStatus.COMPLETED,
+    AssessmentStatus.CLOSED,
+}
+
+# Statuses where findings and results cannot be edited
+ASSESSMENT_FROZEN_STATUSES = {
+    AssessmentStatus.COMPLETED,
+    AssessmentStatus.CLOSED,
+}
 
 
 # ── Mapping ────────────────────────────────────────────────

@@ -73,7 +73,8 @@ class ComplianceAssessmentFilter(django_filters.FilterSet):
         fields = {
             "status": ["exact"],
             "assessor": ["exact"],
-            "assessment_date": ["gte", "lte"],
+            "assessment_start_date": ["gte", "lte"],
+            "assessment_end_date": ["gte", "lte"],
         }
 
 

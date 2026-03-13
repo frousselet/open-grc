@@ -12,14 +12,14 @@
     {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
   </div>
   <div>
-    <label for="{{ form.assessment_date.id_for_label }}" class="form-label">{{ form.assessment_date.label }}</label>
-    {{ form.assessment_date }}
-    {% for error in form.assessment_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    <label for="{{ form.assessment_start_date.id_for_label }}" class="form-label">{{ form.assessment_start_date.label }}</label>
+    {{ form.assessment_start_date }}
+    {% for error in form.assessment_start_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
   </div>
   <div>
-    <label for="{{ form.review_date.id_for_label }}" class="form-label">{{ form.review_date.label }}</label>
-    {{ form.review_date }}
-    {% for error in form.review_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    <label for="{{ form.assessment_end_date.id_for_label }}" class="form-label">{{ form.assessment_end_date.label }}</label>
+    {{ form.assessment_end_date }}
+    {% for error in form.assessment_end_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
   </div>
 </div>
 

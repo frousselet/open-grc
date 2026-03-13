@@ -8776,3 +8776,25 @@ msgstr "Cette exigence est non applicable. Son statut de conformité ne peut pas
 
 msgid "Select all / Deselect all for evaluation"
 msgstr "Tout sélectionner / Tout désélectionner pour évaluation"
+
+msgid "Audit draft"
+msgstr "Projet d'audit"
+
+msgid "End date"
+msgstr "Date de fin"
+
+msgid "Start date is required for this status."
+msgstr "La date de début est obligatoire pour ce statut."
+
+msgid "End date is required for this status."
+msgstr "La date de fin est obligatoire pour ce statut."
+
+msgid "End date must be after start date."
+msgstr "La date de fin doit être postérieure à la date de début."
+
+msgid "This assessment is locked and cannot be modified."
+msgstr "Cet audit est verrouillé et ne peut plus être modifié."
+
+msgctxt "assessment"
+msgid "Closed"
+msgstr "Clôturé"

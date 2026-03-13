@@ -160,14 +160,14 @@ class ComplianceAssessmentSerializer(serializers.ModelSerializer):
         model = ComplianceAssessment
         fields = [
             "id", "scopes", "frameworks", "name", "description",
-            "assessment_date", "assessor", "methodology",
+            "assessment_start_date", "assessment_end_date",
+            "assessor", "methodology",
             "overall_compliance_level",
             "total_requirements", "compliant_count",
             "major_non_conformity_count", "minor_non_conformity_count",
             "observation_count", "improvement_opportunity_count",
             "strength_count", "not_assessed_count", "not_applicable_count",
-            "status", "validated_by", "validated_at",
-            "review_date", "version", "tags",
+            "status", "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
@@ -179,7 +179,6 @@ class ComplianceAssessmentSerializer(serializers.ModelSerializer):
             "minor_non_conformity_count", "observation_count",
             "improvement_opportunity_count", "strength_count",
             "not_assessed_count", "not_applicable_count",
-            "validated_by", "validated_at",
         ]
 
 
@@ -190,8 +189,8 @@ class ComplianceAssessmentListSerializer(serializers.ModelSerializer):
         model = ComplianceAssessment
         fields = [
             "id", "scopes", "frameworks", "framework_names",
-            "name", "assessment_date", "assessor",
-            "overall_compliance_level", "status", "created_at",
+            "name", "assessment_start_date", "assessment_end_date",
+            "assessor", "overall_compliance_level", "status", "created_at",
         ]
         read_only_fields = ["id", "created_at"]
 

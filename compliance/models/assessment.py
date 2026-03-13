@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from compliance.constants import (
+    ASSESSMENT_STATUS_TRANSITIONS,
     AssessmentStatus,
     ComplianceStatus,
     FINDING_SEVERITY_ORDER,
@@ -25,7 +26,12 @@ class ComplianceAssessment(ScopedModel):
     )
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"), blank=True, default="")
-    assessment_date = models.DateField(_("Assessment date"))
+    assessment_start_date = models.DateField(
+        _("Start date"), null=True, blank=True
+    )
+    assessment_end_date = models.DateField(
+        _("End date"), null=True, blank=True
+    )
     assessor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -63,16 +69,6 @@ class ComplianceAssessment(ScopedModel):
         choices=AssessmentStatus.choices,
         default=AssessmentStatus.DRAFT,
     )
-    validated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="validated_assessments",
-        verbose_name=_("Validated by"),
-    )
-    validated_at = models.DateTimeField(_("Validation date"), null=True, blank=True)
-    review_date = models.DateField(_("Next review date"), null=True, blank=True)
 
     history = HistoricalRecords()
 
@@ -82,6 +78,38 @@ class ComplianceAssessment(ScopedModel):
 
     def __str__(self):
         return f"{self.reference} : {self.name}"
+
+    def transition_to(self, new_status):
+        """Validate and perform a status transition.
+
+        Raises ValueError if the transition is not allowed.
+        When transitioning to COMPLETED, resets EVALUATED results without
+        findings back to NOT_ASSESSED.
+        """
+        allowed = ASSESSMENT_STATUS_TRANSITIONS.get(self.status, [])
+        if new_status not in allowed:
+            raise ValueError(
+                f"Cannot transition from {self.status} to {new_status}."
+            )
+
+        if new_status == AssessmentStatus.COMPLETED:
+            # Reset EVALUATED results without findings to NOT_ASSESSED
+            finding_req_ids = set(
+                self.findings.values_list("requirements__id", flat=True)
+            )
+            finding_req_ids.discard(None)
+            self.results.filter(
+                compliance_status=ComplianceStatus.EVALUATED,
+            ).exclude(
+                requirement_id__in=finding_req_ids,
+            ).update(
+                compliance_status=ComplianceStatus.NOT_ASSESSED,
+                compliance_level=0,
+            )
+            self.recalculate_counts()
+
+        self.status = new_status
+        self.save(update_fields=["status"])
 
     def get_all_requirements(self):
         """Return a queryset of all requirements across all frameworks."""

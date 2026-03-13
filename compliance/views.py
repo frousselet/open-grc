@@ -42,7 +42,13 @@ from .import_utils import (
     parse_json,
     validate_parsed_data,
 )
-from .constants import ComplianceStatus, FindingType, FINDING_REFERENCE_PREFIXES
+from .constants import (
+    ASSESSMENT_FROZEN_STATUSES,
+    AssessmentStatus,
+    ComplianceStatus,
+    FindingType,
+    FINDING_REFERENCE_PREFIXES,
+)
 from .models import (
     AssessmentResult,
     ComplianceActionPlan,
@@ -472,7 +478,7 @@ class AssessmentListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin
     sortable_fields = {
         "reference": "reference",
         "name": "name",
-        "date": "assessment_date",
+        "date": "assessment_start_date",
         "status": "status",
     }
     default_sort = "reference"
@@ -567,6 +573,19 @@ class AssessmentDetailView(
                     "prefix": FINDING_REFERENCE_PREFIXES.get(ft.value, ""),
                 }
         ctx["finding_type_counts"] = finding_type_counts
+        # Status-based lock flags
+        from compliance.constants import (
+            ASSESSMENT_FROZEN_STATUSES,
+            ASSESSMENT_LOCKED_STATUSES,
+            ASSESSMENT_STATUS_TRANSITIONS,
+        )
+        ctx["is_locked"] = assessment.status in ASSESSMENT_LOCKED_STATUSES
+        ctx["is_frozen"] = assessment.status in ASSESSMENT_FROZEN_STATUSES
+        next_statuses = ASSESSMENT_STATUS_TRANSITIONS.get(assessment.status, [])
+        ctx["next_status"] = next_statuses[0] if next_statuses else None
+        ctx["next_status_label"] = (
+            AssessmentStatus(next_statuses[0]).label if next_statuses else ""
+        )
         return ctx
 
 
@@ -596,6 +615,19 @@ class AssessmentUpdateView(
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
+
+
+class AssessmentTransitionView(LoginRequiredMixin, View):
+    """Advance an assessment to its next workflow status."""
+
+    def post(self, request, pk):
+        assessment = get_object_or_404(ComplianceAssessment, pk=pk)
+        new_status = request.POST.get("status")
+        try:
+            assessment.transition_to(new_status)
+        except ValueError as e:
+            messages.error(request, str(e))
+        return redirect("compliance:assessment-detail", pk=assessment.pk)
 
 
 class AssessmentDeleteView(LoginRequiredMixin, DeleteView):
@@ -782,11 +814,38 @@ def _build_sections_with_results(assessment):
     }
 
 
+def _check_assessment_not_frozen(assessment):
+    """Return an HTTP 403 response if the assessment is frozen, else None."""
+    if assessment.status in ASSESSMENT_FROZEN_STATUSES:
+        return HttpResponse(
+            _("This assessment is locked and cannot be modified."),
+            status=403,
+        )
+    return None
+
+
+class FrozenAssessmentGuardMixin:
+    """Block POST/PUT/PATCH/DELETE on frozen assessments (COMPLETED/CLOSED)."""
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+            assessment = get_object_or_404(
+                ComplianceAssessment, pk=kwargs.get("assessment_pk")
+            )
+            frozen = _check_assessment_not_frozen(assessment)
+            if frozen:
+                return frozen
+        return super().dispatch(request, *args, **kwargs)
+
+
 class InitializeResultsView(LoginRequiredMixin, View):
     """Bulk-create AssessmentResult for all requirements (applicable and non-applicable)."""
 
     def post(self, request, pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=pk)
+        frozen = _check_assessment_not_frozen(assessment)
+        if frozen:
+            return frozen
         requirements = assessment.get_all_requirements()
         existing_req_ids = set(
             assessment.results.values_list("requirement_id", flat=True)
@@ -829,7 +888,7 @@ class InitializeResultsView(LoginRequiredMixin, View):
         return redirect(reverse("compliance:assessment-detail", args=[pk]))
 
 
-class AssessmentResultCreateView(LoginRequiredMixin, HtmxFormMixin, CreateView):
+class AssessmentResultCreateView(FrozenAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, CreateView):
     model = AssessmentResult
     form_class = AssessmentResultForm
     template_name = "compliance/assessment_result_form.html"
@@ -879,7 +938,7 @@ class AssessmentResultCreateView(LoginRequiredMixin, HtmxFormMixin, CreateView):
         )
 
 
-class AssessmentResultUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
+class AssessmentResultUpdateView(FrozenAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, UpdateView):
     model = AssessmentResult
     form_class = AssessmentResultForm
     template_name = "compliance/assessment_result_form.html"
@@ -924,7 +983,7 @@ class AssessmentResultUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
         )
 
 
-class AssessmentResultDeleteView(LoginRequiredMixin, DeleteView):
+class AssessmentResultDeleteView(FrozenAssessmentGuardMixin, LoginRequiredMixin, DeleteView):
     model = AssessmentResult
     template_name = "compliance/confirm_delete.html"
 
@@ -959,6 +1018,9 @@ class ToggleResultEvaluatedView(LoginRequiredMixin, View):
 
     def post(self, request, assessment_pk, requirement_pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=assessment_pk)
+        frozen = _check_assessment_not_frozen(assessment)
+        if frozen:
+            return frozen
         requirement = get_object_or_404(
             assessment.get_all_requirements(), pk=requirement_pk
         )
@@ -1001,6 +1063,9 @@ class BulkToggleEvaluatedView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=pk)
+        frozen = _check_assessment_not_frozen(assessment)
+        if frozen:
+            return frozen
         now = timezone.now()
 
         # IDs of requirements that have findings — those are locked
@@ -1088,7 +1153,7 @@ class AssessmentResultsTableBodyView(LoginRequiredMixin, View):
 # ── Findings ──────────────────────────────────────────────
 
 
-class FindingCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class FindingCreateView(FrozenAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Finding
     form_class = FindingForm
     template_name = "compliance/finding_form.html"
@@ -1125,7 +1190,7 @@ class FindingCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, Creat
         )
 
 
-class FindingUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
+class FindingUpdateView(FrozenAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, UpdateView):
     model = Finding
     form_class = FindingForm
     template_name = "compliance/finding_form.html"
@@ -1159,7 +1224,7 @@ class FindingUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
         )
 
 
-class FindingDeleteView(LoginRequiredMixin, DeleteView):
+class FindingDeleteView(FrozenAssessmentGuardMixin, LoginRequiredMixin, DeleteView):
     model = Finding
     template_name = "compliance/confirm_delete.html"
 

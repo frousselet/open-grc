@@ -959,15 +959,17 @@ def _register_compliance_tools(server):
                        "compliance_finding": _html_field("Finding"),
                    })
 
-    ca_fields = ["id", "name", "description", "assessment_date", "status",
+    ca_fields = ["id", "name", "description",
+                 "assessment_start_date", "assessment_end_date", "status",
                  "overall_compliance_level", "total_requirements",
                  "compliant_count", "major_non_conformity_count",
                  "minor_non_conformity_count", "observation_count",
                  "improvement_opportunity_count", "strength_count",
                  "not_applicable_count",
                  "is_approved", "created_at"]
-    ca_writable = ["name", "description", "assessment_date", "status",
-                   "assessor_id"]
+    ca_writable = ["name", "description",
+                   "assessment_start_date", "assessment_end_date",
+                   "status", "assessor_id"]
 
     _register_crud(server, "compliance_assessment", ComplianceAssessment,
                    "compliance.assessment",
