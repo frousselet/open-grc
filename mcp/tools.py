@@ -2201,3 +2201,50 @@ def _register_reports_tools(server):
         _id_schema(),
         delete_report,
     )
+
+    # ── Company Settings ───────────────────────────────────
+
+    company_fields = ["id", "name", "address", "updated_at"]
+
+    @require_perm("system.config.read")
+    def get_company_settings(user, arguments):
+        CompanySettings = _get_model("accounts", "CompanySettings")
+        instance = CompanySettings.get()
+        return _serialize_obj(instance, company_fields)
+
+    server.register_tool(
+        "get_company_settings",
+        "Get the company settings (name, address)",
+        {"type": "object", "properties": {}},
+        get_company_settings,
+    )
+
+    @require_perm("system.config.update")
+    def update_company_settings(user, arguments):
+        CompanySettings = _get_model("accounts", "CompanySettings")
+        instance = CompanySettings.get()
+        if "name" in arguments:
+            instance.name = arguments["name"]
+        if "address" in arguments:
+            instance.address = arguments["address"]
+        instance.save()
+        return _serialize_obj(instance, company_fields)
+
+    server.register_tool(
+        "update_company_settings",
+        "Update company settings (name and/or address)",
+        {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Company name",
+                },
+                "address": {
+                    "type": "string",
+                    "description": "Company address (multi-line)",
+                },
+            },
+        },
+        update_company_settings,
+    )

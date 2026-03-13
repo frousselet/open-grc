@@ -17,6 +17,7 @@ from django.views.generic import DetailView, ListView
 from accounts.constants import PERMISSION_REGISTRY, MODULE_LABELS
 from core.mixins import SortableListMixin
 from accounts.forms import (
+    CompanySettingsForm,
     GroupForm,
     LoginForm,
     PasswordChangeForm,
@@ -24,7 +25,7 @@ from accounts.forms import (
     UserCreateForm,
     UserUpdateForm,
 )
-from accounts.models import AccessLog, Group, Permission, User
+from accounts.models import AccessLog, CompanySettings, Group, Permission, User
 from context.models import Scope
 
 
@@ -154,6 +155,31 @@ class PasswordChangeView(LoginRequiredMixin, View):
             messages.success(request, _("Password changed successfully."))
             return redirect("accounts:profile")
         return render(request, "accounts/password_change.html", {"form": form})
+
+
+# ── Company Settings ────────────────────────────────────────
+
+class CompanySettingsView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "system.config.read"
+
+    def get(self, request):
+        instance = CompanySettings.get()
+        form = CompanySettingsForm(instance=instance)
+        can_edit = request.user.is_superuser or request.user.has_perm("system.config.update")
+        return render(request, "accounts/company_settings.html", {"form": form, "company": instance, "can_edit": can_edit})
+
+    def post(self, request):
+        can_edit = request.user.is_superuser or request.user.has_perm("system.config.update")
+        if not can_edit:
+            messages.error(request, _("You do not have the required permissions."))
+            return redirect("accounts:company-settings")
+        instance = CompanySettings.get()
+        form = CompanySettingsForm(request.POST, request.FILES, instance=instance)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Company settings updated."))
+            return redirect("accounts:company-settings")
+        return render(request, "accounts/company_settings.html", {"form": form, "company": instance, "can_edit": can_edit})
 
 
 # ── Users ───────────────────────────────────────────────────

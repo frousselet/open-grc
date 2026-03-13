@@ -1,7 +1,7 @@
 from django.contrib.auth import password_validation
 from rest_framework import serializers
 
-from accounts.models import AccessLog, Group, Permission, User
+from accounts.models import AccessLog, CompanySettings, Group, Permission, User
 from context.models import Scope
 
 
@@ -115,6 +115,13 @@ class AccessLogSerializer(serializers.ModelSerializer):
             "event_type", "ip_address", "user_agent", "failure_reason", "metadata",
         )
         read_only_fields = fields
+
+
+class CompanySettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CompanySettings
+        fields = ("id", "name", "address", "logo", "updated_at")
+        read_only_fields = ("id", "updated_at")
 
 
 class LoginSerializer(serializers.Serializer):

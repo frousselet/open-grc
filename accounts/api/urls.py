@@ -16,6 +16,9 @@ urlpatterns = [
     path("auth/me/", views.MeAPIView.as_view(), name="api-me"),
     path("auth/refresh/", views.TokenRefreshAPIView.as_view(), name="api-token-refresh"),
 
+    # Company settings
+    path("company-settings/", views.CompanySettingsAPIView.as_view(), name="api-company-settings"),
+
     # Resource endpoints
     path("", include(router.urls)),
 ]

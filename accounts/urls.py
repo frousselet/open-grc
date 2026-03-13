@@ -23,6 +23,9 @@ urlpatterns = [
     path("profile/reset-helpers/", views.ResetHelpersView.as_view(), name="reset-helpers"),
     path("password/change/", views.PasswordChangeView.as_view(), name="password-change"),
 
+    # Company settings
+    path("company/", views.CompanySettingsView.as_view(), name="company-settings"),
+
     # Users
     path("users/", views.UserListView.as_view(), name="user-list"),
     path("users/create/", views.UserCreateView.as_view(), name="user-create"),

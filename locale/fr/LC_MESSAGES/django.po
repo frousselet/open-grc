@@ -8979,3 +8979,37 @@ msgstr "Conformité partielle"
 msgctxt "assessment"
 msgid "Closed"
 msgstr "Clôturé"
+
+#: accounts/models/company_settings.py accounts/views.py accounts/templates/accounts/company_settings.html
+msgid "Company settings"
+msgstr "Paramètres de l'entreprise"
+
+msgid "Company name"
+msgstr "Nom de l'entreprise"
+
+msgid "Company settings — Open GRC"
+msgstr "Paramètres de l'entreprise — Open GRC"
+
+msgid "Company information"
+msgstr "Informations de l'entreprise"
+
+msgid "Company settings updated."
+msgstr "Paramètres de l'entreprise mis à jour."
+
+msgid "Company"
+msgstr "Entreprise"
+
+msgid "Remove logo"
+msgstr "Supprimer le logo"
+
+msgid "No company name set"
+msgstr "Aucun nom d'entreprise défini"
+
+msgid "Logo 32×32"
+msgstr "Logo 32×32"
+
+msgid "Logo 64×64"
+msgstr "Logo 64×64"
+
+msgid "Logo 128×128"
+msgstr "Logo 128×128"
