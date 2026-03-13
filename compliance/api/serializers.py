@@ -159,7 +159,7 @@ class ComplianceAssessmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ComplianceAssessment
         fields = [
-            "id", "scopes", "framework", "name", "description",
+            "id", "scopes", "frameworks", "name", "description",
             "assessment_date", "assessor", "methodology",
             "overall_compliance_level",
             "total_requirements", "compliant_count",
@@ -184,16 +184,19 @@ class ComplianceAssessmentSerializer(serializers.ModelSerializer):
 
 
 class ComplianceAssessmentListSerializer(serializers.ModelSerializer):
-    framework_name = serializers.CharField(source="framework.name", read_only=True)
+    framework_names = serializers.SerializerMethodField()
 
     class Meta:
         model = ComplianceAssessment
         fields = [
-            "id", "scopes", "framework", "framework_name",
+            "id", "scopes", "frameworks", "framework_names",
             "name", "assessment_date", "assessor",
             "overall_compliance_level", "status", "created_at",
         ]
         read_only_fields = ["id", "created_at"]
+
+    def get_framework_names(self, obj):
+        return [fw.short_name or fw.name for fw in obj.frameworks.all()]
 
 
 class RequirementMappingSerializer(serializers.ModelSerializer):

@@ -17,11 +17,11 @@ from context.models.base import ScopedModel
 class ComplianceAssessment(ScopedModel):
     REFERENCE_PREFIX = "CAST"
 
-    framework = models.ForeignKey(
+    frameworks = models.ManyToManyField(
         "compliance.Framework",
-        on_delete=models.CASCADE,
         related_name="assessments",
-        verbose_name=_("Framework"),
+        verbose_name=_("Frameworks"),
+        blank=True,
     )
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"), blank=True, default="")
@@ -83,6 +83,11 @@ class ComplianceAssessment(ScopedModel):
     def __str__(self):
         return f"{self.reference} : {self.name}"
 
+    def get_all_requirements(self):
+        """Return a queryset of all requirements across all frameworks."""
+        from compliance.models.requirement import Requirement
+        return Requirement.objects.filter(framework__in=self.frameworks.all())
+
     def recalculate_counts(self):
         """Recompute summary counts from results and propagate to requirements/framework.
 
@@ -129,9 +134,10 @@ class ComplianceAssessment(ScopedModel):
         ]
         prior_map = {}
         if evaluated_req_ids:
+            fw_ids = list(self.frameworks.values_list("pk", flat=True))
             prior_results = (
                 AssessmentResult.objects.filter(
-                    assessment__framework=self.framework,
+                    assessment__frameworks__in=fw_ids,
                     requirement_id__in=evaluated_req_ids,
                 )
                 .exclude(assessment=self)
@@ -210,8 +216,9 @@ class ComplianceAssessment(ScopedModel):
         for section in Section.objects.filter(pk__in=affected_section_ids):
             section.recalculate_compliance()
 
-        # ── Propagate to framework ──
-        self.framework.recalculate_compliance()
+        # ── Propagate to frameworks ──
+        for fw in self.frameworks.all():
+            fw.recalculate_compliance()
 
     def apply_findings_to_results(self):
         """Update assessment results based on linked findings (worst-finding-wins).

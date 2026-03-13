@@ -184,8 +184,8 @@ class ComplianceAssessmentViewSet(
     viewsets.ModelViewSet,
 ):
     queryset = ComplianceAssessment.objects.select_related(
-        "framework", "assessor", "validated_by"
-    ).prefetch_related("scopes").all()
+        "assessor", "validated_by"
+    ).prefetch_related("scopes", "frameworks").all()
     filterset_class = ComplianceAssessmentFilter
     permission_classes = [CompliancePermission]
     permission_feature = "assessment"
@@ -216,11 +216,11 @@ class ComplianceAssessmentViewSet(
             req.last_assessed_by = result.assessed_by
             req.save()
         # Recalculate framework compliance
-        assessment.framework.recalculate_compliance()
-        assessment.framework.last_assessment_date = assessment.assessment_date
-        Framework.objects.filter(pk=assessment.framework_id).update(
-            last_assessment_date=assessment.assessment_date
-        )
+        for fw in assessment.frameworks.all():
+            fw.recalculate_compliance()
+            Framework.objects.filter(pk=fw.pk).update(
+                last_assessment_date=assessment.assessment_date
+            )
         assessment.recalculate_counts()
         return Response(ComplianceAssessmentSerializer(assessment).data)
 

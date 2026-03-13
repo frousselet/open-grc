@@ -472,29 +472,17 @@ class AssessmentListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin
     sortable_fields = {
         "reference": "reference",
         "name": "name",
-        "framework": "framework__name",
         "date": "assessment_date",
         "status": "status",
     }
     default_sort = "reference"
-    search_fields = ["reference", "name", "framework__name"]
+    search_fields = ["reference", "name"]
 
     def get_queryset(self):
-        from django.db.models import Subquery, OuterRef, Value
-        from django.db.models.functions import Cast
-
-        # Number of applicable requirements in the framework
-        fw_req_count = Subquery(
-            Requirement.objects.filter(
-                framework=OuterRef("framework"),
-                is_applicable=True,
-            ).order_by().values("framework").annotate(c=Count("id")).values("c")[:1]
-        )
         return (
             super().get_queryset()
-            .prefetch_related("scopes")
-            .select_related("framework", "assessor")
-            .annotate(fw_req_count=fw_req_count)
+            .prefetch_related("scopes", "frameworks")
+            .select_related("assessor")
         )
 
 
@@ -539,7 +527,7 @@ class AssessmentDetailView(
         ctx["results_progress"] = round(truly_evaluated * 100 / covered) if covered else 0
         ctx["has_results"] = total > 0
         # Coverage: % of applicable framework requirements actively covered
-        fw_req_count = assessment.framework.requirements.filter(
+        fw_req_count = assessment.get_all_requirements().filter(
             is_applicable=True
         ).count()
         ctx["fw_req_count"] = fw_req_count
@@ -636,14 +624,13 @@ def _build_sections_with_results(assessment):
           "finding_counts": {type: count}}, ...],
           "evaluated": int, "total": int}, ...]
     """
-    framework = assessment.framework
     results_map = {
         r.requirement_id: r
         for r in assessment.results.select_related(
             "requirement", "assessed_by"
         ).all()
     }
-    requirements = framework.requirements.all().select_related("section")
+    requirements = assessment.get_all_requirements().select_related("section")
 
     # Build finding counts per requirement for this assessment
     finding_counts_map = {}  # requirement_id -> {finding_type: count}
@@ -762,7 +749,7 @@ class InitializeResultsView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=pk)
-        requirements = assessment.framework.requirements.all()
+        requirements = assessment.get_all_requirements()
         existing_req_ids = set(
             assessment.results.values_list("requirement_id", flat=True)
         )
@@ -935,7 +922,7 @@ class ToggleResultEvaluatedView(LoginRequiredMixin, View):
     def post(self, request, assessment_pk, requirement_pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=assessment_pk)
         requirement = get_object_or_404(
-            assessment.framework.requirements, pk=requirement_pk
+            assessment.get_all_requirements(), pk=requirement_pk
         )
         # Don't toggle if requirement is non-applicable
         if not requirement.is_applicable:

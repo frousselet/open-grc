@@ -196,13 +196,13 @@ class ComplianceAssessmentForm(ScopedFormMixin, forms.ModelForm):
     class Meta:
         model = ComplianceAssessment
         fields = [
-            "scopes", "framework", "name", "description",
+            "scopes", "frameworks", "name", "description",
             "assessment_date", "assessor", "methodology",
             "status", "review_date", "tags",
         ]
         widgets = {
             "scopes": ScopeTreeWidget(),
-            "framework": forms.Select(attrs=SELECT_ATTRS),
+            "frameworks": forms.SelectMultiple(attrs={**SELECT_ATTRS, "data-ts-frameworks": "true"}),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "assessment_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
@@ -242,14 +242,10 @@ class AssessmentResultForm(forms.ModelForm):
     def __init__(self, *args, assessment=None, requirement_instance=None, **kwargs):
         super().__init__(*args, **kwargs)
         if assessment:
-            self.fields["requirement"].queryset = Requirement.objects.filter(
-                framework=assessment.framework,
-            ).order_by("requirement_number")
+            self.fields["requirement"].queryset = assessment.get_all_requirements().order_by("requirement_number")
         if requirement_instance:
             self.fields["requirement"].initial = requirement_instance.pk
-            self.fields["requirement"].queryset = Requirement.objects.filter(
-                pk=requirement_instance.pk
-            )
+            self.fields["requirement"].queryset = Requirement.objects.filter(pk=requirement_instance.pk)
             self.fields["requirement"].widget.attrs["disabled"] = True
             # Lock status fields for non-applicable requirements
             if not requirement_instance.is_applicable:
@@ -285,9 +281,7 @@ class FindingForm(forms.ModelForm):
     def __init__(self, *args, assessment=None, **kwargs):
         super().__init__(*args, **kwargs)
         if assessment:
-            self.fields["requirements"].queryset = Requirement.objects.filter(
-                framework=assessment.framework,
-            ).order_by("requirement_number")
+            self.fields["requirements"].queryset = assessment.get_all_requirements().order_by("requirement_number")
         else:
             self.fields["requirements"].queryset = Requirement.objects.none()
 
