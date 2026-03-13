@@ -2551,6 +2551,10 @@
       </a>
       {% has_perm "system.config.read" as can_config %}
       {% if can_config %}
+      <a href="{% url 'accounts:company-settings' %}" class="sidebar-link">
+        <i class="bi bi-building"></i> <span class="sidebar-link-text">{% trans "Company" %}</span>
+        <span class="sidebar-tooltip">{% trans "Company" %}</span>
+      </a>
       <a href="{% url 'core:versioning-config-list' %}" class="sidebar-link">
         <i class="bi bi-sliders"></i> <span class="sidebar-link-text">{% trans "Versioning" %}</span>
         <span class="sidebar-tooltip">{% trans "Versioning" %}</span>

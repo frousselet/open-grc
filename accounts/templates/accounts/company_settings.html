@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Company settings — Open GRC" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>{% trans "Company settings" %}</h2>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.remove_logo }}
+  {{ form.logo_resized }}
+  <div class="row">
+    <div class="col-lg-8">
+
+      {# ── Logo ──────────────────────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-image me-2" style="color:var(--accent)"></i>{% trans "Logo" %}</h6></div>
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-4">
+            <div class="position-relative" style="flex-shrink:0">
+              {% if company.logo %}
+              <img id="logo-preview" src="{{ company.logo_128|default:company.logo }}" alt=""
+                   style="width:80px;height:80px;border-radius:12px;object-fit:contain;border:2px solid var(--border-light);background:var(--card-bg);padding:4px">
+              {% else %}
+              <div id="logo-preview"
+                   style="width:80px;height:80px;border-radius:12px;background:linear-gradient(135deg,var(--accent-soft),rgba(99,102,241,.15));color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:650;border:2px solid var(--border-light)">
+                <i class="bi bi-building"></i>
+              </div>
+              {% endif %}
+              {% if can_edit %}
+              <label for="{{ form.logo_file.id_for_label }}" class="position-absolute d-flex align-items-center justify-content-center"
+                     style="bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;cursor:pointer;font-size:.7rem;border:2px solid var(--card-bg);transition:transform .15s"
+                     title="{% trans 'Change logo' %}">
+                <i class="bi bi-camera-fill"></i>
+              </label>
+              <div style="display:none">{{ form.logo_file }}</div>
+              {% endif %}
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:1.0625rem">{{ company.name|default:_("No company name set") }}</div>
+              {% if company.logo and can_edit %}
+              <button type="button" id="remove-logo-btn" class="btn btn-link btn-sm p-0 mt-1" style="font-size:.75rem;color:var(--text-muted);text-decoration:none"
+                      onclick="removeLogo()">
+                <i class="bi bi-x me-1"></i>{% trans "Remove logo" %}
+              </button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ── Company information ──────────────────────── #}
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0"><i class="bi bi-building me-2" style="color:var(--accent)"></i>{% trans "Company information" %}</h6></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+            {% if can_edit %}
+            {{ form.name }}
+            {% else %}
+            <div class="form-control-plaintext">{{ company.name|default:"—" }}</div>
+            {% endif %}
+            {% if form.name.errors %}<div class="invalid-feedback d-block">{{ form.name.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="mb-0">
+            <label for="{{ form.address.id_for_label }}" class="form-label">{{ form.address.label }}</label>
+            {% if can_edit %}
+            {{ form.address }}
+            {% else %}
+            <div class="form-control-plaintext" style="white-space:pre-line">{{ company.address|default:"—" }}</div>
+            {% endif %}
+            {% if form.address.errors %}<div class="invalid-feedback d-block">{{ form.address.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# ── Actions ─────────────────────────────────── #}
+      {% if can_edit %}
+      <div class="d-flex gap-2 mb-4">
+        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+{% if can_edit %}
+{% include "includes/image_resize.html" %}
+<script>
+document.getElementById('{{ form.logo_file.id_for_label }}').addEventListener('change', function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('id_remove_logo').value = '';
+  resizeImageFile(file, 128, function(dataUri) {
+    document.getElementById('id_logo_resized').value = dataUri;
+    var el = document.getElementById('logo-preview');
+    if (el.tagName === 'IMG') {
+      el.src = dataUri;
+    } else {
+      var img = document.createElement('img');
+      img.id = 'logo-preview';
+      img.src = dataUri;
+      img.style.cssText = 'width:80px;height:80px;border-radius:12px;object-fit:contain;border:2px solid var(--border-light);background:var(--card-bg);padding:4px';
+      el.parentNode.replaceChild(img, el);
+    }
+  });
+});
+
+function removeLogo() {
+  document.getElementById('id_remove_logo').value = 'True';
+  document.getElementById('id_logo_resized').value = '';
+  var el = document.getElementById('logo-preview');
+  var div = document.createElement('div');
+  div.id = 'logo-preview';
+  div.style.cssText = 'width:80px;height:80px;border-radius:12px;background:linear-gradient(135deg,var(--accent-soft),rgba(99,102,241,.15));color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:650;border:2px solid var(--border-light)';
+  div.innerHTML = '<i class="bi bi-building"></i>';
+  el.parentNode.replaceChild(div, el);
+  var btn = document.getElementById('remove-logo-btn');
+  if (btn) btn.style.display = 'none';
+}
+</script>
+{% endif %}
+{% endblock %}

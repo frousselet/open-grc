@@ -11,6 +11,7 @@ from accounts.api.filters import AccessLogFilter, PermissionFilter, UserFilter
 from accounts.api.permissions import ModulePermission
 from accounts.api.serializers import (
     AccessLogSerializer,
+    CompanySettingsSerializer,
     GroupSerializer,
     LoginSerializer,
     MeSerializer,
@@ -20,7 +21,7 @@ from accounts.api.serializers import (
     UserListSerializer,
 )
 from accounts.constants import AccessEventType, FailureReason
-from accounts.models import AccessLog, Group, Permission, User
+from accounts.models import AccessLog, CompanySettings, Group, Permission, User
 
 
 # ── Auth API Views ──────────────────────────────────────────
@@ -282,6 +283,26 @@ class AccessLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewset
     permission_feature = "audit_trail"
     filterset_class = AccessLogFilter
     ordering_fields = ["timestamp"]
+
+
+# ── Company Settings ────────────────────────────────────────
+
+class CompanySettingsAPIView(APIView):
+    permission_classes = [IsAuthenticated, ModulePermission]
+    permission_module = "system"
+    permission_feature = "config"
+
+    def get(self, request):
+        instance = CompanySettings.get()
+        serializer = CompanySettingsSerializer(instance)
+        return Response({"status": "success", "data": serializer.data})
+
+    def patch(self, request):
+        instance = CompanySettings.get()
+        serializer = CompanySettingsSerializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"status": "success", "data": serializer.data})
 
 
 # ── Helpers ─────────────────────────────────────────────────

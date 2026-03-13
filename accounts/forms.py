@@ -5,8 +5,8 @@ from django.contrib.auth import password_validation
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import Group, User
-from helpers.image_utils import generate_image_variants
+from accounts.models import CompanySettings, Group, User
+from helpers.image_utils import generate_image_variants, resize_data_uri
 
 
 def _file_to_data_uri(uploaded_file):
@@ -169,6 +169,51 @@ class GroupForm(forms.ModelForm):
             "name": forms.TextInput(attrs={"class": "form-control"}),
             "description": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
         }
+
+
+class CompanySettingsForm(forms.ModelForm):
+    """Form for editing company settings (name, address, logo)."""
+
+    logo_file = forms.ImageField(
+        label=_("Logo"),
+        required=False,
+        widget=forms.FileInput(attrs={"class": "form-control", "accept": "image/*"}),
+    )
+    logo_resized = forms.CharField(required=False, widget=forms.HiddenInput())
+    remove_logo = forms.BooleanField(required=False, widget=forms.HiddenInput())
+
+    class Meta:
+        model = CompanySettings
+        fields = ("name", "address")
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "address": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        resized = self.cleaned_data.get("logo_resized")
+        if self.cleaned_data.get("remove_logo") and not resized and not self.files.get("logo_file"):
+            instance.logo = ""
+            instance.logo_32 = ""
+            instance.logo_64 = ""
+            instance.logo_128 = ""
+        elif resized:
+            instance.logo = resized
+            variants = generate_image_variants(resized)
+            instance.logo_32 = variants[32]
+            instance.logo_64 = variants[64]
+            instance.logo_128 = resize_data_uri(resized, 128)
+        elif self.files.get("logo_file"):
+            data_uri = _file_to_data_uri(self.files["logo_file"])
+            instance.logo = data_uri
+            variants = generate_image_variants(data_uri)
+            instance.logo_32 = variants[32]
+            instance.logo_64 = variants[64]
+            instance.logo_128 = resize_data_uri(data_uri, 128)
+        if commit:
+            instance.save()
+        return instance
 
 
 class PasswordChangeForm(forms.Form):
