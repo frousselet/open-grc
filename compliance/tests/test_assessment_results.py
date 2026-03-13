@@ -294,6 +294,56 @@ class TestNonApplicableRequirements:
         assert assessment.total_requirements == 2
 
 
+class TestBulkToggleEvaluated:
+    def test_bulk_toggle_selects_all(self, client, django_user_model):
+        """Bulk toggle sets all NOT_ASSESSED to EVALUATED."""
+        user = django_user_model.objects.create_user(email="bt1@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req1 = RequirementFactory(framework=fw, is_applicable=True)
+        req2 = RequirementFactory(framework=fw, is_applicable=True)
+        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req1,
+            compliance_status=ComplianceStatus.NOT_ASSESSED, compliance_level=0,
+            assessed_by=user,
+        )
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req2,
+            compliance_status=ComplianceStatus.NOT_ASSESSED, compliance_level=0,
+            assessed_by=user,
+        )
+
+        url = reverse("compliance:assessment-bulk-toggle-evaluated", args=[assessment.pk])
+        response = client.post(url)
+        assert response.status_code == 204
+
+        r1 = assessment.results.get(requirement=req1)
+        r2 = assessment.results.get(requirement=req2)
+        assert r1.compliance_status == ComplianceStatus.EVALUATED
+        assert r2.compliance_status == ComplianceStatus.EVALUATED
+
+    def test_bulk_toggle_deselects_all(self, client, django_user_model):
+        """Bulk toggle sets all EVALUATED back to NOT_ASSESSED when none are NOT_ASSESSED."""
+        user = django_user_model.objects.create_user(email="bt2@t.com", password="pw")
+        client.force_login(user)
+        fw = FrameworkFactory()
+        req1 = RequirementFactory(framework=fw, is_applicable=True)
+        assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
+        AssessmentResultFactory(
+            assessment=assessment, requirement=req1,
+            compliance_status=ComplianceStatus.EVALUATED, compliance_level=50,
+            assessed_by=user,
+        )
+
+        url = reverse("compliance:assessment-bulk-toggle-evaluated", args=[assessment.pk])
+        response = client.post(url)
+        assert response.status_code == 204
+
+        r1 = assessment.results.get(requirement=req1)
+        assert r1.compliance_status == ComplianceStatus.NOT_ASSESSED
+
+
 class TestAssessmentDetailView:
     def test_detail_shows_results_tab(self, client, django_user_model):
         user = django_user_model.objects.create_superuser(email="det@t.com", password="pw")
