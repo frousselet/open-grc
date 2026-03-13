@@ -27,6 +27,7 @@ from compliance.models import (
     Requirement,
     RequirementMapping,
 )
+from compliance.models.assessment import AssessmentResult
 from context.models import Activity, Indicator, Issue, Objective, Role, Scope, Site, Stakeholder, SwotAnalysis
 from context.views import get_dashboard_indicator_slots
 from risks.models import (
@@ -168,6 +169,8 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
             )
 
         # ── Conformité ───────────────────────────────────
+        from compliance.constants import ComplianceStatus as CS
+
         frameworks = self._filter_scoped(Framework.objects.all())
         ctx["framework_count"] = frameworks.count()
         active_frameworks = list(
@@ -177,48 +180,73 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
                 Prefetch("scopes", queryset=Scope.objects.select_related("parent_scope")),
             ).annotate(
                 req_count=Count("requirements", filter=Q(requirements__is_applicable=True)),
-                seg_compliant_n=Count(
-                    "requirements",
-                    filter=Q(requirements__is_applicable=True, requirements__compliance_status__in=["compliant", "strength"]),
-                ),
-                seg_partial_n=Count(
-                    "requirements",
-                    filter=Q(
-                        requirements__is_applicable=True,
-                        requirements__compliance_status__in=[
-                            "minor_non_conformity", "observation", "improvement_opportunity",
-                        ],
-                    ),
-                ),
-                seg_non_compliant_n=Count(
-                    "requirements",
-                    filter=Q(requirements__is_applicable=True, requirements__compliance_status="major_non_conformity"),
-                ),
-                seg_evaluated_n=Count(
-                    "requirements",
-                    filter=Q(requirements__is_applicable=True, requirements__compliance_status="evaluated"),
-                ),
-                seg_not_assessed_n=Count(
-                    "requirements",
-                    filter=Q(requirements__is_applicable=True, requirements__compliance_status="not_assessed"),
-                ),
             )[:10]
         )
-        # Compute segment percentages for stacked progress bars
+
+        NOT_EVALUATED = {CS.NOT_ASSESSED, CS.EVALUATED}
+        COMPLIANT_STATUSES = {CS.COMPLIANT, CS.STRENGTH}
+        PARTIAL_STATUSES = {
+            CS.MINOR_NON_CONFORMITY, CS.OBSERVATION,
+            CS.IMPROVEMENT_OPPORTUNITY,
+        }
+
+        # Compute segments from assessment results (latest by end_date, with fallback)
         for fw in active_frameworks:
             rc = fw.req_count or 0
-            if rc > 0:
-                fw.seg_compliant = round(fw.seg_compliant_n * 100 / rc)
-                fw.seg_partial = round(fw.seg_partial_n * 100 / rc)
-                fw.seg_non_compliant = round(fw.seg_non_compliant_n * 100 / rc)
-                fw.seg_evaluated = round(fw.seg_evaluated_n * 100 / rc)
-                fw.seg_not_assessed = round(fw.seg_not_assessed_n * 100 / rc)
-            else:
-                fw.seg_compliant = 0
-                fw.seg_partial = 0
-                fw.seg_non_compliant = 0
-                fw.seg_evaluated = 0
-                fw.seg_not_assessed = 0
+            if rc == 0:
+                fw.seg_compliant = fw.seg_partial = fw.seg_non_compliant = 0
+                fw.seg_evaluated = fw.seg_not_assessed = 0
+                continue
+
+            req_ids = set(
+                fw.requirements.filter(is_applicable=True).values_list("pk", flat=True)
+            )
+            all_results = (
+                AssessmentResult.objects.filter(
+                    assessment__frameworks=fw,
+                    requirement_id__in=req_ids,
+                )
+                .select_related("assessment")
+                .order_by("-assessment__assessment_end_date", "-assessment__created_at")
+            )
+
+            latest_map = {}
+            fallback_map = {}
+            for r in all_results:
+                rid = r.requirement_id
+                if rid not in latest_map:
+                    latest_map[rid] = r.compliance_status
+                if rid not in fallback_map and r.compliance_status not in NOT_EVALUATED:
+                    fallback_map[rid] = r.compliance_status
+
+            counts = {"compliant": 0, "partial": 0, "non_compliant": 0, "evaluated": 0, "not_assessed": 0}
+            for rid in req_ids:
+                latest = latest_map.get(rid)
+                if latest is None:
+                    counts["not_assessed"] += 1
+                    continue
+                if latest in NOT_EVALUATED:
+                    effective = fallback_map.get(rid, CS.NOT_ASSESSED)
+                else:
+                    effective = latest
+
+                if effective in COMPLIANT_STATUSES or effective == CS.NOT_APPLICABLE:
+                    counts["compliant"] += 1
+                elif effective in PARTIAL_STATUSES:
+                    counts["partial"] += 1
+                elif effective == CS.MAJOR_NON_CONFORMITY:
+                    counts["non_compliant"] += 1
+                elif effective == CS.EVALUATED:
+                    counts["evaluated"] += 1
+                else:
+                    counts["not_assessed"] += 1
+
+            fw.seg_compliant = round(counts["compliant"] * 100 / rc)
+            fw.seg_partial = round(counts["partial"] * 100 / rc)
+            fw.seg_non_compliant = round(counts["non_compliant"] * 100 / rc)
+            fw.seg_evaluated = round(counts["evaluated"] * 100 / rc)
+            fw.seg_not_assessed = round(counts["not_assessed"] * 100 / rc)
+
         ctx["active_frameworks"] = active_frameworks
 
         # Overall compliance: average of framework compliance levels
