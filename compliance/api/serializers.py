@@ -161,7 +161,7 @@ class ComplianceAssessmentSerializer(serializers.ModelSerializer):
         fields = [
             "id", "scopes", "frameworks", "name", "description",
             "assessment_start_date", "assessment_end_date",
-            "assessor", "methodology",
+            "assessor",
             "overall_compliance_level",
             "total_requirements", "compliant_count",
             "major_non_conformity_count", "minor_non_conformity_count",

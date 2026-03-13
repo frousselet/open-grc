@@ -673,19 +673,16 @@ class AssessmentTransitionView(LoginRequiredMixin, View):
             ("assessment_start_date", _("Start date")),
             ("assessment_end_date", _("End date")),
             ("frameworks", _("Frameworks")),
-            ("methodology", _("Methodology")),
         ],
         AssessmentStatus.COMPLETED: [
             ("assessment_start_date", _("Start date")),
             ("assessment_end_date", _("End date")),
             ("frameworks", _("Frameworks")),
-            ("methodology", _("Methodology")),
         ],
         AssessmentStatus.CLOSED: [
             ("assessment_start_date", _("Start date")),
             ("assessment_end_date", _("End date")),
             ("frameworks", _("Frameworks")),
-            ("methodology", _("Methodology")),
         ],
     }
 
