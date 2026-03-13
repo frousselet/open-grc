@@ -79,6 +79,44 @@ class ComplianceAssessment(ScopedModel):
     def __str__(self):
         return f"{self.reference} : {self.name}"
 
+    @property
+    def applicable_count(self):
+        """Number of applicable results (excludes NOT_APPLICABLE and non-applicable requirements)."""
+        return self.results.exclude(
+            compliance_status=ComplianceStatus.NOT_APPLICABLE,
+        ).filter(requirement__is_applicable=True).count()
+
+    @property
+    def covered_count(self):
+        """Number of covered results (applicable, not NOT_ASSESSED)."""
+        return self.results.exclude(
+            compliance_status__in=[
+                ComplianceStatus.NOT_APPLICABLE,
+                ComplianceStatus.NOT_ASSESSED,
+            ],
+        ).filter(requirement__is_applicable=True).count()
+
+    @property
+    def coverage_pct(self):
+        """Coverage percentage matching the detail view logic."""
+        applicable = self.applicable_count
+        return round(self.covered_count * 100 / applicable) if applicable else 0
+
+    @property
+    def compliance_pct(self):
+        """Compliance percentage of truly assessed results (excludes NOT_ASSESSED, NOT_APPLICABLE, EVALUATED)."""
+        from django.db.models import Avg
+
+        assessed_qs = self.results.exclude(
+            compliance_status__in=[
+                ComplianceStatus.NOT_ASSESSED,
+                ComplianceStatus.NOT_APPLICABLE,
+                ComplianceStatus.EVALUATED,
+            ],
+        ).filter(requirement__is_applicable=True)
+        avg = assessed_qs.aggregate(avg=Avg("compliance_level"))["avg"]
+        return round(avg) if avg else 0
+
     def transition_to(self, new_status):
         """Validate and perform a status transition.
 
