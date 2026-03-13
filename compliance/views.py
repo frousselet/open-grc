@@ -480,7 +480,8 @@ class AssessmentListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin
     sortable_fields = {
         "reference": "reference",
         "name": "name",
-        "date": "assessment_start_date",
+        "start_date": "assessment_start_date",
+        "end_date": "assessment_end_date",
         "status": "status",
     }
     default_sort = "reference"

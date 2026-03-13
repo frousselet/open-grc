@@ -29,7 +29,8 @@
           {% sortable_th "reference" "Ref." %}
           {% sortable_th "name" "Name" %}
           <th>{% trans "Frameworks" %}</th>
-          {% sortable_th "date" "Date" %}
+          {% sortable_th "start_date" "Start date" %}
+          {% sortable_th "end_date" "End date" %}
           <th>{% trans "Assessor" %}</th>
           <th>{% trans "Coverage" %}</th>
           <th>{% trans "Compliance" %}</th>
@@ -46,17 +47,24 @@
           <td>{{ a.name }}</td>
           <td>{% for fw in a.frameworks.all %}{{ fw.short_name|default:fw.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
           <td>{{ a.assessment_start_date|default:"—" }}</td>
+          <td>{{ a.assessment_end_date|default:"—" }}</td>
           <td>{{ a.assessor }}</td>
           <td>
-            <small style="font-size:.75rem">{{ a.total_requirements }}</small>
+            <div class="d-flex align-items-center gap-1">
+              <div class="progress flex-grow-1" style="min-width:60px;height:6px">
+                <div class="progress-bar bg-info" style="width:{{ a.coverage_pct }}%"></div>
+              </div>
+              <small class="fw-semibold" style="font-size:.75rem;min-width:2rem;text-align:right">{{ a.coverage_pct }}%</small>
+            </div>
+            <small style="font-size:.7rem;color:var(--text-muted)">{{ a.covered_count }}/{{ a.applicable_count }}</small>
           </td>
           <td>
             <div class="d-flex align-items-center gap-1">
               <div class="progress flex-grow-1" style="min-width:60px;height:6px">
-                <div class="progress-bar {% if a.overall_compliance_level >= 80 %}bg-success{% elif a.overall_compliance_level >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
-                     style="width:{{ a.overall_compliance_level|floatformat:0 }}%"></div>
+                <div class="progress-bar {% if a.compliance_pct >= 80 %}bg-success{% elif a.compliance_pct >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
+                     style="width:{{ a.compliance_pct }}%"></div>
               </div>
-              <small class="fw-semibold" style="font-size:.75rem;min-width:2rem;text-align:right">{{ a.overall_compliance_level|floatformat:0 }}%</small>
+              <small class="fw-semibold" style="font-size:.75rem;min-width:2rem;text-align:right">{{ a.compliance_pct }}%</small>
             </div>
           </td>
           <td>
@@ -77,7 +85,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No assessment defined." %}</td></tr>
+        <tr><td colspan="12" class="text-center py-4" style="color:var(--text-muted)">{% trans "No assessment defined." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>
