@@ -45,6 +45,7 @@ from .import_utils import (
 from .constants import (
     ASSESSMENT_EDITABLE_STATUSES,
     ASSESSMENT_FROZEN_STATUSES,
+    ASSESSMENT_TOGGLEABLE_STATUSES,
     AssessmentStatus,
     ComplianceStatus,
     FindingType,
@@ -581,6 +582,8 @@ class AssessmentDetailView(
         )
         ctx["is_locked"] = assessment.status in ASSESSMENT_LOCKED_STATUSES
         ctx["is_frozen"] = assessment.status not in ASSESSMENT_EDITABLE_STATUSES
+        ctx["is_toggleable"] = assessment.status in ASSESSMENT_TOGGLEABLE_STATUSES
+        ctx["is_initializable"] = assessment.status not in ASSESSMENT_FROZEN_STATUSES
         next_statuses = ASSESSMENT_STATUS_TRANSITIONS.get(assessment.status, [])
         ctx["next_status"] = next_statuses[0] if next_statuses else None
         ctx["next_status_label"] = (
@@ -824,6 +827,16 @@ def _check_assessment_not_frozen(assessment):
     return None
 
 
+def _check_assessment_toggleable(assessment):
+    """Return an HTTP 403 response if toggles are not allowed, else None."""
+    if assessment.status not in ASSESSMENT_TOGGLEABLE_STATUSES:
+        return HttpResponse(
+            _("This assessment is locked and cannot be modified."),
+            status=403,
+        )
+    return None
+
+
 def _check_assessment_editable(assessment):
     """Return an HTTP 403 response if the assessment is not in an editable status, else None."""
     if assessment.status not in ASSESSMENT_EDITABLE_STATUSES:
@@ -1042,7 +1055,7 @@ class ToggleResultEvaluatedView(LoginRequiredMixin, View):
 
     def post(self, request, assessment_pk, requirement_pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=assessment_pk)
-        error = _check_assessment_editable(assessment)
+        error = _check_assessment_toggleable(assessment)
         if error:
             return error
         requirement = get_object_or_404(
@@ -1087,7 +1100,7 @@ class BulkToggleEvaluatedView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=pk)
-        error = _check_assessment_editable(assessment)
+        error = _check_assessment_toggleable(assessment)
         if error:
             return error
         now = timezone.now()
@@ -1169,6 +1182,7 @@ class AssessmentResultsTableBodyView(LoginRequiredMixin, View):
                 "multi_framework": result_data["multi_framework"],
                 "assessment": assessment,
                 "is_frozen": assessment.status not in ASSESSMENT_EDITABLE_STATUSES,
+                "is_toggleable": assessment.status in ASSESSMENT_TOGGLEABLE_STATUSES,
             },
             request=request,
         )

@@ -110,7 +110,13 @@ ASSESSMENT_FROZEN_STATUSES = {
     AssessmentStatus.CLOSED,
 }
 
-# Statuses that allow editing findings and toggling results (only IN_PROGRESS)
+# Statuses that allow toggling results (NOT_ASSESSED ↔ EVALUATED)
+ASSESSMENT_TOGGLEABLE_STATUSES = {
+    AssessmentStatus.PLANNED,
+    AssessmentStatus.IN_PROGRESS,
+}
+
+# Statuses that allow full editing of findings and result details
 ASSESSMENT_EDITABLE_STATUSES = {
     AssessmentStatus.IN_PROGRESS,
 }
