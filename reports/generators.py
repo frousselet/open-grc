@@ -211,16 +211,18 @@ def generate_audit_report_pdf(assessment, user):
                 req_display = ", ".join(
                     r.requirement_number or r.reference for r in reqs
                 )
-                req_detail = "\n".join(
-                    f"{r.requirement_number or r.reference} — {r.name}" for r in reqs
-                )
+                req_items = [{
+                    "number": r.requirement_number or r.reference,
+                    "name": r.name,
+                    "description": r.description,
+                } for r in reqs]
                 fw_findings.append({
                     "reference": f.reference,
                     "type_display": f.get_finding_type_display(),
                     "finding_type": f.finding_type,
                     "color": _finding_color(f.finding_type),
                     "requirement_refs": req_display,
-                    "requirement_detail": req_detail,
+                    "requirement_items": req_items,
                     "description": f.description,
                     "recommendation": f.recommendation,
                     "evidence": f.evidence,
