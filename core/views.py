@@ -196,6 +196,7 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
             if rc == 0:
                 fw.seg_compliant = fw.seg_partial = fw.seg_non_compliant = 0
                 fw.seg_evaluated = fw.seg_not_assessed = 0
+                fw.computed_compliance = 0
                 continue
 
             req_ids = set(
