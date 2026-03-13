@@ -8797,6 +8797,10 @@ msgstr "La date de fin doit être postérieure à la date de début."
 msgid "This assessment is locked and cannot be modified."
 msgstr "Cet audit est verrouillé et ne peut plus être modifié."
 
+#: compliance/views.py — transition validation
+msgid "Please fill the required fields before advancing: %(fields)s"
+msgstr "Veuillez remplir les champs obligatoires avant de poursuivre : %(fields)s"
+
 #: templates/home.html — dashboard segments
 msgid "Partial compliance"
 msgstr "Conformité partielle"

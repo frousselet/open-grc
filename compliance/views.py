@@ -623,6 +623,17 @@ class AssessmentUpdateView(
         kwargs["user"] = self.request.user
         return kwargs
 
+    def get_initial(self):
+        initial = super().get_initial()
+        # Pre-select target status when redirected from transition button
+        target_status = self.request.GET.get("status")
+        if target_status:
+            initial["status"] = target_status
+        return initial
+
+    def get_success_url(self):
+        return reverse("compliance:assessment-detail", args=[self.object.pk])
+
     def form_valid(self, form):
         response = super().form_valid(form)
         self.object.sync_results(self.request.user)
@@ -635,6 +646,23 @@ class AssessmentTransitionView(LoginRequiredMixin, View):
     def post(self, request, pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=pk)
         new_status = request.POST.get("status")
+
+        # Validate required fields for the target status
+        if new_status and new_status != AssessmentStatus.DRAFT:
+            missing = []
+            if not assessment.assessment_start_date:
+                missing.append(str(_("Start date")))
+            if not assessment.assessment_end_date:
+                missing.append(str(_("End date")))
+            if missing:
+                messages.warning(
+                    request,
+                    _("Please fill the required fields before advancing: %(fields)s")
+                    % {"fields": ", ".join(missing)},
+                )
+                edit_url = reverse("compliance:assessment-update", args=[pk])
+                return redirect(f"{edit_url}?status={new_status}")
+
         try:
             assessment.transition_to(new_status)
         except ValueError as e:
