@@ -1144,6 +1144,7 @@ class AssessmentResultsTableBodyView(LoginRequiredMixin, View):
                 "sections_with_results": result_data["framework_groups"],
                 "multi_framework": result_data["multi_framework"],
                 "assessment": assessment,
+                "is_frozen": assessment.status in ASSESSMENT_FROZEN_STATUSES,
             },
             request=request,
         )
@@ -1267,7 +1268,11 @@ class FindingsTableBodyView(LoginRequiredMixin, View):
         ).order_by("reference")
         html = render_to_string(
             "compliance/findings_table_body.html",
-            {"findings": findings, "assessment": assessment},
+            {
+                "findings": findings,
+                "assessment": assessment,
+                "is_frozen": assessment.status in ASSESSMENT_FROZEN_STATUSES,
+            },
             request=request,
         )
         return HttpResponse(html)
