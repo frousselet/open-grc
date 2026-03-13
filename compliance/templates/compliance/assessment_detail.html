@@ -17,6 +17,25 @@
     {% endif %}
   </div>
   <small class="ref">{{ assessment.reference }}</small>
+  {# ── Metadata line ── #}
+  <div class="d-flex flex-wrap align-items-center gap-3 mt-2" style="font-size:.85rem;color:var(--text-muted)">
+    <span>
+      <i class="bi bi-journal-bookmark me-1"></i>
+      {% for fw in assessment.frameworks.all %}
+        <a href="{% url 'compliance:framework-detail' fw.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ fw.short_name|default:fw.name }}</a>{% if not forloop.last %}, {% endif %}
+      {% empty %}
+        —
+      {% endfor %}
+    </span>
+    <span>
+      <i class="bi bi-calendar-event me-1"></i>
+      {{ assessment.assessment_start_date|default:"—" }} → {{ assessment.assessment_end_date|default:"—" }}
+    </span>
+    <span>
+      <i class="bi bi-person me-1"></i>
+      {{ assessment.assessor }}
+    </span>
+  </div>
 </div>
 
 {# ── Workflow stepper ── #}
@@ -54,57 +73,20 @@
 {% include "includes/approval_badge.html" %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#planning">{% trans "Planning" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#findings_tab">{% trans "Findings" %} {% if findings_count %}<span class="badge text-bg-secondary ms-1">{{ findings_count }}</span>{% endif %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#results_tab">{% trans "Results" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
 
 <div class="tab-content">
-  <div class="tab-pane fade show active" id="general">
-    <div class="row g-3">
-      {# ── Left column: general information ── #}
-      <div class="col-lg-7">
-        <div class="card h-100">
-          <div class="card-body">
-            <dl class="row mb-0">
-              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Frameworks" %}</dt>
-              <dd class="col-sm-8">
-                {% for fw in assessment.frameworks.all %}
-                  <a href="{% url 'compliance:framework-detail' fw.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ fw.short_name|default:fw.name }}</a>{% if not forloop.last %}, {% endif %}
-                {% empty %}
-                  —
-                {% endfor %}
-              </dd>
-              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Start date" %}</dt>
-              <dd class="col-sm-8">{{ assessment.assessment_start_date|default:"—" }}</dd>
-              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "End date" %}</dt>
-              <dd class="col-sm-8">{{ assessment.assessment_end_date|default:"—" }}</dd>
-              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Lead assessor" %}</dt>
-              <dd class="col-sm-8">{{ assessment.assessor }}</dd>
-              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Methodology" %}</dt>
-              <dd class="col-sm-8">{{ assessment.methodology|default:"—"|safe }}</dd>
-              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
-              <dd class="col-sm-8">
-                <span class="badge text-bg-{% if assessment.status == 'closed' %}success{% elif assessment.status == 'completed' %}primary{% elif assessment.status == 'in_progress' %}info{% elif assessment.status == 'planned' %}warning{% else %}secondary{% endif %}">
-                  {{ assessment.get_status_display }}
-                </span>
-              </dd>
-              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt>
-              <dd class="col-sm-8">{{ assessment.description|default:"—"|safe }}</dd>
-              <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
-              <dd class="col-sm-8">{% for tag in assessment.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
-            </dl>
-          </div>
-        </div>
-      </div>
-
-      {# ── Right column: compliance summary ── #}
-      <div class="col-lg-5">
-        <div class="card h-100">
-          <div class="card-body d-flex flex-column">
-            {# ── Gauges row ── #}
-            <div class="d-flex justify-content-evenly mb-3 pb-3" style="border-bottom:1px solid var(--border-light)">
+  <div class="tab-pane fade show active" id="planning">
+    {# ── Stats card (full width) ── #}
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="row align-items-center">
+          {# ── Gauges ── #}
+          <div class="col-md-5 col-lg-4">
+            <div class="d-flex justify-content-evenly">
               {# ── Compliance gauge ── #}
               <div class="text-center">
                 <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:88px;height:88px">
@@ -120,7 +102,7 @@
                     {{ compliance_pct }}%
                   </span>
                 </div>
-                <div style="font-size:.75rem;color:var(--text-muted);margin-top:.4rem;max-width:160px;line-height:1.3">{% trans "Compliance of evaluated requirements" %}</div>
+                <div style="font-size:.75rem;color:var(--text-muted);margin-top:.4rem;max-width:120px;line-height:1.3">{% trans "Compliance" %}</div>
               </div>
               {# ── Coverage gauge ── #}
               <div class="text-center">
@@ -141,62 +123,122 @@
                 <div style="font-size:.7rem;color:var(--text-muted)">{{ results_total }}/{{ fw_req_count }}</div>
               </div>
             </div>
-
-            {# ── Status breakdown ── #}
-            <div class="flex-grow-1">
-              <div class="d-flex flex-column gap-1" style="font-size:.82rem">
-                {% if assessment.strength_count %}
-                <div class="d-flex justify-content-between align-items-center">
-                  <span><span class="badge text-bg-success" style="min-width:1.5rem">{{ assessment.strength_count }}</span> <span style="color:var(--text-muted)">{% trans "Strength" context "compliance" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-success" style="width:{% widthratio assessment.strength_count assessment.total_requirements 100 %}%"></div></div>
-                </div>
-                {% endif %}
-                {% if assessment.compliant_count %}
-                <div class="d-flex justify-content-between align-items-center">
-                  <span><span class="badge text-bg-success" style="min-width:1.5rem">{{ assessment.compliant_count }}</span> <span style="color:var(--text-muted)">{% trans "Compliant" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-success" style="width:{% widthratio assessment.compliant_count assessment.total_requirements 100 %}%"></div></div>
-                </div>
-                {% endif %}
-                {% if assessment.improvement_opportunity_count %}
-                <div class="d-flex justify-content-between align-items-center">
-                  <span><span class="badge text-bg-warning" style="min-width:1.5rem">{{ assessment.improvement_opportunity_count }}</span> <span style="color:var(--text-muted)">{% trans "Improvement opportunity" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-warning" style="width:{% widthratio assessment.improvement_opportunity_count assessment.total_requirements 100 %}%"></div></div>
-                </div>
-                {% endif %}
-                {% if assessment.observation_count %}
-                <div class="d-flex justify-content-between align-items-center">
-                  <span><span class="badge text-bg-warning" style="min-width:1.5rem">{{ assessment.observation_count }}</span> <span style="color:var(--text-muted)">{% trans "Observation" context "compliance" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-warning" style="width:{% widthratio assessment.observation_count assessment.total_requirements 100 %}%"></div></div>
-                </div>
-                {% endif %}
-                {% if assessment.minor_non_conformity_count %}
-                <div class="d-flex justify-content-between align-items-center">
-                  <span><span class="badge text-bg-danger" style="min-width:1.5rem">{{ assessment.minor_non_conformity_count }}</span> <span style="color:var(--text-muted)">{% trans "Minor non-conformity" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-danger" style="width:{% widthratio assessment.minor_non_conformity_count assessment.total_requirements 100 %}%"></div></div>
-                </div>
-                {% endif %}
-                {% if assessment.major_non_conformity_count %}
-                <div class="d-flex justify-content-between align-items-center">
-                  <span><span class="badge text-bg-danger" style="min-width:1.5rem">{{ assessment.major_non_conformity_count }}</span> <span style="color:var(--text-muted)">{% trans "Major non-conformity" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-danger" style="width:{% widthratio assessment.major_non_conformity_count assessment.total_requirements 100 %}%"></div></div>
-                </div>
-                {% endif %}
-                {% if assessment.evaluated_count %}
-                <div class="d-flex justify-content-between align-items-center">
-                  <span><span class="badge" style="min-width:1.5rem;background-color:var(--accent);color:#fff">{{ assessment.evaluated_count }}</span> <span style="color:var(--text-muted)">{% trans "Evaluation planned" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar" style="width:{% widthratio assessment.evaluated_count assessment.total_requirements 100 %}%;background-color:var(--accent)"></div></div>
-                </div>
-                {% endif %}
-                {% if assessment.not_applicable_count %}
-                <div class="d-flex justify-content-between align-items-center">
-                  <span><span class="badge text-bg-dark" style="min-width:1.5rem">{{ assessment.not_applicable_count }}</span> <span style="color:var(--text-muted)">{% trans "Not applicable" %}</span></span>
-                  <div class="progress" style="width:45%;height:5px"><div class="progress-bar bg-dark" style="width:{% widthratio assessment.not_applicable_count assessment.total_requirements 100 %}%"></div></div>
-                </div>
-                {% endif %}
+          </div>
+          {# ── Status breakdown ── #}
+          <div class="col-md-7 col-lg-8">
+            <div class="d-flex flex-column gap-1" style="font-size:.82rem">
+              {% if assessment.strength_count %}
+              <div class="d-flex justify-content-between align-items-center">
+                <span><span class="badge text-bg-success" style="min-width:1.5rem">{{ assessment.strength_count }}</span> <span style="color:var(--text-muted)">{% trans "Strength" context "compliance" %}</span></span>
+                <div class="progress" style="width:55%;height:5px"><div class="progress-bar bg-success" style="width:{% widthratio assessment.strength_count assessment.total_requirements 100 %}%"></div></div>
               </div>
+              {% endif %}
+              {% if assessment.compliant_count %}
+              <div class="d-flex justify-content-between align-items-center">
+                <span><span class="badge text-bg-success" style="min-width:1.5rem">{{ assessment.compliant_count }}</span> <span style="color:var(--text-muted)">{% trans "Compliant" %}</span></span>
+                <div class="progress" style="width:55%;height:5px"><div class="progress-bar bg-success" style="width:{% widthratio assessment.compliant_count assessment.total_requirements 100 %}%"></div></div>
+              </div>
+              {% endif %}
+              {% if assessment.improvement_opportunity_count %}
+              <div class="d-flex justify-content-between align-items-center">
+                <span><span class="badge text-bg-warning" style="min-width:1.5rem">{{ assessment.improvement_opportunity_count }}</span> <span style="color:var(--text-muted)">{% trans "Improvement opportunity" %}</span></span>
+                <div class="progress" style="width:55%;height:5px"><div class="progress-bar bg-warning" style="width:{% widthratio assessment.improvement_opportunity_count assessment.total_requirements 100 %}%"></div></div>
+              </div>
+              {% endif %}
+              {% if assessment.observation_count %}
+              <div class="d-flex justify-content-between align-items-center">
+                <span><span class="badge text-bg-warning" style="min-width:1.5rem">{{ assessment.observation_count }}</span> <span style="color:var(--text-muted)">{% trans "Observation" context "compliance" %}</span></span>
+                <div class="progress" style="width:55%;height:5px"><div class="progress-bar bg-warning" style="width:{% widthratio assessment.observation_count assessment.total_requirements 100 %}%"></div></div>
+              </div>
+              {% endif %}
+              {% if assessment.minor_non_conformity_count %}
+              <div class="d-flex justify-content-between align-items-center">
+                <span><span class="badge text-bg-danger" style="min-width:1.5rem">{{ assessment.minor_non_conformity_count }}</span> <span style="color:var(--text-muted)">{% trans "Minor non-conformity" %}</span></span>
+                <div class="progress" style="width:55%;height:5px"><div class="progress-bar bg-danger" style="width:{% widthratio assessment.minor_non_conformity_count assessment.total_requirements 100 %}%"></div></div>
+              </div>
+              {% endif %}
+              {% if assessment.major_non_conformity_count %}
+              <div class="d-flex justify-content-between align-items-center">
+                <span><span class="badge text-bg-danger" style="min-width:1.5rem">{{ assessment.major_non_conformity_count }}</span> <span style="color:var(--text-muted)">{% trans "Major non-conformity" %}</span></span>
+                <div class="progress" style="width:55%;height:5px"><div class="progress-bar bg-danger" style="width:{% widthratio assessment.major_non_conformity_count assessment.total_requirements 100 %}%"></div></div>
+              </div>
+              {% endif %}
+              {% if assessment.evaluated_count %}
+              <div class="d-flex justify-content-between align-items-center">
+                <span><span class="badge" style="min-width:1.5rem;background-color:var(--accent);color:#fff">{{ assessment.evaluated_count }}</span> <span style="color:var(--text-muted)">{% trans "Evaluation planned" %}</span></span>
+                <div class="progress" style="width:55%;height:5px"><div class="progress-bar" style="width:{% widthratio assessment.evaluated_count assessment.total_requirements 100 %}%;background-color:var(--accent)"></div></div>
+              </div>
+              {% endif %}
+              {% if assessment.not_applicable_count %}
+              <div class="d-flex justify-content-between align-items-center">
+                <span><span class="badge text-bg-dark" style="min-width:1.5rem">{{ assessment.not_applicable_count }}</span> <span style="color:var(--text-muted)">{% trans "Not applicable" %}</span></span>
+                <div class="progress" style="width:55%;height:5px"><div class="progress-bar bg-dark" style="width:{% widthratio assessment.not_applicable_count assessment.total_requirements 100 %}%"></div></div>
+              </div>
+              {% endif %}
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    {# ── Results table ── #}
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 gap-2">
+      <div class="d-flex align-items-center gap-3">
+        {% if has_results %}
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+          <div class="d-flex align-items-center gap-2">
+            <span style="font-size:.75rem;color:var(--text-muted)">{% trans "Coverage" %}</span>
+            <div class="progress" style="width:80px;height:6px">
+              <div class="progress-bar bg-info" style="width:{{ coverage_pct }}%"></div>
+            </div>
+            <span style="font-size:.8rem;color:var(--text-muted)">
+              {{ results_total }}/{{ fw_req_count }} ({{ coverage_pct }}%)
+            </span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span style="font-size:.75rem;color:var(--text-muted)">{% trans "Evaluated" %}</span>
+            <div class="progress" style="width:80px;height:6px">
+              <div class="progress-bar bg-success" style="width:{{ results_progress }}%"></div>
+            </div>
+            <span style="font-size:.8rem;color:var(--text-muted)">
+              {{ results_evaluated }}/{{ results_total }} ({{ results_progress }}%)
+            </span>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th style="width:10%">{% trans "Ref." %}</th>
+              <th style="width:35%">{% trans "Requirement" %}</th>
+              <th style="width:25%">{% trans "Status" %}</th>
+              <th style="width:20%">{% trans "Level" %}</th>
+              <th style="width:5%" class="text-end">
+                {% if is_toggleable %}
+                <button class="btn btn-sm btn-outline-secondary" style="font-size:.72rem;padding:2px 6px"
+                        hx-post="{% url 'compliance:assessment-bulk-toggle-evaluated' assessment.pk %}"
+                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                        hx-swap="none"
+                        hx-on::after-request="htmx.trigger(document.getElementById('item-table-body'), 'refreshTable')"
+                        title="{% trans 'Select all / Deselect all for evaluation' %}">
+                  <i class="bi bi-ui-checks"></i>
+                </button>
+                {% endif %}
+              </th>
+            </tr>
+          </thead>
+          <tbody id="item-table-body"
+                 hx-get="{% url 'compliance:assessment-results-table-body' assessment.pk %}"
+                 hx-trigger="refreshTable"
+                 hx-swap="innerHTML">
+            {% include "compliance/assessment_results_table_body.html" %}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -243,72 +285,6 @@
                  hx-trigger="refreshTable from:body"
                  hx-swap="innerHTML">
             {% include "compliance/findings_table_body.html" %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="tab-pane fade" id="results_tab">
-    {# ── Progress bar + action buttons ── #}
-    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 gap-2">
-      <div class="d-flex align-items-center gap-3">
-        {% if has_results %}
-        <div class="d-flex align-items-center gap-3 flex-wrap">
-          <div class="d-flex align-items-center gap-2">
-            <span style="font-size:.75rem;color:var(--text-muted)">{% trans "Coverage" %}</span>
-            <div class="progress" style="width:80px;height:6px">
-              <div class="progress-bar bg-info" style="width:{{ coverage_pct }}%"></div>
-            </div>
-            <span style="font-size:.8rem;color:var(--text-muted)">
-              {{ results_total }}/{{ fw_req_count }} ({{ coverage_pct }}%)
-            </span>
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <span style="font-size:.75rem;color:var(--text-muted)">{% trans "Evaluated" %}</span>
-            <div class="progress" style="width:80px;height:6px">
-              <div class="progress-bar bg-success" style="width:{{ results_progress }}%"></div>
-            </div>
-            <span style="font-size:.8rem;color:var(--text-muted)">
-              {{ results_evaluated }}/{{ results_total }} ({{ results_progress }}%)
-            </span>
-          </div>
-        </div>
-        {% endif %}
-      </div>
-      <div class="d-flex gap-2">
-      </div>
-    </div>
-
-    {# ── Results table with HTMX refresh ── #}
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th style="width:10%">{% trans "Ref." %}</th>
-              <th style="width:35%">{% trans "Requirement" %}</th>
-              <th style="width:25%">{% trans "Status" %}</th>
-              <th style="width:20%">{% trans "Level" %}</th>
-              <th style="width:5%" class="text-end">
-                {% if is_toggleable %}
-                <button class="btn btn-sm btn-outline-secondary" style="font-size:.72rem;padding:2px 6px"
-                        hx-post="{% url 'compliance:assessment-bulk-toggle-evaluated' assessment.pk %}"
-                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                        hx-swap="none"
-                        hx-on::after-request="htmx.trigger(document.getElementById('item-table-body'), 'refreshTable')"
-                        title="{% trans 'Select all / Deselect all for evaluation' %}">
-                  <i class="bi bi-ui-checks"></i>
-                </button>
-                {% endif %}
-              </th>
-            </tr>
-          </thead>
-          <tbody id="item-table-body"
-                 hx-get="{% url 'compliance:assessment-results-table-body' assessment.pk %}"
-                 hx-trigger="refreshTable"
-                 hx-swap="innerHTML">
-            {% include "compliance/assessment_results_table_body.html" %}
           </tbody>
         </table>
       </div>
