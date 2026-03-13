@@ -72,18 +72,12 @@
     {% if not entry.requirement.is_applicable %}
       <span style="color:var(--text-muted)">—</span>
     {% elif entry.has_findings and entry.result %}
-      <div class="d-flex align-items-center gap-1">
-        <div class="progress" style="width:50px;height:5px">
-          <div class="progress-bar {% if entry.result.compliance_level >= 80 %}bg-success{% elif entry.result.compliance_level >= 40 %}bg-warning{% else %}bg-danger{% endif %}" style="width:{{ entry.result.compliance_level }}%"></div>
-        </div>
-        <span>{{ entry.result.compliance_level }}%</span>
+      <div class="progress" style="width:60px;height:5px">
+        <div class="progress-bar" style="width:{{ entry.result.compliance_level }}%;background-color:var(--accent)"></div>
       </div>
     {% elif entry.result and entry.result.compliance_status != 'not_assessed' and entry.result.compliance_status != 'evaluated' %}
-      <div class="d-flex align-items-center gap-1">
-        <div class="progress" style="width:50px;height:5px">
-          <div class="progress-bar {% if entry.result.compliance_level >= 80 %}bg-success{% elif entry.result.compliance_level >= 40 %}bg-warning{% else %}bg-danger{% endif %}" style="width:{{ entry.result.compliance_level }}%"></div>
-        </div>
-        <span>{{ entry.result.compliance_level }}%</span>
+      <div class="progress" style="width:60px;height:5px">
+        <div class="progress-bar" style="width:{{ entry.result.compliance_level }}%;background-color:var(--accent)"></div>
       </div>
     {% else %}
       <span style="color:var(--text-muted)">—</span>
