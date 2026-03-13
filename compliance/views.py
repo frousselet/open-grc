@@ -502,7 +502,9 @@ class AssessmentDetailView(
             "requirement__requirement_number"
         )
         # Build sections_with_results for grouped display
-        ctx["sections_with_results"] = _build_sections_with_results(assessment)
+        result_data = _build_sections_with_results(assessment)
+        ctx["sections_with_results"] = result_data["framework_groups"]
+        ctx["multi_framework"] = result_data["multi_framework"]
         # Progress counts
         results_qs = assessment.results.all()
         total = results_qs.count()
@@ -617,12 +619,20 @@ def _natural_sort_key(value):
 
 
 def _build_sections_with_results(assessment):
-    """Build a list of sections with their requirements and associated results.
+    """Build a list of framework groups, each containing sections with results.
 
-    Returns a list of dicts:
-        [{"section": Section|None, "requirements": [{"requirement": Req, "result": Result|None,
+    When the assessment has a single framework, returns:
+        {"multi_framework": False,
+         "framework_groups": [{"framework": fw, "sections": sections_list}]}
+
+    When multiple frameworks, returns:
+        {"multi_framework": True,
+         "framework_groups": [{"framework": fw, "sections": sections_list}, ...]}
+
+    Each sections_list entry:
+        {"section": Section|None, "requirements": [{"requirement": Req, "result": Result|None,
           "finding_counts": {type: count}}, ...],
-          "evaluated": int, "total": int}, ...]
+          "evaluated": int, "total": int, "status_counts": dict}
     """
     results_map = {
         r.requirement_id: r
@@ -630,7 +640,9 @@ def _build_sections_with_results(assessment):
             "requirement", "assessed_by"
         ).all()
     }
-    requirements = assessment.get_all_requirements().select_related("section")
+    requirements = assessment.get_all_requirements().select_related(
+        "section", "framework"
+    )
 
     # Build finding counts per requirement for this assessment
     finding_counts_map = {}  # requirement_id -> {finding_type: count}
@@ -675,73 +687,99 @@ def _build_sections_with_results(assessment):
         }
         return status_map.get(result.compliance_status, "not_assessed")
 
-    sections_dict = {}  # section_id -> section data
-    no_section_reqs = []
+    def _build_sections_list(reqs_iter):
+        """Build sorted sections list from an iterable of requirements."""
+        sections_dict = {}
+        no_section_reqs = []
 
-    for req in requirements:
-        result = results_map.get(req.pk)
-        has_findings = req.pk in finding_counts_map
-        entry = {
-            "requirement": req,
-            "result": result,
-            "finding_counts": finding_counts_map.get(req.pk, {}),
-            "has_findings": has_findings,
-        }
-        if req.section_id:
-            if req.section_id not in sections_dict:
-                sections_dict[req.section_id] = {
-                    "section": req.section,
-                    "requirements": [],
-                    "evaluated": 0,
-                    "total": 0,
-                    "status_counts": _empty_status_counts(),
-                }
-            sections_dict[req.section_id]["requirements"].append(entry)
-            sections_dict[req.section_id]["total"] += 1
-            cat = _classify_entry(entry)
-            sections_dict[req.section_id]["status_counts"][cat] += 1
-            if req.is_applicable and (has_findings or (result and result.compliance_status != ComplianceStatus.NOT_ASSESSED)):
-                sections_dict[req.section_id]["evaluated"] += 1
-        else:
-            no_section_reqs.append(entry)
+        for req in reqs_iter:
+            result = results_map.get(req.pk)
+            has_findings = req.pk in finding_counts_map
+            entry = {
+                "requirement": req,
+                "result": result,
+                "finding_counts": finding_counts_map.get(req.pk, {}),
+                "has_findings": has_findings,
+            }
+            if req.section_id:
+                if req.section_id not in sections_dict:
+                    sections_dict[req.section_id] = {
+                        "section": req.section,
+                        "requirements": [],
+                        "evaluated": 0,
+                        "total": 0,
+                        "status_counts": _empty_status_counts(),
+                    }
+                sections_dict[req.section_id]["requirements"].append(entry)
+                sections_dict[req.section_id]["total"] += 1
+                cat = _classify_entry(entry)
+                sections_dict[req.section_id]["status_counts"][cat] += 1
+                if req.is_applicable and (has_findings or (result and result.compliance_status != ComplianceStatus.NOT_ASSESSED)):
+                    sections_dict[req.section_id]["evaluated"] += 1
+            else:
+                no_section_reqs.append(entry)
 
-    # Sort sections by reference using natural sort (4.1 < 5.1 < 10.1)
-    sections_list = sorted(
-        sections_dict.values(),
-        key=lambda s: _natural_sort_key(s["section"].reference),
-    )
-
-    # Sort requirements within each section by requirement_number
-    for section_data in sections_list:
-        section_data["requirements"].sort(
-            key=lambda e: _natural_sort_key(
-                e["requirement"].requirement_number or e["requirement"].reference
-            ),
+        sections_list = sorted(
+            sections_dict.values(),
+            key=lambda s: _natural_sort_key(s["section"].reference),
         )
 
-    # Add requirements with no section at the end
-    if no_section_reqs:
-        no_section_reqs.sort(
-            key=lambda e: _natural_sort_key(
-                e["requirement"].requirement_number or e["requirement"].reference
-            ),
-        )
-        evaluated = sum(
-            1 for e in no_section_reqs
-            if e["requirement"].is_applicable and (e["has_findings"] or (e["result"] and e["result"].compliance_status != ComplianceStatus.NOT_ASSESSED))
-        )
-        sc = _empty_status_counts()
-        for e in no_section_reqs:
-            sc[_classify_entry(e)] += 1
-        sections_list.append({
-            "section": None,
-            "requirements": no_section_reqs,
-            "evaluated": evaluated,
-            "total": len(no_section_reqs),
-            "status_counts": sc,
-        })
+        for section_data in sections_list:
+            section_data["requirements"].sort(
+                key=lambda e: _natural_sort_key(
+                    e["requirement"].requirement_number or e["requirement"].reference
+                ),
+            )
 
-    return sections_list
+        if no_section_reqs:
+            no_section_reqs.sort(
+                key=lambda e: _natural_sort_key(
+                    e["requirement"].requirement_number or e["requirement"].reference
+                ),
+            )
+            evaluated = sum(
+                1 for e in no_section_reqs
+                if e["requirement"].is_applicable and (e["has_findings"] or (e["result"] and e["result"].compliance_status != ComplianceStatus.NOT_ASSESSED))
+            )
+            sc = _empty_status_counts()
+            for e in no_section_reqs:
+                sc[_classify_entry(e)] += 1
+            sections_list.append({
+                "section": None,
+                "requirements": no_section_reqs,
+                "evaluated": evaluated,
+                "total": len(no_section_reqs),
+                "status_counts": sc,
+            })
+
+        return sections_list
+
+    frameworks = list(assessment.frameworks.all().order_by("name"))
+    multi_framework = len(frameworks) > 1
+
+    if multi_framework:
+        # Group requirements by framework
+        reqs_by_fw = {}
+        for req in requirements:
+            reqs_by_fw.setdefault(req.framework_id, []).append(req)
+
+        framework_groups = []
+        for fw in frameworks:
+            fw_reqs = reqs_by_fw.get(fw.pk, [])
+            framework_groups.append({
+                "framework": fw,
+                "sections": _build_sections_list(fw_reqs),
+            })
+    else:
+        framework_groups = [{
+            "framework": frameworks[0] if frameworks else None,
+            "sections": _build_sections_list(requirements),
+        }]
+
+    return {
+        "multi_framework": multi_framework,
+        "framework_groups": framework_groups,
+    }
 
 
 class InitializeResultsView(LoginRequiredMixin, View):
@@ -1034,10 +1072,14 @@ class AssessmentResultsTableBodyView(LoginRequiredMixin, View):
         from django.template.loader import render_to_string
 
         assessment = get_object_or_404(ComplianceAssessment, pk=pk)
-        sections_with_results = _build_sections_with_results(assessment)
+        result_data = _build_sections_with_results(assessment)
         html = render_to_string(
             "compliance/assessment_results_table_body.html",
-            {"sections_with_results": sections_with_results, "assessment": assessment},
+            {
+                "sections_with_results": result_data["framework_groups"],
+                "multi_framework": result_data["multi_framework"],
+                "assessment": assessment,
+            },
             request=request,
         )
         return HttpResponse(html)
