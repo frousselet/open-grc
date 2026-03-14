@@ -99,17 +99,19 @@
       var d=c.querySelector('[data-stepper-step="draft"]');
       var p=c.querySelector('[data-stepper-step="planned"]');
       var cl=c.querySelector('[data-stepper-step="closed"]');
-      var a=c.querySelector('[data-stepper-step="cancelled"]');
+      var aWrap=c.querySelector('[data-stepper-step="cancelled"]');
+      /* The visible pill may be a button inside a form, or a span directly */
+      var a=aWrap.tagName==='FORM'?aWrap.querySelector('button'):aWrap;
       if(!d||!p||!cl||!a||!svg) return;
       function draw(){
         var cr=c.getBoundingClientRect();
         var clr=cl.getBoundingClientRect();
-        /* Align Annulé row so the pill's center matches Clôturé's center */
+        /* Align Annulé so its center matches Clôturé's center */
         var clCenterX=clr.left+clr.width/2-cr.left;
+        var pillW=a.getBoundingClientRect().width;
+        row.style.paddingLeft=Math.max(0,clCenterX-pillW/2)+'px';
+        /* Recalculate pill position after repositioning */
         var ar=a.getBoundingClientRect();
-        row.style.paddingLeft=Math.max(0,clCenterX-ar.width/2)+'px';
-        /* Recalculate after repositioning */
-        ar=a.getBoundingClientRect();
         var dr=d.getBoundingClientRect(), pr=p.getBoundingClientRect();
         var dx=dr.left+dr.width/2-cr.left, dy=dr.bottom-cr.top;
         var px=pr.left+pr.width/2-cr.left, py=pr.bottom-cr.top;
