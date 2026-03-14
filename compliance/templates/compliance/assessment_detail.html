@@ -38,18 +38,18 @@
   </div>
 </div>
 
-{# ── Workflow stepper ── #}
+{# ── Workflow stepper (grid: row 1 = main flow, row 2 = branch to Annulé) ── #}
 <div class="card mb-3">
   <div class="card-body py-2 px-3">
-    {# ── Main flow: Draft → Planned → In progress → Completed → Closed ── #}
-    <div class="d-flex align-items-center gap-0" style="overflow-x:auto">
+    <div style="display:inline-grid;grid-template-columns:auto 32px auto 32px auto 32px auto 32px auto;align-items:center;row-gap:0;overflow-x:auto;width:100%">
+      {# ── Row 1: Main flow ── #}
       {% for step in workflow_steps %}
         {% if not forloop.first %}
-        <div class="flex-shrink-0" style="width:32px;height:2px;{% if step.state == 'done' or step.state == 'current' %}background:var(--accent){% else %}background:var(--border-light){% endif %}"></div>
+        <div style="grid-row:1;height:2px;{% if step.state == 'done' or step.state == 'current' %}background:var(--accent){% else %}background:var(--border-light){% endif %}"></div>
         {% endif %}
 
         {% if step.state == 'next' and next_status %}
-        <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}" class="flex-shrink-0">
+        <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}" style="grid-row:1">
           {% csrf_token %}
           <input type="hidden" name="status" value="{{ next_status }}">
           <button type="submit" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1 rounded-pill px-3"
@@ -58,37 +58,55 @@
           </button>
         </form>
         {% else %}
-        <span class="flex-shrink-0 d-inline-flex align-items-center gap-1 rounded-pill px-3"
-              style="white-space:nowrap;font-size:.8rem;padding:.3rem 0;
+        <span class="d-inline-flex align-items-center gap-1 rounded-pill px-3"
+              style="grid-row:1;white-space:nowrap;font-size:.8rem;padding:.3rem 0;
               {% if step.state == 'done' %}color:var(--text-muted);background:var(--bg-subtle);border:1px solid var(--border-light){% elif step.state == 'current' %}color:#fff;background:var(--accent);font-weight:600;border:2px solid var(--accent){% else %}color:var(--text-muted);opacity:.45;background:var(--bg-subtle);border:1px dashed var(--border-light){% endif %}">
           {% if step.state == 'done' %}<i class="bi bi-check-circle-fill" style="font-size:.7rem"></i>{% elif step.state == 'current' %}<i class="bi bi-circle-fill" style="font-size:.5rem"></i>{% else %}<i class="bi bi-circle" style="font-size:.5rem"></i>{% endif %}
           {{ step.label }}
         </span>
         {% endif %}
       {% endfor %}
-    </div>
-    {# ── Cancelled branch (below Closed, linked from Draft & Planned) ── #}
-    <div class="d-flex align-items-center gap-0 mt-2" style="overflow-x:auto;padding-left:0">
-      {# Spacer to align under Closed #}
-      <div class="flex-grow-1"></div>
-      <div class="flex-shrink-0" style="width:32px;height:2px;{% if cancelled_step.state == 'current' %}background:var(--danger){% else %}background:var(--border-light){% endif %}"></div>
-      {% if can_cancel %}
-      <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}" class="flex-shrink-0">
-        {% csrf_token %}
-        <input type="hidden" name="status" value="cancelled">
-        <button type="submit" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 rounded-pill px-3"
-                style="white-space:nowrap;font-size:.8rem;border-width:2px">
-          <i class="bi bi-x-circle"></i> {{ cancelled_step.label }}
-        </button>
-      </form>
-      {% else %}
-      <span class="flex-shrink-0 d-inline-flex align-items-center gap-1 rounded-pill px-3"
-            style="white-space:nowrap;font-size:.8rem;padding:.3rem 0;
-            {% if cancelled_step.state == 'current' %}color:#fff;background:var(--danger);font-weight:600;border:2px solid var(--danger){% else %}color:var(--text-muted);opacity:.45;background:var(--bg-subtle);border:1px dashed var(--border-light){% endif %}">
-        {% if cancelled_step.state == 'current' %}<i class="bi bi-x-circle-fill" style="font-size:.7rem"></i>{% else %}<i class="bi bi-circle" style="font-size:.5rem"></i>{% endif %}
-        {{ cancelled_step.label }}
-      </span>
-      {% endif %}
+
+      {# ── Row 2: Branch lines from Draft & Planned → Annulé ── #}
+      {# Col 1 (under Draft): vertical line down + horizontal line right #}
+      <div style="grid-row:2;grid-column:1;position:relative;min-height:28px">
+        <div style="position:absolute;left:calc(50% - 1px);top:0;width:2px;bottom:50%;{{ branch_line_style }}"></div>
+        <div style="position:absolute;left:50%;top:calc(50% - 1px);right:0;height:2px;{{ branch_line_style }}"></div>
+      </div>
+      {# Col 2: horizontal line #}
+      <div style="grid-row:2;grid-column:2;position:relative;min-height:28px">
+        <div style="position:absolute;left:0;right:0;top:calc(50% - 1px);height:2px;{{ branch_line_style }}"></div>
+      </div>
+      {# Col 3 (under Planned): vertical line down + horizontal line through #}
+      <div style="grid-row:2;grid-column:3;position:relative;min-height:28px">
+        <div style="position:absolute;left:calc(50% - 1px);top:0;width:2px;bottom:50%;{{ branch_line_style }}"></div>
+        <div style="position:absolute;left:0;right:0;top:calc(50% - 1px);height:2px;{{ branch_line_style }}"></div>
+      </div>
+      {# Cols 4–8: horizontal line continues #}
+      <div style="grid-row:2;grid-column:4/9;position:relative;min-height:28px">
+        <div style="position:absolute;left:0;right:0;top:calc(50% - 1px);height:2px;{{ branch_line_style }}"></div>
+      </div>
+      {# Col 9 (under Closed): connector + Annulé pill #}
+      <div style="grid-row:2;grid-column:9;display:flex;align-items:center;min-height:28px">
+        <div style="width:12px;height:2px;flex-shrink:0;{{ branch_line_style }}"></div>
+        {% if can_cancel %}
+        <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="status" value="cancelled">
+          <button type="submit" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 rounded-pill px-3"
+                  style="white-space:nowrap;font-size:.8rem;border-width:2px">
+            <i class="bi bi-x-circle"></i> {{ cancelled_step.label }}
+          </button>
+        </form>
+        {% else %}
+        <span class="d-inline-flex align-items-center gap-1 rounded-pill px-3"
+              style="white-space:nowrap;font-size:.8rem;padding:.3rem 0;
+              {% if cancelled_step.state == 'current' %}color:#fff;background:var(--danger);font-weight:600;border:2px solid var(--danger){% else %}color:var(--text-muted);opacity:.45;background:var(--bg-subtle);border:1px dashed var(--border-light){% endif %}">
+          {% if cancelled_step.state == 'current' %}<i class="bi bi-x-circle-fill" style="font-size:.7rem"></i>{% else %}<i class="bi bi-circle" style="font-size:.5rem"></i>{% endif %}
+          {{ cancelled_step.label }}
+        </span>
+        {% endif %}
+      </div>
     </div>
   </div>
 </div>
