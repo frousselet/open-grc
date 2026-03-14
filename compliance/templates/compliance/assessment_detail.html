@@ -109,7 +109,8 @@
         /* Align Annulé so its center matches Clôturé's center */
         var clCenterX=clr.left+clr.width/2-cr.left;
         var pillW=a.getBoundingClientRect().width;
-        row.style.paddingLeft=Math.max(0,clCenterX-pillW/2)+'px';
+        var cPad=parseFloat(getComputedStyle(c).paddingLeft)||0;
+        row.style.paddingLeft=Math.max(0,clCenterX-pillW/2-cPad)+'px';
         /* Recalculate pill position after repositioning */
         var ar=a.getBoundingClientRect();
         var dr=d.getBoundingClientRect(), pr=p.getBoundingClientRect();
