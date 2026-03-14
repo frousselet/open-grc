@@ -40,9 +40,10 @@
 
 {# ── Workflow stepper ── #}
 <div class="card mb-3">
-  <div class="card-body py-2 px-3" style="position:relative" data-stepper-container>
+  <div class="card-body py-2 px-3">
+    <div style="overflow-x:auto;position:relative" data-stepper-container>
     {# ── Main flow ── #}
-    <div class="d-flex align-items-center gap-0" style="overflow-x:auto">
+    <div class="d-flex align-items-center gap-0">
       {% for step in workflow_steps %}
         {% if not forloop.first %}
         <div class="flex-shrink-0" style="width:32px;height:2px;{% if step.state == 'done' or step.state == 'current' %}background:var(--accent){% else %}background:var(--border-light){% endif %}"></div>
@@ -109,8 +110,7 @@
         /* Align Annulé so its center matches Clôturé's center */
         var clCenterX=clr.left+clr.width/2-cr.left;
         var pillW=a.getBoundingClientRect().width;
-        var cPad=parseFloat(getComputedStyle(c).paddingLeft)||0;
-        row.style.paddingLeft=Math.max(0,clCenterX-pillW/2-cPad)+'px';
+        row.style.paddingLeft=Math.max(0,clCenterX-pillW/2)+'px';
         /* Recalculate pill position after repositioning */
         var ar=a.getBoundingClientRect();
         var dr=d.getBoundingClientRect(), pr=p.getBoundingClientRect();
@@ -127,6 +127,7 @@
       window.addEventListener('resize',draw);
     })();
     </script>
+    </div>{# /data-stepper-container #}
   </div>
 </div>
 {% help_modal "compliance.assessment_detail" %}
