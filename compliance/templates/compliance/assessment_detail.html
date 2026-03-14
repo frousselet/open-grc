@@ -41,6 +41,7 @@
 {# ── Workflow stepper ── #}
 <div class="card mb-3">
   <div class="card-body py-2 px-3">
+    {# ── Main flow: Draft → Planned → In progress → Completed → Closed ── #}
     <div class="d-flex align-items-center gap-0" style="overflow-x:auto">
       {% for step in workflow_steps %}
         {% if not forloop.first %}
@@ -65,6 +66,29 @@
         </span>
         {% endif %}
       {% endfor %}
+    </div>
+    {# ── Cancelled branch (below Closed, linked from Draft & Planned) ── #}
+    <div class="d-flex align-items-center gap-0 mt-2" style="overflow-x:auto;padding-left:0">
+      {# Spacer to align under Closed #}
+      <div class="flex-grow-1"></div>
+      <div class="flex-shrink-0" style="width:32px;height:2px;{% if cancelled_step.state == 'current' %}background:var(--danger){% else %}background:var(--border-light){% endif %}"></div>
+      {% if can_cancel %}
+      <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}" class="flex-shrink-0">
+        {% csrf_token %}
+        <input type="hidden" name="status" value="cancelled">
+        <button type="submit" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 rounded-pill px-3"
+                style="white-space:nowrap;font-size:.8rem;border-width:2px">
+          <i class="bi bi-x-circle"></i> {{ cancelled_step.label }}
+        </button>
+      </form>
+      {% else %}
+      <span class="flex-shrink-0 d-inline-flex align-items-center gap-1 rounded-pill px-3"
+            style="white-space:nowrap;font-size:.8rem;padding:.3rem 0;
+            {% if cancelled_step.state == 'current' %}color:#fff;background:var(--danger);font-weight:600;border:2px solid var(--danger){% else %}color:var(--text-muted);opacity:.45;background:var(--bg-subtle);border:1px dashed var(--border-light){% endif %}">
+        {% if cancelled_step.state == 'current' %}<i class="bi bi-x-circle-fill" style="font-size:.7rem"></i>{% else %}<i class="bi bi-circle" style="font-size:.5rem"></i>{% endif %}
+        {{ cancelled_step.label }}
+      </span>
+      {% endif %}
     </div>
   </div>
 </div>

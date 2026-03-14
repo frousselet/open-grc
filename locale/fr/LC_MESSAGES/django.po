@@ -8980,6 +8980,10 @@ msgctxt "assessment"
 msgid "Closed"
 msgstr "Clôturé"
 
+msgctxt "assessment"
+msgid "Cancelled"
+msgstr "Annulé"
+
 #: accounts/models/company_settings.py accounts/views.py accounts/templates/accounts/company_settings.html
 msgid "Company settings"
 msgstr "Paramètres de l'entreprise"

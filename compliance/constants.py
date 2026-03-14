@@ -87,14 +87,16 @@ class AssessmentStatus(models.TextChoices):
     IN_PROGRESS = "in_progress", _("In progress")
     COMPLETED = "completed", _("Completed")
     CLOSED = "closed", pgettext_lazy("assessment", "Closed")
+    CANCELLED = "cancelled", pgettext_lazy("assessment", "Cancelled")
 
 # Valid forward-only status transitions
 ASSESSMENT_STATUS_TRANSITIONS = {
-    AssessmentStatus.DRAFT: [AssessmentStatus.PLANNED],
-    AssessmentStatus.PLANNED: [AssessmentStatus.IN_PROGRESS],
+    AssessmentStatus.DRAFT: [AssessmentStatus.PLANNED, AssessmentStatus.CANCELLED],
+    AssessmentStatus.PLANNED: [AssessmentStatus.IN_PROGRESS, AssessmentStatus.CANCELLED],
     AssessmentStatus.IN_PROGRESS: [AssessmentStatus.COMPLETED],
     AssessmentStatus.COMPLETED: [AssessmentStatus.CLOSED],
     AssessmentStatus.CLOSED: [],
+    AssessmentStatus.CANCELLED: [],
 }
 
 # Statuses where the assessment metadata cannot be edited
@@ -102,12 +104,14 @@ ASSESSMENT_LOCKED_STATUSES = {
     AssessmentStatus.IN_PROGRESS,
     AssessmentStatus.COMPLETED,
     AssessmentStatus.CLOSED,
+    AssessmentStatus.CANCELLED,
 }
 
 # Statuses where findings and results cannot be edited (only IN_PROGRESS allows editing)
 ASSESSMENT_FROZEN_STATUSES = {
     AssessmentStatus.COMPLETED,
     AssessmentStatus.CLOSED,
+    AssessmentStatus.CANCELLED,
 }
 
 # Statuses that allow toggling results

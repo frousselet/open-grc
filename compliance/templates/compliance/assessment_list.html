@@ -68,7 +68,7 @@
             </div>
           </td>
           <td>
-            <span class="badge text-bg-{% if a.status == 'closed' %}success{% elif a.status == 'completed' %}primary{% elif a.status == 'in_progress' %}info{% elif a.status == 'planned' %}warning{% else %}secondary{% endif %}">
+            <span class="badge text-bg-{% if a.status == 'closed' %}success{% elif a.status == 'completed' %}primary{% elif a.status == 'in_progress' %}info{% elif a.status == 'planned' %}warning{% elif a.status == 'cancelled' %}danger{% else %}secondary{% endif %}">
               {{ a.get_status_display }}
             </span>
           </td>

@@ -530,28 +530,61 @@ class AssessmentDetailView(
         ctx["is_frozen"] = assessment.status not in ASSESSMENT_EDITABLE_STATUSES
         ctx["is_toggleable"] = assessment.status in ASSESSMENT_TOGGLEABLE_STATUSES
         next_statuses = ASSESSMENT_STATUS_TRANSITIONS.get(assessment.status, [])
-        ctx["next_status"] = next_statuses[0] if next_statuses else None
+        # For the main flow, the "next" transition is the first non-cancelled option
+        main_next = next(
+            (s for s in next_statuses if s != AssessmentStatus.CANCELLED), None
+        )
+        ctx["next_status"] = main_next
         ctx["next_status_label"] = (
-            AssessmentStatus(next_statuses[0]).label if next_statuses else ""
+            AssessmentStatus(main_next).label if main_next else ""
         )
-        # Workflow stepper: build ordered list of steps with state
-        all_statuses = list(AssessmentStatus)
+        # Can the assessment be cancelled from current status?
+        ctx["can_cancel"] = AssessmentStatus.CANCELLED in next_statuses
+
+        # Workflow stepper: build ordered list of main-flow steps (excludes CANCELLED)
+        main_statuses = [
+            s for s in AssessmentStatus if s != AssessmentStatus.CANCELLED
+        ]
+        is_cancelled = assessment.status == AssessmentStatus.CANCELLED
         current_idx = next(
-            (i for i, s in enumerate(all_statuses) if s.value == assessment.status), 0
+            (i for i, s in enumerate(main_statuses) if s.value == assessment.status),
+            None,
         )
-        next_idx = current_idx + 1 if next_statuses else None
+        # For cancelled assessments, determine how far the main flow got
+        # (cancelled from DRAFT → idx 0, from PLANNED → idx 1)
+        if is_cancelled:
+            current_idx = None  # no main-flow step is "current"
+        next_main_idx = (current_idx + 1) if (current_idx is not None and main_next) else None
         steps = []
-        for i, s in enumerate(all_statuses):
-            if i < current_idx:
-                state = "done"
-            elif i == current_idx:
-                state = "current"
-            elif next_idx is not None and i == next_idx:
-                state = "next"
+        for i, s in enumerate(main_statuses):
+            if current_idx is not None:
+                if i < current_idx:
+                    state = "done"
+                elif i == current_idx:
+                    state = "current"
+                elif next_main_idx is not None and i == next_main_idx:
+                    state = "next"
+                else:
+                    state = "future"
             else:
+                # Cancelled: all main-flow steps are faded
                 state = "future"
             steps.append({"value": s.value, "label": s.label, "state": state})
         ctx["workflow_steps"] = steps
+
+        # Cancelled step (separate from main flow)
+        if is_cancelled:
+            ctx["cancelled_step"] = {
+                "value": AssessmentStatus.CANCELLED.value,
+                "label": AssessmentStatus.CANCELLED.label,
+                "state": "current",
+            }
+        else:
+            ctx["cancelled_step"] = {
+                "value": AssessmentStatus.CANCELLED.value,
+                "label": AssessmentStatus.CANCELLED.label,
+                "state": "future",
+            }
         return ctx
 
 
