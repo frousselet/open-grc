@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Kanban board" %} — {% trans "Action plans" %} — Open GRC{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">{% trans "Action plans" %} — {% trans "Kanban board" %}</h1>
+  <div class="header-actions">
+    <a href="{% url 'compliance:action-plan-list' %}" class="btn-header-action" title="{% trans 'List view' %}">
+      <i class="bi bi-list-ul"></i>
+    </a>
+    <button type="button" class="btn-header-action" title="{% trans 'New action plan' %}"
+            hx-get="{% url 'compliance:action-plan-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+  </div>
+</div>
+
+<div class="kanban-board">
+  {% for status_val, col in columns.items %}
+  <div class="kanban-column" data-status="{{ status_val }}">
+    <div class="kanban-column-header">
+      <span class="badge text-bg-{{ col.color }}">{{ col.label }}</span>
+      <span class="kanban-count">{{ col.plans|length }}</span>
+    </div>
+    <div class="kanban-cards" id="kanban-{{ status_val }}">
+      {% for ap in col.plans %}
+      {% include "compliance/_action_plan_card.html" with ap=ap %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if cancelled_plans %}
+<div class="mt-4">
+  <h5 class="text-muted mb-3">
+    <i class="bi bi-x-circle me-1"></i>{% trans "Cancelled" %}
+    <span class="badge bg-secondary ms-1">{{ cancelled_plans|length }}</span>
+  </h5>
+  <div class="row g-2">
+    {% for ap in cancelled_plans %}
+    <div class="col-md-4 col-lg-3">
+      {% include "compliance/_action_plan_card.html" with ap=ap %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Transition modal for refusals/cancellations -->
+<div class="modal fade" id="transitionModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="transitionForm" method="post" action="">
+        {% csrf_token %}
+        <input type="hidden" name="target_status" id="transitionTargetStatus">
+        <div class="modal-header">
+          <h5 class="modal-title" id="transitionModalTitle">{% trans "Transition" %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3" id="transitionStatusInfo"></div>
+          <div class="mb-3">
+            <label for="transitionComment" class="form-label">{% trans "Comment" %}</label>
+            <textarea class="form-control" id="transitionComment" name="comment" rows="3" placeholder="{% trans 'Reason for this transition...' %}"></textarea>
+            <div class="form-text" id="commentRequired" style="display:none;color:var(--danger)">
+              {% trans "A comment is required when refusing." %}
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+          <button type="submit" class="btn btn-primary" id="transitionSubmit">{% trans "Confirm" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+.kanban-board {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  min-height: 60vh;
+}
+.kanban-column {
+  min-width: 240px;
+  max-width: 300px;
+  flex: 1 0 240px;
+  background: var(--surface-muted, #f8fafc);
+  border-radius: var(--radius-lg, 1rem);
+  padding: .75rem;
+  display: flex;
+  flex-direction: column;
+}
+[data-bs-theme="dark"] .kanban-column {
+  background: var(--bg-card, #1e293b);
+}
+.kanban-column-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .75rem;
+  padding: 0 .25rem;
+}
+.kanban-count {
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.kanban-cards {
+  flex: 1;
+  min-height: 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+.kanban-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border-light, #e2e8f0);
+  border-radius: var(--radius-md, .5rem);
+  padding: .75rem;
+  cursor: grab;
+  transition: box-shadow .15s, transform .15s;
+}
+.kanban-card:hover {
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0,0,0,.1));
+  transform: translateY(-1px);
+}
+[data-bs-theme="dark"] .kanban-card {
+  background: var(--surface, #1a2332);
+  border-color: var(--border-light, #334155);
+}
+.kanban-card .card-ref {
+  font-size: .6875rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.kanban-card .card-title {
+  font-size: .8125rem;
+  font-weight: 600;
+  margin: .25rem 0;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+.kanban-card .card-meta {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .6875rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+.kanban-card.sortable-ghost {
+  opacity: .35;
+}
+.kanban-card.sortable-chosen {
+  box-shadow: 0 8px 25px rgba(0,0,0,.15);
+  transform: rotate(2deg);
+}
+.kanban-card.sortable-drag {
+  box-shadow: 0 8px 25px rgba(0,0,0,.2);
+}
+@media (max-width: 768px) {
+  .kanban-board { gap: .75rem; }
+  .kanban-column { min-width: 200px; flex: 1 0 200px; }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const allowedTransitions = {{ transitions_json|safe }};
+  const refusalTransitions = {{ refusal_json|safe }};
+  const csrfToken = '{{ csrf_token }}';
+
+  document.querySelectorAll('.kanban-cards').forEach(function(column) {
+    new Sortable(column, {
+      group: 'kanban',
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      dragClass: 'sortable-drag',
+      onEnd: function(evt) {
+        const cardEl = evt.item;
+        const cardId = cardEl.dataset.id;
+        const newStatus = evt.to.closest('.kanban-column').dataset.status;
+        const oldStatus = evt.from.closest('.kanban-column').dataset.status;
+
+        if (newStatus === oldStatus) return;
+
+        // Check if transition is allowed
+        const allowed = allowedTransitions[oldStatus] || [];
+        if (!allowed.includes(newStatus)) {
+          // Revert drag
+          evt.from.insertBefore(cardEl, evt.from.children[evt.oldIndex] || null);
+          return;
+        }
+
+        // Check if refusal or cancellation — show modal
+        const isRefusal = refusalTransitions[oldStatus] === newStatus;
+        const isCancel = newStatus === 'annule';
+        if (isRefusal || isCancel) {
+          // Revert drag, show modal
+          evt.from.insertBefore(cardEl, evt.from.children[evt.oldIndex] || null);
+          showTransitionModal(cardId, oldStatus, newStatus, isRefusal);
+          return;
+        }
+
+        // Direct transition via HTMX
+        performTransition(cardId, newStatus, '');
+      }
+    });
+  });
+
+  function performTransition(planId, targetStatus, comment) {
+    const url = '/compliance/action-plans/' + planId + '/transition/';
+    const formData = new FormData();
+    formData.append('target_status', targetStatus);
+    formData.append('comment', comment);
+    formData.append('csrfmiddlewaretoken', csrfToken);
+
+    fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: { 'HX-Request': 'true' }
+    }).then(function(response) {
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        response.text().then(function(text) {
+          alert('Error: ' + text);
+          window.location.reload();
+        });
+      }
+    });
+  }
+
+  function showTransitionModal(planId, fromStatus, toStatus, isRefusal) {
+    const modal = document.getElementById('transitionModal');
+    const form = document.getElementById('transitionForm');
+    const targetInput = document.getElementById('transitionTargetStatus');
+    const commentField = document.getElementById('transitionComment');
+    const commentRequired = document.getElementById('commentRequired');
+    const submitBtn = document.getElementById('transitionSubmit');
+
+    form.action = '/compliance/action-plans/' + planId + '/transition/';
+    targetInput.value = toStatus;
+    commentField.value = '';
+
+    if (isRefusal) {
+      commentRequired.style.display = 'block';
+      commentField.required = true;
+      submitBtn.className = 'btn btn-warning';
+      submitBtn.textContent = '{% trans "Refuse" %}';
+    } else {
+      commentRequired.style.display = 'none';
+      commentField.required = false;
+      submitBtn.className = 'btn btn-danger';
+      submitBtn.textContent = '{% trans "Cancel action plan" %}';
+    }
+
+    new bootstrap.Modal(modal).show();
+  }
+
+  // Listen for kanban refresh trigger from HTMX
+  document.body.addEventListener('refreshKanban', function() {
+    window.location.reload();
+  });
+});
+</script>
+{% endblock %}

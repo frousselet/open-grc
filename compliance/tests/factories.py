@@ -1,14 +1,17 @@
 import factory
+from datetime import timedelta
 from django.utils import timezone
 
 from accounts.tests.factories import UserFactory
 from compliance.constants import (
+    ActionPlanStatus,
     AssessmentStatus,
     ComplianceStatus,
     FindingType,
     FrameworkCategory,
     FrameworkType,
     MappingType,
+    Priority,
     RequirementType,
 )
 from compliance.models.assessment import AssessmentResult, ComplianceAssessment
@@ -112,3 +115,18 @@ class MappingFactory(factory.django.DjangoModelFactory):
     source_requirement = factory.SubFactory(RequirementFactory)
     target_requirement = factory.SubFactory(RequirementFactory)
     mapping_type = MappingType.EQUIVALENT
+
+
+class ComplianceActionPlanFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "compliance.ComplianceActionPlan"
+
+    name = factory.Sequence(lambda n: f"Action Plan {n}")
+    gap_description = "Test gap description"
+    remediation_plan = "Test remediation plan"
+    priority = Priority.MEDIUM
+    owner = factory.SubFactory(UserFactory)
+    target_date = factory.LazyFunction(
+        lambda: (timezone.now() + timedelta(days=30)).date()
+    )
+    status = ActionPlanStatus.NOUVEAU

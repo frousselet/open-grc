@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from compliance.constants import ActionPlanStatus
 from compliance.models import (
     ComplianceActionPlan,
     ComplianceAssessment,
@@ -227,34 +228,51 @@ class RequirementMappingSerializer(serializers.ModelSerializer):
 
 
 class ComplianceActionPlanSerializer(serializers.ModelSerializer):
-    requirement_reference = serializers.CharField(
-        source="requirement.reference", read_only=True, default=""
-    )
-    framework_name = serializers.SerializerMethodField()
+    allowed_transitions = serializers.SerializerMethodField()
 
     class Meta:
         model = ComplianceActionPlan
         fields = [
             "id", "scopes", "reference", "name", "description",
-            "assessment", "requirement", "requirement_reference",
-            "framework_name",
+            "risks", "findings",
             "gap_description", "remediation_plan",
             "priority", "owner",
             "start_date", "target_date", "completion_date",
             "progress_percentage", "cost_estimate",
-            "status", "version", "tags",
+            "status", "allowed_transitions", "version", "tags",
             "is_approved", "approved_by", "approved_at",
             "created_by", "created_at", "updated_at",
         ]
         read_only_fields = [
             "id", "reference", "created_by", "created_at", "updated_at",
             "is_approved", "approved_by", "approved_at", "version",
+            "status",
         ]
 
-    def get_framework_name(self, obj):
-        if obj.requirement and obj.requirement.framework:
-            return obj.requirement.framework.name
-        return ""
+    def get_allowed_transitions(self, obj):
+        return obj.get_allowed_transitions()
+
+
+class ActionPlanTransitionSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=ActionPlanStatus.choices)
+    comment = serializers.CharField(required=False, allow_blank=True, default="")
+
+
+class ActionPlanTransitionHistorySerializer(serializers.ModelSerializer):
+    performed_by_name = serializers.SerializerMethodField()
+
+    class Meta:
+        from compliance.models import ActionPlanTransition
+        model = ActionPlanTransition
+        fields = [
+            "id", "from_status", "to_status",
+            "performed_by", "performed_by_name",
+            "comment", "is_refusal", "created_at",
+        ]
+        read_only_fields = fields
+
+    def get_performed_by_name(self, obj):
+        return obj.performed_by.get_full_name() or obj.performed_by.email
 
 
 class ComplianceActionPlanListSerializer(serializers.ModelSerializer):

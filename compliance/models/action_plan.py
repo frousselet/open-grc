@@ -1,9 +1,16 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
-from compliance.constants import ActionPlanStatus, Priority
+from compliance.constants import (
+    ACTION_PLAN_CANCELLABLE_STATUSES,
+    ACTION_PLAN_REFUSAL_TRANSITIONS,
+    ACTION_PLAN_TRANSITIONS,
+    ActionPlanStatus,
+    Priority,
+)
 from context.models.base import ScopedModel
 
 
@@ -12,21 +19,17 @@ class ComplianceActionPlan(ScopedModel):
 
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"), blank=True, default="")
-    assessment = models.ForeignKey(
-        "compliance.ComplianceAssessment",
-        on_delete=models.SET_NULL,
-        null=True,
+    risks = models.ManyToManyField(
+        "risks.Risk",
         blank=True,
         related_name="action_plans",
-        verbose_name=_("Source assessment"),
+        verbose_name=_("Linked risks"),
     )
-    requirement = models.ForeignKey(
-        "compliance.Requirement",
-        on_delete=models.SET_NULL,
-        null=True,
+    findings = models.ManyToManyField(
+        "compliance.Finding",
         blank=True,
         related_name="action_plans",
-        verbose_name=_("Related requirement"),
+        verbose_name=_("Linked findings"),
     )
     gap_description = models.TextField(_("Gap description"))
     remediation_plan = models.TextField(_("Remediation plan"))
@@ -52,12 +55,11 @@ class ComplianceActionPlan(ScopedModel):
         null=True,
         blank=True,
     )
-    # linked_measures = models.ManyToManyField("measures.Measure", blank=True)
     status = models.CharField(
         _("Status"),
-        max_length=20,
+        max_length=30,
         choices=ActionPlanStatus.choices,
-        default=ActionPlanStatus.PLANNED,
+        default=ActionPlanStatus.NOUVEAU,
     )
 
     history = HistoricalRecords()
@@ -68,3 +70,50 @@ class ComplianceActionPlan(ScopedModel):
 
     def __str__(self):
         return f"{self.reference} : {self.name}"
+
+    def get_allowed_transitions(self):
+        """Return the list of statuses this action plan can transition to."""
+        allowed = list(ACTION_PLAN_TRANSITIONS.get(self.status, []))
+        if self.status in ACTION_PLAN_CANCELLABLE_STATUSES:
+            allowed.append(ActionPlanStatus.ANNULE)
+        return allowed
+
+    def transition_to(self, new_status, user, comment=""):
+        """Perform a status transition with validation and audit trail.
+
+        Raises ValueError if the transition is not allowed or if a refusal
+        comment is missing.
+        """
+        from compliance.models.action_plan_transition import ActionPlanTransition
+
+        allowed = self.get_allowed_transitions()
+        if new_status not in allowed:
+            raise ValueError(
+                f"Cannot transition from {self.status} to {new_status}."
+            )
+
+        # Check if this is a refusal (backward transition)
+        is_refusal = (
+            ACTION_PLAN_REFUSAL_TRANSITIONS.get(self.status) == new_status
+        )
+        if is_refusal and not comment.strip():
+            raise ValueError("A comment is required when refusing.")
+
+        old_status = self.status
+        self.status = new_status
+
+        # Auto-set completion fields when closing
+        if new_status == ActionPlanStatus.CLOTURE:
+            self.completion_date = timezone.now().date()
+            self.progress_percentage = 100
+
+        self.save()
+
+        ActionPlanTransition.objects.create(
+            action_plan=self,
+            from_status=old_status,
+            to_status=new_status,
+            performed_by=user,
+            comment=comment,
+            is_refusal=is_refusal,
+        )

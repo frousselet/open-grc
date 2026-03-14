@@ -1286,21 +1286,120 @@ def _register_compliance_tools(server):
     ap_fields = ["id", "reference", "name", "description", "gap_description",
                  "remediation_plan", "priority", "status",
                  "target_date", "progress_percentage",
-                 "requirement_id", "assessment_id", "owner_id", "is_approved", "created_at"]
+                 "owner_id", "is_approved", "created_at"]
     ap_writable = ["name", "description", "gap_description", "remediation_plan",
-                   "priority", "status", "target_date",
-                   "progress_percentage", "requirement_id", "assessment_id", "owner_id"]
+                   "priority", "target_date",
+                   "progress_percentage", "owner_id"]
 
     _register_crud(server, "action_plan", ComplianceActionPlan, "compliance.action_plan",
                    list_fields=ap_fields,
                    writable_fields=ap_writable,
                    search_fields=["reference", "name", "description"],
-                   filters=["status", "priority", "requirement_id", "assessment_id"],
+                   filters=["status", "priority"],
                    field_overrides={
                        "description": _html_field("Description"),
                        "gap_description": _html_field("Gap description"),
                        "remediation_plan": _html_field("Remediation plan"),
                    })
+
+    # Action plan transition tool
+    def _action_plan_transition(user, arguments):
+        """Transition an action plan to a new status in the Kanban workflow.
+
+        Parameters
+        ----------
+        action_plan_id : str (required)
+            UUID of the action plan.
+        target_status : str (required)
+            Target status: nouveau, a_definir, a_valider, a_implementer,
+            implementation_a_valider, valide, cloture, annule.
+        comment : str
+            Mandatory comment when refusing (going backward).
+        """
+        pk = arguments.get("action_plan_id")
+        target = arguments.get("target_status")
+        comment = arguments.get("comment", "")
+        if not pk or not target:
+            raise InvalidParamsError("action_plan_id and target_status are required.")
+        try:
+            ap = ComplianceActionPlan.objects.get(pk=pk)
+        except ComplianceActionPlan.DoesNotExist:
+            return _error("Action plan not found.")
+        try:
+            ap.transition_to(target, user, comment)
+        except ValueError as e:
+            return _error(str(e))
+        return {"id": str(ap.pk), "status": ap.status, "reference": ap.reference}
+
+    server.register_tool(
+        "action_plan_transition",
+        "Transition an action plan to a new Kanban status",
+        _obj_schema({
+            "action_plan_id": {"type": "string", "description": "UUID of the action plan"},
+            "target_status": {"type": "string", "description": "Target status (nouveau, a_definir, a_valider, a_implementer, implementation_a_valider, valide, cloture, annule)"},
+            "comment": {"type": "string", "description": "Comment (mandatory for refusals)"},
+        }, ["action_plan_id", "target_status"]),
+        require_perm("compliance.action_plan.update")(_action_plan_transition),
+    )
+
+    # Action plan transition history tool
+    def _action_plan_transitions(user, arguments):
+        """List transition history for an action plan."""
+        pk = arguments.get("action_plan_id")
+        if not pk:
+            raise InvalidParamsError("action_plan_id is required.")
+        try:
+            ap = ComplianceActionPlan.objects.get(pk=pk)
+        except ComplianceActionPlan.DoesNotExist:
+            return _error("Action plan not found.")
+        ActionPlanTransition = _get_model("compliance", "ActionPlanTransition")
+        transitions = ap.transitions.select_related("performed_by").all()[:50]
+        return [
+            {
+                "id": str(t.pk),
+                "from_status": t.from_status,
+                "to_status": t.to_status,
+                "performed_by": t.performed_by.get_full_name() or t.performed_by.email,
+                "comment": t.comment,
+                "is_refusal": t.is_refusal,
+                "created_at": t.created_at.isoformat(),
+            }
+            for t in transitions
+        ]
+
+    server.register_tool(
+        "action_plan_transitions",
+        "List transition history for an action plan",
+        _obj_schema({
+            "action_plan_id": {"type": "string", "description": "UUID of the action plan"},
+        }, ["action_plan_id"]),
+        require_perm("compliance.action_plan.read")(_action_plan_transitions),
+    )
+
+    # Action plan kanban tool
+    def _action_plan_kanban(user, arguments):
+        """Get action plans grouped by status for kanban view."""
+        from compliance.constants import ActionPlanStatus as APS
+        qs = ComplianceActionPlan.objects.all()
+        result = {}
+        for status_choice in APS:
+            plans = qs.filter(status=status_choice.value)
+            result[status_choice.value] = [
+                {"id": str(p.pk), "reference": p.reference, "name": p.name,
+                 "priority": p.priority, "status": p.status,
+                 "owner": str(p.owner) if p.owner_id else "",
+                 "target_date": str(p.target_date) if p.target_date else "",
+                 "progress_percentage": p.progress_percentage}
+                for p in plans
+            ]
+        return result
+
+    server.register_tool(
+        "action_plan_kanban",
+        "Get action plans grouped by status for kanban board",
+        _obj_schema({}, []),
+        require_perm("compliance.action_plan.read")(_action_plan_kanban),
+    )
 
     Finding = _get_model("compliance", "Finding")
     fi_fields = ["id", "reference", "assessment_id", "finding_type",

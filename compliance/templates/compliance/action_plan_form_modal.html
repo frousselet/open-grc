@@ -7,11 +7,6 @@
 {# ── Metadata bar ── #}
 <div class="drawer-meta">
   <div>
-    <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }} *</label>
-    {{ form.status }}
-    {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-  </div>
-  <div>
     <label for="{{ form.priority.id_for_label }}" class="form-label">{{ form.priority.label }} *</label>
     {{ form.priority }}
     {% for error in form.priority.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
@@ -30,18 +25,6 @@
     {{ form.name }}
     {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
   </div>
-  <div class="row g-2 mb-3">
-    <div class="col-sm-6">
-      <label for="{{ form.assessment.id_for_label }}" class="form-label">{{ form.assessment.label }}</label>
-      {{ form.assessment }}
-      {% for error in form.assessment.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-    </div>
-    <div class="col-sm-6">
-      <label for="{{ form.requirement.id_for_label }}" class="form-label">{{ form.requirement.label }}</label>
-      {{ form.requirement }}
-      {% for error in form.requirement.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-    </div>
-  </div>
   <div class="mb-3">
     <label for="{{ form.owner.id_for_label }}" class="form-label">{{ form.owner.label }}</label>
     {{ form.owner }}
@@ -51,6 +34,23 @@
     <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
     {{ form.description }}
     {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+</div>
+
+{# ── Linkages ── #}
+<div class="drawer-section">
+  <div class="drawer-section-title"><i class="bi bi-link-45deg"></i> {% trans "Linkages" %}</div>
+  <div class="row g-2 mb-3">
+    <div class="col-sm-6">
+      <label for="{{ form.risks.id_for_label }}" class="form-label">{{ form.risks.label }}</label>
+      {{ form.risks }}
+      {% for error in form.risks.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="col-sm-6">
+      <label for="{{ form.findings.id_for_label }}" class="form-label">{{ form.findings.label }}</label>
+      {{ form.findings }}
+      {% for error in form.findings.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
   </div>
 </div>
 

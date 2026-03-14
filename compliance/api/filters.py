@@ -96,11 +96,8 @@ class RequirementMappingFilter(django_filters.FilterSet):
 
 class ComplianceActionPlanFilter(django_filters.FilterSet):
     scope = django_filters.UUIDFilter(field_name="scope_id")
-    framework = django_filters.UUIDFilter(
-        field_name="requirement__framework_id"
-    )
-    requirement = django_filters.UUIDFilter(field_name="requirement_id")
-    assessment = django_filters.UUIDFilter(field_name="assessment_id")
+    risk = django_filters.UUIDFilter(field_name="risks__id")
+    finding = django_filters.UUIDFilter(field_name="findings__id")
 
     class Meta:
         model = ComplianceActionPlan

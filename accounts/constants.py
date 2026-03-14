@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 
 class PermissionAction(models.TextChoices):
@@ -165,7 +166,7 @@ PERMISSION_REGISTRY = {
             "label": _("Inter-framework mappings"),
         },
         "action_plan": {
-            "actions": ["create", "read", "update", "delete", "approve"],
+            "actions": ["create", "read", "update", "delete", "approve", "validate", "implement", "close", "cancel"],
             "label": _("Action plans"),
         },
         "config": {
@@ -279,6 +280,9 @@ ACTION_LABELS = {
     "approve": _("Approve"),
     "assess": _("Assess"),
     "validate": _("Validate"),
+    "implement": pgettext_lazy("permission", "Implement"),
+    "close": pgettext_lazy("permission", "Close"),
+    "cancel": pgettext_lazy("permission", "Cancel"),
 }
 
 # Module labels for display
@@ -329,6 +333,9 @@ SYSTEM_GROUPS = {
             or codename.endswith(".update")
             or codename.endswith(".approve")
             or codename.endswith(".access")
+            or codename.endswith(".validate")
+            or codename.endswith(".close")
+            or codename.endswith(".cancel")
         )
         and codename != "system.admin_django.access"
         and codename != "system.config.update",
@@ -343,6 +350,7 @@ SYSTEM_GROUPS = {
             codename.endswith(".read")
             or codename.endswith(".create")
             or codename.endswith(".update")
+            or codename.endswith(".implement")
         )
         and not codename.startswith("system."),
     },

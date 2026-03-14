@@ -5,6 +5,7 @@ from .assessment import ComplianceAssessment, AssessmentResult, AssessmentResult
 from .finding import Finding
 from .mapping import RequirementMapping
 from .action_plan import ComplianceActionPlan
+from .action_plan_transition import ActionPlanTransition
 
 __all__ = [
     "Framework",
@@ -16,4 +17,5 @@ __all__ = [
     "Finding",
     "RequirementMapping",
     "ComplianceActionPlan",
+    "ActionPlanTransition",
 ]

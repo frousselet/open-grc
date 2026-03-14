@@ -12,6 +12,9 @@
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Compliance action plans" %}</h1>
   <div class="header-actions">
+    <a href="{% url 'compliance:action-plan-kanban' %}" class="btn-header-action" title="{% trans 'Kanban board' %}">
+      <i class="bi bi-kanban"></i>
+    </a>
     <button type="button" class="btn-header-action" title="{% trans 'New action plan' %}"
             hx-get="{% url 'compliance:action-plan-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
       <i class="bi bi-plus-lg"></i>
@@ -28,7 +31,6 @@
         <tr>
           {% sortable_th "reference" "Reference" %}
           {% sortable_th "name" "Name" %}
-          <th>{% trans "Requirement" %}</th>
           {% sortable_th "priority" "Priority" %}
           <th>{% trans "Responsible" %}</th>
           {% sortable_th "target_date" "Target date" %}
@@ -45,11 +47,6 @@
           <td><a href="{% url 'compliance:action-plan-detail' ap.pk %}" class="ref" style="text-decoration:none">{{ ap.reference }}</a></td>
           <td>{{ ap.name|truncatechars:50 }}</td>
           <td>
-            {% if ap.requirement %}
-            <a href="{% url 'compliance:requirement-detail' ap.requirement.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ ap.requirement.reference }}</a>
-            {% else %}—{% endif %}
-          </td>
-          <td>
             <span class="badge text-bg-{% if ap.priority == 'critical' %}danger{% elif ap.priority == 'high' %}warning{% elif ap.priority == 'medium' %}info{% else %}secondary{% endif %}">
               {{ ap.get_priority_display }}
             </span>
@@ -62,7 +59,7 @@
             </div>
           </td>
           <td>
-            <span class="badge text-bg-{% if ap.status == 'completed' %}success{% elif ap.status == 'in_progress' %}info{% elif ap.status == 'overdue' %}danger{% elif ap.status == 'cancelled' %}secondary{% else %}warning{% endif %}">
+            <span class="badge text-bg-{% if ap.status == 'valide' %}success{% elif ap.status == 'cloture' %}dark{% elif ap.status == 'annule' %}danger{% elif ap.status == 'a_valider' or ap.status == 'implementation_a_valider' %}warning{% elif ap.status == 'a_implementer' %}primary{% elif ap.status == 'a_definir' %}info{% else %}secondary{% endif %}">
               {{ ap.get_status_display }}
             </span>
           </td>
@@ -79,7 +76,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No action plan defined." %}</td></tr>
+        <tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)">{% trans "No action plan defined." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>

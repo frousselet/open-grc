@@ -1,0 +1,38 @@
+{% load i18n %}
+<div class="kanban-card" data-id="{{ ap.pk }}">
+  <div class="d-flex justify-content-between align-items-start">
+    <span class="card-ref">{{ ap.reference }}</span>
+    <span class="badge text-bg-{% if ap.priority == 'critical' %}danger{% elif ap.priority == 'high' %}warning{% elif ap.priority == 'medium' %}info{% else %}secondary{% endif %}" style="font-size:.6rem">
+      {{ ap.get_priority_display }}
+    </span>
+  </div>
+  <a href="{% url 'compliance:action-plan-detail' ap.pk %}" class="card-title d-block" style="text-decoration:none;color:inherit">
+    {{ ap.name|truncatechars:60 }}
+  </a>
+  <div class="card-meta">
+    {% if ap.owner %}
+    <span title="{{ ap.owner }}"><i class="bi bi-person"></i> {{ ap.owner.get_short_name|default:ap.owner }}</span>
+    {% endif %}
+    {% if ap.target_date %}
+    <span title="{% trans 'Target date' %}"><i class="bi bi-calendar"></i> {{ ap.target_date }}</span>
+    {% endif %}
+  </div>
+  {% if ap.progress_percentage > 0 %}
+  <div class="progress mt-2" style="height:4px">
+    <div class="progress-bar" style="width:{{ ap.progress_percentage }}%"></div>
+  </div>
+  {% endif %}
+  <div class="card-meta mt-1">
+    {% with risk_count=ap.risks.count finding_count=ap.findings.count %}
+    {% if risk_count %}
+    <span title="{% trans 'Linked risks' %}"><i class="bi bi-exclamation-triangle"></i> {{ risk_count }}</span>
+    {% endif %}
+    {% if finding_count %}
+    <span title="{% trans 'Linked findings' %}"><i class="bi bi-flag"></i> {{ finding_count }}</span>
+    {% endif %}
+    {% endwith %}
+    {% for tag in ap.tags.all %}
+    <span class="badge" style="background-color:{{ tag.color }};color:#fff;font-size:.5625rem;padding:.15em .4em">{{ tag.name }}</span>
+    {% endfor %}
+  </div>
+</div>

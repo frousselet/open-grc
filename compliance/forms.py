@@ -411,18 +411,18 @@ class ComplianceActionPlanForm(ScopedFormMixin, forms.ModelForm):
         model = ComplianceActionPlan
         fields = [
             "scopes", "name", "description",
-            "assessment", "requirement",
+            "risks", "findings",
             "gap_description", "remediation_plan",
             "priority", "owner",
             "start_date", "target_date", "completion_date",
-            "progress_percentage", "cost_estimate", "status", "tags",
+            "progress_percentage", "cost_estimate", "tags",
         ]
         widgets = {
             "scopes": ScopeTreeWidget(),
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
-            "assessment": forms.Select(attrs=SELECT_ATTRS),
-            "requirement": forms.Select(attrs=SELECT_ATTRS),
+            "risks": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+            "findings": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
             "gap_description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "remediation_plan": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "priority": forms.Select(attrs=SELECT_ATTRS),
@@ -432,9 +432,17 @@ class ComplianceActionPlanForm(ScopedFormMixin, forms.ModelForm):
             "completion_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "progress_percentage": forms.NumberInput(attrs={**FORM_WIDGET_ATTRS, "min": 0, "max": 100}),
             "cost_estimate": forms.NumberInput(attrs={**FORM_WIDGET_ATTRS, "step": "0.01"}),
-            "status": forms.Select(attrs=SELECT_ATTRS),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+
+
+class ActionPlanTransitionForm(forms.Form):
+    target_status = forms.CharField(widget=forms.HiddenInput())
+    comment = forms.CharField(
+        widget=forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
+        required=False,
+        label=_("Comment"),
+    )
 
 
 class _MultiFileInput(forms.ClearableFileInput):
