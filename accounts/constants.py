@@ -223,6 +223,12 @@ PERMISSION_REGISTRY = {
             "label": _("Risk audit trail"),
         },
     },
+    "reports": {
+        "report": {
+            "actions": ["create", "read", "delete"],
+            "label": _("Reports"),
+        },
+    },
     "system": {
         "admin_django": {
             "actions": ["access"],
@@ -281,6 +287,7 @@ MODULE_LABELS = {
     "assets": _("Assets"),
     "risks": _("Risk management"),
     "compliance": _("Compliance"),
+    "reports": _("Reports"),
     "system": _("System"),
 }
 
