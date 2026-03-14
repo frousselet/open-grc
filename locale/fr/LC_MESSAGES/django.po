@@ -8984,6 +8984,9 @@ msgctxt "assessment"
 msgid "Cancelled"
 msgstr "Annulé"
 
+msgid "This action is irreversible. Do you want to continue?"
+msgstr "Cette action est irréversible. Voulez-vous continuer ?"
+
 #: accounts/models/company_settings.py accounts/views.py accounts/templates/accounts/company_settings.html
 msgid "Company settings"
 msgstr "Paramètres de l'entreprise"

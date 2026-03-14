@@ -50,7 +50,8 @@
         {% endif %}
 
         {% if step.state == 'next' and next_status %}
-        <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}" class="flex-shrink-0" data-stepper-step="{{ step.value }}">
+        <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}" class="flex-shrink-0" data-stepper-step="{{ step.value }}"
+              onsubmit="return confirm('{% trans "This action is irreversible. Do you want to continue?" %}')">
           {% csrf_token %}
           <input type="hidden" name="status" value="{{ next_status }}">
           <button type="submit" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1 rounded-pill px-3"
@@ -72,7 +73,8 @@
     {# ── Annulé row (aligned to Clôturé via JS) ── #}
     <div style="margin-top:16px" data-stepper-cancelled-row>
       {% if can_cancel %}
-      <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}" class="flex-shrink-0" data-stepper-step="cancelled">
+      <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}" class="flex-shrink-0" data-stepper-step="cancelled"
+            onsubmit="return confirm('{% trans "This action is irreversible. Do you want to continue?" %}')">
         {% csrf_token %}
         <input type="hidden" name="status" value="cancelled">
         <button type="submit" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 rounded-pill px-3"
