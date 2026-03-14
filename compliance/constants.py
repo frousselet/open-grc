@@ -148,11 +148,72 @@ class CoverageLevel(models.TextChoices):
 # ── Action Plan ────────────────────────────────────────────
 
 class ActionPlanStatus(models.TextChoices):
-    PLANNED = "planned", _("Planned")
-    IN_PROGRESS = "in_progress", _("In progress")
-    COMPLETED = "completed", _("Completed")
-    CANCELLED = "cancelled", _("Cancelled")
-    OVERDUE = "overdue", _("Overdue")
+    NOUVEAU = "nouveau", pgettext_lazy("action_plan", "New")
+    A_DEFINIR = "a_definir", pgettext_lazy("action_plan", "To define")
+    A_VALIDER = "a_valider", pgettext_lazy("action_plan", "To validate")
+    A_IMPLEMENTER = "a_implementer", pgettext_lazy("action_plan", "To implement")
+    IMPLEMENTATION_A_VALIDER = "implementation_a_valider", pgettext_lazy(
+        "action_plan", "Implementation to validate"
+    )
+    VALIDE = "valide", pgettext_lazy("action_plan", "Validated")
+    CLOTURE = "cloture", pgettext_lazy("action_plan", "Closed")
+    ANNULE = "annule", pgettext_lazy("action_plan", "Cancelled")
+
+
+# Valid status transitions (forward + refusal)
+ACTION_PLAN_TRANSITIONS = {
+    ActionPlanStatus.NOUVEAU: [ActionPlanStatus.A_DEFINIR],
+    ActionPlanStatus.A_DEFINIR: [ActionPlanStatus.A_VALIDER],
+    ActionPlanStatus.A_VALIDER: [ActionPlanStatus.A_IMPLEMENTER, ActionPlanStatus.A_DEFINIR],
+    ActionPlanStatus.A_IMPLEMENTER: [ActionPlanStatus.IMPLEMENTATION_A_VALIDER],
+    ActionPlanStatus.IMPLEMENTATION_A_VALIDER: [
+        ActionPlanStatus.VALIDE,
+        ActionPlanStatus.A_IMPLEMENTER,
+    ],
+    ActionPlanStatus.VALIDE: [ActionPlanStatus.CLOTURE],
+    ActionPlanStatus.CLOTURE: [],
+    ActionPlanStatus.ANNULE: [],
+}
+
+# Backward transitions (refusal) — require a mandatory comment
+ACTION_PLAN_REFUSAL_TRANSITIONS = {
+    ActionPlanStatus.A_VALIDER: ActionPlanStatus.A_DEFINIR,
+    ActionPlanStatus.IMPLEMENTATION_A_VALIDER: ActionPlanStatus.A_IMPLEMENTER,
+}
+
+# Permission required per (from_status, to_status) transition
+ACTION_PLAN_TRANSITION_PERMISSIONS = {
+    (ActionPlanStatus.NOUVEAU, ActionPlanStatus.A_DEFINIR): "compliance.action_plan.update",
+    (ActionPlanStatus.A_DEFINIR, ActionPlanStatus.A_VALIDER): "compliance.action_plan.update",
+    (ActionPlanStatus.A_VALIDER, ActionPlanStatus.A_IMPLEMENTER): "compliance.action_plan.validate",
+    (ActionPlanStatus.A_VALIDER, ActionPlanStatus.A_DEFINIR): "compliance.action_plan.validate",
+    (ActionPlanStatus.A_IMPLEMENTER, ActionPlanStatus.IMPLEMENTATION_A_VALIDER): "compliance.action_plan.implement",
+    (ActionPlanStatus.IMPLEMENTATION_A_VALIDER, ActionPlanStatus.VALIDE): "compliance.action_plan.validate",
+    (ActionPlanStatus.IMPLEMENTATION_A_VALIDER, ActionPlanStatus.A_IMPLEMENTER): "compliance.action_plan.validate",
+    (ActionPlanStatus.VALIDE, ActionPlanStatus.CLOTURE): "compliance.action_plan.close",
+}
+
+# Statuses from which cancellation is allowed (all except terminal states)
+ACTION_PLAN_CANCELLABLE_STATUSES = {
+    ActionPlanStatus.NOUVEAU,
+    ActionPlanStatus.A_DEFINIR,
+    ActionPlanStatus.A_VALIDER,
+    ActionPlanStatus.A_IMPLEMENTER,
+    ActionPlanStatus.IMPLEMENTATION_A_VALIDER,
+    ActionPlanStatus.VALIDE,
+}
+
+# Bootstrap color class per status (for badges and kanban columns)
+ACTION_PLAN_STATUS_COLORS = {
+    ActionPlanStatus.NOUVEAU: "secondary",
+    ActionPlanStatus.A_DEFINIR: "info",
+    ActionPlanStatus.A_VALIDER: "warning",
+    ActionPlanStatus.A_IMPLEMENTER: "primary",
+    ActionPlanStatus.IMPLEMENTATION_A_VALIDER: "warning",
+    ActionPlanStatus.VALIDE: "success",
+    ActionPlanStatus.CLOTURE: "dark",
+    ActionPlanStatus.ANNULE: "danger",
+}
 
 
 # ── Finding ────────────────────────────────────────────────

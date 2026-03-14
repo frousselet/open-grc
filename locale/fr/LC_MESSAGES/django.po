@@ -9014,3 +9014,115 @@ msgstr "Aucun nom d'entreprise défini"
 
 msgid "Logo 128×128"
 msgstr "Logo 128×128"
+
+# ── Action Plan Kanban ──
+
+msgctxt "action_plan"
+msgid "New"
+msgstr "Nouveau"
+
+msgctxt "action_plan"
+msgid "To define"
+msgstr "À définir"
+
+msgctxt "action_plan"
+msgid "To validate"
+msgstr "À valider"
+
+msgctxt "action_plan"
+msgid "To implement"
+msgstr "À implémenter"
+
+msgctxt "action_plan"
+msgid "Implementation to validate"
+msgstr "Implémentation à valider"
+
+msgctxt "action_plan"
+msgid "Validated"
+msgstr "Validé"
+
+msgctxt "action_plan"
+msgid "Closed"
+msgstr "Clôturé"
+
+msgctxt "action_plan"
+msgid "Cancelled"
+msgstr "Annulé"
+
+msgid "Linked findings"
+msgstr "Constats liés"
+
+msgid "Kanban board"
+msgstr "Tableau Kanban"
+
+msgid "Action plan transition"
+msgstr "Transition de plan d'action"
+
+msgid "Action plan transitions"
+msgstr "Transitions de plans d'action"
+
+msgid "From status"
+msgstr "Statut de départ"
+
+msgid "To status"
+msgstr "Statut d'arrivée"
+
+msgid "Performed by"
+msgstr "Effectué par"
+
+msgid "Is refusal"
+msgstr "Est un refus"
+
+msgid "Comment"
+msgstr "Commentaire"
+
+msgid "A comment is required when refusing."
+msgstr "Un commentaire est requis lors d'un refus."
+
+msgid "Transition"
+msgstr "Transition"
+
+msgid "Transitions"
+msgstr "Transitions"
+
+msgid "No transitions recorded."
+msgstr "Aucune transition enregistrée."
+
+msgid "Status updated successfully."
+msgstr "Statut mis à jour avec succès."
+
+msgid "You do not have permission to perform this transition."
+msgstr "Vous n'avez pas la permission d'effectuer cette transition."
+
+msgid "Invalid transition data."
+msgstr "Données de transition invalides."
+
+msgid "List view"
+msgstr "Vue liste"
+
+msgid "Linkages"
+msgstr "Liens"
+
+msgid "Refuse"
+msgstr "Refuser"
+
+msgid "Cancel action plan"
+msgstr "Annuler le plan d'action"
+
+msgid "Reason for this transition..."
+msgstr "Raison de cette transition..."
+
+msgctxt "permission"
+msgid "Implement"
+msgstr "Implémenter"
+
+msgctxt "permission"
+msgid "Close"
+msgstr "Clôturer"
+
+msgctxt "permission"
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Confirm"
+msgstr "Confirmer"

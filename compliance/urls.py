@@ -59,9 +59,12 @@ urlpatterns = [
     path("mappings/<uuid:pk>/delete/", views.MappingDeleteView.as_view(), name="mapping-delete"),
     # Action Plans
     path("action-plans/", views.ActionPlanListView.as_view(), name="action-plan-list"),
+    path("action-plans/kanban/", views.ActionPlanKanbanView.as_view(), name="action-plan-kanban"),
+    path("action-plans/kanban/column/<str:status>/", views.ActionPlanKanbanColumnView.as_view(), name="action-plan-kanban-column"),
     path("action-plans/create/", views.ActionPlanCreateView.as_view(), name="action-plan-create"),
     path("action-plans/<uuid:pk>/", views.ActionPlanDetailView.as_view(), name="action-plan-detail"),
     path("action-plans/<uuid:pk>/edit/", views.ActionPlanUpdateView.as_view(), name="action-plan-update"),
     path("action-plans/<uuid:pk>/delete/", views.ActionPlanDeleteView.as_view(), name="action-plan-delete"),
+    path("action-plans/<uuid:pk>/transition/", views.ActionPlanTransitionView.as_view(), name="action-plan-transition"),
     path("action-plans/<uuid:pk>/approve/", views.ApproveView.as_view(model=ComplianceActionPlan, permission_feature="action_plan", success_url=reverse_lazy("compliance:action-plan-list")), name="action-plan-approve"),
 ]

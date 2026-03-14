@@ -1,0 +1,4 @@
+{% load i18n %}
+{% for ap in plans %}
+{% include "compliance/_action_plan_card.html" with ap=ap %}
+{% endfor %}

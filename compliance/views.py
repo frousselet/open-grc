@@ -24,6 +24,7 @@ from django.views.generic import (
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
 from core.mixins import HtmxFormMixin, SortableListMixin
 from .forms import (
+    ActionPlanTransitionForm,
     AssessmentResultForm,
     ComplianceActionPlanForm,
     ComplianceAssessmentForm,
@@ -43,9 +44,15 @@ from .import_utils import (
     validate_parsed_data,
 )
 from .constants import (
+    ACTION_PLAN_CANCELLABLE_STATUSES,
+    ACTION_PLAN_REFUSAL_TRANSITIONS,
+    ACTION_PLAN_STATUS_COLORS,
+    ACTION_PLAN_TRANSITION_PERMISSIONS,
+    ACTION_PLAN_TRANSITIONS,
     ASSESSMENT_EDITABLE_STATUSES,
     ASSESSMENT_FROZEN_STATUSES,
     ASSESSMENT_TOGGLEABLE_STATUSES,
+    ActionPlanStatus,
     AssessmentStatus,
     ComplianceStatus,
     FindingType,
@@ -1513,10 +1520,10 @@ class ActionPlanListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin
         "status": "status",
     }
     default_sort = "reference"
-    search_fields = ["reference", "name", "requirement__reference"]
+    search_fields = ["reference", "name"]
 
     def get_queryset(self):
-        qs = super().get_queryset().prefetch_related("scopes").select_related("owner", "requirement")
+        qs = super().get_queryset().prefetch_related("scopes", "risks", "findings").select_related("owner")
         status_filter = self.request.GET.get("status")
         if status_filter:
             qs = qs.filter(status=status_filter)
@@ -1531,6 +1538,31 @@ class ActionPlanDetailView(
     context_object_name = "action_plan"
     approval_feature = "action_plan"
     approve_url_name = "compliance:action-plan-approve"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ap = self.object
+        # Build allowed transitions with permission check
+        allowed = []
+        for target in ap.get_allowed_transitions():
+            transition_key = (ap.status, target)
+            if target == ActionPlanStatus.ANNULE:
+                perm = "compliance.action_plan.cancel"
+            else:
+                perm = ACTION_PLAN_TRANSITION_PERMISSIONS.get(transition_key)
+            if not perm or self.request.user.has_perm(perm):
+                is_refusal = ACTION_PLAN_REFUSAL_TRANSITIONS.get(ap.status) == target
+                allowed.append({
+                    "status": target,
+                    "label": ActionPlanStatus(target).label,
+                    "color": ACTION_PLAN_STATUS_COLORS.get(target, "secondary"),
+                    "is_refusal": is_refusal,
+                    "is_cancel": target == ActionPlanStatus.ANNULE,
+                })
+        ctx["allowed_transitions"] = allowed
+        ctx["transition_history"] = ap.transitions.select_related("performed_by").all()[:20]
+        ctx["status_colors"] = ACTION_PLAN_STATUS_COLORS
+        return ctx
 
 
 class ActionPlanCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
@@ -1565,3 +1597,108 @@ class ActionPlanDeleteView(LoginRequiredMixin, DeleteView):
     model = ComplianceActionPlan
     template_name = "compliance/confirm_delete.html"
     success_url = reverse_lazy("compliance:action-plan-list")
+
+
+class ActionPlanKanbanView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+    model = ComplianceActionPlan
+    template_name = "compliance/action_plan_kanban.html"
+    context_object_name = "action_plans"
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .select_related("owner")
+            .prefetch_related("risks", "findings", "tags")
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        qs = ctx["action_plans"]
+        # Group action plans by status into ordered columns
+        columns = {}
+        for status_val in ActionPlanStatus:
+            if status_val == ActionPlanStatus.ANNULE:
+                continue  # Show cancelled separately
+            columns[status_val.value] = {
+                "label": status_val.label,
+                "color": ACTION_PLAN_STATUS_COLORS.get(status_val, "secondary"),
+                "plans": [ap for ap in qs if ap.status == status_val.value],
+            }
+        ctx["columns"] = columns
+        ctx["cancelled_plans"] = [ap for ap in qs if ap.status == ActionPlanStatus.ANNULE]
+        ctx["status_colors"] = ACTION_PLAN_STATUS_COLORS
+        # Pass transition rules as JSON for JS validation
+        transitions_json = {}
+        for from_status, to_list in ACTION_PLAN_TRANSITIONS.items():
+            transitions_json[from_status.value if hasattr(from_status, 'value') else from_status] = [
+                s.value if hasattr(s, 'value') else s for s in to_list
+            ]
+        # Add cancellation transitions
+        for s in ACTION_PLAN_CANCELLABLE_STATUSES:
+            key = s.value if hasattr(s, 'value') else s
+            if key in transitions_json:
+                transitions_json[key].append(ActionPlanStatus.ANNULE.value)
+        ctx["transitions_json"] = json.dumps(transitions_json)
+        refusal_json = {}
+        for from_s, to_s in ACTION_PLAN_REFUSAL_TRANSITIONS.items():
+            refusal_json[from_s.value if hasattr(from_s, 'value') else from_s] = (
+                to_s.value if hasattr(to_s, 'value') else to_s
+            )
+        ctx["refusal_json"] = json.dumps(refusal_json)
+        return ctx
+
+
+class ActionPlanKanbanColumnView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+    """HTMX partial: returns cards for a single kanban column."""
+    model = ComplianceActionPlan
+    template_name = "compliance/_action_plan_kanban_cards.html"
+    context_object_name = "plans"
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .filter(status=self.kwargs["status"])
+            .select_related("owner")
+            .prefetch_related("risks", "findings", "tags")
+        )
+
+
+class ActionPlanTransitionView(LoginRequiredMixin, View):
+    """Perform a status transition on an action plan."""
+
+    def post(self, request, pk):
+        action_plan = get_object_or_404(ComplianceActionPlan, pk=pk)
+        form = ActionPlanTransitionForm(request.POST)
+        if not form.is_valid():
+            messages.error(request, _("Invalid transition data."))
+            return redirect("compliance:action-plan-detail", pk=pk)
+
+        target_status = form.cleaned_data["target_status"]
+        comment = form.cleaned_data.get("comment", "")
+
+        # Check permission
+        transition_key = (action_plan.status, target_status)
+        if target_status == ActionPlanStatus.ANNULE:
+            required_perm = "compliance.action_plan.cancel"
+        else:
+            required_perm = ACTION_PLAN_TRANSITION_PERMISSIONS.get(transition_key)
+
+        if required_perm and not request.user.has_perm(required_perm):
+            messages.error(request, _("You do not have permission to perform this transition."))
+            return redirect("compliance:action-plan-detail", pk=pk)
+
+        try:
+            action_plan.transition_to(target_status, request.user, comment)
+            messages.success(request, _("Status updated successfully."))
+        except ValueError as e:
+            messages.error(request, str(e))
+
+        # If HTMX request, return partial for kanban refresh
+        if request.headers.get("HX-Request"):
+            return HttpResponse(
+                status=204,
+                headers={"HX-Trigger": "refreshKanban"},
+            )
+        return redirect("compliance:action-plan-detail", pk=pk)

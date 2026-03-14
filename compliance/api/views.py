@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from accounts.api.mixins import ApprovableAPIMixin, HistoryAPIMixin, ScopeFilterAPIMixin
+from compliance.constants import ActionPlanStatus
 from compliance.models import (
     ComplianceActionPlan,
     ComplianceAssessment,
@@ -24,6 +25,8 @@ from .filters import (
 )
 from .permissions import CompliancePermission
 from .serializers import (
+    ActionPlanTransitionHistorySerializer,
+    ActionPlanTransitionSerializer,
     AssessmentResultSerializer,
     ComplianceActionPlanListSerializer,
     ComplianceActionPlanSerializer,
@@ -351,8 +354,8 @@ class ComplianceActionPlanViewSet(
     viewsets.ModelViewSet,
 ):
     queryset = ComplianceActionPlan.objects.select_related(
-        "owner", "requirement__framework", "assessment"
-    ).prefetch_related("scopes").all()
+        "owner",
+    ).prefetch_related("scopes", "risks", "findings").all()
     filterset_class = ComplianceActionPlanFilter
     permission_classes = [CompliancePermission]
     permission_feature = "action_plan"
@@ -367,18 +370,39 @@ class ComplianceActionPlanViewSet(
             return ComplianceActionPlanListSerializer
         return ComplianceActionPlanSerializer
 
-    @action(detail=False, methods=["get"])
-    def overdue(self, request):
-        """RP-01: List overdue action plans."""
-        qs = self.filter_queryset(self.get_queryset()).filter(
-            target_date__lt=timezone.now().date(),
-        ).exclude(
-            status__in=["completed", "cancelled"],
-        )
-        # Auto-update status to overdue
-        qs.update(status="overdue")
-        serializer = ComplianceActionPlanListSerializer(qs, many=True)
+    @action(detail=True, methods=["post"], url_path="transition")
+    def transition(self, request, pk=None):
+        """Perform a status transition on an action plan."""
+        action_plan = self.get_object()
+        serializer = ActionPlanTransitionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            action_plan.transition_to(
+                serializer.validated_data["status"],
+                request.user,
+                serializer.validated_data.get("comment", ""),
+            )
+        except ValueError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(ComplianceActionPlanSerializer(action_plan).data)
+
+    @action(detail=True, methods=["get"], url_path="transitions")
+    def transitions(self, request, pk=None):
+        """Get transition history for an action plan."""
+        action_plan = self.get_object()
+        qs = action_plan.transitions.all()
+        serializer = ActionPlanTransitionHistorySerializer(qs, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=["get"])
+    def kanban(self, request):
+        """Get action plans grouped by status for kanban view."""
+        qs = self.filter_queryset(self.get_queryset())
+        result = {}
+        for status_choice in ActionPlanStatus:
+            plans = qs.filter(status=status_choice.value)
+            result[status_choice.value] = ComplianceActionPlanListSerializer(plans, many=True).data
+        return Response(result)
 
     @action(detail=False, methods=["get"])
     def dashboard(self, request):
@@ -395,7 +419,7 @@ class ComplianceActionPlanViewSet(
             by_priority[p] = by_priority.get(p, 0) + 1
         overdue = qs.filter(
             target_date__lt=timezone.now().date()
-        ).exclude(status__in=["completed", "cancelled"]).count()
+        ).exclude(status__in=[ActionPlanStatus.CLOTURE, ActionPlanStatus.ANNULE]).count()
         return Response({
             "total": total,
             "by_status": by_status,
