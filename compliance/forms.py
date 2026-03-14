@@ -242,7 +242,7 @@ class ComplianceAssessmentForm(ScopedFormMixin, forms.ModelForm):
         cleaned = super().clean()
         status = cleaned.get("status")
         # Dates required from PLANNED onward
-        if status and status != AssessmentStatus.DRAFT:
+        if status and status not in (AssessmentStatus.DRAFT, AssessmentStatus.CANCELLED):
             if not cleaned.get("assessment_start_date"):
                 self.add_error(
                     "assessment_start_date",
