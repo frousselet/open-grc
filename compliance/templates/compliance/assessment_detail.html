@@ -68,8 +68,8 @@
         {% endif %}
       {% endfor %}
     </div>
-    {# ── Annulé row (right-aligned, below main flow) ── #}
-    <div class="d-flex justify-content-end" style="margin-top:16px">
+    {# ── Annulé row (aligned to Clôturé via JS) ── #}
+    <div style="margin-top:16px" data-stepper-cancelled-row>
       {% if can_cancel %}
       <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}" class="flex-shrink-0" data-stepper-step="cancelled">
         {% csrf_token %}
@@ -95,13 +95,22 @@
     (function(){
       var c=document.currentScript.closest('[data-stepper-container]');
       var svg=c.querySelector('[data-stepper-svg]');
+      var row=c.querySelector('[data-stepper-cancelled-row]');
       var d=c.querySelector('[data-stepper-step="draft"]');
       var p=c.querySelector('[data-stepper-step="planned"]');
+      var cl=c.querySelector('[data-stepper-step="closed"]');
       var a=c.querySelector('[data-stepper-step="cancelled"]');
-      if(!d||!p||!a||!svg) return;
+      if(!d||!p||!cl||!a||!svg) return;
       function draw(){
         var cr=c.getBoundingClientRect();
-        var dr=d.getBoundingClientRect(), pr=p.getBoundingClientRect(), ar=a.getBoundingClientRect();
+        var clr=cl.getBoundingClientRect();
+        /* Align Annulé row so the pill's center matches Clôturé's center */
+        var clCenterX=clr.left+clr.width/2-cr.left;
+        var ar=a.getBoundingClientRect();
+        row.style.paddingLeft=Math.max(0,clCenterX-ar.width/2)+'px';
+        /* Recalculate after repositioning */
+        ar=a.getBoundingClientRect();
+        var dr=d.getBoundingClientRect(), pr=p.getBoundingClientRect();
         var dx=dr.left+dr.width/2-cr.left, dy=dr.bottom-cr.top;
         var px=pr.left+pr.width/2-cr.left, py=pr.bottom-cr.top;
         var ax=ar.left-cr.left, ay=ar.top+ar.height/2-cr.top;
