@@ -579,7 +579,8 @@ class AssessmentDetailView(
                 "label": AssessmentStatus.CANCELLED.label,
                 "state": "current",
             }
-            ctx["branch_line_style"] = "background:var(--danger)"
+            ctx["branch_line_color"] = "var(--danger)"
+            ctx["branch_line_opacity"] = "1"
         else:
             ctx["cancelled_step"] = {
                 "value": AssessmentStatus.CANCELLED.value,
@@ -587,9 +588,11 @@ class AssessmentDetailView(
                 "state": "future",
             }
             if AssessmentStatus.CANCELLED in next_statuses:
-                ctx["branch_line_style"] = "background:var(--border-light)"
+                ctx["branch_line_color"] = "var(--border-light)"
+                ctx["branch_line_opacity"] = "1"
             else:
-                ctx["branch_line_style"] = "background:var(--border-light);opacity:.3"
+                ctx["branch_line_color"] = "var(--border-light)"
+                ctx["branch_line_opacity"] = "0.3"
         return ctx
 
 
