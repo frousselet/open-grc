@@ -971,13 +971,175 @@ def _register_compliance_tools(server):
                    "assessment_start_date", "assessment_end_date",
                    "status", "assessor_id"]
 
-    _register_crud(server, "compliance_assessment", ComplianceAssessment,
-                   "compliance.assessment",
-                   list_fields=ca_fields,
-                   writable_fields=ca_writable,
-                   search_fields=["name", "description"],
-                   filters=["status"],
-                   field_overrides=_HTML_DESC)
+    # Use generic list/get/delete/approve for compliance_assessment
+    ca_filter_props = {"status": {"type": "string", "description": "Filter by status"}}
+    server.register_tool(
+        "list_compliance_assessments",
+        "List compliance assessments with optional search and filters",
+        _list_schema(ca_filter_props),
+        require_perm("compliance.assessment.read")(
+            _list_handler(ComplianceAssessment, ca_fields, ["name", "description"], ["status"])
+        ),
+    )
+    server.register_tool(
+        "get_compliance_assessment",
+        "Get a compliance assessment by ID",
+        _id_schema(),
+        require_perm("compliance.assessment.read")(
+            _get_handler(ComplianceAssessment, ca_fields)
+        ),
+    )
+    server.register_tool(
+        "delete_compliance_assessment",
+        "Delete a compliance assessment",
+        _id_schema(),
+        require_perm("compliance.assessment.delete")(
+            _delete_handler(ComplianceAssessment)
+        ),
+    )
+    server.register_tool(
+        "approve_compliance_assessment",
+        "Approve a compliance assessment",
+        _id_schema(),
+        require_perm("compliance.assessment.approve")(
+            _approve_handler(ComplianceAssessment)
+        ),
+    )
+
+    # Custom create handler with framework_ids M2M support
+    def _create_compliance_assessment(user, arguments):
+        """Create a new compliance assessment, optionally linking frameworks.
+
+        Parameters
+        ----------
+        name : str (required)
+            Assessment name.
+        description : str
+            Context and objectives (HTML rich text).
+        limitations : str
+            Limitations (HTML rich text).
+        assessment_start_date : str
+            Start date (ISO 8601).
+        assessment_end_date : str
+            End date (ISO 8601).
+        status : str
+            Assessment status (draft, planned, in_progress, completed, closed).
+        assessor_id : str
+            UUID of the lead assessor.
+        framework_ids : list[str]
+            List of framework UUIDs to link. Assessment results will be
+            automatically created for all requirements in these frameworks.
+        """
+        framework_ids = arguments.pop("framework_ids", None)
+        kwargs = {}
+        for field_name in ca_writable:
+            if field_name in arguments:
+                kwargs[field_name] = _coerce_field_value(
+                    ComplianceAssessment, field_name, arguments[field_name])
+        kwargs["created_by"] = user
+        try:
+            obj = ComplianceAssessment(**kwargs)
+            obj.full_clean()
+            obj.save()
+        except (ValidationError, Exception) as e:
+            return _error(str(e))
+        if framework_ids:
+            frameworks = Framework.objects.filter(pk__in=framework_ids)
+            if frameworks.count() != len(framework_ids):
+                found = set(str(f.pk) for f in frameworks)
+                missing = [fid for fid in framework_ids if fid not in found]
+                return _error(f"Frameworks not found: {missing}")
+            obj.frameworks.set(frameworks)
+            obj.sync_results(user)
+        fields = [f.name for f in ComplianceAssessment._meta.fields]
+        return _serialize_obj(obj, fields)
+
+    ca_create_props = {}
+    for f in ca_writable:
+        ca_create_props[f] = _HTML_DESC.get(f, {"type": "string", "description": f})
+    ca_create_props["framework_ids"] = {
+        "type": "array",
+        "items": {"type": "string"},
+        "description": "List of framework UUIDs to link to this assessment",
+    }
+    server.register_tool(
+        "create_compliance_assessment",
+        "Create a new compliance assessment",
+        _obj_schema(ca_create_props),
+        require_perm("compliance.assessment.create")(_create_compliance_assessment),
+    )
+
+    # Custom update handler with framework_ids M2M support
+    def _update_compliance_assessment(user, arguments):
+        """Update a compliance assessment, optionally changing linked frameworks.
+
+        Parameters
+        ----------
+        id : str (required)
+            UUID of the assessment to update.
+        framework_ids : list[str]
+            Replace the linked frameworks. Assessment results are
+            automatically synced (created / removed) to match.
+
+        All other writable fields (name, description, etc.) are optional.
+        """
+        pk = arguments.get("id")
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        try:
+            obj = ComplianceAssessment.objects.get(pk=pk)
+        except ComplianceAssessment.DoesNotExist:
+            return _error("ComplianceAssessment not found.")
+        qs = _filter_by_scopes(ComplianceAssessment.objects.filter(pk=pk), user)
+        if not qs.exists():
+            return _error("Access denied: object is outside your allowed scopes.")
+        framework_ids = arguments.pop("framework_ids", None)
+        changed_fields = set()
+        for field_name in ca_writable:
+            if field_name in arguments:
+                setattr(obj, field_name, _coerce_field_value(
+                    ComplianceAssessment, field_name, arguments[field_name]))
+                changed_fields.add(field_name)
+        if hasattr(obj, "is_approved") and hasattr(obj, "version"):
+            from core.models import VersioningConfig
+            if VersioningConfig.is_approval_enabled(ComplianceAssessment):
+                major_fields = VersioningConfig.get_major_fields(ComplianceAssessment)
+                is_major = major_fields is None or bool(changed_fields & major_fields)
+                if is_major:
+                    obj.is_approved = False
+                    obj.approved_by = None
+                    obj.approved_at = None
+                    obj.version = (obj.version or 0) + 1
+        try:
+            obj.full_clean()
+            obj.save()
+        except (ValidationError, Exception) as e:
+            return _error(str(e))
+        if framework_ids is not None:
+            frameworks = Framework.objects.filter(pk__in=framework_ids)
+            if frameworks.count() != len(framework_ids):
+                found = set(str(f.pk) for f in frameworks)
+                missing = [fid for fid in framework_ids if fid not in found]
+                return _error(f"Frameworks not found: {missing}")
+            obj.frameworks.set(frameworks)
+            obj.sync_results(user)
+        fields = [f.name for f in ComplianceAssessment._meta.fields]
+        return _serialize_obj(obj, fields)
+
+    ca_update_props = {"id": {"type": "string", "description": "UUID of the assessment to update"}}
+    for f in ca_writable:
+        ca_update_props[f] = _HTML_DESC.get(f, {"type": "string", "description": f})
+    ca_update_props["framework_ids"] = {
+        "type": "array",
+        "items": {"type": "string"},
+        "description": "List of framework UUIDs to link (replaces existing links)",
+    }
+    server.register_tool(
+        "update_compliance_assessment",
+        "Update an existing compliance assessment",
+        _obj_schema(ca_update_props, ["id"]),
+        require_perm("compliance.assessment.update")(_update_compliance_assessment),
+    )
 
     ar_fields = ["id", "assessment_id", "requirement_id", "compliance_status",
                  "compliance_level", "finding", "auditor_recommendations",
@@ -1044,19 +1206,171 @@ def _register_compliance_tools(server):
     fi_writable = ["assessment_id", "finding_type", "description",
                    "recommendation", "evidence", "assessor_id"]
 
-    _register_crud(server, "finding", Finding, "compliance.assessment",
-                   list_fields=fi_fields,
-                   writable_fields=fi_writable,
-                   search_fields=["reference", "description"],
-                   filters=["assessment_id", "finding_type"],
-                   scope_filtered=False,
-                   has_approve=False,
-                   field_overrides={
-                       "description": _html_field("Finding description"),
-                       "recommendation": _html_field("Auditor recommendation"),
-                       "evidence": _html_field("Evidence presented"),
-                       "assessor_id": {"type": "string", "description": "UUID of the assessor (user)"},
-                   })
+    fi_field_overrides = {
+        "description": _html_field("Finding description"),
+        "recommendation": _html_field("Auditor recommendation"),
+        "evidence": _html_field("Evidence presented"),
+        "assessor_id": {"type": "string", "description": "UUID of the assessor (user)"},
+        "finding_type": {
+            "type": "string",
+            "description": (
+                "Type of finding. Allowed values: "
+                "major_nc (Major non-conformity, ref NCMAJ-x), "
+                "minor_nc (Minor non-conformity, ref NCMIN-x), "
+                "observation (Observation, ref OBS-x), "
+                "improvement (Improvement opportunity, ref OA-x), "
+                "strength (Strength, ref STR-x)"
+            ),
+            "enum": ["major_nc", "minor_nc", "observation", "improvement", "strength"],
+        },
+    }
+
+    # Use generic list/get/delete for finding
+    fi_filter_props = {
+        "assessment_id": {"type": "string", "description": "Filter by assessment_id"},
+        "finding_type": {"type": "string", "description": "Filter by finding_type"},
+    }
+    server.register_tool(
+        "list_findings",
+        "List findings with optional search and filters",
+        _list_schema(fi_filter_props),
+        require_perm("compliance.assessment.read")(
+            _list_handler(Finding, fi_fields, ["reference", "description"],
+                          ["assessment_id", "finding_type"], scope_filtered=False)
+        ),
+    )
+    server.register_tool(
+        "get_finding",
+        "Get a finding by ID",
+        _id_schema(),
+        require_perm("compliance.assessment.read")(
+            _get_handler(Finding, fi_fields, scope_filtered=False)
+        ),
+    )
+    server.register_tool(
+        "delete_finding",
+        "Delete a finding",
+        _id_schema(),
+        require_perm("compliance.assessment.delete")(
+            _delete_handler(Finding, scope_filtered=False)
+        ),
+    )
+
+    # Custom create handler with requirement_ids M2M support
+    def _create_finding(user, arguments):
+        """Create an audit finding, optionally linking requirements.
+
+        Parameters
+        ----------
+        assessment_id : str (required)
+            UUID of the compliance assessment.
+        finding_type : str (required)
+            Type of finding: major_nc, minor_nc, observation, improvement, strength.
+        description : str (required)
+            Finding description (HTML rich text).
+        recommendation : str
+            Auditor recommendation (HTML rich text).
+        evidence : str
+            Evidence presented (HTML rich text).
+        assessor_id : str
+            UUID of the assessor (user).
+        requirement_ids : list[str]
+            List of requirement UUIDs to link to this finding.
+        """
+        requirement_ids = arguments.pop("requirement_ids", None)
+        kwargs = {}
+        for field_name in fi_writable:
+            if field_name in arguments:
+                kwargs[field_name] = _coerce_field_value(
+                    Finding, field_name, arguments[field_name])
+        kwargs["created_by"] = user
+        try:
+            obj = Finding(**kwargs)
+            obj.full_clean()
+            obj.save()
+        except (ValidationError, Exception) as e:
+            return _error(str(e))
+        if requirement_ids:
+            reqs = Requirement.objects.filter(pk__in=requirement_ids)
+            if reqs.count() != len(requirement_ids):
+                found = set(str(r.pk) for r in reqs)
+                missing = [rid for rid in requirement_ids if rid not in found]
+                return _error(f"Requirements not found: {missing}")
+            obj.requirements.set(reqs)
+        fields = [f.name for f in Finding._meta.fields]
+        return _serialize_obj(obj, fields)
+
+    fi_create_props = {}
+    for f in fi_writable:
+        fi_create_props[f] = fi_field_overrides.get(f, {"type": "string", "description": f})
+    fi_create_props["requirement_ids"] = {
+        "type": "array",
+        "items": {"type": "string"},
+        "description": "List of requirement UUIDs to link to this finding",
+    }
+    server.register_tool(
+        "create_finding",
+        "Create a new audit finding",
+        _obj_schema(fi_create_props),
+        require_perm("compliance.assessment.create")(_create_finding),
+    )
+
+    # Custom update handler with requirement_ids M2M support
+    def _update_finding(user, arguments):
+        """Update an audit finding, optionally changing linked requirements.
+
+        Parameters
+        ----------
+        id : str (required)
+            UUID of the finding to update.
+        requirement_ids : list[str]
+            Replace the linked requirements (pass empty list to clear).
+
+        All other writable fields are optional.
+        """
+        pk = arguments.get("id")
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        try:
+            obj = Finding.objects.get(pk=pk)
+        except Finding.DoesNotExist:
+            return _error("Finding not found.")
+        requirement_ids = arguments.pop("requirement_ids", None)
+        changed_fields = set()
+        for field_name in fi_writable:
+            if field_name in arguments:
+                setattr(obj, field_name, _coerce_field_value(
+                    Finding, field_name, arguments[field_name]))
+                changed_fields.add(field_name)
+        try:
+            obj.full_clean()
+            obj.save()
+        except (ValidationError, Exception) as e:
+            return _error(str(e))
+        if requirement_ids is not None:
+            reqs = Requirement.objects.filter(pk__in=requirement_ids)
+            if requirement_ids and reqs.count() != len(requirement_ids):
+                found = set(str(r.pk) for r in reqs)
+                missing = [rid for rid in requirement_ids if rid not in found]
+                return _error(f"Requirements not found: {missing}")
+            obj.requirements.set(reqs)
+        fields = [f.name for f in Finding._meta.fields]
+        return _serialize_obj(obj, fields)
+
+    fi_update_props = {"id": {"type": "string", "description": "UUID of the finding to update"}}
+    for f in fi_writable:
+        fi_update_props[f] = fi_field_overrides.get(f, {"type": "string", "description": f})
+    fi_update_props["requirement_ids"] = {
+        "type": "array",
+        "items": {"type": "string"},
+        "description": "List of requirement UUIDs to link (replaces existing links)",
+    }
+    server.register_tool(
+        "update_finding",
+        "Update an existing audit finding",
+        _obj_schema(fi_update_props, ["id"]),
+        require_perm("compliance.assessment.update")(_update_finding),
+    )
 
 
 # ── Risks Module ───────────────────────────────────────────
