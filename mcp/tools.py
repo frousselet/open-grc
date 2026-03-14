@@ -1094,6 +1094,7 @@ def _register_compliance_tools(server):
         if not qs.exists():
             return _error("Access denied: object is outside your allowed scopes.")
         framework_ids = arguments.pop("framework_ids", None)
+        new_status = arguments.pop("status", None)
         changed_fields = set()
         for field_name in ca_writable:
             if field_name in arguments:
@@ -1115,6 +1116,13 @@ def _register_compliance_tools(server):
             obj.save()
         except (ValidationError, Exception) as e:
             return _error(str(e))
+        # Use transition_to() for status changes to enforce workflow rules
+        # and trigger side-effects (e.g. reset EVALUATED on COMPLETED)
+        if new_status and new_status != obj.status:
+            try:
+                obj.transition_to(new_status)
+            except ValueError as e:
+                return _error(str(e))
         if framework_ids is not None:
             frameworks = Framework.objects.filter(pk__in=framework_ids)
             if frameworks.count() != len(framework_ids):
@@ -1147,21 +1155,116 @@ def _register_compliance_tools(server):
     ar_writable = ["assessment_id", "requirement_id", "compliance_status",
                    "compliance_level", "finding", "auditor_recommendations",
                    "evidence", "assessed_by_id", "assessed_at"]
+    ar_overrides = {
+        "finding": _html_field("Finding"),
+        "auditor_recommendations": _html_field("Auditor recommendations"),
+        "evidence": _html_field("Evidence"),
+        "assessed_by_id": {"type": "string", "description": "UUID of the assessor (user)"},
+        "assessed_at": {"type": "string", "description": "Assessment date-time in ISO 8601 format (e.g. 2025-01-15T10:30:00Z)"},
+    }
 
-    _register_crud(server, "assessment_result", AssessmentResult, "compliance.assessment",
-                   list_fields=ar_fields,
-                   writable_fields=ar_writable,
-                   search_fields=[],
-                   filters=["assessment_id", "requirement_id", "compliance_status"],
-                   scope_filtered=False,
-                   has_approve=False,
-                   field_overrides={
-                       "finding": _html_field("Finding"),
-                       "auditor_recommendations": _html_field("Auditor recommendations"),
-                       "evidence": _html_field("Evidence"),
-                       "assessed_by_id": {"type": "string", "description": "UUID of the assessor (user)"},
-                       "assessed_at": {"type": "string", "description": "Assessment date-time in ISO 8601 format (e.g. 2025-01-15T10:30:00Z)"},
-                   })
+    # List and get use generic handlers (no side-effects needed)
+    ar_filter_props = {
+        "assessment_id": {"type": "string", "description": "Filter by assessment_id"},
+        "requirement_id": {"type": "string", "description": "Filter by requirement_id"},
+        "compliance_status": {"type": "string", "description": "Filter by compliance_status"},
+    }
+    server.register_tool(
+        "list_assessment_results",
+        "List assessment results with optional search and filters",
+        _list_schema(ar_filter_props),
+        require_perm("compliance.assessment.read")(
+            _list_handler(AssessmentResult, ar_fields, [],
+                          ["assessment_id", "requirement_id", "compliance_status"],
+                          scope_filtered=False)
+        ),
+    )
+    server.register_tool(
+        "get_assessment_result",
+        "Get an assessment result by ID",
+        _id_schema(),
+        require_perm("compliance.assessment.read")(
+            _get_handler(AssessmentResult, ar_fields, scope_filtered=False)
+        ),
+    )
+
+    # Custom create with recalculate_counts()
+    def _create_assessment_result(user, arguments):
+        kwargs = {}
+        for field_name in ar_writable:
+            if field_name in arguments:
+                kwargs[field_name] = _coerce_field_value(
+                    AssessmentResult, field_name, arguments[field_name])
+        try:
+            obj = AssessmentResult(**kwargs)
+            obj.full_clean()
+            obj.save()
+        except (ValidationError, Exception) as e:
+            return _error(str(e))
+        obj.assessment.recalculate_counts()
+        return _serialize_obj(obj, ar_fields)
+
+    ar_create_props = {}
+    for f in ar_writable:
+        ar_create_props[f] = ar_overrides.get(f, {"type": "string", "description": f})
+    server.register_tool(
+        "create_assessment_result",
+        "Create a new assessment result",
+        _obj_schema(ar_create_props),
+        require_perm("compliance.assessment.create")(_create_assessment_result),
+    )
+
+    # Custom update with recalculate_counts()
+    def _update_assessment_result(user, arguments):
+        pk = arguments.get("id")
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        try:
+            obj = AssessmentResult.objects.get(pk=pk)
+        except AssessmentResult.DoesNotExist:
+            return _error("AssessmentResult not found.")
+        for field_name in ar_writable:
+            if field_name in arguments:
+                setattr(obj, field_name, _coerce_field_value(
+                    AssessmentResult, field_name, arguments[field_name]))
+        try:
+            obj.full_clean()
+            obj.save()
+        except (ValidationError, Exception) as e:
+            return _error(str(e))
+        obj.assessment.recalculate_counts()
+        return _serialize_obj(obj, ar_fields)
+
+    ar_update_props = {"id": {"type": "string", "description": "UUID of the result to update"}}
+    for f in ar_writable:
+        ar_update_props[f] = ar_overrides.get(f, {"type": "string", "description": f})
+    server.register_tool(
+        "update_assessment_result",
+        "Update an existing assessment result",
+        _obj_schema(ar_update_props, ["id"]),
+        require_perm("compliance.assessment.update")(_update_assessment_result),
+    )
+
+    # Custom delete with recalculate_counts()
+    def _delete_assessment_result(user, arguments):
+        pk = arguments.get("id")
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        try:
+            obj = AssessmentResult.objects.get(pk=pk)
+        except AssessmentResult.DoesNotExist:
+            return _error("AssessmentResult not found.")
+        assessment = obj.assessment
+        obj.delete()
+        assessment.recalculate_counts()
+        return {"deleted": True, "id": str(pk)}
+
+    server.register_tool(
+        "delete_assessment_result",
+        "Delete an assessment result",
+        _id_schema(),
+        require_perm("compliance.assessment.delete")(_delete_assessment_result),
+    )
 
     rm_fields = ["id", "source_requirement_id", "target_requirement_id",
                  "mapping_type", "coverage_level", "description", "created_at"]
@@ -1247,13 +1350,24 @@ def _register_compliance_tools(server):
             _get_handler(Finding, fi_fields, scope_filtered=False)
         ),
     )
+    def _delete_finding(user, arguments):
+        pk = arguments.get("id")
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        try:
+            obj = Finding.objects.get(pk=pk)
+        except Finding.DoesNotExist:
+            return _error("Finding not found.")
+        assessment = obj.assessment
+        obj.delete()
+        assessment.apply_findings_to_results()
+        return {"deleted": True, "id": str(pk)}
+
     server.register_tool(
         "delete_finding",
         "Delete a finding",
         _id_schema(),
-        require_perm("compliance.assessment.delete")(
-            _delete_handler(Finding, scope_filtered=False)
-        ),
+        require_perm("compliance.assessment.delete")(_delete_finding),
     )
 
     # Custom create handler with requirement_ids M2M support
@@ -1297,6 +1411,8 @@ def _register_compliance_tools(server):
                 missing = [rid for rid in requirement_ids if rid not in found]
                 return _error(f"Requirements not found: {missing}")
             obj.requirements.set(reqs)
+        # Propagate finding to assessment results and recalculate counts
+        obj.assessment.apply_findings_to_results()
         fields = [f.name for f in Finding._meta.fields]
         return _serialize_obj(obj, fields)
 
@@ -1354,6 +1470,8 @@ def _register_compliance_tools(server):
                 missing = [rid for rid in requirement_ids if rid not in found]
                 return _error(f"Requirements not found: {missing}")
             obj.requirements.set(reqs)
+        # Propagate finding changes to assessment results and recalculate counts
+        obj.assessment.apply_findings_to_results()
         fields = [f.name for f in Finding._meta.fields]
         return _serialize_obj(obj, fields)
 
