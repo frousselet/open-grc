@@ -40,45 +40,38 @@
 
 {# ── Workflow stepper ── #}
 <div class="card mb-3">
-  <div class="card-body py-2 px-3">
-    {# ── Row 1: Main flow ── #}
-    <div class="d-flex align-items-start gap-0" style="overflow-x:auto">
+  <div class="card-body py-2 px-3" style="position:relative" data-stepper-container>
+    {# ── Main flow ── #}
+    <div class="d-flex align-items-center gap-0" style="overflow-x:auto">
       {% for step in workflow_steps %}
         {% if not forloop.first %}
-        <div class="flex-shrink-0 align-self-center" style="width:32px;height:2px;{% if step.state == 'done' or step.state == 'current' %}background:var(--accent){% else %}background:var(--border-light){% endif %}"></div>
+        <div class="flex-shrink-0" style="width:32px;height:2px;{% if step.state == 'done' or step.state == 'current' %}background:var(--accent){% else %}background:var(--border-light){% endif %}"></div>
         {% endif %}
 
-        {# Wrap each step pill — first two get a vertical tick below #}
-        <div class="flex-shrink-0 text-center">
-          {% if step.state == 'next' and next_status %}
-          <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}">
-            {% csrf_token %}
-            <input type="hidden" name="status" value="{{ next_status }}">
-            <button type="submit" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1 rounded-pill px-3"
-                    style="white-space:nowrap;font-size:.8rem;border-width:2px">
-              <i class="bi bi-arrow-right-circle"></i> {{ step.label }}
-            </button>
-          </form>
-          {% else %}
-          <span class="d-inline-flex align-items-center gap-1 rounded-pill px-3"
-                style="white-space:nowrap;font-size:.8rem;padding:.3rem 0;
-                {% if step.state == 'done' %}color:var(--text-muted);background:var(--bg-subtle);border:1px solid var(--border-light){% elif step.state == 'current' %}color:#fff;background:var(--accent);font-weight:600;border:2px solid var(--accent){% else %}color:var(--text-muted);opacity:.45;background:var(--bg-subtle);border:1px dashed var(--border-light){% endif %}">
-            {% if step.state == 'done' %}<i class="bi bi-check-circle-fill" style="font-size:.7rem"></i>{% elif step.state == 'current' %}<i class="bi bi-circle-fill" style="font-size:.5rem"></i>{% else %}<i class="bi bi-circle" style="font-size:.5rem"></i>{% endif %}
-            {{ step.label }}
-          </span>
-          {% endif %}
-          {# Vertical tick below Draft (index 0) and Planned (index 1) #}
-          {% if forloop.counter0 == 0 or forloop.counter0 == 1 %}
-          <div style="width:2px;height:12px;margin:2px auto 0;{{ branch_line_style }}"></div>
-          {% endif %}
-        </div>
+        {% if step.state == 'next' and next_status %}
+        <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}" class="flex-shrink-0" data-stepper-step="{{ step.value }}">
+          {% csrf_token %}
+          <input type="hidden" name="status" value="{{ next_status }}">
+          <button type="submit" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1 rounded-pill px-3"
+                  style="white-space:nowrap;font-size:.8rem;border-width:2px">
+            <i class="bi bi-arrow-right-circle"></i> {{ step.label }}
+          </button>
+        </form>
+        {% else %}
+        <span class="flex-shrink-0 d-inline-flex align-items-center gap-1 rounded-pill px-3"
+              data-stepper-step="{{ step.value }}"
+              style="white-space:nowrap;font-size:.8rem;padding:.3rem 0;
+              {% if step.state == 'done' %}color:var(--text-muted);background:var(--bg-subtle);border:1px solid var(--border-light){% elif step.state == 'current' %}color:#fff;background:var(--accent);font-weight:600;border:2px solid var(--accent){% else %}color:var(--text-muted);opacity:.45;background:var(--bg-subtle);border:1px dashed var(--border-light){% endif %}">
+          {% if step.state == 'done' %}<i class="bi bi-check-circle-fill" style="font-size:.7rem"></i>{% elif step.state == 'current' %}<i class="bi bi-circle-fill" style="font-size:.5rem"></i>{% else %}<i class="bi bi-circle" style="font-size:.5rem"></i>{% endif %}
+          {{ step.label }}
+        </span>
+        {% endif %}
       {% endfor %}
     </div>
-    {# ── Row 2: Horizontal branch line → Annulé ── #}
-    <div class="d-flex align-items-center gap-0" style="overflow-x:auto">
-      <div style="flex:1;height:2px;{{ branch_line_style }}"></div>
+    {# ── Annulé row (right-aligned, below main flow) ── #}
+    <div class="d-flex justify-content-end" style="margin-top:16px">
       {% if can_cancel %}
-      <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}" class="flex-shrink-0">
+      <form method="post" action="{% url 'compliance:assessment-transition' assessment.pk %}" class="flex-shrink-0" data-stepper-step="cancelled">
         {% csrf_token %}
         <input type="hidden" name="status" value="cancelled">
         <button type="submit" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 rounded-pill px-3"
@@ -88,6 +81,7 @@
       </form>
       {% else %}
       <span class="flex-shrink-0 d-inline-flex align-items-center gap-1 rounded-pill px-3"
+            data-stepper-step="cancelled"
             style="white-space:nowrap;font-size:.8rem;padding:.3rem 0;
             {% if cancelled_step.state == 'current' %}color:#fff;background:var(--danger);font-weight:600;border:2px solid var(--danger){% else %}color:var(--text-muted);opacity:.45;background:var(--bg-subtle);border:1px dashed var(--border-light){% endif %}">
         {% if cancelled_step.state == 'current' %}<i class="bi bi-x-circle-fill" style="font-size:.7rem"></i>{% else %}<i class="bi bi-circle" style="font-size:.5rem"></i>{% endif %}
@@ -95,6 +89,32 @@
       </span>
       {% endif %}
     </div>
+    {# ── SVG overlay for branch lines (drawn by JS) ── #}
+    <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible" data-stepper-svg></svg>
+    <script>
+    (function(){
+      var c=document.currentScript.closest('[data-stepper-container]');
+      var svg=c.querySelector('[data-stepper-svg]');
+      var d=c.querySelector('[data-stepper-step="draft"]');
+      var p=c.querySelector('[data-stepper-step="planned"]');
+      var a=c.querySelector('[data-stepper-step="cancelled"]');
+      if(!d||!p||!a||!svg) return;
+      function draw(){
+        var cr=c.getBoundingClientRect();
+        var dr=d.getBoundingClientRect(), pr=p.getBoundingClientRect(), ar=a.getBoundingClientRect();
+        var dx=dr.left+dr.width/2-cr.left, dy=dr.bottom-cr.top;
+        var px=pr.left+pr.width/2-cr.left, py=pr.bottom-cr.top;
+        var ax=ar.left-cr.left, ay=ar.top+ar.height/2-cr.top;
+        var s='stroke:{{ branch_line_color }};stroke-width:2;opacity:{{ branch_line_opacity }}';
+        svg.innerHTML=
+          '<line x1="'+dx+'" y1="'+dy+'" x2="'+dx+'" y2="'+ay+'" style="'+s+'"/>'+
+          '<line x1="'+px+'" y1="'+py+'" x2="'+px+'" y2="'+ay+'" style="'+s+'"/>'+
+          '<line x1="'+dx+'" y1="'+ay+'" x2="'+ax+'" y2="'+ay+'" style="'+s+'"/>';
+      }
+      requestAnimationFrame(draw);
+      window.addEventListener('resize',draw);
+    })();
+    </script>
   </div>
 </div>
 {% help_modal "compliance.assessment_detail" %}
