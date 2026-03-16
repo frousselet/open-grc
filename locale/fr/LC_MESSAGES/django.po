@@ -9126,3 +9126,9 @@ msgstr "Annuler"
 
 msgid "Confirm"
 msgstr "Confirmer"
+
+msgid "Transition not allowed"
+msgstr "Transition non autorisée"
+
+msgid "An error occurred"
+msgstr "Une erreur est survenue"

@@ -33,21 +33,23 @@
   {% endfor %}
 </div>
 
-{% if cancelled_plans %}
-<div class="mt-4">
-  <h5 class="text-muted mb-3">
-    <i class="bi bi-x-circle me-1"></i>{% trans "Cancelled" %}
-    <span class="badge bg-secondary ms-1">{{ cancelled_plans|length }}</span>
-  </h5>
-  <div class="row g-2">
-    {% for ap in cancelled_plans %}
-    <div class="col-md-4 col-lg-3">
-      {% include "compliance/_action_plan_card.html" with ap=ap %}
+<div class="cancel-drop-zone mt-4" id="cancel-drop-zone" data-status="annule">
+  <div class="d-flex align-items-center mb-3">
+    <h5 class="text-muted mb-0">
+      <i class="bi bi-x-circle me-1"></i>{% trans "Cancelled" %}
+      <span class="badge bg-secondary ms-1 cancel-count">{{ cancelled_plans|length }}</span>
+    </h5>
+  </div>
+  <div class="cancel-drop-cards" id="kanban-annule">
+    <div class="row g-2">
+      {% for ap in cancelled_plans %}
+      <div class="col-md-4 col-lg-3">
+        {% include "compliance/_action_plan_card.html" with ap=ap %}
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
   </div>
 </div>
-{% endif %}
 
 <!-- Transition modal for refusals/cancellations -->
 <div class="modal fade" id="transitionModal" tabindex="-1">
@@ -75,6 +77,19 @@
           <button type="submit" class="btn btn-primary" id="transitionSubmit">{% trans "Confirm" %}</button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Toast for invalid transitions -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:1090">
+  <div id="transitionToast" class="toast align-items-center text-bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        <span id="toastMessage">{% trans "Transition not allowed" %}</span>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
     </div>
   </div>
 </div>
@@ -165,6 +180,40 @@
 .kanban-card.sortable-drag {
   box-shadow: 0 8px 25px rgba(0,0,0,.2);
 }
+/* Drag-and-drop visual feedback */
+.kanban-column.drop-allowed {
+  outline: 2px dashed var(--bs-success, #198754);
+  outline-offset: -2px;
+  background: rgba(25, 135, 84, 0.06);
+  transition: outline .15s, background .15s;
+}
+.kanban-column.drop-forbidden {
+  opacity: 0.35;
+  transition: opacity .15s;
+}
+.kanban-column.drop-forbidden .kanban-cards {
+  pointer-events: none;
+}
+[data-bs-theme="dark"] .kanban-column.drop-allowed {
+  background: rgba(25, 135, 84, 0.12);
+}
+/* Cancel drop zone */
+.cancel-drop-zone {
+  border: 2px dashed transparent;
+  border-radius: var(--radius-lg, 1rem);
+  padding: 1rem;
+  transition: border-color .15s, background .15s;
+}
+.cancel-drop-zone.drop-allowed {
+  border-color: var(--bs-danger, #dc3545);
+  background: rgba(220, 53, 69, 0.04);
+}
+[data-bs-theme="dark"] .cancel-drop-zone.drop-allowed {
+  background: rgba(220, 53, 69, 0.08);
+}
+.cancel-drop-zone.drop-forbidden {
+  opacity: 0.35;
+}
 @media (max-width: 768px) {
   .kanban-board { gap: .75rem; }
   .kanban-column { min-width: 200px; flex: 1 0 200px; }
@@ -178,48 +227,137 @@ document.addEventListener('DOMContentLoaded', function() {
   const refusalTransitions = {{ refusal_json|safe }};
   const csrfToken = '{{ csrf_token }}';
 
-  document.querySelectorAll('.kanban-cards').forEach(function(column) {
-    new Sortable(column, {
-      group: 'kanban',
-      animation: 150,
-      ghostClass: 'sortable-ghost',
-      chosenClass: 'sortable-chosen',
-      dragClass: 'sortable-drag',
-      onEnd: function(evt) {
-        const cardEl = evt.item;
-        const cardId = cardEl.dataset.id;
-        const newStatus = evt.to.closest('.kanban-column').dataset.status;
-        const oldStatus = evt.from.closest('.kanban-column').dataset.status;
+  // Track source status during drag
+  let dragSourceStatus = null;
 
-        if (newStatus === oldStatus) return;
+  // Toast helper
+  function showToast(message) {
+    var toastEl = document.getElementById('transitionToast');
+    document.getElementById('toastMessage').textContent = message;
+    bootstrap.Toast.getOrCreateInstance(toastEl).show();
+  }
 
-        // Check if transition is allowed
-        const allowed = allowedTransitions[oldStatus] || [];
-        if (!allowed.includes(newStatus)) {
-          // Revert drag
-          evt.from.insertBefore(cardEl, evt.from.children[evt.oldIndex] || null);
-          return;
-        }
-
-        // Check if refusal or cancellation — show modal
-        const isRefusal = refusalTransitions[oldStatus] === newStatus;
-        const isCancel = newStatus === 'annule';
-        if (isRefusal || isCancel) {
-          // Revert drag, show modal
-          evt.from.insertBefore(cardEl, evt.from.children[evt.oldIndex] || null);
-          showTransitionModal(cardId, oldStatus, newStatus, isRefusal);
-          return;
-        }
-
-        // Direct transition via HTMX
-        performTransition(cardId, newStatus, '');
+  // Visual feedback: highlight valid/invalid columns
+  function highlightColumns(sourceStatus) {
+    var allowed = allowedTransitions[sourceStatus] || [];
+    document.querySelectorAll('.kanban-column').forEach(function(col) {
+      var colStatus = col.dataset.status;
+      if (colStatus === sourceStatus) return; // source column stays neutral
+      if (allowed.includes(colStatus)) {
+        col.classList.add('drop-allowed');
+      } else {
+        col.classList.add('drop-forbidden');
       }
     });
+    // Cancel drop zone
+    var cancelZone = document.getElementById('cancel-drop-zone');
+    if (cancelZone) {
+      if (allowed.includes('annule')) {
+        cancelZone.classList.add('drop-allowed');
+      } else {
+        cancelZone.classList.add('drop-forbidden');
+      }
+    }
+  }
+
+  function clearHighlights() {
+    document.querySelectorAll('.kanban-column, .cancel-drop-zone').forEach(function(el) {
+      el.classList.remove('drop-allowed', 'drop-forbidden');
+    });
+  }
+
+  // Sortable config shared by all columns
+  var sortableConfig = {
+    group: 'kanban',
+    animation: 150,
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+    dragClass: 'sortable-drag',
+    onStart: function(evt) {
+      var col = evt.from.closest('.kanban-column') || evt.from.closest('.cancel-drop-zone');
+      dragSourceStatus = col ? col.dataset.status : null;
+      if (dragSourceStatus) highlightColumns(dragSourceStatus);
+    },
+    onMove: function(evt) {
+      var targetCol = evt.to.closest('.kanban-column') || evt.to.closest('.cancel-drop-zone');
+      if (!targetCol || !dragSourceStatus) return false;
+      var targetStatus = targetCol.dataset.status;
+      if (targetStatus === dragSourceStatus) return true;
+      var allowed = allowedTransitions[dragSourceStatus] || [];
+      if (!allowed.includes(targetStatus)) {
+        showToast('{% trans "Transition not allowed" %}');
+        return false;
+      }
+      return true;
+    },
+    onEnd: function(evt) {
+      clearHighlights();
+      var cardEl = evt.item;
+      var cardId = cardEl.dataset.id;
+      var toCol = evt.to.closest('.kanban-column') || evt.to.closest('.cancel-drop-zone');
+      var fromCol = evt.from.closest('.kanban-column') || evt.from.closest('.cancel-drop-zone');
+      var newStatus = toCol ? toCol.dataset.status : null;
+      var oldStatus = fromCol ? fromCol.dataset.status : null;
+      dragSourceStatus = null;
+
+      if (!newStatus || !oldStatus || newStatus === oldStatus) return;
+
+      // Refusal or cancellation → revert and show modal
+      var isRefusal = refusalTransitions[oldStatus] === newStatus;
+      var isCancel = newStatus === 'annule';
+      if (isRefusal || isCancel) {
+        evt.from.insertBefore(cardEl, evt.from.children[evt.oldIndex] || null);
+        showTransitionModal(cardId, oldStatus, newStatus, isRefusal);
+        return;
+      }
+
+      // Direct transition
+      performTransition(cardId, oldStatus, newStatus, '');
+    }
+  };
+
+  // Init Sortable on each kanban column
+  document.querySelectorAll('.kanban-cards').forEach(function(column) {
+    new Sortable(column, sortableConfig);
   });
 
-  function performTransition(planId, targetStatus, comment) {
-    const url = '/compliance/action-plans/' + planId + '/transition/';
-    const formData = new FormData();
+  // Init Sortable on the cancel drop zone (receive-only)
+  var cancelCards = document.getElementById('kanban-annule');
+  if (cancelCards) {
+    new Sortable(cancelCards, Object.assign({}, sortableConfig, {
+      sort: false  // No reordering within cancelled
+    }));
+  }
+
+  // Refresh specific columns via HTMX partial endpoints
+  function refreshColumns(statuses) {
+    statuses.forEach(function(status) {
+      if (status === 'annule') {
+        // Reload entire page for cancel since it has different layout
+        window.location.reload();
+        return;
+      }
+      var container = document.getElementById('kanban-' + status);
+      if (!container) return;
+      fetch('/compliance/action-plans/kanban/column/' + status + '/', {
+        headers: { 'HX-Request': 'true' }
+      }).then(function(r) { return r.text(); }).then(function(html) {
+        container.innerHTML = html;
+        // Update card count
+        var col = container.closest('.kanban-column');
+        if (col) {
+          var count = col.querySelector('.kanban-count');
+          if (count) count.textContent = container.querySelectorAll('.kanban-card').length;
+        }
+        // Re-init Sortable on refreshed column
+        new Sortable(container, sortableConfig);
+      });
+    });
+  }
+
+  function performTransition(planId, fromStatus, targetStatus, comment) {
+    var url = '/compliance/action-plans/' + planId + '/transition/';
+    var formData = new FormData();
     formData.append('target_status', targetStatus);
     formData.append('comment', comment);
     formData.append('csrfmiddlewaretoken', csrfToken);
@@ -230,25 +368,27 @@ document.addEventListener('DOMContentLoaded', function() {
       headers: { 'HX-Request': 'true' }
     }).then(function(response) {
       if (response.ok) {
-        window.location.reload();
+        refreshColumns([fromStatus, targetStatus]);
       } else {
         response.text().then(function(text) {
-          alert('Error: ' + text);
-          window.location.reload();
+          showToast(text || '{% trans "An error occurred" %}');
+          refreshColumns([fromStatus]);
         });
       }
     });
   }
 
   function showTransitionModal(planId, fromStatus, toStatus, isRefusal) {
-    const modal = document.getElementById('transitionModal');
-    const form = document.getElementById('transitionForm');
-    const targetInput = document.getElementById('transitionTargetStatus');
-    const commentField = document.getElementById('transitionComment');
-    const commentRequired = document.getElementById('commentRequired');
-    const submitBtn = document.getElementById('transitionSubmit');
+    var modal = document.getElementById('transitionModal');
+    var form = document.getElementById('transitionForm');
+    var targetInput = document.getElementById('transitionTargetStatus');
+    var commentField = document.getElementById('transitionComment');
+    var commentRequired = document.getElementById('commentRequired');
+    var submitBtn = document.getElementById('transitionSubmit');
 
     form.action = '/compliance/action-plans/' + planId + '/transition/';
+    form.dataset.fromStatus = fromStatus;
+    form.dataset.toStatus = toStatus;
     targetInput.value = toStatus;
     commentField.value = '';
 
@@ -266,6 +406,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
     new bootstrap.Modal(modal).show();
   }
+
+  // Intercept modal form submission to use partial refresh
+  document.getElementById('transitionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var form = e.target;
+    var planId = form.action.match(/action-plans\/([^/]+)\/transition/)[1];
+    var fromStatus = form.dataset.fromStatus;
+    var toStatus = form.dataset.toStatus;
+    var comment = document.getElementById('transitionComment').value;
+
+    var formData = new FormData();
+    formData.append('target_status', toStatus);
+    formData.append('comment', comment);
+    formData.append('csrfmiddlewaretoken', csrfToken);
+
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: { 'HX-Request': 'true' }
+    }).then(function(response) {
+      bootstrap.Modal.getInstance(document.getElementById('transitionModal')).hide();
+      if (response.ok) {
+        refreshColumns([fromStatus, toStatus]);
+      } else {
+        response.text().then(function(text) {
+          showToast(text || '{% trans "An error occurred" %}');
+        });
+      }
+    });
+  });
 
   // Listen for kanban refresh trigger from HTMX
   document.body.addEventListener('refreshKanban', function() {
