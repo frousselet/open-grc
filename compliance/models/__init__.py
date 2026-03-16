@@ -5,6 +5,7 @@ from .assessment import ComplianceAssessment, AssessmentResult, AssessmentResult
 from .finding import Finding
 from .mapping import RequirementMapping
 from .action_plan import ComplianceActionPlan
+from .action_plan_comment import ActionPlanComment
 from .action_plan_transition import ActionPlanTransition
 
 __all__ = [
@@ -17,5 +18,6 @@ __all__ = [
     "Finding",
     "RequirementMapping",
     "ComplianceActionPlan",
+    "ActionPlanComment",
     "ActionPlanTransition",
 ]

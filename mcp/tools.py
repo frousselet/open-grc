@@ -1401,6 +1401,100 @@ def _register_compliance_tools(server):
         require_perm("compliance.action_plan.read")(_action_plan_kanban),
     )
 
+    # ── Action Plan Comments ──
+    ActionPlanComment = _get_model("compliance", "ActionPlanComment")
+
+    @require_perm("compliance.action_plan.read")
+    def _list_action_plan_comments(user, arguments):
+        """List comments on an action plan, including threaded replies."""
+        pk = arguments.get("action_plan_id")
+        if not pk:
+            raise InvalidParamsError("action_plan_id is required.")
+        try:
+            ap = ComplianceActionPlan.objects.get(pk=pk)
+        except ComplianceActionPlan.DoesNotExist:
+            raise InvalidParamsError("Action plan not found.")
+        comments = (
+            ap.comments.filter(parent__isnull=True)
+            .select_related("author")
+            .prefetch_related("replies__author")
+        )
+        result = []
+        for c in comments:
+            entry = {
+                "id": str(c.id),
+                "author": c.author.display_name,
+                "content": c.content,
+                "created_at": c.created_at.isoformat(),
+                "replies": [
+                    {
+                        "id": str(r.id),
+                        "author": r.author.display_name,
+                        "content": r.content,
+                        "created_at": r.created_at.isoformat(),
+                    }
+                    for r in c.replies.all()
+                ],
+            }
+            result.append(entry)
+        return result
+
+    server.register_tool(
+        "list_action_plan_comments",
+        "List comments on an action plan with threaded replies",
+        _obj_schema({
+            "action_plan_id": {"type": "string", "description": "UUID of the action plan"},
+        }, ["action_plan_id"]),
+        _list_action_plan_comments,
+    )
+
+    @require_perm("compliance.action_plan.update")
+    def _create_action_plan_comment(user, arguments):
+        """Create a comment or reply on an action plan."""
+        pk = arguments.get("action_plan_id")
+        content = arguments.get("content")
+        if not pk or not content:
+            raise InvalidParamsError("action_plan_id and content are required.")
+        try:
+            ap = ComplianceActionPlan.objects.get(pk=pk)
+        except ComplianceActionPlan.DoesNotExist:
+            raise InvalidParamsError("Action plan not found.")
+
+        parent = None
+        parent_id = arguments.get("parent_id")
+        if parent_id:
+            try:
+                parent = ActionPlanComment.objects.get(pk=parent_id, action_plan=ap)
+            except ActionPlanComment.DoesNotExist:
+                raise InvalidParamsError("Parent comment not found.")
+            if parent.parent_id is not None:
+                parent = parent.parent
+
+        comment = ActionPlanComment.objects.create(
+            action_plan=ap,
+            author=user,
+            content=content,
+            parent=parent,
+        )
+        return {
+            "id": str(comment.id),
+            "author": user.display_name,
+            "content": comment.content,
+            "parent_id": str(parent.id) if parent else None,
+            "created_at": comment.created_at.isoformat(),
+        }
+
+    server.register_tool(
+        "create_action_plan_comment",
+        "Create a comment or reply on an action plan",
+        _obj_schema({
+            "action_plan_id": {"type": "string", "description": "UUID of the action plan"},
+            "content": {"type": "string", "description": "Comment text"},
+            "parent_id": {"type": "string", "description": "UUID of parent comment (for replies, optional)"},
+        }, ["action_plan_id", "content"]),
+        _create_action_plan_comment,
+    )
+
     Finding = _get_model("compliance", "Finding")
     fi_fields = ["id", "reference", "assessment_id", "finding_type",
                  "description", "recommendation", "evidence",

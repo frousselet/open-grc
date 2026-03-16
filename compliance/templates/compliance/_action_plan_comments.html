@@ -1,0 +1,96 @@
+{% load i18n %}
+<div id="comments-section">
+  {# ── New comment form ── #}
+  <div class="card mb-3">
+    <div class="card-body">
+      <form hx-post="{% url 'compliance:action-plan-comments' action_plan.pk %}"
+            hx-target="#comments-section" hx-swap="outerHTML">
+        {% csrf_token %}
+        <div class="mb-2">
+          <textarea name="content" class="form-control" rows="2"
+                    placeholder="{% trans 'Write a comment...' %}" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-sm btn-primary">
+          <i class="bi bi-send me-1"></i>{% trans "Add a comment" %}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  {# ── Comment list ── #}
+  {% for comment in comments %}
+  <div class="card mb-2">
+    <div class="card-body py-2 px-3">
+      <div class="d-flex align-items-start gap-2">
+        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+             style="width:32px;height:32px;background:var(--accent);color:#fff;font-size:.75rem;font-weight:600">
+          {{ comment.author.first_name|default:comment.author.email|make_list|first|upper }}{{ comment.author.last_name|make_list|first|upper|default:"" }}
+        </div>
+        <div class="flex-grow-1" style="min-width:0">
+          <div class="d-flex justify-content-between align-items-center">
+            <strong style="font-size:.8125rem">{{ comment.author.display_name }}</strong>
+            <small class="text-muted" style="font-size:.75rem">{{ comment.created_at|timesince }} {% trans "ago" %}</small>
+          </div>
+          <div style="font-size:.875rem;white-space:pre-wrap" class="mt-1">{{ comment.content }}</div>
+          <button type="button" class="btn btn-link btn-sm p-0 mt-1 toggle-reply-form" style="font-size:.75rem"
+                  data-target="reply-form-{{ comment.pk }}">
+            <i class="bi bi-reply me-1"></i>{% trans "Reply" %}
+          </button>
+          {# Reply form (hidden by default) #}
+          <div id="reply-form-{{ comment.pk }}" class="mt-2" style="display:none">
+            <form hx-post="{% url 'compliance:action-plan-comments' action_plan.pk %}"
+                  hx-target="#comments-section" hx-swap="outerHTML">
+              {% csrf_token %}
+              <input type="hidden" name="parent" value="{{ comment.pk }}">
+              <div class="mb-2">
+                <textarea name="content" class="form-control form-control-sm" rows="2"
+                          placeholder="{% trans 'Write a reply...' %}" required></textarea>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-sm btn-primary">
+                  <i class="bi bi-send me-1"></i>{% trans "Reply" %}
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary cancel-reply"
+                        data-target="reply-form-{{ comment.pk }}">{% trans "Cancel" %}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {# ── Replies ── #}
+      {% for reply in comment.replies.all %}
+      <div class="d-flex align-items-start gap-2 mt-2 ms-4 pt-2 border-top">
+        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+             style="width:28px;height:28px;background:var(--accent);color:#fff;font-size:.7rem;font-weight:600;opacity:.85">
+          {{ reply.author.first_name|default:reply.author.email|make_list|first|upper }}{{ reply.author.last_name|make_list|first|upper|default:"" }}
+        </div>
+        <div class="flex-grow-1" style="min-width:0">
+          <div class="d-flex justify-content-between align-items-center">
+            <strong style="font-size:.8125rem">{{ reply.author.display_name }}</strong>
+            <small class="text-muted" style="font-size:.75rem">{{ reply.created_at|timesince }} {% trans "ago" %}</small>
+          </div>
+          <div style="font-size:.875rem;white-space:pre-wrap" class="mt-1">{{ reply.content }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% empty %}
+  <p class="text-muted">{% trans "No comments yet." %}</p>
+  {% endfor %}
+</div>
+
+<script>
+document.querySelectorAll('.toggle-reply-form').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var target = document.getElementById(this.dataset.target);
+    target.style.display = target.style.display === 'none' ? 'block' : 'none';
+  });
+});
+document.querySelectorAll('.cancel-reply').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.getElementById(this.dataset.target).style.display = 'none';
+  });
+});
+</script>

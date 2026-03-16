@@ -65,6 +65,7 @@ urlpatterns = [
     path("action-plans/<uuid:pk>/", views.ActionPlanDetailView.as_view(), name="action-plan-detail"),
     path("action-plans/<uuid:pk>/edit/", views.ActionPlanUpdateView.as_view(), name="action-plan-update"),
     path("action-plans/<uuid:pk>/delete/", views.ActionPlanDeleteView.as_view(), name="action-plan-delete"),
+    path("action-plans/<uuid:pk>/comments/", views.ActionPlanCommentCreateView.as_view(), name="action-plan-comments"),
     path("action-plans/<uuid:pk>/transition/", views.ActionPlanTransitionView.as_view(), name="action-plan-transition"),
     path("action-plans/<uuid:pk>/approve/", views.ApproveView.as_view(model=ComplianceActionPlan, permission_feature="action_plan", success_url=reverse_lazy("compliance:action-plan-kanban")), name="action-plan-approve"),
 ]

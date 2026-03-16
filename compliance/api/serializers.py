@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from compliance.constants import ActionPlanStatus
 from compliance.models import (
+    ActionPlanComment,
     ComplianceActionPlan,
     ComplianceAssessment,
     AssessmentResult,
@@ -284,3 +285,42 @@ class ComplianceActionPlanListSerializer(serializers.ModelSerializer):
             "progress_percentage", "status", "created_at",
         ]
         read_only_fields = ["id", "reference", "created_at"]
+
+
+class ActionPlanCommentReplySerializer(serializers.ModelSerializer):
+    author_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ActionPlanComment
+        fields = [
+            "id", "author", "author_name", "content",
+            "created_at", "updated_at",
+        ]
+        read_only_fields = fields
+
+    def get_author_name(self, obj):
+        return obj.author.display_name
+
+
+class ActionPlanCommentSerializer(serializers.ModelSerializer):
+    author_name = serializers.SerializerMethodField()
+    replies = ActionPlanCommentReplySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ActionPlanComment
+        fields = [
+            "id", "author", "author_name", "content",
+            "parent", "replies", "created_at", "updated_at",
+        ]
+        read_only_fields = [
+            "id", "author", "author_name", "replies",
+            "created_at", "updated_at",
+        ]
+
+    def get_author_name(self, obj):
+        return obj.author.display_name
+
+
+class ActionPlanCommentCreateSerializer(serializers.Serializer):
+    content = serializers.CharField()
+    parent = serializers.UUIDField(required=False, allow_null=True, default=None)

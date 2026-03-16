@@ -1,3 +1,4 @@
+from django.db.models import Prefetch
 from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -6,6 +7,7 @@ from rest_framework.response import Response
 from accounts.api.mixins import ApprovableAPIMixin, HistoryAPIMixin, ScopeFilterAPIMixin
 from compliance.constants import ActionPlanStatus
 from compliance.models import (
+    ActionPlanComment,
     ComplianceActionPlan,
     ComplianceAssessment,
     AssessmentResult,
@@ -25,6 +27,8 @@ from .filters import (
 )
 from .permissions import CompliancePermission
 from .serializers import (
+    ActionPlanCommentCreateSerializer,
+    ActionPlanCommentSerializer,
     ActionPlanTransitionHistorySerializer,
     ActionPlanTransitionSerializer,
     AssessmentResultSerializer,
@@ -426,3 +430,52 @@ class ComplianceActionPlanViewSet(
             "by_priority": by_priority,
             "overdue": overdue,
         })
+
+    @action(detail=True, methods=["get", "post"], url_path="comments")
+    def comments(self, request, pk=None):
+        """List or create comments on an action plan."""
+        action_plan = self.get_object()
+
+        if request.method == "GET":
+            qs = (
+                action_plan.comments.filter(parent__isnull=True)
+                .select_related("author")
+                .prefetch_related(
+                    Prefetch(
+                        "replies",
+                        queryset=ActionPlanComment.objects.select_related("author"),
+                    )
+                )
+            )
+            serializer = ActionPlanCommentSerializer(qs, many=True)
+            return Response(serializer.data)
+
+        # POST
+        serializer = ActionPlanCommentCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        parent = None
+        parent_id = serializer.validated_data.get("parent")
+        if parent_id:
+            try:
+                parent = ActionPlanComment.objects.get(
+                    pk=parent_id, action_plan=action_plan
+                )
+            except ActionPlanComment.DoesNotExist:
+                return Response(
+                    {"detail": "Parent comment not found."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+            if parent.parent_id is not None:
+                parent = parent.parent
+
+        comment = ActionPlanComment.objects.create(
+            action_plan=action_plan,
+            author=request.user,
+            content=serializer.validated_data["content"],
+            parent=parent,
+        )
+        return Response(
+            ActionPlanCommentSerializer(comment).data,
+            status=status.HTTP_201_CREATED,
+        )
