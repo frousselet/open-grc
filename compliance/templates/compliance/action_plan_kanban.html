@@ -152,6 +152,9 @@
   color: var(--bs-danger, #dc3545);
   font-weight: 600;
 }
+.kanban-card a {
+  -webkit-user-drag: none;
+}
 .kanban-card:hover {
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0,0,0,.1));
   transform: translateY(-1px);
@@ -280,6 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var sortableConfig = {
     group: 'kanban',
     animation: 150,
+    forceFallback: true,
     ghostClass: 'sortable-ghost',
     chosenClass: 'sortable-chosen',
     dragClass: 'sortable-drag',
