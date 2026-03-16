@@ -1544,6 +1544,8 @@ class ActionPlanDetailView(
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ap = self.object
+        user = self.request.user
+
         # Build allowed transitions with permission check
         allowed = []
         for target in ap.get_allowed_transitions():
@@ -1552,7 +1554,7 @@ class ActionPlanDetailView(
                 perm = "compliance.action_plan.cancel"
             else:
                 perm = ACTION_PLAN_TRANSITION_PERMISSIONS.get(transition_key)
-            if not perm or self.request.user.has_perm(perm):
+            if not perm or user.has_perm(perm):
                 is_refusal = ACTION_PLAN_REFUSAL_TRANSITIONS.get(ap.status) == target
                 allowed.append({
                     "status": target,
@@ -1562,6 +1564,95 @@ class ActionPlanDetailView(
                     "is_cancel": target == ActionPlanStatus.ANNULE,
                 })
         ctx["allowed_transitions"] = allowed
+
+        # ── Workflow stepper ──
+        main_statuses = [
+            s for s in ActionPlanStatus if s != ActionPlanStatus.ANNULE
+        ]
+        is_cancelled = ap.status == ActionPlanStatus.ANNULE
+        current_idx = next(
+            (i for i, s in enumerate(main_statuses) if s.value == ap.status),
+            None,
+        )
+        if is_cancelled:
+            current_idx = None
+
+        # Determine the forward (non-refusal, non-cancel) next transition
+        forward_transitions = ACTION_PLAN_TRANSITIONS.get(ap.status, [])
+        refusal_target = ACTION_PLAN_REFUSAL_TRANSITIONS.get(ap.status)
+        main_next = next(
+            (s for s in forward_transitions if s != refusal_target),
+            None,
+        )
+        # Check permission for the forward transition
+        if main_next:
+            fwd_perm = ACTION_PLAN_TRANSITION_PERMISSIONS.get((ap.status, main_next))
+            if fwd_perm and not user.has_perm(fwd_perm):
+                main_next = None
+        ctx["next_status"] = main_next
+
+        next_main_idx = (current_idx + 1) if (current_idx is not None and main_next) else None
+
+        steps = []
+        for i, s in enumerate(main_statuses):
+            if current_idx is not None:
+                if i < current_idx:
+                    state = "done"
+                elif i == current_idx:
+                    state = "current"
+                elif next_main_idx is not None and i == next_main_idx:
+                    state = "next"
+                else:
+                    state = "future"
+            else:
+                state = "future"
+            steps.append({"value": s.value, "label": s.label, "state": state})
+        ctx["workflow_steps"] = steps
+
+        # Can cancel? (permission check)
+        can_cancel = ap.status in ACTION_PLAN_CANCELLABLE_STATUSES
+        if can_cancel:
+            cancel_perm = "compliance.action_plan.cancel"
+            if not user.has_perm(cancel_perm):
+                can_cancel = False
+        ctx["can_cancel"] = can_cancel
+
+        # Can refuse? (backward transition with comment)
+        can_refuse = False
+        refusal_info = None
+        if refusal_target:
+            ref_perm = ACTION_PLAN_TRANSITION_PERMISSIONS.get((ap.status, refusal_target))
+            if not ref_perm or user.has_perm(ref_perm):
+                can_refuse = True
+                refusal_info = {
+                    "status": refusal_target,
+                    "label": ActionPlanStatus(refusal_target).label,
+                }
+        ctx["can_refuse"] = can_refuse
+        ctx["refusal_info"] = refusal_info
+
+        # Cancelled step
+        if is_cancelled:
+            ctx["cancelled_step"] = {
+                "value": ActionPlanStatus.ANNULE.value,
+                "label": ActionPlanStatus.ANNULE.label,
+                "state": "current",
+            }
+            ctx["branch_line_color"] = "var(--danger)"
+            ctx["branch_line_opacity"] = "1"
+        else:
+            ctx["cancelled_step"] = {
+                "value": ActionPlanStatus.ANNULE.value,
+                "label": ActionPlanStatus.ANNULE.label,
+                "state": "future",
+            }
+            if can_cancel:
+                ctx["branch_line_color"] = "var(--border-light)"
+                ctx["branch_line_opacity"] = "1"
+            else:
+                ctx["branch_line_color"] = "var(--border-light)"
+                ctx["branch_line_opacity"] = "0.3"
+
         ctx["transition_history"] = ap.transitions.select_related("performed_by").all()[:20]
         ctx["status_colors"] = ACTION_PLAN_STATUS_COLORS
         ctx["comments"] = (
