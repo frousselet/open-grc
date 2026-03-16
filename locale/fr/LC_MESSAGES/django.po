@@ -4227,6 +4227,9 @@ msgstr "Risques liés"
 msgid "Assignees"
 msgstr "Responsables assignés"
 
+msgid "Supervisor"
+msgstr "Superviseur"
+
 #: compliance/forms.py:218
 msgid "File"
 msgstr "Fichier"

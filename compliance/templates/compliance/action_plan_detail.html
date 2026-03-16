@@ -65,7 +65,19 @@
               {{ action_plan.get_priority_display }}
             </span>
           </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Responsible" %}</dt><dd class="col-sm-9">{{ action_plan.owner }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Supervisor" %}</dt>
+          <dd class="col-sm-9">
+            {% with user=action_plan.owner %}
+            <span class="d-inline-flex align-items-center">
+              {% if user.avatar_32 %}
+              <img src="{{ user.avatar_32 }}" alt="{{ user.get_short_name }}" width="24" height="24" class="rounded-circle me-1">
+              {% else %}
+              <span class="d-inline-flex align-items-center justify-content-center rounded-circle me-1" style="width:24px;height:24px;background:var(--bs-primary);color:#fff;font-size:.6rem;font-weight:600">{{ user.first_name|make_list|first }}{{ user.last_name|make_list|first }}</span>
+              {% endif %}
+              {{ user.get_full_name|default:user.email }}
+            </span>
+            {% endwith %}
+          </dd>
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Assignees" %}</dt>
           <dd class="col-sm-9">
             {% for user in action_plan.assignees.all %}
