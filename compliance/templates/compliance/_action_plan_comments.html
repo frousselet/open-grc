@@ -22,10 +22,15 @@
   <div class="card mb-2">
     <div class="card-body py-2 px-3">
       <div class="d-flex align-items-start gap-2">
+        {% if comment.author.avatar_32 %}
+        <img src="{{ comment.author.avatar_32 }}" alt="{{ comment.author.display_name }}"
+             class="rounded-circle flex-shrink-0" style="width:32px;height:32px;object-fit:cover">
+        {% else %}
         <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
              style="width:32px;height:32px;background:var(--accent);color:#fff;font-size:.75rem;font-weight:600">
           {{ comment.author.first_name|default:comment.author.email|make_list|first|upper }}{{ comment.author.last_name|make_list|first|upper|default:"" }}
         </div>
+        {% endif %}
         <div class="flex-grow-1" style="min-width:0">
           <div class="d-flex justify-content-between align-items-center">
             <strong style="font-size:.8125rem">{{ comment.author.display_name }}</strong>
@@ -61,10 +66,15 @@
       {# ── Replies ── #}
       {% for reply in comment.replies.all %}
       <div class="d-flex align-items-start gap-2 mt-2 ms-4 pt-2 border-top">
+        {% if reply.author.avatar_32 %}
+        <img src="{{ reply.author.avatar_32 }}" alt="{{ reply.author.display_name }}"
+             class="rounded-circle flex-shrink-0" style="width:28px;height:28px;object-fit:cover">
+        {% else %}
         <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
              style="width:28px;height:28px;background:var(--accent);color:#fff;font-size:.7rem;font-weight:600;opacity:.85">
           {{ reply.author.first_name|default:reply.author.email|make_list|first|upper }}{{ reply.author.last_name|make_list|first|upper|default:"" }}
         </div>
+        {% endif %}
         <div class="flex-grow-1" style="min-width:0">
           <div class="d-flex justify-content-between align-items-center">
             <strong style="font-size:.8125rem">{{ reply.author.display_name }}</strong>
