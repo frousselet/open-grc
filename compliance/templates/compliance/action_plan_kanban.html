@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (targetStatus === dragSourceStatus) return true;
       var allowed = allowedTransitions[dragSourceStatus] || [];
       if (!allowed.includes(targetStatus)) {
-        showToast('{% trans "Transition not allowed" %}');
+        showToast('{% filter escapejs %}{% trans "Transition not allowed" %}{% endfilter %}');
         return false;
       }
       return true;
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
         refreshColumns([fromStatus, targetStatus]);
       } else {
         response.text().then(function(text) {
-          showToast(text || '{% trans "An error occurred" %}');
+          showToast(text || '{% filter escapejs %}{% trans "An error occurred" %}{% endfilter %}');
           refreshColumns([fromStatus]);
         });
       }
@@ -410,12 +410,12 @@ document.addEventListener('DOMContentLoaded', function() {
       commentRequired.style.display = 'block';
       commentField.required = true;
       submitBtn.className = 'btn btn-warning';
-      submitBtn.textContent = '{% trans "Refuse" %}';
+      submitBtn.textContent = '{% filter escapejs %}{% trans "Refuse" %}{% endfilter %}';
     } else {
       commentRequired.style.display = 'none';
       commentField.required = false;
       submitBtn.className = 'btn btn-danger';
-      submitBtn.textContent = '{% trans "Cancel action plan" %}';
+      submitBtn.textContent = '{% filter escapejs %}{% trans "Cancel action plan" %}{% endfilter %}';
     }
 
     new bootstrap.Modal(modal).show();
@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function() {
         refreshColumns([fromStatus, toStatus]);
       } else {
         response.text().then(function(text) {
-          showToast(text || '{% trans "An error occurred" %}');
+          showToast(text || '{% filter escapejs %}{% trans "An error occurred" %}{% endfilter %}');
         });
       }
     });
