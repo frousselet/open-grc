@@ -46,6 +46,7 @@
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#remediation_tab">{% trans "Remediation" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#planning_tab">{% trans "Planning" %}</a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#linkages_tab">{% trans "Linkages" %}</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#comments_tab">{% trans "Comments" %} <span class="badge bg-secondary">{{ comment_count }}</span></a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#transitions_tab">{% trans "Transitions" %} <span class="badge bg-secondary">{{ transition_history|length }}</span></a></li>
   <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
 </ul>
@@ -136,6 +137,10 @@
         {% endfor %}
       </div>
     </div>
+  </div>
+
+  <div class="tab-pane fade" id="comments_tab">
+    {% include "compliance/_action_plan_comments.html" %}
   </div>
 
   <div class="tab-pane fade" id="transitions_tab">

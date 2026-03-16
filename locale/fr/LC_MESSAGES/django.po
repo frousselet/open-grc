@@ -9132,3 +9132,42 @@ msgstr "Transition non autorisée"
 
 msgid "An error occurred"
 msgstr "Une erreur est survenue"
+
+#: compliance/models/action_plan_comment.py
+msgid "Author"
+msgstr "Auteur"
+
+msgid "Parent comment"
+msgstr "Commentaire parent"
+
+msgid "Action plan comment"
+msgstr "Commentaire de plan d'action"
+
+msgid "Action plan comments"
+msgstr "Commentaires de plans d'action"
+
+msgid "Replies cannot be nested more than one level."
+msgstr "Les réponses ne peuvent pas être imbriquées sur plus d'un niveau."
+
+#: compliance/templates/compliance/_action_plan_comments.html
+msgid "Write a comment..."
+msgstr "Écrire un commentaire..."
+
+msgid "Add a comment"
+msgstr "Ajouter un commentaire"
+
+msgid "Reply"
+msgstr "Répondre"
+
+msgid "Write a reply..."
+msgstr "Écrire une réponse..."
+
+msgid "No comments yet."
+msgstr "Aucun commentaire."
+
+msgid "ago"
+msgstr ""
+
+#: compliance/templates/compliance/action_plan_detail.html
+msgid "Comments"
+msgstr "Commentaires"

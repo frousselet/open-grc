@@ -130,3 +130,13 @@ class ComplianceActionPlanFactory(factory.django.DjangoModelFactory):
         lambda: (timezone.now() + timedelta(days=30)).date()
     )
     status = ActionPlanStatus.NOUVEAU
+
+
+class ActionPlanCommentFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = "compliance.ActionPlanComment"
+
+    action_plan = factory.SubFactory(ComplianceActionPlanFactory)
+    author = factory.SubFactory(UserFactory)
+    content = factory.Sequence(lambda n: f"Comment {n}")
+    parent = None

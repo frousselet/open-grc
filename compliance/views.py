@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
+from django.db.models import Prefetch
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -59,6 +60,7 @@ from .constants import (
     FINDING_REFERENCE_PREFIXES,
 )
 from .models import (
+    ActionPlanComment,
     AssessmentResult,
     AssessmentResultAttachment,
     ComplianceActionPlan,
@@ -1562,6 +1564,17 @@ class ActionPlanDetailView(
         ctx["allowed_transitions"] = allowed
         ctx["transition_history"] = ap.transitions.select_related("performed_by").all()[:20]
         ctx["status_colors"] = ACTION_PLAN_STATUS_COLORS
+        ctx["comments"] = (
+            ap.comments.filter(parent__isnull=True)
+            .select_related("author")
+            .prefetch_related(
+                Prefetch(
+                    "replies",
+                    queryset=ActionPlanComment.objects.select_related("author"),
+                )
+            )
+        )
+        ctx["comment_count"] = ap.comments.count()
         return ctx
 
 
@@ -1702,3 +1715,54 @@ class ActionPlanTransitionView(LoginRequiredMixin, View):
                 headers={"HX-Trigger": "refreshKanban"},
             )
         return redirect("compliance:action-plan-detail", pk=pk)
+
+
+class ActionPlanCommentCreateView(LoginRequiredMixin, View):
+    """Create a comment or reply on an action plan (HTMX POST)."""
+
+    def post(self, request, pk):
+        action_plan = get_object_or_404(ComplianceActionPlan, pk=pk)
+        content = request.POST.get("content", "").strip()
+        if not content:
+            return HttpResponse(status=400)
+
+        parent_id = request.POST.get("parent")
+        parent = None
+        if parent_id:
+            parent = get_object_or_404(
+                ActionPlanComment, pk=parent_id, action_plan=action_plan
+            )
+            # Enforce single-level nesting
+            if parent.parent_id is not None:
+                parent = parent.parent
+
+        ActionPlanComment.objects.create(
+            action_plan=action_plan,
+            author=request.user,
+            content=content,
+            parent=parent,
+        )
+
+        # Return updated comments partial
+        from django.template.loader import render_to_string
+
+        comments = (
+            action_plan.comments.filter(parent__isnull=True)
+            .select_related("author")
+            .prefetch_related(
+                Prefetch(
+                    "replies",
+                    queryset=ActionPlanComment.objects.select_related("author"),
+                )
+            )
+        )
+        html = render_to_string(
+            "compliance/_action_plan_comments.html",
+            {
+                "action_plan": action_plan,
+                "comments": comments,
+                "comment_count": action_plan.comments.count(),
+            },
+            request=request,
+        )
+        return HttpResponse(html)
