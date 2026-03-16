@@ -1306,16 +1306,33 @@ def _register_compliance_tools(server):
     def _action_plan_transition(user, arguments):
         """Transition an action plan to a new status in the Kanban workflow.
 
+        Workflow (forward):
+          nouveau → a_definir → a_valider → a_implementer
+          → implementation_a_valider → valide → cloture
+
+        Refusals (backward, comment mandatory):
+          a_valider → a_definir
+          implementation_a_valider → a_implementer
+
+        Cancellation (comment recommended):
+          Any status except cloture/annule → annule
+
         Parameters
         ----------
         action_plan_id : str (required)
             UUID of the action plan.
         target_status : str (required)
-            Target status: nouveau, a_definir, a_valider, a_implementer,
-            implementation_a_valider, valide, cloture, annule.
+            Target status. Must be an allowed transition from the current
+            status. Use action_plan_allowed_transitions to check first.
         comment : str
-            Mandatory comment when refusing (going backward).
+            Comment explaining the transition. Mandatory for refusals
+            (backward transitions). Recommended for cancellations.
         """
+        from compliance.constants import (
+            ACTION_PLAN_TRANSITION_PERMISSIONS,
+            ActionPlanStatus,
+        )
+
         pk = arguments.get("action_plan_id")
         target = arguments.get("target_status")
         comment = arguments.get("comment", "")
@@ -1325,6 +1342,28 @@ def _register_compliance_tools(server):
             ap = ComplianceActionPlan.objects.get(pk=pk)
         except ComplianceActionPlan.DoesNotExist:
             return _error("Action plan not found.")
+
+        # Check per-transition permission (same logic as the UI view)
+        transition_key = (ap.status, target)
+        if target == ActionPlanStatus.ANNULE:
+            required_perm = "compliance.action_plan.cancel"
+        else:
+            required_perm = ACTION_PLAN_TRANSITION_PERMISSIONS.get(transition_key)
+        if required_perm and not user.is_superuser and not user.has_perm(required_perm):
+            return _error(
+                f"Permission denied: you need '{required_perm}' to transition "
+                f"from '{ap.status}' to '{target}'."
+            )
+
+        # Build helpful error context on failure
+        allowed = ap.get_allowed_transitions()
+        if target not in allowed:
+            allowed_str = ", ".join(str(s) for s in allowed) if allowed else "none (terminal status)"
+            return _error(
+                f"Cannot transition from '{ap.status}' to '{target}'. "
+                f"Allowed transitions from '{ap.status}': {allowed_str}."
+            )
+
         try:
             ap.transition_to(target, user, comment)
         except ValueError as e:
@@ -1333,13 +1372,23 @@ def _register_compliance_tools(server):
 
     server.register_tool(
         "action_plan_transition",
-        "Transition an action plan to a new Kanban status",
+        "Transition an action plan to a new Kanban status. "
+        "Forward flow: nouveau → a_definir → a_valider → a_implementer → "
+        "implementation_a_valider → valide → cloture. "
+        "Refusals (require comment): a_valider → a_definir, "
+        "implementation_a_valider → a_implementer. "
+        "Cancellation: any non-terminal status → annule.",
         _obj_schema({
             "action_plan_id": {"type": "string", "description": "UUID of the action plan"},
-            "target_status": {"type": "string", "description": "Target status (nouveau, a_definir, a_valider, a_implementer, implementation_a_valider, valide, cloture, annule)"},
-            "comment": {"type": "string", "description": "Comment (mandatory for refusals)"},
+            "target_status": {
+                "type": "string",
+                "description": "Target status to transition to",
+                "enum": ["nouveau", "a_definir", "a_valider", "a_implementer",
+                         "implementation_a_valider", "valide", "cloture", "annule"],
+            },
+            "comment": {"type": "string", "description": "Comment explaining the transition. Mandatory for refusals (backward transitions). Recommended for cancellations."},
         }, ["action_plan_id", "target_status"]),
-        require_perm("compliance.action_plan.update")(_action_plan_transition),
+        require_perm("compliance.action_plan.read")(_action_plan_transition),
     )
 
     # Action plan transition history tool
@@ -1378,13 +1427,23 @@ def _register_compliance_tools(server):
 
     # Action plan kanban tool
     def _action_plan_kanban(user, arguments):
-        """Get action plans grouped by status for kanban view."""
-        from compliance.constants import ActionPlanStatus as APS
+        """Get action plans grouped by status for kanban view.
+
+        Returns a dict with:
+        - columns: action plans grouped by status
+        - workflow_rules: allowed transitions, refusals, and cancellable statuses
+        """
+        from compliance.constants import (
+            ACTION_PLAN_TRANSITIONS,
+            ACTION_PLAN_REFUSAL_TRANSITIONS,
+            ACTION_PLAN_CANCELLABLE_STATUSES,
+            ActionPlanStatus as APS,
+        )
         qs = ComplianceActionPlan.objects.all()
-        result = {}
+        columns = {}
         for status_choice in APS:
             plans = qs.filter(status=status_choice.value)
-            result[status_choice.value] = [
+            columns[status_choice.value] = [
                 {"id": str(p.pk), "reference": p.reference, "name": p.name,
                  "priority": p.priority, "status": p.status,
                  "owner": str(p.owner) if p.owner_id else "",
@@ -1393,16 +1452,99 @@ def _register_compliance_tools(server):
                      for u in p.assignees.all()
                  ],
                  "target_date": str(p.target_date) if p.target_date else "",
-                 "progress_percentage": p.progress_percentage}
+                 "progress_percentage": p.progress_percentage,
+                 "is_overdue": p.is_overdue}
                 for p in plans
             ]
-        return result
+        # Build workflow rules so LLM knows which transitions are valid
+        transitions = {}
+        for from_s, to_list in ACTION_PLAN_TRANSITIONS.items():
+            key = from_s.value if hasattr(from_s, "value") else from_s
+            targets = [s.value if hasattr(s, "value") else s for s in to_list]
+            # Add cancellation if applicable
+            if from_s in ACTION_PLAN_CANCELLABLE_STATUSES:
+                targets.append(APS.ANNULE.value)
+            transitions[key] = targets
+        refusals = {
+            (from_s.value if hasattr(from_s, "value") else from_s): (
+                to_s.value if hasattr(to_s, "value") else to_s
+            )
+            for from_s, to_s in ACTION_PLAN_REFUSAL_TRANSITIONS.items()
+        }
+        return {
+            "columns": columns,
+            "workflow_rules": {
+                "allowed_transitions": transitions,
+                "refusal_transitions": refusals,
+                "refusal_transitions_require_comment": True,
+            },
+        }
 
     server.register_tool(
         "action_plan_kanban",
-        "Get action plans grouped by status for kanban board",
+        "Get action plans grouped by status for kanban board, "
+        "including workflow transition rules",
         _obj_schema({}, []),
         require_perm("compliance.action_plan.read")(_action_plan_kanban),
+    )
+
+    # Action plan allowed transitions tool
+    def _action_plan_allowed_transitions(user, arguments):
+        """Get the list of allowed transitions for a specific action plan.
+
+        Returns the current status, allowed target statuses, which ones
+        are refusals (require comment), and which is cancellation.
+        Useful to check before calling action_plan_transition.
+        """
+        from compliance.constants import (
+            ACTION_PLAN_REFUSAL_TRANSITIONS,
+            ACTION_PLAN_TRANSITION_PERMISSIONS,
+            ActionPlanStatus,
+        )
+        pk = arguments.get("action_plan_id")
+        if not pk:
+            raise InvalidParamsError("action_plan_id is required.")
+        try:
+            ap = ComplianceActionPlan.objects.get(pk=pk)
+        except ComplianceActionPlan.DoesNotExist:
+            return _error("Action plan not found.")
+
+        allowed = ap.get_allowed_transitions()
+        transitions = []
+        for target in allowed:
+            target_val = target.value if hasattr(target, "value") else target
+            transition_key = (ap.status, target_val)
+            if target_val == ActionPlanStatus.ANNULE:
+                perm = "compliance.action_plan.cancel"
+            else:
+                perm = ACTION_PLAN_TRANSITION_PERMISSIONS.get(transition_key)
+            has_perm = user.is_superuser or not perm or user.has_perm(perm)
+            is_refusal = ACTION_PLAN_REFUSAL_TRANSITIONS.get(ap.status) == target
+            transitions.append({
+                "target_status": target_val,
+                "label": ActionPlanStatus(target_val).label,
+                "is_refusal": is_refusal,
+                "is_cancellation": target_val == ActionPlanStatus.ANNULE,
+                "comment_required": is_refusal,
+                "required_permission": perm or None,
+                "user_has_permission": has_perm,
+            })
+        return {
+            "action_plan_id": str(ap.pk),
+            "reference": ap.reference,
+            "current_status": ap.status,
+            "allowed_transitions": transitions,
+        }
+
+    server.register_tool(
+        "action_plan_allowed_transitions",
+        "Get allowed status transitions for an action plan, "
+        "including permission checks and refusal/cancellation flags. "
+        "Call this before action_plan_transition to know what is possible.",
+        _obj_schema({
+            "action_plan_id": {"type": "string", "description": "UUID of the action plan"},
+        }, ["action_plan_id"]),
+        require_perm("compliance.action_plan.read")(_action_plan_allowed_transitions),
     )
 
     # ── Action Plan Comments ──
