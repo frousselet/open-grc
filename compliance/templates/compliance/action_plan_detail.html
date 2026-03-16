@@ -74,7 +74,7 @@
               {% else %}
               <span class="d-inline-flex align-items-center justify-content-center rounded-circle me-1" style="width:24px;height:24px;background:var(--bs-primary);color:#fff;font-size:.6rem;font-weight:600">{{ user.first_name|make_list|first }}{{ user.last_name|make_list|first }}</span>
               {% endif %}
-              {{ user.get_full_name|default:user.email }}
+              {{ user.display_name }}
             </span>
             {% endwith %}
           </dd>
@@ -87,7 +87,7 @@
               {% else %}
               <span class="d-inline-flex align-items-center justify-content-center rounded-circle me-1" style="width:24px;height:24px;background:var(--bs-primary);color:#fff;font-size:.6rem;font-weight:600">{{ user.first_name|make_list|first }}{{ user.last_name|make_list|first }}</span>
               {% endif %}
-              {{ user.get_full_name|default:user.email }}
+              {{ user.display_name }}
             </span>
             {% empty %}—{% endfor %}
           </dd>

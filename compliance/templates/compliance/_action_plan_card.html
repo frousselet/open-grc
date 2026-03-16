@@ -12,7 +12,7 @@
   <div class="d-flex justify-content-between align-items-center mt-1">
     <div class="kanban-avatars">
       {% for user in ap.assignees.all %}
-      <span class="kanban-avatar" title="{{ user.get_full_name|default:user.email }}">
+      <span class="kanban-avatar" title="{{ user.display_name }}">
         {% if user.avatar_32 %}
         <img src="{{ user.avatar_32 }}" alt="{{ user.get_short_name }}" width="24" height="24">
         {% else %}
@@ -21,7 +21,7 @@
       </span>
       {% empty %}
       {% if ap.owner %}
-      <span class="kanban-avatar" title="{{ ap.owner.get_full_name|default:ap.owner.email }}">
+      <span class="kanban-avatar" title="{{ ap.owner.display_name }}">
         {% if ap.owner.avatar_32 %}
         <img src="{{ ap.owner.avatar_32 }}" alt="{{ ap.owner.get_short_name }}" width="24" height="24">
         {% else %}
