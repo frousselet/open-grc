@@ -5,13 +5,28 @@
 
 {% block extra_css %}
 <style>
-  /* Make the container fluid for the kanban page so the board spans full width */
-  .main-content > .container-xl { max-width: 100%; }
+  /* Kanban board fills the remaining viewport below the header via fixed position */
+  #kanban-container {
+    position: fixed;
+    left: calc(var(--sidebar-w) + var(--sidebar-inset) * 2);
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: left .35s var(--ease-out-expo);
+  }
+  .sidebar-collapsed #kanban-container {
+    left: calc(var(--sidebar-collapsed-w) + var(--sidebar-inset) * 2);
+  }
+  @media (max-width: 991.98px) {
+    #kanban-container { left: 0; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
+<div class="d-flex align-items-center mb-3" id="kanban-page-header">
   <h1 class="mb-0">{% trans "Action plans" %}</h1>
   <div class="header-actions">
     <a href="{% url 'compliance:action-plan-list' %}" class="btn-header-action" title="{% trans 'List view' %}">
@@ -24,6 +39,7 @@
   </div>
 </div>
 
+<div id="kanban-container">
 <div class="kanban-board">
   {% for status_val, col in columns.items %}
   <div class="kanban-column" data-status="{{ status_val }}">
@@ -40,7 +56,7 @@
   {% endfor %}
 </div>
 
-<div class="cancel-drop-zone mt-4" id="cancel-drop-zone" data-status="annule">
+<div class="cancel-drop-zone" id="cancel-drop-zone" data-status="annule">
   <div class="d-flex align-items-center mb-3">
     <h5 class="text-muted mb-0">
       <i class="bi bi-x-circle me-1"></i>{% trans "Cancelled" %}
@@ -57,6 +73,7 @@
     </div>
   </div>
 </div>
+</div>{# end #kanban-container #}
 
 <!-- Transition modal for refusals/cancellations -->
 <div class="modal fade" id="transitionModal" tabindex="-1">
@@ -106,8 +123,9 @@
   display: flex;
   gap: 1rem;
   overflow-x: auto;
-  padding-bottom: 1rem;
-  min-height: 60vh;
+  padding: 0 1.5rem 1rem;
+  flex: 1;
+  min-height: 0;
 }
 .kanban-column {
   min-width: 200px;
@@ -220,8 +238,9 @@
 .cancel-drop-zone {
   border: 2px dashed transparent;
   border-radius: var(--radius-lg, 1rem);
-  padding: 1rem;
+  padding: .75rem 1.5rem;
   transition: border-color .15s, background .15s;
+  flex-shrink: 0;
 }
 .cancel-drop-zone.drop-allowed {
   border-color: var(--bs-danger, #dc3545);
@@ -276,6 +295,13 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Position kanban container right below the page header
+  (function() {
+    var header = document.getElementById('kanban-page-header');
+    var rect = header.getBoundingClientRect();
+    document.getElementById('kanban-container').style.top = Math.ceil(rect.bottom) + 'px';
+  })();
+
   const allowedTransitions = {{ transitions_json|safe }};
   const refusalTransitions = {{ refusal_json|safe }};
   const csrfToken = '{{ csrf_token }}';
