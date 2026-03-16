@@ -9109,6 +9109,9 @@ msgstr "Vue liste"
 msgid "Linkages"
 msgstr "Liens"
 
+msgid "People"
+msgstr "Personnes"
+
 msgid "Refuse"
 msgstr "Refuser"
 
