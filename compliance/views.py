@@ -1570,7 +1570,7 @@ class ActionPlanCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, Cr
     form_class = ComplianceActionPlanForm
     template_name = "compliance/action_plan_form.html"
     modal_template_name = "compliance/action_plan_form_modal.html"
-    success_url = reverse_lazy("compliance:action-plan-list")
+    success_url = reverse_lazy("compliance:action-plan-kanban")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -1585,7 +1585,7 @@ class ActionPlanUpdateView(
     form_class = ComplianceActionPlanForm
     template_name = "compliance/action_plan_form.html"
     modal_template_name = "compliance/action_plan_form_modal.html"
-    success_url = reverse_lazy("compliance:action-plan-list")
+    success_url = reverse_lazy("compliance:action-plan-kanban")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -1596,7 +1596,7 @@ class ActionPlanUpdateView(
 class ActionPlanDeleteView(LoginRequiredMixin, DeleteView):
     model = ComplianceActionPlan
     template_name = "compliance/confirm_delete.html"
-    success_url = reverse_lazy("compliance:action-plan-list")
+    success_url = reverse_lazy("compliance:action-plan-kanban")
 
 
 class ActionPlanKanbanView(LoginRequiredMixin, ScopeFilterMixin, ListView):
