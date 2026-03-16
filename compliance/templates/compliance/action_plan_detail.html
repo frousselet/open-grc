@@ -89,8 +89,8 @@
         <div class="{% if action_plan.findings.all %}mb-3 pb-3 border-bottom{% endif %}">
           <div class="fw-medium mb-2" style="font-size:.85rem"><i class="bi bi-exclamation-triangle me-1"></i>{% trans "Linked risks" %}</div>
           {% for risk in action_plan.risks.all %}
-          <div class="d-flex align-items-center mb-2">
-            <span class="ref me-2">{{ risk.reference }}</span>
+          <div class="d-flex align-items-baseline mb-2">
+            <span class="ref flex-shrink-0" style="width:5.5rem;display:inline-block">{{ risk.reference }}</span>
             <a href="#" hx-get="{% url 'compliance:risk-preview' risk.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" style="text-decoration:none;color:var(--accent);font-weight:500">{{ risk.name }}</a>
           </div>
           {% endfor %}
@@ -100,8 +100,8 @@
         <div>
           <div class="fw-medium mb-2" style="font-size:.85rem"><i class="bi bi-flag me-1"></i>{% trans "Linked findings" %}</div>
           {% for finding in action_plan.findings.all %}
-          <div class="d-flex align-items-center mb-2">
-            <span class="ref me-2">{{ finding.reference }}</span>
+          <div class="d-flex align-items-baseline mb-2">
+            <span class="ref flex-shrink-0" style="width:5.5rem;display:inline-block">{{ finding.reference }}</span>
             <a href="#" hx-get="{% url 'compliance:finding-preview' finding.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" style="text-decoration:none;color:var(--accent);font-weight:500">{{ finding.description|striptags|truncatechars:80 }}</a>
           </div>
           {% endfor %}
