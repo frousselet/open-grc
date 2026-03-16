@@ -1,0 +1,43 @@
+{% load i18n %}
+<div class="offcanvas-header">
+  <h5 class="offcanvas-title">
+    <span class="drawer-title-icon"><i class="bi bi-flag"></i></span>
+    {{ finding.reference }}
+  </h5>
+  <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+</div>
+<div class="drawer-body">
+  <div class="mb-3">
+    <span class="badge text-bg-secondary">{{ finding.get_finding_type_display }}</span>
+  </div>
+
+  <dl class="mb-0">
+    <dt class="text-muted small mb-1">{% trans "Finding" %}</dt>
+    <dd class="mb-3" style="font-size:.875rem">{{ finding.description|safe }}</dd>
+
+    {% if finding.recommendation %}
+    <dt class="text-muted small mb-1">{% trans "Auditor recommendation" %}</dt>
+    <dd class="mb-3" style="font-size:.875rem">{{ finding.recommendation|safe }}</dd>
+    {% endif %}
+
+    {% if finding.evidence %}
+    <dt class="text-muted small mb-1">{% trans "Evidence presented" %}</dt>
+    <dd class="mb-3" style="font-size:.875rem">{{ finding.evidence|safe }}</dd>
+    {% endif %}
+
+    <dt class="text-muted small mb-1">{% trans "Assessor" %}</dt>
+    <dd class="mb-3">{{ finding.assessor.display_name }}</dd>
+
+    <dt class="text-muted small mb-1">{% trans "Assessment" %}</dt>
+    <dd class="mb-0">
+      <a href="{% url 'compliance:assessment-detail' finding.assessment.pk %}" style="text-decoration:none;color:var(--accent)">
+        {{ finding.assessment }}
+      </a>
+    </dd>
+  </dl>
+</div>
+<div class="drawer-footer">
+  <a href="{% url 'compliance:assessment-detail' finding.assessment.pk %}" class="btn btn-sm btn-primary">
+    <i class="bi bi-box-arrow-up-right me-1"></i>{% trans "Open assessment" %}
+  </a>
+</div>
