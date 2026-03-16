@@ -40,7 +40,7 @@ class ComplianceActionPlan(ScopedModel):
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name="owned_action_plans",
-        verbose_name=_("Owner"),
+        verbose_name=_("Supervisor"),
     )
     assignees = models.ManyToManyField(
         settings.AUTH_USER_MODEL,

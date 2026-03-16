@@ -32,7 +32,8 @@
           {% sortable_th "reference" "Reference" %}
           {% sortable_th "name" "Name" %}
           {% sortable_th "priority" "Priority" %}
-          <th>{% trans "Responsible" %}</th>
+          <th>{% trans "Supervisor" %}</th>
+          <th>{% trans "Assignees" %}</th>
           {% sortable_th "target_date" "Target date" %}
           {% sortable_th "progress" "Progress" %}
           {% sortable_th "status" "Status" %}
@@ -52,15 +53,27 @@
             </span>
           </td>
           <td>
-            {% for user in ap.assignees.all %}
+            {% with user=ap.owner %}
             <span class="d-inline-flex align-items-center" title="{{ user.get_full_name|default:user.email }}">
+              {% if user.avatar_32 %}
+              <img src="{{ user.avatar_32 }}" alt="{{ user.get_short_name }}" width="20" height="20" class="rounded-circle me-1">
+              {% else %}
+              <span class="d-inline-flex align-items-center justify-content-center rounded-circle me-1" style="width:20px;height:20px;background:var(--bs-primary);color:#fff;font-size:.55rem;font-weight:600">{{ user.first_name|make_list|first }}{{ user.last_name|make_list|first }}</span>
+              {% endif %}
+              {{ user.get_full_name|default:user.email }}
+            </span>
+            {% endwith %}
+          </td>
+          <td>
+            {% for user in ap.assignees.all %}
+            <span class="d-inline-flex align-items-center me-1" title="{{ user.get_full_name|default:user.email }}">
               {% if user.avatar_32 %}
               <img src="{{ user.avatar_32 }}" alt="{{ user.get_short_name }}" width="20" height="20" class="rounded-circle">
               {% else %}
               <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width:20px;height:20px;background:var(--bs-primary);color:#fff;font-size:.55rem;font-weight:600">{{ user.first_name|make_list|first }}{{ user.last_name|make_list|first }}</span>
               {% endif %}
             </span>
-            {% empty %}{{ ap.owner }}{% endfor %}
+            {% empty %}—{% endfor %}
           </td>
           <td>{{ ap.target_date }}</td>
           <td>
@@ -86,7 +99,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)">{% trans "No action plan defined." %}</td></tr>
+        <tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No action plan defined." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>
