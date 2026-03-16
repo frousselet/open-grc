@@ -284,7 +284,7 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
         ctx["overdue_plan_count"] = self._filter_scoped(
             ComplianceActionPlan.objects.filter(
                 target_date__lt=today
-            ).exclude(status__in=["completed", "cancelled"])
+            ).exclude(status__in=["cloture", "annule"])
         ).count()
         ctx["mapping_count"] = RequirementMapping.objects.count()
 
