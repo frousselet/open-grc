@@ -41,179 +41,247 @@
 </div>
 {% endif %}
 
-<ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#remediation_tab">{% trans "Remediation" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#planning_tab">{% trans "Planning" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#linkages_tab">{% trans "Linkages" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#comments_tab">{% trans "Comments" %} <span class="badge bg-secondary">{{ comment_count }}</span></a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#transitions_tab">{% trans "Transitions" %} <span class="badge bg-secondary">{{ transition_history|length }}</span></a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
-</ul>
+{# ══════════════════════════════════════════════════════════════ #}
+{# ── Two-column layout ──────────────────────────────────────── #}
+{# ══════════════════════════════════════════════════════════════ #}
+<div class="row g-4">
 
-<div class="tab-content">
-  <div class="tab-pane fade show active" id="general">
-    <div class="card">
+  {# ── LEFT COLUMN ── #}
+  <div class="col-lg-8">
+
+    {# ── Description ── #}
+    {% if action_plan.description %}
+    <div class="card mb-4">
       <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Reference" %}</dt><dd class="col-sm-9">{{ action_plan.reference }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Name" %}</dt><dd class="col-sm-9">{{ action_plan.name }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ action_plan.description|default:"—"|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Priority" %}</dt>
-          <dd class="col-sm-9">
-            <span class="badge text-bg-{% if action_plan.priority == 'critical' %}danger{% elif action_plan.priority == 'high' %}warning{% elif action_plan.priority == 'medium' %}info{% else %}secondary{% endif %}">
-              {{ action_plan.get_priority_display }}
-            </span>
-          </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Supervisor" %}</dt>
-          <dd class="col-sm-9">
-            {% with user=action_plan.owner %}
-            <span class="d-inline-flex align-items-center">
-              {% if user.avatar_32 %}
-              <img src="{{ user.avatar_32 }}" alt="{{ user.get_short_name }}" width="24" height="24" class="rounded-circle me-1">
-              {% else %}
-              <span class="d-inline-flex align-items-center justify-content-center rounded-circle me-1" style="width:24px;height:24px;background:var(--bs-primary);color:#fff;font-size:.6rem;font-weight:600">{{ user.first_name|make_list|first }}{{ user.last_name|make_list|first }}</span>
-              {% endif %}
-              {{ user.display_name }}
-            </span>
-            {% endwith %}
-          </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Assignees" %}</dt>
-          <dd class="col-sm-9">
-            {% for user in action_plan.assignees.all %}
-            <span class="d-inline-flex align-items-center me-2 mb-1">
-              {% if user.avatar_32 %}
-              <img src="{{ user.avatar_32 }}" alt="{{ user.get_short_name }}" width="24" height="24" class="rounded-circle me-1">
-              {% else %}
-              <span class="d-inline-flex align-items-center justify-content-center rounded-circle me-1" style="width:24px;height:24px;background:var(--bs-primary);color:#fff;font-size:.6rem;font-weight:600">{{ user.first_name|make_list|first }}{{ user.last_name|make_list|first }}</span>
-              {% endif %}
-              {{ user.display_name }}
-            </span>
-            {% empty %}—{% endfor %}
-          </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
-          <dd class="col-sm-9">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-2"><i class="bi bi-text-left me-1"></i>{% trans "Description" %}</h6>
+        <div>{{ action_plan.description|safe }}</div>
+      </div>
+    </div>
+    {% endif %}
+
+    {# ── Remediation ── #}
+    {% if action_plan.gap_description or action_plan.remediation_plan %}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-tools me-1"></i>{% trans "Remediation" %}</h6>
+        {% if action_plan.gap_description %}
+        <div class="mb-3">
+          <div class="fw-medium mb-1" style="font-size:.85rem">{% trans "Gap description" %}</div>
+          <div style="font-size:.875rem">{{ action_plan.gap_description|safe }}</div>
+        </div>
+        {% endif %}
+        {% if action_plan.remediation_plan %}
+        <div>
+          <div class="fw-medium mb-1" style="font-size:.85rem">{% trans "Remediation plan" %}</div>
+          <div style="font-size:.875rem">{{ action_plan.remediation_plan|safe }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {# ── Linkages ── #}
+    {% if action_plan.risks.all or action_plan.findings.all %}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-link-45deg me-1"></i>{% trans "Linkages" %}</h6>
+        {% if action_plan.risks.all %}
+        <div class="{% if action_plan.findings.all %}mb-3 pb-3 border-bottom{% endif %}">
+          <div class="fw-medium mb-2" style="font-size:.85rem"><i class="bi bi-exclamation-triangle me-1"></i>{% trans "Linked risks" %}</div>
+          {% for risk in action_plan.risks.all %}
+          <div class="d-flex align-items-center mb-1">
+            <span class="ref me-2">{{ risk.reference }}</span>
+            <a href="{% url 'risks:risk-detail' risk.pk %}" style="text-decoration:none;color:var(--accent);font-weight:500">{{ risk.name }}</a>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if action_plan.findings.all %}
+        <div>
+          <div class="fw-medium mb-2" style="font-size:.85rem"><i class="bi bi-flag me-1"></i>{% trans "Linked findings" %}</div>
+          {% for finding in action_plan.findings.all %}
+          <div class="d-flex align-items-center mb-1">
+            <span class="ref me-2">{{ finding.reference }}</span>
+            <span>{{ finding.description|truncatechars:80 }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {# ── Comments ── #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3">
+          <i class="bi bi-chat-dots me-1"></i>{% trans "Comments" %}
+          {% if comment_count %}<span class="badge bg-secondary ms-1">{{ comment_count }}</span>{% endif %}
+        </h6>
+        {% include "compliance/_action_plan_comments.html" %}
+      </div>
+    </div>
+
+  </div>
+
+  {# ── RIGHT COLUMN (sidebar) ── #}
+  <div class="col-lg-4">
+
+    {# ── Status & Priority ── #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Status" %}</dt>
+          <dd class="mb-3">
             <span class="badge text-bg-{% if action_plan.status == 'valide' %}success{% elif action_plan.status == 'cloture' %}dark{% elif action_plan.status == 'annule' %}danger{% elif action_plan.status == 'a_valider' or action_plan.status == 'implementation_a_valider' %}warning{% elif action_plan.status == 'a_implementer' %}primary{% elif action_plan.status == 'a_definir' %}info{% else %}secondary{% endif %}">
               {{ action_plan.get_status_display }}
             </span>
           </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
-          <dd class="col-sm-9">{% for tag in action_plan.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
-        </dl>
-      </div>
-    </div>
-  </div>
-
-  <div class="tab-pane fade" id="remediation_tab">
-    <div class="card">
-      <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Gap description" %}</dt><dd class="col-sm-9">{{ action_plan.gap_description|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Remediation plan" %}</dt><dd class="col-sm-9">{{ action_plan.remediation_plan|safe }}</dd>
-        </dl>
-      </div>
-    </div>
-  </div>
-
-  <div class="tab-pane fade" id="planning_tab">
-    <div class="card">
-      <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Start date" %}</dt><dd class="col-sm-9">{{ action_plan.start_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Target date" %}</dt><dd class="col-sm-9">{{ action_plan.target_date }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Completion date" %}</dt><dd class="col-sm-9">{{ action_plan.completion_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Progress" %}</dt>
-          <dd class="col-sm-9">
-            <div class="progress" style="max-width:300px">
-              <div class="progress-bar" style="width:{{ action_plan.progress_percentage }}%">{{ action_plan.progress_percentage }}%</div>
-            </div>
+          <dt class="text-muted small mb-1">{% trans "Priority" %}</dt>
+          <dd class="mb-3">
+            <span class="badge text-bg-{% if action_plan.priority == 'critical' %}danger{% elif action_plan.priority == 'high' %}warning{% elif action_plan.priority == 'medium' %}info{% else %}secondary{% endif %}">
+              {{ action_plan.get_priority_display }}
+            </span>
           </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Cost estimate" %}</dt>
-          <dd class="col-sm-9">{% if action_plan.cost_estimate %}{{ action_plan.cost_estimate|floatformat:2 }} €{% else %}—{% endif %}</dd>
+          <dt class="text-muted small mb-1">{% trans "Progress" %}</dt>
+          <dd class="mb-3">
+            <div class="progress" style="height:8px">
+              <div class="progress-bar" style="width:{{ action_plan.progress_percentage }}%"></div>
+            </div>
+            <small class="text-muted">{{ action_plan.progress_percentage }}%</small>
+          </dd>
+          <dt class="text-muted small mb-1">{% trans "Tags" %}</dt>
+          <dd class="mb-0">{% for tag in action_plan.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}<span class="text-muted">—</span>{% endfor %}</dd>
         </dl>
       </div>
     </div>
-  </div>
 
-  <div class="tab-pane fade" id="linkages_tab">
-    <div class="card mb-3">
+    {# ── People ── #}
+    <div class="card mb-4">
       <div class="card-body">
-        <h6 class="mb-3"><i class="bi bi-exclamation-triangle me-1"></i>{% trans "Linked risks" %}</h6>
-        {% for risk in action_plan.risks.all %}
-        <div class="d-flex align-items-center mb-2">
-          <span class="ref me-2">{{ risk.reference }}</span>
-          <a href="{% url 'risks:risk-detail' risk.pk %}" style="text-decoration:none;color:var(--accent);font-weight:500">{{ risk.name }}</a>
-        </div>
-        {% empty %}
-        <span class="text-muted">—</span>
-        {% endfor %}
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-body">
-        <h6 class="mb-3"><i class="bi bi-flag me-1"></i>{% trans "Linked findings" %}</h6>
-        {% for finding in action_plan.findings.all %}
-        <div class="d-flex align-items-center mb-2">
-          <span class="ref me-2">{{ finding.reference }}</span>
-          <span>{{ finding.description|truncatechars:80 }}</span>
-        </div>
-        {% empty %}
-        <span class="text-muted">—</span>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-
-  <div class="tab-pane fade" id="comments_tab">
-    {% include "compliance/_action_plan_comments.html" %}
-  </div>
-
-  <div class="tab-pane fade" id="transitions_tab">
-    <div class="card">
-      <div class="card-body">
-        {% if transition_history %}
-        <div class="timeline">
-          {% for t in transition_history %}
-          <div class="d-flex gap-3 mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
-            <div>
-              {% if t.is_refusal %}
-              <span class="badge text-bg-warning"><i class="bi bi-arrow-return-left"></i></span>
-              {% elif t.to_status == 'annule' %}
-              <span class="badge text-bg-danger"><i class="bi bi-x-circle"></i></span>
-              {% else %}
-              <span class="badge text-bg-info"><i class="bi bi-arrow-right"></i></span>
-              {% endif %}
-            </div>
-            <div class="flex-grow-1">
-              <div class="d-flex justify-content-between">
-                <div>
-                  <span class="badge text-bg-secondary">{{ t.get_from_status_display }}</span>
-                  <i class="bi bi-arrow-right mx-1"></i>
-                  <span class="badge text-bg-secondary">{{ t.get_to_status_display }}</span>
-                </div>
-                <small class="text-muted">{{ t.created_at }}</small>
-              </div>
-              <div class="mt-1">
-                <small class="text-muted">{% trans "by" %} {{ t.performed_by.get_full_name|default:t.performed_by.email }}</small>
-              </div>
-              {% if t.comment %}
-              <div class="mt-1 p-2 rounded" style="background:var(--surface-muted);font-size:.8125rem">
-                {{ t.comment }}
-              </div>
-              {% endif %}
-            </div>
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-people me-1"></i>{% trans "People" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Supervisor" %}</div>
+          {% with user=action_plan.owner %}
+          <div class="d-flex align-items-center">
+            {% if user.avatar_32 %}
+            <img src="{{ user.avatar_32 }}" alt="{{ user.get_short_name }}" width="28" height="28" class="rounded-circle me-2">
+            {% else %}
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle me-2" style="width:28px;height:28px;background:var(--bs-primary);color:#fff;font-size:.65rem;font-weight:600">{{ user.first_name|make_list|first }}{{ user.last_name|make_list|first }}</span>
+            {% endif %}
+            <span class="fw-medium" style="font-size:.875rem">{{ user.display_name }}</span>
           </div>
-          {% endfor %}
+          {% endwith %}
         </div>
-        {% else %}
-        <p class="text-muted mb-0">{% trans "No transitions recorded." %}</p>
-        {% endif %}
+        <div>
+          <div class="text-muted small mb-1">{% trans "Assignees" %}</div>
+          {% for user in action_plan.assignees.all %}
+          <div class="d-flex align-items-center mb-2">
+            {% if user.avatar_32 %}
+            <img src="{{ user.avatar_32 }}" alt="{{ user.get_short_name }}" width="28" height="28" class="rounded-circle me-2">
+            {% else %}
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle me-2" style="width:28px;height:28px;background:var(--bs-primary);color:#fff;font-size:.65rem;font-weight:600">{{ user.first_name|make_list|first }}{{ user.last_name|make_list|first }}</span>
+            {% endif %}
+            <span style="font-size:.875rem">{{ user.display_name }}</span>
+          </div>
+          {% empty %}<span class="text-muted">—</span>{% endfor %}
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="tab-pane fade" id="history">
-    {% include "includes/history_tab.html" %}
+    {# ── Planning ── #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-calendar3 me-1"></i>{% trans "Planning" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Start date" %}</dt>
+          <dd class="mb-3">{{ action_plan.start_date|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Target date" %}</dt>
+          <dd class="mb-3">{{ action_plan.target_date }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Completion date" %}</dt>
+          <dd class="mb-3">{{ action_plan.completion_date|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Cost estimate" %}</dt>
+          <dd class="mb-0">{% if action_plan.cost_estimate %}{{ action_plan.cost_estimate|floatformat:2 }} €{% else %}—{% endif %}</dd>
+        </dl>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{# ══════════════════════════════════════════════════════════════ #}
+{# ── Transitions & History (collapsible, full width) ───────── #}
+{# ══════════════════════════════════════════════════════════════ #}
+<div class="row g-4 mt-0">
+  <div class="col-12">
+
+    {# ── Transitions ── #}
+    <div class="card mb-4">
+      <div class="card-header bg-transparent d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapse-transitions" aria-expanded="false">
+        <h6 class="mb-0 fw-semibold" style="font-size:.875rem">
+          <i class="bi bi-arrow-left-right me-1"></i>{% trans "Transitions" %}
+          {% if transition_history %}<span class="badge bg-secondary ms-1">{{ transition_history|length }}</span>{% endif %}
+        </h6>
+        <i class="bi bi-chevron-down text-muted"></i>
+      </div>
+      <div class="collapse" id="collapse-transitions">
+        <div class="card-body">
+          {% if transition_history %}
+          <div class="timeline">
+            {% for t in transition_history %}
+            <div class="d-flex gap-3 mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+              <div>
+                {% if t.is_refusal %}
+                <span class="badge text-bg-warning"><i class="bi bi-arrow-return-left"></i></span>
+                {% elif t.to_status == 'annule' %}
+                <span class="badge text-bg-danger"><i class="bi bi-x-circle"></i></span>
+                {% else %}
+                <span class="badge text-bg-info"><i class="bi bi-arrow-right"></i></span>
+                {% endif %}
+              </div>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <span class="badge text-bg-secondary">{{ t.get_from_status_display }}</span>
+                    <i class="bi bi-arrow-right mx-1"></i>
+                    <span class="badge text-bg-secondary">{{ t.get_to_status_display }}</span>
+                  </div>
+                  <small class="text-muted">{{ t.created_at }}</small>
+                </div>
+                <div class="mt-1">
+                  <small class="text-muted">{% trans "by" %} {{ t.performed_by.display_name }}</small>
+                </div>
+                {% if t.comment %}
+                <div class="mt-1 p-2 rounded" style="background:var(--surface-muted);font-size:.8125rem">
+                  {{ t.comment }}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="text-muted mb-0">{% trans "No transitions recorded." %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {# ── History ── #}
+    <div class="card mb-4">
+      <div class="card-header bg-transparent d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapse-history" aria-expanded="false">
+        <h6 class="mb-0 fw-semibold" style="font-size:.875rem">
+          <i class="bi bi-clock-history me-1"></i>{% trans "History" %}
+        </h6>
+        <i class="bi bi-chevron-down text-muted"></i>
+      </div>
+      <div class="collapse" id="collapse-history">
+        <div class="card-body">
+          {% include "includes/history_tab.html" %}
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
