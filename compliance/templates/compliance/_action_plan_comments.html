@@ -31,7 +31,7 @@
             <strong style="font-size:.8125rem">{{ comment.author.display_name }}</strong>
             <small class="text-muted" style="font-size:.75rem">{{ comment.created_at|timesince }} {% trans "ago" %}</small>
           </div>
-          <div style="font-size:.875rem;white-space:pre-wrap" class="mt-1">{{ comment.content }}</div>
+          <div style="font-size:.875rem" class="mt-1">{{ comment.content|safe }}</div>
           <button type="button" class="btn btn-link btn-sm p-0 mt-1 toggle-reply-form" style="font-size:.75rem"
                   data-target="reply-form-{{ comment.pk }}">
             <i class="bi bi-reply me-1"></i>{% trans "Reply" %}
@@ -70,7 +70,7 @@
             <strong style="font-size:.8125rem">{{ reply.author.display_name }}</strong>
             <small class="text-muted" style="font-size:.75rem">{{ reply.created_at|timesince }} {% trans "ago" %}</small>
           </div>
-          <div style="font-size:.875rem;white-space:pre-wrap" class="mt-1">{{ reply.content }}</div>
+          <div style="font-size:.875rem" class="mt-1">{{ reply.content|safe }}</div>
         </div>
       </div>
       {% endfor %}
