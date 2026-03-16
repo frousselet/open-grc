@@ -71,6 +71,15 @@ class ComplianceActionPlan(ScopedModel):
     def __str__(self):
         return f"{self.reference} : {self.name}"
 
+    @property
+    def is_overdue(self):
+        """Return True if target_date is past and the plan is still open."""
+        if not self.target_date:
+            return False
+        if self.status in (ActionPlanStatus.CLOTURE, ActionPlanStatus.ANNULE):
+            return False
+        return self.target_date < timezone.now().date()
+
     def get_allowed_transitions(self):
         """Return the list of statuses this action plan can transition to."""
         allowed = list(ACTION_PLAN_TRANSITIONS.get(self.status, []))

@@ -141,6 +141,16 @@
   padding: .75rem;
   cursor: grab;
   transition: box-shadow .15s, transform .15s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.kanban-card.overdue {
+  border-color: var(--bs-danger, #dc3545);
+  border-width: 2px;
+}
+.kanban-card.overdue .card-meta .overdue-date {
+  color: var(--bs-danger, #dc3545);
+  font-weight: 600;
 }
 .kanban-card:hover {
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0,0,0,.1));
