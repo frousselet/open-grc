@@ -1,5 +1,5 @@
 {% load i18n %}
-<div class="kanban-card" data-id="{{ ap.pk }}">
+<div class="kanban-card{% if ap.is_overdue %} overdue{% endif %}" data-id="{{ ap.pk }}">
   <div class="d-flex justify-content-between align-items-start">
     <span class="card-ref">{{ ap.reference }}</span>
     <span class="badge text-bg-{% if ap.priority == 'critical' %}danger{% elif ap.priority == 'high' %}warning{% elif ap.priority == 'medium' %}info{% else %}secondary{% endif %}" style="font-size:.6rem">
@@ -14,7 +14,7 @@
     <span title="{{ ap.owner }}"><i class="bi bi-person"></i> {{ ap.owner.get_short_name|default:ap.owner }}</span>
     {% endif %}
     {% if ap.target_date %}
-    <span title="{% trans 'Target date' %}"><i class="bi bi-calendar"></i> {{ ap.target_date }}</span>
+    <span title="{% trans 'Target date' %}" class="{% if ap.is_overdue %}overdue-date{% endif %}"><i class="bi bi-calendar{% if ap.is_overdue %}-x{% endif %}"></i> {{ ap.target_date }}</span>
     {% endif %}
   </div>
   {% if ap.progress_percentage > 0 %}
