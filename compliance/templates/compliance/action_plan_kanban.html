@@ -3,6 +3,13 @@
 
 {% block title %}{% trans "Action plans" %} — Open GRC{% endblock %}
 
+{% block extra_css %}
+<style>
+  /* Make the container fluid for the kanban page so the board spans full width */
+  .main-content > .container-xl { max-width: 100%; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Action plans" %}</h1>
@@ -103,9 +110,8 @@
   min-height: 60vh;
 }
 .kanban-column {
-  min-width: 240px;
-  max-width: 300px;
-  flex: 1 0 240px;
+  min-width: 200px;
+  flex: 1 1 0;
   background: var(--surface-muted, #f8fafc);
   border-radius: var(--radius-lg, 1rem);
   padding: .75rem;
