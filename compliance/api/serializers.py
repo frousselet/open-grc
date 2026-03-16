@@ -237,7 +237,7 @@ class ComplianceActionPlanSerializer(serializers.ModelSerializer):
             "id", "scopes", "reference", "name", "description",
             "risks", "findings",
             "gap_description", "remediation_plan",
-            "priority", "owner",
+            "priority", "owner", "assignees",
             "start_date", "target_date", "completion_date",
             "progress_percentage", "cost_estimate",
             "status", "allowed_transitions", "version", "tags",
@@ -281,7 +281,7 @@ class ComplianceActionPlanListSerializer(serializers.ModelSerializer):
         model = ComplianceActionPlan
         fields = [
             "id", "scopes", "reference", "name",
-            "priority", "owner", "target_date",
+            "priority", "owner", "assignees", "target_date",
             "progress_percentage", "status", "created_at",
         ]
         read_only_fields = ["id", "reference", "created_at"]

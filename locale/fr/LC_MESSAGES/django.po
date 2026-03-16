@@ -4224,6 +4224,9 @@ msgstr "En retard"
 msgid "Linked risks"
 msgstr "Risques liés"
 
+msgid "Assignees"
+msgstr "Responsables assignés"
+
 #: compliance/forms.py:218
 msgid "File"
 msgstr "Fichier"

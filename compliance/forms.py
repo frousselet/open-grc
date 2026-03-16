@@ -413,7 +413,7 @@ class ComplianceActionPlanForm(ScopedFormMixin, forms.ModelForm):
             "scopes", "name", "description",
             "risks", "findings",
             "gap_description", "remediation_plan",
-            "priority", "owner",
+            "priority", "owner", "assignees",
             "start_date", "target_date", "completion_date",
             "progress_percentage", "cost_estimate", "tags",
         ]
@@ -427,6 +427,7 @@ class ComplianceActionPlanForm(ScopedFormMixin, forms.ModelForm):
             "remediation_plan": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "priority": forms.Select(attrs=SELECT_ATTRS),
             "owner": forms.Select(attrs=SELECT_ATTRS),
+            "assignees": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
             "start_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "target_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "completion_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),

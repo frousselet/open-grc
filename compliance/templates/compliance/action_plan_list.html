@@ -51,7 +51,17 @@
               {{ ap.get_priority_display }}
             </span>
           </td>
-          <td>{{ ap.owner }}</td>
+          <td>
+            {% for user in ap.assignees.all %}
+            <span class="d-inline-flex align-items-center" title="{{ user.get_full_name|default:user.email }}">
+              {% if user.avatar_32 %}
+              <img src="{{ user.avatar_32 }}" alt="{{ user.get_short_name }}" width="20" height="20" class="rounded-circle">
+              {% else %}
+              <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width:20px;height:20px;background:var(--bs-primary);color:#fff;font-size:.55rem;font-weight:600">{{ user.first_name|make_list|first }}{{ user.last_name|make_list|first }}</span>
+              {% endif %}
+            </span>
+            {% empty %}{{ ap.owner }}{% endfor %}
+          </td>
           <td>{{ ap.target_date }}</td>
           <td>
             <div class="progress" style="min-width:60px">
