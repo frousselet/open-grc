@@ -1,0 +1,48 @@
+{% load i18n %}
+<div class="offcanvas-header">
+  <h5 class="offcanvas-title">
+    <span class="drawer-title-icon"><i class="bi bi-exclamation-triangle"></i></span>
+    {{ risk.reference }}
+  </h5>
+  <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+</div>
+<div class="drawer-body">
+  <h6 class="mb-3">{{ risk.name }}</h6>
+
+  {% if risk.description %}
+  <div class="mb-4" style="font-size:.875rem">{{ risk.description|safe }}</div>
+  {% endif %}
+
+  <dl class="mb-0">
+    <dt class="text-muted small mb-1">{% trans "Status" %}</dt>
+    <dd class="mb-3"><span class="badge text-bg-secondary">{{ risk.get_status_display }}</span></dd>
+
+    <dt class="text-muted small mb-1">{% trans "Priority" %}</dt>
+    <dd class="mb-3">
+      <span class="badge text-bg-{% if risk.priority == 'critical' %}danger{% elif risk.priority == 'high' %}warning{% elif risk.priority == 'medium' %}info{% else %}secondary{% endif %}">
+        {{ risk.get_priority_display }}
+      </span>
+    </dd>
+
+    <dt class="text-muted small mb-1">{% trans "Treatment decision" %}</dt>
+    <dd class="mb-3">{{ risk.get_treatment_decision_display }}</dd>
+
+    {% if risk.current_risk_level is not None %}
+    <dt class="text-muted small mb-1">{% trans "Current risk level" %}</dt>
+    <dd class="mb-3">
+      <span class="fw-semibold">{{ risk.current_risk_level }}</span>
+      <small class="text-muted">({% trans "Likelihood" %}: {{ risk.current_likelihood|default:"—" }} / {% trans "Impact" %}: {{ risk.current_impact|default:"—" }})</small>
+    </dd>
+    {% endif %}
+
+    {% if risk.risk_owner %}
+    <dt class="text-muted small mb-1">{% trans "Risk owner" %}</dt>
+    <dd class="mb-3">{{ risk.risk_owner.display_name }}</dd>
+    {% endif %}
+  </dl>
+</div>
+<div class="drawer-footer">
+  <a href="{% url 'risks:risk-detail' risk.pk %}" class="btn btn-sm btn-primary">
+    <i class="bi bi-box-arrow-up-right me-1"></i>{% trans "Open full detail" %}
+  </a>
+</div>

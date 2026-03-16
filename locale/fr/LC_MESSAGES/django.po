@@ -9112,6 +9112,12 @@ msgstr "Liens"
 msgid "People"
 msgstr "Personnes"
 
+msgid "Open full detail"
+msgstr "Ouvrir le détail complet"
+
+msgid "Open assessment"
+msgstr "Ouvrir l'évaluation"
+
 msgid "Refuse"
 msgstr "Refuser"
 

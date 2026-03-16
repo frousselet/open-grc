@@ -1768,3 +1768,26 @@ class ActionPlanCommentCreateView(LoginRequiredMixin, View):
             request=request,
         )
         return HttpResponse(html)
+
+
+class RiskPreviewView(LoginRequiredMixin, DetailView):
+    """Return a partial HTML preview of a risk for the offcanvas drawer."""
+
+    template_name = "compliance/_risk_preview.html"
+    context_object_name = "risk"
+
+    def get_queryset(self):
+        from risks.models import Risk
+
+        return Risk.objects.select_related("risk_owner")
+
+
+class FindingPreviewView(LoginRequiredMixin, DetailView):
+    """Return a partial HTML preview of a finding for the offcanvas drawer."""
+
+    model = Finding
+    template_name = "compliance/_finding_preview.html"
+    context_object_name = "finding"
+
+    def get_queryset(self):
+        return Finding.objects.select_related("assessor", "assessment")
