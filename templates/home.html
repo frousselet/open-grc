@@ -640,7 +640,7 @@ window.initSparklines = function(root) {
       {% if overdue_plan_count %}
       <span class="badge mt-2" style="background:var(--danger-soft);color:var(--danger);font-size:.6875rem">{% blocktrans with count=overdue_plan_count %}{{ count }} overdue{% endblocktrans %}</span>
       {% endif %}
-      <div class="stat-card-footer"><a href="{% url 'compliance:action-plan-list' %}" class="stat-card-link">{% trans "View all" %}</a></div>
+      <div class="stat-card-footer"><a href="{% url 'compliance:action-plan-kanban' %}" class="stat-card-link">{% trans "View all" %}</a></div>
     </div>
   </div>
 </div>

@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Kanban board" %} — {% trans "Action plans" %} — Open GRC{% endblock %}
+{% block title %}{% trans "Action plans" %} — Open GRC{% endblock %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Action plans" %} — {% trans "Kanban board" %}</h1>
+  <h1 class="mb-0">{% trans "Action plans" %}</h1>
   <div class="header-actions">
     <a href="{% url 'compliance:action-plan-list' %}" class="btn-header-action" title="{% trans 'List view' %}">
       <i class="bi bi-list-ul"></i>

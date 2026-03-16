@@ -12,7 +12,7 @@
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'compliance:action-plan-update' action_plan.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    <a href="{% url 'compliance:action-plan-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+    <a href="{% url 'compliance:action-plan-kanban' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
   </div>
 </div>
 {% help_modal "compliance.action_plan_detail" %}
