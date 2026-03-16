@@ -1401,14 +1401,13 @@ def _register_compliance_tools(server):
             ap = ComplianceActionPlan.objects.get(pk=pk)
         except ComplianceActionPlan.DoesNotExist:
             return _error("Action plan not found.")
-        ActionPlanTransition = _get_model("compliance", "ActionPlanTransition")
         transitions = ap.transitions.select_related("performed_by").all()[:50]
         return [
             {
                 "id": str(t.pk),
                 "from_status": t.from_status,
                 "to_status": t.to_status,
-                "performed_by": t.performed_by.get_full_name() or t.performed_by.email,
+                "performed_by": t.performed_by.display_name,
                 "comment": t.comment,
                 "is_refusal": t.is_refusal,
                 "created_at": t.created_at.isoformat(),
@@ -1448,7 +1447,7 @@ def _register_compliance_tools(server):
                  "priority": p.priority, "status": p.status,
                  "owner": str(p.owner) if p.owner_id else "",
                  "assignees": [
-                     {"id": str(u.pk), "name": u.get_full_name() or u.email}
+                     {"id": str(u.pk), "name": u.display_name}
                      for u in p.assignees.all()
                  ],
                  "target_date": str(p.target_date) if p.target_date else "",
