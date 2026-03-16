@@ -42,6 +42,12 @@ class ComplianceActionPlan(ScopedModel):
         related_name="owned_action_plans",
         verbose_name=_("Owner"),
     )
+    assignees = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name="assigned_action_plans",
+        verbose_name=_("Assignees"),
+    )
     start_date = models.DateField(_("Start date"), null=True, blank=True)
     target_date = models.DateField(_("Target date"))
     completion_date = models.DateField(_("Completion date"), null=True, blank=True)

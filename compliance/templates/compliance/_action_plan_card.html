@@ -9,13 +9,36 @@
   <a href="{% url 'compliance:action-plan-detail' ap.pk %}" class="card-title d-block" style="text-decoration:none;color:inherit">
     {{ ap.name|truncatechars:60 }}
   </a>
-  <div class="card-meta">
-    {% if ap.owner %}
-    <span title="{{ ap.owner }}"><i class="bi bi-person"></i> {{ ap.owner.get_short_name|default:ap.owner }}</span>
-    {% endif %}
-    {% if ap.target_date %}
-    <span title="{% trans 'Target date' %}" class="{% if ap.is_overdue %}overdue-date{% endif %}"><i class="bi bi-calendar{% if ap.is_overdue %}-x{% endif %}"></i> {{ ap.target_date }}</span>
-    {% endif %}
+  <div class="d-flex justify-content-between align-items-center mt-1">
+    <div class="kanban-avatars">
+      {% for user in ap.assignees.all %}
+      <span class="kanban-avatar" title="{{ user.get_full_name|default:user.email }}">
+        {% if user.avatar_32 %}
+        <img src="{{ user.avatar_32 }}" alt="{{ user.get_short_name }}" width="24" height="24">
+        {% else %}
+        <span class="kanban-avatar-initials">{{ user.first_name|make_list|first }}{{ user.last_name|make_list|first }}</span>
+        {% endif %}
+      </span>
+      {% empty %}
+      {% if ap.owner %}
+      <span class="kanban-avatar" title="{{ ap.owner.get_full_name|default:ap.owner.email }}">
+        {% if ap.owner.avatar_32 %}
+        <img src="{{ ap.owner.avatar_32 }}" alt="{{ ap.owner.get_short_name }}" width="24" height="24">
+        {% else %}
+        <span class="kanban-avatar-initials">{{ ap.owner.first_name|make_list|first }}{{ ap.owner.last_name|make_list|first }}</span>
+        {% endif %}
+      </span>
+      {% endif %}
+      {% endfor %}
+    </div>
+    <div class="card-meta" style="gap:.35rem">
+      {% if ap.comment_count %}
+      <span title="{% trans 'Comments' %}"><i class="bi bi-chat-dots"></i> {{ ap.comment_count }}</span>
+      {% endif %}
+      {% if ap.target_date %}
+      <span title="{% trans 'Target date' %}" class="{% if ap.is_overdue %}overdue-date{% endif %}"><i class="bi bi-calendar{% if ap.is_overdue %}-x{% endif %}"></i> {{ ap.target_date }}</span>
+      {% endif %}
+    </div>
   </div>
   {% if ap.progress_percentage > 0 %}
   <div class="progress mt-2" style="height:4px">

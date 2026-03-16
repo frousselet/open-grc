@@ -1525,7 +1525,7 @@ class ActionPlanListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin
     search_fields = ["reference", "name"]
 
     def get_queryset(self):
-        qs = super().get_queryset().prefetch_related("scopes", "risks", "findings").select_related("owner")
+        qs = super().get_queryset().prefetch_related("scopes", "risks", "findings", "assignees").select_related("owner")
         status_filter = self.request.GET.get("status")
         if status_filter:
             qs = qs.filter(status=status_filter)
@@ -1622,7 +1622,8 @@ class ActionPlanKanbanView(LoginRequiredMixin, ScopeFilterMixin, ListView):
             super()
             .get_queryset()
             .select_related("owner")
-            .prefetch_related("risks", "findings", "tags")
+            .prefetch_related("risks", "findings", "tags", "assignees")
+            .annotate(comment_count=Count("comments"))
         )
 
     def get_context_data(self, **kwargs):
@@ -1674,7 +1675,8 @@ class ActionPlanKanbanColumnView(LoginRequiredMixin, ScopeFilterMixin, ListView)
             .get_queryset()
             .filter(status=self.kwargs["status"])
             .select_related("owner")
-            .prefetch_related("risks", "findings", "tags")
+            .prefetch_related("risks", "findings", "tags", "assignees")
+            .annotate(comment_count=Count("comments"))
         )
 
 

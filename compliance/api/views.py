@@ -359,7 +359,7 @@ class ComplianceActionPlanViewSet(
 ):
     queryset = ComplianceActionPlan.objects.select_related(
         "owner",
-    ).prefetch_related("scopes", "risks", "findings").all()
+    ).prefetch_related("scopes", "risks", "findings", "assignees").all()
     filterset_class = ComplianceActionPlanFilter
     permission_classes = [CompliancePermission]
     permission_feature = "action_plan"
