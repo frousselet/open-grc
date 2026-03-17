@@ -54,14 +54,14 @@
     <div style="margin-top:16px" data-stepper-cancelled-row>
       {% if can_cancel %}
       <button type="button" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 rounded-pill px-3 flex-shrink-0"
-              data-stepper-step="annule"
-              onclick="showDetailTransitionModal('{{ action_plan.pk }}', 'annule', false, '{% trans "Cancel action plan" %}')"
+              data-stepper-step="cancelled"
+              onclick="showDetailTransitionModal('{{ action_plan.pk }}', 'cancelled', false, '{% trans "Cancel action plan" %}')"
               style="white-space:nowrap;font-size:.8rem;border-width:2px">
         <i class="bi bi-x-circle"></i> {{ cancelled_step.label }}
       </button>
       {% else %}
       <span class="flex-shrink-0 d-inline-flex align-items-center gap-1 rounded-pill px-3"
-            data-stepper-step="annule"
+            data-stepper-step="cancelled"
             style="white-space:nowrap;font-size:.8rem;padding:.3rem 0;
             {% if cancelled_step.state == 'current' %}color:#fff;background:var(--danger);font-weight:600;border:2px solid var(--danger){% else %}color:var(--text-muted);opacity:.45;background:var(--bg-subtle);border:1px dashed var(--border-light){% endif %}">
         {% if cancelled_step.state == 'current' %}<i class="bi bi-x-circle-fill" style="font-size:.7rem"></i>{% else %}<i class="bi bi-circle" style="font-size:.5rem"></i>{% endif %}
@@ -86,10 +86,10 @@
       var c=document.currentScript.closest('[data-stepper-container]');
       var svg=c.querySelector('[data-stepper-svg]');
       var row=c.querySelector('[data-stepper-cancelled-row]');
-      var d=c.querySelector('[data-stepper-step="nouveau"]');
-      var p=c.querySelector('[data-stepper-step="a_definir"]');
-      var cl=c.querySelector('[data-stepper-step="cloture"]');
-      var aWrap=c.querySelector('[data-stepper-step="annule"]');
+      var d=c.querySelector('[data-stepper-step="new"]');
+      var p=c.querySelector('[data-stepper-step="to_define"]');
+      var cl=c.querySelector('[data-stepper-step="closed"]');
+      var aWrap=c.querySelector('[data-stepper-step="cancelled"]');
       var a=aWrap.tagName==='BUTTON'?aWrap:(aWrap.tagName==='FORM'?aWrap.querySelector('button'):aWrap);
       if(!d||!p||!cl||!a||!svg) return;
       function draw(){
@@ -209,7 +209,7 @@
         <dl class="mb-0">
           <dt class="text-muted small mb-1">{% trans "Status" %}</dt>
           <dd class="mb-3">
-            <span class="badge text-bg-{% if action_plan.status == 'valide' %}success{% elif action_plan.status == 'cloture' %}dark{% elif action_plan.status == 'annule' %}danger{% elif action_plan.status == 'a_valider' or action_plan.status == 'implementation_a_valider' %}warning{% elif action_plan.status == 'a_implementer' %}primary{% elif action_plan.status == 'a_definir' %}info{% else %}secondary{% endif %}">
+            <span class="badge text-bg-{% if action_plan.status == 'validated' %}success{% elif action_plan.status == 'closed' %}dark{% elif action_plan.status == 'cancelled' %}danger{% elif action_plan.status == 'to_validate' or action_plan.status == 'implementation_to_validate' %}warning{% elif action_plan.status == 'to_implement' %}primary{% elif action_plan.status == 'to_define' %}info{% else %}secondary{% endif %}">
               {{ action_plan.get_status_display }}
             </span>
           </dd>
@@ -309,7 +309,7 @@
               <div>
                 {% if t.is_refusal %}
                 <span class="badge text-bg-warning"><i class="bi bi-arrow-return-left"></i></span>
-                {% elif t.to_status == 'annule' %}
+                {% elif t.to_status == 'cancelled' %}
                 <span class="badge text-bg-danger"><i class="bi bi-x-circle"></i></span>
                 {% else %}
                 <span class="badge text-bg-info"><i class="bi bi-arrow-right"></i></span>

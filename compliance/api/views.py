@@ -423,7 +423,7 @@ class ComplianceActionPlanViewSet(
             by_priority[p] = by_priority.get(p, 0) + 1
         overdue = qs.filter(
             target_date__lt=timezone.now().date()
-        ).exclude(status__in=[ActionPlanStatus.CLOTURE, ActionPlanStatus.ANNULE]).count()
+        ).exclude(status__in=[ActionPlanStatus.CLOSED, ActionPlanStatus.CANCELLED]).count()
         return Response({
             "total": total,
             "by_status": by_status,

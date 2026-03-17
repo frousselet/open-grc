@@ -65,7 +65,7 @@ class ComplianceActionPlan(ScopedModel):
         _("Status"),
         max_length=30,
         choices=ActionPlanStatus.choices,
-        default=ActionPlanStatus.NOUVEAU,
+        default=ActionPlanStatus.NEW,
     )
 
     history = HistoricalRecords()
@@ -82,7 +82,7 @@ class ComplianceActionPlan(ScopedModel):
         """Return True if target_date is past and the plan is still open."""
         if not self.target_date:
             return False
-        if self.status in (ActionPlanStatus.CLOTURE, ActionPlanStatus.ANNULE):
+        if self.status in (ActionPlanStatus.CLOSED, ActionPlanStatus.CANCELLED):
             return False
         return self.target_date < timezone.now().date()
 
@@ -90,7 +90,7 @@ class ComplianceActionPlan(ScopedModel):
         """Return the list of statuses this action plan can transition to."""
         allowed = list(ACTION_PLAN_TRANSITIONS.get(self.status, []))
         if self.status in ACTION_PLAN_CANCELLABLE_STATUSES:
-            allowed.append(ActionPlanStatus.ANNULE)
+            allowed.append(ActionPlanStatus.CANCELLED)
         return allowed
 
     def transition_to(self, new_status, user, comment=""):
@@ -118,7 +118,7 @@ class ComplianceActionPlan(ScopedModel):
         self.status = new_status
 
         # Auto-set completion fields when closing
-        if new_status == ActionPlanStatus.CLOTURE:
+        if new_status == ActionPlanStatus.CLOSED:
             self.completion_date = timezone.now().date()
             self.progress_percentage = 100
 

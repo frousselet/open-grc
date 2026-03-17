@@ -82,7 +82,7 @@
             </div>
           </td>
           <td>
-            <span class="badge text-bg-{% if ap.status == 'valide' %}success{% elif ap.status == 'cloture' %}dark{% elif ap.status == 'annule' %}danger{% elif ap.status == 'a_valider' or ap.status == 'implementation_a_valider' %}warning{% elif ap.status == 'a_implementer' %}primary{% elif ap.status == 'a_definir' %}info{% else %}secondary{% endif %}">
+            <span class="badge text-bg-{% if ap.status == 'validated' %}success{% elif ap.status == 'closed' %}dark{% elif ap.status == 'cancelled' %}danger{% elif ap.status == 'to_validate' or ap.status == 'implementation_to_validate' %}warning{% elif ap.status == 'to_implement' %}primary{% elif ap.status == 'to_define' %}info{% else %}secondary{% endif %}">
               {{ ap.get_status_display }}
             </span>
           </td>
