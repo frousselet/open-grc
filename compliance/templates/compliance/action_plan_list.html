@@ -10,7 +10,7 @@
 {% block content %}
 {% approval_enabled_for "compliance.complianceactionplan" as show_approval %}
 <div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Compliance action plans" %}</h1>
+  <h1 class="mb-0">{% trans "Action plans" %}</h1>
   <div class="header-actions">
     <a href="{% url 'compliance:action-plan-kanban' %}" class="btn-header-action" title="{% trans 'Kanban board' %}">
       <i class="bi bi-kanban"></i>
