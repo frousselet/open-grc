@@ -129,7 +129,7 @@ class ComplianceActionPlanFactory(factory.django.DjangoModelFactory):
     target_date = factory.LazyFunction(
         lambda: (timezone.now() + timedelta(days=30)).date()
     )
-    status = ActionPlanStatus.NOUVEAU
+    status = ActionPlanStatus.NEW
 
 
 class ActionPlanCommentFactory(factory.django.DjangoModelFactory):

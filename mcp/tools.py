@@ -1307,15 +1307,15 @@ def _register_compliance_tools(server):
         """Transition an action plan to a new status in the Kanban workflow.
 
         Workflow (forward):
-          nouveau → a_definir → a_valider → a_implementer
-          → implementation_a_valider → valide → cloture
+          new → to_define → to_validate → to_implement
+          → implementation_to_validate → validated → closed
 
         Refusals (backward, comment mandatory):
-          a_valider → a_definir
-          implementation_a_valider → a_implementer
+          to_validate → to_define
+          implementation_to_validate → to_implement
 
         Cancellation (comment recommended):
-          Any status except cloture/annule → annule
+          Any status except closed/cancelled → cancelled
 
         Parameters
         ----------
@@ -1345,7 +1345,7 @@ def _register_compliance_tools(server):
 
         # Check per-transition permission (same logic as the UI view)
         transition_key = (ap.status, target)
-        if target == ActionPlanStatus.ANNULE:
+        if target == ActionPlanStatus.CANCELLED:
             required_perm = "compliance.action_plan.cancel"
         else:
             required_perm = ACTION_PLAN_TRANSITION_PERMISSIONS.get(transition_key)
@@ -1373,18 +1373,18 @@ def _register_compliance_tools(server):
     server.register_tool(
         "action_plan_transition",
         "Transition an action plan to a new Kanban status. "
-        "Forward flow: nouveau → a_definir → a_valider → a_implementer → "
-        "implementation_a_valider → valide → cloture. "
-        "Refusals (require comment): a_valider → a_definir, "
-        "implementation_a_valider → a_implementer. "
-        "Cancellation: any non-terminal status → annule.",
+        "Forward flow: new → to_define → to_validate → to_implement → "
+        "implementation_to_validate → validated → closed. "
+        "Refusals (require comment): to_validate → to_define, "
+        "implementation_to_validate → to_implement. "
+        "Cancellation: any non-terminal status → cancelled.",
         _obj_schema({
             "action_plan_id": {"type": "string", "description": "UUID of the action plan"},
             "target_status": {
                 "type": "string",
                 "description": "Target status to transition to",
-                "enum": ["nouveau", "a_definir", "a_valider", "a_implementer",
-                         "implementation_a_valider", "valide", "cloture", "annule"],
+                "enum": ["new", "to_define", "to_validate", "to_implement",
+                         "implementation_to_validate", "validated", "closed", "cancelled"],
             },
             "comment": {"type": "string", "description": "Comment explaining the transition. Mandatory for refusals (backward transitions). Recommended for cancellations."},
         }, ["action_plan_id", "target_status"]),
@@ -1462,7 +1462,7 @@ def _register_compliance_tools(server):
             targets = [s.value if hasattr(s, "value") else s for s in to_list]
             # Add cancellation if applicable
             if from_s in ACTION_PLAN_CANCELLABLE_STATUSES:
-                targets.append(APS.ANNULE.value)
+                targets.append(APS.CANCELLED.value)
             transitions[key] = targets
         refusals = {
             (from_s.value if hasattr(from_s, "value") else from_s): (
@@ -1513,7 +1513,7 @@ def _register_compliance_tools(server):
         for target in allowed:
             target_val = target.value if hasattr(target, "value") else target
             transition_key = (ap.status, target_val)
-            if target_val == ActionPlanStatus.ANNULE:
+            if target_val == ActionPlanStatus.CANCELLED:
                 perm = "compliance.action_plan.cancel"
             else:
                 perm = ACTION_PLAN_TRANSITION_PERMISSIONS.get(transition_key)
@@ -1523,7 +1523,7 @@ def _register_compliance_tools(server):
                 "target_status": target_val,
                 "label": ActionPlanStatus(target_val).label,
                 "is_refusal": is_refusal,
-                "is_cancellation": target_val == ActionPlanStatus.ANNULE,
+                "is_cancellation": target_val == ActionPlanStatus.CANCELLED,
                 "comment_required": is_refusal,
                 "required_permission": perm or None,
                 "user_has_permission": has_perm,

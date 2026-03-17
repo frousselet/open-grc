@@ -56,14 +56,14 @@
   {% endfor %}
 </div>
 
-<div class="cancel-drop-zone" id="cancel-drop-zone" data-status="annule">
+<div class="cancel-drop-zone" id="cancel-drop-zone" data-status="cancelled">
   <div class="d-flex align-items-center mb-3">
     <h5 class="text-muted mb-0">
       <i class="bi bi-x-circle me-1"></i>{% trans "Cancelled" %}
       <span class="badge bg-secondary ms-1 cancel-count">{{ cancelled_plans|length }}</span>
     </h5>
   </div>
-  <div class="cancel-drop-cards" id="kanban-annule">
+  <div class="cancel-drop-cards" id="kanban-cancelled">
     <div class="row g-2">
       {% for ap in cancelled_plans %}
       <div class="col-md-4 col-lg-3">
@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cancel drop zone
     var cancelZone = document.getElementById('cancel-drop-zone');
     if (cancelZone) {
-      if (allowed.includes('annule')) {
+      if (allowed.includes('cancelled')) {
         cancelZone.classList.add('drop-allowed');
       } else {
         cancelZone.classList.add('drop-forbidden');
@@ -386,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       // Refusal or cancellation → revert and show modal
       var isRefusal = refusalTransitions[oldStatus] === newStatus;
-      var isCancel = newStatus === 'annule';
+      var isCancel = newStatus === 'cancelled';
       if (isRefusal || isCancel) {
         evt.from.insertBefore(cardEl, evt.from.children[evt.oldIndex] || null);
         showTransitionModal(cardId, oldStatus, newStatus, isRefusal);
@@ -404,7 +404,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Init Sortable on the cancel drop zone (receive-only)
-  var cancelCards = document.getElementById('kanban-annule');
+  var cancelCards = document.getElementById('kanban-cancelled');
   if (cancelCards) {
     new Sortable(cancelCards, Object.assign({}, sortableConfig, {
       sort: false  // No reordering within cancelled
@@ -414,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Refresh specific columns via HTMX partial endpoints
   function refreshColumns(statuses) {
     statuses.forEach(function(status) {
-      if (status === 'annule') {
+      if (status === 'cancelled') {
         // Reload entire page for cancel since it has different layout
         window.location.reload();
         return;

@@ -1550,7 +1550,7 @@ class ActionPlanDetailView(
         allowed = []
         for target in ap.get_allowed_transitions():
             transition_key = (ap.status, target)
-            if target == ActionPlanStatus.ANNULE:
+            if target == ActionPlanStatus.CANCELLED:
                 perm = "compliance.action_plan.cancel"
             else:
                 perm = ACTION_PLAN_TRANSITION_PERMISSIONS.get(transition_key)
@@ -1561,15 +1561,15 @@ class ActionPlanDetailView(
                     "label": ActionPlanStatus(target).label,
                     "color": ACTION_PLAN_STATUS_COLORS.get(target, "secondary"),
                     "is_refusal": is_refusal,
-                    "is_cancel": target == ActionPlanStatus.ANNULE,
+                    "is_cancel": target == ActionPlanStatus.CANCELLED,
                 })
         ctx["allowed_transitions"] = allowed
 
         # ── Workflow stepper ──
         main_statuses = [
-            s for s in ActionPlanStatus if s != ActionPlanStatus.ANNULE
+            s for s in ActionPlanStatus if s != ActionPlanStatus.CANCELLED
         ]
-        is_cancelled = ap.status == ActionPlanStatus.ANNULE
+        is_cancelled = ap.status == ActionPlanStatus.CANCELLED
         current_idx = next(
             (i for i, s in enumerate(main_statuses) if s.value == ap.status),
             None,
@@ -1634,16 +1634,16 @@ class ActionPlanDetailView(
         # Cancelled step
         if is_cancelled:
             ctx["cancelled_step"] = {
-                "value": ActionPlanStatus.ANNULE.value,
-                "label": ActionPlanStatus.ANNULE.label,
+                "value": ActionPlanStatus.CANCELLED.value,
+                "label": ActionPlanStatus.CANCELLED.label,
                 "state": "current",
             }
             ctx["branch_line_color"] = "var(--danger)"
             ctx["branch_line_opacity"] = "1"
         else:
             ctx["cancelled_step"] = {
-                "value": ActionPlanStatus.ANNULE.value,
-                "label": ActionPlanStatus.ANNULE.label,
+                "value": ActionPlanStatus.CANCELLED.value,
+                "label": ActionPlanStatus.CANCELLED.label,
                 "state": "future",
             }
             if can_cancel:
@@ -1723,7 +1723,7 @@ class ActionPlanKanbanView(LoginRequiredMixin, ScopeFilterMixin, ListView):
         # Group action plans by status into ordered columns
         columns = {}
         for status_val in ActionPlanStatus:
-            if status_val == ActionPlanStatus.ANNULE:
+            if status_val == ActionPlanStatus.CANCELLED:
                 continue  # Show cancelled separately
             columns[status_val.value] = {
                 "label": status_val.label,
@@ -1731,7 +1731,7 @@ class ActionPlanKanbanView(LoginRequiredMixin, ScopeFilterMixin, ListView):
                 "plans": [ap for ap in qs if ap.status == status_val.value],
             }
         ctx["columns"] = columns
-        ctx["cancelled_plans"] = [ap for ap in qs if ap.status == ActionPlanStatus.ANNULE]
+        ctx["cancelled_plans"] = [ap for ap in qs if ap.status == ActionPlanStatus.CANCELLED]
         ctx["status_colors"] = ACTION_PLAN_STATUS_COLORS
         # Pass transition rules as JSON for JS validation
         transitions_json = {}
@@ -1743,7 +1743,7 @@ class ActionPlanKanbanView(LoginRequiredMixin, ScopeFilterMixin, ListView):
         for s in ACTION_PLAN_CANCELLABLE_STATUSES:
             key = s.value if hasattr(s, 'value') else s
             if key in transitions_json:
-                transitions_json[key].append(ActionPlanStatus.ANNULE.value)
+                transitions_json[key].append(ActionPlanStatus.CANCELLED.value)
         ctx["transitions_json"] = json.dumps(transitions_json)
         refusal_json = {}
         for from_s, to_s in ACTION_PLAN_REFUSAL_TRANSITIONS.items():
@@ -1786,7 +1786,7 @@ class ActionPlanTransitionView(LoginRequiredMixin, View):
 
         # Check permission
         transition_key = (action_plan.status, target_status)
-        if target_status == ActionPlanStatus.ANNULE:
+        if target_status == ActionPlanStatus.CANCELLED:
             required_perm = "compliance.action_plan.cancel"
         else:
             required_perm = ACTION_PLAN_TRANSITION_PERMISSIONS.get(transition_key)
