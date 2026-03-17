@@ -76,7 +76,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         help_text=_("Per-view sort preferences: {view_key: {sort, order}}."),
     )
-
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

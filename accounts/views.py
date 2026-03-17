@@ -500,6 +500,42 @@ class AccessLogListView(LoginRequiredMixin, PermissionRequiredMixin, SortableLis
         return qs
 
 
+# ── Calendar subscriptions ──────────────────────────────────
+
+
+class CalendarSubscriptionListView(LoginRequiredMixin, PermissionRequiredMixin, SortableListMixin, ListView):
+    template_name = "accounts/calendar_subscription_list.html"
+    context_object_name = "tokens"
+    paginate_by = 25
+    permission_required = "system.users.read"
+    sortable_fields = {
+        "user": "user__last_name",
+        "name": "name",
+        "created": "created_at",
+        "last_used": "last_used_at",
+    }
+    default_sort = "created"
+    default_sort_order = "desc"
+
+    def get_queryset(self):
+        from accounts.models import CalendarToken
+        qs = CalendarToken.objects.select_related("user")
+        return self._apply_sorting(qs)
+
+
+class CalendarSubscriptionRevokeView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "system.users.update"
+
+    def post(self, request, pk):
+        from accounts.models import CalendarToken
+        token = get_object_or_404(CalendarToken, pk=pk)
+        name = token.name
+        user_name = token.user.display_name
+        token.delete()
+        messages.success(request, _("Calendar subscription \"%(name)s\" revoked for %(user)s.") % {"name": name, "user": user_name})
+        return redirect("accounts:calendar-subscription-list")
+
+
 # ── Action Log (history) ────────────────────────────────────
 
 HISTORY_TYPE_LABELS = {"+": _lazy("Creation"), "~": _lazy("Modification"), "-": _lazy("Deletion")}

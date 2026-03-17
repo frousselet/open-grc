@@ -1,8 +1,11 @@
-from datetime import timedelta
+import base64
+import uuid as uuid_mod
+from datetime import date, timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Avg, Count, Max, Prefetch, Q, Subquery, OuterRef
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -354,166 +357,317 @@ class CalendarView(LoginRequiredMixin, TemplateView):
     template_name = "calendar.html"
 
 
-class CalendarEventsView(LoginRequiredMixin, View):
-    """Return calendar events as JSON for FullCalendar."""
+# ── Shared calendar event fetcher ────────────────────────────
 
-    def _scope_ids(self):
-        user = self.request.user
-        if user.is_superuser:
-            return None
-        return user.get_allowed_scope_ids()
 
-    def _filter_scoped(self, qs):
-        scope_ids = self._scope_ids()
-        if scope_ids is None:
-            return qs
-        model = qs.model
-        if any(f.name == "scopes" for f in model._meta.many_to_many):
-            return qs.filter(scopes__id__in=scope_ids).distinct()
+def _safe_reverse(url_name, pk):
+    try:
+        return reverse(url_name, kwargs={"pk": pk})
+    except Exception:
+        return ""
+
+
+def _filter_scoped(qs, user):
+    if user.is_superuser:
         return qs
+    scope_ids = user.get_allowed_scope_ids()
+    if scope_ids is None:
+        return qs
+    model = qs.model
+    if any(f.name == "scopes" for f in model._meta.many_to_many):
+        return qs.filter(scopes__id__in=scope_ids).distinct()
+    return qs
+
+
+ALL_CATEGORIES = [
+    "risk_assessment", "compliance_assessment", "action_plan",
+    "treatment_plan", "scope", "objective", "framework", "swot",
+    "acceptance", "supplier_review",
+]
+
+
+def get_calendar_events(user, start=None, end=None, categories=None):
+    """Fetch calendar events for *user*. Returns list of event dicts."""
+    events = []
+    if not categories:
+        categories = ALL_CATEGORIES
+
+    def add(queryset, date_field, category, color, url_name, label_prefix=""):
+        filters = {f"{date_field}__isnull": False}
+        if start:
+            filters[f"{date_field}__gte"] = start
+        if end:
+            filters[f"{date_field}__lte"] = end
+        for obj in queryset.filter(**filters):
+            title = str(obj)
+            if label_prefix:
+                title = f"{label_prefix}{title}"
+            events.append({
+                "title": title,
+                "start": getattr(obj, date_field).isoformat(),
+                "color": color,
+                "category": category,
+                "url": _safe_reverse(url_name, obj.pk),
+            })
+
+    def add_range(queryset, sf, ef, category, color, url_name):
+        qs = queryset.filter(
+            Q(**{f"{sf}__isnull": False}) | Q(**{f"{ef}__isnull": False})
+        )
+        if start:
+            qs = qs.filter(
+                Q(**{f"{ef}__gte": start})
+                | Q(**{f"{ef}__isnull": True, f"{sf}__gte": start})
+            )
+        if end:
+            qs = qs.filter(
+                Q(**{f"{sf}__lte": end})
+                | Q(**{f"{sf}__isnull": True, f"{ef}__lte": end})
+            )
+        for obj in qs:
+            s = getattr(obj, sf)
+            e = getattr(obj, ef)
+            if not s and not e:
+                continue
+            ev = {
+                "title": str(obj),
+                "color": color,
+                "category": category,
+                "url": _safe_reverse(url_name, obj.pk),
+            }
+            if s and e:
+                ev["start"] = min(s, e).isoformat()
+                if s != e:
+                    ev["end"] = max(s, e).isoformat()
+            else:
+                ev["start"] = (s or e).isoformat()
+            events.append(ev)
+
+    if "risk_assessment" in categories:
+        qs = _filter_scoped(RiskAssessment.objects.all(), user)
+        add(qs, "assessment_date", "risk_assessment", "#ef4444",
+            "risks:assessment-detail")
+        add(qs, "next_review_date", "risk_assessment", "#fca5a5",
+            "risks:assessment-detail", _("Review: "))
+
+    if "compliance_assessment" in categories:
+        qs = _filter_scoped(ComplianceAssessment.objects.all(), user)
+        add_range(qs, "assessment_start_date", "assessment_end_date",
+                  "compliance_assessment", "#6366f1",
+                  "compliance:assessment-detail")
+
+    if "action_plan" in categories:
+        qs = _filter_scoped(ComplianceActionPlan.objects.all(), user)
+        add_range(qs, "start_date", "target_date",
+                  "action_plan", "#f59e0b",
+                  "compliance:action-plan-detail")
+
+    if "treatment_plan" in categories:
+        qs = RiskTreatmentPlan.objects.all()
+        add_range(qs, "start_date", "target_date",
+                  "treatment_plan", "#8b5cf6",
+                  "risks:treatment-plan-detail")
+
+    if "scope" in categories:
+        qs = Scope.objects.all()
+        add(qs, "effective_date", "scope", "#06b6d4", "context:scope-detail")
+        add(qs, "review_date", "scope", "#67e8f9",
+            "context:scope-detail", _("Review: "))
+
+    if "objective" in categories:
+        qs = _filter_scoped(Objective.objects.all(), user)
+        add(qs, "target_date", "objective", "#14b8a6",
+            "context:objective-detail")
+        add(qs, "review_date", "objective", "#5eead4",
+            "context:objective-detail", _("Review: "))
+
+    if "framework" in categories:
+        qs = _filter_scoped(Framework.objects.all(), user)
+        add(qs, "effective_date", "framework", "#3b82f6",
+            "compliance:framework-detail")
+        add(qs, "expiry_date", "framework", "#93c5fd",
+            "compliance:framework-detail", _("Expiry: "))
+        add(qs, "review_date", "framework", "#bfdbfe",
+            "compliance:framework-detail", _("Review: "))
+
+    if "swot" in categories:
+        qs = _filter_scoped(SwotAnalysis.objects.all(), user)
+        add(qs, "analysis_date", "swot", "#ec4899", "context:swot-detail")
+        add(qs, "review_date", "swot", "#f9a8d4",
+            "context:swot-detail", _("Review: "))
+
+    if "acceptance" in categories:
+        qs = RiskAcceptance.objects.all()
+        add(qs, "valid_until", "acceptance", "#f97316",
+            "risks:acceptance-detail")
+        add(qs, "review_date", "acceptance", "#fdba74",
+            "risks:acceptance-detail", _("Review: "))
+
+    if "supplier_review" in categories:
+        filters = {"review_date__isnull": False}
+        if start:
+            filters["review_date__gte"] = start
+        if end:
+            filters["review_date__lte"] = end
+        qs = SupplierRequirementReview.objects.select_related(
+            "supplier_requirement__supplier"
+        ).filter(**filters)
+        for review in qs:
+            supplier_name = review.supplier_requirement.supplier.name
+            title = f"{supplier_name} : {review.supplier_requirement.title}"
+            events.append({
+                "title": title,
+                "start": review.review_date.isoformat(),
+                "color": "#d946ef",
+                "category": "supplier_review",
+                "url": _safe_reverse(
+                    "assets:supplier-requirement-detail",
+                    review.supplier_requirement.pk,
+                ),
+            })
+
+    return events
+
+
+class CalendarEventsView(LoginRequiredMixin, View):
+    """Return calendar events as JSON."""
 
     def get(self, request):
-        start = request.GET.get("start")
-        end = request.GET.get("end")
-        categories = request.GET.getlist("categories")
-
-        events = []
-        if not categories:
-            categories = [
-                "risk_assessment", "compliance_assessment", "action_plan",
-                "treatment_plan", "scope", "objective", "framework", "swot",
-                "acceptance", "supplier_review",
-            ]
-
-        def add_events(queryset, date_field, category, color, url_name, label_prefix=""):
-            filters = {}
-            if start:
-                filters[f"{date_field}__gte"] = start
-            if end:
-                filters[f"{date_field}__lte"] = end
-            filters[f"{date_field}__isnull"] = False
-            qs = queryset.filter(**filters)
-            for obj in qs:
-                date_val = getattr(obj, date_field)
-                title = str(obj)
-                if label_prefix:
-                    title = f"{label_prefix}{title}"
-                events.append({
-                    "title": title,
-                    "start": date_val.isoformat(),
-                    "color": color,
-                    "category": category,
-                    "url": self._get_url(obj, url_name),
-                })
-
-        # ── Risk assessments ──────────────────────────────
-        if "risk_assessment" in categories:
-            qs = self._filter_scoped(RiskAssessment.objects.all())
-            add_events(qs, "assessment_date", "risk_assessment", "#ef4444",
-                       "risks:assessment-detail")
-            add_events(qs, "next_review_date", "risk_assessment", "#fca5a5",
-                       "risks:assessment-detail", _("Review: "))
-
-        # ── Compliance assessments ────────────────────────
-        if "compliance_assessment" in categories:
-            qs = self._filter_scoped(ComplianceAssessment.objects.all())
-            add_events(qs, "assessment_start_date", "compliance_assessment", "#6366f1",
-                       "compliance:assessment-detail")
-            add_events(qs, "assessment_end_date", "compliance_assessment", "#a5b4fc",
-                       "compliance:assessment-detail", _("End: "))
-
-        # ── Compliance action plans ───────────────────────
-        if "action_plan" in categories:
-            qs = self._filter_scoped(ComplianceActionPlan.objects.all())
-            add_events(qs, "target_date", "action_plan", "#f59e0b",
-                       "compliance:action-plan-detail")
-            add_events(qs, "start_date", "action_plan", "#fcd34d",
-                       "compliance:action-plan-detail", _("Start: "))
-            add_events(qs, "completion_date", "action_plan", "#10b981",
-                       "compliance:action-plan-detail", _("Done: "))
-
-        # ── Risk treatment plans ──────────────────────────
-        if "treatment_plan" in categories:
-            qs = RiskTreatmentPlan.objects.all()
-            add_events(qs, "target_date", "treatment_plan", "#8b5cf6",
-                       "risks:treatment-plan-detail")
-            add_events(qs, "start_date", "treatment_plan", "#c4b5fd",
-                       "risks:treatment-plan-detail", _("Start: "))
-            add_events(qs, "completion_date", "treatment_plan", "#10b981",
-                       "risks:treatment-plan-detail", _("Done: "))
-
-        # ── Scopes ────────────────────────────────────────
-        if "scope" in categories:
-            qs = Scope.objects.all()
-            add_events(qs, "effective_date", "scope", "#06b6d4",
-                       "context:scope-detail")
-            add_events(qs, "review_date", "scope", "#67e8f9",
-                       "context:scope-detail", _("Review: "))
-
-        # ── Objectives ────────────────────────────────────
-        if "objective" in categories:
-            qs = self._filter_scoped(Objective.objects.all())
-            add_events(qs, "target_date", "objective", "#14b8a6",
-                       "context:objective-detail")
-            add_events(qs, "review_date", "objective", "#5eead4",
-                       "context:objective-detail", _("Review: "))
-
-        # ── Frameworks ────────────────────────────────────
-        if "framework" in categories:
-            qs = self._filter_scoped(Framework.objects.all())
-            add_events(qs, "effective_date", "framework", "#3b82f6",
-                       "compliance:framework-detail")
-            add_events(qs, "expiry_date", "framework", "#93c5fd",
-                       "compliance:framework-detail", _("Expiry: "))
-            add_events(qs, "review_date", "framework", "#bfdbfe",
-                       "compliance:framework-detail", _("Review: "))
-
-        # ── SWOT analyses ─────────────────────────────────
-        if "swot" in categories:
-            qs = self._filter_scoped(SwotAnalysis.objects.all())
-            add_events(qs, "analysis_date", "swot", "#ec4899",
-                       "context:swot-detail")
-            add_events(qs, "review_date", "swot", "#f9a8d4",
-                       "context:swot-detail", _("Review: "))
-
-        # ── Risk acceptances ──────────────────────────────
-        if "acceptance" in categories:
-            qs = RiskAcceptance.objects.all()
-            add_events(qs, "valid_until", "acceptance", "#f97316",
-                       "risks:acceptance-detail")
-            add_events(qs, "review_date", "acceptance", "#fdba74",
-                       "risks:acceptance-detail", _("Review: "))
-
-        # ── Supplier requirement reviews ─────────────────
-        if "supplier_review" in categories:
-            filters = {"review_date__isnull": False}
-            if start:
-                filters["review_date__gte"] = start
-            if end:
-                filters["review_date__lte"] = end
-            qs = SupplierRequirementReview.objects.select_related(
-                "supplier_requirement"
-            ).filter(**filters)
-            for review in qs:
-                events.append({
-                    "title": str(review),
-                    "start": review.review_date.isoformat(),
-                    "color": "#d946ef",
-                    "category": "supplier_review",
-                    "url": self._get_url(
-                        review.supplier_requirement,
-                        "assets:supplier-requirement-detail",
-                    ),
-                })
-
+        events = get_calendar_events(
+            request.user,
+            start=request.GET.get("start"),
+            end=request.GET.get("end"),
+            categories=request.GET.getlist("categories") or None,
+        )
         return JsonResponse(events, safe=False)
 
-    def _get_url(self, obj, url_name):
-        from django.urls import reverse
+
+# ── iCal subscription feed ──────────────────────────────────
+
+
+class ICalFeedView(View):
+    """Serve an iCal (.ics) feed authenticated via HTTP Basic Auth + calendar_token."""
+
+    def get(self, request):
+        user = self._authenticate(request)
+        if user is None:
+            resp = HttpResponse(status=401)
+            resp["WWW-Authenticate"] = 'Basic realm="Open GRC Calendar"'
+            return resp
+
+        from icalendar import Calendar, Event as ICalEvent
+
+        today = date.today()
+        start_iso = (today - timedelta(days=90)).isoformat()
+        end_iso = (today + timedelta(days=365)).isoformat()
+        events = get_calendar_events(user, start=start_iso, end=end_iso)
+
+        cal = Calendar()
+        cal.add("prodid", "-//Open GRC//Calendar//EN")
+        cal.add("version", "2.0")
+        cal.add("calscale", "GREGORIAN")
+        cal.add("method", "PUBLISH")
+        cal.add("x-wr-calname", "Open GRC")
+
+        CAT_LABELS = {
+            "risk_assessment": _("Risk assessments"),
+            "compliance_assessment": _("Compliance assessments"),
+            "action_plan": _("Action plans"),
+            "treatment_plan": _("Treatment plans"),
+            "scope": _("Scopes"),
+            "objective": _("Objectives"),
+            "framework": _("Frameworks"),
+            "swot": _("SWOT analyses"),
+            "acceptance": _("Risk acceptances"),
+            "supplier_review": _("Supplier reviews"),
+        }
+
+        for ev in events:
+            vevent = ICalEvent()
+            uid_base = f"{ev['category']}-{ev['start']}-{ev['title']}"
+            vevent.add("uid", f"{uid_base}@open-grc")
+            vevent.add("summary", ev["title"])
+
+            dt_start = date.fromisoformat(ev["start"])
+            vevent.add("dtstart", dt_start)
+            if ev.get("end"):
+                # iCal DTEND for DATE values is exclusive
+                dt_end = date.fromisoformat(ev["end"]) + timedelta(days=1)
+                vevent.add("dtend", dt_end)
+            else:
+                vevent.add("dtend", dt_start + timedelta(days=1))
+
+            if ev.get("url"):
+                vevent.add("url", request.build_absolute_uri(ev["url"]))
+            cat_label = CAT_LABELS.get(ev["category"], ev["category"])
+            vevent.add("categories", [str(cat_label)])
+            vevent.add("dtstamp", timezone.now())
+            cal.add_component(vevent)
+
+        resp = HttpResponse(cal.to_ical(), content_type="text/calendar; charset=utf-8")
+        resp["Content-Disposition"] = 'attachment; filename="open-grc.ics"'
+        return resp
+
+    # Tokens unused for this many days are automatically revoked
+    INACTIVITY_DAYS = 30
+
+    def _authenticate(self, request):
+        from accounts.models import CalendarToken
+
+        auth = request.META.get("HTTP_AUTHORIZATION", "")
+        if not auth.startswith("Basic "):
+            return None
         try:
-            return reverse(url_name, kwargs={"pk": obj.pk})
-        except Exception:
-            return ""
+            decoded = base64.b64decode(auth[6:]).decode("utf-8")
+            email, token = decoded.split(":", 1)
+        except (ValueError, UnicodeDecodeError):
+            return None
+        try:
+            token_uuid = uuid_mod.UUID(token)
+            ct = CalendarToken.objects.select_related("user").get(
+                token=token_uuid, user__email=email, user__is_active=True,
+            )
+            # Revoke if inactive for too long
+            reference_date = ct.last_used_at or ct.created_at
+            if reference_date and timezone.now() - reference_date > timedelta(days=self.INACTIVITY_DAYS):
+                ct.delete()
+                return None
+            ua = request.META.get("HTTP_USER_AGENT", "")[:255]
+            CalendarToken.objects.filter(pk=ct.pk).update(
+                last_used_at=timezone.now(),
+                last_user_agent=ua,
+            )
+            return ct.user
+        except (CalendarToken.DoesNotExist, ValueError):
+            return None
+
+
+class CalendarSubscribeView(LoginRequiredMixin, View):
+    """HTMX partial: manage calendar subscription tokens."""
+
+    def get(self, request):
+        tokens = request.user.calendar_tokens.all()
+        return render(request, "calendar_subscribe.html", {"tokens": tokens})
+
+    def post(self, request):
+        from accounts.models import CalendarToken
+
+        action = request.POST.get("action")
+        if action == "create":
+            name = request.POST.get("name", "").strip()
+            if not name:
+                name = _("Calendar subscription")
+            ct = CalendarToken.objects.create(user=request.user, name=name)
+            tokens = request.user.calendar_tokens.all()
+            return render(request, "calendar_subscribe.html", {
+                "tokens": tokens,
+                "new_token": ct,
+            })
+        elif action == "revoke":
+            token_id = request.POST.get("token_id")
+            request.user.calendar_tokens.filter(pk=token_id).delete()
+        tokens = request.user.calendar_tokens.all()
+        return render(request, "calendar_subscribe.html", {"tokens": tokens})
 
 
 class GlobalSearchView(LoginRequiredMixin, View):

@@ -9186,3 +9186,89 @@ msgstr ""
 #: compliance/templates/compliance/action_plan_detail.html
 msgid "Comments"
 msgstr "Commentaires"
+
+#: templates/calendar.html templates/calendar_subscribe.html
+msgid "Subscribe"
+msgstr "S'abonner"
+
+#: templates/calendar_subscribe.html
+msgid "Calendar subscription"
+msgstr "Abonnement au calendrier"
+
+#: templates/calendar_subscribe.html
+msgid "Use the credentials below to subscribe to this calendar from Apple Calendar, Google Calendar, Outlook, or any CalDAV client."
+msgstr "Utilisez les identifiants ci-dessous pour vous abonner à ce calendrier depuis Apple Calendar, Google Calendar, Outlook ou tout client CalDAV."
+
+#: templates/calendar_subscribe.html
+msgid "File > New Calendar Subscription, paste the URL, then enter the username and password."
+msgstr "Fichier > Nouvel abonnement à un calendrier, collez l'URL, puis saisissez le nom d'utilisateur et le mot de passe."
+
+#: templates/calendar_subscribe.html
+msgid "Regenerate"
+msgstr "Régénérer"
+
+#: templates/calendar_subscribe.html
+msgid "Revoke"
+msgstr "Révoquer"
+
+#: templates/calendar_subscribe.html
+msgid "Generate a subscription token to sync this calendar with Apple Calendar, Google Calendar, Outlook, or any CalDAV client."
+msgstr "Générez un jeton d'abonnement pour synchroniser ce calendrier avec Apple Calendar, Google Calendar, Outlook ou tout client CalDAV."
+
+#: templates/calendar_subscribe.html
+msgid "A unique URL and credentials will be created. You can revoke access at any time."
+msgstr "Une URL et des identifiants uniques seront créés. Vous pouvez révoquer l'accès à tout moment."
+
+#: templates/calendar_subscribe.html
+msgid "Generate subscription token"
+msgstr "Générer le jeton d'abonnement"
+
+#: accounts/models/calendar_token.py
+msgid "Calendar token"
+msgstr "Jeton calendrier"
+
+#: accounts/models/calendar_token.py
+msgid "Calendar tokens"
+msgstr "Jetons calendrier"
+
+#: accounts/templates/accounts/calendar_subscription_list.html
+#: templates/base.html
+msgid "Subscriptions"
+msgstr "Abonnements"
+
+#: accounts/templates/accounts/calendar_subscription_list.html
+msgid "Calendar subscriptions"
+msgstr "Abonnements calendrier"
+
+#: accounts/templates/accounts/calendar_subscription_list.html
+msgid "Active calendar subscription tokens across all users. Revoking a token immediately disables the corresponding iCal feed."
+msgstr "Jetons d'abonnement calendrier actifs pour tous les utilisateurs. La révocation d'un jeton désactive immédiatement le flux iCal correspondant."
+
+#: accounts/templates/accounts/calendar_subscription_list.html
+msgid "No active calendar subscriptions."
+msgstr "Aucun abonnement calendrier actif."
+
+#: accounts/templates/accounts/calendar_subscription_list.html
+msgid "Revoke this calendar subscription?"
+msgstr "Révoquer cet abonnement calendrier ?"
+
+#: accounts/views.py
+msgid "Calendar subscription \"%(name)s\" revoked for %(user)s."
+msgstr "Abonnement calendrier \"%(name)s\" révoqué pour %(user)s."
+
+#: templates/calendar_subscribe.html
+msgid "Token created. Copy the password now, it will not be shown again."
+msgstr "Jeton créé. Copiez le mot de passe maintenant, il ne sera plus affiché."
+
+#: templates/calendar_subscribe.html
+msgid "Active subscriptions"
+msgstr "Abonnements actifs"
+
+#: templates/calendar_subscribe.html
+msgid "No active subscriptions. Create a token to sync this calendar with Apple Calendar, Google Calendar, Outlook, or any CalDAV client."
+msgstr "Aucun abonnement actif. Créez un jeton pour synchroniser ce calendrier avec Apple Calendar, Google Calendar, Outlook ou tout client CalDAV."
+
+#: templates/calendar_subscribe.html
+msgid "Subscription name (e.g. MacBook, iPhone)"
+msgstr "Nom de l'abonnement (ex. MacBook, iPhone)"
+

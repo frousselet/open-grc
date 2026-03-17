@@ -48,6 +48,10 @@ urlpatterns = [
     path("access-logs/", views.AccessLogListView.as_view(), name="access-log-list"),
     path("action-logs/", views.ActionLogListView.as_view(), name="action-log-list"),
 
+    # Calendar subscriptions
+    path("calendar-subscriptions/", views.CalendarSubscriptionListView.as_view(), name="calendar-subscription-list"),
+    path("calendar-subscriptions/<uuid:pk>/revoke/", views.CalendarSubscriptionRevokeView.as_view(), name="calendar-subscription-revoke"),
+
     # OAuth credentials (MCP)
     path("oauth-apps/create/", OAuthAppCreateView.as_view(), name="oauth-app-create"),
     path("oauth-apps/<uuid:pk>/delete/", OAuthAppDeleteView.as_view(), name="oauth-app-delete"),
