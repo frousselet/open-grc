@@ -270,7 +270,7 @@ class SupplierRequirementReview(models.Model):
         verbose_name_plural = _("Requirement reviews")
 
     def __str__(self):
-        return f"{self.supplier_requirement.title} — {self.review_date}"
+        return f"{self.supplier_requirement.title} - {self.review_date}"
 
 
 class SupplierDependency(ReferenceGeneratorMixin):

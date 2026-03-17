@@ -2578,6 +2578,12 @@
         <span class="sidebar-tooltip">{% trans "Permissions" %}</span>
       </a>
       {% endif %}
+      {% if can_users %}
+      <a href="{% url 'accounts:calendar-subscription-list' %}" class="sidebar-link">
+        <i class="bi bi-rss"></i> <span class="sidebar-link-text">{% trans "Subscriptions" %}</span>
+        <span class="sidebar-tooltip">{% trans "Subscriptions" %}</span>
+      </a>
+      {% endif %}
       {% has_perm "system.audit_trail.read" as can_audit %}
       {% if can_audit %}
       <button class="sidebar-collapse-btn" data-bs-toggle="collapse" data-bs-target="#navLogs" aria-expanded="true">

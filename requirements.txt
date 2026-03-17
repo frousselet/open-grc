@@ -12,6 +12,7 @@ weasyprint>=63.0,<69
 fido2>=1.1,<2
 channels>=4.0,<5
 channels-redis>=4.2,<5
+icalendar>=6.0,<7
 uvicorn[standard]>=0.29,<1
 # Testing
 pytest>=8.0,<9

@@ -34,23 +34,47 @@
   .cal-nav-title { font-size:1.0625rem; font-weight:650; color:var(--text-primary); min-width:14rem; text-align:center; letter-spacing:-.01em; }
 
   /* ── Month grid ───────────────────────────────────── */
-  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); border:1px solid var(--border-light); border-radius:var(--radius-md); overflow:hidden; }
-  .cal-grid-head {
+  .cal-month-container { border:1px solid var(--border-light); border-radius:var(--radius-md); overflow:hidden; }
+  .cal-header { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); }
+  .cal-header-cell {
     padding:.5rem .375rem; font-size:.6875rem; font-weight:650;
     text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted);
     text-align:center; background:var(--surface-muted); border-bottom:1px solid var(--border-light);
+    border-right:1px solid var(--border-light);
   }
-  .cal-day {
-    min-height:6.5rem; padding:.375rem .4375rem; border-right:1px solid var(--border-light);
-    border-bottom:1px solid var(--border-light); background:var(--surface-raised);
-    transition:background .15s cubic-bezier(.4,0,.2,1); position:relative;
+  .cal-header-cell:last-child { border-right:none; }
+  .cal-week { position:relative; min-height:6.5rem; }
+  .cal-week-bg {
+    display:grid; grid-template-columns:repeat(7,minmax(0,1fr));
+    position:absolute; inset:0;
   }
-  .cal-day:nth-child(7n) { border-right:none; }
-  .cal-day:hover { background:var(--accent-soft); }
-  .cal-day.other-month { background:var(--surface-muted); opacity:.45; }
-  .cal-day.today { background:var(--accent-soft); }
-  .cal-day-num { font-size:.8125rem; font-weight:500; color:var(--text-secondary); margin-bottom:.25rem; font-variant-numeric:tabular-nums; }
-  .cal-day.today .cal-day-num { color:var(--accent); font-weight:700; }
+  .cal-cell {
+    border-right:1px solid var(--border-light); border-bottom:1px solid var(--border-light);
+    background:var(--surface-raised); transition:background .15s cubic-bezier(.4,0,.2,1);
+  }
+  .cal-cell:nth-child(7) { border-right:none; }
+  .cal-cell:hover { background:var(--accent-soft); }
+  .cal-cell.other-month { background:var(--surface-muted); opacity:.45; }
+  .cal-cell.today { background:var(--accent-soft); }
+  .cal-week-content {
+    display:grid; grid-template-columns:repeat(7,minmax(0,1fr));
+    grid-auto-rows:min-content; position:relative; z-index:1; min-height:6.5rem;
+  }
+  .cal-day-num {
+    font-size:.8125rem; font-weight:500; color:var(--text-secondary);
+    padding:.375rem .4375rem .125rem; font-variant-numeric:tabular-nums;
+  }
+  .cal-day-num.other-month { opacity:.45; }
+  .cal-day-num.today { color:var(--accent); font-weight:700; }
+  .cal-span-ev {
+    display:block; padding:1px 6px; margin:1px 2px; font-size:.6875rem; font-weight:500;
+    border-radius:var(--radius-xs, .375rem); color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    text-decoration:none; cursor:pointer; line-height:1.5; transition:opacity .15s;
+  }
+  .cal-span-ev:hover { opacity:.85; color:#fff; }
+  .cal-span-ev.cont-left { border-top-left-radius:0; border-bottom-left-radius:0; margin-left:0; padding-left:4px; }
+  .cal-span-ev.cont-right { border-top-right-radius:0; border-bottom-right-radius:0; margin-right:0; }
+  .cal-day-events { padding:0 .25rem .125rem; }
   .cal-ev {
     display:block; padding:1px 5px; margin-bottom:2px; font-size:.6875rem; font-weight:500;
     border-radius:var(--radius-xs, .375rem); color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
@@ -141,10 +165,27 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h1 class="mb-0"><i class="bi bi-calendar3 me-2" style="color:var(--accent);"></i>{% trans "Calendar" %}</h1>
-  <div class="view-toggle" id="viewToggle">
-    <button data-view="month" class="active"><i class="bi bi-calendar-month me-1"></i>{% trans "Month" %}</button>
-    <button data-view="year"><i class="bi bi-calendar4 me-1"></i>{% trans "Year" %}</button>
+  <div class="d-flex align-items-center gap-2">
+    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#subscribeModal"
+            hx-get="{% url 'calendar-subscribe' %}" hx-target="#subscribeModalContent">
+      <i class="bi bi-rss me-1"></i>{% trans "Subscribe" %}
+    </button>
+    <div class="view-toggle" id="viewToggle">
+      <button data-view="month" class="active"><i class="bi bi-calendar-month me-1"></i>{% trans "Month" %}</button>
+      <button data-view="year"><i class="bi bi-calendar4 me-1"></i>{% trans "Year" %}</button>
     <button data-view="timeline"><i class="bi bi-list-ul me-1"></i>{% trans "Timeline" %}</button>
+    </div>
+  </div>
+</div>
+
+<!-- Subscribe modal -->
+<div class="modal fade" id="subscribeModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content" id="subscribeModalContent">
+      <div class="modal-body text-center py-5">
+        <div class="spinner-border spinner-border-sm text-muted"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -284,46 +325,132 @@
     fetchEvents(function(events) {
       var y=navDate.getFullYear(), m=navDate.getMonth();
       var title = MONTHS[m]+' '+y;
-      var byDate = eventsByDate(events);
-      var first = new Date(y,m,1);
-      var startDay = (first.getDay()+6)%7; // Monday=0
-      var daysInMonth = new Date(y,m+1,0).getDate();
-      var prevDays = new Date(y,m,0).getDate();
       var today = todayISO();
 
-      var h = navHTML(title);
-      h += '<div class="cal-grid">';
-      DAYS.forEach(function(d){ h+='<div class="cal-grid-head">'+d+'</div>'; });
-
+      // Build days array
+      var first = new Date(y,m,1);
+      var startDay = (first.getDay()+6)%7;
+      var daysInMonth = new Date(y,m+1,0).getDate();
+      var prevDays = new Date(y,m,0).getDate();
       var totalCells = Math.ceil((startDay+daysInMonth)/7)*7;
+      var allDays = [];
       for(var i=0;i<totalCells;i++) {
-        var dayNum, dateStr, cls='cal-day';
+        var day={};
         if(i<startDay) {
-          dayNum = prevDays-startDay+i+1;
-          var pd=new Date(y,m-1,dayNum);
-          dateStr=iso(pd); cls+=' other-month';
+          day.num=prevDays-startDay+i+1;
+          day.date=iso(new Date(y,m-1,day.num)); day.other=true;
         } else if(i>=startDay+daysInMonth) {
-          dayNum = i-startDay-daysInMonth+1;
-          var nd=new Date(y,m+1,dayNum);
-          dateStr=iso(nd); cls+=' other-month';
+          day.num=i-startDay-daysInMonth+1;
+          day.date=iso(new Date(y,m+1,day.num)); day.other=true;
         } else {
-          dayNum = i-startDay+1;
-          dateStr = y+'-'+pad(m+1)+'-'+pad(dayNum);
-          if(dateStr===today) cls+=' today';
+          day.num=i-startDay+1;
+          day.date=y+'-'+pad(m+1)+'-'+pad(day.num); day.other=false;
         }
-        var dayEvents = byDate[dateStr]||[];
-        h += '<div class="'+cls+'">';
-        h += '<div class="cal-day-num">'+dayNum+'</div>';
-        var max=3;
-        for(var j=0;j<Math.min(dayEvents.length,max);j++) {
-          var ev=dayEvents[j];
-          var href=ev.url?' href="'+esc(ev.url)+'"':'';
-          h += '<a class="cal-ev" style="background:'+ev.color+'"'+href+' title="'+esc(ev.title)+'">'+esc(ev.title)+'</a>';
-        }
-        if(dayEvents.length>max) h+='<span class="cal-more">+'+(dayEvents.length-max)+'</span>';
-        h += '</div>';
+        day.isToday=(day.date===today);
+        allDays.push(day);
       }
-      h += '</div>';
+      var weeks=[];
+      for(var w=0;w<allDays.length;w+=7) weeks.push(allDays.slice(w,w+7));
+
+      // Separate spanning and point events
+      var spanning=[], pointEvents=[];
+      events.forEach(function(ev){
+        if(ev.end && ev.end!==ev.start) spanning.push(ev);
+        else pointEvents.push(ev);
+      });
+      var pointByDate={};
+      pointEvents.forEach(function(ev){
+        if(!pointByDate[ev.start]) pointByDate[ev.start]=[];
+        pointByDate[ev.start].push(ev);
+      });
+      spanning.sort(function(a,b){
+        if(a.start!==b.start) return a.start<b.start?-1:1;
+        return b.end.localeCompare(a.end);
+      });
+
+      // Render
+      var h = navHTML(title);
+      h+='<div class="cal-month-container">';
+      h+='<div class="cal-header">';
+      DAYS.forEach(function(d){ h+='<div class="cal-header-cell">'+d+'</div>'; });
+      h+='</div>';
+
+      var MAX_LANES=3, MAX_PT=3;
+      weeks.forEach(function(week){
+        var weekStart=week[0].date, weekEnd=week[6].date;
+
+        // Find spanning events overlapping this week
+        var weekSpans=[];
+        spanning.forEach(function(ev){
+          if(ev.start<=weekEnd && ev.end>=weekStart){
+            var sc=0, ec=6;
+            for(var c=0;c<7;c++){ if(week[c].date>=ev.start){sc=c;break;} }
+            for(var c=6;c>=0;c--){ if(week[c].date<=ev.end){ec=c;break;} }
+            weekSpans.push({ev:ev,sc:sc,ec:ec,
+              contL:ev.start<weekStart, contR:ev.end>weekEnd});
+          }
+        });
+
+        // Assign lanes (greedy)
+        var lanes=[];
+        weekSpans.forEach(function(sp){
+          var lane=-1;
+          for(var l=0;l<lanes.length;l++){
+            if(lanes[l]<sp.sc){lane=l;break;}
+          }
+          if(lane===-1){lane=lanes.length;lanes.push(-1);}
+          lanes[lane]=sp.ec; sp.lane=lane;
+        });
+        var numLanes=Math.min(lanes.length,MAX_LANES);
+        var pointRow=numLanes+2;
+
+        h+='<div class="cal-week">';
+        // Background cells
+        h+='<div class="cal-week-bg">';
+        week.forEach(function(day){
+          var cls='cal-cell';
+          if(day.other) cls+=' other-month';
+          if(day.isToday) cls+=' today';
+          h+='<div class="'+cls+'"></div>';
+        });
+        h+='</div>';
+        // Content
+        h+='<div class="cal-week-content">';
+        // Day numbers (row 1)
+        week.forEach(function(day,ci){
+          var cls='cal-day-num';
+          if(day.other) cls+=' other-month';
+          if(day.isToday) cls+=' today';
+          h+='<div class="'+cls+'" style="grid-column:'+(ci+1)+';grid-row:1;">'+day.num+'</div>';
+        });
+        // Spanning events
+        weekSpans.forEach(function(sp){
+          if(sp.lane>=MAX_LANES) return;
+          var ev=sp.ev, row=sp.lane+2;
+          var gc=(sp.sc+1)+'/'+(sp.ec+2);
+          var href=ev.url?' href="'+esc(ev.url)+'"':'';
+          var cls='cal-span-ev';
+          if(sp.contL) cls+=' cont-left';
+          if(sp.contR) cls+=' cont-right';
+          h+='<a class="'+cls+'" style="grid-column:'+gc+';grid-row:'+row+';background:'+ev.color+';"'+href+' title="'+esc(ev.title)+'">'+esc(ev.title)+'</a>';
+        });
+        // Point events
+        week.forEach(function(day,ci){
+          var devs=pointByDate[day.date]||[];
+          if(!devs.length) return;
+          h+='<div class="cal-day-events" style="grid-column:'+(ci+1)+';grid-row:'+pointRow+';">';
+          for(var j=0;j<Math.min(devs.length,MAX_PT);j++){
+            var ev=devs[j];
+            var href=ev.url?' href="'+esc(ev.url)+'"':'';
+            h+='<a class="cal-ev" style="background:'+ev.color+'"'+href+' title="'+esc(ev.title)+'">'+esc(ev.title)+'</a>';
+          }
+          if(devs.length>MAX_PT) h+='<span class="cal-more">+'+(devs.length-MAX_PT)+'</span>';
+          h+='</div>';
+        });
+        h+='</div>'; // content
+        h+='</div>'; // week
+      });
+      h+='</div>'; // month-container
 
       el.innerHTML = h;
       bindNav(

@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
 from accounts.constants import AccessEventType, FailureReason
@@ -83,3 +84,17 @@ def log_login_failed(sender, credentials, request, **kwargs):
         user_agent=_get_user_agent(request),
         failure_reason=failure_reason,
     )
+
+
+@receiver(pre_save, sender=get_user_model())
+def revoke_calendar_tokens_on_deactivation(sender, instance, **kwargs):
+    """Delete all calendar tokens when a user account is deactivated."""
+    if instance._state.adding:
+        return
+    try:
+        old = sender.objects.only("is_active").get(pk=instance.pk)
+    except sender.DoesNotExist:
+        return
+    if old.is_active and not instance.is_active:
+        from accounts.models import CalendarToken
+        CalendarToken.objects.filter(user=instance).delete()
