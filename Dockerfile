@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:slim
 
 LABEL org.opencontainers.image.source="https://gitlab.rslt.fr/fairway/fairway"
 LABEL org.opencontainers.image.description="Fairway - Governance, Risk & Compliance platform"

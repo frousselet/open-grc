@@ -15,6 +15,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add pip caching and Cobertura coverage artifact with MR badge regex
 - Factor common CI rules into `.not-tags` YAML template
 
+### Changed
+
+- Remove all version pins from Docker images (Dockerfile, docker-compose, CI) to always use latest
+- Remove all version constraints from Python dependencies in requirements.txt
+- PostgreSQL volume mount changed from `/var/lib/postgresql/data` to `/var/lib/postgresql` (required by PostgreSQL 18+)
+
+> **Warning:** The PostgreSQL volume layout changed. Existing deployments must dump and restore their database before upgrading:
+>
+> ```bash
+> docker compose exec db pg_dumpall -U postgres > backup.sql
+> docker compose down && docker volume rm <project>_postgres_data
+> docker compose up -d
+> docker compose exec -T db psql -U postgres < backup.sql
+> ```
+
 ### Fixed
 
 - Fix undefined `HttpResponseRedirect` in compliance views

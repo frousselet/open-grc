@@ -28,7 +28,7 @@ stages:
 syntax:
   extends: .not-tags
   stage: quality
-  image: python:3.12-slim
+  image: python:slim
   cache:
     key: pip-ruff
     paths:
@@ -36,7 +36,7 @@ syntax:
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   before_script:
-    - pip install --quiet "ruff>=0.9,<1"
+    - pip install --quiet ruff
   script:
     - ruff check .
 
@@ -46,7 +46,7 @@ syntax:
 translations:
   extends: .not-tags
   stage: quality
-  image: python:3.12-slim
+  image: python:slim
   cache:
     key: pip-django
     paths:
@@ -55,7 +55,7 @@ translations:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   before_script:
     - apt-get update && apt-get install -y --no-install-recommends gettext
-    - pip install --quiet "Django>=5.2,<5.3"
+    - pip install --quiet Django
   script:
     - django-admin compilemessages --locale=fr --locale=en
 
@@ -65,7 +65,7 @@ translations:
 unit:
   extends: .not-tags
   stage: test
-  image: python:3.12-slim
+  image: python:slim
   cache:
     key: pip-full
     paths:
@@ -91,7 +91,7 @@ unit:
 # ---------------------------------------------------------------------------
 docker-dev:
   stage: deploy
-  image: docker:27
+  image: docker:latest
   variables:
     DOCKER_HOST: unix:///var/run/docker.sock
   before_script:
@@ -110,7 +110,7 @@ docker-dev:
 # ---------------------------------------------------------------------------
 docker-release:
   stage: deploy
-  image: docker:27
+  image: docker:latest
   variables:
     DOCKER_HOST: unix:///var/run/docker.sock
   before_script:

@@ -15,7 +15,7 @@ services:
         condition: service_healthy
 
   redis:
-    image: redis:7-alpine
+    image: redis:alpine
     ports:
       - "6379:6379"
     healthcheck:
@@ -25,9 +25,9 @@ services:
       retries: 5
 
   db:
-    image: postgres:16
+    image: postgres:latest
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     env_file:
       - .env
     healthcheck:
