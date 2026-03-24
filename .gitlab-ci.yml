@@ -1,0 +1,55 @@
+stages:
+  - test
+  - docker
+
+# ---------------------------------------------------------------------------
+# Tests - runs on pushes to main and on merge requests
+# ---------------------------------------------------------------------------
+test:
+  stage: test
+  image: python:3.12-slim
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends gettext
+    - pip install -r requirements.txt
+  script:
+    - python manage.py compilemessages
+    - pytest -x -v --tb=short --cov --cov-report=term-missing
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+# ---------------------------------------------------------------------------
+# Docker build & push - runs on version tags (v*)
+# ---------------------------------------------------------------------------
+docker:
+  stage: docker
+  image: docker:27
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+  script:
+    - |
+      # Extract version from tag (strip leading 'v')
+      VERSION="${CI_COMMIT_TAG#v}"
+      MAJOR="$(echo "$VERSION" | cut -d. -f1)"
+      MINOR="$(echo "$VERSION" | cut -d. -f1-2)"
+
+      echo "$VERSION" > version.txt
+
+      docker build \
+        --build-arg APP_VERSION="$VERSION" \
+        -t "frousselet/open-grc:${VERSION}" \
+        -t "frousselet/open-grc:${MINOR}" \
+        -t "frousselet/open-grc:${MAJOR}" \
+        -t "frousselet/open-grc:latest" \
+        .
+
+      docker push "frousselet/open-grc:${VERSION}"
+      docker push "frousselet/open-grc:${MINOR}"
+      docker push "frousselet/open-grc:${MAJOR}"
+      docker push "frousselet/open-grc:latest"
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v/

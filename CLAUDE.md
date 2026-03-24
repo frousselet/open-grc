@@ -90,9 +90,11 @@ python manage.py collectstatic --noinput  # Collect static files
 
 ### CI/CD
 
-GitHub Actions (`.github/workflows/`):
-- `tests.yml` — runs `pytest -x -v --cov` on push to main and all PRs (Python 3.12)
-- `docker-publish.yml` — builds and pushes Docker image to Docker Hub on version tags (`v*`)
+GitLab CI (`.gitlab-ci.yml`):
+- `test` stage - runs `pytest -x -v --cov` on pushes to main and merge requests (Python 3.12)
+- `docker` stage - builds and pushes Docker image to Docker Hub on version tags (`v*`)
+
+Legacy GitHub Actions are kept in `.github/workflows/` but GitLab is the primary CI.
 
 ### Feature Specifications
 
