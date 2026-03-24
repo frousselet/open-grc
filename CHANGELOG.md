@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.3] - 2026-03-24
+
+### Added
+
+- Branch workflow and git author guidelines in CLAUDE.md
+
 ## [0.18.2] - 2026-03-24
 
 ### Fixed
@@ -510,7 +516,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Actions CI with pytest
 - Docker Hub publish workflow on version tags
 
-[Unreleased]: https://gitlab.rslt.fr/opengrc/opengrc/-/compare/v0.18.2...HEAD
+[Unreleased]: https://gitlab.rslt.fr/opengrc/opengrc/-/compare/v0.18.3...HEAD
+[0.18.3]: https://gitlab.rslt.fr/opengrc/opengrc/-/compare/v0.18.2...v0.18.3
 [0.18.2]: https://gitlab.rslt.fr/opengrc/opengrc/-/compare/v0.18.1...v0.18.2
 [0.18.1]: https://gitlab.rslt.fr/opengrc/opengrc/-/compare/v0.18.0...v0.18.1
 [0.18.0]: https://gitlab.rslt.fr/opengrc/opengrc/-/compare/v0.17.0...v0.18.0
