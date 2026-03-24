@@ -16,21 +16,8 @@ from accounts.models import AccessLog, Passkey
 
 logger = logging.getLogger(__name__)
 
-_fido2_initialized = False
-
-
-def _ensure_fido2():
-    """Lazy-initialize fido2 feature flags on first use."""
-    global _fido2_initialized
-    if not _fido2_initialized:
-        import fido2.features
-        fido2.features.webauthn_json_mapping.enabled = True
-        _fido2_initialized = True
-
-
 def _get_server(request):
     """Build a Fido2Server using explicit settings or request-derived values."""
-    _ensure_fido2()
     from fido2.server import Fido2Server
     from fido2.webauthn import PublicKeyCredentialRpEntity
 

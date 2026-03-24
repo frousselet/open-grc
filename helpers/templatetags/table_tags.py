@@ -1,5 +1,5 @@
 from django import template
-from django.utils.html import format_html
+from django.utils.html import format_html, mark_safe
 from django.utils.translation import gettext as _
 
 register = template.Library()
@@ -39,9 +39,9 @@ def sortable_th(context, field_name, label, css_class=""):
         '<th{class_attr}><a href="#" class="sortable-th text-decoration-none text-reset"'
         ' data-sort-field="{field}" data-sort-order="{order}"'
         ' style="white-space:nowrap">{label}{icon}</a></th>',
-        class_attr=format_html(class_attr),
+        class_attr=mark_safe(class_attr),
         field=field_name,
         order=new_order,
         label=label,
-        icon=format_html(icon),
+        icon=mark_safe(icon),
     )
