@@ -92,7 +92,7 @@ python manage.py collectstatic --noinput  # Collect static files
 
 GitLab CI (`.gitlab-ci.yml`):
 - `test` stage - runs `pytest -x -v --cov` on pushes to main and merge requests (Python 3.12)
-- `docker` stage - builds and pushes Docker image to Docker Hub on version tags (`v*`)
+- `docker` stage - builds and pushes Docker image to GitLab Container Registry on version tags (`v*`)
 
 Legacy GitHub Actions are kept in `.github/workflows/` but GitLab is the primary CI.
 

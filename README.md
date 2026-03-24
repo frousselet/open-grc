@@ -291,7 +291,7 @@ docker compose exec web python manage.py createsuperuser
 The application is available at [http://localhost:8000](http://localhost:8000).
 The admin interface is at [http://localhost:8000/admin/](http://localhost:8000/admin/).
 
-### Using the Docker Hub Image
+### Using the Published Image
 
 Run Open GRC directly from the published image without cloning the repository.
 
@@ -300,7 +300,7 @@ Create a `docker-compose.yml` file:
 ```yaml
 services:
   web:
-    image: frousselet/open-grc:latest
+    image: registry.gitlab.rslt.fr/opengrc/opengrc:latest
     ports:
       - "8000:8000"
     environment:

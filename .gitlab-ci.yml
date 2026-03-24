@@ -29,27 +29,28 @@ docker:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-    - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
   script:
     - |
       # Extract version from tag (strip leading 'v')
       VERSION="${CI_COMMIT_TAG#v}"
       MAJOR="$(echo "$VERSION" | cut -d. -f1)"
       MINOR="$(echo "$VERSION" | cut -d. -f1-2)"
+      IMAGE="${CI_REGISTRY_IMAGE}"
 
       echo "$VERSION" > version.txt
 
       docker build \
         --build-arg APP_VERSION="$VERSION" \
-        -t "frousselet/open-grc:${VERSION}" \
-        -t "frousselet/open-grc:${MINOR}" \
-        -t "frousselet/open-grc:${MAJOR}" \
-        -t "frousselet/open-grc:latest" \
+        -t "${IMAGE}:${VERSION}" \
+        -t "${IMAGE}:${MINOR}" \
+        -t "${IMAGE}:${MAJOR}" \
+        -t "${IMAGE}:latest" \
         .
 
-      docker push "frousselet/open-grc:${VERSION}"
-      docker push "frousselet/open-grc:${MINOR}"
-      docker push "frousselet/open-grc:${MAJOR}"
-      docker push "frousselet/open-grc:latest"
+      docker push "${IMAGE}:${VERSION}"
+      docker push "${IMAGE}:${MINOR}"
+      docker push "${IMAGE}:${MAJOR}"
+      docker push "${IMAGE}:latest"
   rules:
     - if: $CI_COMMIT_TAG =~ /^v/
