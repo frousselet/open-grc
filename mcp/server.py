@@ -139,7 +139,7 @@ class McpServer:
                 "tools": {"listChanged": False},
             },
             "serverInfo": {
-                "name": "Open GRC MCP Server",
+                "name": "Fairway MCP Server",
                 "version": "1.0.0",
             },
         }

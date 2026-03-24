@@ -1,4 +1,4 @@
-"""ASGI config for open-grc project.
+"""ASGI config for Fairway project.
 
 Exposes HTTP via Django's standard ASGI handler and WebSocket
 connections via Django Channels.

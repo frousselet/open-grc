@@ -1,5 +1,5 @@
 """
-Django settings for open-grc project.
+Django settings for Fairway project.
 """
 
 import os
@@ -165,6 +165,8 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "media/"
@@ -202,7 +204,7 @@ REST_FRAMEWORK = {
 # WebAuthn / Passkeys
 # When not set, RPID and origin are derived from the request automatically.
 WEBAUTHN_RP_ID = os.environ.get("WEBAUTHN_RP_ID")
-WEBAUTHN_RP_NAME = os.environ.get("WEBAUTHN_RP_NAME", "Open GRC")
+WEBAUTHN_RP_NAME = os.environ.get("WEBAUTHN_RP_NAME", "Fairway")
 WEBAUTHN_ORIGIN = os.environ.get("WEBAUTHN_ORIGIN")
 
 SIMPLE_JWT = {

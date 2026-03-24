@@ -552,7 +552,7 @@ class ICalFeedView(View):
         user = self._authenticate(request)
         if user is None:
             resp = HttpResponse(status=401)
-            resp["WWW-Authenticate"] = 'Basic realm="Open GRC Calendar"'
+            resp["WWW-Authenticate"] = 'Basic realm="Fairway Calendar"'
             return resp
 
         from icalendar import Calendar, Event as ICalEvent
@@ -563,11 +563,11 @@ class ICalFeedView(View):
         events = get_calendar_events(user, start=start_iso, end=end_iso)
 
         cal = Calendar()
-        cal.add("prodid", "-//Open GRC//Calendar//EN")
+        cal.add("prodid", "-//Fairway//Calendar//EN")
         cal.add("version", "2.0")
         cal.add("calscale", "GREGORIAN")
         cal.add("method", "PUBLISH")
-        cal.add("x-wr-calname", "Open GRC")
+        cal.add("x-wr-calname", "Fairway")
 
         CAT_LABELS = {
             "risk_assessment": _("Risk assessments"),
@@ -585,7 +585,7 @@ class ICalFeedView(View):
         for ev in events:
             vevent = ICalEvent()
             uid_base = f"{ev['category']}-{ev['start']}-{ev['title']}"
-            vevent.add("uid", f"{uid_base}@open-grc")
+            vevent.add("uid", f"{uid_base}@fairway")
             vevent.add("summary", ev["title"])
 
             dt_start = date.fromisoformat(ev["start"])
@@ -605,7 +605,7 @@ class ICalFeedView(View):
             cal.add_component(vevent)
 
         resp = HttpResponse(cal.to_ical(), content_type="text/calendar; charset=utf-8")
-        resp["Content-Disposition"] = 'attachment; filename="open-grc.ics"'
+        resp["Content-Disposition"] = 'attachment; filename="fairway.ics"'
         return resp
 
     # Tokens unused for this many days are automatically revoked

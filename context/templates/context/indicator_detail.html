@@ -2,14 +2,14 @@
 {% load i18n scope_tags %}
 {% load help_tags %}
 
-{% block title %}{{ indicator.name }} — Open GRC{% endblock %}
+{% block title %}{{ indicator.name }} — Fairway{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
     <h1 class="mb-0">{{ indicator.name }}</h1>
     <small class="ref">{{ indicator.reference }}</small>
-    {% if indicator.is_internal %}<span class="badge text-bg-info ms-2">{% trans "Predefined Open GRC" %}</span>{% endif %}
+    {% if indicator.is_internal %}<span class="badge text-bg-info ms-2">{% trans "Predefined Fairway" %}</span>{% endif %}
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'context:indicator-update' indicator.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
@@ -147,7 +147,7 @@
       <form method="post" action="{% url 'context:indicator-refresh' indicator.pk %}" class="d-flex align-items-center gap-3">
         {% csrf_token %}
         <span class="inline-form-label"><i class="bi bi-arrow-clockwise me-1"></i>{% trans "Predefined" %}</span>
-        <span style="font-size:.8125rem;color:var(--text-secondary);flex:1">{% trans "Refresh the value from Open GRC data." %}</span>
+        <span style="font-size:.8125rem;color:var(--text-secondary);flex:1">{% trans "Refresh the value from Fairway data." %}</span>
         <button type="submit" class="btn btn-outline-primary btn-sm">{% trans "Refresh" %}</button>
       </form>
     </div>

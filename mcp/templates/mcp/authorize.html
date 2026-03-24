@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% trans "Authorize — Open GRC" %}</title>
+  <title>{% trans "Authorize — Fairway" %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -102,11 +102,14 @@
       width: 2.5rem;
       height: 2.5rem;
       border-radius: var(--radius-sm);
-      background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%);
-      color: #fff;
-      font-size: 1.0625rem;
+      overflow: hidden;
       box-shadow: 0 4px 12px var(--accent-glow);
     }
+    .auth-brand-icon svg { width: 100%; height: 100%; }
+    .logo-dark { display: none; }
+    .logo-light { display: inline; }
+    [data-bs-theme="dark"] .logo-dark { display: inline; }
+    [data-bs-theme="dark"] .logo-light { display: none; }
     .auth-brand-text {
       font-weight: 700;
       font-size: 1.3125rem;
@@ -188,8 +191,11 @@
   <div class="auth-wrapper">
     <div class="auth-card">
       <div class="auth-brand">
-        <span class="auth-brand-icon"><i class="bi bi-shield-check"></i></span>
-        <span class="auth-brand-text">Open GRC</span>
+        <span class="auth-brand-icon">
+          <svg class="logo-light" viewBox="0 0 512 512"><defs><linearGradient id="mcBgL" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6366f1"/><stop offset="50%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient><linearGradient id="mcFL" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#f0edff"/><stop offset="100%" stop-color="#e0dafb"/></linearGradient></defs><rect width="512" height="512" fill="url(#mcBgL)"/><path d="M198 88h164a38 38 0 010 76H236v54h66a38 38 0 010 76h-66v86a38 38 0 01-76 0V126a38 38 0 0138-38z" fill="url(#mcFL)"/><circle cx="400" cy="126" r="24" fill="#f0abfc"/><circle cx="340" cy="256" r="24" fill="#a5b4fc"/></svg>
+          <svg class="logo-dark" viewBox="0 0 512 512"><defs><linearGradient id="mcBgD" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0c1222"/><stop offset="40%" stop-color="#131a3a"/><stop offset="100%" stop-color="#0e0f24"/></linearGradient><linearGradient id="mcFD" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="50%" stop-color="#6366f1"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs><rect width="512" height="512" fill="url(#mcBgD)"/><circle cx="68" cy="52" r="2" fill="#e0e7ff" opacity=".8"/><circle cx="432" cy="38" r="2.2" fill="#c7d2fe" opacity=".9"/><circle cx="462" cy="178" r="1.8" fill="#e0e7ff" opacity=".7"/><circle cx="88" cy="392" r="2" fill="#e0e7ff" opacity=".75"/><circle cx="448" cy="340" r="1.8" fill="#c7d2fe" opacity=".65"/><path d="M198 88h164a38 38 0 010 76H236v54h66a38 38 0 010 76h-66v86a38 38 0 01-76 0V126a38 38 0 0138-38z" fill="url(#mcFD)"/><circle cx="400" cy="126" r="24" fill="#e879f9" opacity=".85"/><circle cx="340" cy="256" r="24" fill="#a5b4fc" opacity=".85"/></svg>
+        </span>
+        <span class="auth-brand-text">Fairway</span>
       </div>
       <p class="auth-subtitle">{% trans "An application is requesting access to your account" %}</p>
 

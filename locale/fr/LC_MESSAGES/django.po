@@ -1030,8 +1030,8 @@ msgid "Per-view sort preferences: {view_key: {sort, order}}."
 msgstr "Préférences de tri par vue : {view_key: {sort, order}}."
 
 #: accounts/templates/accounts/access_log_list.html:5
-msgid "Access log — Open GRC"
-msgstr "Journal d'accès — Open GRC"
+msgid "Access log — Fairway"
+msgstr "Journal d'accès — Fairway"
 
 #: accounts/templates/accounts/access_log_list.html:24
 #| msgid "Email"
@@ -1097,8 +1097,8 @@ msgid "No events."
 msgstr "Aucun événement."
 
 #: accounts/templates/accounts/action_log_list.html:4
-msgid "Action log — Open GRC"
-msgstr "Journal des actions — Open GRC"
+msgid "Action log — Fairway"
+msgstr "Journal des actions — Fairway"
 
 #: accounts/templates/accounts/action_log_list.html:8 templates/base.html:2554
 msgid "Action log"
@@ -1464,8 +1464,8 @@ msgid "Cancel"
 msgstr "Annuler"
 
 #: accounts/templates/accounts/group_list.html:6
-msgid "Groups — Open GRC"
-msgstr "Groupes — Open GRC"
+msgid "Groups — Fairway"
+msgstr "Groupes — Fairway"
 
 #: accounts/templates/accounts/group_list.html:14 accounts/views.py:305
 #: accounts/views.py:315
@@ -1517,8 +1517,8 @@ msgid "No groups."
 msgstr "Aucun groupe."
 
 #: accounts/templates/accounts/login.html:8
-msgid "Sign in — Open GRC"
-msgstr "Se connecter — Open GRC"
+msgid "Sign in — Fairway"
+msgstr "Se connecter — Fairway"
 
 #: accounts/templates/accounts/login.html:200
 msgid "Sign in to your account"
@@ -1559,8 +1559,8 @@ msgid "No passkeys registered."
 msgstr "Aucune clé d'accès enregistrée."
 
 #: accounts/templates/accounts/password_change.html:3
-msgid "Change password — Open GRC"
-msgstr "Changer le mot de passe — Open GRC"
+msgid "Change password — Fairway"
+msgstr "Changer le mot de passe — Fairway"
 
 #: accounts/templates/accounts/password_change.html:8
 #: accounts/templates/accounts/password_change.html:29
@@ -1569,16 +1569,16 @@ msgid "Change password"
 msgstr "Changer le mot de passe"
 
 #: accounts/templates/accounts/permission_list.html:4
-msgid "Permissions — Open GRC"
-msgstr "Permissions — Open GRC"
+msgid "Permissions — Fairway"
+msgstr "Permissions — Fairway"
 
 #: accounts/templates/accounts/permission_list.html:29
 msgid "No permissions defined."
 msgstr "Aucune permission définie."
 
 #: accounts/templates/accounts/profile.html:3
-msgid "My profile — Open GRC"
-msgstr "Mon profil — Open GRC"
+msgid "My profile — Fairway"
+msgstr "Mon profil — Fairway"
 
 #: accounts/templates/accounts/profile.html:7
 msgid "My profile"
@@ -1782,8 +1782,8 @@ msgid "Created on"
 msgstr "Créé le"
 
 #: accounts/templates/accounts/user_list.html:6
-msgid "Users — Open GRC"
-msgstr "Utilisateurs — Open GRC"
+msgid "Users — Fairway"
+msgstr "Utilisateurs — Fairway"
 
 #: accounts/templates/accounts/user_list.html:14 accounts/views.py:207
 #: accounts/views.py:217
@@ -5374,8 +5374,8 @@ msgid "API"
 msgstr "API"
 
 #: context/constants.py:220 context/templates/context/indicator_detail.html:12
-msgid "Predefined Open GRC"
-msgstr "Prédéfini Open GRC"
+msgid "Predefined Fairway"
+msgstr "Prédéfini Fairway"
 
 #: context/constants.py:230
 msgid "Global compliance rate"
@@ -5535,8 +5535,8 @@ msgid "First review date"
 msgstr "Date de première revue"
 
 #: context/models/indicator.py:106
-msgid "Predefined Open GRC indicator"
-msgstr "Indicateur prédéfini Open GRC"
+msgid "Predefined Fairway indicator"
+msgstr "Indicateur prédéfini Fairway"
 
 #: context/models/indicator.py:110
 #: context/templates/context/indicator_detail.html:68
@@ -5585,9 +5585,9 @@ msgid "The minimum threshold must be less than the maximum threshold."
 msgstr "Le seuil minimum doit être inférieur au seuil maximum."
 
 #: context/models/indicator.py:190
-msgid "Predefined Open GRC indicators must be of organizational type."
+msgid "Predefined Fairway indicators must be of organizational type."
 msgstr ""
-"Les indicateurs prédéfinis Open GRC doivent être de type organisationnel."
+"Les indicateurs prédéfinis Fairway doivent être de type organisationnel."
 
 #: context/models/indicator.py:199
 msgid "A predefined indicator must have a data source."
@@ -5890,8 +5890,8 @@ msgid "Predefined"
 msgstr "Prédéfini"
 
 #: context/templates/context/indicator_detail.html:149
-msgid "Refresh the value from Open GRC data."
-msgstr "Rafraîchir la valeur depuis les données Open GRC."
+msgid "Refresh the value from Fairway data."
+msgstr "Rafraîchir la valeur depuis les données Fairway."
 
 #: context/templates/context/indicator_detail.html:150
 msgid "Refresh"
@@ -5977,12 +5977,12 @@ msgid "Edit predefined indicator"
 msgstr "Modifier l'indicateur prédéfini"
 
 #: context/templates/context/indicator_predefined_form.html:8
-msgid "New predefined Open GRC indicator"
-msgstr "Nouvel indicateur prédéfini Open GRC"
+msgid "New predefined Fairway indicator"
+msgstr "Nouvel indicateur prédéfini Fairway"
 
 #: context/templates/context/indicator_predefined_form.html:15
 msgid ""
-"A predefined indicator is automatically populated from Open GRC data. It is "
+"A predefined indicator is automatically populated from Fairway data. It is "
 "always of organizational type. The first measurement will be taken "
 "automatically upon creation."
 msgstr ""
@@ -6010,11 +6010,11 @@ msgstr "Valeurs"
 
 #: context/templates/context/indicator_predefined_form_modal.html:19
 #| msgid ""
-#| "A predefined indicator is automatically populated from Open GRC data. It is "
+#| "A predefined indicator is automatically populated from Fairway data. It is "
 #| "always of organizational type. The first measurement will be taken "
 #| "automatically upon creation."
 msgid ""
-"A predefined indicator is automatically populated from Open GRC data. The "
+"A predefined indicator is automatically populated from Fairway data. The "
 "first measurement will be taken automatically upon creation."
 msgstr ""
 "Un indicateur prédéfini est automatiquement alimenté depuis les données Open"
@@ -6580,8 +6580,8 @@ msgid "OAuth authorization codes"
 msgstr "Codes d'autorisation OAuth"
 
 #: mcp/templates/mcp/authorize.html:8
-msgid "Authorize — Open GRC"
-msgstr "Autoriser — Open GRC"
+msgid "Authorize — Fairway"
+msgstr "Autoriser — Fairway"
 
 #: mcp/templates/mcp/authorize.html:194
 msgid "An application is requesting access to your account"
@@ -8078,9 +8078,9 @@ msgid "No configurable fields for this model."
 msgstr "Aucun champ configurable pour ce modèle."
 
 #: templates/core/versioning_config_list.html:4
-#| msgid "Permissions — Open GRC"
-msgid "Versioning — Open GRC"
-msgstr "Versionnement — Open GRC"
+#| msgid "Permissions — Fairway"
+msgid "Versioning — Fairway"
+msgstr "Versionnement — Fairway"
 
 #: templates/core/versioning_config_list.html:8
 msgid "Versioning & approval"
@@ -8352,11 +8352,11 @@ msgstr "Rechercher…"
 #~ msgstr "Enregistrer un relevé"
 
 #~ msgid ""
-#~ "This is a predefined indicator. You can refresh its value from Open GRC "
+#~ "This is a predefined indicator. You can refresh its value from Fairway "
 #~ "data."
 #~ msgstr ""
 #~ "Cet indicateur est prédéfini. Vous pouvez rafraîchir sa valeur depuis les "
-#~ "données Open GRC."
+#~ "données Fairway."
 
 #~ msgid "Last:"
 #~ msgstr "Dernier :"
@@ -8382,11 +8382,11 @@ msgstr "Rechercher…"
 #~ msgid "Edit internal indicator"
 #~ msgstr "Modifier l'indicateur interne"
 
-#~ msgid "New internal Open GRC indicator"
-#~ msgstr "Nouvel indicateur interne Open GRC"
+#~ msgid "New internal Fairway indicator"
+#~ msgstr "Nouvel indicateur interne Fairway"
 
 #~ msgid ""
-#~ "An internal indicator is automatically populated from Open GRC data. It is "
+#~ "An internal indicator is automatically populated from Fairway data. It is "
 #~ "always of organizational type. The first measurement will be taken "
 #~ "automatically upon creation."
 #~ msgstr ""
@@ -8397,11 +8397,11 @@ msgstr "Rechercher…"
 #~ msgid "Internal data source"
 #~ msgstr "Source de données interne"
 
-#~ msgid "Internal Open GRC"
-#~ msgstr "Interne Open GRC"
+#~ msgid "Internal Fairway"
+#~ msgstr "Interne Fairway"
 
-#~ msgid "Internal Open GRC indicator"
-#~ msgstr "Indicateur interne Open GRC"
+#~ msgid "Internal Fairway indicator"
+#~ msgstr "Indicateur interne Fairway"
 
 #~ msgid "The framework 'reference' field is required."
 #~ msgstr "Le champ 'référence' du référentiel est requis."
@@ -9000,8 +9000,8 @@ msgstr "Paramètres de l'entreprise"
 msgid "Company name"
 msgstr "Nom de l'entreprise"
 
-msgid "Company settings — Open GRC"
-msgstr "Paramètres de l'entreprise — Open GRC"
+msgid "Company settings — Fairway"
+msgstr "Paramètres de l'entreprise — Fairway"
 
 msgid "Company information"
 msgstr "Informations de l'entreprise"

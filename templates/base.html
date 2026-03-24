@@ -7,7 +7,8 @@
   <meta charset="utf-8">
   <script>try{if(localStorage.getItem('sidebar-collapsed')==='1')document.documentElement.classList.add('sidebar-collapsed')}catch(e){}</script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Open GRC{% endblock %}</title>
+  <title>{% block title %}Fairway{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Cpath d='M12.5 5.5L22 5.5A2.5 2.5 0 0124.5 8 2.5 2.5 0 0122 10.5L15 10.5 15 13.5 19.5 13.5A2.5 2.5 0 0122 16 2.5 2.5 0 0119.5 18.5L15 18.5 15 24A2.5 2.5 0 0112.5 26.5 2.5 2.5 0 0110 24L10 8A2.5 2.5 0 0112.5 5.5Z' fill='%23fff' opacity='.95'/%3E%3Ccircle cx='25' cy='8' r='1.8' fill='%23f0abfc' opacity='.85'/%3E%3Ccircle cx='22' cy='16' r='1.8' fill='%23a5b4fc' opacity='.85'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -106,6 +107,12 @@
     [data-bs-theme="dark"] .sidebar-collapse-btn i:first-child { color: #94a3b8; }
     [data-bs-theme="dark"] .sidebar-link.sidebar-sub { color: #94a3b8; }
 
+    /* ── Logo light/dark toggle ───────────────────────── */
+    .logo-dark { display: none; }
+    .logo-light { display: inline; }
+    [data-bs-theme="dark"] .logo-dark { display: inline; }
+    [data-bs-theme="dark"] .logo-light { display: none; }
+
     /* ── Global ────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; }
     html { font-size: 16px; scroll-behavior: smooth; }
@@ -179,10 +186,12 @@
       width: 2rem;
       height: 2rem;
       border-radius: var(--radius-sm);
-      background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%);
-      color: #fff;
-      font-size: .85rem;
+      overflow: hidden;
       box-shadow: 0 2px 8px var(--accent-glow);
+    }
+    .sidebar-brand-icon svg {
+      width: 100%;
+      height: 100%;
     }
 
     .sidebar-body {
@@ -1931,7 +1940,8 @@
 
     /* ── About modal ───────────────────────────────────── */
     .about-modal-content { text-align: center; }
-    .about-modal-content .about-logo { font-size: 2.5rem; color: var(--accent); margin-bottom: .75rem; }
+    .about-modal-content .about-logo { margin-bottom: .75rem; }
+    .about-modal-content .about-logo svg { width: 4rem; height: 4rem; border-radius: var(--radius-sm); }
     .about-modal-content .about-version { font-size: .8125rem; color: var(--text-muted); margin-top: .25rem; }
     .about-modal-content .about-license { font-size: .75rem; color: var(--text-muted); margin-top: 1rem; padding-top: .75rem; border-top: 1px solid var(--border-light); }
 
@@ -2388,8 +2398,11 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <a href="/">
-        <span class="sidebar-brand-icon"><i class="bi bi-shield-check"></i></span>
-        <span class="sidebar-link-text">Open GRC {% if APP_VERSION == "dev" %}<small style="font-size:.7em;opacity:.45">dev</small>{% endif %}</span>
+        <span class="sidebar-brand-icon">
+          <svg class="logo-light" viewBox="0 0 512 512"><defs><linearGradient id="sbBgL" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6366f1"/><stop offset="50%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient><linearGradient id="sbFL" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#f0edff"/><stop offset="100%" stop-color="#e0dafb"/></linearGradient></defs><rect width="512" height="512" fill="url(#sbBgL)"/><path d="M198 88h164a38 38 0 010 76H236v54h66a38 38 0 010 76h-66v86a38 38 0 01-76 0V126a38 38 0 0138-38z" fill="url(#sbFL)"/><circle cx="400" cy="126" r="24" fill="#f0abfc"/><circle cx="340" cy="256" r="24" fill="#a5b4fc"/></svg>
+          <svg class="logo-dark" viewBox="0 0 512 512"><defs><linearGradient id="sbBgD" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0c1222"/><stop offset="40%" stop-color="#131a3a"/><stop offset="100%" stop-color="#0e0f24"/></linearGradient><linearGradient id="sbFD" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="50%" stop-color="#6366f1"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs><rect width="512" height="512" fill="url(#sbBgD)"/><circle cx="68" cy="52" r="2" fill="#e0e7ff" opacity=".8"/><circle cx="432" cy="38" r="2.2" fill="#c7d2fe" opacity=".9"/><circle cx="462" cy="178" r="1.8" fill="#e0e7ff" opacity=".7"/><circle cx="88" cy="392" r="2" fill="#e0e7ff" opacity=".75"/><circle cx="448" cy="340" r="1.8" fill="#c7d2fe" opacity=".65"/><path d="M198 88h164a38 38 0 010 76H236v54h66a38 38 0 010 76h-66v86a38 38 0 01-76 0V126a38 38 0 0138-38z" fill="url(#sbFD)"/><circle cx="400" cy="126" r="24" fill="#e879f9" opacity=".85"/><circle cx="340" cy="256" r="24" fill="#a5b4fc" opacity=".85"/></svg>
+        </span>
+        <span class="sidebar-link-text">Fairway {% if APP_VERSION == "dev" %}<small style="font-size:.7em;opacity:.45">dev</small>{% endif %}</span>
       </a>
     </div>
 
@@ -2660,8 +2673,11 @@
     <div class="modal-dialog modal-sm modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-body about-modal-content py-4 px-3">
-          <div class="about-logo"><i class="bi bi-shield-check"></i></div>
-          <h5 id="aboutModalLabel" class="mb-1">Open GRC</h5>
+          <div class="about-logo">
+            <svg class="logo-light" viewBox="0 0 512 512"><defs><linearGradient id="abBgL" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6366f1"/><stop offset="50%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient><linearGradient id="abFL" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#f0edff"/><stop offset="100%" stop-color="#e0dafb"/></linearGradient></defs><rect width="512" height="512" fill="url(#abBgL)"/><path d="M198 88h164a38 38 0 010 76H236v54h66a38 38 0 010 76h-66v86a38 38 0 01-76 0V126a38 38 0 0138-38z" fill="url(#abFL)"/><circle cx="400" cy="126" r="24" fill="#f0abfc"/><circle cx="340" cy="256" r="24" fill="#a5b4fc"/><path d="M100 452Q175 434 256 452 337 470 412 452" fill="none" stroke="#e0e7ff" stroke-width="2.5" opacity=".2" stroke-linecap="round"/></svg>
+            <svg class="logo-dark" viewBox="0 0 512 512"><defs><linearGradient id="abBgD" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0c1222"/><stop offset="40%" stop-color="#131a3a"/><stop offset="100%" stop-color="#0e0f24"/></linearGradient><linearGradient id="abFD" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="50%" stop-color="#6366f1"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs><rect width="512" height="512" fill="url(#abBgD)"/><circle cx="68" cy="52" r="2" fill="#e0e7ff" opacity=".8"/><circle cx="432" cy="38" r="2.2" fill="#c7d2fe" opacity=".9"/><circle cx="462" cy="178" r="1.8" fill="#e0e7ff" opacity=".7"/><circle cx="52" cy="210" r="1.6" fill="#ddd6fe" opacity=".6"/><circle cx="88" cy="392" r="2" fill="#e0e7ff" opacity=".75"/><circle cx="448" cy="340" r="1.8" fill="#c7d2fe" opacity=".65"/><circle cx="108" cy="118" r="1.5" fill="#e0e7ff" opacity=".5"/><circle cx="420" cy="432" r="1.6" fill="#ddd6fe" opacity=".55"/><circle cx="38" cy="140" r="1.2" fill="#c7d2fe" opacity=".5"/><circle cx="475" cy="92" r="1.3" fill="#e0e7ff" opacity=".55"/><path d="M198 88h164a38 38 0 010 76H236v54h66a38 38 0 010 76h-66v86a38 38 0 01-76 0V126a38 38 0 0138-38z" fill="url(#abFD)"/><circle cx="400" cy="126" r="24" fill="#e879f9" opacity=".85"/><circle cx="340" cy="256" r="24" fill="#a5b4fc" opacity=".85"/><path d="M100 452Q175 434 256 452 337 470 412 452" fill="none" stroke="#818cf8" stroke-width="2" opacity=".12" stroke-linecap="round"/></svg>
+          </div>
+          <h5 id="aboutModalLabel" class="mb-1">Fairway</h5>
           <div class="about-version">
             {% if APP_VERSION %}{% trans "Version" %} {{ APP_VERSION }}{% else %}{% trans "Version" %} dev{% endif %}
           </div>

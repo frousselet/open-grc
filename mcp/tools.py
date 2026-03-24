@@ -1,5 +1,5 @@
 """
-MCP tool definitions covering all Open GRC API functionality.
+MCP tool definitions covering all Fairway API functionality.
 
 Each tool maps to one or more API endpoints and performs operations
 using the Django ORM directly, respecting the user's permissions.

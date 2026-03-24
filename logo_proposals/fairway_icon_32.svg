@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!--
+    Fairway - Favicon / sidebar icon (32x32)
+    Simplified unified F, no overlap artifacts.
+  -->
+  <defs>
+    <linearGradient id="bgI" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+  </defs>
+
+  <rect width="32" height="32" rx="7" fill="url(#bgI)" />
+
+  <!-- Unified F path -->
+  <path d="
+    M 12.5,5.5 L 22,5.5 A 2.5,2.5 0 0 1 24.5,8 A 2.5,2.5 0 0 1 22,10.5
+    L 15,10.5 L 15,13.5
+    L 19.5,13.5 A 2.5,2.5 0 0 1 22,16 A 2.5,2.5 0 0 1 19.5,18.5
+    L 15,18.5 L 15,24
+    A 2.5,2.5 0 0 1 12.5,26.5 A 2.5,2.5 0 0 1 10,24
+    L 10,8 A 2.5,2.5 0 0 1 12.5,5.5 Z
+  " fill="#ffffff" opacity="0.95" />
+
+  <!-- Buoy dots -->
+  <circle cx="25" cy="8" r="1.8" fill="#f0abfc" opacity="0.85" />
+  <circle cx="22" cy="16" r="1.8" fill="#a5b4fc" opacity="0.85" />
+</svg>

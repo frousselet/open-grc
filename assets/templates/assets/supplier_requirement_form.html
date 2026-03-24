@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "Add" %}{% endif %} {% trans "requirement" %} — {{ supplier.name }} — Open GRC{% endblock %}
+{% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "Add" %}{% endif %} {% trans "requirement" %} — {{ supplier.name }} — Fairway{% endblock %}
 
 {% block content %}
 <h1>{% if form.instance.pk %}{% trans "Edit requirement" %}{% else %}{% trans "Add requirement" %}{% endif %}</h1>

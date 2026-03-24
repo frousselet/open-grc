@@ -386,7 +386,7 @@ class IndicatorForm(ScopedFormMixin, forms.ModelForm):
 
 
 class PredefinedIndicatorForm(ScopedFormMixin, forms.ModelForm):
-    """Form for creating predefined Open GRC indicators."""
+    """Form for creating predefined Fairway indicators."""
 
     class Meta:
         model = Indicator

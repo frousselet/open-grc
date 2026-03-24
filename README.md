@@ -1,4 +1,4 @@
-# Open GRC
+# Fairway
 
 Open-source **Governance, Risk and Compliance** (GRC) platform built with Django.
 Manage your organisation's security posture, track compliance with regulatory frameworks, and run structured risk assessments - all from a single, self-hosted application.
@@ -108,7 +108,7 @@ Manage your organisation's security posture, track compliance with regulatory fr
 
 ## MCP Server (Model Context Protocol)
 
-Open GRC ships with a built-in JSON-RPC 2.0 MCP server exposing 53 tools across all modules. Authentication uses OAuth 2.0. All tools enforce RBAC permissions and scope-based tenancy.
+Fairway ships with a built-in JSON-RPC 2.0 MCP server exposing 53 tools across all modules. Authentication uses OAuth 2.0. All tools enforce RBAC permissions and scope-based tenancy.
 
 ### CRUD pattern
 
@@ -293,14 +293,14 @@ The admin interface is at [http://localhost:8000/admin/](http://localhost:8000/a
 
 ### Using the Published Image
 
-Run Open GRC directly from the published image without cloning the repository.
+Run Fairway directly from the published image without cloning the repository.
 
 Create a `docker-compose.yml` file:
 
 ```yaml
 services:
   web:
-    image: registry.gitlab.rslt.fr/opengrc/opengrc:latest
+    image: registry.gitlab.rslt.fr/fairway/fairway:latest
     ports:
       - "8000:8000"
     environment:

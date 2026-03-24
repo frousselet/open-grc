@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!--
+    Fairway - Light version (v2, artifact-free)
+    Single unified F path to avoid overlap artifacts.
+  -->
+  <defs>
+    <linearGradient id="bgL" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="50%" stop-color="#7c3aed" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+
+    <!-- Single glass gradient for F -->
+    <linearGradient id="fFillL" x1="0%" y1="0%" x2="60%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="50%" stop-color="#f0edff" />
+      <stop offset="100%" stop-color="#e0dafb" />
+    </linearGradient>
+
+    <!-- Shine overlay -->
+    <linearGradient id="shineL" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55" />
+      <stop offset="35%" stop-color="#ffffff" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Shadow for F -->
+    <filter id="fShadowL" x="-6%" y="-4%" width="112%" height="112%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#3730a3" flood-opacity="0.35" />
+    </filter>
+
+    <!-- Buoy outer glow -->
+    <filter id="buoyGlowL" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="5" result="b" />
+      <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+
+    <!--
+      Unified F as a single compound path.
+      Three capsule shapes merged:
+        Vertical bar:   x=160..236, y=88..418, rx=38
+        Top bar:        x=198..400, y=88..164, rx=38
+        Middle bar:     x=198..340, y=218..294, rx=38
+      Drawn as union to avoid overlaps.
+    -->
+    <clipPath id="fClipL">
+      <path d="
+        M 198,88 L 362,88 A 38,38 0 0 1 400,126 A 38,38 0 0 1 362,164
+        L 236,164 L 236,218
+        L 302,218 A 38,38 0 0 1 340,256 A 38,38 0 0 1 302,294
+        L 236,294 L 236,380
+        A 38,38 0 0 1 198,418 A 38,38 0 0 1 160,380
+        L 160,126 A 38,38 0 0 1 198,88 Z
+      " />
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#bgL)" />
+
+  <!-- F shape - base fill (single path, fully opaque, no overlap) -->
+  <path d="
+    M 198,88 L 362,88 A 38,38 0 0 1 400,126 A 38,38 0 0 1 362,164
+    L 236,164 L 236,218
+    L 302,218 A 38,38 0 0 1 340,256 A 38,38 0 0 1 302,294
+    L 236,294 L 236,380
+    A 38,38 0 0 1 198,418 A 38,38 0 0 1 160,380
+    L 160,126 A 38,38 0 0 1 198,88 Z
+  " fill="url(#fFillL)" filter="url(#fShadowL)" />
+
+  <!-- Shine overlay clipped to F -->
+  <g clip-path="url(#fClipL)">
+    <ellipse cx="190" cy="120" rx="140" ry="200" fill="url(#shineL)" />
+  </g>
+
+  <!-- Port buoy (top right) -->
+  <circle cx="400" cy="126" r="24" fill="#f0abfc" filter="url(#buoyGlowL)" />
+  <circle cx="400" cy="126" r="10" fill="#ffffff" opacity="0.55" />
+  <circle cx="400" cy="126" r="4.5" fill="#ffffff" opacity="0.3" />
+
+  <!-- Starboard buoy (middle right) -->
+  <circle cx="340" cy="256" r="24" fill="#a5b4fc" filter="url(#buoyGlowL)" />
+  <circle cx="340" cy="256" r="10" fill="#ffffff" opacity="0.55" />
+  <circle cx="340" cy="256" r="4.5" fill="#ffffff" opacity="0.3" />
+
+  <!-- Waves -->
+  <path d="M 100 452 Q 175 434 256 452 Q 337 470 412 452"
+        fill="none" stroke="#e0e7ff" stroke-width="2.5" opacity="0.2" stroke-linecap="round" />
+  <path d="M 120 472 Q 195 454 256 472 Q 317 490 392 472"
+        fill="none" stroke="#e0e7ff" stroke-width="2" opacity="0.12" stroke-linecap="round" />
+</svg>

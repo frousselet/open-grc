@@ -1,4 +1,4 @@
-"""WSGI config for open-grc project."""
+"""WSGI config for Fairway project."""
 
 import os
 

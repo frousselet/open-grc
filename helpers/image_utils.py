@@ -50,7 +50,7 @@ def download_image_to_data_uri(url):
 
     Raises ``ValueError`` on download or image-processing errors.
     """
-    req = urllib.request.Request(url, headers={"User-Agent": "OpenGRC/1.0"})
+    req = urllib.request.Request(url, headers={"User-Agent": "Fairway/1.0"})
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
             content_length = resp.headers.get("Content-Length")
