@@ -47,7 +47,7 @@ translations:
     - apt-get update && apt-get install -y --no-install-recommends gettext
     - pip install --quiet "Django>=5.2,<5.3"
   script:
-    - python manage.py compilemessages
+    - django-admin compilemessages --locale=fr --locale=en
 
 # ---------------------------------------------------------------------------
 # Test - Unit : pytest with coverage
