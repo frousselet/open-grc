@@ -74,7 +74,8 @@ class RiskAssessmentViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIM
         return RiskAssessmentSerializer
 
 
-class RiskViewSet(ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+class RiskViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+    scope_parent_lookup = "assessment__scopes"
     queryset = Risk.objects.select_related("assessment", "risk_owner").all()
     filterset_class = RiskFilter
     permission_classes = [ContextPermission]
@@ -88,7 +89,8 @@ class RiskViewSet(ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.
         return RiskSerializer
 
 
-class RiskTreatmentPlanViewSet(ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+class RiskTreatmentPlanViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+    scope_parent_lookup = "risk__assessment__scopes"
     queryset = RiskTreatmentPlan.objects.select_related("risk", "owner").prefetch_related("actions").all()
     filterset_class = RiskTreatmentPlanFilter
     permission_classes = [ContextPermission]
@@ -102,7 +104,8 @@ class RiskTreatmentPlanViewSet(ApprovableAPIMixin, HistoryAPIMixin, CreatedByMix
         return RiskTreatmentPlanSerializer
 
 
-class RiskAcceptanceViewSet(HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+class RiskAcceptanceViewSet(ScopeFilterAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+    scope_parent_lookup = "risk__assessment__scopes"
     queryset = RiskAcceptance.objects.select_related("risk", "accepted_by").all()
     filterset_class = RiskAcceptanceFilter
     permission_classes = [ContextPermission]
@@ -142,7 +145,8 @@ class VulnerabilityViewSet(ScopeFilterAPIMixin, HistoryAPIMixin, CreatedByMixin,
         return VulnerabilitySerializer
 
 
-class ISO27005RiskViewSet(HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+class ISO27005RiskViewSet(ScopeFilterAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+    scope_parent_lookup = "assessment__scopes"
     queryset = ISO27005Risk.objects.select_related("assessment", "threat", "vulnerability").all()
     filterset_class = ISO27005RiskFilter
     permission_classes = [ContextPermission]

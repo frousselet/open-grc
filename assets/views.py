@@ -16,6 +16,7 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
+from accounts.views import PermissionRequiredMixin
 from core.mixins import HtmxFormMixin, SortableListMixin
 from context.models import Scope, Site
 from .forms import (
@@ -94,10 +95,11 @@ class ApproveView(LoginRequiredMixin, View):
 
 # ── Essential Asset ─────────────────────────────────────────
 
-class EssentialAssetListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class EssentialAssetListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = EssentialAsset
     template_name = "assets/essential_asset_list.html"
     context_object_name = "assets"
+    permission_required = "assets.essential_asset.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -121,10 +123,11 @@ class EssentialAssetListView(LoginRequiredMixin, ScopeFilterMixin, SortableListM
         return qs
 
 
-class EssentialAssetDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class EssentialAssetDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = EssentialAsset
     template_name = "assets/essential_asset_detail.html"
     context_object_name = "asset"
+    permission_required = "assets.essential_asset.read"
     approval_feature = "essential_asset"
     approve_url_name = "assets:essential-asset-approve"
 
@@ -137,10 +140,11 @@ class EssentialAssetDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalCon
         return ctx
 
 
-class EssentialAssetCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class EssentialAssetCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = EssentialAsset
     form_class = EssentialAssetForm
     template_name = "assets/essential_asset_form.html"
+    permission_required = "assets.essential_asset.create"
     modal_template_name = "assets/essential_asset_form_modal.html"
     success_url = reverse_lazy("assets:essential-asset-list")
 
@@ -150,10 +154,11 @@ class EssentialAssetCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin
         return kwargs
 
 
-class EssentialAssetUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class EssentialAssetUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = EssentialAsset
     form_class = EssentialAssetForm
     template_name = "assets/essential_asset_form.html"
+    permission_required = "assets.essential_asset.update"
     modal_template_name = "assets/essential_asset_form_modal.html"
     success_url = reverse_lazy("assets:essential-asset-list")
 
@@ -163,18 +168,20 @@ class EssentialAssetUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpda
         return kwargs
 
 
-class EssentialAssetDeleteView(LoginRequiredMixin, DeleteView):
+class EssentialAssetDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = EssentialAsset
     template_name = "assets/confirm_delete.html"
+    permission_required = "assets.essential_asset.delete"
     success_url = reverse_lazy("assets:essential-asset-list")
 
 
 # ── Support Asset ───────────────────────────────────────────
 
-class SupportAssetListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class SupportAssetListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = SupportAsset
     template_name = "assets/support_asset_list.html"
     context_object_name = "assets"
+    permission_required = "assets.support_asset.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -199,10 +206,11 @@ class SupportAssetListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMix
         return qs
 
 
-class SupportAssetDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class SupportAssetDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = SupportAsset
     template_name = "assets/support_asset_detail.html"
     context_object_name = "asset"
+    permission_required = "assets.support_asset.read"
     approval_feature = "support_asset"
     approve_url_name = "assets:support-asset-approve"
 
@@ -215,10 +223,11 @@ class SupportAssetDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalConte
         return ctx
 
 
-class SupportAssetCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class SupportAssetCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = SupportAsset
     form_class = SupportAssetForm
     template_name = "assets/support_asset_form.html"
+    permission_required = "assets.support_asset.create"
     modal_template_name = "assets/support_asset_form_modal.html"
     success_url = reverse_lazy("assets:support-asset-list")
 
@@ -228,10 +237,11 @@ class SupportAssetCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, 
         return kwargs
 
 
-class SupportAssetUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class SupportAssetUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = SupportAsset
     form_class = SupportAssetForm
     template_name = "assets/support_asset_form.html"
+    permission_required = "assets.support_asset.update"
     modal_template_name = "assets/support_asset_form_modal.html"
     success_url = reverse_lazy("assets:support-asset-list")
 
@@ -241,18 +251,20 @@ class SupportAssetUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdate
         return kwargs
 
 
-class SupportAssetDeleteView(LoginRequiredMixin, DeleteView):
+class SupportAssetDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = SupportAsset
     template_name = "assets/confirm_delete.html"
+    permission_required = "assets.support_asset.delete"
     success_url = reverse_lazy("assets:support-asset-list")
 
 
 # ── Dependency ──────────────────────────────────────────────
 
-class DependencyListView(LoginRequiredMixin, SortableListMixin, ListView):
+class DependencyListView(LoginRequiredMixin, PermissionRequiredMixin, SortableListMixin, ListView):
     model = AssetDependency
     template_name = "assets/dependency_list.html"
     context_object_name = "dependencies"
+    permission_required = "assets.dependency.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -270,32 +282,36 @@ class DependencyListView(LoginRequiredMixin, SortableListMixin, ListView):
         )
 
 
-class DependencyCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class DependencyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreatedByMixin, CreateView):
     model = AssetDependency
     form_class = AssetDependencyForm
     template_name = "assets/dependency_form.html"
+    permission_required = "assets.dependency.create"
     success_url = reverse_lazy("assets:dependency-list")
 
 
-class DependencyUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
+class DependencyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, ApprovableUpdateMixin, UpdateView):
     model = AssetDependency
     form_class = AssetDependencyForm
     template_name = "assets/dependency_form.html"
+    permission_required = "assets.dependency.update"
     success_url = reverse_lazy("assets:dependency-list")
 
 
-class DependencyDeleteView(LoginRequiredMixin, DeleteView):
+class DependencyDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = AssetDependency
     template_name = "assets/confirm_delete.html"
+    permission_required = "assets.dependency.delete"
     success_url = reverse_lazy("assets:dependency-list")
 
 
 # ── Group ───────────────────────────────────────────────────
 
-class GroupListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class GroupListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = AssetGroup
     template_name = "assets/group_list.html"
     context_object_name = "groups"
+    permission_required = "assets.group.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -312,10 +328,11 @@ class GroupListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, Lis
         )
 
 
-class GroupDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class GroupDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = AssetGroup
     template_name = "assets/group_detail.html"
     context_object_name = "group"
+    permission_required = "assets.group.read"
     approval_feature = "group"
     approve_url_name = "assets:group-approve"
 
@@ -323,10 +340,11 @@ class GroupDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin
         return super().get_queryset().prefetch_related("members")
 
 
-class GroupCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class GroupCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = AssetGroup
     form_class = AssetGroupForm
     template_name = "assets/group_form.html"
+    permission_required = "assets.group.create"
     modal_template_name = "assets/group_form_modal.html"
     success_url = reverse_lazy("assets:group-list")
 
@@ -336,10 +354,11 @@ class GroupCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateV
         return kwargs
 
 
-class GroupUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class GroupUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = AssetGroup
     form_class = AssetGroupForm
     template_name = "assets/group_form.html"
+    permission_required = "assets.group.update"
     modal_template_name = "assets/group_form_modal.html"
     success_url = reverse_lazy("assets:group-list")
 
@@ -349,18 +368,20 @@ class GroupUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, 
         return kwargs
 
 
-class GroupDeleteView(LoginRequiredMixin, DeleteView):
+class GroupDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = AssetGroup
     template_name = "assets/confirm_delete.html"
+    permission_required = "assets.group.delete"
     success_url = reverse_lazy("assets:group-list")
 
 
 # ── Supplier ──────────────────────────────────────────────
 
-class SupplierListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class SupplierListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Supplier
     template_name = "assets/supplier_list.html"
     context_object_name = "suppliers"
+    permission_required = "assets.supplier.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -383,10 +404,11 @@ class SupplierListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, 
         return qs
 
 
-class SupplierDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class SupplierDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = Supplier
     template_name = "assets/supplier_detail.html"
     context_object_name = "supplier"
+    permission_required = "assets.supplier.read"
     approval_feature = "supplier"
     approve_url_name = "assets:supplier-approve"
 
@@ -403,10 +425,11 @@ class SupplierDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMi
         return ctx
 
 
-class SupplierCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class SupplierCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Supplier
     form_class = SupplierForm
     template_name = "assets/supplier_form.html"
+    permission_required = "assets.supplier.create"
     modal_template_name = "assets/supplier_form_modal.html"
     success_url = reverse_lazy("assets:supplier-list")
 
@@ -416,10 +439,11 @@ class SupplierCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, Crea
         return kwargs
 
 
-class SupplierUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class SupplierUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Supplier
     form_class = SupplierForm
     template_name = "assets/supplier_form.html"
+    permission_required = "assets.supplier.update"
     modal_template_name = "assets/supplier_form_modal.html"
     success_url = reverse_lazy("assets:supplier-list")
 
@@ -429,14 +453,17 @@ class SupplierUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixi
         return kwargs
 
 
-class SupplierDeleteView(LoginRequiredMixin, DeleteView):
+class SupplierDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Supplier
     template_name = "assets/confirm_delete.html"
+    permission_required = "assets.supplier.delete"
     success_url = reverse_lazy("assets:supplier-list")
 
 
-class SupplierArchiveView(LoginRequiredMixin, View):
+class SupplierArchiveView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Archive a supplier (set status to 'archived')."""
+
+    permission_required = "assets.supplier.update"
 
     def post(self, request, pk):
         supplier = get_object_or_404(Supplier, pk=pk)
@@ -449,19 +476,21 @@ class SupplierArchiveView(LoginRequiredMixin, View):
 # ── Supplier Types ────────────────────────────────────────
 
 
-class SupplierTypeListView(LoginRequiredMixin, SortableListMixin, ListView):
+class SupplierTypeListView(LoginRequiredMixin, PermissionRequiredMixin, SortableListMixin, ListView):
     model = SupplierType
     template_name = "assets/supplier_type_list.html"
     context_object_name = "supplier_types"
+    permission_required = "assets.supplier.read"
     sortable_fields = {"name": "name"}
     default_sort = "name"
     search_fields = ["name"]
 
 
-class SupplierTypeDetailView(LoginRequiredMixin, DetailView):
+class SupplierTypeDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = SupplierType
     template_name = "assets/supplier_type_detail.html"
     context_object_name = "supplier_type"
+    permission_required = "assets.supplier.read"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -496,32 +525,36 @@ class SupplierTypeFormsetMixin:
         return self.render_to_response(ctx)
 
 
-class SupplierTypeCreateView(LoginRequiredMixin, SupplierTypeFormsetMixin, CreateView):
+class SupplierTypeCreateView(LoginRequiredMixin, PermissionRequiredMixin, SupplierTypeFormsetMixin, CreateView):
     model = SupplierType
     form_class = SupplierTypeForm
     template_name = "assets/supplier_type_form.html"
+    permission_required = "assets.supplier.create"
     success_url = reverse_lazy("assets:supplier-type-list")
 
 
-class SupplierTypeUpdateView(LoginRequiredMixin, SupplierTypeFormsetMixin, UpdateView):
+class SupplierTypeUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SupplierTypeFormsetMixin, UpdateView):
     model = SupplierType
     form_class = SupplierTypeForm
     template_name = "assets/supplier_type_form.html"
+    permission_required = "assets.supplier.update"
     success_url = reverse_lazy("assets:supplier-type-list")
 
 
-class SupplierTypeDeleteView(LoginRequiredMixin, DeleteView):
+class SupplierTypeDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = SupplierType
     template_name = "assets/confirm_delete.html"
+    permission_required = "assets.supplier.delete"
     success_url = reverse_lazy("assets:supplier-type-list")
 
 
 # ── Supplier Type Requirements ───────────────────────────
 
-class SupplierTypeRequirementCreateView(LoginRequiredMixin, CreateView):
+class SupplierTypeRequirementCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = SupplierTypeRequirement
     form_class = SupplierTypeRequirementForm
     template_name = "assets/supplier_type_requirement_form.html"
+    permission_required = "assets.supplier.create"
 
     def dispatch(self, request, *args, **kwargs):
         self.supplier_type = get_object_or_404(SupplierType, pk=kwargs["type_pk"])
@@ -540,10 +573,11 @@ class SupplierTypeRequirementCreateView(LoginRequiredMixin, CreateView):
         return reverse_lazy("assets:supplier-type-detail", kwargs={"pk": self.supplier_type.pk})
 
 
-class SupplierTypeRequirementUpdateView(LoginRequiredMixin, UpdateView):
+class SupplierTypeRequirementUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = SupplierTypeRequirement
     form_class = SupplierTypeRequirementForm
     template_name = "assets/supplier_type_requirement_form.html"
+    permission_required = "assets.supplier.update"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -554,9 +588,10 @@ class SupplierTypeRequirementUpdateView(LoginRequiredMixin, UpdateView):
         return reverse_lazy("assets:supplier-type-detail", kwargs={"pk": self.object.supplier_type.pk})
 
 
-class SupplierTypeRequirementDeleteView(LoginRequiredMixin, DeleteView):
+class SupplierTypeRequirementDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = SupplierTypeRequirement
     template_name = "assets/confirm_delete.html"
+    permission_required = "assets.supplier.delete"
 
     def get_success_url(self):
         return reverse_lazy("assets:supplier-type-detail", kwargs={"pk": self.object.supplier_type.pk})
@@ -564,10 +599,11 @@ class SupplierTypeRequirementDeleteView(LoginRequiredMixin, DeleteView):
 
 # ── Supplier Requirements ─────────────────────────────────
 
-class SupplierRequirementCreateView(LoginRequiredMixin, CreateView):
+class SupplierRequirementCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = SupplierRequirement
     form_class = SupplierRequirementForm
     template_name = "assets/supplier_requirement_form.html"
+    permission_required = "assets.supplier.create"
 
     def dispatch(self, request, *args, **kwargs):
         self.supplier = get_object_or_404(Supplier, pk=kwargs["supplier_pk"])
@@ -586,10 +622,11 @@ class SupplierRequirementCreateView(LoginRequiredMixin, CreateView):
         return reverse_lazy("assets:supplier-detail", kwargs={"pk": self.supplier.pk})
 
 
-class SupplierRequirementUpdateView(LoginRequiredMixin, UpdateView):
+class SupplierRequirementUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = SupplierRequirement
     form_class = SupplierRequirementForm
     template_name = "assets/supplier_requirement_form.html"
+    permission_required = "assets.supplier.update"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -600,18 +637,20 @@ class SupplierRequirementUpdateView(LoginRequiredMixin, UpdateView):
         return reverse_lazy("assets:supplier-detail", kwargs={"pk": self.object.supplier.pk})
 
 
-class SupplierRequirementDeleteView(LoginRequiredMixin, DeleteView):
+class SupplierRequirementDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = SupplierRequirement
     template_name = "assets/confirm_delete.html"
+    permission_required = "assets.supplier.delete"
 
     def get_success_url(self):
         return reverse_lazy("assets:supplier-detail", kwargs={"pk": self.object.supplier.pk})
 
 
-class SupplierRequirementDetailView(LoginRequiredMixin, DetailView):
+class SupplierRequirementDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = SupplierRequirement
     template_name = "assets/supplier_requirement_detail.html"
     context_object_name = "req"
+    permission_required = "assets.supplier.read"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -622,10 +661,11 @@ class SupplierRequirementDetailView(LoginRequiredMixin, DetailView):
 
 # ── Supplier Requirement Reviews ──────────────────────────
 
-class SupplierRequirementReviewCreateView(LoginRequiredMixin, CreateView):
+class SupplierRequirementReviewCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = SupplierRequirementReview
     form_class = SupplierRequirementReviewForm
     template_name = "assets/supplier_requirement_review_form.html"
+    permission_required = "assets.supplier.create"
 
     def dispatch(self, request, *args, **kwargs):
         self.supplier_requirement = get_object_or_404(
@@ -658,9 +698,10 @@ class SupplierRequirementReviewCreateView(LoginRequiredMixin, CreateView):
         )
 
 
-class SupplierRequirementReviewDeleteView(LoginRequiredMixin, DeleteView):
+class SupplierRequirementReviewDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = SupplierRequirementReview
     template_name = "assets/confirm_delete.html"
+    permission_required = "assets.supplier.delete"
 
     def get_success_url(self):
         return reverse_lazy(
@@ -669,8 +710,10 @@ class SupplierRequirementReviewDeleteView(LoginRequiredMixin, DeleteView):
         )
 
 
-class InstantiateTypeRequirementReviewView(LoginRequiredMixin, View):
+class InstantiateTypeRequirementReviewView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Get-or-create a SupplierRequirement from a type requirement, then redirect to the review form."""
+
+    permission_required = "assets.supplier.create"
 
     def post(self, request, supplier_pk, type_req_pk):
         supplier = get_object_or_404(Supplier, pk=supplier_pk)
@@ -692,10 +735,11 @@ class InstantiateTypeRequirementReviewView(LoginRequiredMixin, View):
 
 # ── Supplier Dependencies ─────────────────────────────────
 
-class SupplierDependencyListView(LoginRequiredMixin, SortableListMixin, ListView):
+class SupplierDependencyListView(LoginRequiredMixin, PermissionRequiredMixin, SortableListMixin, ListView):
     model = SupplierDependency
     template_name = "assets/supplier_dependency_list.html"
     context_object_name = "dependencies"
+    permission_required = "assets.supplier_dependency.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -713,32 +757,36 @@ class SupplierDependencyListView(LoginRequiredMixin, SortableListMixin, ListView
         )
 
 
-class SupplierDependencyCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class SupplierDependencyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreatedByMixin, CreateView):
     model = SupplierDependency
     form_class = SupplierDependencyForm
     template_name = "assets/supplier_dependency_form.html"
+    permission_required = "assets.supplier_dependency.create"
     success_url = reverse_lazy("assets:supplier-dependency-list")
 
 
-class SupplierDependencyUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
+class SupplierDependencyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, ApprovableUpdateMixin, UpdateView):
     model = SupplierDependency
     form_class = SupplierDependencyForm
     template_name = "assets/supplier_dependency_form.html"
+    permission_required = "assets.supplier_dependency.update"
     success_url = reverse_lazy("assets:supplier-dependency-list")
 
 
-class SupplierDependencyDeleteView(LoginRequiredMixin, DeleteView):
+class SupplierDependencyDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = SupplierDependency
     template_name = "assets/confirm_delete.html"
+    permission_required = "assets.supplier_dependency.delete"
     success_url = reverse_lazy("assets:supplier-dependency-list")
 
 
 # ── Sites ─────────────────────────────────────────────────
 
-class SiteListView(LoginRequiredMixin, ListView):
+class SiteListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Site
     template_name = "assets/site_list.html"
     context_object_name = "sites"
+    permission_required = "context.site.read"
 
     def get_queryset(self):
         return super().get_queryset().select_related("parent_site")
@@ -773,10 +821,11 @@ class SiteListView(LoginRequiredMixin, ListView):
         return result
 
 
-class SiteDetailView(LoginRequiredMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class SiteDetailView(LoginRequiredMixin, PermissionRequiredMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = Site
     template_name = "assets/site_detail.html"
     context_object_name = "site"
+    permission_required = "context.site.read"
     approve_url_name = "assets:site-approve"
 
     def get_queryset(self):
@@ -789,34 +838,38 @@ class SiteDetailView(LoginRequiredMixin, ApprovalContextMixin, HistoryMixin, Det
         return ctx
 
 
-class SiteCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class SiteCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Site
     form_class = SiteForm
     template_name = "assets/site_form.html"
+    permission_required = "context.site.create"
     modal_template_name = "assets/site_form_modal.html"
     success_url = reverse_lazy("assets:site-list")
 
 
-class SiteUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
+class SiteUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
     model = Site
     form_class = SiteForm
     template_name = "assets/site_form.html"
+    permission_required = "context.site.update"
     modal_template_name = "assets/site_form_modal.html"
     success_url = reverse_lazy("assets:site-list")
 
 
-class SiteDeleteView(LoginRequiredMixin, DeleteView):
+class SiteDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Site
     template_name = "assets/confirm_delete.html"
+    permission_required = "context.site.delete"
     success_url = reverse_lazy("assets:site-list")
 
 
 # ── Site–Asset Dependencies ──────────────────────────────
 
-class SiteAssetDependencyListView(LoginRequiredMixin, SortableListMixin, ListView):
+class SiteAssetDependencyListView(LoginRequiredMixin, PermissionRequiredMixin, SortableListMixin, ListView):
     model = SiteAssetDependency
     template_name = "assets/site_asset_dependency_list.html"
     context_object_name = "dependencies"
+    permission_required = "assets.dependency.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -832,32 +885,36 @@ class SiteAssetDependencyListView(LoginRequiredMixin, SortableListMixin, ListVie
         return super().get_queryset().select_related("support_asset", "site")
 
 
-class SiteAssetDependencyCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class SiteAssetDependencyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreatedByMixin, CreateView):
     model = SiteAssetDependency
     form_class = SiteAssetDependencyForm
+    template_name = "assets/site_asset_dependency_form.html"
+    permission_required = "assets.dependency.create"
+    success_url = reverse_lazy("assets:site-asset-dependency-list")
+
+
+class SiteAssetDependencyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, ApprovableUpdateMixin, UpdateView):
+    model = SiteAssetDependency
+    form_class = SiteAssetDependencyForm
+    permission_required = "assets.dependency.update"
     template_name = "assets/site_asset_dependency_form.html"
     success_url = reverse_lazy("assets:site-asset-dependency-list")
 
 
-class SiteAssetDependencyUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
-    model = SiteAssetDependency
-    form_class = SiteAssetDependencyForm
-    template_name = "assets/site_asset_dependency_form.html"
-    success_url = reverse_lazy("assets:site-asset-dependency-list")
-
-
-class SiteAssetDependencyDeleteView(LoginRequiredMixin, DeleteView):
+class SiteAssetDependencyDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = SiteAssetDependency
     template_name = "assets/confirm_delete.html"
+    permission_required = "assets.dependency.delete"
     success_url = reverse_lazy("assets:site-asset-dependency-list")
 
 
 # ── Site–Supplier Dependencies ───────────────────────────
 
-class SiteSupplierDependencyListView(LoginRequiredMixin, SortableListMixin, ListView):
+class SiteSupplierDependencyListView(LoginRequiredMixin, PermissionRequiredMixin, SortableListMixin, ListView):
     model = SiteSupplierDependency
     template_name = "assets/site_supplier_dependency_list.html"
     context_object_name = "dependencies"
+    permission_required = "assets.supplier_dependency.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -873,30 +930,34 @@ class SiteSupplierDependencyListView(LoginRequiredMixin, SortableListMixin, List
         return super().get_queryset().select_related("site", "supplier")
 
 
-class SiteSupplierDependencyCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class SiteSupplierDependencyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreatedByMixin, CreateView):
     model = SiteSupplierDependency
     form_class = SiteSupplierDependencyForm
     template_name = "assets/site_supplier_dependency_form.html"
+    permission_required = "assets.supplier_dependency.create"
     success_url = reverse_lazy("assets:site-supplier-dependency-list")
 
 
-class SiteSupplierDependencyUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
+class SiteSupplierDependencyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, ApprovableUpdateMixin, UpdateView):
     model = SiteSupplierDependency
     form_class = SiteSupplierDependencyForm
     template_name = "assets/site_supplier_dependency_form.html"
+    permission_required = "assets.supplier_dependency.update"
     success_url = reverse_lazy("assets:site-supplier-dependency-list")
 
 
-class SiteSupplierDependencyDeleteView(LoginRequiredMixin, DeleteView):
+class SiteSupplierDependencyDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = SiteSupplierDependency
     template_name = "assets/confirm_delete.html"
+    permission_required = "assets.supplier_dependency.delete"
     success_url = reverse_lazy("assets:site-supplier-dependency-list")
 
 
 # ── Dependency Graph ──────────────────────────────────────
 
-class DependencyGraphView(LoginRequiredMixin, TemplateView):
+class DependencyGraphView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
     template_name = "assets/dependency_graph.html"
+    permission_required = "assets.dependency.read"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

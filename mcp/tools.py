@@ -1388,7 +1388,7 @@ def _register_compliance_tools(server):
             },
             "comment": {"type": "string", "description": "Comment explaining the transition. Mandatory for refusals (backward transitions). Recommended for cancellations."},
         }, ["action_plan_id", "target_status"]),
-        require_perm("compliance.action_plan.read")(_action_plan_transition),
+        require_perm("compliance.action_plan.update")(_action_plan_transition),
     )
 
     # Action plan transition history tool

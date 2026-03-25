@@ -3,9 +3,9 @@ import logging
 from django.utils.translation import gettext as _
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from accounts.api.permissions import ModulePermission
 from compliance.constants import AssessmentStatus
 from compliance.models import ComplianceAssessment, Framework
 from reports.constants import ReportStatus, ReportType
@@ -17,7 +17,10 @@ from .serializers import AuditReportCreateSerializer, ReportSerializer, SoaRepor
 class ReportViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [ModulePermission]
+    permission_module = "reports"
+    permission_feature = "report"
+    custom_action_map = {"generate_soa": "create", "generate_audit_report": "create"}
 
     @action(detail=False, methods=["post"], url_path="generate-soa")
     def generate_soa(self, request):

@@ -21,6 +21,7 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
+from accounts.views import PermissionRequiredMixin
 from core.mixins import HtmxFormMixin, SortableListMixin
 from .constants import CollectionMethod, IndicatorType, PREDEFINED_SOURCE_FORMAT
 from .forms import (
@@ -71,12 +72,19 @@ class HistoryMixin:
         return ctx
 
 
-class ApproveView(LoginRequiredMixin, View):
+class ApproveView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Generic approve view for context domain models."""
 
     model = None
     permission_feature = None
+    permission_required = None
     success_url = None
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.permission_required:
+            feature = self.permission_feature or self.model._meta.model_name
+            self.permission_required = f"context.{feature}.approve"
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, pk):
         from core.models import VersioningConfig
@@ -203,8 +211,9 @@ def get_dashboard_indicator_slots(user):
 
 # ── Scope ───────────────────────────────────────────────────
 
-class ScopeListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class ScopeListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Scope
+    permission_required = "context.scope.read"
     template_name = "context/scope_list.html"
     context_object_name = "scopes"
     sortable_fields = {
@@ -265,8 +274,9 @@ class ScopeListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, Lis
         return result
 
 
-class ScopeDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class ScopeDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = Scope
+    permission_required = "context.scope.read"
     template_name = "context/scope_detail.html"
     context_object_name = "scope"
     approve_url_name = "context:scope-approve"
@@ -281,8 +291,9 @@ class ScopeDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin
         return ctx
 
 
-class ScopeCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class ScopeCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Scope
+    permission_required = "context.scope.create"
     form_class = ScopeForm
     template_name = "context/scope_form.html"
     modal_template_name = "context/scope_form_modal.html"
@@ -291,8 +302,9 @@ class ScopeCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateV
     success_url = reverse_lazy("context:scope-list")
 
 
-class ScopeUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
+class ScopeUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
     model = Scope
+    permission_required = "context.scope.update"
     form_class = ScopeForm
     template_name = "context/scope_form.html"
     modal_template_name = "context/scope_form_modal.html"
@@ -301,16 +313,18 @@ class ScopeUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, 
     success_url = reverse_lazy("context:scope-list")
 
 
-class ScopeDeleteView(LoginRequiredMixin, DeleteView):
+class ScopeDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Scope
+    permission_required = "context.scope.delete"
     template_name = "context/confirm_delete.html"
     success_url = reverse_lazy("context:scope-list")
 
 
 # ── Issue ───────────────────────────────────────────────────
 
-class IssueListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class IssueListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Issue
+    permission_required = "context.issue.read"
     template_name = "context/issue_list.html"
     context_object_name = "issues"
     paginate_by = 25
@@ -339,15 +353,17 @@ class IssueListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, Lis
         return qs
 
 
-class IssueDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class IssueDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = Issue
+    permission_required = "context.issue.read"
     template_name = "context/issue_detail.html"
     context_object_name = "issue"
     approve_url_name = "context:issue-approve"
 
 
-class IssueCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class IssueCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Issue
+    permission_required = "context.issue.create"
     form_class = IssueForm
     template_name = "context/issue_form.html"
     modal_template_name = "context/issue_form_modal.html"
@@ -361,8 +377,9 @@ class IssueCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateV
         return kwargs
 
 
-class IssueUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class IssueUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Issue
+    permission_required = "context.issue.update"
     form_class = IssueForm
     template_name = "context/issue_form.html"
     modal_template_name = "context/issue_form_modal.html"
@@ -376,16 +393,18 @@ class IssueUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, 
         return kwargs
 
 
-class IssueDeleteView(LoginRequiredMixin, DeleteView):
+class IssueDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Issue
+    permission_required = "context.issue.delete"
     template_name = "context/confirm_delete.html"
     success_url = reverse_lazy("context:issue-list")
 
 
 # ── Stakeholder ─────────────────────────────────────────────
 
-class StakeholderListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class StakeholderListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Stakeholder
+    permission_required = "context.stakeholder.read"
     template_name = "context/stakeholder_list.html"
     context_object_name = "stakeholders"
     paginate_by = 25
@@ -412,8 +431,9 @@ class StakeholderListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixi
         return qs
 
 
-class StakeholderDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class StakeholderDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = Stakeholder
+    permission_required = "context.stakeholder.read"
     template_name = "context/stakeholder_detail.html"
     context_object_name = "stakeholder"
     approve_url_name = "context:stakeholder-approve"
@@ -422,8 +442,9 @@ class StakeholderDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContex
         return super().get_queryset().prefetch_related("expectations")
 
 
-class StakeholderCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class StakeholderCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Stakeholder
+    permission_required = "context.stakeholder.create"
     form_class = StakeholderForm
     template_name = "context/stakeholder_form.html"
     modal_template_name = "context/stakeholder_form_modal.html"
@@ -437,8 +458,9 @@ class StakeholderCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, C
         return kwargs
 
 
-class StakeholderUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class StakeholderUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Stakeholder
+    permission_required = "context.stakeholder.update"
     form_class = StakeholderForm
     template_name = "context/stakeholder_form.html"
     modal_template_name = "context/stakeholder_form_modal.html"
@@ -452,16 +474,18 @@ class StakeholderUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateM
         return kwargs
 
 
-class StakeholderDeleteView(LoginRequiredMixin, DeleteView):
+class StakeholderDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Stakeholder
+    permission_required = "context.stakeholder.delete"
     template_name = "context/confirm_delete.html"
     success_url = reverse_lazy("context:stakeholder-list")
 
 
 # ── Objective ───────────────────────────────────────────────
 
-class ObjectiveListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class ObjectiveListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Objective
+    permission_required = "context.objective.read"
     template_name = "context/objective_list.html"
     context_object_name = "objectives"
     paginate_by = 25
@@ -487,15 +511,17 @@ class ObjectiveListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin,
         return qs
 
 
-class ObjectiveDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class ObjectiveDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = Objective
+    permission_required = "context.objective.read"
     template_name = "context/objective_detail.html"
     context_object_name = "objective"
     approve_url_name = "context:objective-approve"
 
 
-class ObjectiveCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class ObjectiveCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Objective
+    permission_required = "context.objective.create"
     form_class = ObjectiveForm
     template_name = "context/objective_form.html"
     modal_template_name = "context/objective_form_modal.html"
@@ -509,8 +535,9 @@ class ObjectiveCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, Cre
         return kwargs
 
 
-class ObjectiveUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class ObjectiveUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Objective
+    permission_required = "context.objective.update"
     form_class = ObjectiveForm
     template_name = "context/objective_form.html"
     modal_template_name = "context/objective_form_modal.html"
@@ -524,16 +551,18 @@ class ObjectiveUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMix
         return kwargs
 
 
-class ObjectiveDeleteView(LoginRequiredMixin, DeleteView):
+class ObjectiveDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Objective
+    permission_required = "context.objective.delete"
     template_name = "context/confirm_delete.html"
     success_url = reverse_lazy("context:objective-list")
 
 
 # ── SWOT ────────────────────────────────────────────────────
 
-class SwotListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class SwotListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = SwotAnalysis
+    permission_required = "context.swot.read"
     template_name = "context/swot_list.html"
     context_object_name = "analyses"
     paginate_by = 25
@@ -560,8 +589,9 @@ class SwotListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, List
         return qs
 
 
-class SwotDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class SwotDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = SwotAnalysis
+    permission_required = "context.swot.read"
     template_name = "context/swot_detail.html"
     context_object_name = "analysis"
     approval_feature = "swot"
@@ -592,8 +622,9 @@ class SwotDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin,
         return ctx
 
 
-class SwotCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class SwotCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = SwotAnalysis
+    permission_required = "context.swot.create"
     form_class = SwotAnalysisForm
     template_name = "context/swot_form.html"
     modal_template_name = "context/swot_form_modal.html"
@@ -607,8 +638,9 @@ class SwotCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateVi
         return kwargs
 
 
-class SwotUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class SwotUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = SwotAnalysis
+    permission_required = "context.swot.update"
     form_class = SwotAnalysisForm
     template_name = "context/swot_form.html"
     modal_template_name = "context/swot_form_modal.html"
@@ -622,14 +654,16 @@ class SwotUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, S
         return kwargs
 
 
-class SwotDeleteView(LoginRequiredMixin, DeleteView):
+class SwotDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = SwotAnalysis
+    permission_required = "context.swot.delete"
     template_name = "context/confirm_delete.html"
     success_url = reverse_lazy("context:swot-list")
 
 
-class SwotItemCreateView(LoginRequiredMixin, CreateView):
+class SwotItemCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = SwotItem
+    permission_required = "context.swot.create"
     form_class = SwotItemForm
     template_name = "context/swot_item_form_modal.html"
 
@@ -659,8 +693,9 @@ class SwotItemCreateView(LoginRequiredMixin, CreateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class SwotItemUpdateView(LoginRequiredMixin, UpdateView):
+class SwotItemUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = SwotItem
+    permission_required = "context.swot.update"
     form_class = SwotItemForm
     template_name = "context/swot_item_form_modal.html"
 
@@ -682,15 +717,18 @@ class SwotItemUpdateView(LoginRequiredMixin, UpdateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class SwotItemDeleteView(LoginRequiredMixin, View):
+class SwotItemDeleteView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "context.swot.delete"
+
     def post(self, request, analysis_pk, pk):
         item = get_object_or_404(SwotItem, pk=pk, swot_analysis_id=analysis_pk)
         item.delete()
         return HttpResponse(status=204, headers={"HX-Trigger": "refreshItems"})
 
 
-class SwotStrategyCreateView(LoginRequiredMixin, CreateView):
+class SwotStrategyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = SwotStrategy
+    permission_required = "context.swot.create"
     form_class = SwotStrategyForm
     template_name = "context/swot_strategy_form_modal.html"
 
@@ -720,8 +758,9 @@ class SwotStrategyCreateView(LoginRequiredMixin, CreateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class SwotStrategyUpdateView(LoginRequiredMixin, UpdateView):
+class SwotStrategyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = SwotStrategy
+    permission_required = "context.swot.update"
     form_class = SwotStrategyForm
     template_name = "context/swot_strategy_form_modal.html"
 
@@ -743,7 +782,9 @@ class SwotStrategyUpdateView(LoginRequiredMixin, UpdateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class SwotStrategyDeleteView(LoginRequiredMixin, View):
+class SwotStrategyDeleteView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "context.swot.delete"
+
     def post(self, request, analysis_pk, pk):
         strategy = get_object_or_404(SwotStrategy, pk=pk, swot_analysis_id=analysis_pk)
         strategy.delete()
@@ -752,8 +793,9 @@ class SwotStrategyDeleteView(LoginRequiredMixin, View):
 
 # ── Role ────────────────────────────────────────────────────
 
-class RoleListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class RoleListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Role
+    permission_required = "context.role.read"
     template_name = "context/role_list.html"
     context_object_name = "roles"
     paginate_by = 25
@@ -779,8 +821,9 @@ class RoleListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, List
         return qs
 
 
-class RoleDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class RoleDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = Role
+    permission_required = "context.role.read"
     template_name = "context/role_detail.html"
     context_object_name = "role"
     approve_url_name = "context:role-approve"
@@ -791,8 +834,9 @@ class RoleDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin,
         )
 
 
-class RoleCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class RoleCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Role
+    permission_required = "context.role.create"
     form_class = RoleForm
     template_name = "context/role_form.html"
     modal_template_name = "context/role_form_modal.html"
@@ -806,8 +850,9 @@ class RoleCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateVi
         return kwargs
 
 
-class RoleUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class RoleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Role
+    permission_required = "context.role.update"
     form_class = RoleForm
     template_name = "context/role_form.html"
     modal_template_name = "context/role_form_modal.html"
@@ -821,16 +866,18 @@ class RoleUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, S
         return kwargs
 
 
-class RoleDeleteView(LoginRequiredMixin, DeleteView):
+class RoleDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Role
+    permission_required = "context.role.delete"
     template_name = "context/confirm_delete.html"
     success_url = reverse_lazy("context:role-list")
 
 
 # ── Activity ────────────────────────────────────────────────
 
-class ActivityListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class ActivityListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Activity
+    permission_required = "context.activity.read"
     template_name = "context/activity_list.html"
     context_object_name = "activities"
     paginate_by = 25
@@ -855,15 +902,17 @@ class ActivityListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, 
         return qs
 
 
-class ActivityDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class ActivityDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = Activity
+    permission_required = "context.activity.read"
     template_name = "context/activity_detail.html"
     context_object_name = "activity"
     approve_url_name = "context:activity-approve"
 
 
-class ActivityCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class ActivityCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Activity
+    permission_required = "context.activity.create"
     form_class = ActivityForm
     template_name = "context/activity_form.html"
     modal_template_name = "context/activity_form_modal.html"
@@ -877,8 +926,9 @@ class ActivityCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, Crea
         return kwargs
 
 
-class ActivityUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class ActivityUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Activity
+    permission_required = "context.activity.update"
     form_class = ActivityForm
     template_name = "context/activity_form.html"
     modal_template_name = "context/activity_form_modal.html"
@@ -892,16 +942,18 @@ class ActivityUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixi
         return kwargs
 
 
-class ActivityDeleteView(LoginRequiredMixin, DeleteView):
+class ActivityDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Activity
+    permission_required = "context.activity.delete"
     template_name = "context/confirm_delete.html"
     success_url = reverse_lazy("context:activity-list")
 
 
 # ── Table body views (HTMX partial refresh) ───────────────
 
-class ScopeTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class ScopeTableBodyView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Scope
+    permission_required = "context.scope.read"
     template_name = "context/scope_table_body.html"
     context_object_name = "scopes"
     paginate_by = None
@@ -922,8 +974,9 @@ class ScopeTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin
         return ctx
 
 
-class IssueTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class IssueTableBodyView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Issue
+    permission_required = "context.issue.read"
     template_name = "context/issue_table_body.html"
     context_object_name = "issues"
     paginate_by = None
@@ -940,8 +993,9 @@ class IssueTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin
         return qs
 
 
-class StakeholderTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class StakeholderTableBodyView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Stakeholder
+    permission_required = "context.stakeholder.read"
     template_name = "context/stakeholder_table_body.html"
     context_object_name = "stakeholders"
     paginate_by = None
@@ -958,8 +1012,9 @@ class StakeholderTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableLis
         return qs
 
 
-class ObjectiveTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class ObjectiveTableBodyView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Objective
+    permission_required = "context.objective.read"
     template_name = "context/objective_table_body.html"
     context_object_name = "objectives"
     paginate_by = None
@@ -976,8 +1031,9 @@ class ObjectiveTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListM
         return qs
 
 
-class SwotTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class SwotTableBodyView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = SwotAnalysis
+    permission_required = "context.swot.read"
     template_name = "context/swot_table_body.html"
     context_object_name = "analyses"
     paginate_by = None
@@ -999,8 +1055,9 @@ class SwotTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin,
         return qs
 
 
-class RoleTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class RoleTableBodyView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Role
+    permission_required = "context.role.read"
     template_name = "context/role_table_body.html"
     context_object_name = "roles"
     paginate_by = None
@@ -1017,8 +1074,9 @@ class RoleTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin,
         return qs
 
 
-class ActivityTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class ActivityTableBodyView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Activity
+    permission_required = "context.activity.read"
     template_name = "context/activity_table_body.html"
     context_object_name = "activities"
     paginate_by = None
@@ -1055,8 +1113,9 @@ def tag_create_inline(request):
     return JsonResponse({"id": str(tag.id), "name": tag.name})
 
 
-class TagListView(LoginRequiredMixin, ListView):
+class TagListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Tag
+    permission_required = "context.scope.read"
     template_name = "context/tag_list.html"
     context_object_name = "tags"
     paginate_by = 50
@@ -1080,8 +1139,9 @@ class TagListView(LoginRequiredMixin, ListView):
         return tags
 
 
-class TagUpdateView(LoginRequiredMixin, UpdateView):
+class TagUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Tag
+    permission_required = "context.scope.update"
     template_name = "context/tag_form.html"
     success_url = reverse_lazy("context:tag-list")
 
@@ -1090,8 +1150,9 @@ class TagUpdateView(LoginRequiredMixin, UpdateView):
         return TagForm
 
 
-class TagDeleteView(LoginRequiredMixin, DeleteView):
+class TagDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Tag
+    permission_required = "context.scope.delete"
     template_name = "context/confirm_delete.html"
     success_url = reverse_lazy("context:tag-list")
 
@@ -1166,8 +1227,9 @@ def dashboard_indicator_chart_toggle(request):
     return JsonResponse({"action": action, "chart_ids": chart_ids})
 
 
-class IndicatorListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class IndicatorListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Indicator
+    permission_required = "context.indicator.read"
     template_name = "context/indicator_list.html"
     context_object_name = "indicators"
     paginate_by = 25
@@ -1196,8 +1258,9 @@ class IndicatorListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin,
         return ctx
 
 
-class IndicatorTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class IndicatorTableBodyView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Indicator
+    permission_required = "context.indicator.read"
     template_name = "context/indicator_table_body.html"
     context_object_name = "indicators"
     paginate_by = None
@@ -1216,8 +1279,9 @@ class IndicatorTableBodyView(LoginRequiredMixin, ScopeFilterMixin, SortableListM
         return qs
 
 
-class IndicatorDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class IndicatorDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = Indicator
+    permission_required = "context.indicator.read"
     template_name = "context/indicator_detail.html"
     context_object_name = "indicator"
     approve_url_name = "context:indicator-approve"
@@ -1231,8 +1295,9 @@ class IndicatorDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextM
         return ctx
 
 
-class IndicatorCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class IndicatorCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Indicator
+    permission_required = "context.indicator.create"
     form_class = IndicatorForm
     template_name = "context/indicator_form.html"
     modal_template_name = "context/indicator_form_modal.html"
@@ -1258,8 +1323,9 @@ class IndicatorCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, Cre
         return super().form_valid(form)
 
 
-class PredefinedIndicatorCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class PredefinedIndicatorCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Indicator
+    permission_required = "context.indicator.create"
     form_class = PredefinedIndicatorForm
     template_name = "context/indicator_predefined_form.html"
     modal_template_name = "context/indicator_predefined_form_modal.html"
@@ -1296,8 +1362,9 @@ class PredefinedIndicatorCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedBy
         return response
 
 
-class IndicatorUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class IndicatorUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Indicator
+    permission_required = "context.indicator.update"
     template_name = "context/indicator_form.html"
     modal_template_name = "context/indicator_form_modal.html"
     modal_title_create = _l("New indicator")
@@ -1331,8 +1398,9 @@ class IndicatorUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMix
         return ctx
 
 
-class IndicatorDeleteView(LoginRequiredMixin, DeleteView):
+class IndicatorDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Indicator
+    permission_required = "context.indicator.delete"
     template_name = "context/confirm_delete.html"
 
     def get_success_url(self):
@@ -1342,8 +1410,9 @@ class IndicatorDeleteView(LoginRequiredMixin, DeleteView):
         return reverse_lazy("context:indicator-organizational-list")
 
 
-class IndicatorRecordMeasurementView(LoginRequiredMixin, View):
+class IndicatorRecordMeasurementView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Record a measurement for an indicator (manual)."""
+    permission_required = "context.indicator.update"
 
     def post(self, request, pk):
         indicator = get_object_or_404(Indicator, pk=pk)
@@ -1360,8 +1429,9 @@ class IndicatorRecordMeasurementView(LoginRequiredMixin, View):
         return redirect("context:indicator-detail", pk=pk)
 
 
-class IndicatorRefreshView(LoginRequiredMixin, View):
+class IndicatorRefreshView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Trigger a refresh of a predefined indicator's value."""
+    permission_required = "context.indicator.update"
 
     def post(self, request, pk):
         indicator = get_object_or_404(Indicator, pk=pk)

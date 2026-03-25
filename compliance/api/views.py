@@ -101,12 +101,13 @@ class FrameworkViewSet(
         })
 
 
-class SectionViewSet(viewsets.ModelViewSet):
+class SectionViewSet(ScopeFilterAPIMixin, viewsets.ModelViewSet):
     queryset = Section.objects.select_related("framework", "parent_section").all()
     serializer_class = SectionSerializer
     filterset_class = SectionFilter
     permission_classes = [CompliancePermission]
     permission_feature = "section"
+    scope_parent_lookup = "framework__scopes"
     search_fields = ["reference", "name"]
     ordering_fields = ["reference", "order", "name"]
 
@@ -134,11 +135,13 @@ class SectionViewSet(viewsets.ModelViewSet):
 
 
 class RequirementViewSet(
+    ScopeFilterAPIMixin,
     ApprovableAPIMixin,
     HistoryAPIMixin,
     CreatedByMixin,
     viewsets.ModelViewSet,
 ):
+    scope_parent_lookup = "framework__scopes"
     queryset = Requirement.objects.select_related(
         "framework", "section", "owner"
     ).all()
@@ -257,10 +260,11 @@ class ComplianceAssessmentViewSet(
         })
 
 
-class AssessmentResultViewSet(viewsets.ModelViewSet):
+class AssessmentResultViewSet(ScopeFilterAPIMixin, viewsets.ModelViewSet):
     serializer_class = AssessmentResultSerializer
     permission_classes = [CompliancePermission]
     permission_feature = "assessment"
+    scope_parent_lookup = "assessment__scopes"
 
     def get_queryset(self):
         return AssessmentResult.objects.filter(
@@ -287,10 +291,11 @@ class AssessmentResultViewSet(viewsets.ModelViewSet):
         assessment.recalculate_counts()
 
 
-class FindingViewSet(viewsets.ModelViewSet):
+class FindingViewSet(ScopeFilterAPIMixin, viewsets.ModelViewSet):
     serializer_class = FindingSerializer
     permission_classes = [CompliancePermission]
     permission_feature = "assessment"
+    scope_parent_lookup = "assessment__scopes"
 
     def get_queryset(self):
         return Finding.objects.filter(
@@ -313,7 +318,8 @@ class FindingViewSet(viewsets.ModelViewSet):
         serializer.save()
 
 
-class RequirementMappingViewSet(viewsets.ModelViewSet):
+class RequirementMappingViewSet(ScopeFilterAPIMixin, viewsets.ModelViewSet):
+    scope_parent_lookup = "source_requirement__framework__scopes"
     queryset = RequirementMapping.objects.select_related(
         "source_requirement__framework",
         "target_requirement__framework",

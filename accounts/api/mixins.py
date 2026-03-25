@@ -132,9 +132,12 @@ class ScopeFilterAPIMixin:
     """Filter queryset by the user's allowed scopes (DRF ViewSets).
 
     Works for:
+    - ViewSets with ``scope_parent_lookup`` attribute → filter via parent FK path
     - Models with a ``scopes`` M2M → filter on scopes__id
     - Scope model itself → filter on id
     """
+
+    scope_parent_lookup = None
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -150,6 +153,9 @@ class ScopeFilterAPIMixin:
         model = qs.model
         if model is Scope or (hasattr(model, "_meta") and model._meta.label == "context.Scope"):
             return qs.filter(id__in=scope_ids)
+        parent_lookup = getattr(self, "scope_parent_lookup", None)
+        if parent_lookup:
+            return qs.filter(**{f"{parent_lookup}__id__in": scope_ids}).distinct()
         if any(f.name == "scopes" for f in model._meta.many_to_many):
             return qs.filter(scopes__id__in=scope_ids).distinct()
         return qs

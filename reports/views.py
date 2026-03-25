@@ -8,20 +8,24 @@ from django.utils.translation import gettext as _
 from django.views import View
 from django.views.generic import DeleteView, FormView, ListView
 
+from accounts.views import PermissionRequiredMixin
+
 from .constants import ReportStatus, ReportType
 from .forms import AuditReportForm, SoaReportForm
 from .generators import generate_audit_report_pdf, generate_soa_pdf
 from .models import Report
 
 
-class ReportListView(LoginRequiredMixin, ListView):
+class ReportListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    permission_required = "reports.report.read"
     model = Report
     template_name = "reports/report_list.html"
     context_object_name = "reports"
     paginate_by = 25
 
 
-class SoaReportCreateView(LoginRequiredMixin, FormView):
+class SoaReportCreateView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    permission_required = "reports.report.create"
     form_class = SoaReportForm
     template_name = "reports/soa_form.html"
 
@@ -53,7 +57,8 @@ class SoaReportCreateView(LoginRequiredMixin, FormView):
         return redirect("reports:report-list")
 
 
-class AuditReportCreateView(LoginRequiredMixin, FormView):
+class AuditReportCreateView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    permission_required = "reports.report.create"
     form_class = AuditReportForm
     template_name = "reports/audit_report_form.html"
 
@@ -88,7 +93,8 @@ class AuditReportCreateView(LoginRequiredMixin, FormView):
         return redirect("reports:report-list")
 
 
-class ReportDownloadView(LoginRequiredMixin, View):
+class ReportDownloadView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "reports.report.read"
     """Serve report file content stored in the database."""
 
     def get(self, request, pk):
@@ -105,7 +111,8 @@ class ReportDownloadView(LoginRequiredMixin, View):
         return response
 
 
-class ReportDeleteView(LoginRequiredMixin, DeleteView):
+class ReportDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = "reports.report.delete"
     model = Report
     success_url = reverse_lazy("reports:report-list")
     template_name = "reports/report_confirm_delete.html"

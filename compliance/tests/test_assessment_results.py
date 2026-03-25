@@ -22,7 +22,7 @@ class TestToggleDraftPlanned:
 
     @pytest.fixture
     def setup(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="td@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="td@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req = RequirementFactory(framework=fw, is_applicable=True)
@@ -55,7 +55,7 @@ class TestToggleDraftPlanned:
         assert setup["result"].compliance_level == 0
 
     def test_planned_same_behaviour(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="tp@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="tp@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req = RequirementFactory(framework=fw, is_applicable=True)
@@ -75,7 +75,7 @@ class TestToggleDraftPlanned:
 
     def test_draft_creates_result_as_evaluated(self, client, django_user_model):
         """When no result exists yet in DRAFT, get_or_create defaults to EVALUATED."""
-        user = django_user_model.objects.create_user(email="tc@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="tc@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req = RequirementFactory(framework=fw, is_applicable=True)
@@ -94,7 +94,7 @@ class TestToggleInProgress:
     """In IN_PROGRESS: toggle cycles EVALUATED ↔ COMPLIANT; NOT_ASSESSED frozen."""
 
     def test_evaluated_to_compliant(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="tip1@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="tip1@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req = RequirementFactory(framework=fw, is_applicable=True)
@@ -114,7 +114,7 @@ class TestToggleInProgress:
         assert r.compliance_level == 100
 
     def test_compliant_to_evaluated(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="tip2@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="tip2@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req = RequirementFactory(framework=fw, is_applicable=True)
@@ -134,7 +134,7 @@ class TestToggleInProgress:
         assert r.compliance_level == 50
 
     def test_not_assessed_frozen_returns_409(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="tip3@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="tip3@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req = RequirementFactory(framework=fw, is_applicable=True)
@@ -152,7 +152,7 @@ class TestToggleInProgress:
 
     def test_creates_result_as_compliant(self, client, django_user_model):
         """When no result exists in IN_PROGRESS, get_or_create defaults to COMPLIANT."""
-        user = django_user_model.objects.create_user(email="tip4@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="tip4@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req = RequirementFactory(framework=fw, is_applicable=True)
@@ -171,7 +171,7 @@ class TestToggleCompleted:
     """In COMPLETED / CLOSED: toggle returns 403."""
 
     def test_completed_returns_403(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="tc403@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="tc403@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req = RequirementFactory(framework=fw, is_applicable=True)
@@ -189,7 +189,7 @@ class TestBulkToggleDraftPlanned:
     """In DRAFT/PLANNED: bulk toggles NOT_ASSESSED ↔ EVALUATED."""
 
     def test_bulk_selects_all_not_assessed_to_evaluated(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="bt1@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="bt1@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req1 = RequirementFactory(framework=fw, is_applicable=True)
@@ -218,7 +218,7 @@ class TestBulkToggleDraftPlanned:
         assert r2.compliance_status == ComplianceStatus.EVALUATED
 
     def test_bulk_deselects_all_evaluated_to_not_assessed(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="bt2@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="bt2@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req1 = RequirementFactory(framework=fw, is_applicable=True)
@@ -243,7 +243,7 @@ class TestBulkToggleInProgress:
     """In IN_PROGRESS: bulk toggles EVALUATED ↔ COMPLIANT."""
 
     def test_bulk_evaluated_to_compliant(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="bip1@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="bip1@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req1 = RequirementFactory(framework=fw, is_applicable=True)
@@ -272,7 +272,7 @@ class TestBulkToggleInProgress:
         assert r2.compliance_status == ComplianceStatus.COMPLIANT
 
     def test_bulk_compliant_to_evaluated(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="bip2@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="bip2@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req1 = RequirementFactory(framework=fw, is_applicable=True)
@@ -294,7 +294,7 @@ class TestBulkToggleInProgress:
 
     def test_bulk_skips_not_assessed_in_progress(self, client, django_user_model):
         """NOT_ASSESSED results are not touched when bulk toggling in IN_PROGRESS."""
-        user = django_user_model.objects.create_user(email="bip3@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="bip3@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req_eval = RequirementFactory(framework=fw, is_applicable=True)
@@ -327,7 +327,7 @@ class TestBulkToggleInProgress:
 
 class TestAssessmentResultCreateView:
     def test_create_result_via_drawer(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="c@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="c@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req = RequirementFactory(framework=fw, is_applicable=True)
@@ -363,7 +363,7 @@ class TestAssessmentResultCreateView:
 
 class TestAssessmentResultUpdateView:
     def test_update_result(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="e@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="e@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req = RequirementFactory(framework=fw, is_applicable=True)
@@ -400,7 +400,7 @@ class TestAssessmentResultUpdateView:
 
 class TestAssessmentResultDeleteView:
     def test_delete_result_recalculates_counts(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="d@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="d@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req = RequirementFactory(framework=fw, is_applicable=True)
@@ -429,7 +429,7 @@ class TestAssessmentResultDeleteView:
 
 class TestAssessmentResultsTableBody:
     def test_table_body_grouped_by_section(self, client, django_user_model):
-        user = django_user_model.objects.create_user(email="tb@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="tb@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         sec1 = SectionFactory(framework=fw, name="Section A", order=1)
@@ -453,7 +453,7 @@ class TestAssessmentResultsTableBody:
 
 class TestRecalculateCounts:
     def test_counts_updated_after_result_changes(self, django_user_model):
-        user = django_user_model.objects.create_user(email="rc@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="rc@t.com", password="pw")
         fw = FrameworkFactory()
         req1 = RequirementFactory(framework=fw, is_applicable=True)
         req2 = RequirementFactory(framework=fw, is_applicable=True)
@@ -481,7 +481,7 @@ class TestRecalculateCounts:
 class TestNonApplicableRequirements:
     def test_toggle_blocked_for_non_applicable(self, client, django_user_model):
         """Non-applicable requirements cannot be toggled."""
-        user = django_user_model.objects.create_user(email="na1@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="na1@t.com", password="pw")
         client.force_login(user)
         fw = FrameworkFactory()
         req_na = RequirementFactory(framework=fw, is_applicable=False)
@@ -502,7 +502,7 @@ class TestNonApplicableRequirements:
         from compliance.tests.factories import FindingFactory
         from compliance.constants import FindingType
 
-        user = django_user_model.objects.create_user(email="na2@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="na2@t.com", password="pw")
         fw = FrameworkFactory()
         req_na = RequirementFactory(framework=fw, is_applicable=False)
         assessment = ComplianceAssessmentFactory(framework=fw, assessor=user)
@@ -526,7 +526,7 @@ class TestNonApplicableRequirements:
 
     def test_recalculate_counts_includes_not_applicable(self, django_user_model):
         """recalculate_counts correctly counts not_applicable results."""
-        user = django_user_model.objects.create_user(email="na3@t.com", password="pw")
+        user = django_user_model.objects.create_superuser(email="na3@t.com", password="pw")
         fw = FrameworkFactory()
         req1 = RequirementFactory(framework=fw, is_applicable=True)
         req_na = RequirementFactory(framework=fw, is_applicable=False)

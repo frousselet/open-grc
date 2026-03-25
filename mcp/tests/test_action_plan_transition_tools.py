@@ -109,7 +109,7 @@ class TestActionPlanTransitionPerform:
 
     def test_transition_validate_requires_permission(self):
         """Transition to_validate -> to_implement requires compliance.action_plan.validate."""
-        srv, user = _make_server_and_user(["compliance.action_plan.read"])
+        srv, user = _make_server_and_user(["compliance.action_plan.read", "compliance.action_plan.update"])
         ap = ComplianceActionPlanFactory(status=ActionPlanStatus.TO_VALIDATE)
         result = _call_tool(srv, user, "action_plan_transition", {
             "action_plan_id": str(ap.pk),
@@ -121,7 +121,7 @@ class TestActionPlanTransitionPerform:
 
     def test_transition_cancel_requires_permission(self):
         """Cancellation requires compliance.action_plan.cancel."""
-        srv, user = _make_server_and_user(["compliance.action_plan.read"])
+        srv, user = _make_server_and_user(["compliance.action_plan.read", "compliance.action_plan.update"])
         ap = ComplianceActionPlanFactory(status=ActionPlanStatus.NEW)
         result = _call_tool(srv, user, "action_plan_transition", {
             "action_plan_id": str(ap.pk),

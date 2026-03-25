@@ -19,7 +19,7 @@ class TestReportListView:
         assert resp.status_code == 302
 
     def test_list_reports(self):
-        user = UserFactory()
+        user = UserFactory(is_superuser=True)
         ReportFactory(created_by=user)
         client = Client()
         client.force_login(user)
@@ -30,7 +30,7 @@ class TestReportListView:
 
 class TestSoaReportCreateView:
     def test_get_form(self):
-        user = UserFactory()
+        user = UserFactory(is_superuser=True)
         client = Client()
         client.force_login(user)
         resp = client.get(reverse("reports:soa-create"))
@@ -40,7 +40,7 @@ class TestSoaReportCreateView:
     def test_create_soa_report(self, mock_generate):
         mock_generate.return_value = ("SoA_test.pdf", b"%PDF-1.4 fake content")
 
-        user = UserFactory()
+        user = UserFactory(is_superuser=True)
         fw = FrameworkFactory()
         RequirementFactory(framework=fw, is_applicable=True)
         RequirementFactory(framework=fw, is_applicable=False, applicability_justification="Not relevant")
@@ -61,7 +61,7 @@ class TestSoaReportCreateView:
 
     @patch("reports.views.generate_soa_pdf", side_effect=Exception("PDF error"))
     def test_create_soa_report_failure(self, mock_generate):
-        user = UserFactory()
+        user = UserFactory(is_superuser=True)
         fw = FrameworkFactory()
 
         client = Client()
@@ -84,7 +84,7 @@ class TestReportDownloadView:
         assert resp.status_code == 302
 
     def test_download_pdf(self):
-        user = UserFactory()
+        user = UserFactory(is_superuser=True)
         report = ReportFactory(
             created_by=user,
             file_content=b"%PDF-1.4 fake content",
@@ -99,7 +99,7 @@ class TestReportDownloadView:
         assert resp.content == b"%PDF-1.4 fake content"
 
     def test_download_no_file_returns_404(self):
-        user = UserFactory()
+        user = UserFactory(is_superuser=True)
         report = ReportFactory(created_by=user, file_content=None)
         client = Client()
         client.force_login(user)
@@ -109,7 +109,7 @@ class TestReportDownloadView:
 
 class TestReportDeleteView:
     def test_delete_report(self):
-        user = UserFactory()
+        user = UserFactory(is_superuser=True)
         report = ReportFactory(created_by=user)
         client = Client()
         client.force_login(user)

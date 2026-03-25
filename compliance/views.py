@@ -23,6 +23,7 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
+from accounts.views import PermissionRequiredMixin
 from core.mixins import HtmxFormMixin, SortableListMixin
 from .forms import (
     ActionPlanTransitionForm,
@@ -124,8 +125,9 @@ class ApproveView(LoginRequiredMixin, View):
 
 # ── Framework ──────────────────────────────────────────────
 
-class FrameworkListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class FrameworkListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Framework
+    permission_required = "compliance.framework.read"
     template_name = "compliance/framework_list.html"
     context_object_name = "frameworks"
     paginate_by = 25
@@ -152,9 +154,10 @@ class FrameworkListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin,
 
 
 class FrameworkDetailView(
-    LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView
+    LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView
 ):
     model = Framework
+    permission_required = "compliance.framework.read"
     template_name = "compliance/framework_detail.html"
     context_object_name = "framework"
     approve_url_name = "compliance:framework-approve"
@@ -170,8 +173,9 @@ class FrameworkDetailView(
         return ctx
 
 
-class FrameworkCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class FrameworkCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Framework
+    permission_required = "compliance.framework.create"
     form_class = FrameworkForm
     template_name = "compliance/framework_form.html"
     modal_template_name = "compliance/framework_form_modal.html"
@@ -183,8 +187,9 @@ class FrameworkCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, Cre
         return kwargs
 
 
-class FrameworkUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class FrameworkUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Framework
+    permission_required = "compliance.framework.update"
     form_class = FrameworkForm
     template_name = "compliance/framework_form.html"
     modal_template_name = "compliance/framework_form_modal.html"
@@ -196,8 +201,9 @@ class FrameworkUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMix
         return kwargs
 
 
-class FrameworkDeleteView(LoginRequiredMixin, DeleteView):
+class FrameworkDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Framework
+    permission_required = "compliance.framework.delete"
     template_name = "compliance/confirm_delete.html"
     success_url = reverse_lazy("compliance:framework-list")
 
@@ -205,7 +211,8 @@ class FrameworkDeleteView(LoginRequiredMixin, DeleteView):
 # ── Framework Import ──────────────────────────────────────
 
 
-class FrameworkImportView(LoginRequiredMixin, FormView):
+class FrameworkImportView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    permission_required = "compliance.framework.create"
     template_name = "compliance/framework_import.html"
     form_class = FrameworkImportForm
 
@@ -246,7 +253,8 @@ class FrameworkImportView(LoginRequiredMixin, FormView):
         return redirect(reverse("compliance:framework-import-preview"))
 
 
-class FrameworkImportPreviewView(LoginRequiredMixin, TemplateView):
+class FrameworkImportPreviewView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
+    permission_required = "compliance.framework.create"
     template_name = "compliance/framework_import_preview.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -327,8 +335,9 @@ class FrameworkImportPreviewView(LoginRequiredMixin, TemplateView):
         return redirect(reverse("compliance:framework-detail", args=[framework.pk]))
 
 
-class FrameworkImportSampleView(LoginRequiredMixin, View):
+class FrameworkImportSampleView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Serve a sample import file (JSON or Excel)."""
+    permission_required = "compliance.framework.read"
 
     def get(self, request):
         fmt = request.GET.get("format", "json")
@@ -351,8 +360,10 @@ class FrameworkImportSampleView(LoginRequiredMixin, View):
 
 # ── Requirement ────────────────────────────────────────────
 
-class RequirementListView(LoginRequiredMixin, SortableListMixin, ListView):
+class RequirementListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Requirement
+    permission_required = "compliance.requirement.read"
+    scope_parent_lookup = "framework__scopes"
     template_name = "compliance/requirement_list.html"
     context_object_name = "requirements"
     paginate_by = 25
@@ -380,9 +391,11 @@ class RequirementListView(LoginRequiredMixin, SortableListMixin, ListView):
 
 
 class RequirementDetailView(
-    LoginRequiredMixin, ApprovalContextMixin, HistoryMixin, DetailView
+    LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView
 ):
     model = Requirement
+    permission_required = "compliance.requirement.read"
+    scope_parent_lookup = "framework__scopes"
     template_name = "compliance/requirement_detail.html"
     context_object_name = "requirement"
     approve_url_name = "compliance:requirement-approve"
@@ -400,8 +413,9 @@ class RequirementDetailView(
         return ctx
 
 
-class RequirementCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
+class RequirementCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreatedByMixin, CreateView):
     model = Requirement
+    permission_required = "compliance.requirement.create"
     form_class = RequirementForm
     template_name = "compliance/requirement_form.html"
 
@@ -409,8 +423,10 @@ class RequirementCreateView(LoginRequiredMixin, CreatedByMixin, CreateView):
         return reverse("compliance:requirement-detail", kwargs={"pk": self.object.pk})
 
 
-class RequirementUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateView):
+class RequirementUpdateView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovableUpdateMixin, UpdateView):
     model = Requirement
+    permission_required = "compliance.requirement.update"
+    scope_parent_lookup = "framework__scopes"
     form_class = RequirementForm
     template_name = "compliance/requirement_form.html"
 
@@ -418,16 +434,19 @@ class RequirementUpdateView(LoginRequiredMixin, ApprovableUpdateMixin, UpdateVie
         return reverse("compliance:requirement-detail", kwargs={"pk": self.object.pk})
 
 
-class RequirementDeleteView(LoginRequiredMixin, DeleteView):
+class RequirementDeleteView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, DeleteView):
     model = Requirement
+    permission_required = "compliance.requirement.delete"
+    scope_parent_lookup = "framework__scopes"
     template_name = "compliance/confirm_delete.html"
     success_url = reverse_lazy("compliance:requirement-list")
 
 
 # ── Assessment ─────────────────────────────────────────────
 
-class AssessmentListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class AssessmentListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = ComplianceAssessment
+    permission_required = "compliance.assessment.read"
     template_name = "compliance/assessment_list.html"
     context_object_name = "assessments"
     paginate_by = 25
@@ -450,9 +469,10 @@ class AssessmentListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin
 
 
 class AssessmentDetailView(
-    LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView
+    LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView
 ):
     model = ComplianceAssessment
+    permission_required = "compliance.assessment.read"
     template_name = "compliance/assessment_detail.html"
     context_object_name = "assessment"
     approval_feature = "assessment"
@@ -605,8 +625,9 @@ class AssessmentDetailView(
         return ctx
 
 
-class AssessmentCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class AssessmentCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = ComplianceAssessment
+    permission_required = "compliance.assessment.create"
     form_class = ComplianceAssessmentForm
     template_name = "compliance/assessment_form.html"
     modal_template_name = "compliance/assessment_form_modal.html"
@@ -624,9 +645,10 @@ class AssessmentCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, Cr
 
 
 class AssessmentUpdateView(
-    LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView
+    LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView
 ):
     model = ComplianceAssessment
+    permission_required = "compliance.assessment.update"
     form_class = ComplianceAssessmentForm
     template_name = "compliance/assessment_form.html"
     modal_template_name = "compliance/assessment_form_modal.html"
@@ -654,8 +676,9 @@ class AssessmentUpdateView(
         return response
 
 
-class AssessmentTransitionView(LoginRequiredMixin, View):
+class AssessmentTransitionView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Advance an assessment to its next workflow status."""
+    permission_required = "compliance.assessment.update"
 
     # Required fields per target status (cumulative as workflow advances)
     REQUIRED_FIELDS = {
@@ -713,8 +736,9 @@ class AssessmentTransitionView(LoginRequiredMixin, View):
         return redirect("compliance:assessment-detail", pk=assessment.pk)
 
 
-class AssessmentDeleteView(LoginRequiredMixin, DeleteView):
+class AssessmentDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = ComplianceAssessment
+    permission_required = "compliance.assessment.delete"
     template_name = "compliance/confirm_delete.html"
     success_url = reverse_lazy("compliance:assessment-list")
 
@@ -972,8 +996,9 @@ def _save_attachments(request, result):
         )
 
 
-class AssessmentResultCreateView(EditableAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, CreateView):
+class AssessmentResultCreateView(EditableAssessmentGuardMixin, LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreateView):
     model = AssessmentResult
+    permission_required = "compliance.assessment.create"
     form_class = AssessmentResultForm
     template_name = "compliance/assessment_result_form.html"
     modal_template_name = "compliance/assessment_result_form_modal.html"
@@ -1023,8 +1048,10 @@ class AssessmentResultCreateView(EditableAssessmentGuardMixin, LoginRequiredMixi
         )
 
 
-class AssessmentResultUpdateView(EditableAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, UpdateView):
+class AssessmentResultUpdateView(EditableAssessmentGuardMixin, LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HtmxFormMixin, UpdateView):
     model = AssessmentResult
+    permission_required = "compliance.assessment.update"
+    scope_parent_lookup = "assessment__scopes"
     form_class = AssessmentResultForm
     template_name = "compliance/assessment_result_form.html"
     modal_template_name = "compliance/assessment_result_form_modal.html"
@@ -1071,8 +1098,10 @@ class AssessmentResultUpdateView(EditableAssessmentGuardMixin, LoginRequiredMixi
         )
 
 
-class AssessmentResultDeleteView(EditableAssessmentGuardMixin, LoginRequiredMixin, DeleteView):
+class AssessmentResultDeleteView(EditableAssessmentGuardMixin, LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, DeleteView):
     model = AssessmentResult
+    permission_required = "compliance.assessment.delete"
+    scope_parent_lookup = "assessment__scopes"
     template_name = "compliance/confirm_delete.html"
 
     def get_assessment(self):
@@ -1098,8 +1127,9 @@ class AssessmentResultDeleteView(EditableAssessmentGuardMixin, LoginRequiredMixi
         )
 
 
-class AssessmentResultAttachmentDeleteView(EditableAssessmentGuardMixin, LoginRequiredMixin, View):
+class AssessmentResultAttachmentDeleteView(EditableAssessmentGuardMixin, LoginRequiredMixin, PermissionRequiredMixin, View):
     """Delete a single attachment from an assessment result via HTMX."""
+    permission_required = "compliance.assessment.update"
 
     def get_assessment(self):
         return get_object_or_404(
@@ -1118,7 +1148,7 @@ class AssessmentResultAttachmentDeleteView(EditableAssessmentGuardMixin, LoginRe
         return HttpResponse(status=200)
 
 
-class ToggleResultEvaluatedView(LoginRequiredMixin, View):
+class ToggleResultEvaluatedView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Toggle a requirement's compliance status.
 
     Phase-dependent behaviour:
@@ -1127,6 +1157,7 @@ class ToggleResultEvaluatedView(LoginRequiredMixin, View):
 
     Creates the AssessmentResult on the fly if it doesn't exist yet.
     """
+    permission_required = "compliance.assessment.update"
 
     def post(self, request, assessment_pk, requirement_pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=assessment_pk)
@@ -1191,13 +1222,14 @@ class ToggleResultEvaluatedView(LoginRequiredMixin, View):
         return HttpResponse(status=204, headers={"HX-Trigger": "formSaved"})
 
 
-class BulkToggleEvaluatedView(LoginRequiredMixin, View):
+class BulkToggleEvaluatedView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Bulk-toggle applicable requirements (without findings).
 
     Phase-dependent behaviour:
     - DRAFT / PLANNED: NOT_ASSESSED ↔ EVALUATED (select/deselect for evaluation)
     - IN_PROGRESS: EVALUATED ↔ COMPLIANT (mass-validate planned evaluations)
     """
+    permission_required = "compliance.assessment.update"
 
     def post(self, request, pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=pk)
@@ -1297,8 +1329,9 @@ class BulkToggleEvaluatedView(LoginRequiredMixin, View):
         return HttpResponse(status=204, headers={"HX-Trigger": "formSaved"})
 
 
-class AssessmentResultsTableBodyView(LoginRequiredMixin, View):
+class AssessmentResultsTableBodyView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Return the results table body partial for HTMX refresh."""
+    permission_required = "compliance.assessment.read"
 
     def get(self, request, pk):
         from django.template.loader import render_to_string
@@ -1322,8 +1355,9 @@ class AssessmentResultsTableBodyView(LoginRequiredMixin, View):
 # ── Findings ──────────────────────────────────────────────
 
 
-class FindingCreateView(EditableAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class FindingCreateView(EditableAssessmentGuardMixin, LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Finding
+    permission_required = "compliance.assessment.create"
     form_class = FindingForm
     template_name = "compliance/finding_form.html"
     modal_template_name = "compliance/finding_form_modal.html"
@@ -1359,8 +1393,10 @@ class FindingCreateView(EditableAssessmentGuardMixin, LoginRequiredMixin, HtmxFo
         )
 
 
-class FindingUpdateView(EditableAssessmentGuardMixin, LoginRequiredMixin, HtmxFormMixin, UpdateView):
+class FindingUpdateView(EditableAssessmentGuardMixin, LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HtmxFormMixin, UpdateView):
     model = Finding
+    permission_required = "compliance.assessment.update"
+    scope_parent_lookup = "assessment__scopes"
     form_class = FindingForm
     template_name = "compliance/finding_form.html"
     modal_template_name = "compliance/finding_form_modal.html"
@@ -1393,8 +1429,10 @@ class FindingUpdateView(EditableAssessmentGuardMixin, LoginRequiredMixin, HtmxFo
         )
 
 
-class FindingDeleteView(EditableAssessmentGuardMixin, LoginRequiredMixin, DeleteView):
+class FindingDeleteView(EditableAssessmentGuardMixin, LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, DeleteView):
     model = Finding
+    permission_required = "compliance.assessment.delete"
+    scope_parent_lookup = "assessment__scopes"
     template_name = "compliance/confirm_delete.html"
 
     def get_assessment(self):
@@ -1424,8 +1462,9 @@ class FindingDeleteView(EditableAssessmentGuardMixin, LoginRequiredMixin, Delete
         )
 
 
-class FindingsTableBodyView(LoginRequiredMixin, View):
+class FindingsTableBodyView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Return the findings table body partial for HTMX refresh."""
+    permission_required = "compliance.assessment.read"
 
     def get(self, request, pk):
         from django.template.loader import render_to_string
@@ -1448,8 +1487,10 @@ class FindingsTableBodyView(LoginRequiredMixin, View):
 
 # ── Mapping ────────────────────────────────────────────────
 
-class MappingListView(LoginRequiredMixin, SortableListMixin, ListView):
+class MappingListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = RequirementMapping
+    permission_required = "compliance.mapping.read"
+    scope_parent_lookup = "source_requirement__framework__scopes"
     template_name = "compliance/mapping_list.html"
     context_object_name = "mappings"
     paginate_by = 25
@@ -1474,14 +1515,17 @@ class MappingListView(LoginRequiredMixin, SortableListMixin, ListView):
         )
 
 
-class MappingDetailView(LoginRequiredMixin, DetailView):
+class MappingDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, DetailView):
     model = RequirementMapping
+    permission_required = "compliance.mapping.read"
+    scope_parent_lookup = "source_requirement__framework__scopes"
     template_name = "compliance/mapping_detail.html"
     context_object_name = "mapping"
 
 
-class MappingCreateView(LoginRequiredMixin, HtmxFormMixin, CreateView):
+class MappingCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreateView):
     model = RequirementMapping
+    permission_required = "compliance.mapping.create"
     form_class = RequirementMappingForm
     template_name = "compliance/mapping_form.html"
     modal_template_name = "compliance/mapping_form_modal.html"
@@ -1492,24 +1536,29 @@ class MappingCreateView(LoginRequiredMixin, HtmxFormMixin, CreateView):
         return super().form_valid(form)
 
 
-class MappingUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
+class MappingUpdateView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HtmxFormMixin, UpdateView):
     model = RequirementMapping
+    permission_required = "compliance.mapping.update"
+    scope_parent_lookup = "source_requirement__framework__scopes"
     form_class = RequirementMappingForm
     template_name = "compliance/mapping_form.html"
     modal_template_name = "compliance/mapping_form_modal.html"
     success_url = reverse_lazy("compliance:mapping-list")
 
 
-class MappingDeleteView(LoginRequiredMixin, DeleteView):
+class MappingDeleteView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, DeleteView):
     model = RequirementMapping
+    permission_required = "compliance.mapping.delete"
+    scope_parent_lookup = "source_requirement__framework__scopes"
     template_name = "compliance/confirm_delete.html"
     success_url = reverse_lazy("compliance:mapping-list")
 
 
 # ── Action Plan ────────────────────────────────────────────
 
-class ActionPlanListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class ActionPlanListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = ComplianceActionPlan
+    permission_required = "compliance.action_plan.read"
     template_name = "compliance/action_plan_list.html"
     context_object_name = "action_plans"
     paginate_by = 25
@@ -1533,9 +1582,10 @@ class ActionPlanListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin
 
 
 class ActionPlanDetailView(
-    LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView
+    LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView
 ):
     model = ComplianceActionPlan
+    permission_required = "compliance.action_plan.read"
     template_name = "compliance/action_plan_detail.html"
     context_object_name = "action_plan"
     approval_feature = "action_plan"
@@ -1669,8 +1719,9 @@ class ActionPlanDetailView(
         return ctx
 
 
-class ActionPlanCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class ActionPlanCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = ComplianceActionPlan
+    permission_required = "compliance.action_plan.create"
     form_class = ComplianceActionPlanForm
     template_name = "compliance/action_plan_form.html"
     modal_template_name = "compliance/action_plan_form_modal.html"
@@ -1683,9 +1734,10 @@ class ActionPlanCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, Cr
 
 
 class ActionPlanUpdateView(
-    LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView
+    LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView
 ):
     model = ComplianceActionPlan
+    permission_required = "compliance.action_plan.update"
     form_class = ComplianceActionPlanForm
     template_name = "compliance/action_plan_form.html"
     modal_template_name = "compliance/action_plan_form_modal.html"
@@ -1697,14 +1749,16 @@ class ActionPlanUpdateView(
         return kwargs
 
 
-class ActionPlanDeleteView(LoginRequiredMixin, DeleteView):
+class ActionPlanDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = ComplianceActionPlan
+    permission_required = "compliance.action_plan.delete"
     template_name = "compliance/confirm_delete.html"
     success_url = reverse_lazy("compliance:action-plan-kanban")
 
 
-class ActionPlanKanbanView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class ActionPlanKanbanView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ListView):
     model = ComplianceActionPlan
+    permission_required = "compliance.action_plan.read"
     template_name = "compliance/action_plan_kanban.html"
     context_object_name = "action_plans"
 
@@ -1754,9 +1808,10 @@ class ActionPlanKanbanView(LoginRequiredMixin, ScopeFilterMixin, ListView):
         return ctx
 
 
-class ActionPlanKanbanColumnView(LoginRequiredMixin, ScopeFilterMixin, ListView):
+class ActionPlanKanbanColumnView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ListView):
     """HTMX partial: returns cards for a single kanban column."""
     model = ComplianceActionPlan
+    permission_required = "compliance.action_plan.read"
     template_name = "compliance/_action_plan_kanban_cards.html"
     context_object_name = "plans"
 
@@ -1771,8 +1826,9 @@ class ActionPlanKanbanColumnView(LoginRequiredMixin, ScopeFilterMixin, ListView)
         )
 
 
-class ActionPlanTransitionView(LoginRequiredMixin, View):
+class ActionPlanTransitionView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Perform a status transition on an action plan."""
+    permission_required = "compliance.action_plan.update"
 
     def post(self, request, pk):
         action_plan = get_object_or_404(ComplianceActionPlan, pk=pk)
@@ -1810,8 +1866,9 @@ class ActionPlanTransitionView(LoginRequiredMixin, View):
         return redirect("compliance:action-plan-detail", pk=pk)
 
 
-class ActionPlanCommentCreateView(LoginRequiredMixin, View):
+class ActionPlanCommentCreateView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Create a comment or reply on an action plan (HTMX POST)."""
+    permission_required = "compliance.action_plan.update"
 
     def post(self, request, pk):
         action_plan = get_object_or_404(ComplianceActionPlan, pk=pk)
@@ -1861,8 +1918,9 @@ class ActionPlanCommentCreateView(LoginRequiredMixin, View):
         return HttpResponse(html)
 
 
-class RiskPreviewView(LoginRequiredMixin, DetailView):
+class RiskPreviewView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """Return a partial HTML preview of a risk for the offcanvas drawer."""
+    permission_required = "compliance.action_plan.read"
 
     template_name = "compliance/_risk_preview.html"
     context_object_name = "risk"
@@ -1873,8 +1931,9 @@ class RiskPreviewView(LoginRequiredMixin, DetailView):
         return Risk.objects.select_related("risk_owner")
 
 
-class FindingPreviewView(LoginRequiredMixin, DetailView):
+class FindingPreviewView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """Return a partial HTML preview of a finding for the offcanvas drawer."""
+    permission_required = "compliance.assessment.read"
 
     model = Finding
     template_name = "compliance/_finding_preview.html"

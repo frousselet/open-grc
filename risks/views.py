@@ -17,6 +17,7 @@ from django.views.generic import (
 )
 
 from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
+from accounts.views import PermissionRequiredMixin
 from core.mixins import HtmxFormMixin, SortableListMixin
 from .constants import (
     DEFAULT_IMPACT_SCALES,
@@ -196,12 +197,22 @@ class HistoryMixin:
         return ctx
 
 
-class ApproveView(LoginRequiredMixin, View):
+class ApproveView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Generic approve view for risks domain models."""
 
     model = None
     permission_feature = None
     success_url = None
+
+    def get_permission_required(self):
+        feature = self.permission_feature or (self.model._meta.model_name if self.model else None)
+        if feature:
+            return f"risks.{feature}.approve"
+        return None
+
+    @property
+    def permission_required(self):
+        return self.get_permission_required()
 
     def post(self, request, pk):
         from core.models import VersioningConfig
@@ -225,10 +236,11 @@ class ApproveView(LoginRequiredMixin, View):
 
 # ── Risk Assessment ─────────────────────────────────────────
 
-class RiskAssessmentListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class RiskAssessmentListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = RiskAssessment
     template_name = "risks/assessment_list.html"
     context_object_name = "assessments"
+    permission_required = "risks.assessment.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -248,10 +260,11 @@ class RiskAssessmentListView(LoginRequiredMixin, ScopeFilterMixin, SortableListM
         return qs
 
 
-class RiskAssessmentDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class RiskAssessmentDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = RiskAssessment
     template_name = "risks/assessment_detail.html"
     context_object_name = "assessment"
+    permission_required = "risks.assessment.read"
     approval_module = "risks"
     approval_feature = "assessment"
     approve_url_name = "risks:assessment-approve"
@@ -281,11 +294,12 @@ class RiskAssessmentDetailView(LoginRequiredMixin, ScopeFilterMixin, ApprovalCon
         return ctx
 
 
-class RiskAssessmentCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class RiskAssessmentCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = RiskAssessment
     form_class = RiskAssessmentForm
     template_name = "risks/assessment_form.html"
     modal_template_name = "risks/assessment_form_modal.html"
+    permission_required = "risks.assessment.create"
     success_url = reverse_lazy("risks:assessment-list")
 
     def get_form_kwargs(self):
@@ -294,11 +308,12 @@ class RiskAssessmentCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin
         return kwargs
 
 
-class RiskAssessmentUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
+class RiskAssessmentUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = RiskAssessment
     form_class = RiskAssessmentForm
     template_name = "risks/assessment_form.html"
     modal_template_name = "risks/assessment_form_modal.html"
+    permission_required = "risks.assessment.update"
     success_url = reverse_lazy("risks:assessment-list")
 
     def get_form_kwargs(self):
@@ -307,18 +322,20 @@ class RiskAssessmentUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpda
         return kwargs
 
 
-class RiskAssessmentDeleteView(LoginRequiredMixin, DeleteView):
+class RiskAssessmentDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = RiskAssessment
     template_name = "risks/confirm_delete.html"
+    permission_required = "risks.assessment.delete"
     success_url = reverse_lazy("risks:assessment-list")
 
 
 # ── Risk Criteria ───────────────────────────────────────────
 
-class RiskCriteriaListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class RiskCriteriaListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = RiskCriteria
     template_name = "risks/criteria_list.html"
     context_object_name = "criteria_list"
+    permission_required = "risks.criteria.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -336,10 +353,11 @@ class RiskCriteriaListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMix
         return qs
 
 
-class RiskCriteriaDetailView(LoginRequiredMixin, ScopeFilterMixin, HistoryMixin, DetailView):
+class RiskCriteriaDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HistoryMixin, DetailView):
     model = RiskCriteria
     template_name = "risks/criteria_detail.html"
     context_object_name = "criteria"
+    permission_required = "risks.criteria.read"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -399,10 +417,11 @@ class CriteriaFormsetMixin:
         instance.rebuild_risk_matrix()
 
 
-class RiskCriteriaCreateView(LoginRequiredMixin, CreatedByMixin, CriteriaFormsetMixin, CreateView):
+class RiskCriteriaCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreatedByMixin, CriteriaFormsetMixin, CreateView):
     model = RiskCriteria
     form_class = RiskCriteriaForm
     template_name = "risks/criteria_form.html"
+    permission_required = "risks.criteria.create"
     success_url = reverse_lazy("risks:criteria-list")
 
     def get_form_kwargs(self):
@@ -427,10 +446,11 @@ class RiskCriteriaCreateView(LoginRequiredMixin, CreatedByMixin, CriteriaFormset
         return self.render_to_response(ctx)
 
 
-class RiskCriteriaUpdateView(LoginRequiredMixin, CriteriaFormsetMixin, ScopeFilterMixin, UpdateView):
+class RiskCriteriaUpdateView(LoginRequiredMixin, PermissionRequiredMixin, CriteriaFormsetMixin, ScopeFilterMixin, UpdateView):
     model = RiskCriteria
     form_class = RiskCriteriaForm
     template_name = "risks/criteria_form.html"
+    permission_required = "risks.criteria.update"
     success_url = reverse_lazy("risks:criteria-list")
 
     def get_form_kwargs(self):
@@ -454,18 +474,21 @@ class RiskCriteriaUpdateView(LoginRequiredMixin, CriteriaFormsetMixin, ScopeFilt
         return self.render_to_response(ctx)
 
 
-class RiskCriteriaDeleteView(LoginRequiredMixin, DeleteView):
+class RiskCriteriaDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = RiskCriteria
     template_name = "risks/confirm_delete.html"
+    permission_required = "risks.criteria.delete"
     success_url = reverse_lazy("risks:criteria-list")
 
 
 # ── Risk ────────────────────────────────────────────────────
 
-class RiskListView(LoginRequiredMixin, SortableListMixin, ListView):
+class RiskListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    scope_parent_lookup = "assessment__scopes"
     model = Risk
     template_name = "risks/risk_list.html"
     context_object_name = "risks"
+    permission_required = "risks.risk.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -492,10 +515,12 @@ class RiskListView(LoginRequiredMixin, SortableListMixin, ListView):
         return qs
 
 
-class RiskDetailView(LoginRequiredMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class RiskDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+    scope_parent_lookup = "assessment__scopes"
     model = Risk
     template_name = "risks/risk_detail.html"
     context_object_name = "risk"
+    permission_required = "risks.risk.read"
     approval_module = "risks"
     approval_feature = "risk"
     approve_url_name = "risks:risk-approve"
@@ -508,11 +533,12 @@ class RiskDetailView(LoginRequiredMixin, ApprovalContextMixin, HistoryMixin, Det
         return ctx
 
 
-class RiskCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class RiskCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Risk
     form_class = RiskForm
     template_name = "risks/risk_form.html"
     modal_template_name = "risks/risk_form_modal.html"
+    permission_required = "risks.risk.create"
     success_url = reverse_lazy("risks:risk-list")
 
     def dispatch(self, request, *args, **kwargs):
@@ -533,26 +559,32 @@ class RiskCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateVi
         return initial
 
 
-class RiskUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
+class RiskUpdateView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
+    scope_parent_lookup = "assessment__scopes"
     model = Risk
     form_class = RiskForm
     template_name = "risks/risk_form.html"
     modal_template_name = "risks/risk_form_modal.html"
+    permission_required = "risks.risk.update"
     success_url = reverse_lazy("risks:risk-list")
 
 
-class RiskDeleteView(LoginRequiredMixin, DeleteView):
+class RiskDeleteView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, DeleteView):
+    scope_parent_lookup = "assessment__scopes"
     model = Risk
     template_name = "risks/confirm_delete.html"
+    permission_required = "risks.risk.delete"
     success_url = reverse_lazy("risks:risk-list")
 
 
 # ── Treatment Plan ──────────────────────────────────────────
 
-class TreatmentPlanListView(LoginRequiredMixin, SortableListMixin, ListView):
+class TreatmentPlanListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    scope_parent_lookup = "risk__assessment__scopes"
     model = RiskTreatmentPlan
     template_name = "risks/treatment_plan_list.html"
     context_object_name = "plans"
+    permission_required = "risks.treatment.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -576,10 +608,12 @@ class TreatmentPlanListView(LoginRequiredMixin, SortableListMixin, ListView):
         return qs
 
 
-class TreatmentPlanDetailView(LoginRequiredMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class TreatmentPlanDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+    scope_parent_lookup = "risk__assessment__scopes"
     model = RiskTreatmentPlan
     template_name = "risks/treatment_plan_detail.html"
     context_object_name = "plan"
+    permission_required = "risks.treatment.read"
     approval_module = "risks"
     approval_feature = "treatment"
     approve_url_name = "risks:treatment-plan-approve"
@@ -590,34 +624,41 @@ class TreatmentPlanDetailView(LoginRequiredMixin, ApprovalContextMixin, HistoryM
         return ctx
 
 
-class TreatmentPlanCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class TreatmentPlanCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = RiskTreatmentPlan
     form_class = RiskTreatmentPlanForm
     template_name = "risks/treatment_plan_form.html"
     modal_template_name = "risks/treatment_plan_form_modal.html"
+    permission_required = "risks.treatment.create"
     success_url = reverse_lazy("risks:treatment-plan-list")
 
 
-class TreatmentPlanUpdateView(LoginRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
+class TreatmentPlanUpdateView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
+    scope_parent_lookup = "risk__assessment__scopes"
     model = RiskTreatmentPlan
     form_class = RiskTreatmentPlanForm
     template_name = "risks/treatment_plan_form.html"
     modal_template_name = "risks/treatment_plan_form_modal.html"
+    permission_required = "risks.treatment.update"
     success_url = reverse_lazy("risks:treatment-plan-list")
 
 
-class TreatmentPlanDeleteView(LoginRequiredMixin, DeleteView):
+class TreatmentPlanDeleteView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, DeleteView):
+    scope_parent_lookup = "risk__assessment__scopes"
     model = RiskTreatmentPlan
     template_name = "risks/confirm_delete.html"
+    permission_required = "risks.treatment.delete"
     success_url = reverse_lazy("risks:treatment-plan-list")
 
 
 # ── Risk Acceptance ─────────────────────────────────────────
 
-class RiskAcceptanceListView(LoginRequiredMixin, SortableListMixin, ListView):
+class RiskAcceptanceListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    scope_parent_lookup = "risk__assessment__scopes"
     model = RiskAcceptance
     template_name = "risks/acceptance_list.html"
     context_object_name = "acceptances"
+    permission_required = "risks.acceptance.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -639,40 +680,48 @@ class RiskAcceptanceListView(LoginRequiredMixin, SortableListMixin, ListView):
         return qs
 
 
-class RiskAcceptanceDetailView(LoginRequiredMixin, HistoryMixin, DetailView):
+class RiskAcceptanceDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HistoryMixin, DetailView):
+    scope_parent_lookup = "risk__assessment__scopes"
     model = RiskAcceptance
     template_name = "risks/acceptance_detail.html"
     context_object_name = "acceptance"
+    permission_required = "risks.acceptance.read"
 
 
-class RiskAcceptanceCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class RiskAcceptanceCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = RiskAcceptance
     form_class = RiskAcceptanceForm
     template_name = "risks/acceptance_form.html"
     modal_template_name = "risks/acceptance_form_modal.html"
+    permission_required = "risks.acceptance.create"
     success_url = reverse_lazy("risks:acceptance-list")
 
 
-class RiskAcceptanceUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
+class RiskAcceptanceUpdateView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HtmxFormMixin, UpdateView):
+    scope_parent_lookup = "risk__assessment__scopes"
     model = RiskAcceptance
     form_class = RiskAcceptanceForm
     template_name = "risks/acceptance_form.html"
     modal_template_name = "risks/acceptance_form_modal.html"
+    permission_required = "risks.acceptance.update"
     success_url = reverse_lazy("risks:acceptance-list")
 
 
-class RiskAcceptanceDeleteView(LoginRequiredMixin, DeleteView):
+class RiskAcceptanceDeleteView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, DeleteView):
+    scope_parent_lookup = "risk__assessment__scopes"
     model = RiskAcceptance
     template_name = "risks/confirm_delete.html"
+    permission_required = "risks.acceptance.delete"
     success_url = reverse_lazy("risks:acceptance-list")
 
 
 # ── Threat ──────────────────────────────────────────────────
 
-class ThreatListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class ThreatListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Threat
     template_name = "risks/threat_list.html"
     context_object_name = "threats"
+    permission_required = "risks.threat.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -695,17 +744,19 @@ class ThreatListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, Li
         return qs
 
 
-class ThreatDetailView(LoginRequiredMixin, ScopeFilterMixin, HistoryMixin, DetailView):
+class ThreatDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HistoryMixin, DetailView):
     model = Threat
     template_name = "risks/threat_detail.html"
     context_object_name = "threat"
+    permission_required = "risks.threat.read"
 
 
-class ThreatCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class ThreatCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Threat
     form_class = ThreatForm
     template_name = "risks/threat_form.html"
     modal_template_name = "risks/threat_form_modal.html"
+    permission_required = "risks.threat.create"
     success_url = reverse_lazy("risks:threat-list")
 
     def get_form_kwargs(self):
@@ -714,11 +765,12 @@ class ThreatCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, Create
         return kwargs
 
 
-class ThreatUpdateView(LoginRequiredMixin, HtmxFormMixin, ScopeFilterMixin, UpdateView):
+class ThreatUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ScopeFilterMixin, UpdateView):
     model = Threat
     form_class = ThreatForm
     template_name = "risks/threat_form.html"
     modal_template_name = "risks/threat_form_modal.html"
+    permission_required = "risks.threat.update"
     success_url = reverse_lazy("risks:threat-list")
 
     def get_form_kwargs(self):
@@ -727,18 +779,20 @@ class ThreatUpdateView(LoginRequiredMixin, HtmxFormMixin, ScopeFilterMixin, Upda
         return kwargs
 
 
-class ThreatDeleteView(LoginRequiredMixin, DeleteView):
+class ThreatDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Threat
     template_name = "risks/confirm_delete.html"
+    permission_required = "risks.threat.delete"
     success_url = reverse_lazy("risks:threat-list")
 
 
 # ── Vulnerability ───────────────────────────────────────────
 
-class VulnerabilityListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+class VulnerabilityListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
     model = Vulnerability
     template_name = "risks/vulnerability_list.html"
     context_object_name = "vulnerabilities"
+    permission_required = "risks.vulnerability.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -761,17 +815,19 @@ class VulnerabilityListView(LoginRequiredMixin, ScopeFilterMixin, SortableListMi
         return qs
 
 
-class VulnerabilityDetailView(LoginRequiredMixin, ScopeFilterMixin, HistoryMixin, DetailView):
+class VulnerabilityDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HistoryMixin, DetailView):
     model = Vulnerability
     template_name = "risks/vulnerability_detail.html"
     context_object_name = "vulnerability"
+    permission_required = "risks.vulnerability.read"
 
 
-class VulnerabilityCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class VulnerabilityCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Vulnerability
     form_class = VulnerabilityForm
     template_name = "risks/vulnerability_form.html"
     modal_template_name = "risks/vulnerability_form_modal.html"
+    permission_required = "risks.vulnerability.create"
     success_url = reverse_lazy("risks:vulnerability-list")
 
     def get_form_kwargs(self):
@@ -780,11 +836,12 @@ class VulnerabilityCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin,
         return kwargs
 
 
-class VulnerabilityUpdateView(LoginRequiredMixin, HtmxFormMixin, ScopeFilterMixin, UpdateView):
+class VulnerabilityUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ScopeFilterMixin, UpdateView):
     model = Vulnerability
     form_class = VulnerabilityForm
     template_name = "risks/vulnerability_form.html"
     modal_template_name = "risks/vulnerability_form_modal.html"
+    permission_required = "risks.vulnerability.update"
     success_url = reverse_lazy("risks:vulnerability-list")
 
     def get_form_kwargs(self):
@@ -793,9 +850,10 @@ class VulnerabilityUpdateView(LoginRequiredMixin, HtmxFormMixin, ScopeFilterMixi
         return kwargs
 
 
-class VulnerabilityDeleteView(LoginRequiredMixin, DeleteView):
+class VulnerabilityDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Vulnerability
     template_name = "risks/confirm_delete.html"
+    permission_required = "risks.vulnerability.delete"
     success_url = reverse_lazy("risks:vulnerability-list")
 
 
@@ -826,10 +884,12 @@ def scale_choices_api(request):
 
 # ── ISO 27005 Risk ──────────────────────────────────────────
 
-class ISO27005RiskListView(LoginRequiredMixin, SortableListMixin, ListView):
+class ISO27005RiskListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, SortableListMixin, ListView):
+    scope_parent_lookup = "assessment__scopes"
     model = ISO27005Risk
     template_name = "risks/iso27005_risk_list.html"
     context_object_name = "analyses"
+    permission_required = "risks.iso27005.read"
     paginate_by = 25
     sortable_fields = {
         "reference": "reference",
@@ -850,17 +910,20 @@ class ISO27005RiskListView(LoginRequiredMixin, SortableListMixin, ListView):
         return qs
 
 
-class ISO27005RiskDetailView(LoginRequiredMixin, HistoryMixin, DetailView):
+class ISO27005RiskDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HistoryMixin, DetailView):
+    scope_parent_lookup = "assessment__scopes"
     model = ISO27005Risk
     template_name = "risks/iso27005_risk_detail.html"
     context_object_name = "analysis"
+    permission_required = "risks.iso27005.read"
 
 
-class ISO27005RiskCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
+class ISO27005RiskCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = ISO27005Risk
     form_class = ISO27005RiskForm
     template_name = "risks/iso27005_risk_form.html"
     modal_template_name = "risks/iso27005_risk_form_modal.html"
+    permission_required = "risks.iso27005.create"
 
     def get_initial(self):
         initial = super().get_initial()
@@ -877,11 +940,13 @@ class ISO27005RiskCreateView(LoginRequiredMixin, HtmxFormMixin, CreatedByMixin, 
         return reverse_lazy("risks:iso27005-list")
 
 
-class ISO27005RiskUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
+class ISO27005RiskUpdateView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HtmxFormMixin, UpdateView):
+    scope_parent_lookup = "assessment__scopes"
     model = ISO27005Risk
     form_class = ISO27005RiskForm
     template_name = "risks/iso27005_risk_form.html"
     modal_template_name = "risks/iso27005_risk_form_modal.html"
+    permission_required = "risks.iso27005.update"
 
     def get_success_url(self):
         if self.object and self.object.assessment_id:
@@ -891,14 +956,18 @@ class ISO27005RiskUpdateView(LoginRequiredMixin, HtmxFormMixin, UpdateView):
         return reverse_lazy("risks:iso27005-list")
 
 
-class ISO27005RiskDeleteView(LoginRequiredMixin, DeleteView):
+class ISO27005RiskDeleteView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, DeleteView):
+    scope_parent_lookup = "assessment__scopes"
     model = ISO27005Risk
     template_name = "risks/confirm_delete.html"
+    permission_required = "risks.iso27005.delete"
     success_url = reverse_lazy("risks:iso27005-list")
 
 
-class ISO27005ConsolidateView(LoginRequiredMixin, View):
+class ISO27005ConsolidateView(LoginRequiredMixin, PermissionRequiredMixin, View):
     """Create or update a Risk entry from an ISO 27005 analysis."""
+
+    permission_required = "risks.risk.create"
 
     def post(self, request, pk):
         analysis = get_object_or_404(

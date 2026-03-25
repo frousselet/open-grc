@@ -248,7 +248,9 @@ class GroupViewSet(viewsets.ModelViewSet):
 class PermissionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ModulePermission]
+    permission_module = "system"
+    permission_feature = "groups"
     filterset_class = PermissionFilter
     search_fields = ["codename", "name"]
 
