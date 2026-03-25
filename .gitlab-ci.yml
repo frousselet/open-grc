@@ -110,22 +110,15 @@ vulnerabilities:
     - python manage.py compilemessages
 
 # ---------------------------------------------------------------------------
-# Test - Unit : pytest split into 4 parallel groups (~350 tests each)
+# Test - Unit : one parallel job per app directory
 # ---------------------------------------------------------------------------
 unit:
   extends: .test-base
   parallel:
     matrix:
-      - TEST_SUITE: context
-        TEST_PATHS: "context/"
-      - TEST_SUITE: accounts-core
-        TEST_PATHS: "accounts/ core/"
-      - TEST_SUITE: compliance-risks
-        TEST_PATHS: "compliance/ risks/"
-      - TEST_SUITE: assets-others
-        TEST_PATHS: "assets/ mcp/ helpers/ reports/"
+      - TEST_SUITE: [accounts, assets, compliance, context, core, helpers, mcp, reports, risks]
   script:
-    - pytest -x -v --tb=short --cov --junitxml=report.xml $TEST_PATHS
+    - pytest -x -v --tb=short --cov --junitxml=report.xml $TEST_SUITE/
   after_script:
     - mv .coverage .coverage.$TEST_SUITE 2>/dev/null || true
   artifacts:
