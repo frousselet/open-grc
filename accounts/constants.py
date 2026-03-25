@@ -139,7 +139,7 @@ PERMISSION_REGISTRY = {
             "label": _("Asset import"),
         },
         "config": {
-            "actions": ["read", "update"],
+            "actions": ["create", "read", "update", "delete"],
             "label": _("Asset configuration"),
         },
         "export": {

@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MCP server returns detailed validation error messages instead of generic "Invalid params" / "Internal error" responses
 - MCP DIC level fields (`confidentiality_level`, `integrity_level`, `availability_level`) now correctly declared as `integer` type with `enum: [0, 1, 2, 3, 4]` instead of `string`
 - MCP supplier `type` field description clarified as a foreign key (UUID of SupplierType) instead of an enum
+- Add `create` and `delete` actions to `assets.config` permissions, enabling MCP SupplierType management for non-superuser accounts
 
 ### Fixed
 
