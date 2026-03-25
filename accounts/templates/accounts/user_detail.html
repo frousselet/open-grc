@@ -21,6 +21,15 @@
     {% if can_edit %}
     <a href="{% url 'accounts:user-update' account_user.pk %}" class="btn btn-outline-primary">{% trans "Edit" %}</a>
     {% endif %}
+    {% has_perm "system.users.impersonate" as can_impersonate %}
+    {% if can_impersonate and account_user.is_active and account_user.pk != request.user.pk and not request.impersonator %}
+    <form method="post" action="{% url 'accounts:impersonate-start' account_user.pk %}" class="d-inline">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-warning" onclick="return confirm('{% trans "Impersonate this user?" %}')">
+        <i class="bi bi-eye me-1"></i>{% trans "Impersonate" %}
+      </button>
+    </form>
+    {% endif %}
     <a href="{% url 'accounts:user-list' %}" class="btn btn-outline-secondary">{% trans "Back to list" %}</a>
   </div>
 </div>

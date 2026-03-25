@@ -115,6 +115,52 @@ msgstr "Clé d'accès enregistrée"
 msgid "Passkey deleted"
 msgstr "Clé d'accès supprimée"
 
+#: accounts/constants.py
+msgid "Impersonation started"
+msgstr "Prise de contrôle démarrée"
+
+#: accounts/constants.py
+msgid "Impersonation stopped"
+msgstr "Prise de contrôle terminée"
+
+#: accounts/constants.py
+msgid "Impersonate"
+msgstr "Se connecter en tant que"
+
+#: accounts/views.py
+msgid "Impersonation already active."
+msgstr "Connexion en tant qu'un autre utilisateur déjà active."
+
+#: accounts/views.py
+msgid "You cannot impersonate yourself."
+msgstr "Vous ne pouvez pas vous connecter en tant que vous-même."
+
+#: accounts/views.py
+msgid "Cannot impersonate an inactive or locked user."
+msgstr "Impossible de se connecter en tant qu'un utilisateur inactif ou verrouillé."
+
+#: accounts/views.py
+#, python-format
+msgid "Now impersonating %(name)s."
+msgstr "Connecté en tant que %(name)s."
+
+#: accounts/views.py
+msgid "Impersonation ended."
+msgstr "Retour à votre compte."
+
+#: templates/base.html
+#, python-format
+msgid "Impersonating %(name)s"
+msgstr "Connecté en tant que %(name)s"
+
+#: accounts/templates/accounts/user_detail.html
+msgid "Impersonate this user?"
+msgstr "Se connecter en tant que cet utilisateur ?"
+
+#: templates/base.html
+msgid "Stop"
+msgstr "Arrêter"
+
 #: accounts/constants.py:29
 msgid "Invalid password"
 msgstr "Mot de passe invalide"

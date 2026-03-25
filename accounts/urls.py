@@ -42,6 +42,10 @@ urlpatterns = [
     path("groups/<uuid:pk>/users/", views.GroupUsersUpdateView.as_view(), name="group-users-update"),
     path("groups/<uuid:pk>/scopes/", views.GroupScopesUpdateView.as_view(), name="group-scopes-update"),
 
+    # Impersonation
+    path("impersonate/<uuid:pk>/start/", views.ImpersonateStartView.as_view(), name="impersonate-start"),
+    path("impersonate/stop/", views.ImpersonateStopView.as_view(), name="impersonate-stop"),
+
     # Permissions
     path("permissions/", views.PermissionListView.as_view(), name="permission-list"),
 

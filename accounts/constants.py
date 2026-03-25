@@ -24,6 +24,8 @@ class AccessEventType(models.TextChoices):
     PASSKEY_LOGIN_FAILED = "passkey_login_failed", _("Passkey login failed")
     PASSKEY_REGISTERED = "passkey_registered", _("Passkey registered")
     PASSKEY_DELETED = "passkey_deleted", _("Passkey deleted")
+    IMPERSONATION_START = "impersonation_start", _("Impersonation started")
+    IMPERSONATION_STOP = "impersonation_stop", _("Impersonation stopped")
 
 
 class FailureReason(models.TextChoices):
@@ -236,7 +238,7 @@ PERMISSION_REGISTRY = {
             "label": _("Django administration"),
         },
         "users": {
-            "actions": ["create", "read", "update", "delete"],
+            "actions": ["create", "read", "update", "delete", "impersonate"],
             "label": _("Users"),
         },
         "groups": {
@@ -283,6 +285,7 @@ ACTION_LABELS = {
     "implement": pgettext_lazy("permission", "Implement"),
     "close": pgettext_lazy("permission", "Close"),
     "cancel": pgettext_lazy("permission", "Cancel"),
+    "impersonate": _("Impersonate"),
 }
 
 # Module labels for display

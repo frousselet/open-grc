@@ -2392,6 +2392,31 @@
   {% block extra_css %}{% endblock %}
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  {% if request.impersonator %}
+  <div id="impersonation-banner" style="position:fixed;top:0;left:0;right:0;z-index:10000;background:linear-gradient(90deg,#f59e0b,#d97706);color:#fff;padding:.5rem 1rem;display:flex;align-items:center;justify-content:center;gap:1rem;font-weight:600;font-size:.875rem;height:38px">
+    <i class="bi bi-eye-fill"></i>
+    {% blocktrans with name=user.display_name %}Impersonating {{ name }}{% endblocktrans %}
+    <form method="post" action="{% url 'accounts:impersonate-stop' %}" style="margin:0">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-sm" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);font-weight:600">
+        <i class="bi bi-x-circle me-1"></i>{% trans "Stop" %}
+      </button>
+    </form>
+  </div>
+  <style>
+    :root { --imp-h: 38px; }
+    .sidebar { top: calc(var(--sidebar-inset) + var(--imp-h)) !important; }
+    .sidebar-collapse-toggle { top: calc(var(--sidebar-inset) + 3.625rem + var(--imp-h)) !important; }
+    .user-header-bubble { top: calc(.875rem + var(--imp-h)) !important; }
+    .main-content { padding-top: calc(2.5rem + var(--imp-h)) !important; }
+    @media (max-width: 991.98px) {
+      .sidebar { top: var(--imp-h) !important; }
+      .mobile-menu-toggle { top: calc(.75rem + var(--imp-h)) !important; }
+      .user-header-bubble { top: calc(.75rem + var(--imp-h)) !important; }
+      .main-content { padding-top: calc(4.5rem + var(--imp-h)) !important; }
+    }
+  </style>
+  {% endif %}
   {% block layout %}
   {# ── Sidebar ────────────────────────────────────────── #}
   <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>

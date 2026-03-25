@@ -294,7 +294,7 @@ class GroupDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 
         # Build permission matrix as a flat list of rows for easy template rendering
         group_codenames = set(group.permissions.values_list("codename", flat=True))
-        all_actions = ["create", "read", "update", "delete", "access", "approve"]
+        all_actions = ["create", "read", "update", "delete", "access", "approve", "impersonate"]
         matrix = []
         for module, features in PERMISSION_REGISTRY.items():
             module_label = MODULE_LABELS.get(module, module)
@@ -451,6 +451,82 @@ class GroupDeleteView(LoginRequiredMixin, PermissionRequiredMixin, View):
         group.delete()
         messages.success(request, _("Group '%(name)s' deleted.") % {"name": name})
         return redirect("accounts:group-list")
+
+
+# ── Impersonation ───────────────────────────────────────────
+
+
+class ImpersonateStartView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "system.users.impersonate"
+
+    def post(self, request, pk):
+        from accounts.middleware import IMPERSONATION_SESSION_KEY
+        from accounts.constants import AccessEventType
+
+        # Prevent nested impersonation
+        if request.session.get(IMPERSONATION_SESSION_KEY):
+            messages.error(request, _("Impersonation already active."))
+            return redirect("accounts:user-detail", pk=pk)
+
+        target = get_object_or_404(User, pk=pk)
+
+        if target == request.user:
+            messages.error(request, _("You cannot impersonate yourself."))
+            return redirect("accounts:user-detail", pk=pk)
+
+        if not target.is_active or getattr(target, "is_locked", False):
+            messages.error(request, _("Cannot impersonate an inactive or locked user."))
+            return redirect("accounts:user-detail", pk=pk)
+
+        # Log the impersonation start
+        original_user = request.user
+        AccessLog.objects.create(
+            user=original_user,
+            event_type=AccessEventType.IMPERSONATION_START,
+            ip_address=request.META.get("REMOTE_ADDR", ""),
+            user_agent=request.META.get("HTTP_USER_AGENT", "")[:500],
+            metadata={"impersonated_user_id": str(target.pk), "impersonated_email": target.email},
+        )
+
+        # Switch to target user (login() flushes the session)
+        original_id = str(original_user.pk)
+        login(request, target, backend="accounts.backends.EmailAuthBackend")
+        # Re-set the key after login flushed the session
+        request.session[IMPERSONATION_SESSION_KEY] = original_id
+
+        messages.info(request, _("Now impersonating %(name)s.") % {"name": target.display_name})
+        return redirect("/")
+
+
+class ImpersonateStopView(LoginRequiredMixin, View):
+
+    def post(self, request):
+        from accounts.middleware import IMPERSONATION_SESSION_KEY
+        from accounts.constants import AccessEventType
+
+        original_id = request.session.get(IMPERSONATION_SESSION_KEY)
+        if not original_id:
+            return redirect("/")
+
+        try:
+            original_user = User.objects.get(pk=original_id)
+        except User.DoesNotExist:
+            request.session.pop(IMPERSONATION_SESSION_KEY, None)
+            return redirect("/")
+
+        # Log the impersonation stop
+        AccessLog.objects.create(
+            user=original_user,
+            event_type=AccessEventType.IMPERSONATION_STOP,
+            ip_address=request.META.get("REMOTE_ADDR", ""),
+            user_agent=request.META.get("HTTP_USER_AGENT", "")[:500],
+            metadata={"impersonated_user_id": str(request.user.pk), "impersonated_email": request.user.email},
+        )
+
+        login(request, original_user, backend="accounts.backends.EmailAuthBackend")
+        # Session flushed by login, no key to remove
+        messages.success(request, _("Impersonation ended."))
+        return redirect("/")
 
 
 # ── Permissions ─────────────────────────────────────────────

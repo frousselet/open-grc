@@ -99,6 +99,9 @@
                 <th class="text-center"><span class="d-block">{% trans "Approve" %}</span>
                   {% if can_edit_perms %}<input type="checkbox" class="form-check-input col-toggle" data-action="approve" data-module-idx="{{ forloop.counter }}" title="{% trans 'Toggle column' %}">{% endif %}
                 </th>
+                <th class="text-center"><span class="d-block">{% trans "Impersonate" %}</span>
+                  {% if can_edit_perms %}<input type="checkbox" class="form-check-input col-toggle" data-action="impersonate" data-module-idx="{{ forloop.counter }}" title="{% trans 'Toggle column' %}">{% endif %}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -310,7 +313,7 @@
   });
 
   // ── Column toggle (select all features for an action) ──
-  var actionIndex = { create: 0, read: 1, update: 2, delete: 3, access: 4, approve: 5 };
+  var actionIndex = { create: 0, read: 1, update: 2, delete: 3, access: 4, approve: 5, impersonate: 6 };
 
   document.querySelectorAll('.col-toggle').forEach(function(toggle) {
     toggle.addEventListener('change', function() {
