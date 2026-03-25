@@ -76,12 +76,12 @@ vulnerabilities:
     TRIVY_NO_PROGRESS: "true"
   before_script:
     - pip install --quiet -r requirements.txt
-    - pip freeze > requirements.lock
+    - pip freeze > requirements.txt
     - apt-get update && apt-get install -y --no-install-recommends curl
     - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
     - curl -sfL -o /tmp/gitlab.tpl https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/gitlab.tpl
   script:
-    - trivy fs --exit-code 0 --scanners vuln --format template --template "@/tmp/gitlab.tpl" -o gl-container-scanning-report.json requirements.lock
+    - trivy fs --exit-code 0 --scanners vuln --format template --template "@/tmp/gitlab.tpl" -o gl-container-scanning-report.json .
   artifacts:
     when: always
     reports:
