@@ -10,6 +10,7 @@ workflow:
 
 stages:
   - quality
+  - security
   - test
   - deploy
 
@@ -60,6 +61,29 @@ translations:
     - django-admin compilemessages --locale=fr --locale=en
 
 # ---------------------------------------------------------------------------
+# Security - Vulnerabilities : Trivy filesystem scan
+# ---------------------------------------------------------------------------
+vulnerabilities:
+  extends: .not-tags
+  stage: security
+  image:
+    name: docker.io/aquasec/trivy:latest
+    entrypoint: [""]
+  variables:
+    TRIVY_NO_PROGRESS: "true"
+    TRIVY_CACHE_DIR: ".trivycache/"
+  script:
+    - trivy fs --exit-code 0 --format template --template "@/contrib/gitlab.tpl" -o gl-container-scanning-report.json .
+  cache:
+    paths:
+      - .trivycache/
+  artifacts:
+    when: always
+    reports:
+      container_scanning: gl-container-scanning-report.json
+    expire_in: 30 days
+
+# ---------------------------------------------------------------------------
 # Test - Unit : pytest with coverage
 # ---------------------------------------------------------------------------
 unit:
@@ -77,12 +101,14 @@ unit:
     - pip install --quiet -r requirements.txt
   script:
     - python manage.py compilemessages
-    - pytest -x -v --tb=short --cov --cov-report=term-missing --cov-report=xml:coverage.xml
+    - pytest -x -v --tb=short --cov --cov-report=term-missing --cov-report=xml:coverage.xml --junitxml=report.xml
   artifacts:
+    when: always
     reports:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
+      junit: report.xml
     expire_in: 30 days
   coverage: '/^TOTAL.+?(\d+(?:\.\d+)?)%$/'
 
