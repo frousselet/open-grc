@@ -163,14 +163,29 @@ def _coerce_field_value(model_class, field_name, value):
     from django.db.models import (
         IntegerField, PositiveIntegerField, PositiveSmallIntegerField,
         SmallIntegerField, BigIntegerField, BooleanField, FloatField,
-        DecimalField, JSONField,
+        DecimalField, JSONField, ForeignKey, AutoField,
     )
     int_types = (IntegerField, PositiveIntegerField, PositiveSmallIntegerField,
                  SmallIntegerField, BigIntegerField)
+    # ForeignKey: coerce the PK value to the related model's PK type
+    if isinstance(field, ForeignKey):
+        related_pk = field.related_model._meta.pk
+        if isinstance(related_pk, (AutoField,) + int_types):
+            try:
+                return int(value)
+            except (ValueError, TypeError):
+                return value
+        return value
     if isinstance(field, int_types):
         try:
             return int(value)
         except (ValueError, TypeError):
+            # For IntegerChoices fields, accept text labels (e.g., "medium" -> 2)
+            if hasattr(field, 'choices') and field.choices:
+                value_lower = str(value).lower()
+                for choice_val, choice_label in field.choices:
+                    if value_lower == str(choice_label).lower():
+                        return choice_val
             return value
     if isinstance(field, BooleanField):
         if isinstance(value, str):
@@ -885,19 +900,16 @@ def _register_assets_tools(server):
                            "enum": ["identified", "active", "under_review", "decommissioned"],
                        },
                        "confidentiality_level": {
-                           "type": "integer",
-                           "description": "Confidentiality level (0=Negligible, 1=Low, 2=Medium, 3=High, 4=Critical). Default: 2.",
-                           "enum": [0, 1, 2, 3, 4],
+                           "type": ["integer", "string"],
+                           "description": "Confidentiality level. Accepts integers (0-4) or text labels: 0/negligible, 1/low, 2/medium, 3/high, 4/critical. Default: 2.",
                        },
                        "integrity_level": {
-                           "type": "integer",
-                           "description": "Integrity level (0=Negligible, 1=Low, 2=Medium, 3=High, 4=Critical). Default: 2.",
-                           "enum": [0, 1, 2, 3, 4],
+                           "type": ["integer", "string"],
+                           "description": "Integrity level. Accepts integers (0-4) or text labels: 0/negligible, 1/low, 2/medium, 3/high, 4/critical. Default: 2.",
                        },
                        "availability_level": {
-                           "type": "integer",
-                           "description": "Availability level (0=Negligible, 1=Low, 2=Medium, 3=High, 4=Critical). Default: 2.",
-                           "enum": [0, 1, 2, 3, 4],
+                           "type": ["integer", "string"],
+                           "description": "Availability level. Accepts integers (0-4) or text labels: 0/negligible, 1/low, 2/medium, 3/high, 4/critical. Default: 2.",
                        },
                        "personal_data": {
                            "type": "boolean",
@@ -1010,7 +1022,7 @@ def _register_assets_tools(server):
     _sup_field_overrides = {
         "description": _html_field("Description"),
         "notes": _html_field("Notes"),
-        "type": {"type": "string", "description": "UUID of a SupplierType. Use list_supplier_types to get valid IDs."},
+        "type": {"type": "integer", "description": "ID of a SupplierType. Use list_supplier_types to get valid IDs."},
         "criticality": {
             "type": "string",
             "description": "Supplier criticality.",
@@ -1434,10 +1446,11 @@ def _register_compliance_tools(server):
                            "type": "string",
                            "description": "Compliance status.",
                            "enum": [
-                               "not_assessed", "evaluated", "major_non_conformity",
-                               "minor_non_conformity", "observation",
-                               "improvement_opportunity", "compliant", "strength",
-                               "not_applicable",
+                               "not_assessed", "evaluated",
+                               "non_compliant", "partially_compliant",
+                               "major_non_conformity", "minor_non_conformity",
+                               "observation", "improvement_opportunity",
+                               "compliant", "strength", "not_applicable",
                            ],
                        },
                        "priority": {
@@ -3198,7 +3211,8 @@ def _create_supplier_handler(model_class, writable_fields):
         kwargs = {}
         for field_name in writable_fields:
             if field_name in arguments:
-                kwargs[field_name] = arguments[field_name]
+                kwargs[field_name] = _coerce_field_value(
+                    model_class, field_name, arguments[field_name])
         if hasattr(model_class, "created_by"):
             kwargs["created_by"] = user
         try:
@@ -3231,7 +3245,8 @@ def _update_supplier_with_logo_handler(model_class, writable_fields):
         changed_fields = set()
         for field_name in writable_fields:
             if field_name in arguments:
-                setattr(obj, field_name, arguments[field_name])
+                setattr(obj, field_name, _coerce_field_value(
+                    model_class, field_name, arguments[field_name]))
                 changed_fields.add(field_name)
         if image_url:
             try:

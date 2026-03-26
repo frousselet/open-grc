@@ -57,6 +57,8 @@ class RequirementCategory(models.TextChoices):
 class ComplianceStatus(models.TextChoices):
     NOT_ASSESSED = "not_assessed", _("Not assessed")
     EVALUATED = "evaluated", _("Evaluation planned")
+    NON_COMPLIANT = "non_compliant", _("Non-compliant")
+    PARTIALLY_COMPLIANT = "partially_compliant", _("Partially compliant")
     MAJOR_NON_CONFORMITY = "major_non_conformity", _("Major non-conformity")
     MINOR_NON_CONFORMITY = "minor_non_conformity", _("Minor non-conformity")
     OBSERVATION = "observation", pgettext_lazy("compliance", "Observation")
@@ -257,6 +259,8 @@ FINDING_SEVERITY_ORDER = [
 COMPLIANCE_LEVEL_DEFAULTS = {
     ComplianceStatus.NOT_ASSESSED: 0,
     ComplianceStatus.EVALUATED: 50,
+    ComplianceStatus.NON_COMPLIANT: 0,
+    ComplianceStatus.PARTIALLY_COMPLIANT: 40,
     ComplianceStatus.MAJOR_NON_CONFORMITY: 0,
     ComplianceStatus.MINOR_NON_CONFORMITY: 30,
     ComplianceStatus.OBSERVATION: 50,
@@ -269,12 +273,15 @@ COMPLIANCE_LEVEL_DEFAULTS = {
 
 # Statuses that represent non-conformities (gaps/findings are expected)
 NON_CONFORMITY_STATUSES = {
+    ComplianceStatus.NON_COMPLIANT,
     ComplianceStatus.MAJOR_NON_CONFORMITY,
     ComplianceStatus.MINOR_NON_CONFORMITY,
 }
 
 # Statuses that represent observations/improvements (no gaps expected, but finding is)
 FINDING_STATUSES = {
+    ComplianceStatus.NON_COMPLIANT,
+    ComplianceStatus.PARTIALLY_COMPLIANT,
     ComplianceStatus.MAJOR_NON_CONFORMITY,
     ComplianceStatus.MINOR_NON_CONFORMITY,
     ComplianceStatus.OBSERVATION,

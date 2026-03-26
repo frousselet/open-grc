@@ -71,7 +71,7 @@
     {% elif entry.result and entry.result.compliance_status == 'not_applicable' %}
       <span class="badge text-bg-dark">{{ entry.result.get_compliance_status_display }}</span>
     {% elif entry.result and entry.result.compliance_status != 'not_assessed' %}
-      <span class="badge text-bg-{% if entry.result.compliance_status == 'observation' or entry.result.compliance_status == 'improvement_opportunity' %}warning{% elif entry.result.compliance_status == 'major_non_conformity' or entry.result.compliance_status == 'minor_non_conformity' %}danger{% else %}secondary{% endif %}">
+      <span class="badge text-bg-{% if entry.result.compliance_status == 'observation' or entry.result.compliance_status == 'improvement_opportunity' or entry.result.compliance_status == 'partially_compliant' %}warning{% elif entry.result.compliance_status == 'major_non_conformity' or entry.result.compliance_status == 'minor_non_conformity' or entry.result.compliance_status == 'non_compliant' %}danger{% else %}secondary{% endif %}">
         {{ entry.result.get_compliance_status_display }}
       </span>
     {% else %}

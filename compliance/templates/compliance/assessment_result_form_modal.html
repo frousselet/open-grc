@@ -127,7 +127,7 @@
   var defaults = JSON.parse(statusSel.getAttribute('data-compliance-level-defaults') || '{}');
 
   // Statuses where finding is relevant
-  var findingStatuses = ['major_non_conformity', 'minor_non_conformity', 'observation', 'improvement_opportunity'];
+  var findingStatuses = ['non_compliant', 'partially_compliant', 'major_non_conformity', 'minor_non_conformity', 'observation', 'improvement_opportunity'];
   // Statuses where finding is not expected (positive or N/A)
   var noFindingStatuses = ['not_assessed', 'evaluated', 'compliant', 'strength', 'not_applicable'];
 
