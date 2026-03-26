@@ -133,7 +133,7 @@ Manage your organisation's security posture, track compliance with regulatory fr
 | Excel Export | Export assets, risks, compliance data to Excel |
 | Dark Mode | Automatic theme switching based on OS preference |
 | Responsive UI | Collapsible sidebar, mobile-friendly layout |
-| REST API | Full CRUD + filtering, search, pagination and export on all resources |
+| REST API | Full CRUD + filtering, search, pagination, batch creation and export on all resources |
 | HTMX Integration | Dynamic partial updates without full page reloads |
 | MCP Server | JSON-RPC 2.0 server with 50+ tools and OAuth 2.0 authentication for external clients |
 
@@ -157,7 +157,7 @@ Most domain entities expose a standard set of operations generated automatically
 | List | `list_{entity}s` | Paginated list with search, filters, limit/offset |
 | Get | `get_{entity}` | Get a single object by UUID |
 | Create | `create_{entity}` | Create a new object |
-| Batch Create | `batch_create_{entity}s` | Create up to 500 objects in a single atomic transaction |
+| Batch Create | `batch_create_{entity}s` | Create up to 500 objects with partial success (non-atomic) |
 | Update | `update_{entity}` | Update an existing object |
 | Delete | `delete_{entity}` | Delete an object |
 | Approve | `approve_{entity}` | Approve an object (where approval workflow applies) |

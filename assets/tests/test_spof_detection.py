@@ -47,7 +47,7 @@ def _make_site_asset_dep(support_asset, site, **kwargs):
 
 def _make_site_supplier_dep(site, supplier, **kwargs):
     defaults = {
-        "dependency_type": SiteSupplierDependencyType.MAINTAINED_BY,
+        "dependency_type": SiteSupplierDependencyType.MAINTAINS,
         "criticality": Criticality.HIGH,
     }
     defaults.update(kwargs)

@@ -10,6 +10,7 @@ from assets.models import (
     SupplierRequirement,
     SupportAsset,
 )
+from assets.models.supplier import SupplierType
 
 
 class AssetValuationSerializer(serializers.ModelSerializer):
@@ -172,6 +173,11 @@ class SupplierRequirementSerializer(serializers.ModelSerializer):
 
 
 class SupplierSerializer(serializers.ModelSerializer):
+    type = serializers.PrimaryKeyRelatedField(
+        queryset=SupplierType.objects.all(),
+        required=False,
+        allow_null=True,
+    )
     requirement_count = serializers.IntegerField(
         source="requirements.count", read_only=True
     )

@@ -545,7 +545,7 @@ class TestSupplierDependencyViewSet:
             {
                 "support_asset": str(sa.pk),
                 "supplier": str(s.pk),
-                "dependency_type": "provided_by",
+                "dependency_type": "provides",
                 "criticality": "medium",
             },
             format="json",
@@ -572,3 +572,206 @@ class TestSupplierDependencyViewSet:
         client = APIClient()
         response = client.get("/api/v1/assets/supplier-dependencies/")
         assert response.status_code in (401, 403)
+
+
+# ── BUG 1: Supplier.type FK resolution ────────────────────
+
+
+class TestSupplierTypeFKResolution:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+
+    def test_create_supplier_with_type_id(self):
+        st = SupplierTypeFactory(name="Cloud Provider")
+        response = self.client.post(
+            "/api/v1/assets/suppliers/",
+            {
+                "name": "AWS",
+                "type": st.pk,
+                "owner": str(self.user.pk),
+            },
+            format="json",
+        )
+        assert response.status_code == 201, response.json()
+        data = _data(response)
+        assert data["type"] == st.pk
+
+    def test_create_supplier_with_null_type(self):
+        response = self.client.post(
+            "/api/v1/assets/suppliers/",
+            {
+                "name": "Acme Corp",
+                "type": None,
+                "owner": str(self.user.pk),
+            },
+            format="json",
+        )
+        assert response.status_code == 201, response.json()
+        assert _data(response)["type"] is None
+
+
+# ── BUG 2: SupplierDependency.dependency_type choices ──────
+
+
+class TestSupplierDependencyTypeChoices:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+        self.sa = SupportAssetFactory()
+        self.supplier = SupplierFactory()
+
+    def _create_dep(self, dep_type):
+        return self.client.post(
+            "/api/v1/assets/supplier-dependencies/",
+            {
+                "support_asset": str(self.sa.pk),
+                "supplier": str(self.supplier.pk),
+                "dependency_type": dep_type,
+                "criticality": "medium",
+            },
+            format="json",
+        )
+
+    def test_provides(self):
+        response = self._create_dep("provides")
+        assert response.status_code == 201, response.json()
+
+    def test_hosts(self):
+        response = self._create_dep("hosts")
+        assert response.status_code == 201, response.json()
+
+    def test_other_still_works(self):
+        response = self._create_dep("other")
+        assert response.status_code == 201, response.json()
+
+    def test_maintains(self):
+        response = self._create_dep("maintains")
+        assert response.status_code == 201, response.json()
+
+
+# ── Batch create endpoints ─────────────────────────────────
+
+
+class TestBatchCreateEssentialAssets:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+        self.url = "/api/v1/assets/essential-assets/batch/"
+
+    def test_batch_create_success(self):
+        items = [
+            {
+                "name": f"Asset {i}",
+                "type": "information",
+                "category": "strategic_data",
+                "owner": str(self.user.pk),
+                "confidentiality_level": 2,
+                "integrity_level": 2,
+                "availability_level": 2,
+            }
+            for i in range(5)
+        ]
+        response = self.client.post(self.url, {"items": items}, format="json")
+        assert response.status_code == 200
+        body = response.json()
+        data = body.get("data", body)
+        assert data["total"] == 5
+        assert data["created"] == 5
+        assert data["errors"] == 0
+        assert data["status"] == "completed"
+
+    def test_batch_create_partial_error(self):
+        items = [
+            {
+                "name": "Valid Asset",
+                "type": "information",
+                "category": "strategic_data",
+                "owner": str(self.user.pk),
+                "confidentiality_level": 2,
+                "integrity_level": 2,
+                "availability_level": 2,
+            },
+            {
+                # Missing required field 'name'
+                "type": "information",
+                "category": "strategic_data",
+                "owner": str(self.user.pk),
+            },
+            {
+                "name": "Another Valid Asset",
+                "type": "information",
+                "category": "strategic_data",
+                "owner": str(self.user.pk),
+                "confidentiality_level": 3,
+                "integrity_level": 3,
+                "availability_level": 3,
+            },
+        ]
+        response = self.client.post(self.url, {"items": items}, format="json")
+        assert response.status_code == 200
+        body = response.json()
+        data = body.get("data", body)
+        assert data["created"] == 2
+        assert data["errors"] == 1
+        assert data["status"] == "completed_with_errors"
+
+    def test_batch_create_exceeds_limit(self):
+        items = [{"name": f"A{i}"} for i in range(101)]
+        response = self.client.post(self.url, {"items": items}, format="json")
+        assert response.status_code == 400
+
+    def test_batch_create_empty_list(self):
+        response = self.client.post(self.url, {"items": []}, format="json")
+        assert response.status_code == 200
+        body = response.json()
+        data = body.get("data", body)
+        assert data["total"] == 0
+        assert data["created"] == 0
+        assert data["errors"] == 0
+
+    def test_batch_create_permission_denied(self):
+        non_admin = UserFactory(is_superuser=False)
+        client = APIClient()
+        client.force_authenticate(user=non_admin)
+        items = [
+            {
+                "name": "Asset",
+                "type": "information",
+                "category": "strategic_data",
+                "owner": str(non_admin.pk),
+                "confidentiality_level": 2,
+                "integrity_level": 2,
+                "availability_level": 2,
+            }
+        ]
+        response = client.post(self.url, {"items": items}, format="json")
+        assert response.status_code == 403
+
+
+class TestBatchCreateSuppliers:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+        self.url = "/api/v1/assets/suppliers/batch/"
+
+    def test_batch_create_suppliers(self):
+        st = SupplierTypeFactory(name="SaaS")
+        items = [
+            {
+                "name": f"Supplier {i}",
+                "type": st.pk,
+                "owner": str(self.user.pk),
+            }
+            for i in range(3)
+        ]
+        response = self.client.post(self.url, {"items": items}, format="json")
+        assert response.status_code == 200
+        body = response.json()
+        data = body.get("data", body)
+        assert data["created"] == 3
+        assert data["errors"] == 0

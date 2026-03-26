@@ -287,7 +287,7 @@ class TestSupplierDependency:
     def test_create_supplier_dependency(self):
         dep = SupplierDependencyFactory()
         assert dep.pk is not None
-        assert dep.dependency_type == "provided_by"
+        assert dep.dependency_type == "provides"
 
     def test_str(self):
         dep = SupplierDependencyFactory()

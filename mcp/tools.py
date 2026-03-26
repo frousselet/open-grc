@@ -236,7 +236,7 @@ def _create_handler(model_class, writable_fields, scope_filtered=True, m2m_field
 
 
 def _batch_create_handler(model_class, writable_fields, scope_filtered=True, m2m_fields=None):
-    """Create a generic batch create handler (atomic: all-or-nothing)."""
+    """Create a generic batch create handler (non-atomic: partial success)."""
     m2m_fields = m2m_fields or {}
 
     def handler(user, arguments):
@@ -246,37 +246,53 @@ def _batch_create_handler(model_class, writable_fields, scope_filtered=True, m2m
         if len(items) > 500:
             return _error("Batch size limited to 500 items.")
 
-        from django.db import transaction
-
-        created = []
+        results = []
+        created_count = 0
+        error_count = 0
         fields = [f.name for f in model_class._meta.fields]
-        try:
-            with transaction.atomic():
-                for idx, item_data in enumerate(items):
-                    if not isinstance(item_data, dict):
-                        raise ValidationError(
-                            f"Item {idx}: expected an object, got {type(item_data).__name__}.")
-                    kwargs = {}
-                    m2m_values = {}
-                    for field_name in writable_fields:
-                        if field_name in item_data:
-                            if field_name in m2m_fields:
-                                m2m_values[field_name] = item_data[field_name]
-                            else:
-                                kwargs[field_name] = _coerce_field_value(
-                                    model_class, field_name, item_data[field_name])
-                    if hasattr(model_class, "created_by"):
-                        kwargs["created_by"] = user
-                    obj = model_class(**kwargs)
-                    obj.full_clean()
-                    obj.save()
-                    for param_name, ids in m2m_values.items():
-                        m2m_attr = m2m_fields[param_name]
-                        getattr(obj, m2m_attr).set(ids)
-                    created.append(_serialize_obj(obj, fields))
-        except (ValidationError, Exception) as e:
-            return _error(f"Batch creation failed at item {idx}: {e}")
-        return {"created": len(created), "items": created}
+        for idx, item_data in enumerate(items):
+            try:
+                if not isinstance(item_data, dict):
+                    raise ValidationError(
+                        f"Expected an object, got {type(item_data).__name__}.")
+                kwargs = {}
+                m2m_values = {}
+                for field_name in writable_fields:
+                    if field_name in item_data:
+                        if field_name in m2m_fields:
+                            m2m_values[field_name] = item_data[field_name]
+                        else:
+                            kwargs[field_name] = _coerce_field_value(
+                                model_class, field_name, item_data[field_name])
+                if hasattr(model_class, "created_by"):
+                    kwargs["created_by"] = user
+                obj = model_class(**kwargs)
+                obj.full_clean()
+                obj.save()
+                for param_name, ids in m2m_values.items():
+                    m2m_attr = m2m_fields[param_name]
+                    getattr(obj, m2m_attr).set(ids)
+                results.append({
+                    "index": idx,
+                    "status": "created",
+                    "id": str(obj.pk),
+                    "reference": getattr(obj, "reference", None),
+                })
+                created_count += 1
+            except (ValidationError, Exception) as e:
+                results.append({
+                    "index": idx,
+                    "status": "error",
+                    "errors": str(e),
+                })
+                error_count += 1
+        return {
+            "status": "completed" if error_count == 0 else "completed_with_errors",
+            "total": len(items),
+            "created": created_count,
+            "errors": error_count,
+            "results": results,
+        }
     return handler
 
 
@@ -1167,8 +1183,8 @@ def _register_assets_tools(server):
                            "type": "string",
                            "description": "Type of supplier dependency.",
                            "enum": [
-                               "hosted_by", "provided_by", "maintained_by",
-                               "developed_by", "operated_by", "monitored_by", "other",
+                               "provides", "hosts", "manages",
+                               "develops", "supports", "licenses", "maintains", "other",
                            ],
                        },
                        "criticality": {
@@ -1235,7 +1251,7 @@ def _register_assets_tools(server):
                        "dependency_type": {
                            "type": "string",
                            "description": "Type of site-supplier dependency.",
-                           "enum": ["maintained_by", "managed_by", "powered_by", "secured_by", "other"],
+                           "enum": ["provides", "hosts", "manages", "develops", "supports", "licenses", "maintains", "other"],
                        },
                        "criticality": {
                            "type": "string",

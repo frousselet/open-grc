@@ -209,12 +209,13 @@ class RedundancyLevel(models.TextChoices):
 # ── Supplier Dependency ────────────────────────────────────
 
 class SupplierDependencyType(models.TextChoices):
-    HOSTED_BY = "hosted_by", _("Hosted by")
-    PROVIDED_BY = "provided_by", _("Provided by")
-    MAINTAINED_BY = "maintained_by", _("Maintained by")
-    DEVELOPED_BY = "developed_by", _("Developed by")
-    OPERATED_BY = "operated_by", _("Operated by")
-    MONITORED_BY = "monitored_by", _("Monitored by")
+    PROVIDES = "provides", _("Provides")
+    HOSTS = "hosts", _("Hosts")
+    MANAGES = "manages", _("Manages")
+    DEVELOPS = "develops", _("Develops")
+    SUPPORTS = "supports", _("Supports")
+    LICENSES = "licenses", _("Licenses")
+    MAINTAINS = "maintains", _("Maintains")
     OTHER = "other", _("Other")
 
 
@@ -230,10 +231,13 @@ class SiteAssetDependencyType(models.TextChoices):
 # ── Site–Supplier Dependency ───────────────────────────────
 
 class SiteSupplierDependencyType(models.TextChoices):
-    MAINTAINED_BY = "maintained_by", _("Maintained by")
-    MANAGED_BY = "managed_by", _("Managed by")
-    POWERED_BY = "powered_by", _("Powered by")
-    SECURED_BY = "secured_by", _("Secured by")
+    PROVIDES = "provides", _("Provides")
+    HOSTS = "hosts", _("Hosts")
+    MANAGES = "manages", _("Manages")
+    DEVELOPS = "develops", _("Develops")
+    SUPPORTS = "supports", _("Supports")
+    LICENSES = "licenses", _("Licenses")
+    MAINTAINS = "maintains", _("Maintains")
     OTHER = "other", _("Other")
 
 

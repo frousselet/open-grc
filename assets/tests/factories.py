@@ -143,5 +143,5 @@ class SupplierDependencyFactory(factory.django.DjangoModelFactory):
 
     support_asset = factory.SubFactory(SupportAssetFactory)
     supplier = factory.SubFactory(SupplierFactory)
-    dependency_type = SupplierDependencyType.PROVIDED_BY
+    dependency_type = SupplierDependencyType.PROVIDES
     criticality = Criticality.HIGH

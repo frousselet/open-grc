@@ -4,7 +4,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from accounts.api.mixins import ApprovableAPIMixin, HistoryAPIMixin, ScopeFilterAPIMixin
+from accounts.api.mixins import ApprovableAPIMixin, BatchCreateMixin, HistoryAPIMixin, ScopeFilterAPIMixin
 from assets.services.spof_detection import SpofDetector
 from context.api.permissions import ContextPermission
 from assets.models import (
@@ -46,7 +46,7 @@ class CreatedByMixin:
         serializer.save(created_by=self.request.user)
 
 
-class EssentialAssetViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+class EssentialAssetViewSet(BatchCreateMixin, ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
     queryset = EssentialAsset.objects.select_related("owner", "custodian").prefetch_related("scopes").all()
     filterset_class = EssentialAssetFilter
     permission_classes = [ContextPermission]
@@ -116,7 +116,7 @@ class EssentialAssetViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIM
         })
 
 
-class SupportAssetViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+class SupportAssetViewSet(BatchCreateMixin, ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
     queryset = SupportAsset.objects.select_related("owner", "custodian", "parent_asset").prefetch_related("scopes").all()
     filterset_class = SupportAssetFilter
     permission_classes = [ContextPermission]
@@ -209,7 +209,7 @@ class SupportAssetViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMix
         })
 
 
-class AssetDependencyViewSet(ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+class AssetDependencyViewSet(BatchCreateMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
     queryset = AssetDependency.objects.select_related(
         "essential_asset", "support_asset"
     ).all()
@@ -327,7 +327,7 @@ class AssetGroupViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class SupplierViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+class SupplierViewSet(BatchCreateMixin, ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
     queryset = Supplier.objects.select_related("owner").prefetch_related("scopes").all()
     filterset_class = SupplierFilter
     permission_classes = [ContextPermission]
@@ -376,7 +376,7 @@ class SupplierViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, 
         })
 
 
-class SupplierDependencyViewSet(ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+class SupplierDependencyViewSet(BatchCreateMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
     queryset = SupplierDependency.objects.select_related(
         "support_asset", "supplier"
     ).all()

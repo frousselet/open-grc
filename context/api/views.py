@@ -3,7 +3,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from accounts.api.mixins import ApprovableAPIMixin, HistoryAPIMixin, ScopeFilterAPIMixin
+from accounts.api.mixins import ApprovableAPIMixin, BatchCreateMixin, HistoryAPIMixin, ScopeFilterAPIMixin
 from context.models import (
     Activity,
     Indicator,
@@ -105,7 +105,7 @@ class IssueViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, Cre
     ordering_fields = ["name", "type", "impact_level", "status", "created_at"]
 
 
-class StakeholderViewSet(ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
+class StakeholderViewSet(BatchCreateMixin, ScopeFilterAPIMixin, ApprovableAPIMixin, HistoryAPIMixin, CreatedByMixin, viewsets.ModelViewSet):
     queryset = Stakeholder.objects.prefetch_related("scopes", "expectations").all()
     filterset_class = StakeholderFilter
     permission_classes = [ContextPermission]

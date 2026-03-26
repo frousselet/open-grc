@@ -656,3 +656,129 @@ class TestComplianceActionPlanViewSet:
         client = APIClient()
         response = client.get("/api/v1/compliance/action-plans/")
         assert response.status_code in (401, 403)
+
+
+# ── Batch create endpoints ─────────────────────────────────
+
+
+class TestBatchCreateRequirements:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+        self.url = "/api/v1/compliance/requirements/batch/"
+
+    def test_batch_create_success(self):
+        fw = FrameworkFactory()
+        section = SectionFactory(framework=fw)
+        items = [
+            {
+                "framework": str(fw.pk),
+                "section": str(section.pk),
+                "requirement_number": f"A.5.{i}",
+                "name": f"Requirement {i}",
+                "description": f"Description {i}",
+                "type": "mandatory",
+                "linked_risks": [],
+            }
+            for i in range(5)
+        ]
+        response = self.client.post(self.url, {"items": items}, format="json")
+        assert response.status_code == 200
+        body = response.json()
+        data = body.get("data", body)
+        assert data["total"] == 5
+        assert data["created"] == 5, f"Results: {data['results']}"
+        assert data["errors"] == 0
+        assert data["status"] == "completed"
+
+    def test_batch_create_partial_error(self):
+        fw = FrameworkFactory()
+        items = [
+            {
+                "framework": str(fw.pk),
+                "requirement_number": "A.5.1",
+                "name": "Valid requirement",
+                "description": "Desc",
+                "type": "mandatory",
+                "linked_risks": [],
+            },
+            {
+                # Missing framework
+                "requirement_number": "A.5.2",
+                "name": "Invalid requirement",
+                "description": "Desc",
+                "type": "mandatory",
+                "linked_risks": [],
+            },
+            {
+                "framework": str(fw.pk),
+                "requirement_number": "A.5.3",
+                "name": "Another valid",
+                "description": "Desc",
+                "type": "mandatory",
+                "linked_risks": [],
+            },
+        ]
+        response = self.client.post(self.url, {"items": items}, format="json")
+        assert response.status_code == 200
+        body = response.json()
+        data = body.get("data", body)
+        assert data["created"] == 2
+        assert data["errors"] == 1
+        assert data["status"] == "completed_with_errors"
+
+    def test_batch_create_exceeds_limit(self):
+        items = [{"name": f"R{i}"} for i in range(101)]
+        response = self.client.post(self.url, {"items": items}, format="json")
+        assert response.status_code == 400
+
+    def test_batch_create_empty_list(self):
+        response = self.client.post(self.url, {"items": []}, format="json")
+        assert response.status_code == 200
+        body = response.json()
+        data = body.get("data", body)
+        assert data["total"] == 0
+        assert data["created"] == 0
+
+    def test_batch_create_permission_denied(self):
+        non_admin = UserFactory(is_superuser=False)
+        client = APIClient()
+        client.force_authenticate(user=non_admin)
+        fw = FrameworkFactory()
+        items = [
+            {
+                "framework": str(fw.pk),
+                "requirement_number": "A.5.1",
+                "name": "Req",
+                "description": "Desc",
+                "type": "mandatory",
+                "linked_risks": [],
+            }
+        ]
+        response = client.post(self.url, {"items": items}, format="json")
+        assert response.status_code == 403
+
+
+class TestBatchCreateSections:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+        self.url = "/api/v1/compliance/sections/batch/"
+
+    def test_batch_create_success(self):
+        fw = FrameworkFactory()
+        items = [
+            {
+                "framework": str(fw.pk),
+                "name": f"Section {i}",
+                "order": i,
+            }
+            for i in range(3)
+        ]
+        response = self.client.post(self.url, {"items": items}, format="json")
+        assert response.status_code == 200
+        body = response.json()
+        data = body.get("data", body)
+        assert data["created"] == 3

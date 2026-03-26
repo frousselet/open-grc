@@ -4,7 +4,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from accounts.api.mixins import ApprovableAPIMixin, HistoryAPIMixin, ScopeFilterAPIMixin
+from accounts.api.mixins import ApprovableAPIMixin, BatchCreateMixin, HistoryAPIMixin, ScopeFilterAPIMixin
 from compliance.constants import ActionPlanStatus
 from compliance.models import (
     ActionPlanComment,
@@ -101,7 +101,7 @@ class FrameworkViewSet(
         })
 
 
-class SectionViewSet(ScopeFilterAPIMixin, viewsets.ModelViewSet):
+class SectionViewSet(BatchCreateMixin, ScopeFilterAPIMixin, viewsets.ModelViewSet):
     queryset = Section.objects.select_related("framework", "parent_section").all()
     serializer_class = SectionSerializer
     filterset_class = SectionFilter
@@ -135,6 +135,7 @@ class SectionViewSet(ScopeFilterAPIMixin, viewsets.ModelViewSet):
 
 
 class RequirementViewSet(
+    BatchCreateMixin,
     ScopeFilterAPIMixin,
     ApprovableAPIMixin,
     HistoryAPIMixin,

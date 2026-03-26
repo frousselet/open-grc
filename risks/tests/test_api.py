@@ -546,3 +546,90 @@ class TestISO27005RiskViewSet:
         client = APIClient()
         response = client.get("/api/v1/risks/iso27005-risks/")
         assert response.status_code in (401, 403)
+
+
+# ── Batch create endpoints ─────────────────────────────────
+
+
+class TestBatchCreateThreats:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+        self.url = "/api/v1/risks/threats/batch/"
+
+    def test_batch_create_success(self):
+        items = [
+            {"name": f"Threat {i}", "type": "deliberate"}
+            for i in range(5)
+        ]
+        response = self.client.post(self.url, {"items": items}, format="json")
+        assert response.status_code == 200
+        body = response.json()
+        data = body.get("data", body)
+        assert data["total"] == 5
+        assert data["created"] == 5
+        assert data["errors"] == 0
+        assert data["status"] == "completed"
+
+    def test_batch_create_partial_error(self):
+        items = [
+            {"name": "Valid Threat", "type": "deliberate"},
+            {"type": "deliberate"},  # Missing name
+            {"name": "Another Valid", "type": "environmental"},
+        ]
+        response = self.client.post(self.url, {"items": items}, format="json")
+        assert response.status_code == 200
+        body = response.json()
+        data = body.get("data", body)
+        assert data["created"] == 2
+        assert data["errors"] == 1
+
+
+class TestBatchCreateVulnerabilities:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+        self.url = "/api/v1/risks/vulnerabilities/batch/"
+
+    def test_batch_create_success(self):
+        items = [
+            {
+                "name": f"Vulnerability {i}",
+                "category": "design_flaw",
+                "affected_assets": [],
+                "affected_asset_types": [],
+            }
+            for i in range(3)
+        ]
+        response = self.client.post(self.url, {"items": items}, format="json")
+        assert response.status_code == 200
+        body = response.json()
+        data = body.get("data", body)
+        assert data["created"] == 3, f"Results: {data['results']}"
+        assert data["errors"] == 0
+
+
+class TestBatchCreateRisks:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+        self.url = "/api/v1/risks/risks/batch/"
+
+    def test_batch_create_success(self):
+        assessment = RiskAssessmentFactory()
+        items = [
+            {
+                "assessment": str(assessment.pk),
+                "name": f"Risk {i}",
+            }
+            for i in range(3)
+        ]
+        response = self.client.post(self.url, {"items": items}, format="json")
+        assert response.status_code == 200
+        body = response.json()
+        data = body.get("data", body)
+        assert data["created"] == 3
+        assert data["errors"] == 0

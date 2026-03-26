@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- REST API batch creation endpoints (`POST /api/v1/<module>/<entity>/batch/`) for 10 entities: Requirement, Section, EssentialAsset, SupportAsset, AssetDependency, Threat, Vulnerability, Risk, Stakeholder, Supplier. Each endpoint accepts up to 100 items with partial success support (non-atomic)
+- `BatchCreateMixin` reusable DRF mixin for adding batch creation to any ViewSet
+
+### Changed
+
+- MCP batch creation tools now use non-atomic partial success instead of all-or-nothing transactions
+- `SupplierDependencyType` choices updated: `provides`, `hosts`, `manages`, `develops`, `supports`, `licenses`, `maintains`, `other`
+- `SiteSupplierDependencyType` choices updated to match SupplierDependencyType values
+
+### Fixed
+
+- Fix `Supplier.type` FK resolution in DRF serializer - explicitly declared as `PrimaryKeyRelatedField` for proper SupplierType lookup
+- Fix `SupplierDependency.dependency_type` rejecting valid values other than `other`
+
 ## [0.21.2] - 2026-03-26
 
 ### Added

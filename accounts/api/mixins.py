@@ -1,4 +1,5 @@
 from django.utils import timezone
+from rest_framework import status as http_status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -159,3 +160,76 @@ class ScopeFilterAPIMixin:
         if any(f.name == "scopes" for f in model._meta.many_to_many):
             return qs.filter(scopes__id__in=scope_ids).distinct()
         return qs
+
+
+class BatchCreateMixin:
+    """Add a batch/ endpoint to create multiple objects in a single request."""
+
+    batch_max_items = 100
+
+    @action(detail=False, methods=["post"], url_path="batch")
+    def batch_create(self, request):
+        items = request.data.get("items", [])
+
+        if not isinstance(items, list):
+            return Response(
+                {"error": "The 'items' field must be a list."},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
+
+        if len(items) > self.batch_max_items:
+            return Response(
+                {"error": f"Maximum {self.batch_max_items} items per batch."},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
+
+        results = []
+        created_count = 0
+        error_count = 0
+
+        for index, item_data in enumerate(items):
+            serializer = self.get_serializer(data=item_data)
+            if serializer.is_valid():
+                try:
+                    instance = serializer.save(
+                        **self._get_batch_create_kwargs(request)
+                    )
+                    results.append({
+                        "index": index,
+                        "status": "created",
+                        "id": str(instance.pk),
+                        "reference": getattr(instance, "reference", None),
+                    })
+                    created_count += 1
+                except Exception as e:
+                    results.append({
+                        "index": index,
+                        "status": "error",
+                        "errors": {"non_field_errors": [str(e)]},
+                    })
+                    error_count += 1
+            else:
+                results.append({
+                    "index": index,
+                    "status": "error",
+                    "errors": serializer.errors,
+                })
+                error_count += 1
+
+        return Response({
+            "status": "completed" if error_count == 0 else "completed_with_errors",
+            "total": len(items),
+            "created": created_count,
+            "errors": error_count,
+            "results": results,
+        })
+
+    def _get_batch_create_kwargs(self, request):
+        """Extra kwargs passed to serializer.save() for each batch item."""
+        kwargs = {}
+        if hasattr(self, "perform_create"):
+            # Check if the viewset sets created_by
+            model = self.get_queryset().model
+            if hasattr(model, "created_by"):
+                kwargs["created_by"] = request.user
+        return kwargs

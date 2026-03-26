@@ -641,7 +641,7 @@ class TestSupplierDependencyCreateView:
         data = {
             "support_asset": sa.pk,
             "supplier": supplier.pk,
-            "dependency_type": SupplierDependencyType.PROVIDED_BY,
+            "dependency_type": SupplierDependencyType.PROVIDES,
             "criticality": Criticality.HIGH,
         }
         response = client.post(url, data)
@@ -664,13 +664,13 @@ class TestSupplierDependencyUpdateView:
         data = {
             "support_asset": dep.support_asset.pk,
             "supplier": dep.supplier.pk,
-            "dependency_type": SupplierDependencyType.MAINTAINED_BY,
+            "dependency_type": SupplierDependencyType.MAINTAINS,
             "criticality": Criticality.MEDIUM,
         }
         response = client.post(url, data)
         assert response.status_code == 302
         dep.refresh_from_db()
-        assert dep.dependency_type == SupplierDependencyType.MAINTAINED_BY
+        assert dep.dependency_type == SupplierDependencyType.MAINTAINS
 
 
 class TestSupplierDependencyDeleteView:
@@ -834,7 +834,7 @@ class TestSiteSupplierDependencyCreateView:
         data = {
             "site": site.pk,
             "supplier": supplier.pk,
-            "dependency_type": SiteSupplierDependencyType.MAINTAINED_BY,
+            "dependency_type": SiteSupplierDependencyType.MAINTAINS,
             "criticality": Criticality.HIGH,
         }
         response = client.post(url, data)
@@ -850,7 +850,7 @@ class TestSiteSupplierDependencyDeleteView:
         supplier = SupplierFactory()
         dep = SiteSupplierDependency.objects.create(
             site=site, supplier=supplier,
-            dependency_type=SiteSupplierDependencyType.MAINTAINED_BY,
+            dependency_type=SiteSupplierDependencyType.MAINTAINS,
             criticality=Criticality.HIGH, created_by=superuser,
         )
         url = reverse("assets:site-supplier-dependency-delete", kwargs={"pk": dep.pk})
