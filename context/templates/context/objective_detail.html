@@ -19,59 +19,104 @@
 {% help_modal "context.objective_detail" %}
 {% include "includes/approval_badge.html" %}
 
-<ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#kpi">{% trans "KPI" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
-</ul>
-
-<div class="tab-content">
-  <div class="tab-pane fade show active" id="general">
-    <div class="card">
+<div class="row g-4">
+  {# ── Left column ── #}
+  <div class="col-lg-8">
+    <div class="card mb-4">
       <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt><dd class="col-sm-9">{% grouped_scope_badges objective.scopes.all %}{% if not objective.scopes.all %}<span style="color:var(--text-muted)">—</span>{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Category" %}</dt><dd class="col-sm-9">{{ objective.get_category_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ objective.get_type_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{% if objective.owner %}{% user_badge objective.owner size=24 link=True %}{% else %}—{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
-          <dd class="col-sm-9">
-            <span class="badge text-bg-{% if objective.status == 'achieved' %}success{% elif objective.status == 'active' %}primary{% elif objective.status == 'not_achieved' %}danger{% else %}secondary{% endif %}">
-              {{ objective.get_status_display }}
-            </span>
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-info-circle me-1"></i>{% trans "General" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Scopes" %}</div>
+          {% grouped_scope_badges objective.scopes.all %}{% if not objective.scopes.all %}<span class="text-muted">—</span>{% endif %}
+        </div>
+        {% if objective.parent_objective %}
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Parent objective" %}</div>
+          <span>{{ objective.parent_objective }}</span>
+        </div>
+        {% endif %}
+        <div>
+          <div class="text-muted small mb-1">{% trans "Description" %}</div>
+          <div>{{ objective.description|default:"—"|safe }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-graph-up me-1"></i>{% trans "KPI" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Target value" %}</dt>
+          <dd class="mb-3">{{ objective.target_value|default:"—" }} {{ objective.unit }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Current value" %}</dt>
+          <dd class="mb-3">{{ objective.current_value|default:"—" }} {{ objective.unit }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Measurement method" %}</dt>
+          <dd class="mb-3">{{ objective.measurement_method|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Frequency" %}</dt>
+          <dd class="mb-0">{{ objective.get_measurement_frequency_display|default:"—" }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  {# ── Right column ── #}
+  <div class="col-lg-4">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-flag me-1"></i>{% trans "Status" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Status" %}</dt>
+          <dd class="mb-3">
+            <span class="badge text-bg-{% if objective.status == 'achieved' %}success{% elif objective.status == 'active' %}primary{% elif objective.status == 'not_achieved' %}danger{% else %}secondary{% endif %}">{{ objective.get_status_display }}</span>
           </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Progress" %}</dt>
-          <dd class="col-sm-9">
+          <dt class="text-muted small mb-1">{% trans "Category" %}</dt>
+          <dd class="mb-3">{{ objective.get_category_display }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Type" %}</dt>
+          <dd class="mb-3">{{ objective.get_type_display }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Progress" %}</dt>
+          <dd class="mb-3">
             {% if objective.progress_percentage is not None %}
-            <div class="progress" style="width: 200px;">
-              <div class="progress-bar" style="width: {{ objective.progress_percentage }}%">{{ objective.progress_percentage }}%</div>
-            </div>
+            <div class="progress" style="height:8px"><div class="progress-bar" style="width:{{ objective.progress_percentage }}%"></div></div>
+            <small class="text-muted">{{ objective.progress_percentage }}%</small>
             {% else %}—{% endif %}
           </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ objective.description|default:"—"|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Parent objective" %}</dt><dd class="col-sm-9">{{ objective.parent_objective|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Target date" %}</dt><dd class="col-sm-9">{{ objective.target_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Next review" %}</dt><dd class="col-sm-9">{{ objective.review_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
-          <dd class="col-sm-9">{% for tag in objective.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
+          <dt class="text-muted small mb-1">{% trans "Tags" %}</dt>
+          <dd class="mb-0">{% for tag in objective.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}<span class="text-muted">—</span>{% endfor %}</dd>
         </dl>
       </div>
     </div>
-  </div>
-  <div class="tab-pane fade" id="kpi">
-    <div class="card">
+
+    <div class="card mb-4">
       <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Target value" %}</dt><dd class="col-sm-9">{{ objective.target_value|default:"—" }} {{ objective.unit }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Current value" %}</dt><dd class="col-sm-9">{{ objective.current_value|default:"—" }} {{ objective.unit }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Measurement method" %}</dt><dd class="col-sm-9">{{ objective.measurement_method|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Frequency" %}</dt><dd class="col-sm-9">{{ objective.get_measurement_frequency_display|default:"—" }}</dd>
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-people me-1"></i>{% trans "People" %}</h6>
+        <div>
+          <div class="text-muted small mb-1">{% trans "Owner" %}</div>
+          {% if objective.owner %}{% user_badge objective.owner size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-calendar3 me-1"></i>{% trans "Dates" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Target date" %}</dt>
+          <dd class="mb-3">{{ objective.target_date|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Next review" %}</dt>
+          <dd class="mb-0">{{ objective.review_date|default:"—" }}</dd>
         </dl>
       </div>
     </div>
   </div>
-  <div class="tab-pane fade" id="history">
-    {% include "includes/history_tab.html" %}
+</div>
+
+<div class="card mt-0 mb-4">
+  <div class="card-header bg-transparent d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapse-history" aria-expanded="false">
+    <h6 class="mb-0 fw-semibold" style="font-size:.875rem"><i class="bi bi-clock-history me-1"></i>{% trans "History" %}</h6>
+    <i class="bi bi-chevron-down text-muted"></i>
+  </div>
+  <div class="collapse" id="collapse-history">
+    <div class="card-body">{% include "includes/history_tab.html" %}</div>
   </div>
 </div>
 {% endblock %}

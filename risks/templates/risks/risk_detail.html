@@ -3,7 +3,7 @@
 {% load help_tags %}
 {% load accounts_tags %}
 
-{% block title %}{{ risk.name }} — Fairway{% endblock %}
+{% block title %}{{ risk.name }} - Fairway{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -19,174 +19,181 @@
 {% help_modal "risks.risk_detail" %}
 {% include "includes/approval_badge.html" with object=risk %}
 
-<ul class="nav nav-tabs mb-4" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#evaluation">{% trans "Evaluation" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#treatment">{% trans "Treatment" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#assets">{% trans "Affected assets" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#requirements">{% trans "Requirements" %}</a></li>
-  {% if iso27005_sources %}<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#sources">{% trans "Methodology sources" %}</a></li>{% endif %}
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
-</ul>
+{# ══════════════════════════════════════════════════════════ #}
+{# ── Two-column layout ────────────────────────────────── #}
+{# ══════════════════════════════════════════════════════════ #}
+<div class="row g-4">
 
-<div class="tab-content">
-  <div class="tab-pane fade show active" id="general">
-    <div class="card">
+  {# ── LEFT COLUMN ── #}
+  <div class="col-lg-8">
+
+    {# ── General ── #}
+    <div class="card mb-4">
       <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Assessment" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:assessment-detail' risk.assessment.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ risk.assessment }}</a></dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Source" %}</dt><dd class="col-sm-9">{{ risk.get_risk_source_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{% if risk.risk_owner %}{% user_badge risk.risk_owner size=24 link=True %}{% else %}—{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Priority" %}</dt>
-          <dd class="col-sm-9">
-            <span class="badge text-bg-{% if risk.priority == 'critical' %}danger{% elif risk.priority == 'high' %}warning{% elif risk.priority == 'medium' %}info{% else %}secondary{% endif %}">
-              {{ risk.get_priority_display }}
-            </span>
-          </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt><dd class="col-sm-9">{{ risk.get_status_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Impact C / I / A" %}</dt>
-          <dd class="col-sm-9">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-info-circle me-1"></i>{% trans "General" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Assessment" %}</div>
+          <div><a href="{% url 'risks:assessment-detail' risk.assessment.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ risk.assessment }}</a></div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Source" %}</div>
+          <div>{{ risk.get_risk_source_display }}</div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Impact C / I / A" %}</div>
+          <div>
             {% if risk.impact_confidentiality %}<span class="badge" style="background:var(--info-soft);color:var(--info)">C</span>{% endif %}
             {% if risk.impact_integrity %}<span class="badge" style="background:var(--warning-soft);color:var(--warning)">I</span>{% endif %}
             {% if risk.impact_availability %}<span class="badge" style="background:var(--danger-soft);color:var(--danger)">A</span>{% endif %}
             {% if not risk.impact_confidentiality and not risk.impact_integrity and not risk.impact_availability %}—{% endif %}
-          </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Review date" %}</dt><dd class="col-sm-9">{{ risk.review_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ risk.description|default:"—"|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
-          <dd class="col-sm-9">{% for tag in risk.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
-        </dl>
+          </div>
+        </div>
+        {% if risk.description %}
+        <div>
+          <div class="text-muted small mb-1">{% trans "Description" %}</div>
+          <div>{{ risk.description|safe }}</div>
+        </div>
+        {% endif %}
       </div>
     </div>
-  </div>
 
-  <div class="tab-pane fade" id="evaluation">
-    <div class="row g-3 mb-3">
-      <div class="col-md-4">
-        <div class="stat-card text-center">
-          <h6 style="color:var(--text-muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em">{% trans "Initial risk" %}</h6>
-          <p class="mb-1" style="font-size:.85rem">{% trans "Likelihood:" %} <strong>{{ risk.initial_likelihood|default:"—" }}</strong></p>
-          <p class="mb-1" style="font-size:.85rem">{% trans "Impact:" %} <strong>{{ risk.initial_impact|default:"—" }}</strong></p>
-          <p class="stat-card-value mt-2">{{ risk.initial_risk_level|default:"—" }}</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="stat-card text-center">
-          <h6 style="color:var(--text-muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em">{% trans "Current risk" %}</h6>
-          <p class="mb-1" style="font-size:.85rem">{% trans "Likelihood:" %} <strong>{{ risk.current_likelihood|default:"—" }}</strong></p>
-          <p class="mb-1" style="font-size:.85rem">{% trans "Impact:" %} <strong>{{ risk.current_impact|default:"—" }}</strong></p>
-          <p class="stat-card-value mt-2">{{ risk.current_risk_level|default:"—" }}</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="stat-card text-center">
-          <h6 style="color:var(--text-muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em">{% trans "Residual risk" %}</h6>
-          <p class="mb-1" style="font-size:.85rem">{% trans "Likelihood:" %} <strong>{{ risk.residual_likelihood|default:"—" }}</strong></p>
-          <p class="mb-1" style="font-size:.85rem">{% trans "Impact:" %} <strong>{{ risk.residual_impact|default:"—" }}</strong></p>
-          <p class="stat-card-value mt-2">{{ risk.residual_risk_level|default:"—" }}</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="tab-pane fade" id="treatment">
+    {# ── Evaluation ── #}
     <div class="card mb-4">
       <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Treatment decision" %}</dt><dd class="col-sm-9">{{ risk.get_treatment_decision_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ risk.treatment_justification|default:"—"|safe }}</dd>
-        </dl>
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-speedometer2 me-1"></i>{% trans "Evaluation" %}</h6>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="stat-card text-center">
+              <h6 style="color:var(--text-muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em">{% trans "Initial risk" %}</h6>
+              <p class="mb-1" style="font-size:.85rem">{% trans "Likelihood:" %} <strong>{{ risk.initial_likelihood|default:"—" }}</strong></p>
+              <p class="mb-1" style="font-size:.85rem">{% trans "Impact:" %} <strong>{{ risk.initial_impact|default:"—" }}</strong></p>
+              <p class="stat-card-value mt-2">{{ risk.initial_risk_level|default:"—" }}</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-card text-center">
+              <h6 style="color:var(--text-muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em">{% trans "Current risk" %}</h6>
+              <p class="mb-1" style="font-size:.85rem">{% trans "Likelihood:" %} <strong>{{ risk.current_likelihood|default:"—" }}</strong></p>
+              <p class="mb-1" style="font-size:.85rem">{% trans "Impact:" %} <strong>{{ risk.current_impact|default:"—" }}</strong></p>
+              <p class="stat-card-value mt-2">{{ risk.current_risk_level|default:"—" }}</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-card text-center">
+              <h6 style="color:var(--text-muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em">{% trans "Residual risk" %}</h6>
+              <p class="mb-1" style="font-size:.85rem">{% trans "Likelihood:" %} <strong>{{ risk.residual_likelihood|default:"—" }}</strong></p>
+              <p class="mb-1" style="font-size:.85rem">{% trans "Impact:" %} <strong>{{ risk.residual_impact|default:"—" }}</strong></p>
+              <p class="stat-card-value mt-2">{{ risk.residual_risk_level|default:"—" }}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5 class="mb-0">{% trans "Treatment plans" %}</h5>
-      <a href="{% url 'risks:treatment-plan-create' %}" class="btn btn-sm btn-primary">{% trans "New plan" %}</a>
-    </div>
-    {% if treatment_plans %}
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead><tr><th>{% trans "Ref." %}</th><th>{% trans "Name" %}</th><th>{% trans "Type" %}</th><th>{% trans "Progress" %}</th><th>{% trans "Status" %}</th></tr></thead>
-          <tbody>
-            {% for tp in treatment_plans %}
-            <tr>
-              <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ tp.reference }}</td>
-              <td><a href="{% url 'risks:treatment-plan-detail' tp.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ tp.name }}</a></td>
-              <td style="font-size:.85rem">{{ tp.get_treatment_type_display }}</td>
-              <td>
-                <div class="progress" style="height:.65rem">
-                  <div class="progress-bar" style="width:{{ tp.progress_percentage }}%"></div>
-                </div>
-              </td>
-              <td style="font-size:.85rem">{{ tp.get_status_display }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    {% else %}
-    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No treatment plans." %}</p>
-    {% endif %}
-
-    <h5 class="mt-4 mb-3">{% trans "Risk acceptances" %}</h5>
-    {% if acceptances %}
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead><tr><th>{% trans "Accepted by" %}</th><th>{% trans "Level" %}</th><th>{% trans "Status" %}</th><th>{% trans "Valid until" %}</th></tr></thead>
-          <tbody>
-            {% for acc in acceptances %}
-            <tr>
-              <td><a href="{% url 'risks:acceptance-detail' acc.pk %}" style="text-decoration:none">{% if acc.accepted_by %}{% user_badge acc.accepted_by size=20 %}{% else %}—{% endif %}</a></td>
-              <td style="font-size:.85rem">{{ acc.risk_level_at_acceptance|default:"—" }}</td>
-              <td style="font-size:.85rem">{{ acc.get_status_display }}</td>
-              <td style="font-size:.85rem">{{ acc.valid_until|default:"—" }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    {% else %}
-    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No risk acceptances." %}</p>
-    {% endif %}
-  </div>
-
-  <div class="tab-pane fade" id="assets">
+    {# ── Treatment ── #}
     <div class="card mb-4">
       <div class="card-body">
-        <h5 class="card-title">{% trans "Affected essential assets" %}</h5>
-        <div class="d-flex flex-wrap gap-2 mt-2">
-          {% for ea in risk.affected_essential_assets.all %}
-          <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ ea }}</span>
-          {% empty %}
-          <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No affected essential assets." %}</p>
-          {% endfor %}
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-shield-check me-1"></i>{% trans "Treatment" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Treatment decision" %}</div>
+          <div>{{ risk.get_treatment_decision_display }}</div>
         </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">{% trans "Affected support assets" %}</h5>
-        <div class="d-flex flex-wrap gap-2 mt-2">
-          {% for sa in risk.affected_support_assets.all %}
-          <span class="badge" style="background:var(--info-soft);color:var(--info);font-size:.82rem;padding:.4em .8em">{{ sa }}</span>
-          {% empty %}
-          <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No affected support assets." %}</p>
-          {% endfor %}
+        {% if risk.treatment_justification %}
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Justification" %}</div>
+          <div>{{ risk.treatment_justification|safe }}</div>
         </div>
-      </div>
-    </div>
-  </div>
+        {% endif %}
 
-  <div class="tab-pane fade" id="requirements">
-    <div class="card">
+        {# ── Treatment plans ── #}
+        <div class="d-flex justify-content-between align-items-center mb-3 mt-4 pt-3 border-top">
+          <div class="fw-medium" style="font-size:.85rem"><i class="bi bi-list-task me-1"></i>{% trans "Treatment plans" %}</div>
+          <a href="{% url 'risks:treatment-plan-create' %}" class="btn btn-sm btn-primary">{% trans "New plan" %}</a>
+        </div>
+        {% if treatment_plans %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>{% trans "Ref." %}</th><th>{% trans "Name" %}</th><th>{% trans "Type" %}</th><th>{% trans "Progress" %}</th><th>{% trans "Status" %}</th></tr></thead>
+            <tbody>
+              {% for tp in treatment_plans %}
+              <tr>
+                <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ tp.reference }}</td>
+                <td><a href="{% url 'risks:treatment-plan-detail' tp.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ tp.name }}</a></td>
+                <td style="font-size:.85rem">{{ tp.get_treatment_type_display }}</td>
+                <td>
+                  <div class="progress" style="height:.65rem">
+                    <div class="progress-bar" style="width:{{ tp.progress_percentage }}%"></div>
+                  </div>
+                </td>
+                <td style="font-size:.85rem">{{ tp.get_status_display }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted mb-0" style="font-size:.85rem">{% trans "No treatment plans." %}</p>
+        {% endif %}
+
+        {# ── Risk acceptances ── #}
+        <div class="mt-4 pt-3 border-top">
+          <div class="fw-medium mb-3" style="font-size:.85rem"><i class="bi bi-check2-circle me-1"></i>{% trans "Risk acceptances" %}</div>
+          {% if acceptances %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead><tr><th>{% trans "Accepted by" %}</th><th>{% trans "Level" %}</th><th>{% trans "Status" %}</th><th>{% trans "Valid until" %}</th></tr></thead>
+              <tbody>
+                {% for acc in acceptances %}
+                <tr>
+                  <td><a href="{% url 'risks:acceptance-detail' acc.pk %}" style="text-decoration:none">{% if acc.accepted_by %}{% user_badge acc.accepted_by size=20 %}{% else %}—{% endif %}</a></td>
+                  <td style="font-size:.85rem">{{ acc.risk_level_at_acceptance|default:"—" }}</td>
+                  <td style="font-size:.85rem">{{ acc.get_status_display }}</td>
+                  <td style="font-size:.85rem">{{ acc.valid_until|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-muted mb-0" style="font-size:.85rem">{% trans "No risk acceptances." %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {# ── Affected assets ── #}
+    <div class="card mb-4">
       <div class="card-body">
-        <h5 class="card-title">{% trans "Linked requirements" %}</h5>
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-hdd-stack me-1"></i>{% trans "Affected assets" %}</h6>
+        <div class="mb-3">
+          <div class="fw-medium mb-2" style="font-size:.85rem">{% trans "Affected essential assets" %}</div>
+          <div class="d-flex flex-wrap gap-2">
+            {% for ea in risk.affected_essential_assets.all %}
+            <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ ea }}</span>
+            {% empty %}
+            <p class="text-muted mb-0" style="font-size:.85rem">{% trans "No affected essential assets." %}</p>
+            {% endfor %}
+          </div>
+        </div>
+        <div>
+          <div class="fw-medium mb-2" style="font-size:.85rem">{% trans "Affected support assets" %}</div>
+          <div class="d-flex flex-wrap gap-2">
+            {% for sa in risk.affected_support_assets.all %}
+            <span class="badge" style="background:var(--info-soft);color:var(--info);font-size:.82rem;padding:.4em .8em">{{ sa }}</span>
+            {% empty %}
+            <p class="text-muted mb-0" style="font-size:.85rem">{% trans "No affected support assets." %}</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ── Linked requirements ── #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-clipboard-check me-1"></i>{% trans "Linked requirements" %}</h6>
         {% if risk.linked_requirements.all %}
-        <div class="table-responsive mt-2">
+        <div class="table-responsive">
           <table class="table table-hover mb-0">
             <thead><tr><th>{% trans "Reference" %}</th><th>{% trans "Title" %}</th><th>{% trans "Framework" %}</th><th>{% trans "Compliance" %}</th></tr></thead>
             <tbody>
@@ -206,42 +213,107 @@
           </table>
         </div>
         {% else %}
-        <p style="color:var(--text-muted);font-size:.85rem" class="mb-0 mt-2">{% trans "No linked requirements." %}</p>
+        <p class="text-muted mb-0" style="font-size:.85rem">{% trans "No linked requirements." %}</p>
         {% endif %}
       </div>
     </div>
-  </div>
 
-  {% if iso27005_sources %}
-  <div class="tab-pane fade" id="sources">
-    <h5 class="mb-3">{% trans "Methodology sources" %}</h5>
-    <p class="small" style="color:var(--text-muted)">
-      <i class="bi bi-diagram-2 me-1"></i>
-      {% trans "This risk was identified through ISO 27005 analyses (threat × vulnerability)." %}
-    </p>
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead><tr><th>{% trans "Threat" %}</th><th>{% trans "Vulnerability" %}</th><th>{% trans "Likelihood" %}</th><th>{% trans "Impact" %}</th><th>{% trans "Level" %}</th></tr></thead>
-          <tbody>
-            {% for src in iso27005_sources %}
-            <tr>
-              <td><a href="{% url 'risks:iso27005-detail' src.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ src.threat.name }}</a></td>
-              <td style="font-size:.85rem">{{ src.vulnerability.name }}</td>
-              <td style="font-size:.85rem">{{ src.combined_likelihood|default:"—" }}</td>
-              <td style="font-size:.85rem">{{ src.max_impact|default:"—" }}</td>
-              <td style="font-weight:600;font-size:.85rem">{{ src.risk_level|default:"—" }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+    {# ── Methodology sources ── #}
+    {% if iso27005_sources %}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-diagram-2 me-1"></i>{% trans "Methodology sources" %}</h6>
+        <p class="small text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          {% trans "This risk was identified through ISO 27005 analyses (threat × vulnerability)." %}
+        </p>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>{% trans "Threat" %}</th><th>{% trans "Vulnerability" %}</th><th>{% trans "Likelihood" %}</th><th>{% trans "Impact" %}</th><th>{% trans "Level" %}</th></tr></thead>
+            <tbody>
+              {% for src in iso27005_sources %}
+              <tr>
+                <td><a href="{% url 'risks:iso27005-detail' src.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ src.threat.name }}</a></td>
+                <td style="font-size:.85rem">{{ src.vulnerability.name }}</td>
+                <td style="font-size:.85rem">{{ src.combined_likelihood|default:"—" }}</td>
+                <td style="font-size:.85rem">{{ src.max_impact|default:"—" }}</td>
+                <td style="font-weight:600;font-size:.85rem">{{ src.risk_level|default:"—" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
-  {% endif %}
+    {% endif %}
 
-  <div class="tab-pane fade" id="history">
-    {% include "includes/history_tab.html" %}
+  </div>
+
+  {# ── RIGHT COLUMN (sidebar) ── #}
+  <div class="col-lg-4">
+
+    {# ── Status ── #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-flag me-1"></i>{% trans "Status" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Status" %}</dt>
+          <dd class="mb-3">{{ risk.get_status_display }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Priority" %}</dt>
+          <dd class="mb-3">
+            <span class="badge text-bg-{% if risk.priority == 'critical' %}danger{% elif risk.priority == 'high' %}warning{% elif risk.priority == 'medium' %}info{% else %}secondary{% endif %}">
+              {{ risk.get_priority_display }}
+            </span>
+          </dd>
+          <dt class="text-muted small mb-1">{% trans "Tags" %}</dt>
+          <dd class="mb-0">{% for tag in risk.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}<span class="text-muted">—</span>{% endfor %}</dd>
+        </dl>
+      </div>
+    </div>
+
+    {# ── People ── #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-people me-1"></i>{% trans "People" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Owner" %}</div>
+          {% if risk.risk_owner %}{% user_badge risk.risk_owner size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}
+        </div>
+        <div>
+          <div class="text-muted small mb-1">{% trans "Created by" %}</div>
+          {% if risk.created_by %}{% user_badge risk.created_by size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    {# ── Dates ── #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-calendar3 me-1"></i>{% trans "Dates" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Review date" %}</dt>
+          <dd class="mb-3">{{ risk.review_date|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Created" %}</dt>
+          <dd class="mb-3">{{ risk.created_at }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Updated" %}</dt>
+          <dd class="mb-0">{{ risk.updated_at }}</dd>
+        </dl>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{# ══════════════════════════════════════════════════════════ #}
+{# ── History (collapsible, full width) ────────────────── #}
+{# ══════════════════════════════════════════════════════════ #}
+<div class="card mt-0 mb-4">
+  <div class="card-header bg-transparent d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapse-history" aria-expanded="false">
+    <h6 class="mb-0 fw-semibold" style="font-size:.875rem"><i class="bi bi-clock-history me-1"></i>{% trans "History" %}</h6>
+    <i class="bi bi-chevron-down text-muted"></i>
+  </div>
+  <div class="collapse" id="collapse-history">
+    <div class="card-body">{% include "includes/history_tab.html" %}</div>
   </div>
 </div>
 {% endblock %}

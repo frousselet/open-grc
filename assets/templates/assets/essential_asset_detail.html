@@ -4,7 +4,7 @@
 {% load accounts_tags %}
 {% load dic_tags i18n %}
 
-{% block title %}{{ asset.name }} — Fairway{% endblock %}
+{% block title %}{{ asset.name }} - Fairway{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -20,148 +20,216 @@
 {% help_modal "assets.essential_asset_detail" %}
 {% include "includes/approval_badge.html" %}
 
-<ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#dic">{% trans "CIA valuation" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#classification">{% trans "Classification" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#relations">{% trans "Relations" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#valuations">{% trans "Valuations" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
-</ul>
+<div class="row">
+  {# ── Left column : main content ── #}
+  <div class="col-lg-8">
 
-<div class="tab-content">
-  <div class="tab-pane fade show active" id="general">
-    <div class="card">
+    {# General #}
+    <div class="card mb-4">
       <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-info-circle me-1"></i>{% trans "General" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Scopes" %}</div>
+          <div>{% grouped_scope_badges asset.scopes.all %}{% if not asset.scopes.all %}<span class="text-muted">—</span>{% endif %}</div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Type" %}</div>
+          <div>{{ asset.get_type_display }}</div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Category" %}</div>
+          <div>{{ asset.get_category_display }}</div>
+        </div>
+        <div class="mb-0">
+          <div class="text-muted small mb-1">{% trans "Description" %}</div>
+          <div>{{ asset.description|default:"—"|safe }}</div>
+        </div>
+      </div>
+    </div>
+
+    {# CIA Valuation #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-shield-check me-1"></i>{% trans "CIA valuation" %}</h6>
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body text-center">
+                <h6>{% trans "Confidentiality" %}</h6>
+                <p class="display-6">{{ asset.confidentiality_level|dic_badge }}</p>
+                <small style="color:var(--text-muted)">{{ asset.confidentiality_justification|default:"—" }}</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body text-center">
+                <h6>{% trans "Integrity" %}</h6>
+                <p class="display-6">{{ asset.integrity_level|dic_badge }}</p>
+                <small style="color:var(--text-muted)">{{ asset.integrity_justification|default:"—" }}</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body text-center">
+                <h6>{% trans "Availability" %}</h6>
+                <p class="display-6">{{ asset.availability_level|dic_badge }}</p>
+                <small style="color:var(--text-muted)">{{ asset.availability_justification|default:"—" }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
         <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt><dd class="col-sm-9">{% grouped_scope_badges asset.scopes.all %}{% if not asset.scopes.all %}<span style="color:var(--text-muted)">—</span>{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ asset.get_type_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Category" %}</dt><dd class="col-sm-9">{{ asset.get_category_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{% if asset.owner %}{% user_badge asset.owner size=24 link=True %}{% else %}—{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Custodian" %}</dt><dd class="col-sm-9">{% if asset.custodian %}{% user_badge asset.custodian size=24 link=True %}{% else %}—{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
-          <dd class="col-sm-9">
+          <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "MTD / Max tolerable downtime" %}</dt><dd class="col-sm-8">{{ asset.max_tolerable_downtime|default:"—" }}</dd>
+          <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "RTO" %}</dt><dd class="col-sm-8">{{ asset.recovery_time_objective|default:"—" }}</dd>
+          <dt class="col-sm-4" style="color:var(--text-muted);font-size:.82rem">{% trans "RPO" %}</dt><dd class="col-sm-8">{{ asset.recovery_point_objective|default:"—" }}</dd>
+        </dl>
+      </div>
+    </div>
+
+    {# Classification #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-lock me-1"></i>{% trans "Classification" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Classification" %}</div>
+          <div>{{ asset.get_data_classification_display|default:"—" }}</div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Personal data" %}</div>
+          <div>{% if asset.personal_data %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</div>
+        </div>
+        {% if asset.personal_data and asset.personal_data_categories %}
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "GDPR categories" %}</div>
+          <div>{{ asset.personal_data_categories }}</div>
+        </div>
+        {% endif %}
+        <div class="mb-0">
+          <div class="text-muted small mb-1">{% trans "Regulatory constraints" %}</div>
+          <div>{{ asset.regulatory_constraints|default:"—"|safe }}</div>
+        </div>
+      </div>
+    </div>
+
+    {# Relations : associated support assets #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-diagram-3 me-1"></i>{% trans "Associated support assets" %}</h6>
+        {% if dependencies %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>{% trans "Support asset" %}</th><th>{% trans "Dependency type" %}</th><th>{% trans "Criticality" %}</th><th>{% trans "SPOF" %}</th></tr></thead>
+            <tbody>
+              {% for dep in dependencies %}
+              <tr>
+                <td><a href="{% url 'assets:support-asset-detail' dep.support_asset.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ dep.support_asset }}</a></td>
+                <td>{{ dep.get_dependency_type_display }}</td>
+                <td>{{ dep.get_criticality_display }}</td>
+                <td>{% if dep.is_single_point_of_failure %}<span class="badge text-bg-danger">SPOF</span>{% else %}—{% endif %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="alert alert-warning mb-0">{% trans "No associated support asset (unsupported essential asset)." %}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    {# Valuations history #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-graph-up me-1"></i>{% trans "CIA valuation history" %}</h6>
+        {% if valuations %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>{% trans "Date" %}</th><th class="text-center">C</th><th class="text-center">I</th><th class="text-center">A</th><th>{% trans "Evaluator" %}</th><th>{% trans "Context" %}</th></tr></thead>
+            <tbody>
+              {% for val in valuations %}
+              <tr>
+                <td>{{ val.evaluation_date }}</td>
+                <td class="text-center">{{ val.confidentiality_level|dic_badge }}</td>
+                <td class="text-center">{{ val.integrity_level|dic_badge }}</td>
+                <td class="text-center">{{ val.availability_level|dic_badge }}</td>
+                <td>{% if val.evaluated_by %}{% user_badge val.evaluated_by size=20 %}{% else %}—{% endif %}</td>
+                <td>{{ val.context|default:"—" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="mb-0" style="color:var(--text-muted);font-size:.85rem">{% trans "No valuation recorded." %}</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  {# ── Right sidebar : metadata ── #}
+  <div class="col-lg-4">
+
+    {# Status #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-flag me-1"></i>{% trans "Status" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Status" %}</dt>
+          <dd class="mb-3">
             <span class="badge text-bg-{% if asset.status == 'active' %}success{% elif asset.status == 'identified' %}info{% else %}secondary{% endif %}">
               {{ asset.get_status_display }}
             </span>
           </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ asset.description|default:"—"|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
-          <dd class="col-sm-9">{% for tag in asset.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
+          <dt class="text-muted small mb-1">{% trans "Version" %}</dt>
+          <dd class="mb-3">{{ asset.version|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Tags" %}</dt>
+          <dd class="mb-0">{% for tag in asset.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
         </dl>
       </div>
     </div>
-  </div>
 
-  <div class="tab-pane fade" id="dic">
-    <div class="row g-3 mb-3">
-      <div class="col-md-4">
-        <div class="card">
-          <div class="card-body text-center">
-            <h6>{% trans "Confidentiality" %}</h6>
-            <p class="display-6">{{ asset.confidentiality_level|dic_badge }}</p>
-            <small style="color:var(--text-muted)">{{ asset.confidentiality_justification|default:"—" }}</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card">
-          <div class="card-body text-center">
-            <h6>{% trans "Integrity" %}</h6>
-            <p class="display-6">{{ asset.integrity_level|dic_badge }}</p>
-            <small style="color:var(--text-muted)">{{ asset.integrity_justification|default:"—" }}</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card">
-          <div class="card-body text-center">
-            <h6>{% trans "Availability" %}</h6>
-            <p class="display-6">{{ asset.availability_level|dic_badge }}</p>
-            <small style="color:var(--text-muted)">{{ asset.availability_justification|default:"—" }}</small>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="card">
+    {# People #}
+    <div class="card mb-4">
       <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "MTD / Max tolerable downtime" %}</dt><dd class="col-sm-9">{{ asset.max_tolerable_downtime|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "RTO" %}</dt><dd class="col-sm-9">{{ asset.recovery_time_objective|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "RPO" %}</dt><dd class="col-sm-9">{{ asset.recovery_point_objective|default:"—" }}</dd>
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-people me-1"></i>{% trans "People" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Owner" %}</dt>
+          <dd class="mb-3">{% if asset.owner %}{% user_badge asset.owner size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}</dd>
+          <dt class="text-muted small mb-1">{% trans "Custodian" %}</dt>
+          <dd class="mb-3">{% if asset.custodian %}{% user_badge asset.custodian size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}</dd>
+          <dt class="text-muted small mb-1">{% trans "Created by" %}</dt>
+          <dd class="mb-0">{% if asset.created_by %}{% user_badge asset.created_by size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}</dd>
         </dl>
       </div>
     </div>
-  </div>
 
-  <div class="tab-pane fade" id="classification">
-    <div class="card">
+    {# Dates #}
+    <div class="card mb-4">
       <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Classification" %}</dt><dd class="col-sm-9">{{ asset.get_data_classification_display|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Personal data" %}</dt><dd class="col-sm-9">{% if asset.personal_data %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
-          {% if asset.personal_data and asset.personal_data_categories %}
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "GDPR categories" %}</dt><dd class="col-sm-9">{{ asset.personal_data_categories }}</dd>
-          {% endif %}
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Regulatory constraints" %}</dt><dd class="col-sm-9">{{ asset.regulatory_constraints|default:"—"|safe }}</dd>
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-calendar3 me-1"></i>{% trans "Dates" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Created" %}</dt>
+          <dd class="mb-3">{{ asset.created_at }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Updated" %}</dt>
+          <dd class="mb-0">{{ asset.updated_at }}</dd>
         </dl>
       </div>
     </div>
-  </div>
 
-  <div class="tab-pane fade" id="relations">
-    <h5>{% trans "Associated support assets" %}</h5>
-    {% if dependencies %}
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead><tr><th>{% trans "Support asset" %}</th><th>{% trans "Dependency type" %}</th><th>{% trans "Criticality" %}</th><th>{% trans "SPOF" %}</th></tr></thead>
-          <tbody>
-            {% for dep in dependencies %}
-            <tr>
-              <td><a href="{% url 'assets:support-asset-detail' dep.support_asset.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ dep.support_asset }}</a></td>
-              <td>{{ dep.get_dependency_type_display }}</td>
-              <td>{{ dep.get_criticality_display }}</td>
-              <td>{% if dep.is_single_point_of_failure %}<span class="badge text-bg-danger">SPOF</span>{% else %}—{% endif %}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    {% else %}
-    <div class="alert alert-warning">{% trans "No associated support asset (unsupported essential asset)." %}</div>
-    {% endif %}
   </div>
+</div>
 
-  <div class="tab-pane fade" id="valuations">
-    <h5>{% trans "CIA valuation history" %}</h5>
-    {% if valuations %}
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead><tr><th>{% trans "Date" %}</th><th class="text-center">C</th><th class="text-center">I</th><th class="text-center">A</th><th>{% trans "Evaluator" %}</th><th>{% trans "Context" %}</th></tr></thead>
-          <tbody>
-            {% for val in valuations %}
-            <tr>
-              <td>{{ val.evaluation_date }}</td>
-              <td class="text-center">{{ val.confidentiality_level|dic_badge }}</td>
-              <td class="text-center">{{ val.integrity_level|dic_badge }}</td>
-              <td class="text-center">{{ val.availability_level|dic_badge }}</td>
-              <td>{% if val.evaluated_by %}{% user_badge val.evaluated_by size=20 %}{% else %}—{% endif %}</td>
-              <td>{{ val.context|default:"—" }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    {% else %}
-    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No valuation recorded." %}</p>
-    {% endif %}
+{# ── History (full-width, collapsible) ── #}
+<div class="card mt-0 mb-4">
+  <div class="card-header bg-transparent d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapse-history" aria-expanded="false">
+    <h6 class="mb-0 fw-semibold" style="font-size:.875rem"><i class="bi bi-clock-history me-1"></i>{% trans "History" %}</h6>
+    <i class="bi bi-chevron-down text-muted"></i>
   </div>
-  <div class="tab-pane fade" id="history">
-    {% include "includes/history_tab.html" %}
+  <div class="collapse" id="collapse-history">
+    <div class="card-body">{% include "includes/history_tab.html" %}</div>
   </div>
 </div>
 {% endblock %}

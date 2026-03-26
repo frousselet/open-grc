@@ -23,174 +23,251 @@
 
 {% include "includes/approval_badge.html" %}
 
-<ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#structure">{% trans "Structure" %}</a></li>
-  <li class="nav-item">
-    <a class="nav-link" data-bs-toggle="tab" href="#requirements_tab">
-      {% trans "Requirements" %} <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ requirements|length }}</span>
-    </a>
-  </li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#compliance">{% trans "Compliance" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#assessments_tab">{% trans "Assessments" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
-</ul>
+<div class="row">
+  {# ── Left column: main content ── #}
+  <div class="col-lg-8">
 
-<div class="tab-content">
-  <div class="tab-pane fade show active" id="general">
-    <div class="card">
+    {# General info #}
+    <div class="card mb-4">
       <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt>
-          <dd class="col-sm-9">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-info-circle me-1"></i>{% trans "General" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Scopes" %}</div>
+          <div>
             {% grouped_scope_badges framework.scopes.all %}
             {% if not framework.scopes.all %}—{% endif %}
-          </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Abbreviation" %}</dt><dd class="col-sm-9">{{ framework.short_name|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ framework.get_type_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Category" %}</dt><dd class="col-sm-9">{{ framework.get_category_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Version" %}</dt><dd class="col-sm-9">{{ framework.framework_version|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Issuing body" %}</dt><dd class="col-sm-9">{{ framework.issuing_body|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Jurisdiction" %}</dt><dd class="col-sm-9">{{ framework.jurisdiction|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Mandatory" %}</dt><dd class="col-sm-9">{% if framework.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Applicable" %}</dt><dd class="col-sm-9">{% if framework.is_applicable %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{% if framework.owner %}{% user_badge framework.owner size=24 link=True %}{% else %}—{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt><dd class="col-sm-9">{{ framework.get_status_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ framework.description|default:"—"|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
-          <dd class="col-sm-9">{% for tag in framework.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
-        </dl>
-      </div>
-    </div>
-  </div>
-
-  <div class="tab-pane fade" id="structure">
-    <h5>{% trans "Sections" %}</h5>
-    {% if sections %}
-    <ul class="list-group mb-3">
-      {% for section in sections %}
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div><span class="ref">{{ section.reference }}</span> {{ section.name }}</div>
-        <span class="badge text-bg-{% if section.compliance_level >= 80 %}success{% elif section.compliance_level >= 50 %}warning{% else %}danger{% endif %}">{{ section.compliance_level|floatformat:0 }}%</span>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No section defined." %}</p>
-    {% endif %}
-  </div>
-
-  <div class="tab-pane fade" id="requirements_tab">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5 class="mb-0">{% trans "Framework requirements" %}</h5>
-      <a href="{% url 'compliance:requirement-create' %}?framework={{ framework.pk }}" class="btn btn-primary btn-sm">
-        <i class="bi bi-plus-lg me-1"></i>{% trans "Add" %}
-      </a>
-    </div>
-    {% if requirements %}
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th>{% trans "Reference" %}</th>
-              <th>{% trans "Title" %}</th>
-              <th>{% trans "Section" %}</th>
-              <th>{% trans "Type" %}</th>
-              <th>{% trans "Status" %}</th>
-              <th style="min-width:120px">{% trans "Compliance" %}</th>
-              <th>{% trans "Priority" %}</th>
-              <th>{% trans "Owner" %}</th>
-              <th class="text-end">{% trans "Actions" %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for req in requirements %}
-            <tr>
-              <td><a href="{% url 'compliance:requirement-detail' req.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ req.reference }}</a></td>
-              <td>{{ req.name|truncatechars:60 }}</td>
-              <td>{{ req.section.reference|default:"—" }}</td>
-              <td>{{ req.get_type_display }}</td>
-              <td>
-                {% if req.compliance_status == 'evaluated' %}
-                <span class="badge" style="background-color:var(--accent);color:#fff">{{ req.get_compliance_status_display }}</span>
-                {% else %}
-                <span class="badge text-bg-{% if req.compliance_status == 'compliant' or req.compliance_status == 'strength' %}success{% elif req.compliance_status == 'observation' or req.compliance_status == 'improvement_opportunity' %}warning{% elif req.compliance_status == 'major_non_conformity' or req.compliance_status == 'minor_non_conformity' %}danger{% elif req.compliance_status == 'not_applicable' %}dark{% else %}secondary{% endif %}">
-                  {{ req.get_compliance_status_display }}
-                </span>
-                {% endif %}
-              </td>
-              <td>
-                <div class="d-flex align-items-center gap-2">
-                  <div class="progress flex-grow-1" style="height:.5rem">
-                    <div class="progress-bar bg-{% if req.compliance_level >= 80 %}success{% elif req.compliance_level >= 50 %}warning{% else %}danger{% endif %}"
-                         style="width:{{ req.compliance_level }}%"></div>
-                  </div>
-                  <small class="text-nowrap">{{ req.compliance_level|floatformat:0 }}%</small>
-                </div>
-              </td>
-              <td>
-                {% if req.priority %}
-                <span class="badge text-bg-{% if req.priority == 'critical' %}danger{% elif req.priority == 'high' %}warning{% elif req.priority == 'medium' %}info{% else %}secondary{% endif %}">
-                  {{ req.get_priority_display }}
-                </span>
-                {% else %}—{% endif %}
-              </td>
-              <td>{% if req.owner %}{% user_badge req.owner size=20 %}{% else %}—{% endif %}</td>
-              <td class="text-end">
-                <a href="{% url 'compliance:requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    {% else %}
-    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No requirement defined for this framework." %}</p>
-    {% endif %}
-  </div>
-
-  <div class="tab-pane fade" id="compliance">
-    <div class="row mb-3">
-      <div class="col-md-4">
-        <div class="card">
-          <div class="card-body text-center">
-            <h6>{% trans "Overall compliance level" %}</h6>
-            <p class="display-4">{{ framework.compliance_level|floatformat:0 }}%</p>
           </div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Abbreviation" %}</div>
+          <div>{{ framework.short_name|default:"—" }}</div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Type" %}</div>
+          <div>{{ framework.get_type_display }}</div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Category" %}</div>
+          <div>{{ framework.get_category_display }}</div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Issuing body" %}</div>
+          <div>{{ framework.issuing_body|default:"—" }}</div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Jurisdiction" %}</div>
+          <div>{{ framework.jurisdiction|default:"—" }}</div>
+        </div>
+        <div class="mb-0">
+          <div class="text-muted small mb-1">{% trans "Description" %}</div>
+          <div>{{ framework.description|default:"—"|safe }}</div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="tab-pane fade" id="assessments_tab">
-    {% if assessments %}
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead><tr><th>{% trans "Name" %}</th><th>{% trans "Date" %}</th><th>{% trans "Assessor" %}</th><th>{% trans "Compliance" %}</th><th>{% trans "Status" %}</th></tr></thead>
-          <tbody>
-            {% for a in assessments %}
-            <tr>
-              <td><a href="{% url 'compliance:assessment-detail' a.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ a.name }}</a></td>
-              <td>{{ a.assessment_start_date }}</td>
-              <td>{% if a.assessor %}{% user_badge a.assessor size=20 %}{% else %}—{% endif %}</td>
-              <td>{{ a.overall_compliance_level|floatformat:0 }}%</td>
-              <td>{{ a.get_status_display }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+    {# Compliance overview #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-clipboard-check me-1"></i>{% trans "Compliance" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Overall compliance level" %}</div>
+          <div class="display-6 fw-bold">{{ framework.compliance_level|floatformat:0 }}%</div>
+        </div>
       </div>
     </div>
-    {% else %}
-    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No assessment performed." %}</p>
-    {% endif %}
+
+    {# Sections / Structure #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-diagram-3 me-1"></i>{% trans "Structure" %}</h6>
+        {% if sections %}
+        <ul class="list-group list-group-flush">
+          {% for section in sections %}
+          <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+            <div><span class="ref">{{ section.reference }}</span> {{ section.name }}</div>
+            <span class="badge text-bg-{% if section.compliance_level >= 80 %}success{% elif section.compliance_level >= 50 %}warning{% else %}danger{% endif %}">{{ section.compliance_level|floatformat:0 }}%</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No section defined." %}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {# Requirements table #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-muted text-uppercase small fw-semibold mb-0">
+            <i class="bi bi-list-check me-1"></i>{% trans "Requirements" %}
+            <span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ requirements|length }}</span>
+          </h6>
+          <a href="{% url 'compliance:requirement-create' %}?framework={{ framework.pk }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i>{% trans "Add" %}
+          </a>
+        </div>
+        {% if requirements %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>{% trans "Reference" %}</th>
+                <th>{% trans "Title" %}</th>
+                <th>{% trans "Section" %}</th>
+                <th>{% trans "Type" %}</th>
+                <th>{% trans "Status" %}</th>
+                <th style="min-width:120px">{% trans "Compliance" %}</th>
+                <th>{% trans "Priority" %}</th>
+                <th>{% trans "Owner" %}</th>
+                <th class="text-end">{% trans "Actions" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for req in requirements %}
+              <tr>
+                <td><a href="{% url 'compliance:requirement-detail' req.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ req.reference }}</a></td>
+                <td>{{ req.name|truncatechars:60 }}</td>
+                <td>{{ req.section.reference|default:"—" }}</td>
+                <td>{{ req.get_type_display }}</td>
+                <td>
+                  {% if req.compliance_status == 'evaluated' %}
+                  <span class="badge" style="background-color:var(--accent);color:#fff">{{ req.get_compliance_status_display }}</span>
+                  {% else %}
+                  <span class="badge text-bg-{% if req.compliance_status == 'compliant' or req.compliance_status == 'strength' %}success{% elif req.compliance_status == 'observation' or req.compliance_status == 'improvement_opportunity' %}warning{% elif req.compliance_status == 'major_non_conformity' or req.compliance_status == 'minor_non_conformity' %}danger{% elif req.compliance_status == 'not_applicable' %}dark{% else %}secondary{% endif %}">
+                    {{ req.get_compliance_status_display }}
+                  </span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="progress flex-grow-1" style="height:.5rem">
+                      <div class="progress-bar bg-{% if req.compliance_level >= 80 %}success{% elif req.compliance_level >= 50 %}warning{% else %}danger{% endif %}"
+                           style="width:{{ req.compliance_level }}%"></div>
+                    </div>
+                    <small class="text-nowrap">{{ req.compliance_level|floatformat:0 }}%</small>
+                  </div>
+                </td>
+                <td>
+                  {% if req.priority %}
+                  <span class="badge text-bg-{% if req.priority == 'critical' %}danger{% elif req.priority == 'high' %}warning{% elif req.priority == 'medium' %}info{% else %}secondary{% endif %}">
+                    {{ req.get_priority_display }}
+                  </span>
+                  {% else %}—{% endif %}
+                </td>
+                <td>{% if req.owner %}{% user_badge req.owner size=20 %}{% else %}—{% endif %}</td>
+                <td class="text-end">
+                  <a href="{% url 'compliance:requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No requirement defined for this framework." %}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {# Assessments table #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-journal-check me-1"></i>{% trans "Assessments" %}</h6>
+        {% if assessments %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>{% trans "Name" %}</th><th>{% trans "Date" %}</th><th>{% trans "Assessor" %}</th><th>{% trans "Compliance" %}</th><th>{% trans "Status" %}</th></tr></thead>
+            <tbody>
+              {% for a in assessments %}
+              <tr>
+                <td><a href="{% url 'compliance:assessment-detail' a.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ a.name }}</a></td>
+                <td>{{ a.assessment_start_date }}</td>
+                <td>{% if a.assessor %}{% user_badge a.assessor size=20 %}{% else %}—{% endif %}</td>
+                <td>{{ a.overall_compliance_level|floatformat:0 }}%</td>
+                <td>{{ a.get_status_display }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p style="color:var(--text-muted);font-size:.85rem" class="mb-0">{% trans "No assessment performed." %}</p>
+        {% endif %}
+      </div>
+    </div>
+
   </div>
 
-  <div class="tab-pane fade" id="history">
-    {% include "includes/history_tab.html" %}
+  {# ── Right sidebar ── #}
+  <div class="col-lg-4">
+
+    {# Status #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-flag me-1"></i>{% trans "Status" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Status" %}</dt>
+          <dd class="mb-3">{{ framework.get_status_display }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Version" %}</dt>
+          <dd class="mb-3">{{ framework.framework_version|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Mandatory" %}</dt>
+          <dd class="mb-3">{% if framework.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
+          <dt class="text-muted small mb-1">{% trans "Applicable" %}</dt>
+          <dd class="mb-3">{% if framework.is_applicable %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
+          <dt class="text-muted small mb-1">{% trans "Tags" %}</dt>
+          <dd class="mb-0">{% for tag in framework.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
+        </dl>
+      </div>
+    </div>
+
+    {# People #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-people me-1"></i>{% trans "People" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Owner" %}</dt>
+          <dd class="mb-3">{% if framework.owner %}{% user_badge framework.owner size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}</dd>
+          <dt class="text-muted small mb-1">{% trans "Created by" %}</dt>
+          <dd class="mb-0">{% if framework.created_by %}{% user_badge framework.created_by size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}</dd>
+        </dl>
+      </div>
+    </div>
+
+    {# Dates #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-calendar3 me-1"></i>{% trans "Dates" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Created" %}</dt>
+          <dd class="mb-3">{{ framework.created_at|date:"d/m/Y H:i" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Updated" %}</dt>
+          <dd class="mb-3">{{ framework.updated_at|date:"d/m/Y H:i" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Publication date" %}</dt>
+          <dd class="mb-3">{{ framework.publication_date|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Effective date" %}</dt>
+          <dd class="mb-3">{{ framework.effective_date|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Expiry date" %}</dt>
+          <dd class="mb-3">{{ framework.expiry_date|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Next review date" %}</dt>
+          <dd class="mb-3">{{ framework.review_date|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Last assessment" %}</dt>
+          <dd class="mb-0">{{ framework.last_assessment_date|default:"—" }}</dd>
+        </dl>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{# ── History (full-width, collapsible) ── #}
+<div class="card mt-0 mb-4">
+  <div class="card-header bg-transparent d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapse-history" aria-expanded="false">
+    <h6 class="mb-0 fw-semibold" style="font-size:.875rem"><i class="bi bi-clock-history me-1"></i>{% trans "History" %}</h6>
+    <i class="bi bi-chevron-down text-muted"></i>
+  </div>
+  <div class="collapse" id="collapse-history">
+    <div class="card-body">{% include "includes/history_tab.html" %}</div>
   </div>
 </div>
 {% endblock %}

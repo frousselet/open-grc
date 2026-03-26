@@ -3,7 +3,7 @@
 {% load help_tags %}
 {% load accounts_tags %}
 
-{% block title %}{{ plan.name }} — Fairway{% endblock %}
+{% block title %}{{ plan.name }} - Fairway{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -19,78 +19,154 @@
 {% help_modal "risks.treatment_plan_detail" %}
 {% include "includes/approval_badge.html" with object=plan %}
 
-<ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#actions">{% trans "Actions" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
-</ul>
+{# ══════════════════════════════════════════════════════════ #}
+{# ── Two-column layout ────────────────────────────────── #}
+{# ══════════════════════════════════════════════════════════ #}
+<div class="row g-4">
 
-<div class="tab-content">
-  <div class="tab-pane fade show active" id="general">
-    <div class="card">
+  {# ── LEFT COLUMN ── #}
+  <div class="col-lg-8">
+
+    {# ── General ── #}
+    <div class="card mb-4">
       <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Risk" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:risk-detail' plan.risk.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ plan.risk }}</a></dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Treatment type" %}</dt><dd class="col-sm-9">{{ plan.get_treatment_type_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{% if plan.owner %}{% user_badge plan.owner size=24 link=True %}{% else %}—{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Start date" %}</dt><dd class="col-sm-9">{{ plan.start_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Target date" %}</dt><dd class="col-sm-9">{{ plan.target_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Completion date" %}</dt><dd class="col-sm-9">{{ plan.completion_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Estimated cost" %}</dt><dd class="col-sm-9">{{ plan.cost_estimate|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Progress" %}</dt>
-          <dd class="col-sm-9">
-            <div class="progress" style="height:1.2rem">
-              <div class="progress-bar bg-{% if plan.progress_percentage == 100 %}success{% elif plan.progress_percentage >= 50 %}info{% else %}warning{% endif %}" style="width:{{ plan.progress_percentage }}%">{{ plan.progress_percentage }}%</div>
-            </div>
-          </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
-          <dd class="col-sm-9">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-info-circle me-1"></i>{% trans "General" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Risk" %}</div>
+          <div><a href="{% url 'risks:risk-detail' plan.risk.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ plan.risk }}</a></div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Treatment type" %}</div>
+          <div>{{ plan.get_treatment_type_display }}</div>
+        </div>
+        {% if plan.description %}
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Description" %}</div>
+          <div>{{ plan.description|safe }}</div>
+        </div>
+        {% endif %}
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Estimated cost" %}</div>
+          <div>{{ plan.cost_estimate|default:"—" }}</div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Expected residual likelihood" %}</div>
+          <div>{{ plan.expected_residual_likelihood|default:"—" }}</div>
+        </div>
+        <div>
+          <div class="text-muted small mb-1">{% trans "Expected residual impact" %}</div>
+          <div>{{ plan.expected_residual_impact|default:"—" }}</div>
+        </div>
+      </div>
+    </div>
+
+    {# ── Treatment actions ── #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-list-task me-1"></i>{% trans "Treatment actions" %}</h6>
+        {% if actions %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>#</th><th>{% trans "Description" %}</th><th>{% trans "Owner" %}</th><th>{% trans "Target date" %}</th><th>{% trans "Status" %}</th></tr></thead>
+            <tbody>
+              {% for action in actions %}
+              <tr>
+                <td>{{ action.order }}</td>
+                <td>{{ action.description }}</td>
+                <td>{% if action.owner %}{% user_badge action.owner size=20 %}{% else %}—{% endif %}</td>
+                <td>{{ action.target_date|default:"—" }}</td>
+                <td>
+                  <span class="badge text-bg-{% if action.status == 'completed' %}success{% elif action.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
+                    {{ action.get_status_display }}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted mb-0" style="font-size:.85rem">{% trans "No actions defined." %}</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  {# ── RIGHT COLUMN (sidebar) ── #}
+  <div class="col-lg-4">
+
+    {# ── Status ── #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-flag me-1"></i>{% trans "Status" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Status" %}</dt>
+          <dd class="mb-3">
             <span class="badge text-bg-{% if plan.status == 'completed' %}success{% elif plan.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
               {{ plan.get_status_display }}
             </span>
           </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Expected residual likelihood" %}</dt><dd class="col-sm-9">{{ plan.expected_residual_likelihood|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Expected residual impact" %}</dt><dd class="col-sm-9">{{ plan.expected_residual_impact|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ plan.description|default:"—"|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
-          <dd class="col-sm-9">{% for tag in plan.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
+          <dt class="text-muted small mb-1">{% trans "Progress" %}</dt>
+          <dd class="mb-3">
+            <div class="progress" style="height:8px">
+              <div class="progress-bar bg-{% if plan.progress_percentage == 100 %}success{% elif plan.progress_percentage >= 50 %}info{% else %}warning{% endif %}" style="width:{{ plan.progress_percentage }}%"></div>
+            </div>
+            <small class="text-muted">{{ plan.progress_percentage }}%</small>
+          </dd>
+          <dt class="text-muted small mb-1">{% trans "Tags" %}</dt>
+          <dd class="mb-0">{% for tag in plan.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}<span class="text-muted">—</span>{% endfor %}</dd>
         </dl>
       </div>
     </div>
-  </div>
 
-  <div class="tab-pane fade" id="actions">
-    <h5>{% trans "Treatment actions" %}</h5>
-    {% if actions %}
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead><tr><th>#</th><th>{% trans "Description" %}</th><th>{% trans "Owner" %}</th><th>{% trans "Target date" %}</th><th>{% trans "Status" %}</th></tr></thead>
-          <tbody>
-            {% for action in actions %}
-            <tr>
-              <td>{{ action.order }}</td>
-              <td>{{ action.description }}</td>
-              <td>{% if action.owner %}{% user_badge action.owner size=20 %}{% else %}—{% endif %}</td>
-              <td>{{ action.target_date|default:"—" }}</td>
-              <td>
-                <span class="badge text-bg-{% if action.status == 'completed' %}success{% elif action.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
-                  {{ action.get_status_display }}
-                </span>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+    {# ── People ── #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-people me-1"></i>{% trans "People" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Owner" %}</div>
+          {% if plan.owner %}{% user_badge plan.owner size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}
+        </div>
+        <div>
+          <div class="text-muted small mb-1">{% trans "Created by" %}</div>
+          {% if plan.created_by %}{% user_badge plan.created_by size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}
+        </div>
       </div>
     </div>
-    {% else %}
-    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No actions defined." %}</p>
-    {% endif %}
-  </div>
 
-  <div class="tab-pane fade" id="history">
-    {% include "includes/history_tab.html" %}
+    {# ── Dates ── #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-calendar3 me-1"></i>{% trans "Dates" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Start date" %}</dt>
+          <dd class="mb-3">{{ plan.start_date|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Target date" %}</dt>
+          <dd class="mb-3">{{ plan.target_date|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Completion date" %}</dt>
+          <dd class="mb-3">{{ plan.completion_date|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Created" %}</dt>
+          <dd class="mb-3">{{ plan.created_at }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Updated" %}</dt>
+          <dd class="mb-0">{{ plan.updated_at }}</dd>
+        </dl>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{# ══════════════════════════════════════════════════════════ #}
+{# ── History (collapsible, full width) ────────────────── #}
+{# ══════════════════════════════════════════════════════════ #}
+<div class="card mt-0 mb-4">
+  <div class="card-header bg-transparent d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapse-history" aria-expanded="false">
+    <h6 class="mb-0 fw-semibold" style="font-size:.875rem"><i class="bi bi-clock-history me-1"></i>{% trans "History" %}</h6>
+    <i class="bi bi-chevron-down text-muted"></i>
+  </div>
+  <div class="collapse" id="collapse-history">
+    <div class="card-body">{% include "includes/history_tab.html" %}</div>
   </div>
 </div>
 {% endblock %}

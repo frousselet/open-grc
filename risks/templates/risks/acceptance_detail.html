@@ -3,12 +3,12 @@
 {% load help_tags %}
 {% load accounts_tags %}
 
-{% block title %}{% trans "Risk acceptance" %} — Fairway{% endblock %}
+{% block title %}{% trans "Risk acceptance" %} - Fairway{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
-    <h1 class="mb-0">{% blocktrans with risk=acceptance.risk %}Acceptance — {{ risk }}{% endblocktrans %}</h1>
+    <h1 class="mb-0">{% blocktrans with risk=acceptance.risk %}Acceptance - {{ risk }}{% endblocktrans %}</h1>
     <small class="ref">{{ acceptance.reference }}</small>
   </div>
   <div class="d-flex gap-2">
@@ -18,39 +18,108 @@
 </div>
 {% help_modal "risks.acceptance_detail" %}
 
-<ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
-</ul>
+{# ══════════════════════════════════════════════════════════ #}
+{# ── Two-column layout ────────────────────────────────── #}
+{# ══════════════════════════════════════════════════════════ #}
+<div class="row g-4">
 
-<div class="tab-content">
-  <div class="tab-pane fade show active" id="general">
-    <div class="card">
+  {# ── LEFT COLUMN ── #}
+  <div class="col-lg-8">
+
+    {# ── General ── #}
+    <div class="card mb-4">
       <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Risk" %}</dt><dd class="col-sm-9"><a href="{% url 'risks:risk-detail' acceptance.risk.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ acceptance.risk }}</a></dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Accepted by" %}</dt><dd class="col-sm-9">{% if acceptance.accepted_by %}{% user_badge acceptance.accepted_by size=24 link=True %}{% else %}—{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Acceptance date" %}</dt><dd class="col-sm-9">{{ acceptance.accepted_at|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Level at acceptance" %}</dt><dd class="col-sm-9">{{ acceptance.risk_level_at_acceptance|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
-          <dd class="col-sm-9">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-info-circle me-1"></i>{% trans "General" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Risk" %}</div>
+          <div><a href="{% url 'risks:risk-detail' acceptance.risk.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ acceptance.risk }}</a></div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Justification" %}</div>
+          <div>{{ acceptance.justification|safe }}</div>
+        </div>
+        {% if acceptance.conditions %}
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Conditions" %}</div>
+          <div>{{ acceptance.conditions|safe }}</div>
+        </div>
+        {% endif %}
+        {% if acceptance.review_notes %}
+        <div>
+          <div class="text-muted small mb-1">{% trans "Review notes" %}</div>
+          <div>{{ acceptance.review_notes|safe }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  {# ── RIGHT COLUMN (sidebar) ── #}
+  <div class="col-lg-4">
+
+    {# ── Status ── #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-flag me-1"></i>{% trans "Status" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Status" %}</dt>
+          <dd class="mb-3">
             <span class="badge text-bg-{% if acceptance.status == 'active' %}success{% elif acceptance.status == 'expired' %}danger{% else %}secondary{% endif %}">
               {{ acceptance.get_status_display }}
             </span>
           </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Valid until" %}</dt><dd class="col-sm-9">{{ acceptance.valid_until|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Review date" %}</dt><dd class="col-sm-9">{{ acceptance.review_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ acceptance.justification|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Conditions" %}</dt><dd class="col-sm-9">{{ acceptance.conditions|default:"—"|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
-          <dd class="col-sm-9">{% for tag in acceptance.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
+          <dt class="text-muted small mb-1">{% trans "Level at acceptance" %}</dt>
+          <dd class="mb-3">{{ acceptance.risk_level_at_acceptance|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Tags" %}</dt>
+          <dd class="mb-0">{% for tag in acceptance.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}<span class="text-muted">—</span>{% endfor %}</dd>
         </dl>
       </div>
     </div>
-  </div>
 
-  <div class="tab-pane fade" id="history">
-    {% include "includes/history_tab.html" %}
+    {# ── People ── #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-people me-1"></i>{% trans "People" %}</h6>
+        <div>
+          <div class="text-muted small mb-1">{% trans "Accepted by" %}</div>
+          {% if acceptance.accepted_by %}{% user_badge acceptance.accepted_by size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    {# ── Dates ── #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-calendar3 me-1"></i>{% trans "Dates" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Acceptance date" %}</dt>
+          <dd class="mb-3">{{ acceptance.accepted_at|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Valid until" %}</dt>
+          <dd class="mb-3">{{ acceptance.valid_until|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Review date" %}</dt>
+          <dd class="mb-3">{{ acceptance.review_date|default:"—" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Created" %}</dt>
+          <dd class="mb-3">{{ acceptance.created_at }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Updated" %}</dt>
+          <dd class="mb-0">{{ acceptance.updated_at }}</dd>
+        </dl>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{# ══════════════════════════════════════════════════════════ #}
+{# ── History (collapsible, full width) ────────────────── #}
+{# ══════════════════════════════════════════════════════════ #}
+<div class="card mt-0 mb-4">
+  <div class="card-header bg-transparent d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapse-history" aria-expanded="false">
+    <h6 class="mb-0 fw-semibold" style="font-size:.875rem"><i class="bi bi-clock-history me-1"></i>{% trans "History" %}</h6>
+    <i class="bi bi-chevron-down text-muted"></i>
+  </div>
+  <div class="collapse" id="collapse-history">
+    <div class="card-body">{% include "includes/history_tab.html" %}</div>
   </div>
 </div>
 {% endblock %}

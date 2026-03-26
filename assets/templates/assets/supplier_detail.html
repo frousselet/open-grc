@@ -3,7 +3,7 @@
 {% load help_tags %}
 {% load accounts_tags %}
 
-{% block title %}{{ supplier.name }} — Fairway{% endblock %}
+{% block title %}{{ supplier.name }} - Fairway{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -33,188 +33,266 @@
 <div class="alert alert-warning">{% trans "The contract for this supplier has expired" %} ({{ supplier.contract_end_date }}).</div>
 {% endif %}
 
-<ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#contact">{% trans "Contact" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#contract">{% trans "Contract" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#requirements">{% trans "Requirements" %} <span class="badge text-bg-secondary">{{ requirements|length }}{% if type_requirements %} + {{ type_requirements|length }}{% endif %}</span></a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
-</ul>
+<div class="row">
+  {# ── Left column : main content ── #}
+  <div class="col-lg-8">
 
-<div class="tab-content">
-  <div class="tab-pane fade show active" id="general">
-    <div class="card">
+    {# General #}
+    <div class="card mb-4">
       <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt><dd class="col-sm-9">{% grouped_scope_badges supplier.scopes.all %}{% if not supplier.scopes.all %}<span style="color:var(--text-muted)">—</span>{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{% if supplier.type %}<a href="{% url 'assets:supplier-type-detail' supplier.type.pk %}" style="color:var(--accent);text-decoration:none">{{ supplier.type.name }}</a>{% else %}—{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Criticality" %}</dt>
-          <dd class="col-sm-9">
-            <span class="badge text-bg-{% if supplier.criticality == 'critical' %}danger{% elif supplier.criticality == 'high' %}warning{% elif supplier.criticality == 'medium' %}info{% else %}secondary{% endif %}">
-              {{ supplier.get_criticality_display }}
-            </span>
-          </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{% if supplier.owner %}{% user_badge supplier.owner size=24 link=True %}{% else %}—{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt>
-          <dd class="col-sm-9">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-info-circle me-1"></i>{% trans "General" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Scopes" %}</div>
+          <div>{% grouped_scope_badges supplier.scopes.all %}{% if not supplier.scopes.all %}<span class="text-muted">—</span>{% endif %}</div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Type" %}</div>
+          <div>{% if supplier.type %}<a href="{% url 'assets:supplier-type-detail' supplier.type.pk %}" style="color:var(--accent);text-decoration:none">{{ supplier.type.name }}</a>{% else %}—{% endif %}</div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Description" %}</div>
+          <div>{{ supplier.description|default:"—"|safe }}</div>
+        </div>
+        <div class="mb-0">
+          <div class="text-muted small mb-1">{% trans "Notes" %}</div>
+          <div>{{ supplier.notes|default:"—"|safe }}</div>
+        </div>
+      </div>
+    </div>
+
+    {# Contact #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-person-lines-fill me-1"></i>{% trans "Contact" %}</h6>
+        <div class="row">
+          <div class="col-sm-6 mb-3">
+            <div class="text-muted small mb-1">{% trans "Contact name" %}</div>
+            <div>{{ supplier.contact_name|default:"—" }}</div>
+          </div>
+          <div class="col-sm-6 mb-3">
+            <div class="text-muted small mb-1">{% trans "Contact email" %}</div>
+            <div>{% if supplier.contact_email %}<a href="mailto:{{ supplier.contact_email }}">{{ supplier.contact_email }}</a>{% else %}—{% endif %}</div>
+          </div>
+          <div class="col-sm-6 mb-3">
+            <div class="text-muted small mb-1">{% trans "Contact phone" %}</div>
+            <div>{{ supplier.contact_phone|default:"—" }}</div>
+          </div>
+          <div class="col-sm-6 mb-3">
+            <div class="text-muted small mb-1">{% trans "Website" %}</div>
+            <div>{% if supplier.website %}<a href="{{ supplier.website }}" target="_blank" rel="noopener">{{ supplier.website }}</a>{% else %}—{% endif %}</div>
+          </div>
+          <div class="col-sm-6 mb-3">
+            <div class="text-muted small mb-1">{% trans "Address" %}</div>
+            <div>{{ supplier.address|default:"—"|safe }}</div>
+          </div>
+          <div class="col-sm-6 mb-0">
+            <div class="text-muted small mb-1">{% trans "Country" %}</div>
+            <div>{{ supplier.country|default:"—" }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Contract #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-file-earmark-text me-1"></i>{% trans "Contract" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Contract reference" %}</div>
+          <div>{{ supplier.contract_reference|default:"—" }}</div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Contract start date" %}</div>
+          <div>{{ supplier.contract_start_date|default:"—" }}</div>
+        </div>
+        <div class="mb-0">
+          <div class="text-muted small mb-1">{% trans "Contract end date" %}</div>
+          <div>
+            {{ supplier.contract_end_date|default:"—" }}
+            {% if supplier.is_contract_expired %}<span class="badge text-bg-danger">{% trans "Expired" %}</span>{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Requirements #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-list-check me-1"></i>{% trans "Requirements" %} <span class="badge text-bg-secondary">{{ requirements|length }}{% if type_requirements %} + {{ type_requirements|length }}{% endif %}</span></h6>
+
+        {% if supplier.type and type_requirements %}
+        <h6 class="mb-3">{% trans "Type requirements" %} <small style="color:var(--text-muted);font-weight:normal">({% trans "inherited from" %} <a href="{% url 'assets:supplier-type-detail' supplier.type.pk %}" style="color:var(--accent);text-decoration:none">{{ supplier.type.name }}</a>)</small></h6>
+        <div class="table-responsive mb-4">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>{% trans "Title" %}</th>
+                <th>{% trans "Description" %}</th>
+                <th class="text-end">{% trans "Actions" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for req in type_requirements %}
+              <tr>
+                <td style="font-weight:500">{{ req.title }}</td>
+                <td>{{ req.description|default:"—"|truncatewords:20 }}</td>
+                <td>
+                  <form method="post" action="{% url 'assets:instantiate-type-requirement-review' supplier.pk req.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-primary">{% trans "Add review" %}</button>
+                  </form>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="3" class="text-center py-4" style="color:var(--text-muted)">{% trans "No type requirements." %}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+
+        <div class="d-flex align-items-center mb-3">
+          <h6 class="mb-0">{% trans "Specific requirements" %}</h6>
+          <a href="{% url 'assets:supplier-requirement-create' supplier.pk %}" class="btn btn-sm btn-primary ms-auto">{% trans "Add requirement" %}</a>
+        </div>
+
+        {% if compliance_summary.total > 0 %}
+        <div class="row g-3 mb-3">
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-card-label">{% trans "Total" %}</div>
+              <div class="stat-card-value">{{ compliance_summary.total }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-card-icon success"><i class="bi bi-check-circle"></i></div>
+              <div class="stat-card-label">{% trans "Compliant" %}</div>
+              <div class="stat-card-value">{{ compliance_summary.compliant }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-card-icon danger"><i class="bi bi-x-circle"></i></div>
+              <div class="stat-card-label">{% trans "Non-compliant" %}</div>
+              <div class="stat-card-value">{{ compliance_summary.non_compliant }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-card-icon warning"><i class="bi bi-exclamation-circle"></i></div>
+              <div class="stat-card-label">{% trans "Not assessed" %}</div>
+              <div class="stat-card-value">{{ compliance_summary.not_assessed }}</div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>{% trans "Title" %}</th>
+                <th>{% trans "Linked requirement" %}</th>
+                <th>{% trans "Status" %}</th>
+                <th>{% trans "Reviews" %}</th>
+                <th>{% trans "Due date" %}</th>
+                <th>{% trans "Verified by" %}</th>
+                <th class="text-end">{% trans "Actions" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for req in requirements %}
+              <tr>
+                <td><a href="{% url 'assets:supplier-requirement-detail' req.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ req.title }}</a></td>
+                <td>{% if req.requirement %}<span class="ref">{{ req.requirement.reference }}</span> {{ req.requirement.name|truncatewords:10 }}{% else %}—{% endif %}</td>
+                <td>
+                  <span class="badge text-bg-{% if req.compliance_status == 'compliant' %}success{% elif req.compliance_status == 'non_compliant' %}danger{% elif req.compliance_status == 'partially_compliant' %}warning{% else %}secondary{% endif %}">
+                    {{ req.get_compliance_status_display }}
+                  </span>
+                </td>
+                <td><span class="badge text-bg-secondary">{{ req.reviews.count }}</span></td>
+                <td>{{ req.due_date|default:"—" }}</td>
+                <td>{% if req.verified_by %}{% user_badge req.verified_by size=20 %}{% else %}—{% endif %}</td>
+                <td class="text-end">
+                  <a href="{% url 'assets:supplier-requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                  <a href="{% url 'assets:supplier-requirement-delete' req.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted)">{% trans "No specific requirements for this supplier." %}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  {# ── Right sidebar : metadata ── #}
+  <div class="col-lg-4">
+
+    {# Status #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-flag me-1"></i>{% trans "Status" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Status" %}</dt>
+          <dd class="mb-3">
             <span class="badge text-bg-{% if supplier.status == 'active' %}success{% elif supplier.status == 'under_evaluation' %}info{% elif supplier.status == 'suspended' %}warning{% else %}dark{% endif %}">
               {{ supplier.get_status_display }}
             </span>
           </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ supplier.description|default:"—"|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Notes" %}</dt><dd class="col-sm-9">{{ supplier.notes|default:"—"|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
-          <dd class="col-sm-9">{% for tag in supplier.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
-        </dl>
-      </div>
-    </div>
-  </div>
-
-  <div class="tab-pane fade" id="contact">
-    <div class="card">
-      <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contact name" %}</dt><dd class="col-sm-9">{{ supplier.contact_name|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contact email" %}</dt><dd class="col-sm-9">{% if supplier.contact_email %}<a href="mailto:{{ supplier.contact_email }}">{{ supplier.contact_email }}</a>{% else %}—{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contact phone" %}</dt><dd class="col-sm-9">{{ supplier.contact_phone|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Website" %}</dt><dd class="col-sm-9">{% if supplier.website %}<a href="{{ supplier.website }}" target="_blank" rel="noopener">{{ supplier.website }}</a>{% else %}—{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Address" %}</dt><dd class="col-sm-9">{{ supplier.address|default:"—"|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Country" %}</dt><dd class="col-sm-9">{{ supplier.country|default:"—" }}</dd>
-        </dl>
-      </div>
-    </div>
-  </div>
-
-  <div class="tab-pane fade" id="contract">
-    <div class="card">
-      <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contract reference" %}</dt><dd class="col-sm-9">{{ supplier.contract_reference|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contract start date" %}</dt><dd class="col-sm-9">{{ supplier.contract_start_date|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Contract end date" %}</dt>
-          <dd class="col-sm-9">
-            {{ supplier.contract_end_date|default:"—" }}
-            {% if supplier.is_contract_expired %}<span class="badge text-bg-danger">{% trans "Expired" %}</span>{% endif %}
+          <dt class="text-muted small mb-1">{% trans "Criticality" %}</dt>
+          <dd class="mb-3">
+            <span class="badge text-bg-{% if supplier.criticality == 'critical' %}danger{% elif supplier.criticality == 'high' %}warning{% elif supplier.criticality == 'medium' %}info{% else %}secondary{% endif %}">
+              {{ supplier.get_criticality_display }}
+            </span>
           </dd>
+          <dt class="text-muted small mb-1">{% trans "Tags" %}</dt>
+          <dd class="mb-0">{% for tag in supplier.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
         </dl>
       </div>
     </div>
-  </div>
 
-  <div class="tab-pane fade" id="requirements">
-    {% if supplier.type and type_requirements %}
-    <h5 class="mb-3">{% trans "Type requirements" %} <small style="color:var(--text-muted);font-weight:normal">({% trans "inherited from" %} <a href="{% url 'assets:supplier-type-detail' supplier.type.pk %}" style="color:var(--accent);text-decoration:none">{{ supplier.type.name }}</a>)</small></h5>
+    {# People #}
     <div class="card mb-4">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th>{% trans "Title" %}</th>
-              <th>{% trans "Description" %}</th>
-              <th class="text-end">{% trans "Actions" %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for req in type_requirements %}
-            <tr>
-              <td style="font-weight:500">{{ req.title }}</td>
-              <td>{{ req.description|default:"—"|truncatewords:20 }}</td>
-              <td>
-                <form method="post" action="{% url 'assets:instantiate-type-requirement-review' supplier.pk req.pk %}" class="d-inline">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-sm btn-outline-primary">{% trans "Add review" %}</button>
-                </form>
-              </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="3" class="text-center py-4" style="color:var(--text-muted)">{% trans "No type requirements." %}</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-people me-1"></i>{% trans "People" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Owner" %}</dt>
+          <dd class="mb-3">{% if supplier.owner %}{% user_badge supplier.owner size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}</dd>
+          <dt class="text-muted small mb-1">{% trans "Created by" %}</dt>
+          <dd class="mb-0">{% if supplier.created_by %}{% user_badge supplier.created_by size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}</dd>
+        </dl>
       </div>
-    </div>
-    {% endif %}
-
-    <div class="d-flex align-items-center mb-3">
-      <h5 class="mb-0">{% trans "Specific requirements" %}</h5>
-      <a href="{% url 'assets:supplier-requirement-create' supplier.pk %}" class="btn btn-sm btn-primary ms-auto">{% trans "Add requirement" %}</a>
     </div>
 
-    {% if compliance_summary.total > 0 %}
-    <div class="row g-3 mb-3">
-      <div class="col-md-3">
-        <div class="stat-card">
-          <div class="stat-card-label">{% trans "Total" %}</div>
-          <div class="stat-card-value">{{ compliance_summary.total }}</div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="stat-card">
-          <div class="stat-card-icon success"><i class="bi bi-check-circle"></i></div>
-          <div class="stat-card-label">{% trans "Compliant" %}</div>
-          <div class="stat-card-value">{{ compliance_summary.compliant }}</div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="stat-card">
-          <div class="stat-card-icon danger"><i class="bi bi-x-circle"></i></div>
-          <div class="stat-card-label">{% trans "Non-compliant" %}</div>
-          <div class="stat-card-value">{{ compliance_summary.non_compliant }}</div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="stat-card">
-          <div class="stat-card-icon warning"><i class="bi bi-exclamation-circle"></i></div>
-          <div class="stat-card-label">{% trans "Not assessed" %}</div>
-          <div class="stat-card-value">{{ compliance_summary.not_assessed }}</div>
-        </div>
+    {# Dates #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-calendar3 me-1"></i>{% trans "Dates" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Created" %}</dt>
+          <dd class="mb-3">{{ supplier.created_at }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Updated" %}</dt>
+          <dd class="mb-0">{{ supplier.updated_at }}</dd>
+        </dl>
       </div>
     </div>
-    {% endif %}
 
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th>{% trans "Title" %}</th>
-              <th>{% trans "Linked requirement" %}</th>
-              <th>{% trans "Status" %}</th>
-              <th>{% trans "Reviews" %}</th>
-              <th>{% trans "Due date" %}</th>
-              <th>{% trans "Verified by" %}</th>
-              <th class="text-end">{% trans "Actions" %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for req in requirements %}
-            <tr>
-              <td><a href="{% url 'assets:supplier-requirement-detail' req.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ req.title }}</a></td>
-              <td>{% if req.requirement %}<span class="ref">{{ req.requirement.reference }}</span> {{ req.requirement.name|truncatewords:10 }}{% else %}—{% endif %}</td>
-              <td>
-                <span class="badge text-bg-{% if req.compliance_status == 'compliant' %}success{% elif req.compliance_status == 'non_compliant' %}danger{% elif req.compliance_status == 'partially_compliant' %}warning{% else %}secondary{% endif %}">
-                  {{ req.get_compliance_status_display }}
-                </span>
-              </td>
-              <td><span class="badge text-bg-secondary">{{ req.reviews.count }}</span></td>
-              <td>{{ req.due_date|default:"—" }}</td>
-              <td>{% if req.verified_by %}{% user_badge req.verified_by size=20 %}{% else %}—{% endif %}</td>
-              <td class="text-end">
-                <a href="{% url 'assets:supplier-requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
-                <a href="{% url 'assets:supplier-requirement-delete' req.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted)">{% trans "No specific requirements for this supplier." %}</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
   </div>
+</div>
 
-  <div class="tab-pane fade" id="history">
-    {% include "includes/history_tab.html" %}
+{# ── History (full-width, collapsible) ── #}
+<div class="card mt-0 mb-4">
+  <div class="card-header bg-transparent d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapse-history" aria-expanded="false">
+    <h6 class="mb-0 fw-semibold" style="font-size:.875rem"><i class="bi bi-clock-history me-1"></i>{% trans "History" %}</h6>
+    <i class="bi bi-chevron-down text-muted"></i>
+  </div>
+  <div class="collapse" id="collapse-history">
+    <div class="card-body">{% include "includes/history_tab.html" %}</div>
   </div>
 </div>
 {% endblock %}

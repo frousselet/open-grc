@@ -1515,7 +1515,7 @@ class MappingListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMi
         )
 
 
-class MappingDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, DetailView):
+class MappingDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HistoryMixin, DetailView):
     model = RequirementMapping
     permission_required = "compliance.mapping.read"
     scope_parent_lookup = "source_requirement__framework__scopes"

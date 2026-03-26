@@ -19,54 +19,95 @@
 {% help_modal "context.activity_detail" %}
 {% include "includes/approval_badge.html" %}
 
-<ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#info">{% trans "Information" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
-</ul>
-
-<div class="tab-content">
-  <div class="tab-pane fade show active" id="info">
-    <div class="card">
+<div class="row g-4">
+  {# ── Left column ── #}
+  <div class="col-lg-8">
+    <div class="card mb-4">
       <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt><dd class="col-sm-9">{% grouped_scope_badges activity.scopes.all %}{% if not activity.scopes.all %}<span style="color:var(--text-muted)">—</span>{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ activity.get_type_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Criticality" %}</dt>
-          <dd class="col-sm-9">
-            <span class="badge text-bg-{% if activity.criticality == 'critical' %}danger{% elif activity.criticality == 'high' %}warning{% elif activity.criticality == 'medium' %}info{% else %}secondary{% endif %}">
-              {{ activity.get_criticality_display }}
-            </span>
-          </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Owner" %}</dt><dd class="col-sm-9">{% if activity.owner %}{% user_badge activity.owner size=24 link=True %}{% else %}—{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt><dd class="col-sm-9">{{ activity.get_status_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ activity.description|default:"—"|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Parent activity" %}</dt>
-          <dd class="col-sm-9">
-            {% if activity.parent_activity %}
-            <a href="{% url 'context:activity-detail' activity.parent_activity.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ activity.parent_activity }}</a>
-            {% else %}—{% endif %}
-          </dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
-          <dd class="col-sm-9">{% for tag in activity.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Created on" %}</dt><dd class="col-sm-9">{{ activity.created_at }}</dd>
-        </dl>
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-info-circle me-1"></i>{% trans "General" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Scopes" %}</div>
+          {% grouped_scope_badges activity.scopes.all %}{% if not activity.scopes.all %}<span class="text-muted">—</span>{% endif %}
+        </div>
+        {% if activity.parent_activity %}
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Parent activity" %}</div>
+          <a href="{% url 'context:activity-detail' activity.parent_activity.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ activity.parent_activity }}</a>
+        </div>
+        {% endif %}
+        <div>
+          <div class="text-muted small mb-1">{% trans "Description" %}</div>
+          <div>{{ activity.description|default:"—"|safe }}</div>
+        </div>
       </div>
     </div>
 
     {% if activity.children.exists %}
-    <h4 class="mt-4">{% trans "Sub-activities" %}</h4>
-    <ul class="list-group">
-      {% for child in activity.children.all %}
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <a href="{% url 'context:activity-detail' child.pk %}" style="text-decoration:none"><span class="ref">{{ child.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ child.name }}</span></a>
-        <span class="badge text-bg-{% if child.criticality == 'critical' %}danger{% elif child.criticality == 'high' %}warning{% else %}secondary{% endif %}">{{ child.get_criticality_display }}</span>
-      </li>
-      {% endfor %}
-    </ul>
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-diagram-3 me-1"></i>{% trans "Sub-activities" %}</h6>
+        <ul class="list-group list-group-flush">
+          {% for child in activity.children.all %}
+          <li class="list-group-item px-0 d-flex justify-content-between align-items-center{% if forloop.first %} pt-0{% endif %}{% if forloop.last %} pb-0{% endif %}">
+            <a href="{% url 'context:activity-detail' child.pk %}" style="text-decoration:none"><span class="ref">{{ child.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ child.name }}</span></a>
+            <span class="badge text-bg-{% if child.criticality == 'critical' %}danger{% elif child.criticality == 'high' %}warning{% else %}secondary{% endif %}">{{ child.get_criticality_display }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
     {% endif %}
   </div>
-  <div class="tab-pane fade" id="history">
-    {% include "includes/history_tab.html" %}
+
+  {# ── Right column ── #}
+  <div class="col-lg-4">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-flag me-1"></i>{% trans "Status" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Status" %}</dt>
+          <dd class="mb-3">{{ activity.get_status_display }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Type" %}</dt>
+          <dd class="mb-3">{{ activity.get_type_display }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Criticality" %}</dt>
+          <dd class="mb-3">
+            <span class="badge text-bg-{% if activity.criticality == 'critical' %}danger{% elif activity.criticality == 'high' %}warning{% elif activity.criticality == 'medium' %}info{% else %}secondary{% endif %}">{{ activity.get_criticality_display }}</span>
+          </dd>
+          <dt class="text-muted small mb-1">{% trans "Tags" %}</dt>
+          <dd class="mb-0">{% for tag in activity.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}<span class="text-muted">—</span>{% endfor %}</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-people me-1"></i>{% trans "People" %}</h6>
+        <div>
+          <div class="text-muted small mb-1">{% trans "Owner" %}</div>
+          {% if activity.owner %}{% user_badge activity.owner size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-calendar3 me-1"></i>{% trans "Dates" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Created on" %}</dt>
+          <dd class="mb-0">{{ activity.created_at }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-0 mb-4">
+  <div class="card-header bg-transparent d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapse-history" aria-expanded="false">
+    <h6 class="mb-0 fw-semibold" style="font-size:.875rem"><i class="bi bi-clock-history me-1"></i>{% trans "History" %}</h6>
+    <i class="bi bi-chevron-down text-muted"></i>
+  </div>
+  <div class="collapse" id="collapse-history">
+    <div class="card-body">{% include "includes/history_tab.html" %}</div>
   </div>
 </div>
 {% endblock %}

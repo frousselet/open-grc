@@ -15,28 +15,87 @@
 </div>
 {% help_modal "compliance.mapping_detail" %}
 
-<div class="card">
-  <div class="card-body">
-    <dl class="row mb-0">
-      <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Source requirement" %}</dt>
-      <dd class="col-sm-9">
-        <a href="{% url 'compliance:requirement-detail' mapping.source_requirement.pk %}" style="text-decoration:none"><span class="ref">{{ mapping.source_requirement.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ mapping.source_requirement.name }}</span></a>
-        <span style="color:var(--text-muted)">({{ mapping.source_requirement.framework.short_name|default:mapping.source_requirement.framework.name }})</span>
-      </dd>
+<div class="row">
+  {# ── Left column: main content ── #}
+  <div class="col-lg-8">
 
-      <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Target requirement" %}</dt>
-      <dd class="col-sm-9">
-        <a href="{% url 'compliance:requirement-detail' mapping.target_requirement.pk %}" style="text-decoration:none"><span class="ref">{{ mapping.target_requirement.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ mapping.target_requirement.name }}</span></a>
-        <span style="color:var(--text-muted)">({{ mapping.target_requirement.framework.short_name|default:mapping.target_requirement.framework.name }})</span>
-      </dd>
+    {# General info #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-info-circle me-1"></i>{% trans "General" %}</h6>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Source requirement" %}</div>
+          <div>
+            <a href="{% url 'compliance:requirement-detail' mapping.source_requirement.pk %}" style="text-decoration:none"><span class="ref">{{ mapping.source_requirement.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ mapping.source_requirement.name }}</span></a>
+            <span style="color:var(--text-muted)">({{ mapping.source_requirement.framework.short_name|default:mapping.source_requirement.framework.name }})</span>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Target requirement" %}</div>
+          <div>
+            <a href="{% url 'compliance:requirement-detail' mapping.target_requirement.pk %}" style="text-decoration:none"><span class="ref">{{ mapping.target_requirement.reference }}</span> <span style="color:var(--accent);font-weight:500">{{ mapping.target_requirement.name }}</span></a>
+            <span style="color:var(--text-muted)">({{ mapping.target_requirement.framework.short_name|default:mapping.target_requirement.framework.name }})</span>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Mapping type" %}</div>
+          <div>{{ mapping.get_mapping_type_display }}</div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Coverage level" %}</div>
+          <div>{{ mapping.get_coverage_level_display|default:"—" }}</div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">{% trans "Description" %}</div>
+          <div>{{ mapping.description|default:"—"|safe }}</div>
+        </div>
+        <div class="mb-0">
+          <div class="text-muted small mb-1">{% trans "Justification" %}</div>
+          <div>{{ mapping.justification|default:"—"|safe }}</div>
+        </div>
+      </div>
+    </div>
 
-      <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Mapping type" %}</dt><dd class="col-sm-9">{{ mapping.get_mapping_type_display }}</dd>
-      <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Coverage level" %}</dt><dd class="col-sm-9">{{ mapping.get_coverage_level_display|default:"—" }}</dd>
-      <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ mapping.description|default:"—"|safe }}</dd>
-      <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Justification" %}</dt><dd class="col-sm-9">{{ mapping.justification|default:"—"|safe }}</dd>
-      <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Created by" %}</dt><dd class="col-sm-9">{% if mapping.created_by %}{% user_badge mapping.created_by size=24 link=True %}{% else %}—{% endif %}</dd>
-      <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Creation date" %}</dt><dd class="col-sm-9">{{ mapping.created_at|date:"d/m/Y H:i" }}</dd>
-    </dl>
+  </div>
+
+  {# ── Right sidebar ── #}
+  <div class="col-lg-4">
+
+    {# People #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-people me-1"></i>{% trans "People" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Created by" %}</dt>
+          <dd class="mb-0">{% if mapping.created_by %}{% user_badge mapping.created_by size=28 link=True block=True %}{% else %}<span class="text-muted">—</span>{% endif %}</dd>
+        </dl>
+      </div>
+    </div>
+
+    {# Dates #}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-calendar3 me-1"></i>{% trans "Dates" %}</h6>
+        <dl class="mb-0">
+          <dt class="text-muted small mb-1">{% trans "Created" %}</dt>
+          <dd class="mb-3">{{ mapping.created_at|date:"d/m/Y H:i" }}</dd>
+          <dt class="text-muted small mb-1">{% trans "Updated" %}</dt>
+          <dd class="mb-0">{{ mapping.updated_at|date:"d/m/Y H:i" }}</dd>
+        </dl>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{# ── History (full-width, collapsible) ── #}
+<div class="card mt-0 mb-4">
+  <div class="card-header bg-transparent d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#collapse-history" aria-expanded="false">
+    <h6 class="mb-0 fw-semibold" style="font-size:.875rem"><i class="bi bi-clock-history me-1"></i>{% trans "History" %}</h6>
+    <i class="bi bi-chevron-down text-muted"></i>
+  </div>
+  <div class="collapse" id="collapse-history">
+    <div class="card-body">{% include "includes/history_tab.html" %}</div>
   </div>
 </div>
 {% endblock %}
