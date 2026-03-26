@@ -1,0 +1,15 @@
+{# Rendered by {% user_badge %} inclusion tag - do not include directly. #}
+<span class="{% if block %}d-flex{% else %}d-inline-flex{% endif %} align-items-center gap-1" title="{{ u.display_name }}" style="white-space:nowrap">
+  {% if u.avatar %}
+  <img src="{{ avatar_src }}" alt="" style="width:{{ sz }}px;height:{{ sz }}px;border-radius:50%;object-fit:cover;flex-shrink:0">
+  {% else %}
+  <span class="d-inline-flex align-items-center justify-content-center" style="width:{{ sz }}px;height:{{ sz }}px;border-radius:50%;background:linear-gradient(135deg,var(--accent-soft),rgba(99,102,241,.15));color:var(--accent);font-size:{{ font_size }};font-weight:650;flex-shrink:0;line-height:1">{{ initial }}</span>
+  {% endif %}
+  {% if show_name %}
+  {% if link %}
+  <a href="{% url 'accounts:user-detail' u.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ u.display_name }}</a>
+  {% else %}
+  <span>{{ u.display_name }}</span>
+  {% endif %}
+  {% endif %}
+</span>

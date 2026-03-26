@@ -25,3 +25,54 @@ def has_module_perms(context, module):
     if request and hasattr(request, "user") and request.user.is_authenticated:
         return request.user.has_module_perms(module)
     return False
+
+
+@register.inclusion_tag("includes/user_badge.html")
+def user_badge(user, size=28, link=False, name=True, block=False):
+    """Render a user avatar + display name badge.
+
+    Usage:
+        {% load accounts_tags %}
+        {% user_badge some_user %}
+        {% user_badge some_user size=32 link=True %}
+        {% user_badge some_user size=24 name=False %}
+
+    Parameters:
+        user  - User instance (required)
+        size  - Avatar diameter in px (default 28)
+        link  - Render name as link to user detail (default False)
+        name  - Show display name next to avatar (default True)
+        block - Use d-flex instead of d-inline-flex (default False)
+    """
+    size = int(size)
+    if size >= 48:
+        font_size = "1.125rem"
+    elif size >= 32:
+        font_size = ".75rem"
+    else:
+        font_size = ".625rem"
+
+    avatar_src = ""
+    if user and user.avatar:
+        if size > 32:
+            avatar_src = user.avatar_64 or user.avatar
+        elif size > 16:
+            avatar_src = user.avatar_32 or user.avatar
+        else:
+            avatar_src = user.avatar_16 or user.avatar
+
+    initial = ""
+    if user:
+        dn = user.display_name or ""
+        initial = dn[0].upper() if dn else "?"
+
+    return {
+        "u": user,
+        "sz": size,
+        "avatar_src": avatar_src,
+        "font_size": font_size,
+        "initial": initial,
+        "show_name": name,
+        "link": link,
+        "block": block,
+    }

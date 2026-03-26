@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load help_tags %}
+{% load accounts_tags %}
 
 {% block title %}{{ scope.name }} — Fairway{% endblock %}
 
@@ -63,7 +64,7 @@
           <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Managers" %}</dt>
           <dd class="col-sm-9">
             {% for manager in scope.managers.all %}
-            <span class="badge text-bg-info me-1 mb-1">{{ manager.get_full_name|default:manager.email }}</span>
+            {% user_badge manager size=28 link=True %}
             {% empty %}
             <span style="color:var(--text-muted)">—</span>
             {% endfor %}
