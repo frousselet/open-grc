@@ -82,6 +82,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         help_text=_("Per-view sort preferences: {view_key: {sort, order}}."),
     )
+    last_seen_version = models.CharField(
+        _("Last seen version"),
+        max_length=20,
+        blank=True,
+        default="",
+        help_text=_("App version last acknowledged by the user in the changelog popup."),
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

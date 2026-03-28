@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Changelog popup on dashboard : automatically displays a modal with all changes between the previously seen version and the current version when the app is updated
+- `last_seen_version` field on User model to track the last version acknowledged by each user
+- Changelog parser utility (`core/changelog.py`) to extract entries from `CHANGELOG.md` between two versions
+- Dismiss endpoint (`POST /dashboard/changelog-dismiss/`) to mark the current version as seen
+
 ## [0.21.3] - 2026-03-26
 
 ### Added

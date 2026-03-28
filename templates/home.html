@@ -654,9 +654,71 @@ window.initSparklines = function(root) {
     </div>
   </div>
 </div>
+
+{# ── Changelog popup ──────────────────────────────────── #}
+{% if changelog_entries %}
+<div class="modal fade" id="changelogModal" tabindex="-1" aria-labelledby="changelogModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header" style="background:var(--accent-soft);border-bottom:1px solid var(--border-light)">
+        <h5 class="modal-title" id="changelogModalLabel">
+          <i class="bi bi-megaphone me-2" style="color:var(--accent)"></i>
+          {% blocktrans with version=changelog_new_version %}What's new in v{{ version }}{% endblocktrans %}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+      </div>
+      <div class="modal-body">
+        {% for version, sections in changelog_entries %}
+        <div class="{% if not forloop.last %}mb-4 pb-3{% endif %}" style="{% if not forloop.last %}border-bottom:1px solid var(--border-light){% endif %}">
+          <h6 class="fw-bold mb-3" style="color:var(--accent)">
+            <i class="bi bi-tag me-1"></i> v{{ version }}
+          </h6>
+          {% for category, items in sections.items %}
+          <div class="mb-2">
+            <span class="badge mb-1 {% if category == 'Added' %}bg-success{% elif category == 'Changed' %}bg-primary{% elif category == 'Fixed' %}bg-warning text-dark{% elif category == 'Removed' %}bg-danger{% else %}bg-secondary{% endif %}" style="font-size:.7rem">
+              {{ category }}
+            </span>
+            <ul class="mb-2" style="font-size:.85rem;padding-left:1.25rem">
+              {% for item in items %}
+              <li class="mb-1">{{ item }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="modal-footer" style="border-top:1px solid var(--border-light)">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="changelogDismissBtn">
+          <i class="bi bi-check2 me-1"></i> {% trans "Got it!" %}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 {% endblock %}
 
 {% block extra_js %}
+{% if changelog_entries %}
+<script>
+(function() {
+  var dismissed = false;
+  function dismiss() {
+    if (dismissed) return;
+    dismissed = true;
+    fetch('{% url "changelog-dismiss" %}', {
+      method: 'POST',
+      headers: {'X-CSRFToken': getCsrfToken()}
+    });
+  }
+  var modal = new bootstrap.Modal(document.getElementById('changelogModal'));
+  modal.show();
+  document.getElementById('changelogModal').addEventListener('hidden.bs.modal', dismiss);
+})();
+</script>
+{% endif %}
 <script>
 (function() {
   {% trans "Upcoming events" as t_upcoming %}

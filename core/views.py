@@ -2,6 +2,7 @@ import base64
 import uuid as uuid_mod
 from datetime import date, timedelta
 
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Avg, Count, Max, Prefetch, Q, Subquery, OuterRef
 from django.http import HttpResponse, JsonResponse
@@ -12,6 +13,7 @@ from django.utils.translation import gettext as _
 from django.views import View
 from django.views.generic import TemplateView
 
+from core.changelog import get_changelog_between
 from assets.models import (
     AssetDependency,
     AssetGroup,
@@ -335,7 +337,27 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
             )
         ctx["alerts"] = alerts
 
+        # ── Changelog popup ──────────────────────────────
+        user = self.request.user
+        app_version = settings.APP_VERSION
+        if app_version and app_version != "dev" and user.last_seen_version != app_version:
+            changelog_entries = get_changelog_between(user.last_seen_version, app_version)
+            if changelog_entries:
+                ctx["changelog_entries"] = changelog_entries
+                ctx["changelog_new_version"] = app_version
+
         return ctx
+
+
+class ChangelogDismissView(LoginRequiredMixin, View):
+    """Mark the current app version as seen by the user (dismiss changelog popup)."""
+
+    def post(self, request, *args, **kwargs):
+        version = settings.APP_VERSION
+        if version and version != "dev":
+            request.user.last_seen_version = version
+            request.user.save(update_fields=["last_seen_version"])
+        return JsonResponse({"ok": True})
 
 
 class DashboardIndicatorsPartialView(LoginRequiredMixin, TemplateView):

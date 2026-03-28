@@ -5666,6 +5666,19 @@ msgstr "Aucun historique disponible."
 msgid "Search…"
 msgstr "Rechercher…"
 
+msgid "Last seen version"
+msgstr "Derniere version consultee"
+
+msgid "App version last acknowledged by the user in the changelog popup."
+msgstr "Version de l'application validee par l'utilisateur dans la popup de nouveautes."
+
+#, python-format
+msgid "What's new in v%(version)s"
+msgstr "Nouveautes de la v%(version)s"
+
+msgid "Got it!"
+msgstr "Compris !"
+
 #~ msgid "Compliance of evaluated requirements"
 #~ msgstr "Conformité des exigences évaluées"
 

@@ -9,7 +9,8 @@ from mcp.views import OAuthAuthorizeView, oauth_authorization_server_metadata
 
 from .views import (
     CalendarEventsView, CalendarSubscribeView, CalendarView,
-    DashboardIndicatorsPartialView, GeneralDashboardView, GlobalSearchView,
+    ChangelogDismissView, DashboardIndicatorsPartialView,
+    GeneralDashboardView, GlobalSearchView,
     ICalFeedView,
 )
 
@@ -23,6 +24,7 @@ urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     path("", GeneralDashboardView.as_view(), name="home"),
     path("dashboard/indicators-partial/", DashboardIndicatorsPartialView.as_view(), name="dashboard-indicators-partial"),
+    path("dashboard/changelog-dismiss/", ChangelogDismissView.as_view(), name="changelog-dismiss"),
     path("calendar/", CalendarView.as_view(), name="calendar"),
     path("calendar/subscribe/", CalendarSubscribeView.as_view(), name="calendar-subscribe"),
     path("calendar.ics", ICalFeedView.as_view(), name="calendar-ical"),
