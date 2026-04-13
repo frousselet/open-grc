@@ -6019,3 +6019,63 @@ msgstr "Compris !"
 
 #~ msgid "Generate subscription token"
 #~ msgstr "Générer le jeton d'abonnement"
+
+#: reports/constants.py
+msgid "Management review - Presentation"
+msgstr "Revue de direction - Présentation"
+
+#: reports/constants.py
+msgid "Management review - Minutes"
+msgstr "Revue de direction - Compte rendu"
+
+#: reports/forms.py
+msgid "Presentation (PowerPoint)"
+msgstr "Présentation (PowerPoint)"
+
+#: reports/forms.py
+msgid "Meeting minutes (Word)"
+msgstr "Compte rendu de réunion (Word)"
+
+#: reports/forms.py reports/views.py
+msgid "Presentation"
+msgstr "Présentation"
+
+#: reports/forms.py reports/views.py
+msgid "Minutes"
+msgstr "Compte rendu"
+
+#: reports/views.py
+msgid "Management review"
+msgstr "Revue de direction"
+
+#: reports/templates/reports/management_review_form.html
+msgid "Generate management review materials"
+msgstr "Générer les supports de revue de direction"
+
+#: reports/templates/reports/report_list.html
+msgid "Generate management review materials (presentation or meeting minutes) covering action plans, issues, stakeholders, security performance, risks, and improvement opportunities."
+msgstr "Générer les supports de revue de direction (présentation ou compte rendu) couvrant les plans d'actions, enjeux, parties intéressées, performances SSI, risques et opportunités d'amélioration."
+
+#: reports/forms.py
+msgid "Optionally filter data by scope. Leave empty to include all data."
+msgstr "Filtrer optionnellement les données par périmètre. Laisser vide pour inclure toutes les données."
+
+#: reports/forms.py
+msgid "Period start"
+msgstr "Début de période"
+
+#: reports/forms.py
+msgid "Period end"
+msgstr "Fin de période"
+
+#: reports/forms.py
+msgid "Start of the review period. Leave empty to include all past data."
+msgstr "Début de la période de revue. Laisser vide pour inclure toutes les données passées."
+
+#: reports/forms.py
+msgid "End of the review period. Defaults to today."
+msgstr "Fin de la période de revue. Par défaut : aujourd'hui."
+
+#: reports/forms.py
+msgid "The period start date must be before the end date."
+msgstr "La date de début de période doit être antérieure à la date de fin."

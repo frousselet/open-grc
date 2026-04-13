@@ -10,8 +10,17 @@ from compliance.constants import AssessmentStatus
 from compliance.models import ComplianceAssessment, Framework
 from reports.constants import ReportStatus, ReportType
 from reports.generators import generate_audit_report_pdf, generate_soa_pdf
+from reports.management_review import (
+    generate_management_review_docx,
+    generate_management_review_pptx,
+)
 from reports.models import Report
-from .serializers import AuditReportCreateSerializer, ReportSerializer, SoaReportCreateSerializer
+from .serializers import (
+    AuditReportCreateSerializer,
+    ManagementReviewCreateSerializer,
+    ReportSerializer,
+    SoaReportCreateSerializer,
+)
 
 
 class ReportViewSet(viewsets.ReadOnlyModelViewSet):
@@ -20,7 +29,11 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [ModulePermission]
     permission_module = "reports"
     permission_feature = "report"
-    custom_action_map = {"generate_soa": "create", "generate_audit_report": "create"}
+    custom_action_map = {
+        "generate_soa": "create",
+        "generate_audit_report": "create",
+        "generate_management_review": "create",
+    }
 
     @action(detail=False, methods=["post"], url_path="generate-soa")
     def generate_soa(self, request):
@@ -102,6 +115,53 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
                 status=ReportStatus.FAILED,
                 created_by=request.user,
                 assessment=assessment,
+            )
+
+        return Response(ReportSerializer(report).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["post"], url_path="generate-management-review")
+    def generate_management_review(self, request):
+        ser = ManagementReviewCreateSerializer(data=request.data)
+        ser.is_valid(raise_exception=True)
+
+        fmt = ser.validated_data["format"]
+        scope_ids = ser.validated_data.get("scope_ids") or None
+        period_start = ser.validated_data.get("period_start")
+        period_end = ser.validated_data.get("period_end")
+
+        if fmt == "pptx":
+            report_type = ReportType.MANAGEMENT_REVIEW_PPTX
+            generator = generate_management_review_pptx
+            label = _("Presentation")
+        else:
+            report_type = ReportType.MANAGEMENT_REVIEW_DOCX
+            generator = generate_management_review_docx
+            label = _("Minutes")
+
+        report_name = _("Management review") + f" - {label}"
+
+        try:
+            filename, file_bytes = generator(
+                request.user, scope_ids,
+                period_start=period_start, period_end=period_end,
+            )
+            report = Report.objects.create(
+                report_type=report_type,
+                name=report_name,
+                status=ReportStatus.COMPLETED,
+                created_by=request.user,
+                file_content=file_bytes,
+                file_name=filename,
+            )
+        except Exception:
+            logging.getLogger(__name__).exception(
+                "Management review %s generation failed", fmt.upper()
+            )
+            report = Report.objects.create(
+                report_type=report_type,
+                name=report_name,
+                status=ReportStatus.FAILED,
+                created_by=request.user,
             )
 
         return Response(ReportSerializer(report).data, status=status.HTTP_201_CREATED)

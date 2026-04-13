@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Management review export (ISO 27001 clause 9.3) with two output formats : PowerPoint presentation and Word meeting minutes
+- Seven structured sections : action plan status, internal/external issues, stakeholder needs, security performance (NC, indicators, audits, objectives), interested party feedback, risk assessment and treatment status, improvement opportunities
+- Scope-based filtering for management review data
+- Period date range filtering (start/end) for management review exports
+- MCP tools `generate_management_review_pptx` and `generate_management_review_docx`
+- REST API endpoint `POST /api/v1/reports/reports/generate-management-review/`
+- New dependencies : `python-pptx` and `python-docx`
+
 ## [0.21.4] - 2026-04-01
 
 ### Added

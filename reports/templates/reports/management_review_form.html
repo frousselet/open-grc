@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Management review" %} — Fairway{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+  <h1 class="mb-0">{% trans "Generate management review materials" %}</h1>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger">
+        {% for error in form.non_field_errors %}
+        <p class="mb-0">{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">{{ form.format.label }}</label>
+        <div class="d-flex gap-4">
+          {% for radio in form.format %}
+          <div class="form-check">
+            {{ radio.tag }}
+            <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+          </div>
+          {% endfor %}
+        </div>
+        {% if form.format.help_text %}
+        <div class="form-text">{{ form.format.help_text }}</div>
+        {% endif %}
+        {% if form.format.errors %}
+        <div class="invalid-feedback d-block">{{ form.format.errors }}</div>
+        {% endif %}
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="{{ form.period_start.id_for_label }}" class="form-label fw-semibold">{{ form.period_start.label }}</label>
+          {{ form.period_start }}
+          {% if form.period_start.help_text %}
+          <div class="form-text">{{ form.period_start.help_text }}</div>
+          {% endif %}
+          {% if form.period_start.errors %}
+          <div class="invalid-feedback d-block">{{ form.period_start.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="col-md-6">
+          <label for="{{ form.period_end.id_for_label }}" class="form-label fw-semibold">{{ form.period_end.label }}</label>
+          {{ form.period_end }}
+          {% if form.period_end.help_text %}
+          <div class="form-text">{{ form.period_end.help_text }}</div>
+          {% endif %}
+          {% if form.period_end.errors %}
+          <div class="invalid-feedback d-block">{{ form.period_end.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="{{ form.scopes.id_for_label }}" class="form-label fw-semibold">{{ form.scopes.label }}</label>
+        {{ form.scopes }}
+        {% if form.scopes.help_text %}
+        <div class="form-text">{{ form.scopes.help_text }}</div>
+        {% endif %}
+        {% if form.scopes.errors %}
+        <div class="invalid-feedback d-block">{{ form.scopes.errors }}</div>
+        {% endif %}
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-file-earmark-arrow-down me-1"></i>{% trans "Generate" %}
+        </button>
+        <a href="{% url 'reports:report-list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

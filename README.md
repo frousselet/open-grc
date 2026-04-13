@@ -124,7 +124,7 @@ Manage your organisation's security posture, track compliance with regulatory fr
 | Real-Time Dashboard | WebSocket-powered live statistics via Django Channels with animated counters and auto-reconnect |
 | Calendar & iCal | Unified calendar view across all modules with iCal subscription feed and per-user tokens |
 | Global Search | Multi-category search across all domain objects |
-| Reports | Configurable report generation with status tracking |
+| Reports | Configurable report generation (SoA PDF, Audit report PDF, Management review PPTX/DOCX) with status tracking |
 | Approval Workflows | Two-step approval (submit / approve) on all domain models with dedicated permissions |
 | Audit Trail | Full change history on every model via django-simple-history |
 | Versioning | Automatic version increment on all domain objects |
@@ -146,7 +146,7 @@ Manage your organisation's security posture, track compliance with regulatory fr
 
 ## MCP Server (Model Context Protocol)
 
-Fairway ships with a built-in JSON-RPC 2.0 MCP server exposing 53 tools across all modules. Authentication uses OAuth 2.0. All tools enforce RBAC permissions and scope-based tenancy.
+Fairway ships with a built-in JSON-RPC 2.0 MCP server exposing 55 tools across all modules. Authentication uses OAuth 2.0. All tools enforce RBAC permissions and scope-based tenancy.
 
 ### CRUD pattern
 
@@ -279,6 +279,8 @@ Additional tools:
 | `list_reports` | List generated reports with optional type filter |
 | `generate_soa_report` | Generate a Statement of Applicability (SoA) PDF for selected frameworks |
 | `generate_audit_report` | Generate an audit report PDF for a completed assessment |
+| `generate_management_review_pptx` | Generate a management review PowerPoint presentation (ISO 27001 clause 9.3) |
+| `generate_management_review_docx` | Generate a management review Word meeting minutes (ISO 27001 clause 9.3) |
 | `delete_report` | Delete a generated report |
 | `get_company_settings` | Get company settings (name, address) |
 | `update_company_settings` | Update company settings |
@@ -298,7 +300,7 @@ Additional tools:
 | Audit Trail | django-simple-history |
 | Filtering | django-filter |
 | Frontend | Bootstrap 5.3 + HTMX |
-| Export | openpyxl, weasyprint |
+| Export | openpyxl, weasyprint, python-pptx, python-docx |
 | Calendar | icalendar |
 | Linting | Ruff |
 | Container | Docker & Docker Compose |

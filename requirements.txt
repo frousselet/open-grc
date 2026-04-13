@@ -9,6 +9,8 @@ Pillow
 djangorestframework-simplejwt
 openpyxl
 weasyprint
+python-pptx
+python-docx
 fido2
 channels
 channels-redis

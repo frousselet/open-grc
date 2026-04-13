@@ -11,8 +11,12 @@ from django.views.generic import DeleteView, FormView, ListView
 from accounts.views import PermissionRequiredMixin
 
 from .constants import ReportStatus, ReportType
-from .forms import AuditReportForm, SoaReportForm
+from .forms import AuditReportForm, ManagementReviewForm, SoaReportForm
 from .generators import generate_audit_report_pdf, generate_soa_pdf
+from .management_review import (
+    generate_management_review_docx,
+    generate_management_review_pptx,
+)
 from .models import Report
 
 
@@ -93,17 +97,74 @@ class AuditReportCreateView(LoginRequiredMixin, PermissionRequiredMixin, FormVie
         return redirect("reports:report-list")
 
 
+class ManagementReviewCreateView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    permission_required = "reports.report.create"
+    form_class = ManagementReviewForm
+    template_name = "reports/management_review_form.html"
+
+    def form_valid(self, form):
+        fmt = form.cleaned_data["format"]
+        scopes = form.cleaned_data.get("scopes")
+        scope_ids = list(scopes.values_list("id", flat=True)) if scopes else None
+        period_start = form.cleaned_data.get("period_start")
+        period_end = form.cleaned_data.get("period_end")
+
+        if fmt == "pptx":
+            report_type = ReportType.MANAGEMENT_REVIEW_PPTX
+            generator = generate_management_review_pptx
+        else:
+            report_type = ReportType.MANAGEMENT_REVIEW_DOCX
+            generator = generate_management_review_docx
+
+        report_name = _("Management review") + f" - {_('Presentation') if fmt == 'pptx' else _('Minutes')}"
+
+        try:
+            filename, file_bytes = generator(
+                self.request.user, scope_ids,
+                period_start=period_start, period_end=period_end,
+            )
+            Report.objects.create(
+                report_type=report_type,
+                name=report_name,
+                status=ReportStatus.COMPLETED,
+                created_by=self.request.user,
+                file_content=file_bytes,
+                file_name=filename,
+            )
+        except Exception:
+            logging.getLogger(__name__).exception(
+                "Management review %s generation failed", fmt.upper()
+            )
+            Report.objects.create(
+                report_type=report_type,
+                name=report_name,
+                status=ReportStatus.FAILED,
+                created_by=self.request.user,
+            )
+
+        return redirect("reports:report-list")
+
+
 class ReportDownloadView(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = "reports.report.read"
     """Serve report file content stored in the database."""
+
+    CONTENT_TYPES = {
+        ".pdf": "application/pdf",
+        ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    }
 
     def get(self, request, pk):
         report = get_object_or_404(Report, pk=pk)
         if not report.file_content:
             raise Http404
+        import os
+        ext = os.path.splitext(report.file_name)[1].lower()
+        content_type = self.CONTENT_TYPES.get(ext, "application/octet-stream")
         response = HttpResponse(
             bytes(report.file_content),
-            content_type="application/pdf",
+            content_type=content_type,
         )
         response["Content-Disposition"] = (
             f'attachment; filename="{report.file_name}"'

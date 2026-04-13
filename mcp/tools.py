@@ -4537,6 +4537,128 @@ def _register_reports_tools(server):
         delete_report,
     )
 
+    # Generate management review (PPTX)
+    @require_perm("reports.report.create")
+    def generate_management_review_pptx_tool(user, arguments):
+        scope_ids = arguments.get("scope_ids")
+        period_start = arguments.get("period_start")
+        period_end = arguments.get("period_end")
+        from datetime import date as date_type
+        if period_start:
+            period_start = date_type.fromisoformat(period_start)
+        if period_end:
+            period_end = date_type.fromisoformat(period_end)
+        from reports.constants import ReportStatus, ReportType
+        from reports.management_review import generate_management_review_pptx
+
+        report_name = "Management review - Presentation"
+        try:
+            filename, file_bytes = generate_management_review_pptx(
+                user, scope_ids,
+                period_start=period_start, period_end=period_end,
+            )
+            report = Report.objects.create(
+                report_type=ReportType.MANAGEMENT_REVIEW_PPTX,
+                name=report_name,
+                status=ReportStatus.COMPLETED,
+                created_by=user,
+                file_content=file_bytes,
+                file_name=filename,
+            )
+        except Exception:
+            report = Report.objects.create(
+                report_type=ReportType.MANAGEMENT_REVIEW_PPTX,
+                name=report_name,
+                status=ReportStatus.FAILED,
+                created_by=user,
+            )
+        return _serialize_obj(report, report_fields)
+
+    server.register_tool(
+        "generate_management_review_pptx",
+        "Generate a management review presentation (PowerPoint) covering ISO 27001 clause 9.3 inputs: action plans, issues, stakeholders, security performance, risks, and improvement opportunities",
+        {
+            "type": "object",
+            "properties": {
+                "scope_ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Optional list of scope UUIDs to filter data. Omit to include all data.",
+                },
+                "period_start": {
+                    "type": "string",
+                    "description": "Start of the review period (YYYY-MM-DD). Omit to include all past data.",
+                },
+                "period_end": {
+                    "type": "string",
+                    "description": "End of the review period (YYYY-MM-DD). Defaults to today.",
+                },
+            },
+        },
+        generate_management_review_pptx_tool,
+    )
+
+    # Generate management review (DOCX)
+    @require_perm("reports.report.create")
+    def generate_management_review_docx_tool(user, arguments):
+        scope_ids = arguments.get("scope_ids")
+        period_start = arguments.get("period_start")
+        period_end = arguments.get("period_end")
+        from datetime import date as date_type
+        if period_start:
+            period_start = date_type.fromisoformat(period_start)
+        if period_end:
+            period_end = date_type.fromisoformat(period_end)
+        from reports.constants import ReportStatus, ReportType
+        from reports.management_review import generate_management_review_docx
+
+        report_name = "Management review - Minutes"
+        try:
+            filename, file_bytes = generate_management_review_docx(
+                user, scope_ids,
+                period_start=period_start, period_end=period_end,
+            )
+            report = Report.objects.create(
+                report_type=ReportType.MANAGEMENT_REVIEW_DOCX,
+                name=report_name,
+                status=ReportStatus.COMPLETED,
+                created_by=user,
+                file_content=file_bytes,
+                file_name=filename,
+            )
+        except Exception:
+            report = Report.objects.create(
+                report_type=ReportType.MANAGEMENT_REVIEW_DOCX,
+                name=report_name,
+                status=ReportStatus.FAILED,
+                created_by=user,
+            )
+        return _serialize_obj(report, report_fields)
+
+    server.register_tool(
+        "generate_management_review_docx",
+        "Generate a management review meeting minutes document (Word) covering ISO 27001 clause 9.3 inputs: action plans, issues, stakeholders, security performance, risks, and improvement opportunities",
+        {
+            "type": "object",
+            "properties": {
+                "scope_ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Optional list of scope UUIDs to filter data. Omit to include all data.",
+                },
+                "period_start": {
+                    "type": "string",
+                    "description": "Start of the review period (YYYY-MM-DD). Omit to include all past data.",
+                },
+                "period_end": {
+                    "type": "string",
+                    "description": "End of the review period (YYYY-MM-DD). Defaults to today.",
+                },
+            },
+        },
+        generate_management_review_docx_tool,
+    )
+
     # ── Company Settings ───────────────────────────────────
 
     company_fields = ["id", "name", "address", "updated_at"]

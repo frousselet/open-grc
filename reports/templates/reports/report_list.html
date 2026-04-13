@@ -32,6 +32,17 @@
       </div>
     </div>
   </div>
+  <div class="col-md-4 col-lg-3">
+    <div class="card h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title"><i class="bi bi-file-earmark-slides me-1"></i>{% trans "Management review" %}</h5>
+        <p class="card-text text-muted small flex-grow-1">{% trans "Generate management review materials (presentation or meeting minutes) covering action plans, issues, stakeholders, security performance, risks, and improvement opportunities." %}</p>
+        <a href="{% url 'reports:management-review-create' %}" class="btn btn-primary btn-sm mt-2">
+          <i class="bi bi-plus-lg me-1"></i>{% trans "Generate" %}
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
 
 {# ── Generated reports history ─────────────────────────── #}
