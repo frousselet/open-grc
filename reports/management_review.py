@@ -42,6 +42,124 @@ def _strip(text):
     return strip_tags(cleaned).strip()
 
 
+def _try_float(value):
+    """Best-effort float coercion. Returns None if not numeric."""
+    if value in (None, ""):
+        return None
+    try:
+        normalized = str(value).replace("\u00a0", "").replace(" ", "").replace(",", ".")
+        return float(normalized)
+    except (ValueError, TypeError):
+        return None
+
+
+def _expected_measurements_count(frequency, period_days):
+    """Return how many measurements are expected on a period given the frequency."""
+    intervals = {
+        "daily": 1,
+        "weekly": 7,
+        "monthly": 30,
+        "quarterly": 91,
+        "semiannual": 182,
+        "annual": 365,
+    }
+    step = intervals.get(frequency)
+    if not step or period_days <= 0:
+        return 0
+    return max(1, int(period_days // step))
+
+
+def _compute_indicator_trend(indicator, period_start, period_end):
+    """Compute a trend label for an indicator over the review period.
+
+    Compares the average of measurements recorded between period_start and
+    period_end against the average of the previous equivalent period.
+    Returns a dict with:
+      - label: improving/stable/degrading/insufficient_data
+      - symbol: textual arrow for reports
+      - previous_value: mean of the previous period, or "-"
+      - measurement_compliance: "N/M" ratio of recorded vs expected measurements
+    """
+    from datetime import datetime, timedelta
+
+    default = {
+        "label": "insufficient_data",
+        "symbol": "-",
+        "previous_value": "-",
+        "measurement_compliance": "-",
+    }
+
+    if not period_start or not period_end:
+        return default
+
+    period_days = (period_end - period_start).days
+    if period_days <= 0:
+        return default
+
+    p_start_dt = timezone.make_aware(
+        datetime.combine(period_start, datetime.min.time())
+    )
+    p_end_dt = timezone.make_aware(
+        datetime.combine(period_end, datetime.max.time())
+    )
+    prev_start = p_start_dt - timedelta(days=period_days)
+
+    measurements = indicator.measurements.filter(
+        recorded_at__gte=prev_start,
+        recorded_at__lte=p_end_dt,
+    ).order_by("recorded_at")
+
+    current_values = []
+    previous_values = []
+    for m in measurements:
+        fv = _try_float(m.value)
+        if fv is None:
+            continue
+        if m.recorded_at >= p_start_dt:
+            current_values.append(fv)
+        else:
+            previous_values.append(fv)
+
+    # Frequency compliance counts recorded measurements against expected
+    expected = _expected_measurements_count(
+        indicator.review_frequency, period_days,
+    )
+    recorded = indicator.measurements.filter(
+        recorded_at__gte=p_start_dt,
+        recorded_at__lte=p_end_dt,
+    ).count()
+    compliance = f"{recorded}/{expected}" if expected else f"{recorded}"
+
+    if len(current_values) == 0 or len(previous_values) == 0:
+        return {
+            "label": "insufficient_data",
+            "symbol": "-",
+            "previous_value": "-",
+            "measurement_compliance": compliance,
+        }
+
+    avg_current = sum(current_values) / len(current_values)
+    avg_previous = sum(previous_values) / len(previous_values)
+
+    # Delta threshold: 5% of previous average (or 0.01 when previous is ~0).
+    threshold = max(abs(avg_previous) * 0.05, 0.01)
+    delta = avg_current - avg_previous
+
+    if abs(delta) < threshold:
+        label, symbol = "stable", "="
+    elif delta > 0:
+        label, symbol = "improving", "^"
+    else:
+        label, symbol = "degrading", "v"
+
+    return {
+        "label": label,
+        "symbol": symbol,
+        "previous_value": f"{avg_previous:.2f}",
+        "measurement_compliance": compliance,
+    }
+
+
 # ═══════════════════════════════════════════════════════════════════
 # Data gathering (shared between PPTX and DOCX)
 # ═══════════════════════════════════════════════════════════════════
@@ -256,6 +374,7 @@ def gather_management_review_data(user, scope_ids=None,
 
     indicator_rows = []
     for ind in indicators:
+        trend = _compute_indicator_trend(ind, period_start, period_end)
         indicator_rows.append({
             "reference": ind.reference,
             "name": ind.name,
@@ -264,6 +383,10 @@ def gather_management_review_data(user, scope_ids=None,
             "unit": ind.unit,
             "is_critical": ind.is_critical,
             "review_frequency": ind.get_review_frequency_display(),
+            "trend": trend["label"],
+            "trend_symbol": trend["symbol"],
+            "previous_value": trend["previous_value"],
+            "measurement_compliance": trend["measurement_compliance"],
         })
 
     # ── 4c. Audit results ──
@@ -900,13 +1023,15 @@ def generate_management_review_pptx(user, scope_ids=None,
     if data["indicator_rows"]:
         _pptx_add_table_slide(
             prs, "4b.  Resultats de surveillance et mesurage",
-            ["Ref.", "Indicateur", "Valeur", "Cible", "Unite", "Critique", "Frequence"],
+            ["Ref.", "Indicateur", "Valeur", "Precedente", "Tendance",
+             "Cible", "Unite", "Critique", "Freq."],
             [[i["reference"], i["name"][:35], i["current_value"],
+              i.get("previous_value", "-"), i.get("trend_symbol", "-"),
               i["expected_level"], i["unit"],
               "OUI" if i["is_critical"] else "Non",
-              i["review_frequency"]]
+              i.get("measurement_compliance", "-")]
              for i in data["indicator_rows"]],
-            col_widths=[1.0, 3.2, 1.4, 1.4, 1.0, 1.0, 1.4],
+            col_widths=[1.0, 2.6, 1.2, 1.2, 1.0, 1.2, 0.9, 0.9, 1.2],
         )
 
     # 4c - Audit results
@@ -1432,11 +1557,13 @@ def generate_management_review_docx(user, scope_ids=None,
 
     if data["indicator_rows"]:
         _docx_add_table(doc,
-            ["Ref.", "Indicateur", "Valeur", "Cible", "Unite", "Critique", "Frequence"],
+            ["Ref.", "Indicateur", "Valeur", "Precedente", "Tendance",
+             "Cible", "Unite", "Critique", "Conf. freq."],
             [[i["reference"], i["name"], i["current_value"],
+              i.get("previous_value", "-"), i.get("trend_symbol", "-"),
               i["expected_level"], i["unit"],
               "OUI" if i["is_critical"] else "Non",
-              i["review_frequency"]]
+              i.get("measurement_compliance", "-")]
              for i in data["indicator_rows"]],
         )
     else:
