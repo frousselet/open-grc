@@ -12,6 +12,9 @@ router.register(r"acceptances", views.RiskAcceptanceViewSet)
 router.register(r"threats", views.ThreatViewSet)
 router.register(r"vulnerabilities", views.VulnerabilityViewSet)
 router.register(r"iso27005-risks", views.ISO27005RiskViewSet)
+router.register(r"treatment-actions", views.TreatmentActionViewSet)
+router.register(r"scale-levels", views.ScaleLevelViewSet)
+router.register(r"risk-levels", views.RiskLevelViewSet)
 
 app_name = "risks-api"
 

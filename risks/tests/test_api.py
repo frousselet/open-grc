@@ -858,3 +858,178 @@ class TestBatchCreateRisks:
         data = body.get("data", body)
         assert data["created"] == 3
         assert data["errors"] == 0
+
+
+# ── New polish-pass endpoints: TreatmentAction / ScaleLevel / RiskLevel ──
+
+
+class TestTreatmentActionViewSet:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+
+    def _make_plan(self):
+        from risks.models import RiskTreatmentPlan
+        return RiskTreatmentPlan.objects.create(
+            risk=RiskFactory(), name="Plan", treatment_type="mitigate",
+        )
+
+    def test_list(self):
+        from risks.tests.factories import TreatmentActionFactory
+        plan = self._make_plan()
+        TreatmentActionFactory(treatment_plan=plan)
+        response = self.client.get("/api/v1/risks/treatment-actions/")
+        assert response.status_code == 200
+
+    def test_create(self):
+        plan = self._make_plan()
+        response = self.client.post(
+            "/api/v1/risks/treatment-actions/",
+            {
+                "treatment_plan": str(plan.pk),
+                "description": "Patch the server",
+                "status": "planned",
+                "order": 1,
+            },
+            format="json",
+        )
+        assert response.status_code == 201, response.json()
+
+    def test_filter_by_treatment_plan(self):
+        from risks.models import TreatmentAction
+        from risks.tests.factories import TreatmentActionFactory
+        p1 = self._make_plan()
+        p2 = self._make_plan()
+        a1 = TreatmentActionFactory(treatment_plan=p1, description="A1")
+        TreatmentActionFactory(treatment_plan=p2, description="A2")
+        response = self.client.get(
+            "/api/v1/risks/treatment-actions/",
+            {"treatment_plan": str(p1.pk)},
+        )
+        body = response.json()
+        items = body.get("data", body)
+        items = items["results"] if isinstance(items, dict) and "results" in items else items
+        descriptions = [a["description"] for a in items]
+        assert "A1" in descriptions
+        assert "A2" not in descriptions
+
+
+class TestScaleLevelViewSet:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+
+    def test_list(self):
+        from risks.tests.factories import RiskCriteriaFactory, ScaleLevelFactory
+        criteria = RiskCriteriaFactory()
+        ScaleLevelFactory(criteria=criteria, scale_type="likelihood", level=1, name="VL")
+        response = self.client.get("/api/v1/risks/scale-levels/")
+        assert response.status_code == 200
+
+    def test_create_forbidden(self):
+        # Read-only viewset returns 405 on POST.
+        response = self.client.post(
+            "/api/v1/risks/scale-levels/", {}, format="json",
+        )
+        assert response.status_code == 405
+
+
+class TestRiskLevelViewSet:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+
+    def test_list(self):
+        from risks.tests.factories import RiskCriteriaFactory, RiskLevelFactory
+        criteria = RiskCriteriaFactory()
+        RiskLevelFactory(criteria=criteria, level=1, name="Low")
+        response = self.client.get("/api/v1/risks/risk-levels/")
+        assert response.status_code == 200
+
+    def test_create_forbidden(self):
+        response = self.client.post(
+            "/api/v1/risks/risk-levels/", {}, format="json",
+        )
+        assert response.status_code == 405
+
+
+# ── Batch create for the remaining writable viewsets ──────
+
+
+class TestBatchCreateTreatmentPlans:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+
+    def test_batch_create_success(self):
+        risk = RiskFactory()
+        items = [
+            {
+                "risk": str(risk.pk),
+                "name": f"Plan {i}",
+                "treatment_type": "mitigate",
+            }
+            for i in range(3)
+        ]
+        response = self.client.post(
+            "/api/v1/risks/treatment-plans/batch/",
+            {"items": items}, format="json",
+        )
+        assert response.status_code == 200
+        data = response.json().get("data", response.json())
+        assert data["created"] == 3
+
+
+class TestBatchCreateAcceptances:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+
+    def test_batch_create_success(self):
+        risk = RiskFactory()
+        items = [
+            {
+                "risk": str(risk.pk),
+                "justification": f"Acceptable {i}",
+                "status": "active",
+            }
+            for i in range(3)
+        ]
+        response = self.client.post(
+            "/api/v1/risks/acceptances/batch/",
+            {"items": items}, format="json",
+        )
+        assert response.status_code == 200
+        data = response.json().get("data", response.json())
+        assert data["created"] == 3
+
+
+class TestBatchCreateISO27005Risks:
+    def setup_method(self):
+        self.client = APIClient()
+        self.user = UserFactory(is_superuser=True)
+        self.client.force_authenticate(user=self.user)
+
+    def test_batch_create_success(self):
+        from risks.tests.factories import ThreatFactory, VulnerabilityFactory
+        assessment = RiskAssessmentFactory()
+        items = [
+            {
+                "assessment": str(assessment.pk),
+                "threat": str(ThreatFactory().pk),
+                "vulnerability": str(VulnerabilityFactory().pk),
+            }
+            for _ in range(3)
+        ]
+        response = self.client.post(
+            "/api/v1/risks/iso27005-risks/batch/",
+            {"items": items}, format="json",
+        )
+        assert response.status_code == 200
+        data = response.json().get("data", response.json())
+        assert data["created"] == 3

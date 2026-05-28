@@ -6,8 +6,11 @@ from risks.models import (
     RiskAcceptance,
     RiskAssessment,
     RiskCriteria,
+    RiskLevel,
     RiskTreatmentPlan,
+    ScaleLevel,
     Threat,
+    TreatmentAction,
     Vulnerability,
 )
 
@@ -132,4 +135,30 @@ class ISO27005RiskFilter(django_filters.FilterSet):
 
     class Meta:
         model = ISO27005Risk
+        fields = {}
+
+
+class TreatmentActionFilter(django_filters.FilterSet):
+    treatment_plan = django_filters.UUIDFilter(field_name="treatment_plan_id")
+    risk = django_filters.UUIDFilter(field_name="treatment_plan__risk_id")
+    owner = django_filters.UUIDFilter(field_name="owner_id")
+
+    class Meta:
+        model = TreatmentAction
+        fields = {"status": ["exact"]}
+
+
+class ScaleLevelFilter(django_filters.FilterSet):
+    criteria = django_filters.UUIDFilter(field_name="criteria_id")
+
+    class Meta:
+        model = ScaleLevel
+        fields = {"scale_type": ["exact"]}
+
+
+class RiskLevelFilter(django_filters.FilterSet):
+    criteria = django_filters.UUIDFilter(field_name="criteria_id")
+
+    class Meta:
+        model = RiskLevel
         fields = {}
