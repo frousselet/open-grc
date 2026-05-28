@@ -10667,6 +10667,66 @@ msgstr "L'évaluation est hors de vos périmètres autorisés."
 msgid "Treated risks"
 msgstr "Risques traités"
 
+msgid "Risk dashboard"
+msgstr "Tableau de bord des risques"
+
+msgid "Go to risk register"
+msgstr "Ouvrir le registre des risques"
+
+msgid "Open register"
+msgstr "Ouvrir le registre"
+
+msgid "overdue"
+msgstr "en retard"
+
+msgid "expiring within 90 days"
+msgstr "expirant sous 90 jours"
+
+msgid "Critical / High priority"
+msgstr "Priorité critique / haute"
+
+msgid "critical"
+msgstr "critique"
+
+msgid "high"
+msgstr "haute"
+
+msgid "Current risks"
+msgstr "Risques courants"
+
+msgid "Residual risks"
+msgstr "Risques résiduels"
+
+msgid "Status distribution"
+msgstr "Répartition par statut"
+
+msgid "Priority distribution"
+msgstr "Répartition par priorité"
+
+msgid "Treatment decisions"
+msgstr "Décisions de traitement"
+
+msgid "Top 10 critical risks"
+msgstr "Top 10 des risques critiques"
+
+msgid "Open list"
+msgstr "Ouvrir la liste"
+
+msgid "No critical risks."
+msgstr "Aucun risque critique."
+
+msgid "Overdue treatment plans"
+msgstr "Plans de traitement en retard"
+
+msgid "No overdue treatment plans."
+msgstr "Aucun plan de traitement en retard."
+
+msgid "Acceptances expiring within 90 days"
+msgstr "Acceptations expirant sous 90 jours"
+
+msgid "No acceptances expiring in the next 90 days."
+msgstr "Aucune acceptation n'expire dans les 90 prochains jours."
+
 msgid "Res."
 msgstr "Rés."
 
@@ -10791,8 +10851,8 @@ msgstr[1] "%(counter)s risques pris en compte par les contrôles de ce référen
 #~ msgid "Matrices"
 #~ msgstr "Matrices"
 
-#~ msgid "Active acceptances"
-#~ msgstr "Acceptations actives"
+msgid "Active acceptances"
+msgstr "Acceptations actives"
 
 #~ msgid "Risks by priority"
 #~ msgstr "Risques par priorité"

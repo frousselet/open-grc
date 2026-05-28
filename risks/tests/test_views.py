@@ -2,6 +2,7 @@ import pytest
 from django.core.exceptions import ValidationError
 from django.test import Client
 from django.urls import reverse
+from django.utils import timezone
 
 from accounts.tests.factories import UserFactory
 from risks.constants import ThreatType, TreatmentType
@@ -153,6 +154,113 @@ class TestRiskAssessmentUpdateView:
         assert resp.status_code == 302
         assessment.refresh_from_db()
         assert assessment.name == "UpdatedName"
+
+
+class TestRiskDashboardView:
+    def test_login_required(self):
+        resp = Client().get(reverse("risks:dashboard"))
+        assert resp.status_code == 302
+
+    def test_dashboard_loads_200(self):
+        client, _ = _superuser_client()
+        resp = client.get(reverse("risks:dashboard"))
+        assert resp.status_code == 200
+        assert b"Risk dashboard" in resp.content
+
+    def test_dashboard_context_aggregates_counts(self):
+        client, _ = _superuser_client()
+        # Two risks under one assessment.
+        a = RiskAssessmentFactory()
+        RiskFactory(assessment=a, priority="critical", status="identified")
+        RiskFactory(assessment=a, priority="medium", status="treated")
+        resp = client.get(reverse("risks:dashboard"))
+        ctx = resp.context
+        assert ctx["risk_count_total"] == 2
+        priorities = {p["key"]: p["count"] for p in ctx["risk_priority_breakdown"]}
+        assert priorities["critical"] == 1
+        assert priorities["medium"] == 1
+        statuses = {s["key"]: s["count"] for s in ctx["risk_status_breakdown"]}
+        assert statuses["identified"] == 1
+        assert statuses["treated"] == 1
+
+    def test_top_critical_risks_limited_to_ten(self):
+        client, _ = _superuser_client()
+        # 12 critical risks, all with current_risk_level=5
+        for i in range(12):
+            r = RiskFactory(priority="critical")
+            r.current_risk_level = 5
+            r.save(update_fields=["current_risk_level"])
+        resp = client.get(reverse("risks:dashboard"))
+        assert len(resp.context["top_critical_risks"]) == 10
+
+    def test_overdue_treatment_plans_surface_in_context(self):
+        from datetime import timedelta
+        client, _ = _superuser_client()
+        today = timezone.localdate()
+        risk = RiskFactory()
+        # One overdue (past target_date, not COMPLETED), one ok (future target).
+        overdue = RiskTreatmentPlan.objects.create(
+            risk=risk, name="LateOne", treatment_type="mitigate",
+            status="in_progress", target_date=today - timedelta(days=2),
+        )
+        RiskTreatmentPlan.objects.create(
+            risk=risk, name="OnTime", treatment_type="mitigate",
+            status="in_progress", target_date=today + timedelta(days=10),
+        )
+        resp = client.get(reverse("risks:dashboard"))
+        plans = resp.context["overdue_treatment_plans"]
+        assert overdue in plans
+        assert len(plans) == 1
+
+    def test_expiring_acceptances_within_90_days(self):
+        from datetime import timedelta
+        from risks.models import RiskAcceptance
+        client, _ = _superuser_client()
+        today = timezone.localdate()
+        risk = RiskFactory()
+        soon = RiskAcceptance.objects.create(
+            risk=risk, status="active", justification="J1",
+            valid_until=today + timedelta(days=30),
+        )
+        far = RiskAcceptance.objects.create(
+            risk=risk, status="active", justification="J2",
+            valid_until=today + timedelta(days=180),
+        )
+        resp = client.get(reverse("risks:dashboard"))
+        expiring = resp.context["expiring_acceptances"]
+        assert soon in expiring
+        assert far not in expiring
+
+    def test_scope_filter_applied_to_dashboard(self):
+        from accounts.models import Group, Permission
+        from accounts.tests.factories import UserFactory as _UF
+        from context.tests.factories import ScopeFactory
+
+        scope_in = ScopeFactory()
+        scope_out = ScopeFactory()
+        a_in = RiskAssessmentFactory()
+        a_in.scopes.add(scope_in)
+        a_out = RiskAssessmentFactory()
+        a_out.scopes.add(scope_out)
+        RiskFactory(assessment=a_in, name="Inside")
+        RiskFactory(assessment=a_out, name="Outside")
+
+        group = Group.objects.create(name="dash scope group")
+        group.allowed_scopes.add(scope_in)
+        for codename in ["risks.risk.read"]:
+            perm, _ = Permission.objects.get_or_create(
+                codename=codename,
+                defaults={"name": codename, "module": "risks", "feature": "risk", "action": "read", "is_system": True},
+            )
+            group.permissions.add(perm)
+        user = _UF(is_superuser=False, is_staff=False)
+        group.users.add(user)
+
+        client = Client()
+        client.force_login(user)
+        resp = client.get(reverse("risks:dashboard"))
+        assert resp.status_code == 200
+        assert resp.context["risk_count_total"] == 1
 
 
 class TestRiskAssessmentDeleteView:

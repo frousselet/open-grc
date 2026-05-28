@@ -13,6 +13,7 @@ from django.views.generic import (
     DeleteView,
     DetailView,
     ListView,
+    TemplateView,
     UpdateView,
 )
 
@@ -24,6 +25,9 @@ from .constants import (
     DEFAULT_LIKELIHOOD_SCALES,
     DEFAULT_RISK_LEVELS,
     DEFAULT_RISK_MATRIX,
+    RiskPriority,
+    RiskStatus,
+    TreatmentDecision,
 )
 from .forms import (
     ImpactFormSet,
@@ -232,6 +236,172 @@ class ApproveView(LoginRequiredMixin, PermissionRequiredMixin, View):
         obj.save(update_fields=["is_approved", "approved_by", "approved_at"])
         messages.success(request, _("Item approved."))
         return redirect(request.META.get("HTTP_REFERER", self.success_url or "/"))
+
+
+# ── Risk Dashboard ──────────────────────────────────────────
+
+
+class RiskDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
+    """Aggregated overview of the risk module.
+
+    Cards: total risks, risks by status, by priority, treatment decision
+    distribution, current and residual heatmaps, top 10 critical risks,
+    overdue treatment plans and acceptances expiring within 90 days. All
+    counters are filtered by the user's allowed scopes through the
+    assessment's `scopes` M2M.
+    """
+
+    template_name = "risks/dashboard.html"
+    permission_required = "risks.risk.read"
+
+    def _scope_ids(self):
+        user = self.request.user
+        if user.is_superuser:
+            return None
+        return user.get_allowed_scope_ids()
+
+    def _scoped_risks(self):
+        scope_ids = self._scope_ids()
+        qs = Risk.objects.all()
+        if scope_ids is not None:
+            qs = qs.filter(assessment__scopes__id__in=scope_ids).distinct()
+        return qs
+
+    def _scoped_treatment_plans(self):
+        scope_ids = self._scope_ids()
+        qs = RiskTreatmentPlan.objects.all()
+        if scope_ids is not None:
+            qs = qs.filter(risk__assessment__scopes__id__in=scope_ids).distinct()
+        return qs
+
+    def _scoped_acceptances(self):
+        scope_ids = self._scope_ids()
+        qs = RiskAcceptance.objects.all()
+        if scope_ids is not None:
+            qs = qs.filter(risk__assessment__scopes__id__in=scope_ids).distinct()
+        return qs
+
+    def get_context_data(self, **kwargs):
+        from datetime import timedelta as _td
+
+        ctx = super().get_context_data(**kwargs)
+        today = timezone.localdate()
+
+        risks_qs = self._scoped_risks()
+        ctx["risk_count_total"] = risks_qs.count()
+
+        # Aggregations
+        status_counts = dict(
+            risks_qs.values_list("status").annotate(n=Count("pk"))
+        )
+        ctx["risk_status_breakdown"] = [
+            {"key": key, "label": str(label), "count": status_counts.get(key, 0)}
+            for key, label in RiskStatus.choices
+        ]
+
+        priority_counts = dict(
+            risks_qs.values_list("priority").annotate(n=Count("pk"))
+        )
+        ctx["risk_priority_breakdown"] = [
+            {"key": key, "label": str(label), "count": priority_counts.get(key, 0)}
+            for key, label in RiskPriority.choices
+        ]
+
+        decision_counts = dict(
+            risks_qs.values_list("treatment_decision").annotate(n=Count("pk"))
+        )
+        ctx["treatment_decision_breakdown"] = [
+            {
+                "key": key,
+                "label": str(label),
+                "count": decision_counts.get(key, 0),
+            }
+            for key, label in TreatmentDecision.choices
+        ]
+
+        # Current-level distribution for an at-a-glance bar
+        current_level_counts = dict(
+            risks_qs.exclude(current_risk_level__isnull=True)
+            .values_list("current_risk_level")
+            .annotate(n=Count("pk"))
+        )
+        ctx["current_level_counts"] = [
+            {"level": lvl, "count": current_level_counts.get(lvl, 0)}
+            for lvl in sorted(current_level_counts.keys())
+        ]
+
+        # Top 10 critical risks (highest current_risk_level then priority)
+        priority_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
+        ranked = sorted(
+            risks_qs.select_related("assessment", "risk_owner"),
+            key=lambda r: (
+                -(r.current_risk_level or 0),
+                -priority_order.get(r.priority, 0),
+                r.reference or "",
+            ),
+        )
+        ctx["top_critical_risks"] = [
+            r for r in ranked
+            if (r.current_risk_level is not None or r.priority in ("critical", "high"))
+        ][:10]
+
+        # Heatmaps reusing the same helpers as the global dashboard
+        criteria = (
+            RiskCriteria.objects.filter(is_default=True).first()
+            or RiskCriteria.objects.filter(status="active").first()
+        )
+        if criteria:
+            ctx["matrix_criteria"] = criteria
+            ctx["matrix_current"] = build_risk_matrix(
+                risks_qs, criteria, "current_likelihood", "current_impact",
+            )
+            ctx["matrix_residual"] = build_risk_matrix(
+                risks_qs, criteria, "residual_likelihood", "residual_impact",
+            )
+        if not ctx.get("matrix_current"):
+            ctx["matrix_current"] = build_default_risk_matrix(
+                risks_qs, "current_likelihood", "current_impact",
+            )
+        if not ctx.get("matrix_residual"):
+            ctx["matrix_residual"] = build_default_risk_matrix(
+                risks_qs, "residual_likelihood", "residual_impact",
+            )
+        ctx["current_risks_title"] = _("Current risks")
+        ctx["residual_risks_title"] = _("Residual risks")
+
+        # Overdue treatment plans
+        plans_qs = self._scoped_treatment_plans()
+        ctx["treatment_plan_total"] = plans_qs.count()
+        terminal = {"completed", "cancelled"}
+        overdue_plans = (
+            plans_qs.exclude(status__in=terminal)
+            .filter(
+                Q(status="overdue")
+                | Q(target_date__isnull=False, target_date__lt=today)
+            )
+            .select_related("risk", "owner")
+            .order_by("target_date")
+        )
+        ctx["overdue_treatment_plans"] = list(overdue_plans[:10])
+        ctx["overdue_treatment_plan_count"] = overdue_plans.count()
+
+        # Acceptances expiring within 90 days
+        acceptances_qs = self._scoped_acceptances()
+        ctx["acceptance_total"] = acceptances_qs.filter(status="active").count()
+        expiring = (
+            acceptances_qs.filter(
+                status="active",
+                valid_until__isnull=False,
+                valid_until__gte=today,
+                valid_until__lte=today + _td(days=90),
+            )
+            .select_related("risk", "accepted_by")
+            .order_by("valid_until")
+        )
+        ctx["expiring_acceptances"] = list(expiring[:10])
+        ctx["expiring_acceptance_count"] = expiring.count()
+
+        return ctx
 
 
 # ── Risk Assessment ─────────────────────────────────────────

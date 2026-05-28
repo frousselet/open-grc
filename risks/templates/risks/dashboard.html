@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% load i18n accounts_tags %}
+
+{% block title %}{% trans "Risk dashboard" %} - Fairway{% endblock %}
+
+{% block extra_css %}
+<style>
+  .stat-card { border: 1px solid var(--border); border-radius: var(--radius-sm, .5rem); padding: 1rem; background: var(--surface, #fff); height: 100%; }
+  .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--accent, #5b4ccc); line-height: 1.1; }
+  .stat-label { font-size: .75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 500; }
+  .stat-sub { font-size: .8rem; color: var(--text-muted); margin-top: .25rem; }
+  .bar-row { display: flex; align-items: center; gap: .5rem; padding: .35rem 0; }
+  .bar-row .label { flex: 0 0 9rem; font-size: .82rem; color: var(--text-secondary); }
+  .bar-row .track { flex: 1; height: .55rem; background: var(--surface-raised, #f4f4f8); border-radius: 999px; overflow: hidden; }
+  .bar-row .fill { height: 100%; background: var(--accent, #5b4ccc); }
+  .bar-row .fill.warning { background: var(--warning, #f59e0b); }
+  .bar-row .fill.danger { background: var(--danger, #dc3545); }
+  .bar-row .fill.success { background: var(--success, #16a34a); }
+  .bar-row .count { flex: 0 0 2.5rem; text-align: right; font-size: .82rem; font-weight: 600; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3 flex-wrap gap-2">
+  <h1 class="mb-0">{% trans "Risk dashboard" %}</h1>
+  <div class="header-actions">
+    <a href="{% url 'risks:assessment-list' %}" class="btn-header-action" title="{% trans 'Go to assessments' %}">
+      <i class="bi bi-clipboard-data"></i>
+    </a>
+    <a href="{% url 'risks:risk-list' %}" class="btn-header-action" title="{% trans 'Go to risk register' %}">
+      <i class="bi bi-exclamation-diamond"></i>
+    </a>
+  </div>
+</div>
+
+{# ── Top counters ────────────────────────────────────────── #}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-label">{% trans "Risks" %}</div>
+      <div class="stat-value">{{ risk_count_total }}</div>
+      <div class="stat-sub"><a href="{% url 'risks:risk-list' %}" style="text-decoration:none;color:inherit">{% trans "Open register" %} <i class="bi bi-arrow-right"></i></a></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-label">{% trans "Treatment plans" %}</div>
+      <div class="stat-value">{{ treatment_plan_total }}</div>
+      <div class="stat-sub">
+        {% if overdue_treatment_plan_count %}<span class="text-danger">{{ overdue_treatment_plan_count }} {% trans "overdue" %}</span>{% else %}—{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-label">{% trans "Active acceptances" %}</div>
+      <div class="stat-value">{{ acceptance_total }}</div>
+      <div class="stat-sub">
+        {% if expiring_acceptance_count %}<span class="text-warning">{{ expiring_acceptance_count }} {% trans "expiring within 90 days" %}</span>{% else %}—{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-label">{% trans "Critical / High priority" %}</div>
+      {% with crit=risk_priority_breakdown|last hi=risk_priority_breakdown %}
+      {# `last` is the last choice ordered; we compute the two manually below to stay readable #}
+      {% endwith %}
+      <div class="stat-value">
+        {% for p in risk_priority_breakdown %}{% if p.key == "critical" or p.key == "high" %}{{ p.count|add:0 }}{% if not forloop.last %} + {% endif %}{% endif %}{% endfor %}
+      </div>
+      <div class="stat-sub">
+        {% for p in risk_priority_breakdown %}{% if p.key == "critical" %}{{ p.count }} {% trans "critical" %}{% endif %}{% endfor %}
+        ·
+        {% for p in risk_priority_breakdown %}{% if p.key == "high" %}{{ p.count }} {% trans "high" %}{% endif %}{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ── Heatmaps ────────────────────────────────────────────── #}
+<div class="row g-3 mb-4">
+  <div class="col-lg-6">
+    <div class="card h-100"><div class="card-body">
+      {% include "risks/includes/risk_matrix.html" with matrix=matrix_current title=current_risks_title %}
+    </div></div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100"><div class="card-body">
+      {% include "risks/includes/risk_matrix.html" with matrix=matrix_residual title=residual_risks_title %}
+    </div></div>
+  </div>
+</div>
+
+{# ── Breakdowns ──────────────────────────────────────────── #}
+<div class="row g-3 mb-4">
+  <div class="col-lg-4">
+    <div class="card h-100"><div class="card-body">
+      <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-flag me-1"></i>{% trans "Status distribution" %}</h6>
+      {% for entry in risk_status_breakdown %}
+      {% if entry.count or forloop.counter <= 4 %}
+      <div class="bar-row">
+        <div class="label">{{ entry.label }}</div>
+        <div class="track"><div class="fill" style="width: {% widthratio entry.count risk_count_total|default:1 100 %}%;"></div></div>
+        <div class="count">{{ entry.count }}</div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div></div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card h-100"><div class="card-body">
+      <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-bar-chart me-1"></i>{% trans "Priority distribution" %}</h6>
+      {% for entry in risk_priority_breakdown %}
+      <div class="bar-row">
+        <div class="label">{{ entry.label }}</div>
+        <div class="track"><div class="fill {% if entry.key == 'critical' %}danger{% elif entry.key == 'high' %}warning{% elif entry.key == 'low' %}success{% endif %}" style="width: {% widthratio entry.count risk_count_total|default:1 100 %}%;"></div></div>
+        <div class="count">{{ entry.count }}</div>
+      </div>
+      {% endfor %}
+    </div></div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card h-100"><div class="card-body">
+      <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-shield-check me-1"></i>{% trans "Treatment decisions" %}</h6>
+      {% for entry in treatment_decision_breakdown %}
+      <div class="bar-row">
+        <div class="label">{{ entry.label }}</div>
+        <div class="track"><div class="fill {% if entry.key == 'avoid' %}success{% elif entry.key == 'accept' %}warning{% elif entry.key == 'not_decided' %}danger{% endif %}" style="width: {% widthratio entry.count risk_count_total|default:1 100 %}%;"></div></div>
+        <div class="count">{{ entry.count }}</div>
+      </div>
+      {% endfor %}
+    </div></div>
+  </div>
+</div>
+
+{# ── Top critical risks ──────────────────────────────────── #}
+<div class="card mb-4"><div class="card-body">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="text-muted text-uppercase small fw-semibold mb-0"><i class="bi bi-exclamation-octagon me-1"></i>{% trans "Top 10 critical risks" %}</h6>
+    <a href="{% url 'risks:risk-list' %}?priority=critical" class="btn btn-sm btn-outline-secondary">{% trans "Open list" %}</a>
+  </div>
+  {% if top_critical_risks %}
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead><tr>
+        <th>{% trans "Ref." %}</th><th>{% trans "Name" %}</th>
+        <th>{% trans "Assessment" %}</th>
+        <th>{% trans "Current level" %}</th>
+        <th>{% trans "Residual level" %}</th>
+        <th>{% trans "Priority" %}</th>
+        <th>{% trans "Owner" %}</th>
+      </tr></thead>
+      <tbody>
+        {% for r in top_critical_risks %}
+        <tr>
+          <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ r.reference }}</td>
+          <td><a href="{% url 'risks:risk-detail' r.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ r.name }}</a></td>
+          <td style="font-size:.85rem">{{ r.assessment.reference }}</td>
+          <td style="font-weight:600">{{ r.current_risk_level|default:"—" }}</td>
+          <td>{{ r.residual_risk_level|default:"—" }}</td>
+          <td><span class="badge text-bg-{% if r.priority == 'critical' %}danger{% elif r.priority == 'high' %}warning{% elif r.priority == 'medium' %}info{% else %}secondary{% endif %}">{{ r.get_priority_display }}</span></td>
+          <td>{% if r.risk_owner %}{% user_badge r.risk_owner size=20 %}{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted mb-0" style="font-size:.85rem">{% trans "No critical risks." %}</p>
+  {% endif %}
+</div></div>
+
+{# ── Overdue treatment plans ─────────────────────────────── #}
+<div class="card mb-4"><div class="card-body">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="text-muted text-uppercase small fw-semibold mb-0"><i class="bi bi-clock-history me-1"></i>{% trans "Overdue treatment plans" %}</h6>
+    <a href="{% url 'risks:treatment-plan-list' %}" class="btn btn-sm btn-outline-secondary">{% trans "Open list" %}</a>
+  </div>
+  {% if overdue_treatment_plans %}
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead><tr>
+        <th>{% trans "Ref." %}</th><th>{% trans "Name" %}</th>
+        <th>{% trans "Risk" %}</th>
+        <th>{% trans "Target date" %}</th>
+        <th>{% trans "Progress" %}</th>
+        <th>{% trans "Owner" %}</th>
+      </tr></thead>
+      <tbody>
+        {% for p in overdue_treatment_plans %}
+        <tr>
+          <td style="font-weight:500;color:var(--text-muted);font-size:.82rem">{{ p.reference }}</td>
+          <td><a href="{% url 'risks:treatment-plan-detail' p.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ p.name }}</a></td>
+          <td><a href="{% url 'risks:risk-detail' p.risk.pk %}" style="font-size:.82rem;color:var(--text-muted);text-decoration:none">{{ p.risk.reference }}</a></td>
+          <td class="text-danger" style="font-size:.85rem">{{ p.target_date|default:"—" }}</td>
+          <td><div class="progress" style="height:.5rem;width:6rem"><div class="progress-bar" style="width:{{ p.progress_percentage }}%"></div></div></td>
+          <td>{% if p.owner %}{% user_badge p.owner size=20 %}{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted mb-0" style="font-size:.85rem">{% trans "No overdue treatment plans." %}</p>
+  {% endif %}
+</div></div>
+
+{# ── Expiring acceptances ────────────────────────────────── #}
+<div class="card mb-4"><div class="card-body">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="text-muted text-uppercase small fw-semibold mb-0"><i class="bi bi-bell me-1"></i>{% trans "Acceptances expiring within 90 days" %}</h6>
+    <a href="{% url 'risks:acceptance-list' %}" class="btn btn-sm btn-outline-secondary">{% trans "Open list" %}</a>
+  </div>
+  {% if expiring_acceptances %}
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead><tr>
+        <th>{% trans "Ref." %}</th>
+        <th>{% trans "Risk" %}</th>
+        <th>{% trans "Valid until" %}</th>
+        <th>{% trans "Accepted by" %}</th>
+      </tr></thead>
+      <tbody>
+        {% for a in expiring_acceptances %}
+        <tr>
+          <td><a href="{% url 'risks:acceptance-detail' a.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ a.reference }}</a></td>
+          <td><a href="{% url 'risks:risk-detail' a.risk.pk %}" style="font-size:.82rem;color:var(--text-muted);text-decoration:none">{{ a.risk.reference }}</a></td>
+          <td class="text-warning" style="font-size:.85rem">{{ a.valid_until }}</td>
+          <td>{% if a.accepted_by %}{% user_badge a.accepted_by size=20 %}{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted mb-0" style="font-size:.85rem">{% trans "No acceptances expiring in the next 90 days." %}</p>
+  {% endif %}
+</div></div>
+
+{% endblock %}
