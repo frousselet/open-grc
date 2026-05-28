@@ -437,6 +437,15 @@ class TestThreatViewSet:
         response = self.client.delete(f"/api/v1/risks/threats/{t.pk}/")
         assert response.status_code == 204
 
+    def test_approve(self):
+        from risks.models import Threat
+        t = Threat.objects.create(name="Approvable", type="deliberate")
+        response = self.client.post(f"/api/v1/risks/threats/{t.pk}/approve/")
+        assert response.status_code == 200, response.json()
+        t.refresh_from_db()
+        assert t.is_approved is True
+        assert t.approved_by == self.user
+
     def test_unauthenticated(self):
         client = APIClient()
         response = client.get("/api/v1/risks/threats/")
@@ -498,6 +507,16 @@ class TestVulnerabilityViewSet:
         )
         response = self.client.delete(f"/api/v1/risks/vulnerabilities/{v.pk}/")
         assert response.status_code == 204
+
+    def test_approve(self):
+        from risks.models import Vulnerability
+        v = Vulnerability.objects.create(name="Approvable", severity="high")
+        response = self.client.post(
+            f"/api/v1/risks/vulnerabilities/{v.pk}/approve/",
+        )
+        assert response.status_code == 200, response.json()
+        v.refresh_from_db()
+        assert v.is_approved is True
 
     def test_unauthenticated(self):
         client = APIClient()
@@ -617,6 +636,25 @@ class TestISO27005RiskViewSet:
         client = APIClient()
         response = client.get("/api/v1/risks/iso27005-risks/")
         assert response.status_code in (401, 403)
+
+    def test_approve(self):
+        from risks.models import ISO27005Risk, Threat, Vulnerability
+
+        ra = RiskAssessmentFactory()
+        threat = Threat.objects.create(name="T-approve", type="deliberate")
+        vuln = Vulnerability.objects.create(
+            name="V-approve", category="design_flaw", severity="medium",
+        )
+        iso = ISO27005Risk.objects.create(
+            assessment=ra, threat=threat, vulnerability=vuln,
+        )
+        response = self.client.post(
+            f"/api/v1/risks/iso27005-risks/{iso.pk}/approve/",
+        )
+        assert response.status_code == 200, response.json()
+        iso.refresh_from_db()
+        assert iso.is_approved is True
+        assert iso.approved_by == self.user
 
 
 # ── Batch create endpoints ─────────────────────────────────

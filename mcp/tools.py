@@ -3653,7 +3653,7 @@ def _register_risks_tools(server):
                    search_fields=["description"],
                    filters=["assessment_id", "threat_id", "vulnerability_id"],
                    scope_filtered=False,
-                   has_approve=False,
+                   has_approve=True,
                    field_overrides={
                        "description": _html_field("Description"),
                        "existing_controls": _html_field("Existing controls"),

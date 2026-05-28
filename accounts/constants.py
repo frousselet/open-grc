@@ -215,15 +215,15 @@ PERMISSION_REGISTRY = {
             "label": _("Risk acceptances"),
         },
         "threat": {
-            "actions": ["create", "read", "update", "delete"],
+            "actions": ["create", "read", "update", "delete", "approve"],
             "label": _("Threats"),
         },
         "vulnerability": {
-            "actions": ["create", "read", "update", "delete"],
+            "actions": ["create", "read", "update", "delete", "approve"],
             "label": _("Vulnerabilities"),
         },
         "iso27005": {
-            "actions": ["create", "read", "update", "delete"],
+            "actions": ["create", "read", "update", "delete", "approve"],
             "label": _("ISO 27005 analyses"),
         },
         "export": {

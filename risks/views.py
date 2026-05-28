@@ -811,11 +811,14 @@ class ThreatListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMix
         return qs
 
 
-class ThreatDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HistoryMixin, DetailView):
+class ThreatDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = Threat
     template_name = "risks/threat_detail.html"
     context_object_name = "threat"
     permission_required = "risks.threat.read"
+    approval_module = "risks"
+    approval_feature = "threat"
+    approve_url_name = "risks:threat-approve"
 
 
 class ThreatCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
@@ -832,7 +835,7 @@ class ThreatCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixi
         return kwargs
 
 
-class ThreatUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ScopeFilterMixin, UpdateView):
+class ThreatUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ScopeFilterMixin, ApprovableUpdateMixin, UpdateView):
     model = Threat
     form_class = ThreatForm
     template_name = "risks/threat_form.html"
@@ -882,11 +885,14 @@ class VulnerabilityListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFi
         return qs
 
 
-class VulnerabilityDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HistoryMixin, DetailView):
+class VulnerabilityDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     model = Vulnerability
     template_name = "risks/vulnerability_detail.html"
     context_object_name = "vulnerability"
     permission_required = "risks.vulnerability.read"
+    approval_module = "risks"
+    approval_feature = "vulnerability"
+    approve_url_name = "risks:vulnerability-approve"
 
 
 class VulnerabilityCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
@@ -903,7 +909,7 @@ class VulnerabilityCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxF
         return kwargs
 
 
-class VulnerabilityUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ScopeFilterMixin, UpdateView):
+class VulnerabilityUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ScopeFilterMixin, ApprovableUpdateMixin, UpdateView):
     model = Vulnerability
     form_class = VulnerabilityForm
     template_name = "risks/vulnerability_form.html"
@@ -977,12 +983,15 @@ class ISO27005RiskListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFil
         return qs
 
 
-class ISO27005RiskDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HistoryMixin, DetailView):
+class ISO27005RiskDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
     scope_parent_lookup = "assessment__scopes"
     model = ISO27005Risk
     template_name = "risks/iso27005_risk_detail.html"
     context_object_name = "analysis"
     permission_required = "risks.iso27005.read"
+    approval_module = "risks"
+    approval_feature = "iso27005"
+    approve_url_name = "risks:iso27005-approve"
 
 
 class ISO27005RiskCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
@@ -1007,7 +1016,7 @@ class ISO27005RiskCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFo
         return reverse_lazy("risks:iso27005-list")
 
 
-class ISO27005RiskUpdateView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HtmxFormMixin, UpdateView):
+class ISO27005RiskUpdateView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
     scope_parent_lookup = "assessment__scopes"
     model = ISO27005Risk
     form_class = ISO27005RiskForm

@@ -2,7 +2,15 @@ from django.urls import path, reverse_lazy
 from django.views.generic import RedirectView
 
 from . import views
-from .models import Risk, RiskAcceptance, RiskAssessment, RiskTreatmentPlan
+from .models import (
+    ISO27005Risk,
+    Risk,
+    RiskAcceptance,
+    RiskAssessment,
+    RiskTreatmentPlan,
+    Threat,
+    Vulnerability,
+)
 
 app_name = "risks"
 
@@ -51,17 +59,20 @@ urlpatterns = [
     path("threats/<uuid:pk>/", views.ThreatDetailView.as_view(), name="threat-detail"),
     path("threats/<uuid:pk>/edit/", views.ThreatUpdateView.as_view(), name="threat-update"),
     path("threats/<uuid:pk>/delete/", views.ThreatDeleteView.as_view(), name="threat-delete"),
+    path("threats/<uuid:pk>/approve/", views.ApproveView.as_view(model=Threat, permission_feature="threat", success_url=reverse_lazy("risks:threat-list")), name="threat-approve"),
     # Vulnerabilities
     path("vulnerabilities/", views.VulnerabilityListView.as_view(), name="vulnerability-list"),
     path("vulnerabilities/create/", views.VulnerabilityCreateView.as_view(), name="vulnerability-create"),
     path("vulnerabilities/<uuid:pk>/", views.VulnerabilityDetailView.as_view(), name="vulnerability-detail"),
     path("vulnerabilities/<uuid:pk>/edit/", views.VulnerabilityUpdateView.as_view(), name="vulnerability-update"),
     path("vulnerabilities/<uuid:pk>/delete/", views.VulnerabilityDeleteView.as_view(), name="vulnerability-delete"),
+    path("vulnerabilities/<uuid:pk>/approve/", views.ApproveView.as_view(model=Vulnerability, permission_feature="vulnerability", success_url=reverse_lazy("risks:vulnerability-list")), name="vulnerability-approve"),
     # ISO 27005 analyses
     path("iso27005/", views.ISO27005RiskListView.as_view(), name="iso27005-list"),
     path("iso27005/create/", views.ISO27005RiskCreateView.as_view(), name="iso27005-create"),
     path("iso27005/<uuid:pk>/", views.ISO27005RiskDetailView.as_view(), name="iso27005-detail"),
     path("iso27005/<uuid:pk>/edit/", views.ISO27005RiskUpdateView.as_view(), name="iso27005-update"),
     path("iso27005/<uuid:pk>/delete/", views.ISO27005RiskDeleteView.as_view(), name="iso27005-delete"),
+    path("iso27005/<uuid:pk>/approve/", views.ApproveView.as_view(model=ISO27005Risk, permission_feature="iso27005", success_url=reverse_lazy("risks:iso27005-list")), name="iso27005-approve"),
     path("iso27005/<uuid:pk>/consolidate/", views.ISO27005ConsolidateView.as_view(), name="iso27005-consolidate"),
 ]

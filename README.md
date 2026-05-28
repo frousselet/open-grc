@@ -59,9 +59,9 @@ Manage your organisation's security posture, track compliance with regulatory fr
 | Risk Assessments | ISO 27005 and EBIOS RM methodologies |
 | Risk Criteria | Configurable likelihood/impact scales with dynamic risk matrix generation |
 | Risks | Three-level tracking (initial, current, residual) with treatment decisions (accept, mitigate, transfer, avoid) and a frozen criteria snapshot so historical scores remain immutable when the matrix is edited |
-| Threat Catalog | Reusable threats by type (deliberate, accidental, environmental) and origin |
-| Vulnerability Catalog | Reusable vulnerabilities with severity, CVE references and remediation guidance |
-| ISO 27005 Analysis | Atomic threat x vulnerability risk scenarios with combined likelihood/impact calculation |
+| Threat Catalog | Reusable threats by type (deliberate, accidental, environmental) and origin, with approval workflow |
+| Vulnerability Catalog | Reusable vulnerabilities with severity, CVE references, remediation guidance and approval workflow |
+| ISO 27005 Analysis | Atomic threat x vulnerability risk scenarios with combined likelihood/impact calculation and approval workflow |
 | Treatment Plans | Structured remediation with ordered actions, progress tracking, cost estimates and linkage to compliance action plans |
 | Risk Acceptance | Formal acceptance records with expiry dates, conditions, review tracking and two-step approval workflow |
 | Risk Matrices | Visual heatmaps (current vs residual) |

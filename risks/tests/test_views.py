@@ -717,6 +717,87 @@ class TestVulnerabilityDeleteView:
         assert not Vulnerability.objects.filter(pk=pk).exists()
 
 
+class TestThreatApproveView:
+    def test_approve_threat(self):
+        client, user = _superuser_client()
+        threat = Threat.objects.create(name="Phish", type=ThreatType.DELIBERATE)
+        assert threat.is_approved is False
+        resp = client.post(reverse("risks:threat-approve", args=[threat.pk]))
+        assert resp.status_code == 302
+        threat.refresh_from_db()
+        assert threat.is_approved is True
+        assert threat.approved_by == user
+
+    def test_detail_exposes_approve_url(self):
+        client, _ = _superuser_client()
+        threat = Threat.objects.create(name="Phish2", type=ThreatType.DELIBERATE)
+        resp = client.get(reverse("risks:threat-detail", args=[threat.pk]))
+        assert resp.status_code == 200
+        assert reverse("risks:threat-approve", args=[threat.pk]).encode() in resp.content
+
+    def test_update_resets_approval(self):
+        client, user = _superuser_client()
+        threat = Threat.objects.create(
+            name="ApprovedThreat", type=ThreatType.DELIBERATE,
+            is_approved=True, approved_by=user,
+        )
+        resp = client.post(
+            reverse("risks:threat-update", args=[threat.pk]),
+            {"name": "Renamed", "type": ThreatType.DELIBERATE, "status": "active"},
+        )
+        assert resp.status_code == 302
+        threat.refresh_from_db()
+        assert threat.is_approved is False
+        assert threat.approved_by is None
+
+
+class TestVulnerabilityApproveView:
+    def test_approve_vulnerability(self):
+        client, user = _superuser_client()
+        vuln = Vulnerability.objects.create(name="VulnApprove", severity="medium")
+        assert vuln.is_approved is False
+        resp = client.post(reverse("risks:vulnerability-approve", args=[vuln.pk]))
+        assert resp.status_code == 302
+        vuln.refresh_from_db()
+        assert vuln.is_approved is True
+        assert vuln.approved_by == user
+
+    def test_detail_exposes_approve_url(self):
+        client, _ = _superuser_client()
+        vuln = Vulnerability.objects.create(name="VulnApprove2", severity="low")
+        resp = client.get(reverse("risks:vulnerability-detail", args=[vuln.pk]))
+        assert resp.status_code == 200
+        assert reverse("risks:vulnerability-approve", args=[vuln.pk]).encode() in resp.content
+
+
+class TestISO27005RiskApproveView:
+    def _make_analysis(self):
+        threat = Threat.objects.create(name="T-iso", type=ThreatType.DELIBERATE)
+        vuln = Vulnerability.objects.create(name="V-iso", severity="medium")
+        assessment = RiskAssessmentFactory()
+        from risks.models import ISO27005Risk
+        return ISO27005Risk.objects.create(
+            assessment=assessment, threat=threat, vulnerability=vuln,
+        )
+
+    def test_approve_iso27005(self):
+        client, user = _superuser_client()
+        analysis = self._make_analysis()
+        assert analysis.is_approved is False
+        resp = client.post(reverse("risks:iso27005-approve", args=[analysis.pk]))
+        assert resp.status_code == 302
+        analysis.refresh_from_db()
+        assert analysis.is_approved is True
+        assert analysis.approved_by == user
+
+    def test_detail_exposes_approve_url(self):
+        client, _ = _superuser_client()
+        analysis = self._make_analysis()
+        resp = client.get(reverse("risks:iso27005-detail", args=[analysis.pk]))
+        assert resp.status_code == 200
+        assert reverse("risks:iso27005-approve", args=[analysis.pk]).encode() in resp.content
+
+
 # ── Risk Criteria Views ─────────────────────────────────────
 
 

@@ -16,6 +16,7 @@
   </div>
 </div>
 {% help_modal "risks.threat_detail" %}
+{% include "includes/approval_badge.html" with object=threat %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">
   <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">{% trans "General" %}</a></li>

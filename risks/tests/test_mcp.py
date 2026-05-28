@@ -8,8 +8,14 @@ from accounts.tests.factories import UserFactory
 from compliance.tests.factories import ComplianceActionPlanFactory
 from mcp.server import McpServer
 from mcp.tools import register_all_tools
-from risks.models import RiskAcceptance, RiskTreatmentPlan
-from risks.tests.factories import RiskFactory
+from risks.models import (
+    ISO27005Risk,
+    RiskAcceptance,
+    RiskTreatmentPlan,
+    Threat,
+    Vulnerability,
+)
+from risks.tests.factories import RiskAssessmentFactory, RiskFactory
 
 
 pytestmark = pytest.mark.django_db
@@ -201,6 +207,65 @@ class TestGenerateRiskRegisterMCP:
         report = Report.objects.get(pk=result["id"])
         assert report.file_content
         assert report.file_name.endswith(".xlsx")
+
+class TestThreatVulnerabilityIso27005ApproveMCP:
+    """B1: approve_threat, approve_vulnerability, approve_iso27005_risk."""
+
+    def setup_method(self):
+        self.srv = McpServer()
+        register_all_tools(self.srv)
+        self.user = UserFactory(is_superuser=True)
+
+    def test_approve_tools_registered(self):
+        for tool_name in (
+            "approve_threat",
+            "approve_vulnerability",
+            "approve_iso27005_risk",
+        ):
+            assert tool_name in self.srv._tools
+
+    def test_approve_threat(self):
+        threat = Threat.objects.create(name="ApproveT", type="deliberate")
+        result = _call_tool(
+            self.srv, self.user, "approve_threat", {"id": str(threat.pk)},
+        )
+        assert "error" not in result, result
+        threat.refresh_from_db()
+        assert threat.is_approved is True
+        assert threat.approved_by == self.user
+
+    def test_approve_vulnerability(self):
+        vuln = Vulnerability.objects.create(name="ApproveV", severity="medium")
+        result = _call_tool(
+            self.srv, self.user, "approve_vulnerability", {"id": str(vuln.pk)},
+        )
+        assert "error" not in result, result
+        vuln.refresh_from_db()
+        assert vuln.is_approved is True
+
+    def test_approve_iso27005_risk(self):
+        threat = Threat.objects.create(name="T-mcp", type="deliberate")
+        vuln = Vulnerability.objects.create(name="V-mcp", severity="medium")
+        analysis = ISO27005Risk.objects.create(
+            assessment=RiskAssessmentFactory(),
+            threat=threat, vulnerability=vuln,
+        )
+        result = _call_tool(
+            self.srv, self.user, "approve_iso27005_risk",
+            {"id": str(analysis.pk)},
+        )
+        assert "error" not in result, result
+        analysis.refresh_from_db()
+        assert analysis.is_approved is True
+
+
+class TestGenerateRiskRegisterMCPFilters:
+    """Status filter test, kept separate from the registration class."""
+
+    def setup_method(self):
+        self.srv = McpServer()
+        register_all_tools(self.srv)
+        self.user = UserFactory(is_superuser=True)
 
     def test_filter_by_status(self):
         RiskFactory(name="StatusKeep", status="analyzed")
