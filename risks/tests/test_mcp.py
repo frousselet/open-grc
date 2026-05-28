@@ -175,3 +175,54 @@ class TestTreatmentPlanActionPlanLinkMCP:
             {"treatment_plan_id": str(plan.pk), "action_plan_ids": [str(uuid.uuid4())]},
         )
         assert "error" in result
+
+
+class TestGenerateRiskRegisterMCP:
+    def setup_method(self):
+        self.srv = McpServer()
+        register_all_tools(self.srv)
+        self.user = UserFactory(is_superuser=True)
+
+    def test_tool_is_registered(self):
+        assert "generate_risk_register" in self.srv._tools
+
+    def test_generates_report(self):
+        from reports.constants import ReportType
+        from reports.models import Report
+        RiskFactory.create_batch(2)
+        result = _call_tool(
+            self.srv, self.user, "generate_risk_register", {},
+        )
+        assert "error" not in result, result
+        assert result["report_type"] == ReportType.RISK_REGISTER
+        assert result["status"] == "completed"
+        assert result["file_name"].endswith(".xlsx")
+        # Persisted Report
+        report = Report.objects.get(pk=result["id"])
+        assert report.file_content
+        assert report.file_name.endswith(".xlsx")
+
+    def test_filter_by_status(self):
+        RiskFactory(name="StatusKeep", status="analyzed")
+        RiskFactory(name="StatusDrop", status="closed")
+        result = _call_tool(
+            self.srv, self.user, "generate_risk_register",
+            {"status": "analyzed"},
+        )
+        assert "error" not in result, result
+        from reports.models import Report
+        report = Report.objects.get(pk=result["id"])
+        content = bytes(report.file_content)
+        # Load the workbook and assert on the actual cell values.
+        import io
+        from openpyxl import load_workbook
+        wb = load_workbook(io.BytesIO(content))
+        ws = wb.active
+        all_values = []
+        for row in ws.iter_rows(min_row=5):
+            for c in row:
+                if c.value:
+                    all_values.append(str(c.value))
+        joined = "\n".join(all_values)
+        assert "StatusKeep" in joined
+        assert "StatusDrop" not in joined

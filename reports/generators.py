@@ -351,3 +351,179 @@ def generate_audit_report_pdf(assessment, user):
     filename = f"Audit_Report_{assessment.reference}_{date_str}.pdf"
 
     return filename, pdf_bytes
+
+
+# ── Risk register XLSX ────────────────────────────────────────
+
+
+RISK_REGISTER_COLUMNS = [
+    "Reference",
+    "Name",
+    "Assessment",
+    "Source",
+    "Threats",
+    "Vulnerabilities",
+    "Essential assets",
+    "Support assets",
+    "Linked requirements",
+    "Initial likelihood",
+    "Initial impact",
+    "Initial level",
+    "Current likelihood",
+    "Current impact",
+    "Current level",
+    "Residual likelihood",
+    "Residual impact",
+    "Residual level",
+    "Treatment decision",
+    "Treatment plans",
+    "Owner",
+    "Priority",
+    "Status",
+    "Review date",
+    "Approved",
+    "Created at",
+]
+
+
+def _risk_row(risk):
+    """Return a list of cell values matching RISK_REGISTER_COLUMNS for one Risk."""
+    threats = ", ".join(
+        sorted({src.threat.name for src in risk.iso27005_sources.all() if src.threat_id})
+    )
+    vulnerabilities = ", ".join(
+        sorted({src.vulnerability.name for src in risk.iso27005_sources.all() if src.vulnerability_id})
+    )
+    essential = ", ".join(sorted(a.name for a in risk.affected_essential_assets.all()))
+    support = ", ".join(sorted(a.name for a in risk.affected_support_assets.all()))
+    requirements = ", ".join(
+        sorted(
+            f"{r.requirement_number or r.reference}"
+            for r in risk.linked_requirements.all()
+        )
+    )
+    treatment_plans = ", ".join(
+        sorted(f"{tp.reference} {tp.name}" for tp in risk.treatment_plans.all())
+    )
+    owner_name = ""
+    if risk.risk_owner_id:
+        owner = risk.risk_owner
+        owner_name = (
+            getattr(owner, "display_name", "")
+            or getattr(owner, "email", "")
+            or str(owner)
+        )
+    return [
+        risk.reference or "",
+        risk.name or "",
+        str(risk.assessment) if risk.assessment_id else "",
+        risk.get_risk_source_display(),
+        threats,
+        vulnerabilities,
+        essential,
+        support,
+        requirements,
+        risk.initial_likelihood,
+        risk.initial_impact,
+        risk.initial_risk_level,
+        risk.current_likelihood,
+        risk.current_impact,
+        risk.current_risk_level,
+        risk.residual_likelihood,
+        risk.residual_impact,
+        risk.residual_risk_level,
+        risk.get_treatment_decision_display(),
+        treatment_plans,
+        owner_name,
+        risk.get_priority_display(),
+        risk.get_status_display(),
+        risk.review_date.isoformat() if risk.review_date else "",
+        "yes" if risk.is_approved else "no",
+        risk.created_at.replace(tzinfo=None).isoformat(timespec="seconds")
+        if risk.created_at
+        else "",
+    ]
+
+
+def generate_risk_register_xlsx(risks_qs, user):
+    """Generate an Excel workbook listing the risks in `risks_qs`.
+
+    Returns a tuple (filename, content_bytes). The caller is responsible for
+    filtering `risks_qs` by scope and any other criteria before calling.
+    """
+    import io
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment, Font, PatternFill
+    from openpyxl.utils import get_column_letter
+
+    now = timezone.now()
+    org_name = ""
+    try:
+        org_name = CompanySettings.get().name or ""
+    except Exception:
+        org_name = ""
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Risk register"
+
+    # Title row
+    ws.append([f"Risk register - {org_name}".strip(" -")])
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(RISK_REGISTER_COLUMNS))
+    title_cell = ws.cell(row=1, column=1)
+    title_cell.font = Font(bold=True, size=14)
+    title_cell.alignment = Alignment(horizontal="center")
+
+    # Generation metadata
+    generated_by = ""
+    if user:
+        generated_by = getattr(user, "display_name", "") or getattr(user, "email", "")
+    ws.append([
+        f"Generated at {now.strftime('%Y-%m-%d %H:%M')} - by {generated_by}".strip(" -"),
+    ])
+    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=len(RISK_REGISTER_COLUMNS))
+    meta_cell = ws.cell(row=2, column=1)
+    meta_cell.font = Font(italic=True, color="666666")
+    meta_cell.alignment = Alignment(horizontal="center")
+
+    ws.append([])  # spacer
+
+    # Header row
+    header_row_idx = ws.max_row + 1
+    ws.append(RISK_REGISTER_COLUMNS)
+    header_fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF")
+    for col_idx in range(1, len(RISK_REGISTER_COLUMNS) + 1):
+        cell = ws.cell(row=header_row_idx, column=col_idx)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+
+    # Data rows
+    risks_qs = (
+        risks_qs.select_related("assessment", "risk_owner")
+        .prefetch_related(
+            "affected_essential_assets",
+            "affected_support_assets",
+            "linked_requirements",
+            "iso27005_sources__threat",
+            "iso27005_sources__vulnerability",
+            "treatment_plans",
+        )
+        .order_by("reference")
+    )
+    for risk in risks_qs:
+        ws.append(_risk_row(risk))
+
+    # Auto-size columns based on header length (no per-cell width measurement)
+    for col_idx, header in enumerate(RISK_REGISTER_COLUMNS, start=1):
+        width = max(12, min(40, len(header) + 4))
+        ws.column_dimensions[get_column_letter(col_idx)].width = width
+    ws.freeze_panes = ws.cell(row=header_row_idx + 1, column=1)
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    date_str = now.strftime("%Y%m%d_%H%M%S")
+    filename = f"Risk_register_{date_str}.xlsx"
+    return filename, buf.getvalue()

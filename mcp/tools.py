@@ -4708,6 +4708,97 @@ def _register_reports_tools(server):
         generate_audit_report,
     )
 
+    # Generate risk register
+    @require_perm("risks.export.read")
+    def generate_risk_register(user, arguments):
+        """Generate an Excel export of the risk register.
+
+        Parameters
+        ----------
+        scope_ids : list[str], optional
+            Restrict the export to risks whose assessment has at least one of
+            these scopes. If omitted, the export is filtered by the user's
+            allowed scopes (or unfiltered for superusers).
+        assessment_id : str, optional
+            Restrict the export to risks belonging to this assessment.
+        status : str, optional
+            Filter by risk status.
+        priority : str, optional
+            Filter by risk priority.
+        """
+        Risk = _get_model("risks", "Risk")
+        qs = Risk.objects.all()
+
+        # Scope filtering: explicit scope_ids wins; otherwise apply user scopes.
+        scope_ids = arguments.get("scope_ids")
+        if scope_ids:
+            qs = qs.filter(assessment__scopes__id__in=scope_ids).distinct()
+        elif not user.is_superuser:
+            user_scopes = user.get_allowed_scope_ids()
+            if user_scopes is not None:
+                qs = qs.filter(assessment__scopes__id__in=user_scopes).distinct()
+
+        assessment_id = arguments.get("assessment_id")
+        if assessment_id:
+            qs = qs.filter(assessment_id=assessment_id)
+        status_filter = arguments.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        priority = arguments.get("priority")
+        if priority:
+            qs = qs.filter(priority=priority)
+
+        from reports.constants import ReportStatus, ReportType
+        from reports.generators import generate_risk_register_xlsx
+
+        try:
+            filename, content = generate_risk_register_xlsx(qs, user)
+            report = Report.objects.create(
+                report_type=ReportType.RISK_REGISTER,
+                name=f"Risk register - {timezone.now().strftime('%Y-%m-%d %H:%M')}",
+                status=ReportStatus.COMPLETED,
+                created_by=user,
+                file_content=content,
+                file_name=filename,
+            )
+        except Exception as exc:
+            Report.objects.create(
+                report_type=ReportType.RISK_REGISTER,
+                name="Risk register",
+                status=ReportStatus.FAILED,
+                created_by=user,
+            )
+            return _error(f"Failed to generate risk register: {exc}")
+
+        return _serialize_obj(report, report_fields)
+
+    server.register_tool(
+        "generate_risk_register",
+        (
+            "Generate an Excel (.xlsx) export of the risk register. "
+            "Optional filters: scope_ids, assessment_id, status, priority. "
+            "When omitted, scope filtering falls back to the user's allowed "
+            "scopes. The generated file is persisted as a Report."
+        ),
+        {
+            "type": "object",
+            "properties": {
+                "scope_ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Restrict to risks under these scope UUIDs.",
+                },
+                "assessment_id": {
+                    "type": "string",
+                    "description": "Restrict to risks under this assessment UUID.",
+                },
+                "status": {"type": "string", "description": "Filter by risk status."},
+                "priority": {"type": "string", "description": "Filter by risk priority."},
+            },
+        },
+        generate_risk_register,
+    )
+
     # Delete report
     @require_perm("reports.report.delete")
     def delete_report(user, arguments):

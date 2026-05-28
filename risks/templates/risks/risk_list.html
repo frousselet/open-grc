@@ -1,17 +1,23 @@
 {% extends "base.html" %}
-{% load i18n table_tags %}
+{% load i18n table_tags accounts_tags %}
 
 {% block title %}{% trans "Risk register" %} — Fairway{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
+{% has_perm "risks.export.read" as can_export_risks %}
 <div class="d-flex align-items-center mb-3">
   <h1 class="mb-0">{% trans "Risk register" %}</h1>
   <div class="header-actions">
     <a href="{% url 'risks:assessment-list' %}" class="btn-header-action" title="{% trans 'Go to assessments' %}">
       <i class="bi bi-clipboard-data"></i>
     </a>
+    {% if can_export_risks %}
+    <a href="{% url 'risks:risk-register-export-xlsx' %}?{{ request.GET.urlencode }}" class="btn-header-action" title="{% trans 'Export to Excel' %}">
+      <i class="bi bi-file-earmark-excel"></i>
+    </a>
+    {% endif %}
   </div>
 </div>
 <div class="alert alert-info mb-3">

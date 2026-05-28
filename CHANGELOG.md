@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Risk` and `ISO27005Risk` now freeze the risk matrix and criteria metadata (`criteria_snapshot` JSONField) at first evaluation, so later edits to `RiskCriteria` do not silently rewrite historical scores. A "Scoring snapshot" panel on the risk detail page surfaces the captured criteria name, version and timestamp
 - Data migration `risks.0016_risk_criteria_snapshot` backfills `criteria_snapshot` for every already-evaluated risk and ISO 27005 analysis using the current state of its assessment's criteria
 - M2M link between `RiskTreatmentPlan` and `compliance.ComplianceActionPlan` (`related_action_plans` / `related_treatment_plans`). The link is exposed on the treatment plan detail page, on the action plan detail page (Linkages section), in the REST serializer and through four MCP tools: `list_treatment_plan_action_plans`, `link_treatment_plan_action_plans`, `unlink_treatment_plan_action_plans`, `set_treatment_plan_action_plans`
+- Risk register Excel (.xlsx) export at `GET /risks/register/export/xlsx/` and via the MCP tool `generate_risk_register`. The export honours the active scope, assessment, status and priority filters and is persisted as a `Report` of type `risk_register` for traceability. New `RISK_REGISTER` ReportType.
 
 ### Changed
 

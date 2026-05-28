@@ -281,6 +281,7 @@ Additional tools:
 | `list_reports` | List generated reports with optional type filter |
 | `generate_soa_report` | Generate a Statement of Applicability (SoA) PDF for selected frameworks |
 | `generate_audit_report` | Generate an audit report PDF for a completed assessment |
+| `generate_risk_register` | Generate an Excel (.xlsx) export of the risk register with optional scope/assessment/status/priority filters |
 | `generate_management_review_pptx` | Generate a management review PowerPoint presentation (ISO 27001 clause 9.3) |
 | `generate_management_review_docx` | Generate a management review Word meeting minutes (ISO 27001 clause 9.3) |
 | `list_management_reviews` | List persistent management reviews (ISO 27001:2022 clause 9.3) with status and scope filters |

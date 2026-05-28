@@ -10649,6 +10649,9 @@ msgstr ""
 "Plans d'action de conformité qui implémentent ou contribuent à ce plan de "
 "traitement. Le lien est symétrique : il apparaît des deux côtés."
 
+msgid "Export to Excel"
+msgstr "Exporter vers Excel"
+
 #~ msgid "Compliance of evaluated requirements"
 #~ msgstr "Conformité des exigences évaluées"
 

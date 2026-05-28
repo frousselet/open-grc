@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -575,6 +575,67 @@ class RiskDeleteView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMix
     template_name = "risks/confirm_delete.html"
     permission_required = "risks.risk.delete"
     success_url = reverse_lazy("risks:risk-list")
+
+
+class RiskRegisterExportView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    """Generate and return an Excel export of the risk register.
+
+    Applies the same scope filtering as RiskListView; honours the same
+    optional `assessment`, `status` and `priority` query parameters so that
+    the export matches what the user sees in the UI. The generated file is
+    also persisted as a `Report` for traceability.
+    """
+
+    permission_required = "risks.export.read"
+
+    def get(self, request, *args, **kwargs):
+        qs = Risk.objects.all()
+        user = request.user
+        if not user.is_superuser:
+            scope_ids = user.get_allowed_scope_ids()
+            if scope_ids is not None:
+                qs = qs.filter(assessment__scopes__id__in=scope_ids).distinct()
+
+        assessment_id = request.GET.get("assessment")
+        if assessment_id:
+            qs = qs.filter(assessment_id=assessment_id)
+        status_filter = request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        priority = request.GET.get("priority")
+        if priority:
+            qs = qs.filter(priority=priority)
+
+        from reports.constants import ReportStatus, ReportType
+        from reports.generators import generate_risk_register_xlsx
+        from reports.models import Report
+
+        try:
+            filename, content = generate_risk_register_xlsx(qs, user)
+        except Exception:
+            Report.objects.create(
+                report_type=ReportType.RISK_REGISTER,
+                name="Risk register",
+                status=ReportStatus.FAILED,
+                created_by=user,
+            )
+            raise
+
+        Report.objects.create(
+            report_type=ReportType.RISK_REGISTER,
+            name=f"Risk register - {timezone.now().strftime('%Y-%m-%d %H:%M')}",
+            status=ReportStatus.COMPLETED,
+            created_by=user,
+            file_content=content,
+            file_name=filename,
+        )
+
+        response = HttpResponse(
+            content,
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return response
 
 
 # ── Treatment Plan ──────────────────────────────────────────
