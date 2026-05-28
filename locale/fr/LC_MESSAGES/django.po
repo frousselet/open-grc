@@ -10670,6 +10670,53 @@ msgstr "Risques traités"
 msgid "Advanced filters"
 msgstr "Filtres avancés"
 
+msgid "selected"
+msgstr "sélectionné(s)"
+
+msgid "Approve selected"
+msgstr "Approuver la sélection"
+
+msgid "Delete selected"
+msgstr "Supprimer la sélection"
+
+msgid "Delete the selected risks?"
+msgstr "Supprimer les risques sélectionnés ?"
+
+msgid "Delete this action?"
+msgstr "Supprimer cette action ?"
+
+msgid "Unsupported bulk action."
+msgstr "Action groupée non prise en charge."
+
+msgid "No risks selected."
+msgstr "Aucun risque sélectionné."
+
+msgid "You do not have permission to approve risks."
+msgstr "Vous n'avez pas la permission d'approuver les risques."
+
+msgid "You do not have permission to delete risks."
+msgstr "Vous n'avez pas la permission de supprimer les risques."
+
+#, python-format
+msgid "%(count)d risk(s) approved."
+msgstr "%(count)d risque(s) approuvé(s)."
+
+#, python-format
+msgid "%(count)d risk(s) deleted."
+msgstr "%(count)d risque(s) supprimé(s)."
+
+msgid "Add action"
+msgstr "Ajouter une action"
+
+msgid "treatment action"
+msgstr "action de traitement"
+
+msgid "Edit treatment action"
+msgstr "Modifier l'action de traitement"
+
+msgid "New treatment action"
+msgstr "Nouvelle action de traitement"
+
 msgid "Decision:"
 msgstr "Décision :"
 
