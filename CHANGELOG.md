@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Risk register Excel (.xlsx) export at `GET /risks/register/export/xlsx/` and via the MCP tool `generate_risk_register`. The export honours the active scope, assessment, status and priority filters and is persisted as a `Report` of type `risk_register` for traceability. New `RISK_REGISTER` ReportType.
 - Approval workflow extended to `Threat`, `Vulnerability` and `ISO27005Risk`: REST `approve`/`reject` actions, MCP tools `approve_threat`/`approve_vulnerability`/`approve_iso27005_risk`, `/<entity>/<pk>/approve/` UI endpoints, approval badge on each detail page. New permissions `risks.threat.approve`, `risks.vulnerability.approve`, `risks.iso27005.approve` granted by default to Super Administrateur, Administrateur and RSSI / DPO
 - Factories for `Threat`, `Vulnerability`, `RiskAcceptance`, `RiskTreatmentPlan`, `TreatmentAction` and `ISO27005Risk` in `risks/tests/factories.py`, plus full approval-workflow coverage (REST + MCP + UI) for `RiskAssessment`, `Risk` and `RiskTreatmentPlan` to round out the suite started in P0-A1 and P0-B1
+- Management command `expire_risk_acceptances` (sets `RiskAcceptance.status = EXPIRED` past `valid_until`, lists upcoming expirations within `--reminder-days`, supports `--dry-run`) and `mark_overdue_treatment_plans` (sets `RiskTreatmentPlan.status = OVERDUE` past `target_date`, supports `--dry-run`). Both are documented in the README as daily cron jobs.
 
 ### Changed
 

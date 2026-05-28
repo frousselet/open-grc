@@ -415,6 +415,29 @@ docker compose exec web python manage.py migrate
 docker compose exec web python manage.py createsuperuser
 ```
 
+### Scheduled lifecycle commands
+
+Two management commands keep the risk register in sync with time and are intended to be run **once a day** by a cron job (host or container side):
+
+```bash
+# Set RiskAcceptance.status = EXPIRED for any active acceptance past its
+# valid_until date; print upcoming expirations within --reminder-days
+# (default 30) for operators to act on.
+docker compose exec web python manage.py expire_risk_acceptances
+
+# Set RiskTreatmentPlan.status = OVERDUE for any in-flight plan whose
+# target_date has passed (skips COMPLETED, CANCELLED and already-OVERDUE).
+docker compose exec web python manage.py mark_overdue_treatment_plans
+```
+
+Both accept `--dry-run` to preview changes. A typical host cron entry:
+
+```cron
+# /etc/cron.d/fairway-lifecycle
+15 2 * * * cd /opt/fairway && docker compose exec -T web python manage.py expire_risk_acceptances
+20 2 * * * cd /opt/fairway && docker compose exec -T web python manage.py mark_overdue_treatment_plans
+```
+
 ---
 
 ## Licence
