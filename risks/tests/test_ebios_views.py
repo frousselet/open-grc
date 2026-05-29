@@ -278,6 +278,41 @@ class TestWorkshopW2W5Views:
     def setup_method(self):
         self.user = UserFactory(is_superuser=True)
 
+    def test_get_create_forms_render(self, client):
+        """Regression: each create form should render its GET page without a template error."""
+        from risks.tests.factories import (
+            EbiosSummaryFactory,
+            OperationalScenarioFactory,
+            RiskSourceFactory,
+            StrategicScenarioFactory,
+        )
+        client.force_login(self.user)
+        assessment = EbiosAssessmentFactory()
+        # Assessment-scoped create endpoints
+        for name in [
+            "risks:ebios-risk-source-create",
+            "risks:ebios-sr-ov-pair-create",
+            "risks:ebios-ecosystem-create",
+            "risks:ebios-strategic-scenario-create",
+            "risks:ebios-operational-scenario-create",
+        ]:
+            url = reverse(name, kwargs={"assessment_pk": assessment.pk})
+            response = client.get(url)
+            assert response.status_code == 200, f"GET {name} returned {response.status_code}"
+        # Parent-scoped create endpoints
+        rs = RiskSourceFactory(assessment=assessment)
+        url = reverse("risks:ebios-targeted-objective-create", kwargs={"risk_source_pk": rs.pk})
+        assert client.get(url).status_code == 200
+        sc = StrategicScenarioFactory(assessment=assessment)
+        url = reverse("risks:ebios-attack-path-step-create", kwargs={"scenario_pk": sc.pk})
+        assert client.get(url).status_code == 200
+        op = OperationalScenarioFactory(assessment=assessment)
+        url = reverse("risks:ebios-attack-technique-create", kwargs={"scenario_pk": op.pk})
+        assert client.get(url).status_code == 200
+        summary = assessment.ebios_summary
+        url = reverse("risks:ebios-pacs-measure-create", kwargs={"summary_pk": summary.pk})
+        assert client.get(url).status_code == 200
+
     def test_w2_renders_with_risk_sources(self, client):
         from risks.tests.factories import RiskSourceFactory
         client.force_login(self.user)

@@ -21,7 +21,8 @@ Context:
       {% endif %}
       <div class="row g-3">
         {% for field in form %}
-          <div class="col-md-{% if field.field.widget.input_type == 'checkbox' %}12{% elif field|length_is:0 %}12{% else %}6{% endif %}">
+          {% with widget_attrs=field.field.widget.attrs %}
+          <div class="col-md-{% if field.field.widget.input_type == 'checkbox' %}12{% elif widget_attrs.rows %}12{% elif field.field.widget.allow_multiple_selected %}12{% else %}6{% endif %}">
             {% if field.field.widget.input_type == 'checkbox' %}
               <div class="form-check">
                 {{ field }}
@@ -34,6 +35,7 @@ Context:
             {% if field.help_text %}<div class="form-text small">{{ field.help_text }}</div>{% endif %}
             {% for err in field.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
+          {% endwith %}
         {% endfor %}
       </div>
       <div class="d-flex justify-content-between mt-4">
