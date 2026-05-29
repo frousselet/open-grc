@@ -1,86 +1,116 @@
 {% extends "base.html" %}
-{% load i18n scope_tags %}
+{% load i18n scope_tags ui %}
 {% load help_tags %}
 
-{% block title %}{{ role.name }} — Fairway{% endblock %}
+{% block title %}{{ role.name }} - Fairway{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h1 class="mb-0">{{ role.name }}</h1>
-    <small class="ref">{{ role.reference }}</small>
-  </div>
-  <div class="d-flex gap-2">
-    <a href="{% url 'context:role-update' role.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    <a href="{% url 'context:role-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-  </div>
-</div>
+{% page_header role.name reference=role.reference icon="person-badge" %}
+  <a href="{% url 'context:role-update' role.pk %}" class="btn btn-primary"><i class="bi bi-pencil me-1" aria-hidden="true"></i>{% trans "Edit" %}</a>
+  <a href="{% url 'context:role-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+{% endpage_header %}
 {% help_modal "context.role_detail" %}
 {% include "includes/approval_badge.html" %}
 
 {% if role.compliance_alert %}
-<div class="alert alert-danger">{{ role.compliance_alert }}</div>
+<div class="alert alert-danger" role="alert">{{ role.compliance_alert }}</div>
 {% endif %}
 
-<ul class="nav nav-tabs mb-3" role="tablist">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#info">{% trans "Information" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#responsibilities">{% trans "Responsibilities" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#users">{% trans "Users" %}</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">{% trans "History" %}</a></li>
-</ul>
-
-<div class="tab-content">
-  <div class="tab-pane fade show active" id="info">
-    <div class="card">
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card mb-4">
       <div class="card-body">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-3"><i class="bi bi-info-circle me-1" aria-hidden="true"></i>{% trans "Information" %}</h6>
         <dl class="row mb-0">
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Scopes" %}</dt><dd class="col-sm-9">{% grouped_scope_badges role.scopes.all %}{% if not role.scopes.all %}<span style="color:var(--text-muted)">—</span>{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt><dd class="col-sm-9">{{ role.get_type_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Status" %}</dt><dd class="col-sm-9">{{ role.get_status_display }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Mandatory" %}</dt><dd class="col-sm-9">{% if role.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Source standard" %}</dt><dd class="col-sm-9">{{ role.source_standard|default:"—" }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt><dd class="col-sm-9">{{ role.description|default:"—"|safe }}</dd>
-          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Tags" %}</dt>
-          <dd class="col-sm-9">{% for tag in role.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>{% empty %}—{% endfor %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Type" %}</dt>
+          <dd class="col-sm-9">{{ role.get_type_display }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Mandatory" %}</dt>
+          <dd class="col-sm-9">{% if role.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Source standard" %}</dt>
+          <dd class="col-sm-9">{{ role.source_standard|default:"-" }}</dd>
+          <dt class="col-sm-3" style="color:var(--text-muted);font-size:.82rem">{% trans "Description" %}</dt>
+          <dd class="col-sm-9 mb-0">{{ role.description|default:"-"|safe }}</dd>
         </dl>
       </div>
     </div>
-  </div>
-  <div class="tab-pane fade" id="responsibilities">
-    {% if role.responsibilities.all %}
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead><tr><th>{% trans "Description" %}</th><th>{% trans "RACI type" %}</th><th>{% trans "Activity" %}</th></tr></thead>
-          <tbody>
-            {% for resp in role.responsibilities.all %}
-            <tr>
-              <td>{{ resp.description }}</td>
-              <td><span class="badge" style="background:var(--accent-soft);color:var(--accent);font-size:.82rem;padding:.4em .8em">{{ resp.get_raci_type_display }}</span></td>
-              <td>{{ resp.related_activity|default:"—" }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+
+    <details class="card mb-4" open>
+      <summary class="card-body py-2" style="cursor:pointer;user-select:none">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-0 d-inline-flex align-items-center"><i class="bi bi-list-check me-1" aria-hidden="true"></i>{% trans "Responsibilities" %}<span class="badge bg-secondary ms-2 tabular-nums">{{ role.responsibilities.count }}</span></h6>
+      </summary>
+      <div class="card-body pt-0">
+        {% if role.responsibilities.all %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>{% trans "Description" %}</th>
+                <th>{% trans "RACI type" %}</th>
+                <th>{% trans "Activity" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for resp in role.responsibilities.all %}
+              <tr>
+                <td>{{ resp.description }}</td>
+                <td>{% badge resp.raci_type variant="accent" label=resp.get_raci_type_display %}</td>
+                <td>{{ resp.related_activity|default:"-" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        {% empty_state icon="list-check" message=_("No responsibility defined.") %}
+        {% endif %}
       </div>
-    </div>
-    {% else %}
-    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No responsibility defined." %}</p>
-    {% endif %}
+    </details>
+
+    <details class="card mb-4">
+      <summary class="card-body py-2" style="cursor:pointer;user-select:none">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-0 d-inline-flex align-items-center"><i class="bi bi-people me-1" aria-hidden="true"></i>{% trans "Users" %}<span class="badge bg-secondary ms-2 tabular-nums">{{ role.assigned_users.count }}</span></h6>
+      </summary>
+      <div class="card-body pt-0">
+        {% if role.assigned_users.all %}
+        <ul class="list-group">
+          {% for user in role.assigned_users.all %}
+          <li class="list-group-item">{{ user.get_full_name|default:user.username }}</li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        {% empty_state icon="person" message=_("No assigned user.") %}
+        {% endif %}
+      </div>
+    </details>
+
+    <details class="card mb-4">
+      <summary class="card-body py-2" style="cursor:pointer;user-select:none">
+        <h6 class="text-muted text-uppercase small fw-semibold mb-0 d-inline-flex align-items-center"><i class="bi bi-clock-history me-1" aria-hidden="true"></i>{% trans "History" %}</h6>
+      </summary>
+      <div class="card-body pt-0">
+        {% include "includes/history_tab.html" %}
+      </div>
+    </details>
   </div>
-  <div class="tab-pane fade" id="users">
-    {% if role.assigned_users.all %}
-    <ul class="list-group">
-      {% for user in role.assigned_users.all %}
-      <li class="list-group-item">{{ user.get_full_name|default:user.username }}</li>
+
+  <div class="col-lg-4">
+    {% sidebar_card _("Status") icon="info-circle" %}
+      <div class="mb-2 small text-muted">{% trans "Status" %}</div>
+      <div class="mb-3">{% badge role.status type="status" label=role.get_status_display %}</div>
+      <div class="mb-2 small text-muted">{% trans "Scopes" %}</div>
+      <div>
+        {% grouped_scope_badges role.scopes.all %}
+        {% if not role.scopes.all %}<span class="text-muted">-</span>{% endif %}
+      </div>
+    {% endsidebar_card %}
+
+    {% sidebar_card _("Tags") icon="tags" %}
+      {% for tag in role.tags.all %}
+        <span class="badge me-1" style="background-color:{{ tag.color }};color:#fff">{{ tag.name }}</span>
+      {% empty %}
+        <span class="text-muted">-</span>
       {% endfor %}
-    </ul>
-    {% else %}
-    <p style="color:var(--text-muted);font-size:.85rem">{% trans "No assigned user." %}</p>
-    {% endif %}
-  </div>
-  <div class="tab-pane fade" id="history">
-    {% include "includes/history_tab.html" %}
+    {% endsidebar_card %}
   </div>
 </div>
 {% endblock %}

@@ -1,25 +1,22 @@
 {% extends "base.html" %}
-{% load i18n table_tags accounts_tags %}
+{% load i18n table_tags accounts_tags ui %}
 
-{% block title %}{% trans "Risk register" %} — Fairway{% endblock %}
+{% block title %}{% trans "Risk register" %} - Fairway{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
 {% has_perm "risks.export.read" as can_export_risks %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Risk register" %}</h1>
-  <div class="header-actions">
-    <a href="{% url 'risks:assessment-list' %}" class="btn-header-action" title="{% trans 'Go to assessments' %}">
-      <i class="bi bi-clipboard-data"></i>
-    </a>
-    {% if can_export_risks %}
-    <a href="{% url 'risks:risk-register-export-xlsx' %}?{{ request.GET.urlencode }}" class="btn-header-action" title="{% trans 'Export to Excel' %}">
-      <i class="bi bi-file-earmark-excel"></i>
-    </a>
-    {% endif %}
-  </div>
-</div>
+{% page_header _("Risk register") icon="exclamation-triangle" %}
+  <a href="{% url 'risks:assessment-list' %}" class="btn-header-action" title="{% trans 'Go to assessments' %}" aria-label="{% trans 'Go to assessments' %}">
+    <i class="bi bi-clipboard-data" aria-hidden="true"></i>
+  </a>
+  {% if can_export_risks %}
+  <a href="{% url 'risks:risk-register-export-xlsx' %}?{{ request.GET.urlencode }}" class="btn-header-action" title="{% trans 'Export to Excel' %}" aria-label="{% trans 'Export to Excel' %}">
+    <i class="bi bi-file-earmark-excel" aria-hidden="true"></i>
+  </a>
+  {% endif %}
+{% endpage_header %}
 <div class="alert alert-info mb-3">
   <i class="bi bi-info-circle me-2"></i>
   {% trans "Risks are identified through methodology-driven assessments. Open an assessment and use its methodology workflow to create risks." %}
@@ -169,21 +166,19 @@
           <td style="font-size:.85rem">{{ r.assessment.reference }}</td>
           <td style="font-size:.85rem">{{ r.get_risk_source_display }}</td>
           <td>
-            <span class="badge text-bg-{% if r.priority == 'critical' %}danger{% elif r.priority == 'high' %}warning{% elif r.priority == 'medium' %}info{% else %}secondary{% endif %}">
-              {{ r.get_priority_display }}
-            </span>
+            {% badge r.priority type="severity" label=r.get_priority_display %}
           </td>
-          <td style="font-weight:600;font-size:.85rem">{{ r.current_risk_level|default:"—" }}</td>
+          <td class="tabular-nums" style="font-weight:600;font-size:.85rem">{{ r.current_risk_level|default:"-" }}</td>
           <td style="font-size:.85rem">{{ r.get_treatment_decision_display }}</td>
           <td style="font-size:.85rem">{{ r.get_status_display }}</td>
           <td style="font-size:.85rem">{{ r.risk_owner|default:"—" }}</td>
           <td>{% for tag in r.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
           <td class="text-end">
-            <a hx-get="{% url 'risks:risk-update' r.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+            <a hx-get="{% url 'risks:risk-update' r.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}: {{ r.reference }}"><i class="bi bi-pencil" aria-hidden="true"></i></a>
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="12" class="text-center py-4" style="color:var(--text-muted)">{% trans "No risks recorded." %}</td></tr>
+        {% empty_state icon="shield-check" title=_("No risks recorded yet.") message=_("Risks are identified through methodology-driven assessments. Open an assessment and use its workflow to create them.") colspan=12 %}
         {% endfor %}
       </tbody>
     </table>
