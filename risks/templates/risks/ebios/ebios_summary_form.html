@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Edit EBIOS RM summary" %}{% endblock %}
+
+{% block content %}
+{% with title="Edit EBIOS RM summary" assessment=summary.assessment %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'risks:assessment-list' %}">{% trans "Assessments" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'risks:assessment-detail' pk=assessment.pk %}">{{ assessment.name }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% trans "Summary" %}</li>
+  </ol>
+</nav>
+{% url 'risks:assessment-detail' pk=assessment.pk as cancel_url_resolved %}
+{% include "risks/ebios/_entity_form.html" with title=title icon="flag" cancel_url=cancel_url_resolved %}
+{% endwith %}
+{% endblock %}

@@ -2,21 +2,189 @@
 {% load i18n %}
 
 {% block workshop_main %}
-<div class="card">
-  <div class="card-header">
-    <h5 class="mb-0"><i class="bi bi-flag me-2"></i>{% trans "Summary and PACS" %}</h5>
+{# Summary card #}
+<div class="card mb-3">
+  <div class="card-header d-flex align-items-center">
+    <h5 class="mb-0"><i class="bi bi-flag me-2"></i>{% trans "Summary" %}</h5>
+    <span class="ms-auto badge text-bg-{% if summary.status == 'validated' %}success{% elif summary.status == 'under_review' %}warning{% elif summary.status == 'in_progress' %}primary{% else %}secondary{% endif %}">
+      {{ summary.get_status_display }}
+    </span>
   </div>
   <div class="card-body">
-    <div class="alert alert-info mb-3">
-      <i class="bi bi-info-circle me-2"></i>
-      {% trans "The summary editor and PACS measure management UI is under construction." %}
+    <dl class="row mb-3">
+      <dt class="col-sm-4">{% trans "Reference" %}</dt>
+      <dd class="col-sm-8"><code>{{ summary.reference }}</code></dd>
+
+      {% if summary.next_strategic_cycle_date %}
+      <dt class="col-sm-4">{% trans "Next strategic cycle date" %}</dt>
+      <dd class="col-sm-8">{{ summary.next_strategic_cycle_date|date:"d/m/Y" }}</dd>
+      {% endif %}
+
+      {% if summary.next_operational_cycle_date %}
+      <dt class="col-sm-4">{% trans "Next operational cycle date" %}</dt>
+      <dd class="col-sm-8">{{ summary.next_operational_cycle_date|date:"d/m/Y" }}</dd>
+      {% endif %}
+    </dl>
+
+    {% if summary.residual_risk_strategy %}
+    <details class="mb-2" open>
+      <summary class="text-muted small">{% trans "Residual risk strategy" %}</summary>
+      <p class="mt-2">{{ summary.residual_risk_strategy|linebreaksbr }}</p>
+    </details>
+    {% endif %}
+
+    {% if summary.monitoring_plan %}
+    <details class="mb-2">
+      <summary class="text-muted small">{% trans "Monitoring plan" %}</summary>
+      <p class="mt-2">{{ summary.monitoring_plan|linebreaksbr }}</p>
+    </details>
+    {% endif %}
+
+    {% if summary.pacs_summary %}
+    <details class="mb-0">
+      <summary class="text-muted small">{% trans "PACS summary" %}</summary>
+      <p class="mt-2">{{ summary.pacs_summary|linebreaksbr }}</p>
+    </details>
+    {% endif %}
+  </div>
+  <div class="card-footer text-end">
+    <a href="{% url 'risks:ebios-summary-update' pk=summary.pk %}" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-pencil me-1"></i>{% trans "Edit summary" %}
+    </a>
+  </div>
+</div>
+
+{# Risk mapping snapshots #}
+<div class="card mb-3">
+  <div class="card-header d-flex align-items-center">
+    <h5 class="mb-0"><i class="bi bi-map me-2"></i>{% trans "Risk mapping snapshots" %}</h5>
+    <div class="ms-auto d-flex gap-2">
+      <form method="post" action="{% url 'risks:ebios-summary-capture-mappings' pk=summary.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="slot" value="before">
+        <button type="submit" class="btn btn-sm btn-outline-info">
+          <i class="bi bi-camera me-1"></i>{% trans "Capture before" %}
+        </button>
+      </form>
+      <form method="post" action="{% url 'risks:ebios-summary-capture-mappings' pk=summary.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="slot" value="after">
+        <button type="submit" class="btn btn-sm btn-outline-success">
+          <i class="bi bi-camera-fill me-1"></i>{% trans "Capture after" %}
+        </button>
+      </form>
     </div>
-    <p class="text-muted small mb-0">
-      {% trans "The backend exposes capture mappings at" %}
-      <code>POST /api/v1/risks/ebios/summaries/{id}/capture-mappings/</code>
-      {% trans "and PACS measures at" %}
-      <code>/api/v1/risks/ebios/pacs-measures/</code>.
-    </p>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="small text-muted text-uppercase mb-2">{% trans "Before treatment" %}</div>
+        {% if summary.risk_mapping_before %}
+          <div class="border rounded p-3">
+            <div class="mb-2"><strong>{% trans "Total" %}:</strong> {{ summary.risk_mapping_before.total }}</div>
+            {% if summary.risk_mapping_before.by_current_risk_level %}
+              <div class="small text-muted mb-1">{% trans "Current risk level" %}</div>
+              {% for level, count in summary.risk_mapping_before.by_current_risk_level.items %}
+                <span class="badge text-bg-secondary me-1">{% trans "Level" %} {{ level }} : {{ count }}</span>
+              {% endfor %}
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="border rounded p-3 text-center text-muted small">
+            <i class="bi bi-info-circle me-1"></i>{% trans "No snapshot yet." %}
+          </div>
+        {% endif %}
+      </div>
+      <div class="col-md-6">
+        <div class="small text-muted text-uppercase mb-2">{% trans "After treatment" %}</div>
+        {% if summary.risk_mapping_after %}
+          <div class="border rounded p-3">
+            <div class="mb-2"><strong>{% trans "Total" %}:</strong> {{ summary.risk_mapping_after.total }}</div>
+            {% if summary.risk_mapping_after.by_residual_risk_level %}
+              <div class="small text-muted mb-1">{% trans "Residual risk level" %}</div>
+              {% for level, count in summary.risk_mapping_after.by_residual_risk_level.items %}
+                <span class="badge text-bg-success me-1">{% trans "Level" %} {{ level }} : {{ count }}</span>
+              {% endfor %}
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="border rounded p-3 text-center text-muted small">
+            <i class="bi bi-info-circle me-1"></i>{% trans "No snapshot yet." %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{# PACS measures #}
+<div class="card mb-3">
+  <div class="card-header d-flex align-items-center">
+    <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>{% trans "PACS measures" %}</h5>
+    <span class="ms-auto badge text-bg-secondary me-2">{{ pacs_measures|length }}</span>
+    <a href="{% url 'risks:ebios-pacs-measure-create' summary_pk=summary.pk %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>{% trans "Add" %}
+    </a>
+  </div>
+  <div class="card-body p-0">
+    {% if pacs_measures %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>{% trans "Reference" %}</th>
+            <th>{% trans "Name" %}</th>
+            <th>{% trans "Type" %}</th>
+            <th>{% trans "Priority" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th>{% trans "Target date" %}</th>
+            <th class="text-center">{% trans "Progress" %}</th>
+            <th class="text-end">{% trans "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in pacs_measures %}
+          <tr>
+            <td><code class="small">{{ m.reference }}</code></td>
+            <td>{{ m.name }}</td>
+            <td><span class="badge text-bg-secondary">{{ m.get_measure_type_display }}</span></td>
+            <td>
+              <span class="badge text-bg-{% if m.priority == 'critical' %}danger{% elif m.priority == 'high' %}warning{% elif m.priority == 'medium' %}primary{% else %}secondary{% endif %}">
+                {{ m.get_priority_display }}
+              </span>
+            </td>
+            <td>
+              <span class="badge text-bg-{% if m.status == 'completed' %}success{% elif m.status == 'in_progress' %}primary{% elif m.status == 'overdue' %}danger{% else %}secondary{% endif %}">
+                {{ m.get_status_display }}
+              </span>
+            </td>
+            <td class="small">{% if m.target_date %}{{ m.target_date|date:"d/m/Y" }}{% else %}-{% endif %}</td>
+            <td class="text-center">
+              {% if m.progress_percentage is not None %}
+                <span class="small text-muted">{{ m.progress_percentage }}%</span>
+              {% else %}
+                <span class="text-muted small">-</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <a href="{% url 'risks:ebios-pacs-measure-update' pk=m.pk %}" class="btn btn-sm btn-outline-secondary" title="{% trans 'Edit' %}">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'risks:ebios-pacs-measure-delete' pk=m.pk %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Delete' %}">
+                <i class="bi bi-trash"></i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-muted">
+      <i class="bi bi-info-circle me-1"></i>
+      {% trans "No PACS measure yet. Define the continuous security improvement plan from the consolidated risks." %}
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

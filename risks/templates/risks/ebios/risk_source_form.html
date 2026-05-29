@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% if risk_source %}{% trans "Edit risk source" %}{% else %}{% trans "Add risk source" %}{% endif %}{% endblock %}
+
+{% block content %}
+{% with title=risk_source|yesno:"Edit risk source,Add risk source" %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'risks:assessment-list' %}">{% trans "Assessments" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'risks:assessment-detail' pk=assessment.pk %}">{{ assessment.name }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% trans "Risk source" %}</li>
+  </ol>
+</nav>
+{% url 'risks:assessment-detail' pk=assessment.pk as cancel_url_resolved %}
+{% include "risks/ebios/_entity_form.html" with title=title icon="person-walking" cancel_url=cancel_url_resolved %}
+{% endwith %}
+{% endblock %}

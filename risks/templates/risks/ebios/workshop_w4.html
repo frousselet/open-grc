@@ -2,21 +2,117 @@
 {% load i18n %}
 
 {% block workshop_main %}
-<div class="card">
-  <div class="card-header">
+<div class="card mb-3">
+  <div class="card-header d-flex align-items-center">
     <h5 class="mb-0"><i class="bi bi-bullseye me-2"></i>{% trans "Operational scenarios" %}</h5>
+    <span class="ms-auto badge text-bg-secondary me-2">{{ operational_scenarios|length }}</span>
+    <a href="{% url 'risks:ebios-operational-scenario-create' assessment_pk=assessment.pk %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>{% trans "Add" %}
+    </a>
   </div>
-  <div class="card-body">
-    <div class="alert alert-info mb-3">
-      <i class="bi bi-info-circle me-2"></i>
-      {% trans "The operational scenarios UI with MITRE ATT&CK autocomplete is under construction." %}
+  <div class="card-body p-0">
+    {% if operational_scenarios %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>{% trans "Reference" %}</th>
+            <th>{% trans "Name" %}</th>
+            <th>{% trans "Strategic parent" %}</th>
+            <th class="text-center">{% trans "Likelihood" %}</th>
+            <th class="text-center">{% trans "Gravity" %}</th>
+            <th class="text-center">{% trans "Risk level" %}</th>
+            <th class="text-center">{% trans "Techniques" %}</th>
+            <th class="text-center">{% trans "Consolidated" %}</th>
+            <th class="text-end">{% trans "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sc in operational_scenarios %}
+          <tr>
+            <td><code class="small">{{ sc.reference }}</code></td>
+            <td>{{ sc.name }}</td>
+            <td class="small">{{ sc.strategic_scenario.reference }}</td>
+            <td class="text-center">
+              {% if sc.likelihood_v %}
+                <span class="badge text-bg-{% if sc.likelihood_v == 4 %}danger{% elif sc.likelihood_v == 3 %}warning{% elif sc.likelihood_v == 2 %}primary{% else %}info{% endif %}">
+                  V{{ sc.likelihood_v }}
+                </span>
+              {% else %}-{% endif %}
+            </td>
+            <td class="text-center">
+              {% if sc.gravity_level %}<span class="badge text-bg-secondary">{{ sc.gravity_level }}</span>{% else %}-{% endif %}
+              {% if sc.gravity_inherited %}<i class="bi bi-link-45deg text-muted ms-1" title="{% trans 'Inherited' %}"></i>{% endif %}
+            </td>
+            <td class="text-center">
+              {% if sc.risk_level %}
+                <span class="badge text-bg-{% if sc.risk_level >= 4 %}danger{% elif sc.risk_level == 3 %}warning{% elif sc.risk_level == 2 %}primary{% else %}info{% endif %}">{{ sc.risk_level }}</span>
+              {% else %}-{% endif %}
+            </td>
+            <td class="text-center">
+              <span class="badge text-bg-info">{{ sc.attack_techniques.count }}</span>
+              <a href="{% url 'risks:ebios-attack-technique-create' scenario_pk=sc.pk %}" class="btn btn-sm btn-outline-info ms-1" title="{% trans 'Add technique' %}">
+                <i class="bi bi-plus"></i>
+              </a>
+            </td>
+            <td class="text-center">
+              {% if sc.consolidated_risk %}
+                <a href="{% url 'risks:risk-detail' pk=sc.consolidated_risk.pk %}" class="badge text-bg-success text-decoration-none">
+                  <i class="bi bi-check-circle-fill me-1"></i>{{ sc.consolidated_risk.reference }}
+                </a>
+              {% else %}
+                <form method="post" action="{% url 'risks:ebios-operational-scenario-consolidate' pk=sc.pk %}" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-success" title="{% trans 'Consolidate as risk' %}">
+                    <i class="bi bi-arrow-right-circle"></i>
+                  </button>
+                </form>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <a href="{% url 'risks:ebios-operational-scenario-update' pk=sc.pk %}" class="btn btn-sm btn-outline-secondary" title="{% trans 'Edit' %}">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'risks:ebios-operational-scenario-delete' pk=sc.pk %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Delete' %}">
+                <i class="bi bi-trash"></i>
+              </a>
+            </td>
+          </tr>
+          {% if sc.attack_techniques.all %}
+          <tr class="table-secondary">
+            <td colspan="9">
+              <div class="ms-3 small">
+                <strong class="text-muted">{% trans "Attack techniques" %} :</strong>
+                {% for tech in sc.attack_techniques.all %}
+                  <span class="badge text-bg-primary me-1">
+                    {{ tech.order }}.
+                    {% if tech.mitre_technique %}
+                      <span title="{{ tech.mitre_technique.get_tactic_display }}">{{ tech.mitre_technique.mitre_id }} - {{ tech.mitre_technique.name }}</span>
+                    {% else %}
+                      {{ tech.custom_name }}
+                    {% endif %}
+                    <a href="{% url 'risks:ebios-attack-technique-update' pk=tech.pk %}" class="text-white text-decoration-none ms-1" title="{% trans 'Edit' %}">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'risks:ebios-attack-technique-delete' pk=tech.pk %}" class="text-white text-decoration-none ms-1" title="{% trans 'Delete' %}">
+                      <i class="bi bi-x"></i>
+                    </a>
+                  </span>
+                {% endfor %}
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    <p class="text-muted small mb-0">
-      {% trans "The backend exposes the MITRE heatmap at" %}
-      <code>GET /api/v1/risks/ebios/operational-scenarios/mitre-heatmap/?assessment={{ assessment.pk }}</code>
-      {% trans "and consolidation at" %}
-      <code>POST /api/v1/risks/ebios/operational-scenarios/{id}/consolidate/</code>.
-    </p>
+    {% else %}
+    <div class="p-4 text-center text-muted">
+      <i class="bi bi-info-circle me-1"></i>
+      {% trans "No operational scenario yet. Decline each retained strategic scenario into technical sequences using MITRE ATT&CK." %}
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

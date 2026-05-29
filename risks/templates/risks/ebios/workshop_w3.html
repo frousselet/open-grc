@@ -2,19 +2,171 @@
 {% load i18n %}
 
 {% block workshop_main %}
-<div class="card">
-  <div class="card-header">
-    <h5 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>{% trans "Ecosystem and strategic scenarios" %}</h5>
+{# Ecosystem stakeholders table #}
+<div class="card mb-3">
+  <div class="card-header d-flex align-items-center">
+    <h5 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>{% trans "Ecosystem stakeholders" %}</h5>
+    <span class="ms-auto badge text-bg-secondary me-2">{{ ecosystem_stakeholders|length }}</span>
+    <a href="{% url 'risks:ebios-ecosystem-create' assessment_pk=assessment.pk %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>{% trans "Add" %}
+    </a>
   </div>
-  <div class="card-body">
-    <div class="alert alert-info mb-3">
-      <i class="bi bi-info-circle me-2"></i>
-      {% trans "The ecosystem cartography and strategic scenarios UI is under construction." %}
+  <div class="card-body p-0">
+    {% if ecosystem_stakeholders %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>{% trans "Reference" %}</th>
+            <th>{% trans "Name" %}</th>
+            <th>{% trans "Category" %}</th>
+            <th class="text-center" title="(dependency × penetration) / (maturity × trust)">{% trans "Threat level" %}</th>
+            <th class="text-center">{% trans "Zone" %}</th>
+            <th class="text-center">{% trans "Attack vector" %}</th>
+            <th class="text-end">{% trans "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for st in ecosystem_stakeholders %}
+          <tr>
+            <td><code class="small">{{ st.reference }}</code></td>
+            <td>{{ st.name }}</td>
+            <td><span class="badge text-bg-secondary">{{ st.get_category_display }}</span></td>
+            <td class="text-center">
+              {% if st.threat_level %}
+                <code>{{ st.threat_level }}</code>
+              {% else %}
+                <span class="text-muted small">-</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              {% if st.threat_zone == 'danger' %}
+                <span class="badge text-bg-danger">{% trans "Danger" %}</span>
+              {% elif st.threat_zone == 'monitoring' %}
+                <span class="badge text-bg-warning">{% trans "Monitoring" %}</span>
+              {% elif st.threat_zone == 'control' %}
+                <span class="badge text-bg-success">{% trans "Control" %}</span>
+              {% else %}
+                <span class="text-muted small">-</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              {% if st.is_attack_vector %}
+                <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+              {% else %}
+                <span class="text-muted small">-</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <a href="{% url 'risks:ebios-ecosystem-update' pk=st.pk %}" class="btn btn-sm btn-outline-secondary" title="{% trans 'Edit' %}">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'risks:ebios-ecosystem-delete' pk=st.pk %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Delete' %}">
+                <i class="bi bi-trash"></i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    <p class="text-muted small mb-0">
-      {% trans "The backend exposes the ecosystem graph at" %}
-      <code>GET /api/v1/risks/ebios/ecosystem-stakeholders/graph/?assessment={{ assessment.pk }}</code>.
-    </p>
+    {% else %}
+    <div class="p-4 text-center text-muted">
+      <i class="bi bi-info-circle me-1"></i>
+      {% trans "No ecosystem stakeholder yet. Map the suppliers, partners and other actors involved in your digital ecosystem." %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{# Strategic scenarios table #}
+<div class="card mb-3">
+  <div class="card-header d-flex align-items-center">
+    <h5 class="mb-0"><i class="bi bi-arrow-down-up me-2"></i>{% trans "Strategic scenarios" %}</h5>
+    <span class="ms-auto badge text-bg-secondary me-2">{{ strategic_scenarios|length }}</span>
+    <a href="{% url 'risks:ebios-strategic-scenario-create' assessment_pk=assessment.pk %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>{% trans "Add" %}
+    </a>
+  </div>
+  <div class="card-body p-0">
+    {% if strategic_scenarios %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>{% trans "Reference" %}</th>
+            <th>{% trans "Name" %}</th>
+            <th>{% trans "SR/OV pair" %}</th>
+            <th class="text-center">{% trans "Gravity" %}</th>
+            <th class="text-center">{% trans "Likelihood" %}</th>
+            <th class="text-center">{% trans "Risk level" %}</th>
+            <th class="text-center">{% trans "Steps" %}</th>
+            <th class="text-center">{% trans "Retained" %}</th>
+            <th class="text-end">{% trans "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sc in strategic_scenarios %}
+          <tr>
+            <td><code class="small">{{ sc.reference }}</code></td>
+            <td>{{ sc.name }}</td>
+            <td class="small">{% if sc.sr_ov_pair %}{{ sc.sr_ov_pair.reference }}{% endif %}</td>
+            <td class="text-center">{% if sc.gravity_level %}<span class="badge text-bg-secondary">{{ sc.gravity_level }}</span>{% else %}-{% endif %}</td>
+            <td class="text-center">{% if sc.likelihood_level %}<span class="badge text-bg-secondary">{{ sc.likelihood_level }}</span>{% else %}-{% endif %}</td>
+            <td class="text-center">
+              {% if sc.risk_level %}
+                <span class="badge text-bg-{% if sc.risk_level >= 4 %}danger{% elif sc.risk_level == 3 %}warning{% elif sc.risk_level == 2 %}primary{% else %}info{% endif %}">{{ sc.risk_level }}</span>
+              {% else %}-{% endif %}
+            </td>
+            <td class="text-center">
+              <span class="badge text-bg-info">{{ sc.attack_path_steps.count }}</span>
+              <a href="{% url 'risks:ebios-attack-path-step-create' scenario_pk=sc.pk %}" class="btn btn-sm btn-outline-info ms-1" title="{% trans 'Add step' %}">
+                <i class="bi bi-plus"></i>
+              </a>
+            </td>
+            <td class="text-center">
+              {% if sc.is_retained %}<i class="bi bi-check-circle-fill text-success"></i>{% else %}<i class="bi bi-x-circle text-muted"></i>{% endif %}
+            </td>
+            <td class="text-end">
+              <a href="{% url 'risks:ebios-strategic-scenario-update' pk=sc.pk %}" class="btn btn-sm btn-outline-secondary" title="{% trans 'Edit' %}">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'risks:ebios-strategic-scenario-delete' pk=sc.pk %}" class="btn btn-sm btn-outline-danger" title="{% trans 'Delete' %}">
+                <i class="bi bi-trash"></i>
+              </a>
+            </td>
+          </tr>
+          {% if sc.attack_path_steps.all %}
+          <tr class="table-secondary">
+            <td colspan="9">
+              <div class="ms-3 small">
+                <strong class="text-muted">{% trans "Attack path" %} :</strong>
+                {% for step in sc.attack_path_steps.all %}
+                  <span class="badge text-bg-primary me-1">
+                    {{ step.order }}. {{ step.get_action_type_display }}
+                    {% if step.stakeholder %}<span class="text-white-50">- {{ step.stakeholder.name }}</span>{% endif %}
+                    <a href="{% url 'risks:ebios-attack-path-step-update' pk=step.pk %}" class="text-white text-decoration-none ms-1" title="{% trans 'Edit' %}">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'risks:ebios-attack-path-step-delete' pk=step.pk %}" class="text-white text-decoration-none ms-1" title="{% trans 'Delete' %}">
+                      <i class="bi bi-x"></i>
+                    </a>
+                  </span>
+                {% endfor %}
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-muted">
+      <i class="bi bi-info-circle me-1"></i>
+      {% trans "No strategic scenario yet. Compose attack paths from the retained SR/OV pairs through the ecosystem." %}
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

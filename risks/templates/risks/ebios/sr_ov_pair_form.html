@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% if pair %}{% trans "Edit SR/OV pair" %}{% else %}{% trans "Add SR/OV pair" %}{% endif %}{% endblock %}
+
+{% block content %}
+{% with title=pair|yesno:"Edit SR/OV pair,Add SR/OV pair" %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'risks:assessment-list' %}">{% trans "Assessments" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'risks:assessment-detail' pk=assessment.pk %}">{{ assessment.name }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% trans "SR/OV pair" %}</li>
+  </ol>
+</nav>
+{% url 'risks:assessment-detail' pk=assessment.pk as cancel_url_resolved %}
+{% include "risks/ebios/_entity_form.html" with title=title icon="diagram-2" cancel_url=cancel_url_resolved %}
+{% endwith %}
+{% endblock %}

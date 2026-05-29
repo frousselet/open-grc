@@ -1,0 +1,49 @@
+{% load i18n %}
+{% comment %}
+Generic entity form partial used by every EBIOS create/update page.
+
+Context:
+- form: the Django ModelForm
+- title: form heading
+- icon: bootstrap-icons name (e.g., "person", "shield-check")
+- cancel_url: URL to redirect to on cancel
+{% endcomment %}
+
+<div class="card">
+  <div class="card-header">
+    <h4 class="mb-0"><i class="bi bi-{{ icon|default:'pencil-square' }} me-2"></i>{{ title }}</h4>
+  </div>
+  <div class="card-body">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <div class="row g-3">
+        {% for field in form %}
+          <div class="col-md-{% if field.field.widget.input_type == 'checkbox' %}12{% elif field|length_is:0 %}12{% else %}6{% endif %}">
+            {% if field.field.widget.input_type == 'checkbox' %}
+              <div class="form-check">
+                {{ field }}
+                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              </div>
+            {% else %}
+              <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+              {{ field }}
+            {% endif %}
+            {% if field.help_text %}<div class="form-text small">{{ field.help_text }}</div>{% endif %}
+            {% for err in field.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="d-flex justify-content-between mt-4">
+        <a href="{{ cancel_url }}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>{% trans "Cancel" %}
+        </a>
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-check-lg me-1"></i>{% trans "Save" %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
