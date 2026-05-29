@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% load i18n scope_tags %}
+{% load i18n scope_tags ui %}
 
-{% block title %}{% trans "Dashboard" %} — Fairway{% endblock %}
+{% block title %}{% trans "Dashboard" %} - Fairway{% endblock %}
 
 {% load help_tags %}
 
@@ -75,44 +75,43 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-4">
-  <h1 class="mb-0">{% trans "Dashboard" %}</h1>
-  <span id="ws-status" class="ms-3" style="display:none" title="{% trans 'Real-time connection' %}">
+{% page_header _("Dashboard") eyebrow=_("Today") subtitle=_("Compliance, risks and operational signals at a glance.") accent="dashboard" %}
+  <span id="ws-status" style="display:none" title="{% trans 'Real-time connection' %}">
     <span class="ws-dot-wrapper" id="ws-dot">
       <span class="ws-dot-core"></span>
       <span class="ws-dot-ping"></span>
     </span>
   </span>
-  <style>
-    .ws-dot-wrapper {
-      position: relative;
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-    }
-    .ws-dot-core {
-      position: absolute;
-      inset: 2px;
-      border-radius: 50%;
-      background: currentColor;
-      z-index: 1;
-    }
-    .ws-dot-ping {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      border: 1.5px solid currentColor;
-      opacity: 0;
-    }
-    .ws-connected .ws-dot-ping {
-      animation: ws-sonar 2s ease-out infinite;
-    }
-    @keyframes ws-sonar {
-      0%   { transform: scale(1); opacity: .7; }
-      100% { transform: scale(2.4); opacity: 0; }
-    }
-  </style>
-</div>
+{% endpage_header %}
+<style>
+  .ws-dot-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+  }
+  .ws-dot-core {
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: currentColor;
+    z-index: 1;
+  }
+  .ws-dot-ping {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    opacity: 0;
+  }
+  .ws-connected .ws-dot-ping {
+    animation: ws-sonar 2s ease-out infinite;
+  }
+  @keyframes ws-sonar {
+    0%   { transform: scale(1); opacity: .7; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+</style>
 {% help_modal "home" %}
 
 {# ── Global alerts ──────────────────────────────────────── #}
@@ -130,21 +129,21 @@
 </div>
 {% endif %}
 
-{# ── Overall compliance (sober hero card) ─────────────────── #}
-<div class="card overall-compliance mb-4">
-  <div class="card-body">
+{# ── Overall compliance (bold colored hero) ──────────────── #}
+<div class="overall-compliance overall-compliance--{% if overall_compliance >= 80 %}good{% elif overall_compliance >= 50 %}warn{% else %}bad{% endif %} mb-4">
+  <div class="overall-compliance__ornament" aria-hidden="true"></div>
+  <div class="overall-compliance__body">
     <div class="row align-items-end g-4">
       <div class="col-lg-7">
         <div class="overall-compliance__eyebrow">{% trans "Overall compliance" %}</div>
         <div class="overall-compliance__big">
-          <span class="display-4 tabular-nums" data-ws-field="overall_compliance" data-ws-suffix="%">{{ overall_compliance|floatformat:0 }}%</span>
-          <span class="overall-compliance__delta-icon overall-compliance__delta-icon--{% if overall_compliance >= 80 %}good{% elif overall_compliance >= 50 %}warn{% else %}bad{% endif %}" aria-hidden="true"></span>
+          <span class="overall-compliance__value tabular-nums" data-ws-field="overall_compliance" data-ws-suffix="%">{{ overall_compliance|floatformat:0 }}%</span>
         </div>
         <p class="overall-compliance__hint">{% blocktrans with count=requirement_count %}Average across all active frameworks - {{ count }} requirement{{ count|pluralize:"s" }} tracked.{% endblocktrans %}</p>
       </div>
       <div class="col-lg-5">
         <div class="overall-compliance__bar">
-          <div class="overall-compliance__bar-fill overall-compliance__bar-fill--{% if overall_compliance >= 80 %}good{% elif overall_compliance >= 50 %}warn{% else %}bad{% endif %}"
+          <div class="overall-compliance__bar-fill"
                role="progressbar"
                style="width: {{ overall_compliance|floatformat:0 }}%"
                aria-valuenow="{{ overall_compliance|floatformat:0 }}"
@@ -153,7 +152,7 @@
         </div>
         <div class="overall-compliance__bar-legend">
           <span>0%</span>
-          <span class="text-muted">{% trans "Target" %} 80%</span>
+          <span>{% trans "Target" %} 80%</span>
           <span>100%</span>
         </div>
       </div>
@@ -161,49 +160,70 @@
   </div>
 </div>
 <style>
-  .overall-compliance .card-body { padding: 2.25rem 2.25rem; }
+  .overall-compliance {
+    position: relative;
+    padding: 2.75rem 2.5rem;
+    border-radius: var(--radius-xl);
+    color: #fff;
+    overflow: hidden;
+    box-shadow: 0 16px 40px -10px var(--hero-bg, var(--accent));
+  }
+  .overall-compliance--good { --hero-bg: var(--success); }
+  .overall-compliance--warn { --hero-bg: var(--warning); }
+  .overall-compliance--bad  { --hero-bg: var(--danger); }
+  .overall-compliance { background: var(--hero-bg, var(--accent)); }
+  .overall-compliance__ornament {
+    position: absolute;
+    top: -50%;
+    right: -8%;
+    width: 55%;
+    height: 200%;
+    background: radial-gradient(ellipse at center,
+                rgba(255,255,255,.20) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .overall-compliance__body { position: relative; z-index: 1; }
   .overall-compliance__eyebrow {
-    font-size: .6875rem; letter-spacing: .14em; text-transform: uppercase;
-    color: var(--text-muted); font-weight: 700; margin-bottom: .75rem;
+    font-size: .75rem; letter-spacing: .22em; text-transform: uppercase;
+    color: rgba(255,255,255,.78); font-weight: 800; margin-bottom: 1rem;
   }
   .overall-compliance__big {
-    display: flex; align-items: center; gap: 1rem; line-height: 1;
+    display: flex; align-items: baseline; gap: 1rem; line-height: 1;
   }
-  .overall-compliance__big .display-4 {
-    font-size: 4rem;
-    letter-spacing: -.04em;
+  .overall-compliance__value {
+    font-size: 5.5rem;
+    letter-spacing: -.045em;
     line-height: 1;
-    font-weight: 700;
+    font-weight: 800;
+    color: #fff;
   }
-  .overall-compliance__delta-icon {
-    width: 2.5rem; height: 2.5rem; border-radius: 50%;
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: .9375rem;
-  }
-  .overall-compliance__delta-icon--good { background: var(--success-soft); color: var(--success); }
-  .overall-compliance__delta-icon--good::before { content: "\2197"; font-weight: 700; }
-  .overall-compliance__delta-icon--warn { background: var(--warning-soft); color: var(--warning); }
-  .overall-compliance__delta-icon--warn::before { content: "\2192"; font-weight: 700; }
-  .overall-compliance__delta-icon--bad { background: var(--danger-soft); color: var(--danger); }
-  .overall-compliance__delta-icon--bad::before { content: "\2198"; font-weight: 700; }
   .overall-compliance__hint {
-    color: var(--text-muted); font-size: .875rem; margin: .75rem 0 0;
+    color: rgba(255,255,255,.82); font-size: .9375rem;
+    margin: 1.125rem 0 0; max-width: 32rem;
   }
   .overall-compliance__bar {
-    height: .625rem; background: var(--surface-subtle);
-    border-radius: 100px; overflow: hidden;
+    height: .625rem;
+    background: rgba(255,255,255,.18);
+    border-radius: 100px;
+    overflow: hidden;
   }
   .overall-compliance__bar-fill {
-    height: 100%; border-radius: 100px;
+    height: 100%;
+    border-radius: 100px;
+    background: #fff;
     transition: width .6s var(--ease-out-expo);
   }
-  .overall-compliance__bar-fill--good { background: var(--success); }
-  .overall-compliance__bar-fill--warn { background: var(--warning); }
-  .overall-compliance__bar-fill--bad { background: var(--danger); }
   .overall-compliance__bar-legend {
     display: flex; justify-content: space-between;
-    font-size: .75rem; color: var(--text-muted);
-    margin-top: .5rem; font-variant-numeric: tabular-nums;
+    font-size: .75rem; color: rgba(255,255,255,.7);
+    margin-top: .625rem; font-variant-numeric: tabular-nums;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  @media (max-width: 575.98px) {
+    .overall-compliance { padding: 1.75rem 1.5rem; }
+    .overall-compliance__value { font-size: 3.75rem; }
   }
 </style>
 

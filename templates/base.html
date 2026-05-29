@@ -2532,37 +2532,116 @@
       flex-shrink: 0;
       margin-left: 0;
     }
-    /* Module accent variant — editorial signal, NOT data semantics.
-     * Renders a tinted band with a 4 px left accent bar so the user
-     * gets a 'where am I' cue without parsing the title. */
+    /* Module accent variant - bold editorial banner.
+     *
+     * Bloc de couleur plein (Cusp-inspired), white text, big uppercase
+     * eyebrow, XL title. Used as the page entry signal: you don't
+     * skim a 4px tinted bar, you skim a 200px wall of red and you
+     * KNOW you're on the risk module.
+     *
+     * Each module ships its own solid hue via --module-accent.
+     */
     .page-header--accent {
-      padding: 1.25rem 1.5rem 1.25rem 1.75rem;
-      background: var(--module-accent-soft, transparent);
-      border-radius: var(--radius-lg);
-      gap: 1.5rem;
+      padding: 2rem 2.25rem;
+      background: var(--module-accent, var(--accent));
+      border-radius: var(--radius-xl);
+      gap: 1.75rem;
       align-items: center;
+      color: #fff;
+      box-shadow: 0 12px 32px -8px var(--module-accent, var(--accent));
+      overflow: hidden;
     }
-    .page-header--accent .page-header__bar {
+    .page-header--accent::after {
+      /* Subtle radial highlight for depth - the Cusp screens all
+       * have this faint upper-left light source. Pure decoration. */
+      content: "";
       position: absolute;
-      left: 0; top: 1rem; bottom: 1rem;
-      width: 4px;
-      border-radius: 0 4px 4px 0;
-      background: var(--module-accent);
+      top: -40%;
+      right: -10%;
+      width: 60%;
+      height: 180%;
+      background: radial-gradient(ellipse at center,
+                  rgba(255,255,255,.18) 0%, transparent 60%);
+      pointer-events: none;
     }
-    .page-header--accent .page-header__icon { color: var(--module-accent); }
-    .page-header--accent-risks      { --module-accent: var(--module-accent-risks);      --module-accent-soft: var(--module-accent-risks-soft); }
-    .page-header--accent-compliance { --module-accent: var(--module-accent-compliance); --module-accent-soft: var(--module-accent-compliance-soft); }
-    .page-header--accent-assets     { --module-accent: var(--module-accent-assets);     --module-accent-soft: var(--module-accent-assets-soft); }
-    .page-header--accent-context    { --module-accent: var(--module-accent-context);    --module-accent-soft: var(--module-accent-context-soft); }
-    .page-header--accent-reports    { --module-accent: var(--module-accent-reports);    --module-accent-soft: var(--module-accent-reports-soft); }
-    .page-header--accent-accounts   { --module-accent: var(--module-accent-accounts);   --module-accent-soft: var(--module-accent-accounts-soft); }
-    .page-header--accent-helpers    { --module-accent: var(--module-accent-helpers);    --module-accent-soft: var(--module-accent-helpers-soft); }
-    .page-header--accent-dashboard  { --module-accent: var(--module-accent-dashboard);  --module-accent-soft: var(--module-accent-dashboard-soft); }
+    .page-header--accent > * { position: relative; z-index: 1; }
+    .page-header--accent .page-header__bar { display: none; } /* superseded by the full-color block */
+    .page-header--accent .page-header__icon {
+      color: #fff;
+      font-size: 2rem;
+      opacity: .75;
+    }
+    .page-header--accent .page-header__title {
+      color: #fff;
+      font-size: 2.75rem;
+      letter-spacing: -.035em;
+      line-height: 1.05;
+      font-weight: 700;
+    }
+    .page-header--accent .page-header__eyebrow {
+      color: rgba(255,255,255,.78);
+      font-size: .75rem;
+      letter-spacing: .22em;
+      font-weight: 800;
+      margin-bottom: .625rem;
+    }
+    .page-header--accent .page-header__subtitle {
+      color: rgba(255,255,255,.78);
+      font-size: 1rem;
+      margin-top: .625rem;
+    }
+    .page-header--accent .ref,
+    .page-header--accent .page-header__reference {
+      background: rgba(255,255,255,.18);
+      border-color: rgba(255,255,255,.25);
+      color: #fff;
+    }
+    .page-header--accent .btn-header-action {
+      background: rgba(255,255,255,.16);
+      border-color: rgba(255,255,255,.22);
+      color: #fff;
+    }
+    .page-header--accent .btn-header-action:hover {
+      background: rgba(255,255,255,.28);
+      border-color: rgba(255,255,255,.4);
+      color: #fff;
+    }
+    .page-header--accent .btn-primary {
+      background: #fff;
+      border-color: #fff;
+      color: var(--module-accent);
+    }
+    .page-header--accent .btn-primary:hover {
+      background: rgba(255,255,255,.92);
+      color: var(--module-accent);
+    }
+    .page-header--accent .btn-outline-secondary {
+      background: transparent;
+      border-color: rgba(255,255,255,.4);
+      color: #fff;
+    }
+    .page-header--accent .btn-outline-secondary:hover {
+      background: rgba(255,255,255,.16);
+      border-color: rgba(255,255,255,.6);
+      color: #fff;
+    }
+    .page-header--accent-risks      { --module-accent: var(--module-accent-risks); }
+    .page-header--accent-compliance { --module-accent: var(--module-accent-compliance); }
+    .page-header--accent-assets     { --module-accent: var(--module-accent-assets); }
+    .page-header--accent-context    { --module-accent: var(--module-accent-context); }
+    .page-header--accent-reports    { --module-accent: var(--module-accent-reports); }
+    .page-header--accent-accounts   { --module-accent: var(--module-accent-accounts); }
+    .page-header--accent-helpers    { --module-accent: var(--module-accent-helpers); }
+    .page-header--accent-dashboard  { --module-accent: var(--module-accent-dashboard); }
     @media (max-width: 575.98px) {
       .page-header { flex-direction: column; align-items: stretch; }
       .page-header__actions { width: 100%; flex-wrap: wrap; }
       .page-header__title { font-size: 1.625rem; }
-      .page-header--accent { padding: 1rem 1.25rem 1rem 1.5rem; }
+      .page-header--accent {
+        padding: 1.5rem 1.5rem;
+        gap: 1rem;
+      }
+      .page-header--accent .page-header__title { font-size: 2rem; }
     }
 
     /* ── Component: empty-state ────────────────────── */
