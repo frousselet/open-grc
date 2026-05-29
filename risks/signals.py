@@ -9,15 +9,19 @@ from risks.constants import (
 )
 
 
-@receiver(post_save, sender="risks.RiskAssessment")
-def bootstrap_ebios_artifacts(sender, instance, created, **kwargs):
-    """Create the EBIOS RM scaffolding the first time an assessment is saved as ebios_rm.
+def ensure_ebios_artifacts(assessment):
+    """Make sure every ebios_rm scaffolding row exists for `assessment`.
 
-    Creates one StudyFramework, one SecurityBaseline and six EbiosWorkshopProgress
-    rows (W0 to W5, strategic cycle, iteration 1). Idempotent: subsequent saves
-    or switching back to ebios_rm after an ISO 27005 phase will not duplicate rows.
+    Creates one StudyFramework, one SecurityBaseline, one EbiosSummary and
+    six EbiosWorkshopProgress rows (W0 to W5, strategic cycle, iteration 1).
+    Idempotent: nothing happens for rows already present. Safe to call from
+    views and migrations.
+
+    This is the shared implementation behind the `post_save` signal and the
+    backfill data migration that catches assessments created before later
+    artifacts (e.g. EbiosSummary, added in the W5 lot) joined the signal.
     """
-    if instance.methodology != Methodology.EBIOS_RM:
+    if assessment.methodology != Methodology.EBIOS_RM:
         return
 
     from risks.models import (
@@ -28,25 +32,31 @@ def bootstrap_ebios_artifacts(sender, instance, created, **kwargs):
     )
 
     StudyFramework.objects.get_or_create(
-        assessment=instance,
-        defaults={"created_by": instance.created_by},
+        assessment=assessment,
+        defaults={"created_by": assessment.created_by},
     )
     SecurityBaseline.objects.get_or_create(
-        assessment=instance,
-        defaults={"created_by": instance.created_by},
+        assessment=assessment,
+        defaults={"created_by": assessment.created_by},
     )
     EbiosSummary.objects.get_or_create(
-        assessment=instance,
-        defaults={"created_by": instance.created_by},
+        assessment=assessment,
+        defaults={"created_by": assessment.created_by},
     )
     for workshop_number in range(EBIOS_WORKSHOP_COUNT):
         EbiosWorkshopProgress.objects.get_or_create(
-            assessment=instance,
+            assessment=assessment,
             workshop_number=workshop_number,
             iteration_type=EbiosIterationType.STRATEGIC,
             iteration_number=1,
             defaults={
                 "status": EbiosWorkshopStatus.NOT_STARTED,
-                "created_by": instance.created_by,
+                "created_by": assessment.created_by,
             },
         )
+
+
+@receiver(post_save, sender="risks.RiskAssessment")
+def bootstrap_ebios_artifacts(sender, instance, created, **kwargs):
+    """post_save hook delegating to `ensure_ebios_artifacts`."""
+    ensure_ebios_artifacts(instance)

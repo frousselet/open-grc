@@ -324,6 +324,12 @@ class WorkshopDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView
         ctx = super().get_context_data(**kwargs)
         workshop = ctx["workshop"]
         assessment = workshop.assessment
+        # Defensive: assessments created before the bootstrap signal was
+        # extended (e.g. EbiosSummary added in the W5 lot) might be missing
+        # some of the singleton artifacts. Ensure them on every detail view
+        # access so the page never 500s on a missing related object.
+        from risks.signals import ensure_ebios_artifacts
+        ensure_ebios_artifacts(assessment)
         ctx["assessment"] = assessment
         ctx["reject_form"] = WorkshopRejectForm()
         ctx.update(build_ebios_stepper_context(assessment, current_workshop=workshop))

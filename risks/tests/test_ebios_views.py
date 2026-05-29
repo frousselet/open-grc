@@ -278,6 +278,26 @@ class TestWorkshopW2W5Views:
     def setup_method(self):
         self.user = UserFactory(is_superuser=True)
 
+    def test_w5_self_heals_when_summary_missing(self, client):
+        """Regression: an ebios_rm assessment created before the signal extension
+        could lack an EbiosSummary. The W5 detail view must materialise the row
+        on-the-fly instead of 500-ing."""
+        from risks.models import EbiosSummary
+        client.force_login(self.user)
+        assessment = EbiosAssessmentFactory()
+        # Simulate the pre-W5 state by deleting the auto-created summary.
+        EbiosSummary.objects.filter(assessment=assessment).delete()
+        assert not EbiosSummary.objects.filter(assessment=assessment).exists()
+        workshop = _workshop_for(assessment, EbiosWorkshopNumber.W5)
+        url = reverse(
+            "risks:ebios-workshop-detail",
+            kwargs={"assessment_pk": assessment.pk, "workshop_pk": workshop.pk},
+        )
+        response = client.get(url)
+        assert response.status_code == 200
+        # The view backfilled the missing row.
+        assert EbiosSummary.objects.filter(assessment=assessment).exists()
+
     def test_get_create_forms_render(self, client):
         """Regression: each create form should render its GET page without a template error."""
         from risks.tests.factories import (
