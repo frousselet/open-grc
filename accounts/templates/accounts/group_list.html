@@ -1,22 +1,17 @@
 {% extends "base.html" %}
-{% load accounts_tags %}
+{% load accounts_tags ui %}
 {% load help_tags %}
 {% load i18n %}
 {% load table_tags %}
-{% block title %}{% trans "Groups — Fairway" %}{% endblock %}
+{% block title %}{% trans "Groups — Cairn" %}{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h2 class="mb-0">{% trans "Groups" %}</h2>
-  <div class="header-actions">
-    {% has_perm "system.groups.create" as can_create %}
-    {% if can_create %}
-    <a href="{% url 'accounts:group-create' %}" class="btn-header-action" title="{% trans 'Create a group' %}">
-      <i class="bi bi-plus-lg"></i>
-    </a>
-    {% endif %}
-  </div>
-</div>
+{% has_perm "system.groups.create" as can_create %}
+{% page_header _("Groups") eyebrow=_("Administration") accent="accounts" %}
+  {% if can_create %}
+  <a href="{% url 'accounts:group-create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'Create a group' %}</a>
+  {% endif %}
+{% endpage_header %}
 {% help_modal "accounts.group_list" %}
 
 {% include "includes/table_search.html" %}
@@ -49,7 +44,7 @@
           <td>{{ group.permission_count }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="5" class="text-center py-4" style="color:var(--text-muted)">{% trans "No groups." %}</td></tr>
+        {% empty_state title=_("No group created yet.") message=_("Groups bundle related items together so you can apply controls and analyses at the right granularity.") colspan=5 %}
         {% endfor %}
       </tbody>
     </table>

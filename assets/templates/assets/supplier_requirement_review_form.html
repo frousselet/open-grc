@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% trans "Add review" %} — {{ supplier_requirement.title }} — Fairway{% endblock %}
+{% block title %}{% trans "Add review" %} — {{ supplier_requirement.title }} — Cairn{% endblock %}
 
 {% block content %}
 <nav aria-label="breadcrumb" class="mb-3">
@@ -12,25 +12,38 @@
   </ol>
 </nav>
 
-<h1>{% trans "Add review" %}</h1>
+{% page_header _("Add review") %}{% endpage_header %}
 <p style="color:var(--text-muted);font-size:.85rem">{% trans "Requirement" %}: <strong>{{ supplier_requirement.title }}</strong></p>
 
 <div class="card">
   <div class="card-body">
     <form method="post" enctype="multipart/form-data" class="mt-0">
       {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
       {% for field in form %}
+      {% if field.is_hidden %}
+      {{ field }}
+      {% else %}
       <div class="mb-3">
-        <label for="{{ field.id_for_label }}" class="form-label">
-          {{ field.label }}{% if field.field.required %} *{% endif %}
-        </label>
+        {% if field.field.widget.input_type == 'checkbox' %}
+        <div class="form-check">
+          {{ field }}
+          <label for="{{ field.id_for_label }}" class="form-check-label">{{ field.label }}</label>
+        </div>
+        {% else %}
+        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
         {{ field }}
+        {% endif %}
         {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
         {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
       </div>
+      {% endif %}
       {% endfor %}
       <div class="d-flex gap-2 form-actions-sticky">
-        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1" aria-hidden="true"></i>{% trans "Save" %}</button>
         <a href="{% url 'assets:supplier-requirement-detail' supplier_requirement.pk %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
       </div>
     </form>

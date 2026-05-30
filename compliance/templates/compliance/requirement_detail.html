@@ -1,21 +1,15 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load help_tags %}
 {% load accounts_tags %}
 
-{% block title %}{{ requirement.name }} — Fairway{% endblock %}
+{% block title %}{{ requirement.name }} — Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h1 class="mb-0">{{ requirement.name }}</h1>
-    <small class="ref">{{ requirement.reference }}</small>
-  </div>
-  <div class="d-flex gap-2">
-    <a href="{% url 'compliance:requirement-update' requirement.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    <a href="{% url 'compliance:requirement-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-  </div>
-</div>
+{% page_header requirement.name reference=requirement.reference %}
+  <a href="{% url 'compliance:requirement-update' requirement.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+  <a href="{% url 'compliance:requirement-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+{% endpage_header %}
 {% help_modal "compliance.requirement_detail" %}
 
 {% include "includes/approval_badge.html" %}

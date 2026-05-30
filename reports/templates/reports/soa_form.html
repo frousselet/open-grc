@@ -1,32 +1,29 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% trans "Statement of Applicability" %} — Fairway{% endblock %}
+{% block title %}{% trans "Statement of Applicability" %} — Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Generate Statement of Applicability" %}</h1>
-</div>
+{% page_header _("Generate Statement of Applicability") %}{% endpage_header %}
 
 <div class="card">
   <div class="card-body">
     <form method="post">
       {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
       <div class="mb-3">
-        <label for="{{ form.frameworks.id_for_label }}" class="form-label fw-semibold">{{ form.frameworks.label }}</label>
+        <label for="{{ form.frameworks.id_for_label }}" class="form-label">{{ form.frameworks.label }} *</label>
         {{ form.frameworks }}
-        {% if form.frameworks.help_text %}
-        <div class="form-text">{{ form.frameworks.help_text }}</div>
-        {% endif %}
-        {% if form.frameworks.errors %}
-        <div class="invalid-feedback d-block">{{ form.frameworks.errors }}</div>
-        {% endif %}
+        {% if form.frameworks.help_text %}<div class="form-text">{{ form.frameworks.help_text }}</div>{% endif %}
+        {% for error in form.frameworks.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
       </div>
-      <div class="d-flex gap-2">
+      <div class="d-flex gap-2 form-actions-sticky">
         <button type="submit" class="btn btn-primary">
-          <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Generate PDF" %}
+          <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>{% trans "Generate PDF" %}
         </button>
-        <a href="{% url 'reports:report-list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+        <a href="{% url 'reports:report-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
       </div>
     </form>
   </div>

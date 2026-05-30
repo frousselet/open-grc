@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% if object %}{% trans "Edit management review" %}{% else %}{% trans "New management review" %}{% endif %} - Fairway{% endblock %}
+{% block title %}{% if object %}{% trans "Edit management review" %}{% else %}{% trans "New management review" %}{% endif %} - Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="mb-0">{% if object %}{% trans "Edit management review" %}{% else %}{% trans "New management review" %}{% endif %}</h1>
+{% if object %}{% trans "Edit management review" as page_title %}{% else %}{% trans "New management review" as page_title %}{% endif %}
+{% page_header page_title %}
   <a href="{% if object %}{% url 'reports:management-review-detail' object.pk %}{% else %}{% url 'reports:management-review-list' %}{% endif %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-</div>
+{% endpage_header %}
 
 <form method="post" novalidate>
   {% csrf_token %}
@@ -155,7 +155,7 @@
       </div></div>
 
       <div class="d-grid gap-2">
-        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1" aria-hidden="true"></i>{% trans "Save" %}</button>
         <a href="{% if object %}{% url 'reports:management-review-detail' object.pk %}{% else %}{% url 'reports:management-review-list' %}{% endif %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
       </div>
     </div>

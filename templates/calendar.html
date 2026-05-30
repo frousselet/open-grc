@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% trans "Calendar" %} — Fairway{% endblock %}
+{% block title %}{% trans "Calendar" %} — Cairn{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -163,20 +163,17 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="mb-0"><i class="bi bi-calendar3 me-2" style="color:var(--accent);"></i>{% trans "Calendar" %}</h1>
-  <div class="d-flex align-items-center gap-2">
-    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#subscribeModal"
-            hx-get="{% url 'calendar-subscribe' %}" hx-target="#subscribeModalContent">
-      <i class="bi bi-rss me-1"></i>{% trans "Subscribe" %}
-    </button>
-    <div class="view-toggle" id="viewToggle">
-      <button data-view="month" class="active"><i class="bi bi-calendar-month me-1"></i>{% trans "Month" %}</button>
-      <button data-view="year"><i class="bi bi-calendar4 me-1"></i>{% trans "Year" %}</button>
+{% page_header _("Calendar") %}
+  <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#subscribeModal"
+          hx-get="{% url 'calendar-subscribe' %}" hx-target="#subscribeModalContent">
+    <i class="bi bi-rss me-1"></i>{% trans "Subscribe" %}
+  </button>
+  <div class="view-toggle" id="viewToggle">
+    <button data-view="month" class="active"><i class="bi bi-calendar-month me-1"></i>{% trans "Month" %}</button>
+    <button data-view="year"><i class="bi bi-calendar4 me-1"></i>{% trans "Year" %}</button>
     <button data-view="timeline"><i class="bi bi-list-ul me-1"></i>{% trans "Timeline" %}</button>
-    </div>
   </div>
-</div>
+{% endpage_header %}
 
 <!-- Subscribe modal -->
 <div class="modal fade" id="subscribeModal" tabindex="-1">
@@ -200,13 +197,13 @@
       <button type="button" class="calendar-filter active" data-category="risk_assessment" style="background:#ef4444;border-color:#ef4444;" data-color="#ef4444">
         <span class="dot" style="background:#fff;"></span> {% trans "Risk assessments" %}
       </button>
-      <button type="button" class="calendar-filter active" data-category="compliance_assessment" style="background:#6366f1;border-color:#6366f1;" data-color="#6366f1">
+      <button type="button" class="calendar-filter active" data-category="compliance_assessment" style="background:#1E3A8A;border-color:#1E3A8A;" data-color="#1E3A8A">
         <span class="dot" style="background:#fff;"></span> {% trans "Compliance assessments" %}
       </button>
       <button type="button" class="calendar-filter active" data-category="action_plan" style="background:#f59e0b;border-color:#f59e0b;" data-color="#f59e0b">
         <span class="dot" style="background:#fff;"></span> {% trans "Action plans" %}
       </button>
-      <button type="button" class="calendar-filter active" data-category="treatment_plan" style="background:#8b5cf6;border-color:#8b5cf6;" data-color="#8b5cf6">
+      <button type="button" class="calendar-filter active" data-category="treatment_plan" style="background:#475569;border-color:#475569;" data-color="#475569">
         <span class="dot" style="background:#fff;"></span> {% trans "Treatment plans" %}
       </button>
       <button type="button" class="calendar-filter active" data-category="scope" style="background:#06b6d4;border-color:#06b6d4;" data-color="#06b6d4">
@@ -559,7 +556,7 @@
           var ds=pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear();
           var cat=CAT[ev.category]||ev.category;
           var href=ev.url?' href="'+esc(ev.url)+'"':'';
-          h+='<a class="tl-event"'+href+'><span class="tl-event-dot" style="background:'+(ev.color||'#6366f1')+'"></span>'
+          h+='<a class="tl-event"'+href+'><span class="tl-event-dot" style="background:'+(ev.color||'#1E3A8A')+'"></span>'
             +'<span class="tl-event-date">'+ds+'</span>'
             +'<span><span class="tl-event-title">'+esc(ev.title)+'</span><br><span class="tl-event-cat">'+esc(cat)+'</span></span></a>';
         });

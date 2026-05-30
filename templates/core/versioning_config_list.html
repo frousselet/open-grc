@@ -1,21 +1,16 @@
 {% extends "base.html" %}
-{% load accounts_tags %}
+{% load accounts_tags ui %}
 {% load i18n %}
 {% load help_tags %}
-{% block title %}{% trans "Versioning — Fairway" %}{% endblock %}
+{% block title %}{% trans "Versioning — Cairn" %}{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h2 class="mb-0">{% trans "Versioning & approval" %}</h2>
-  <div class="header-actions">
-    {% has_perm "system.config.update" as can_update %}
-    {% if can_update %}
-    <a href="{% url 'core:versioning-config-create' %}" class="btn-header-action" title="{% trans 'Add a configuration' %}">
-      <i class="bi bi-plus-lg"></i>
-    </a>
-    {% endif %}
-  </div>
-</div>
+{% has_perm "system.config.update" as can_update %}
+{% page_header _("Versioning & approval") eyebrow=_("Administration") accent="accounts" %}
+  {% if can_update %}
+  <a href="{% url 'core:versioning-config-create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'Add a configuration' %}</a>
+  {% endif %}
+{% endpage_header %}
 {% help_modal "core.versioning_config_list" %}
 
 <div class="card">
@@ -63,11 +58,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr>
-          <td colspan="5" class="text-center text-muted py-4">
-            {% trans "No versioning configuration defined. All models use default behavior (all changes are major, approval enabled)." %}
-          </td>
-        </tr>
+        {% empty_state title=_("No versioning configuration defined yet.") message=_("All models use the default behaviour (every change is major, approval enabled). Add a configuration to relax this for a specific model.") colspan=5 %}
         {% endfor %}
       </tbody>
     </table>

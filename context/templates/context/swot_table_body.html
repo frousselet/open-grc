@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n ui %}
 {% load versioning_tags %}
 {% approval_enabled_for "context.swotanalysis" as show_approval %}
 {% for analysis in analyses %}
@@ -37,5 +37,5 @@
   </td>
 </tr>
 {% empty %}
-<tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No SWOT analysis." %}</td></tr>
+{% empty_state title=_("No SWOT analysis yet.") message=_("A SWOT analysis surfaces strengths, weaknesses, opportunities and threats. One per scope or major initiative is the common cadence.") colspan=9 %}
 {% endfor %}

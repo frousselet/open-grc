@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!--
+    Cairn — Primary mark (used at 24 px and above).
+    Same C-bowl as the favicon, but the inner element is the
+    architectural stepped cairn: three layers of decreasing width,
+    each separated by a clear gap. Reads as both "stacked stones"
+    and "stepped peak".
+  -->
+  <rect width="64" height="64" rx="13" fill="#1E3A8A"/>
+  <!-- C-bowl opening upward (identical to favicon) -->
+  <path d="M 19 38 A 14 14 0 1 1 45 38" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <!-- Stepped cairn: base, mid, capstone -->
+  <rect x="22" y="40" width="20" height="4" rx="1" fill="#FFFFFF"/>
+  <rect x="25" y="33" width="14" height="4" rx="1" fill="#FFFFFF"/>
+  <rect x="28" y="26" width="8"  height="4" rx="1" fill="#FFFFFF"/>
+</svg>

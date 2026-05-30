@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 56" width="220" height="56">
+  <!--
+    Cairn wordmark - paired with the chosen monogram.
+    Inter 700 with tight tracking and a small navy accent dot
+    after the N. The dot reads as a stamp signature, signing off
+    the brand the way an auditor signs a report.
+  -->
+  <text x="0" y="42"
+        font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif"
+        font-weight="700"
+        font-size="44"
+        letter-spacing="-2"
+        fill="#1E3A8A">CAIRN</text>
+  <circle cx="194" cy="36" r="4" fill="#1E3A8A"/>
+</svg>

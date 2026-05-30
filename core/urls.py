@@ -1,4 +1,4 @@
-"""URL configuration for Fairway project."""
+"""URL configuration for Cairn project."""
 
 from django.conf import settings
 from django.conf.urls.static import static

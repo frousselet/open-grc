@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% trans "Sign in — Fairway" %}</title>
+  <title>{% trans "Sign in — Cairn" %}</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23g)'/%3E%3Cpath d='M12.5 5.5L22 5.5A2.5 2.5 0 0124.5 8 2.5 2.5 0 0122 10.5L15 10.5 15 13.5 19.5 13.5A2.5 2.5 0 0122 16 2.5 2.5 0 0119.5 18.5L15 18.5 15 24A2.5 2.5 0 0112.5 26.5 2.5 2.5 0 0110 24L10 8A2.5 2.5 0 0112.5 5.5Z' fill='%23fff' opacity='.95'/%3E%3Ccircle cx='25' cy='8' r='1.8' fill='%23f0abfc' opacity='.85'/%3E%3Ccircle cx='22' cy='16' r='1.8' fill='%23a5b4fc' opacity='.85'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,29 +28,29 @@
   </script>
   <style>
     :root {
-      --accent: #6366f1;
-      --accent-hover: #4f46e5;
-      --accent-soft: #eef2ff;
-      --accent-glow: rgba(99,102,241,.2);
-      --surface: #ffffff;
-      --border-light: #e2e8f0;
-      --text-primary: #0f172a;
-      --text-secondary: #475569;
-      --text-muted: #94a3b8;
-      --radius-lg: 1.25rem;
-      --radius-md: .75rem;
+      --accent: #1E3A8A;
+      --accent-hover: #1E2E5E;
+      --accent-soft: #EEF2FF;
+      --accent-glow: rgba(30,58,138,.20);
+      --surface: #FFFFFF;
+      --border-light: rgba(0,0,0,.08);
+      --text-primary: #18181B;
+      --text-secondary: #52525B;
+      --text-muted: #A1A1AA;
+      --radius-lg: 1.125rem;
+      --radius-md: .625rem;
       --radius-sm: .5rem;
       --ease-out-expo: cubic-bezier(.16,1,.3,1);
     }
     [data-bs-theme="dark"] {
-      --surface: #1a2332;
-      --border-light: #2d3d50;
-      --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --accent: #818cf8;
-      --accent-soft: rgba(99,102,241,.1);
-      --accent-glow: rgba(129,140,248,.15);
+      --surface: #16181B;
+      --border-light: rgba(255,255,255,.10);
+      --text-primary: #E4E4E7;
+      --text-secondary: #A1A1AA;
+      --text-muted: #71717A;
+      --accent: #3B5BB8;
+      --accent-soft: rgba(59,91,184,.15);
+      --accent-glow: rgba(59,91,184,.22);
     }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -61,7 +61,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #4f46e5 0%, #6d28d9 50%, #7c3aed 100%);
+      background: linear-gradient(135deg, #1E3A8A 0%, #1E2E5E 100%);
       padding: 1.5rem;
       position: relative;
       overflow: hidden;
@@ -83,11 +83,11 @@
       left: -15%;
       width: 50%;
       height: 60%;
-      background: radial-gradient(circle, rgba(124,58,237,.15) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(255,255,255,.04) 0%, transparent 70%);
       pointer-events: none;
     }
     [data-bs-theme="dark"] body {
-      background: linear-gradient(135deg, #0c0a1d 0%, #1e1b4b 40%, #312e81 70%, #1e1b4b 100%);
+      background: linear-gradient(135deg, #0F1011 0%, #16181B 50%, #1C1F23 100%);
     }
     .login-wrapper {
       max-width: 400px;
@@ -199,10 +199,11 @@
     <div class="login-card">
       <div class="login-brand">
         <span class="login-brand-icon">
-          <svg class="logo-light" viewBox="0 0 512 512"><defs><linearGradient id="liBgL" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6366f1"/><stop offset="50%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient><linearGradient id="liSaL" x1="100%" y1="0%" x2="20%" y2="100%"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="#e0dafb"/></linearGradient></defs><rect width="512" height="512" fill="url(#liBgL)"/><path d="M264 130C182 156 116 223 122 296 126 338 177 363 264 370Z" fill="url(#liSaL)"/><path d="M272 160C322 190 350 248 344 303 340 326 307 346 272 346Z" fill="#fff" opacity=".5"/><rect x="266" y="98" width="8" height="278" rx="4" fill="#fff" opacity=".95"/><path d="M266 100C256 94 240 98 228 104C240 110 256 112 266 114Z" fill="#f0abfc" opacity=".85"/><path d="M374 386Q312 374 250 374 167 374 112 386L126 406Q244 418 362 406Z" fill="#fff" opacity=".9"/><path d="M40 446Q148 426 256 446 364 466 472 446" fill="none" stroke="#e0e7ff" stroke-width="3.5" opacity=".35" stroke-linecap="round"/><path d="M55 472Q155 454 256 472 357 490 457 472" fill="none" stroke="#e0e7ff" stroke-width="3" opacity=".25" stroke-linecap="round"/></svg>
-          <svg class="logo-dark" viewBox="0 0 512 512"><defs><linearGradient id="liBgD" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0c1222"/><stop offset="40%" stop-color="#131a3a"/><stop offset="100%" stop-color="#0e0f24"/></linearGradient><linearGradient id="liSaD" x1="100%" y1="0%" x2="20%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="50%" stop-color="#6366f1"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs><rect width="512" height="512" fill="url(#liBgD)"/><circle cx="68" cy="52" r="2" fill="#e0e7ff" opacity=".8"/><circle cx="432" cy="38" r="2.2" fill="#c7d2fe" opacity=".9"/><circle cx="462" cy="108" r="1.8" fill="#e0e7ff" opacity=".7"/><circle cx="88" cy="62" r="2" fill="#e0e7ff" opacity=".75"/><circle cx="448" cy="80" r="1.8" fill="#c7d2fe" opacity=".65"/><path d="M264 130C182 156 116 223 122 296 126 338 177 363 264 370Z" fill="url(#liSaD)"/><path d="M272 160C322 190 350 248 344 303 340 326 307 346 272 346Z" fill="#818cf8" opacity=".45"/><rect x="266" y="98" width="8" height="278" rx="4" fill="#a5b4fc" opacity=".9"/><path d="M266 100C256 94 240 98 228 104C240 110 256 112 266 114Z" fill="#e879f9" opacity=".85"/><path d="M374 386Q312 374 250 374 167 374 112 386L126 406Q244 418 362 406Z" fill="#818cf8" opacity=".85"/><path d="M40 446Q148 426 256 446 364 466 472 446" fill="none" stroke="#818cf8" stroke-width="3" opacity=".2" stroke-linecap="round"/><path d="M55 472Q155 454 256 472 357 490 457 472" fill="none" stroke="#818cf8" stroke-width="2.5" opacity=".12" stroke-linecap="round"/></svg>
+          {# Cairn — primary mark #}
+          <svg class="logo-light" viewBox="0 0 64 64"><rect width="64" height="64" rx="13" fill="#1E3A8A"/><path d="M 19 38 A 14 14 0 1 1 45 38" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" fill="none"/><rect x="22" y="40" width="20" height="4" rx="1" fill="#FFFFFF"/><rect x="25" y="33" width="14" height="4" rx="1" fill="#FFFFFF"/><rect x="28" y="26" width="8" height="4" rx="1" fill="#FFFFFF"/></svg>
+          <svg class="logo-dark" viewBox="0 0 64 64"><rect width="64" height="64" rx="13" fill="#3B5BB8"/><path d="M 19 38 A 14 14 0 1 1 45 38" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" fill="none"/><rect x="22" y="40" width="20" height="4" rx="1" fill="#FFFFFF"/><rect x="25" y="33" width="14" height="4" rx="1" fill="#FFFFFF"/><rect x="28" y="26" width="8" height="4" rx="1" fill="#FFFFFF"/></svg>
         </span>
-        <span class="login-brand-text">Fairway</span>
+        <span class="login-brand-text">Cairn</span>
       </div>
       <p class="login-subtitle">{% trans "Sign in to your account" %}</p>
 

@@ -1,22 +1,16 @@
 {% extends "base.html" %}
-{% load i18n scope_tags table_tags %}
+{% load i18n scope_tags table_tags ui %}
 
-{% block title %}{% trans "Risk assessments" %} — Fairway{% endblock %}
+{% block title %}{% trans "Risk assessments" %} — Cairn{% endblock %}
 
 {% load help_tags %}
 {% load versioning_tags %}
 
 {% block content %}
 {% approval_enabled_for "risks.riskassessment" as show_approval %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Risk assessments" %}</h1>
-  <div class="header-actions">
-    <button type="button" class="btn-header-action" title="{% trans 'New assessment' %}"
-            hx-get="{% url 'risks:assessment-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
-      <i class="bi bi-plus-lg"></i>
-    </button>
-  </div>
-</div>
+{% page_header _("Risk assessments") eyebrow=_("Risk management") accent="risks" %}
+  <button type="button" class="btn btn-primary" hx-get="{% url 'risks:assessment-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New assessment' %}</button>
+{% endpage_header %}
 {% help_modal "risks.assessment_list" %}
 
 <div class="mb-3 d-flex gap-2">
@@ -72,7 +66,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)">{% trans "No assessment." %}</td></tr>
+        {% empty_state title=_("No assessment yet.") message=_("Assessments evaluate your conformance to a framework at a point in time. Open one to score every requirement and gather findings.") colspan=10 %}
         {% endfor %}
       </tbody>
     </table>

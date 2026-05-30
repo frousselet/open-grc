@@ -1,13 +1,12 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% trans "Promote decision to action plan" %} - Fairway{% endblock %}
+{% block title %}{% trans "Promote decision to action plan" %} - Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Promote decision to action plan" %}</h1>
+{% page_header _("Promote decision to action plan") %}
   <a href="{% url 'reports:management-review-detail' decision.review.pk %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-</div>
+{% endpage_header %}
 
 <div class="alert alert-info py-2 px-3 mb-3">
   <strong>{{ decision.reference }}</strong> - {{ decision.title }}
@@ -17,38 +16,50 @@
   <form method="post" novalidate>
     {% csrf_token %}
 
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+
     <div class="mb-3">
-      <label class="form-label">{{ form.name.label }} <span class="text-danger">*</span></label>
+      <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} *</label>
       {{ form.name }}
+      {% for error in form.name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
     </div>
 
     <div class="row">
       <div class="col-md-4 mb-3">
-        <label class="form-label">{{ form.priority.label }} <span class="text-danger">*</span></label>
+        <label for="{{ form.priority.id_for_label }}" class="form-label">{{ form.priority.label }} *</label>
         {{ form.priority }}
+        {% for error in form.priority.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
       </div>
       <div class="col-md-4 mb-3">
-        <label class="form-label">{{ form.target_date.label }} <span class="text-danger">*</span></label>
+        <label for="{{ form.target_date.id_for_label }}" class="form-label">{{ form.target_date.label }} *</label>
         {{ form.target_date }}
+        {% for error in form.target_date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
       </div>
       <div class="col-md-4 mb-3">
-        <label class="form-label">{{ form.owner.label }} <span class="text-danger">*</span></label>
+        <label for="{{ form.owner.id_for_label }}" class="form-label">{{ form.owner.label }} *</label>
         {{ form.owner }}
+        {% for error in form.owner.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
       </div>
     </div>
 
     <div class="mb-3">
-      <label class="form-label">{{ form.gap_description.label }} <span class="text-danger">*</span></label>
+      <label for="{{ form.gap_description.id_for_label }}" class="form-label">{{ form.gap_description.label }} *</label>
       {{ form.gap_description }}
+      {% for error in form.gap_description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
     </div>
 
     <div class="mb-3">
-      <label class="form-label">{{ form.remediation_plan.label }} <span class="text-danger">*</span></label>
+      <label for="{{ form.remediation_plan.id_for_label }}" class="form-label">{{ form.remediation_plan.label }} *</label>
       {{ form.remediation_plan }}
+      {% for error in form.remediation_plan.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
     </div>
 
-    <div class="d-flex gap-2">
-      <button type="submit" class="btn btn-primary">{% trans "Create action plan" %}</button>
+    <div class="d-flex gap-2 form-actions-sticky">
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-check-lg me-1" aria-hidden="true"></i>{% trans "Create action plan" %}
+      </button>
       <a href="{% url 'reports:management-review-detail' decision.review.pk %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
     </div>
   </form>

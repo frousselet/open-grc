@@ -1,4 +1,4 @@
-"""WSGI config for Fairway project."""
+"""WSGI config for Cairn project."""
 
 import os
 

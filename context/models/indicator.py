@@ -101,9 +101,9 @@ class Indicator(ScopedModel):
         choices=IndicatorStatus.choices,
         default=IndicatorStatus.ACTIVE,
     )
-    # Predefined Fairway indicator fields
+    # Predefined Cairn indicator fields
     is_internal = models.BooleanField(
-        _("Predefined Fairway indicator"),
+        _("Predefined Cairn indicator"),
         default=False,
     )
     internal_source = models.CharField(
@@ -187,7 +187,7 @@ class Indicator(ScopedModel):
             raise ValidationError(
                 {
                     "indicator_type": _(
-                        "Predefined Fairway indicators must be of organizational type."
+                        "Predefined Cairn indicators must be of organizational type."
                     )
                 }
             )
@@ -251,7 +251,7 @@ class Indicator(ScopedModel):
         return False
 
     def compute_internal_value(self):
-        """Compute the value from Fairway internal data."""
+        """Compute the value from Cairn internal data."""
         if not self.is_internal or not self.internal_source:
             return None
 

@@ -1,25 +1,19 @@
 {% extends "base.html" %}
-{% load i18n accounts_tags %}
+{% load i18n accounts_tags ui %}
 
-{% block title %}{{ decision.title }} - Fairway{% endblock %}
+{% block title %}{{ decision.title }} - Cairn{% endblock %}
 
 {% block content %}
 {% has_perm "reports.management_review.update" as can_update_review %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h1 class="mb-0">{{ decision.title }}</h1>
-    <small class="ref">{{ decision.reference }}</small>
-  </div>
-  <div class="d-flex gap-2">
-    {% if can_update_review %}
-    <a href="{% url 'reports:decision-edit' decision.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    {% if not decision.linked_action_plan %}
-    <a href="{% url 'reports:decision-promote' decision.pk %}" class="btn btn-outline-success">{% trans "Promote to action plan" %}</a>
-    {% endif %}
-    {% endif %}
-    <a href="{% url 'reports:management-review-detail' decision.review.pk %}" class="btn btn-outline-secondary">{% trans "Back to review" %}</a>
-  </div>
-</div>
+{% page_header decision.title reference=decision.reference %}
+  {% if can_update_review %}
+  <a href="{% url 'reports:decision-edit' decision.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+  {% if not decision.linked_action_plan %}
+  <a href="{% url 'reports:decision-promote' decision.pk %}" class="btn btn-outline-success">{% trans "Promote to action plan" %}</a>
+  {% endif %}
+  {% endif %}
+  <a href="{% url 'reports:management-review-detail' decision.review.pk %}" class="btn btn-outline-secondary">{% trans "Back to review" %}</a>
+{% endpage_header %}
 
 <div class="row g-3">
   <div class="col-lg-8">

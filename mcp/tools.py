@@ -1,5 +1,5 @@
 """
-MCP tool definitions covering all Fairway API functionality.
+MCP tool definitions covering all Cairn API functionality.
 
 Each tool maps to one or more API endpoints and performs operations
 using the Django ORM directly, respecting the user's permissions.
@@ -438,12 +438,12 @@ def register_all_tools(server):
 # ── Help Tool ─────────────────────────────────────────────
 
 def _register_help_tool(server):
-    """Register the MCP help tool that describes how to use the Fairway MCP server."""
+    """Register the MCP help tool that describes how to use the Cairn MCP server."""
 
     HELP_TEXT = """\
-# Fairway MCP Server - Usage Guide
+# Cairn MCP Server - Usage Guide
 
-Fairway is a Governance, Risk & Compliance (GRC) platform. This MCP server
+Cairn is a Governance, Risk & Compliance (GRC) platform. This MCP server
 exposes its full API as tools organized by module.
 
 Call `help` with a topic for detailed field-level documentation:
@@ -1278,7 +1278,7 @@ Use list_permissions() to see all available codenames.
 
     server.register_tool(
         "help",
-        "Get usage documentation for the Fairway MCP server. "
+        "Get usage documentation for the Cairn MCP server. "
         "Call without arguments for the full guide, or with a topic for focused help. "
         "Topics: context, assets, compliance, risks, batch, workflow, permissions, examples",
         {

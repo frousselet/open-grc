@@ -915,7 +915,7 @@ def generate_management_review_pptx(user, scope_ids=None,
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
 
-    company_name = data["company"].name or "Fairway"
+    company_name = data["company"].name or "Cairn"
     date_str = data["generated_at"].strftime("%d/%m/%Y")
     period_label = _format_period_label(data["period_start"], data["period_end"])
 
@@ -1439,7 +1439,7 @@ def generate_management_review_docx(user, scope_ids=None,
     doc = Document()
     _docx_setup_styles(doc)
 
-    company_name = data["company"].name or "Fairway"
+    company_name = data["company"].name or "Cairn"
     date_str = data["generated_at"].strftime("%d/%m/%Y")
     period_label = _format_period_label(data["period_start"], data["period_end"])
 

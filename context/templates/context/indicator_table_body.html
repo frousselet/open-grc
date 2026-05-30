@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n ui %}
 {% load versioning_tags %}
 {% approval_enabled_for "context.indicator" as show_approval %}
 {% for indicator in indicators %}
@@ -40,5 +40,5 @@
   </td>
 </tr>
 {% empty %}
-<tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No indicator defined." %}</td></tr>
+{% empty_state title=_("No indicator defined yet.") message=_("Indicators measure the health of your ISMS. Define what to measure, the expected level and the review frequency.") colspan=11 %}
 {% endfor %}

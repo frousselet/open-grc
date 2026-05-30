@@ -24,7 +24,7 @@ jobs:
       - id: meta
         uses: docker/metadata-action@v5
         with:
-          images: frousselet/fairway
+          images: frousselet/cairn
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}

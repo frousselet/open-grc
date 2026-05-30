@@ -1,21 +1,15 @@
 {% extends "base.html" %}
-{% load i18n scope_tags %}
+{% load i18n scope_tags ui %}
 {% load help_tags %}
 {% load accounts_tags %}
 
-{% block title %}{{ group.name }} - Fairway{% endblock %}
+{% block title %}{{ group.name }} - Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h1 class="mb-0">{{ group.name }}</h1>
-    <small class="ref">{{ group.reference }}</small>
-  </div>
-  <div class="d-flex gap-2">
-    <a href="{% url 'assets:group-update' group.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    <a href="{% url 'assets:group-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-  </div>
-</div>
+{% page_header group.name reference=group.reference %}
+  <a href="{% url 'assets:group-update' group.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+  <a href="{% url 'assets:group-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+{% endpage_header %}
 {% help_modal "assets.group_detail" %}
 {% include "includes/approval_badge.html" %}
 

@@ -1,41 +1,34 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load help_tags %}
 {% load accounts_tags %}
 
-{% block title %}{{ assessment.name }} — Fairway{% endblock %}
+{% block title %}{{ assessment.name }} — Cairn{% endblock %}
 
 {% block content %}
-<div class="mb-3">
-  <div class="d-flex align-items-center">
-    <h1 class="mb-0">{{ assessment.name }}</h1>
-    {% if not is_locked %}
-    <div class="header-actions">
-      <a href="{% url 'compliance:assessment-update' assessment.pk %}" class="btn-header-action" title="{% trans 'Edit' %}">
-        <i class="bi bi-pencil"></i>
-      </a>
-    </div>
-    {% endif %}
-  </div>
-  <small class="ref">{{ assessment.reference }}</small>
-  {# ── Metadata line ── #}
-  <div class="d-flex flex-wrap align-items-center gap-3 mt-2" style="font-size:.85rem;color:var(--text-muted)">
-    <span>
-      <i class="bi bi-journal-bookmark me-1"></i>
-      {% for fw in assessment.frameworks.all %}
-        <a href="{% url 'compliance:framework-detail' fw.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ fw.short_name|default:fw.name }}</a>{% if not forloop.last %}, {% endif %}
-      {% empty %}
-        —
-      {% endfor %}
-    </span>
-    <span>
-      <i class="bi bi-calendar-event me-1"></i>
-      {{ assessment.assessment_start_date|default:"—" }} → {{ assessment.assessment_end_date|default:"—" }}
-    </span>
-    <span>
-      {% if assessment.assessor %}{% user_badge assessment.assessor size=24 %}{% else %}—{% endif %}
-    </span>
-  </div>
+{% page_header assessment.name reference=assessment.reference %}
+  {% if not is_locked %}
+  <a href="{% url 'compliance:assessment-update' assessment.pk %}" class="btn btn-outline-secondary"><i class="bi bi-pencil me-1" aria-hidden="true"></i>{% trans 'Edit' %}</a>
+  {% endif %}
+{% endpage_header %}
+
+{# ── Metadata line ── #}
+<div class="d-flex flex-wrap align-items-center gap-3 mb-3" style="font-size:.85rem;color:var(--text-muted)">
+  <span>
+    <i class="bi bi-journal-bookmark me-1"></i>
+    {% for fw in assessment.frameworks.all %}
+      <a href="{% url 'compliance:framework-detail' fw.pk %}" style="color:var(--accent);text-decoration:none;font-weight:500">{{ fw.short_name|default:fw.name }}</a>{% if not forloop.last %}, {% endif %}
+    {% empty %}
+      —
+    {% endfor %}
+  </span>
+  <span>
+    <i class="bi bi-calendar-event me-1"></i>
+    {{ assessment.assessment_start_date|default:"—" }} → {{ assessment.assessment_end_date|default:"—" }}
+  </span>
+  <span>
+    {% if assessment.assessor %}{% user_badge assessment.assessor size=24 %}{% else %}—{% endif %}
+  </span>
 </div>
 
 {# ── Workflow stepper ── #}

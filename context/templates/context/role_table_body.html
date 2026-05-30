@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n ui %}
 {% load versioning_tags %}
 {% approval_enabled_for "context.role" as show_approval %}
 {% for role in roles %}
@@ -29,5 +29,5 @@
   </td>
 </tr>
 {% empty %}
-<tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No role defined." %}</td></tr>
+{% empty_state title=_("No role described yet.") message=_("Roles formalise who does what in the ISMS. Map each role to its responsibilities, then assign it to a person.") colspan=9 %}
 {% endfor %}

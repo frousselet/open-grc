@@ -1,16 +1,20 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "requirement" %} — Fairway{% endblock %}
+{% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "requirement" %} — Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="mb-0">{% if form.instance.pk %}{% trans "Edit requirement" %}{% else %}{% trans "New requirement" %}{% endif %}</h1>
+{% if form.instance.pk %}{% trans "Edit requirement" as page_title %}{% else %}{% trans "New requirement" as page_title %}{% endif %}
+{% page_header page_title %}
   <a href="{% url 'compliance:requirement-list' %}" class="btn btn-outline-secondary">{% trans "Back to list" %}</a>
-</div>
+{% endpage_header %}
 
 <form method="post">
   {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
   <div class="row">
     {# ── Colonne gauche : champs principaux ──────────── #}
     <div class="col-lg-8">

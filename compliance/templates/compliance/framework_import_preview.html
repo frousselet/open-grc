@@ -1,12 +1,10 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% trans "Import preview" %} — Fairway{% endblock %}
+{% block title %}{% trans "Import preview" %} — Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Import preview" %}</h1>
-</div>
+{% page_header _("Import preview") %}{% endpage_header %}
 
 {% if existing_framework %}
 <div class="alert alert-info">

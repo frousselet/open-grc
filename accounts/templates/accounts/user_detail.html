@@ -2,7 +2,7 @@
 {% load accounts_tags %}
 {% load i18n %}
 {% load help_tags %}
-{% block title %}{{ account_user.display_name }} — Fairway{% endblock %}
+{% block title %}{{ account_user.display_name }} — Cairn{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -10,8 +10,8 @@
     {% if account_user.avatar %}
     <img src="{{ account_user.avatar_64|default:account_user.avatar }}" alt="" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--border-light)">
     {% else %}
-    <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--accent-soft),rgba(99,102,241,.15));color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.125rem;font-weight:650;">
-      {{ account_user.display_name|truncatechars:1 }}
+    <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--accent-soft),color-mix(in srgb,var(--accent) 18%,transparent));color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.0625rem;font-weight:600;letter-spacing:.02em;">
+      {{ account_user.display_name|initials }}
     </div>
     {% endif %}
     <h2 class="mb-0">{{ account_user.display_name }}

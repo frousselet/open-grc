@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n ui %}
 {% load versioning_tags %}
 {% approval_enabled_for "context.objective" as show_approval %}
 {% for obj in objectives %}
@@ -37,5 +37,5 @@
   </td>
 </tr>
 {% empty %}
-<tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)">{% trans "No objective defined." %}</td></tr>
+{% empty_state title=_("No security objective defined yet.") message=_("Objectives translate strategy into measurable security commitments. Tie each one to scopes and indicators.") colspan=10 %}
 {% endfor %}

@@ -1,14 +1,10 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui accounts_tags %}
 {% load table_tags %}
-{% block title %}{% trans "Calendar subscriptions" %} - Fairway{% endblock %}
+{% block title %}{% trans "Calendar subscriptions" %} - Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h2 class="mb-0">{% trans "Calendar subscriptions" %}</h2>
-</div>
-
-<p class="text-muted small mb-3">{% trans "Active calendar subscription tokens across all users. Revoking a token immediately disables the corresponding iCal feed." %}</p>
+{% page_header _("Calendar subscriptions") subtitle=_("Active calendar subscription tokens across all users. Revoking a token immediately disables the corresponding iCal feed.") eyebrow=_("Administration") accent="accounts" %}{% endpage_header %}
 
 <div class="card">
   <div class="table-responsive">
@@ -31,7 +27,7 @@
               {% if t.user.avatar_32 %}
               <img src="{{ t.user.avatar_32 }}" alt="" style="width:24px;height:24px;border-radius:50%;object-fit:cover">
               {% else %}
-              <span class="d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--accent-soft),rgba(99,102,241,.15));color:var(--accent);font-size:.6875rem;font-weight:650">{{ t.user.display_name|truncatechars:1 }}</span>
+              <span class="d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--accent-soft),color-mix(in srgb,var(--accent) 18%,transparent));color:var(--accent);font-size:.625rem;font-weight:600;letter-spacing:.02em">{{ t.user.display_name|initials }}</span>
               {% endif %}
               {{ t.user.display_name }}
             </div>
@@ -58,7 +54,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted)">{% trans "No active calendar subscriptions." %}</td></tr>
+        {% empty_state title=_("No active calendar subscription.") message=_("Calendar subscriptions let external calendar clients pull Cairn deadlines via iCal. Generate a feed from your profile.") colspan=6 %}
         {% endfor %}
       </tbody>
     </table>

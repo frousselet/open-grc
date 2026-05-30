@@ -1,22 +1,16 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load help_tags %}
 {% load table_tags %}
 {% load versioning_tags %}
 
-{% block title %}{% trans "Suppliers" %} — Fairway{% endblock %}
+{% block title %}{% trans "Suppliers" %} — Cairn{% endblock %}
 
 {% block content %}
 {% approval_enabled_for "assets.supplier" as show_approval %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Suppliers" %}</h1>
-  <div class="header-actions">
-    <button type="button" class="btn-header-action" title="{% trans 'New supplier' %}"
-            hx-get="{% url 'assets:supplier-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
-      <i class="bi bi-plus-lg"></i>
-    </button>
-  </div>
-</div>
+{% page_header _("Suppliers") eyebrow=_("Assets") accent="assets" %}
+  <button type="button" class="btn btn-primary" hx-get="{% url 'assets:supplier-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New supplier' %}</button>
+{% endpage_header %}
 {% help_modal "assets.supplier_list" %}
 
 <div class="mb-3 d-flex gap-2 flex-wrap">
@@ -87,7 +81,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)">{% trans "No suppliers." %}</td></tr>
+        {% empty_state title=_("No supplier registered yet.") message=_("Suppliers are external parties you depend on - SaaS vendors, hosting providers, contractors. Track them to assess third-party risk.") colspan=10 %}
         {% endfor %}
       </tbody>
     </table>

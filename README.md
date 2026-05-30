@@ -1,4 +1,4 @@
-# Fairway
+# Cairn
 
 Open-source **Governance, Risk and Compliance** (GRC) platform built with Django.
 Manage your organisation's security posture, track compliance with regulatory frameworks, and run structured risk assessments - all from a single, self-hosted application.
@@ -153,7 +153,7 @@ Manage your organisation's security posture, track compliance with regulatory fr
 
 ## MCP Server (Model Context Protocol)
 
-Fairway ships with a built-in JSON-RPC 2.0 MCP server exposing 55 tools across all modules. Authentication uses OAuth 2.0. All tools enforce RBAC permissions and scope-based tenancy.
+Cairn ships with a built-in JSON-RPC 2.0 MCP server exposing 55 tools across all modules. Authentication uses OAuth 2.0. All tools enforce RBAC permissions and scope-based tenancy.
 
 ### CRUD pattern
 
@@ -358,14 +358,14 @@ The admin interface is at [http://localhost:8000/admin/](http://localhost:8000/a
 
 ### Using the Published Image
 
-Run Fairway directly from the published image without cloning the repository.
+Run Cairn directly from the published image without cloning the repository.
 
 Create a `docker-compose.yml` file:
 
 ```yaml
 services:
   web:
-    image: registry.gitlab.rslt.fr/fairway/fairway:latest
+    image: registry.gitlab.rslt.fr/cairn/cairn:latest
     ports:
       - "8000:8000"
     environment:
@@ -439,9 +439,9 @@ docker compose exec web python manage.py mark_overdue_treatment_plans
 Both accept `--dry-run` to preview changes. A typical host cron entry:
 
 ```cron
-# /etc/cron.d/fairway-lifecycle
-15 2 * * * cd /opt/fairway && docker compose exec -T web python manage.py expire_risk_acceptances
-20 2 * * * cd /opt/fairway && docker compose exec -T web python manage.py mark_overdue_treatment_plans
+# /etc/cron.d/cairn-lifecycle
+15 2 * * * cd /opt/cairn && docker compose exec -T web python manage.py expire_risk_acceptances
+20 2 * * * cd /opt/cairn && docker compose exec -T web python manage.py mark_overdue_treatment_plans
 ```
 
 ---

@@ -543,7 +543,7 @@ Le module est accessible via un élément de navigation principal « Conformité
 
 Vue dédiée spécifique à l'ISO 27001 :
 
-- Tableau listant toutes les mesures de l'Annexe A avec colonnes (Référence, Intitulé, Applicable, Justification d'inclusion/exclusion, Statut de mise en œuvre, Référence à la mesure Fairway).
+- Tableau listant toutes les mesures de l'Annexe A avec colonnes (Référence, Intitulé, Applicable, Justification d'inclusion/exclusion, Statut de mise en œuvre, Référence à la mesure Cairn).
 - Filtres par section de l'Annexe A, par applicabilité, par statut.
 - Export PDF/DOCX formaté conforme aux attendus d'un audit de certification.
 

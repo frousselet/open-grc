@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load help_tags %}
 {% load accounts_tags %}
 
-{% block title %}{{ scope.name }} — Fairway{% endblock %}
+{% block title %}{{ scope.name }} — Cairn{% endblock %}
 
 {% block content %}
 {% if ancestors %}
@@ -16,16 +16,10 @@
   </ol>
 </nav>
 {% endif %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h1 class="mb-0">{{ scope.name }}</h1>
-    <small class="ref">{{ scope.reference }}</small>
-  </div>
-  <div class="d-flex gap-2">
-    <a href="{% url 'context:scope-update' scope.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    <a href="{% url 'context:scope-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-  </div>
-</div>
+{% page_header scope.name reference=scope.reference %}
+  <a href="{% url 'context:scope-update' scope.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+  <a href="{% url 'context:scope-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+{% endpage_header %}
 {% help_modal "context.scope_detail" %}
 {% include "includes/approval_badge.html" %}
 

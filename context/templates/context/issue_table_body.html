@@ -1,4 +1,4 @@
-{% load i18n scope_tags %}
+{% load i18n scope_tags ui %}
 {% for issue in issues %}
 <tr>
   <td><a href="{% url 'context:issue-detail' issue.pk %}" class="ref" style="text-decoration:none">{{ issue.reference }}</a></td>
@@ -29,5 +29,5 @@
   </td>
 </tr>
 {% empty %}
-<tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No issue defined." %}</td></tr>
+{% empty_state title=_("No issue identified yet.") message=_("Issues are internal/external factors that influence your ISMS - strategic context, regulatory pressure, notable incidents.") colspan=11 %}
 {% endfor %}

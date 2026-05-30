@@ -1,12 +1,10 @@
 {% extends "base.html" %}
-{% load help_tags %}
+{% load help_tags ui %}
 {% load i18n %}
-{% block title %}{% trans "Action log — Fairway" %}{% endblock %}
+{% block title %}{% trans "Action log — Cairn" %}{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h2 class="mb-0">{% trans "Action log" %}</h2>
-</div>
+{% page_header _("Action log") eyebrow=_("Administration") accent="accounts" %}{% endpage_header %}
 {% help_modal "accounts.action_log_list" %}
 
 <form id="filterForm" method="get">
@@ -85,7 +83,7 @@ function setPill(param, value) {
           <td>{{ entry.object_repr|truncatechars:80 }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted)">{% trans "No actions recorded." %}</td></tr>
+        {% empty_state title=_("No actions recorded yet.") message=_("Action logs trace every state-changing action across the platform. Useful for audit trails and incident investigation.") colspan=6 %}
         {% endfor %}
       </tbody>
     </table>

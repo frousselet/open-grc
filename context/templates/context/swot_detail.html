@@ -1,20 +1,14 @@
 {% extends "base.html" %}
-{% load i18n scope_tags %}
+{% load i18n scope_tags ui %}
 {% load help_tags %}
 
-{% block title %}{{ analysis.name }} — Fairway{% endblock %}
+{% block title %}{{ analysis.name }} — Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h1 class="mb-0">{{ analysis.name }}</h1>
-    <small class="ref">{{ analysis.reference }}</small>
-  </div>
-  <div class="d-flex gap-2">
-    <a href="{% url 'context:swot-update' analysis.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    <a href="{% url 'context:swot-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-  </div>
-</div>
+{% page_header analysis.name reference=analysis.reference %}
+  <a href="{% url 'context:swot-update' analysis.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+  <a href="{% url 'context:swot-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+{% endpage_header %}
 {% help_modal "context.swot_detail" %}
 {% include "includes/approval_badge.html" %}
 

@@ -1,22 +1,17 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load table_tags %}
 
-{% block title %}{% trans "Sites" %} — Fairway{% endblock %}
+{% block title %}{% trans "Sites" %} — Cairn{% endblock %}
 
 {% load help_tags %}
 {% load versioning_tags %}
 
 {% block content %}
 {% approval_enabled_for "context.site" as show_approval %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Sites" %}</h1>
-  <div class="header-actions">
-    <a href="{% url 'context:site-create' %}" class="btn-header-action" title="{% trans 'New site' %}">
-      <i class="bi bi-plus-lg"></i>
-    </a>
-  </div>
-</div>
+{% page_header _("Sites") %}
+  <a href="{% url 'context:site-create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New site' %}</a>
+{% endpage_header %}
 {% help_modal "context.site_list" %}
 
 {% include "includes/table_search.html" %}
@@ -64,7 +59,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted)">{% trans "No site defined." %}</td></tr>
+        {% empty_state title=_("No site declared yet.") message=_("Sites are the physical locations covered by your ISMS - offices, datacenters, factories, anywhere data lives or is processed.") colspan=7 %}
         {% endfor %}
       </tbody>
     </table>

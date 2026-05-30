@@ -1,19 +1,14 @@
 {% extends "base.html" %}
-{% load i18n table_tags %}
+{% load i18n table_tags ui %}
 
-{% block title %}{% trans "ISO 27005 analyses" %} — Fairway{% endblock %}
+{% block title %}{% trans "ISO 27005 analyses" %} — Cairn{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "ISO 27005 analyses" %}</h1>
-  <div class="header-actions">
-    <a href="{% url 'risks:assessment-list' %}" class="btn-header-action" title="{% trans 'Go to assessments' %}">
-      <i class="bi bi-clipboard-data"></i>
-    </a>
-  </div>
-</div>
+{% page_header _("ISO 27005 analyses") eyebrow=_("Risk management") accent="risks" %}
+  <a href="{% url 'risks:assessment-list' %}" class="btn btn-outline-secondary"><i class="bi bi-clipboard-data me-1" aria-hidden="true"></i>{% trans 'Go to assessments' %}</a>
+{% endpage_header %}
 <div class="alert alert-info mb-3">
   <i class="bi bi-info-circle me-2"></i>
   {% trans "ISO 27005 analyses are created from within an assessment's methodology workflow. Open an ISO 27005 assessment to create new analyses." %}
@@ -53,7 +48,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No ISO 27005 analyses." %}</td></tr>
+        {% empty_state title=_("No ISO 27005 analysis yet.") message=_("ISO 27005 risks combine an essential asset, a threat and a vulnerability. They are usually created from a risk assessment workflow.") colspan=9 %}
         {% endfor %}
       </tbody>
     </table>

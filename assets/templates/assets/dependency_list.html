@@ -1,20 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}{% load i18n %}
-{% load versioning_tags %}{% trans "Dependencies" %} — Fairway{% endblock %}
+{% block title %}{% load i18n ui %}
+{% load versioning_tags %}{% trans "Dependencies" %} — Cairn{% endblock %}
 
 {% load help_tags i18n table_tags %}
 
 {% block content %}
 {% approval_enabled_for "assets.assetdependency" as show_approval %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Dependency relationships" %}</h1>
-  <div class="header-actions">
-    <a href="{% url 'assets:dependency-create' %}" class="btn-header-action" title="{% trans 'New dependency' %}">
-      <i class="bi bi-plus-lg"></i>
-    </a>
-  </div>
-</div>
+{% page_header _("Dependency relationships") eyebrow=_("Assets") accent="assets" %}
+  <a href="{% url 'assets:dependency-create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New dependency' %}</a>
+{% endpage_header %}
 {% help_modal "assets.dependency_list" %}
 
 {% include "includes/table_search.html" %}
@@ -70,7 +65,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No dependencies defined." %}</td></tr>
+        {% empty_state title=_("No asset dependency mapped yet.") message=_("Dependencies declare which support asset feeds which essential asset. Mapping them surfaces single points of failure.") colspan=9 %}
         {% endfor %}
       </tbody>
     </table>

@@ -79,7 +79,7 @@ class TestMcpEndpoint:
         data = response.json()
         assert data["result"]["protocolVersion"] == "2025-03-26"
         assert "tools" in data["result"]["capabilities"]
-        assert data["result"]["serverInfo"]["name"] == "Fairway MCP Server"
+        assert data["result"]["serverInfo"]["name"] == "Cairn MCP Server"
 
     def test_mcp_tools_list(self, client):
         user, token = self._create_authenticated_token()

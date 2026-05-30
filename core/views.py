@@ -475,7 +475,7 @@ def get_calendar_events(user, start=None, end=None, categories=None):
     if "compliance_assessment" in categories:
         qs = _filter_scoped(ComplianceAssessment.objects.all(), user)
         add_range(qs, "assessment_start_date", "assessment_end_date",
-                  "compliance_assessment", "#6366f1",
+                  "compliance_assessment", "#1E3A8A",
                   "compliance:assessment-detail")
 
     if "action_plan" in categories:
@@ -487,7 +487,7 @@ def get_calendar_events(user, start=None, end=None, categories=None):
     if "treatment_plan" in categories:
         qs = RiskTreatmentPlan.objects.all()
         add_range(qs, "start_date", "target_date",
-                  "treatment_plan", "#8b5cf6",
+                  "treatment_plan", "#475569",
                   "risks:treatment-plan-detail")
 
     if "scope" in categories:
@@ -574,7 +574,7 @@ class ICalFeedView(View):
         user = self._authenticate(request)
         if user is None:
             resp = HttpResponse(status=401)
-            resp["WWW-Authenticate"] = 'Basic realm="Fairway Calendar"'
+            resp["WWW-Authenticate"] = 'Basic realm="Cairn Calendar"'
             return resp
 
         from icalendar import Calendar, Event as ICalEvent
@@ -585,11 +585,11 @@ class ICalFeedView(View):
         events = get_calendar_events(user, start=start_iso, end=end_iso)
 
         cal = Calendar()
-        cal.add("prodid", "-//Fairway//Calendar//EN")
+        cal.add("prodid", "-//Cairn//Calendar//EN")
         cal.add("version", "2.0")
         cal.add("calscale", "GREGORIAN")
         cal.add("method", "PUBLISH")
-        cal.add("x-wr-calname", "Fairway")
+        cal.add("x-wr-calname", "Cairn")
 
         CAT_LABELS = {
             "risk_assessment": _("Risk assessments"),
@@ -607,7 +607,7 @@ class ICalFeedView(View):
         for ev in events:
             vevent = ICalEvent()
             uid_base = f"{ev['category']}-{ev['start']}-{ev['title']}"
-            vevent.add("uid", f"{uid_base}@fairway")
+            vevent.add("uid", f"{uid_base}@cairn")
             vevent.add("summary", ev["title"])
 
             dt_start = date.fromisoformat(ev["start"])
@@ -627,7 +627,7 @@ class ICalFeedView(View):
             cal.add_component(vevent)
 
         resp = HttpResponse(cal.to_ical(), content_type="text/calendar; charset=utf-8")
-        resp["Content-Disposition"] = 'attachment; filename="fairway.ics"'
+        resp["Content-Disposition"] = 'attachment; filename="cairn.ics"'
         return resp
 
     # Tokens unused for this many days are automatically revoked

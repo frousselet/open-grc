@@ -1,16 +1,20 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "stakeholder" %} — Fairway{% endblock %}
+{% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "stakeholder" %} — Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="mb-0">{% if form.instance.pk %}{% trans "Edit stakeholder" %}{% else %}{% trans "New stakeholder" %}{% endif %}</h1>
+{% if form.instance.pk %}{% trans "Edit stakeholder" as page_title %}{% else %}{% trans "New stakeholder" as page_title %}{% endif %}
+{% page_header page_title %}
   <a href="{% url 'context:stakeholder-list' %}" class="btn btn-outline-secondary">{% trans "Back to list" %}</a>
-</div>
+{% endpage_header %}
 
 <form method="post">
   {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
   <div class="row">
     {# ── Left column: core fields ────────────────────── #}
     <div class="col-lg-8">

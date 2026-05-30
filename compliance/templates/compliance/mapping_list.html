@@ -1,21 +1,15 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load table_tags %}
 
-{% block title %}{% trans "Cross-framework mappings" %} — Fairway{% endblock %}
+{% block title %}{% trans "Cross-framework mappings" %} — Cairn{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Cross-framework mappings" %}</h1>
-  <div class="header-actions">
-    <button type="button" class="btn-header-action" title="{% trans 'New mapping' %}"
-            hx-get="{% url 'compliance:mapping-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
-      <i class="bi bi-plus-lg"></i>
-    </button>
-  </div>
-</div>
+{% page_header _("Cross-framework mappings") eyebrow=_("Compliance") accent="compliance" %}
+  <button type="button" class="btn btn-primary" hx-get="{% url 'compliance:mapping-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New mapping' %}</button>
+{% endpage_header %}
 {% help_modal "compliance.mapping_list" %}
 
 {% include "includes/table_search.html" %}
@@ -47,7 +41,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted)">{% trans "No mapping defined." %}</td></tr>
+        {% empty_state title=_("No inter-framework mapping defined yet.") message=_("Mappings link an answer to one requirement to its equivalent in another framework, so a single assessment can satisfy multiple norms.") colspan=7 %}
         {% endfor %}
       </tbody>
     </table>

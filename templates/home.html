@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n scope_tags ui %}
 
-{% block title %}{% trans "Dashboard" %} - Fairway{% endblock %}
+{% block title %}{% trans "Dashboard" %} - Cairn{% endblock %}
 
 {% load help_tags %}
 
@@ -83,10 +83,6 @@
     </span>
   </span>
 {% endpage_header %}
-
-<a href="{% url 'risks:risk-create' %}" class="fw-fab" title="{% trans 'New risk' %}" aria-label="{% trans 'New risk' %}">
-  <i class="bi bi-plus-lg" aria-hidden="true"></i>
-</a>
 <style>
   .ws-dot-wrapper {
     position: relative;
@@ -133,21 +129,21 @@
 </div>
 {% endif %}
 
-{# ── Overall compliance (bold colored hero) ──────────────── #}
-<div class="overall-compliance overall-compliance--{% if overall_compliance >= 80 %}good{% elif overall_compliance >= 50 %}warn{% else %}bad{% endif %} mb-4">
-  <div class="overall-compliance__ornament" aria-hidden="true"></div>
-  <div class="overall-compliance__body">
+{# ── Overall compliance (minimal card) ──────────────────── #}
+<div class="card overall-compliance mb-4">
+  <div class="card-body">
     <div class="row align-items-end g-4">
       <div class="col-lg-7">
         <div class="overall-compliance__eyebrow">{% trans "Overall compliance" %}</div>
-        <div class="overall-compliance__big">
+        <div class="overall-compliance__value-wrap">
           <span class="overall-compliance__value tabular-nums" data-ws-field="overall_compliance" data-ws-suffix="%">{{ overall_compliance|floatformat:0 }}%</span>
+          <span class="overall-compliance__delta overall-compliance__delta--{% if overall_compliance >= 80 %}good{% elif overall_compliance >= 50 %}warn{% else %}bad{% endif %}" aria-hidden="true"></span>
         </div>
         <p class="overall-compliance__hint">{% blocktrans with count=requirement_count %}Average across all active frameworks - {{ count }} requirement{{ count|pluralize:"s" }} tracked.{% endblocktrans %}</p>
       </div>
       <div class="col-lg-5">
         <div class="overall-compliance__bar">
-          <div class="overall-compliance__bar-fill"
+          <div class="overall-compliance__bar-fill overall-compliance__bar-fill--{% if overall_compliance >= 80 %}good{% elif overall_compliance >= 50 %}warn{% else %}bad{% endif %}"
                role="progressbar"
                style="width: {{ overall_compliance|floatformat:0 }}%"
                aria-valuenow="{{ overall_compliance|floatformat:0 }}"
@@ -164,75 +160,58 @@
   </div>
 </div>
 <style>
-  .overall-compliance {
-    position: relative;
-    padding: 2.75rem 2.5rem;
-    border: 2px solid var(--color-ink-900);
-    border-radius: 1.75rem;
-    color: #fff;
-    overflow: hidden;
-    box-shadow: var(--shadow-block);
-  }
-  .overall-compliance--good { --hero-bg: var(--color-mint-500); color: var(--color-ink-900); }
-  .overall-compliance--warn { --hero-bg: var(--color-mustard-500); color: var(--color-ink-900); }
-  .overall-compliance--bad  { --hero-bg: var(--color-coral-500); }
-  .overall-compliance { background: var(--hero-bg, var(--color-violet-500)); }
-  .overall-compliance__ornament {
-    position: absolute;
-    top: -50%;
-    right: -8%;
-    width: 55%;
-    height: 200%;
-    background: radial-gradient(ellipse at center,
-                rgba(255,255,255,.20) 0%, transparent 60%);
-    pointer-events: none;
-  }
-  .overall-compliance__body { position: relative; z-index: 1; }
+  .overall-compliance .card-body { padding: 1.75rem 2rem; }
   .overall-compliance__eyebrow {
-    font-size: .8125rem; letter-spacing: .28em; text-transform: uppercase;
-    color: currentColor; opacity: .85;
-    font-weight: 900; margin-bottom: 1rem;
+    font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--text-muted); font-weight: 600; margin-bottom: .5rem;
   }
-  .overall-compliance__big {
-    display: flex; align-items: baseline; gap: 1rem; line-height: 1;
+  .overall-compliance__value-wrap {
+    display: flex; align-items: center; gap: .75rem; line-height: 1;
   }
   .overall-compliance__value {
-    font-size: 6.5rem;
-    letter-spacing: -.05em;
-    line-height: .95;
-    font-weight: 900;
-    color: currentColor;
+    font-size: 2.75rem;
+    letter-spacing: -.028em;
+    line-height: 1;
+    font-weight: 600;
+    color: var(--text-primary);
   }
+  .overall-compliance__delta {
+    width: 1.625rem; height: 1.625rem; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 600;
+  }
+  .overall-compliance__delta--good { background: var(--success-soft); color: var(--success); }
+  .overall-compliance__delta--good::before { content: "\2197"; }
+  .overall-compliance__delta--warn { background: var(--warning-soft); color: var(--warning); }
+  .overall-compliance__delta--warn::before { content: "\2192"; }
+  .overall-compliance__delta--bad  { background: var(--danger-soft);  color: var(--danger); }
+  .overall-compliance__delta--bad::before  { content: "\2198"; }
   .overall-compliance__hint {
-    color: currentColor; opacity: .82; font-size: .9375rem;
-    margin: 1.125rem 0 0; max-width: 32rem;
+    color: var(--text-muted); font-size: .875rem;
+    margin: .875rem 0 0; max-width: 32rem;
   }
   .overall-compliance__bar {
-    height: .75rem;
-    background: rgba(22,19,18,.16);
-    border: 1.5px solid var(--color-ink-900);
+    height: .5rem;
+    background: var(--surface-muted);
     border-radius: 100px;
     overflow: hidden;
   }
-  .overall-compliance--bad .overall-compliance__bar { background: rgba(255,255,255,.18); }
   .overall-compliance__bar-fill {
     height: 100%;
     border-radius: 100px;
-    background: var(--color-ink-900);
-    transition: width .6s var(--ease-out-expo);
+    transition: width .8s var(--ease-out);
   }
-  .overall-compliance--bad .overall-compliance__bar-fill { background: #fff; }
+  .overall-compliance__bar-fill--good { background: var(--success); }
+  .overall-compliance__bar-fill--warn { background: var(--warning); }
+  .overall-compliance__bar-fill--bad  { background: var(--danger); }
   .overall-compliance__bar-legend {
     display: flex; justify-content: space-between;
-    font-size: .75rem; color: currentColor; opacity: .8;
-    margin-top: .75rem; font-variant-numeric: tabular-nums;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    font-weight: 800;
+    font-size: .75rem; color: var(--text-muted);
+    margin-top: .5rem; font-variant-numeric: tabular-nums;
   }
   @media (max-width: 575.98px) {
-    .overall-compliance { padding: 1.75rem 1.5rem; }
-    .overall-compliance__value { font-size: 3.75rem; }
+    .overall-compliance .card-body { padding: 1.25rem 1.25rem; }
+    .overall-compliance__value { font-size: 2.25rem; }
   }
 </style>
 
@@ -261,7 +240,7 @@ window.initSparklines = function(root) {
       return x.toFixed(1) + ',' + y.toFixed(1);
     });
 
-    var color = isCritical ? '#ef4444' : trend === 'up' ? '#10b981' : trend === 'down' ? '#ef4444' : '#6366f1';
+    var color = isCritical ? '#DC2626' : trend === 'up' ? '#16A34A' : trend === 'down' ? '#DC2626' : '#1E3A8A';
 
     var uid = 'sp' + Math.random().toString(36).substr(2, 6);
     var line = 'M' + points.join(' L');

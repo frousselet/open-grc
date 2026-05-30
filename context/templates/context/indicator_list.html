@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load table_tags %}
 
 {% block title %}
-{% if indicator_type == "organizational" %}{% trans "Organizational indicators" %}{% else %}{% trans "Technical indicators" %}{% endif %} — Fairway
+{% if indicator_type == "organizational" %}{% trans "Organizational indicators" %}{% else %}{% trans "Technical indicators" %}{% endif %} — Cairn
 {% endblock %}
 
 {% load help_tags %}
@@ -11,26 +11,15 @@
 
 {% block content %}
 {% approval_enabled_for "context.indicator" as show_approval %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% if indicator_type == "organizational" %}{% trans "Organizational indicators" %}{% else %}{% trans "Technical indicators" %}{% endif %}</h1>
-  <div class="header-actions">
-    {% if indicator_type == "organizational" %}
-      <button type="button" class="btn-header-action" title="{% trans 'New indicator' %}"
-              hx-get="{% url 'context:indicator-organizational-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
-        <i class="bi bi-plus-lg"></i>
-      </button>
-      <button type="button" class="btn-header-action" title="{% trans 'New predefined indicator' %}"
-              hx-get="{% url 'context:indicator-predefined-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
-        <i class="bi bi-list-check"></i>
-      </button>
-    {% else %}
-      <button type="button" class="btn-header-action" title="{% trans 'New indicator' %}"
-              hx-get="{% url 'context:indicator-technical-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
-        <i class="bi bi-plus-lg"></i>
-      </button>
-    {% endif %}
-  </div>
-</div>
+{% if indicator_type == "organizational" %}{% trans "Organizational indicators" as page_title %}{% else %}{% trans "Technical indicators" as page_title %}{% endif %}
+{% page_header page_title eyebrow=_("Governance") accent="context" %}
+  {% if indicator_type == "organizational" %}
+  <button type="button" class="btn btn-primary" hx-get="{% url 'context:indicator-organizational-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New indicator' %}</button>
+  <button type="button" class="btn btn-outline-secondary" hx-get="{% url 'context:indicator-predefined-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-list-check me-1" aria-hidden="true"></i>{% trans 'New predefined indicator' %}</button>
+  {% else %}
+  <button type="button" class="btn btn-primary" hx-get="{% url 'context:indicator-technical-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New indicator' %}</button>
+  {% endif %}
+{% endpage_header %}
 {% help_modal "context.indicator_list" %}
 
 <div class="mb-3 d-flex gap-2 flex-wrap align-items-center">

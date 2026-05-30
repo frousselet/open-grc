@@ -1,16 +1,26 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% trans "Delete ISMS change" %} - Fairway{% endblock %}
+{% block title %}{% trans "Delete ISMS change" %} — Cairn{% endblock %}
 
 {% block content %}
-<div class="card"><div class="card-body">
-  <h1>{% trans "Delete ISMS change" %}</h1>
-  <p>{% blocktrans with ref=object.reference title=object.title %}Delete ISMS change <strong>{{ ref }}: {{ title }}</strong>?{% endblocktrans %}</p>
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
-    <a href="{% url 'reports:management-review-detail' object.review.pk %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-  </form>
-</div></div>
+{% page_header _("Delete ISMS change") %}
+  <a href="{% url 'reports:management-review-detail' object.review.pk %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+{% endpage_header %}
+
+<div class="card">
+  <div class="card-body">
+    <p>{% blocktrans with ref=object.reference title=object.title %}Delete ISMS change <strong>{{ ref }} — {{ title }}</strong>?{% endblocktrans %}</p>
+    <p class="text-muted">{% trans "This action cannot be undone." %}</p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-danger">
+          <i class="bi bi-trash me-1" aria-hidden="true"></i>{% trans "Delete permanently" %}
+        </button>
+        <a href="{% url 'reports:management-review-detail' object.review.pk %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

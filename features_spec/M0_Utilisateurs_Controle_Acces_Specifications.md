@@ -12,9 +12,9 @@
 
 ### 1.1 Objectif du module
 
-Le module **Gestion des Utilisateurs et Contrôle d'Accès** constitue le socle transversal de l'application Fairway. Il assure l'authentification des utilisateurs, la gestion de leurs profils, et le contrôle d'accès granulaire à l'ensemble des fonctionnalités de la plateforme via un modèle RBAC (Role-Based Access Control) basé sur des groupes de permissions.
+Le module **Gestion des Utilisateurs et Contrôle d'Accès** constitue le socle transversal de l'application Cairn. Il assure l'authentification des utilisateurs, la gestion de leurs profils, et le contrôle d'accès granulaire à l'ensemble des fonctionnalités de la plateforme via un modèle RBAC (Role-Based Access Control) basé sur des groupes de permissions.
 
-Ce module est entièrement administrable depuis l'interface Fairway. L'accès à l'interface d'administration Django est réservé aux utilisateurs disposant d'une permission spécifique et n'est pas nécessaire pour la gestion courante des utilisateurs.
+Ce module est entièrement administrable depuis l'interface Cairn. L'accès à l'interface d'administration Django est réservé aux utilisateurs disposant d'une permission spécifique et n'est pas nécessaire pour la gestion courante des utilisateurs.
 
 ### 1.2 Périmètre fonctionnel
 
@@ -36,7 +36,7 @@ Le module couvre cinq sous-domaines :
 
 ### 1.4 Principes directeurs
 
-- **Autonomie complète via l'interface Fairway :** toute la gestion des utilisateurs, groupes et permissions se fait depuis l'application, sans recourir à l'admin Django.
+- **Autonomie complète via l'interface Cairn :** toute la gestion des utilisateurs, groupes et permissions se fait depuis l'application, sans recourir à l'admin Django.
 - **Admin Django réservée :** l'accès à l'interface d'administration Django est contrôlé par une permission dédiée, destinée exclusivement aux opérations techniques avancées (debug, configuration bas niveau).
 - **Extensibilité de l'authentification :** l'architecture est conçue pour intégrer ultérieurement des mécanismes SSO (SAML 2.0, OIDC) sans impact majeur sur le modèle de données.
 - **Granularité maximale :** chaque feature de chaque module dispose de 4 permissions élémentaires (create, read, update, delete), attribuées exclusivement via des groupes.
@@ -47,7 +47,7 @@ Le module couvre cinq sous-domaines :
 
 ### 2.1 Entité : User (Utilisateur)
 
-Représente un utilisateur de la plateforme Fairway.
+Représente un utilisateur de la plateforme Cairn.
 
 | Champ | Type | Contraintes | Description |
 |---|---|---|---|
@@ -191,7 +191,7 @@ Enregistre chaque événement d'authentification pour la traçabilité et la dé
 
 | ID | Règle |
 |---|---|
-| RU-01 | La création, modification et désactivation des utilisateurs se fait exclusivement depuis l'interface **Fairway** (pas depuis l'admin Django). |
+| RU-01 | La création, modification et désactivation des utilisateurs se fait exclusivement depuis l'interface **Cairn** (pas depuis l'admin Django). |
 | RU-02 | Un utilisateur ne peut pas être supprimé s'il est référencé comme propriétaire, créateur ou responsable dans un autre module. Dans ce cas, seule la **désactivation** (`is_active = false`) est possible. |
 | RU-03 | Un utilisateur désactivé ne peut plus se connecter. Ses sessions actives sont immédiatement révoquées. |
 | RU-04 | Un utilisateur peut modifier son propre profil (nom, prénom, téléphone, avatar, langue, fuseau horaire, préférences de notification) sans permission spécifique. |
@@ -501,7 +501,7 @@ Chaque permission suit le format : `{module}.{feature}.{action}`
 
 La gestion des utilisateurs est accessible via un élément de navigation « Administration » dans le menu principal, se décomposant en sous-menus : Utilisateurs, Groupes, Journal des accès. Ce menu n'est visible que pour les utilisateurs disposant d'au moins une permission `system.*`.
 
-Le bouton d'accès à l'admin Django est affiché **uniquement** si l'utilisateur dispose de la permission `system.admin_django.access`. Il est positionné de manière distincte (ex. icône en pied de menu ou dans un sous-menu « Avancé ») pour éviter toute confusion avec l'administration Fairway.
+Le bouton d'accès à l'admin Django est affiché **uniquement** si l'utilisateur dispose de la permission `system.admin_django.access`. Il est positionné de manière distincte (ex. icône en pied de menu ou dans un sous-menu « Avancé ») pour éviter toute confusion avec l'administration Cairn.
 
 ### 7.2 Page de connexion
 
@@ -701,7 +701,7 @@ Chaque utilisateur est rattaché à un tenant (`tenant_id`). Un utilisateur ne p
 
 ### 12.2 Gestion des utilisateurs
 
-- [ ] Le CRUD complet des utilisateurs fonctionne depuis l'interface Fairway
+- [ ] Le CRUD complet des utilisateurs fonctionne depuis l'interface Cairn
 - [ ] La désactivation d'un utilisateur révoque ses sessions et empêche la connexion
 - [ ] Un utilisateur peut modifier son propre profil
 - [ ] La contrainte d'au moins un administrateur actif est respectée

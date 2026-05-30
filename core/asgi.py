@@ -1,4 +1,4 @@
-"""ASGI config for Fairway project.
+"""ASGI config for Cairn project.
 
 Exposes HTTP via Django's standard ASGI handler and WebSocket
 connections via Django Channels.

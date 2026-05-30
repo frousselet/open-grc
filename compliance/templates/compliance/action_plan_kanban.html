@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% trans "Action plans" %} — Fairway{% endblock %}
+{% block title %}{% trans "Action plans" %} — Cairn{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -26,17 +26,11 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3" id="kanban-page-header">
-  <h1 class="mb-0">{% trans "Action plans" %}</h1>
-  <div class="header-actions">
-    <a href="{% url 'compliance:action-plan-list' %}" class="btn-header-action" title="{% trans 'List view' %}">
-      <i class="bi bi-list-ul"></i>
-    </a>
-    <button type="button" class="btn-header-action" title="{% trans 'New action plan' %}"
-            hx-get="{% url 'compliance:action-plan-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
-      <i class="bi bi-plus-lg"></i>
-    </button>
-  </div>
+<div id="kanban-page-header">
+{% page_header _("Action plans") %}
+  <a href="{% url 'compliance:action-plan-list' %}" class="btn btn-outline-secondary"><i class="bi bi-list-ul me-1" aria-hidden="true"></i>{% trans 'List view' %}</a>
+  <button type="button" class="btn btn-primary" hx-get="{% url 'compliance:action-plan-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New action plan' %}</button>
+{% endpage_header %}
 </div>
 
 <div id="kanban-container">

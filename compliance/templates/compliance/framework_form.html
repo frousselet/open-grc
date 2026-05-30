@@ -1,16 +1,21 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "framework" %} — Fairway{% endblock %}
+{% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "framework" %} — Cairn{% endblock %}
 
 {% block content %}
-<h1>{% if form.instance.pk %}{% trans "Edit framework" %}{% else %}{% trans "New framework" %}{% endif %}</h1>
+{% if form.instance.pk %}{% trans "Edit framework" as page_title %}{% else %}{% trans "New framework" as page_title %}{% endif %}
+{% page_header page_title %}{% endpage_header %}
 
 <div class="card">
   <div class="card-body">
     <form method="post" enctype="multipart/form-data" class="mt-0">
       {% csrf_token %}
 
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
       {# ── Logo + Name ── #}
       <div class="d-flex align-items-center gap-4 mb-4">
         <div class="position-relative" style="flex-shrink:0">
@@ -40,17 +45,22 @@
       {% for field in form %}
         {% if field.name != "name" and field.name != "logo" and field.name != "logo_resized" %}
         <div class="mb-3">
-          <label for="{{ field.id_for_label }}" class="form-label">
-            {{ field.label }}{% if field.field.required %} *{% endif %}
-          </label>
+          {% if field.field.widget.input_type == 'checkbox' %}
+          <div class="form-check">
+            {{ field }}
+            <label for="{{ field.id_for_label }}" class="form-check-label">{{ field.label }}</label>
+          </div>
+          {% else %}
+          <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
           {{ field }}
+          {% endif %}
           {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
           {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
         </div>
         {% endif %}
       {% endfor %}
       <div class="d-flex gap-2 form-actions-sticky">
-        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1" aria-hidden="true"></i>{% trans "Save" %}</button>
         <a href="{% url 'compliance:framework-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
       </div>
     </form>

@@ -1,14 +1,12 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% trans "Import a framework" %} — Fairway{% endblock %}
+{% block title %}{% trans "Import a framework" %} — Cairn{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Import a framework" %}</h1>
-</div>
+{% page_header _("Import a framework") %}{% endpage_header %}
 {% help_modal "compliance.framework_import" %}
 
 {% if form.non_field_errors %}

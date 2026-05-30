@@ -48,9 +48,9 @@ def generate_iso27005_report_docx(assessment, user):
 
     now = timezone.now()
     try:
-        company_name = CompanySettings.get().name or "Fairway"
+        company_name = CompanySettings.get().name or "Cairn"
     except Exception:
-        company_name = "Fairway"
+        company_name = "Cairn"
 
     # ── Cover page ──
     for _ in range(4):

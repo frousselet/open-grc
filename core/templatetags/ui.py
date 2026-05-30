@@ -1,4 +1,4 @@
-"""Shared UI template tags for Fairway.
+"""Shared UI template tags for Cairn.
 
 This module provides the canonical, reusable presentation primitives used
 across the whole product. Templates SHOULD NOT reinvent these patterns
@@ -253,15 +253,18 @@ def badge(value=None, *, type=None, variant=None, icon=None, label=None, classes
 
 
 @register.inclusion_tag("components/empty_state.html")
-def empty_state(*, icon="inbox", illustration=None, title=None, message=None, cta_url=None, cta_label=None, colspan=None):
+def empty_state(*, icon=None, illustration=None, title=None, message=None, cta_url=None, cta_label=None, colspan=None):
     """Render a standardized empty state.
 
     Use inside a ``<tbody>`` by setting ``colspan`` to the number of
     columns; otherwise render at block level.
 
-    Pass ``illustration="shield"`` (or any key in ``ILLUSTRATIONS``)
-    to render the editorial line-art illustration instead of the
-    Bootstrap Icon - more characterful when there's room for it.
+    By default (no ``icon`` and no ``illustration``), only the title +
+    message + optional CTA render - the brand-default plain variant.
+    Pass ``icon="folder-check"`` to add a Bootstrap Icon, or
+    ``illustration="shield"`` (any key in ``ILLUSTRATIONS``) to render
+    the editorial line-art illustration - reserve those for empty states
+    that benefit from extra character.
     """
     illustration_svg = None
     if illustration and illustration in ILLUSTRATIONS:
@@ -362,7 +365,7 @@ def do_page_header(parser, token):
     Usage::
 
         {% page_header "Risk register" subtitle="ISO 27005" %}
-          <a href="..." class="btn-header-action">...</a>
+          <a href="..." class="btn btn-primary">...</a>
         {% endpage_header %}
 
     The block content is injected into the right-hand action slot.

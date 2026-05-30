@@ -1,12 +1,10 @@
 {% extends "base.html" %}
-{% load help_tags %}
+{% load help_tags ui %}
 {% load i18n %}
-{% block title %}{% trans "Permissions — Fairway" %}{% endblock %}
+{% block title %}{% trans "Permissions — Cairn" %}{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h2 class="mb-0">{% trans "Permissions" %}</h2>
-</div>
+{% page_header _("Permissions") eyebrow=_("Administration") accent="accounts" %}{% endpage_header %}
 {% help_modal "accounts.permission_list" %}
 
 {% for mod_key, mod_data in grouped_permissions.items %}

@@ -1,19 +1,14 @@
 {% extends "base.html" %}
-{% load i18n scope_tags table_tags %}
+{% load i18n scope_tags table_tags ui %}
 
-{% block title %}{% trans "Risk criteria" %} — Fairway{% endblock %}
+{% block title %}{% trans "Risk criteria" %} — Cairn{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Risk criteria" %}</h1>
-  <div class="header-actions">
-    <a href="{% url 'risks:criteria-create' %}" class="btn-header-action" title="{% trans 'New criteria' %}">
-      <i class="bi bi-plus-lg"></i>
-    </a>
-  </div>
-</div>
+{% page_header _("Risk criteria") eyebrow=_("Risk management") accent="risks" %}
+  <a href="{% url 'risks:criteria-create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New criteria' %}</a>
+{% endpage_header %}
 {% help_modal "risks.criteria_list" %}
 
 <div class="mb-3 d-flex gap-2">
@@ -57,7 +52,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted)">{% trans "No risk criteria." %}</td></tr>
+        {% empty_state title=_("No risk criteria defined yet.") message=_("Risk criteria are the scales (likelihood, impact) and the level matrix used during assessments. Define them once per methodology.") colspan=8 %}
         {% endfor %}
       </tbody>
     </table>

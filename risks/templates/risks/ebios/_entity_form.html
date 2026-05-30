@@ -11,7 +11,7 @@ Context:
 
 <div class="card">
   <div class="card-header">
-    <h4 class="mb-0"><i class="bi bi-{{ icon|default:'pencil-square' }} me-2"></i>{{ title }}</h4>
+    <h4 class="mb-0"><i class="bi bi-{{ icon|default:'pencil-square' }} me-2" aria-hidden="true"></i>{{ title }}</h4>
   </div>
   <div class="card-body">
     <form method="post" novalidate>
@@ -29,22 +29,20 @@ Context:
                 <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
               </div>
             {% else %}
-              <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+              <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
               {{ field }}
             {% endif %}
-            {% if field.help_text %}<div class="form-text small">{{ field.help_text }}</div>{% endif %}
-            {% for err in field.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            {% for err in field.errors %}<div class="invalid-feedback d-block">{{ err }}</div>{% endfor %}
           </div>
           {% endwith %}
         {% endfor %}
       </div>
-      <div class="d-flex justify-content-between mt-4">
-        <a href="{{ cancel_url }}" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i>{% trans "Cancel" %}
-        </a>
+      <div class="d-flex gap-2 form-actions-sticky">
         <button type="submit" class="btn btn-primary">
-          <i class="bi bi-check-lg me-1"></i>{% trans "Save" %}
+          <i class="bi bi-check-lg me-1" aria-hidden="true"></i>{% trans "Save" %}
         </button>
+        <a href="{{ cancel_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
       </div>
     </form>
   </div>

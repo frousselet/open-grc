@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Fairway is a Governance, Risk and Compliance (GRC) platform built with Django 5.2, PostgreSQL 16, and Bootstrap 5.3 + HTMX for the frontend. It covers organizational context, asset management, risk management (ISO 27005/EBIOS RM), and compliance tracking.
+Cairn is a Governance, Risk and Compliance (GRC) platform built with Django 5.2, PostgreSQL 16, and Bootstrap 5.3 + HTMX for the frontend. It covers organizational context, asset management, risk management (ISO 27005/EBIOS RM), and compliance tracking.
 
 ## Development Commands
 
@@ -133,4 +133,5 @@ Detailed specs live in `features_spec/` (M0–M4 markdown files covering users, 
 - **No em dash character**: Never use the em dash character `—` (U+2014) in code, strings, or display text. Use ` : ` or ` - ` instead.
 - **Keep README.md up to date**: After any change that adds, removes or modifies a feature, model, MCP tool, dependency, or configuration, update `README.md` accordingly (feature tables, MCP tools section, tech stack, installation instructions). The README is the public-facing documentation and must always reflect the current state of the codebase.
 - **Keep CHANGELOG.md up to date**: Before committing and before creating a version tag, update `CHANGELOG.md` following the [Keep a Changelog](https://keepachangelog.com/) format. Add entries under `## [Unreleased]` with the appropriate category (Added, Changed, Fixed, Removed). When tagging a release, move the unreleased entries under a new `## [x.y.z] - YYYY-MM-DD` heading and add the comparison link at the bottom of the file.
+- **Brand guidelines must be respected**: Any visual, typographic, motion or component change MUST follow `docs/brand/brand-guidelines.md`. This is the single source of truth for the palette (one identity colour: navy `#1E3A8A`; semantic colours reserved for statuses only), typography (Inter only, weights 400/500/600/700; no display font; no UPPERCASE on titles), spacing / radii / shadow tokens, iconography (Bootstrap Icons exclusively), component principles (1px borders, soft shadows, calm hover states), motion (`--ease-out`, durations 150/220/320 ms, `prefers-reduced-motion` honoured), accessibility commitments (WCAG 2.2 AA), and voice/tone (sober, precise, action-oriented, bilingual). The logo must use the responsive system: `mark.svg` ≥ 24 px, `mark-sm.svg` ≤ 22 px. If a proposed change cannot be expressed within these constraints, update the guidelines first (with user approval), then apply.
 - **Persistent instructions**: When the user asks to "always do something" or to "remember something", add it to this `CLAUDE.md` file so it persists across sessions.

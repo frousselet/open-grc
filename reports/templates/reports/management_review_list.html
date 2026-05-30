@@ -1,23 +1,20 @@
 {% extends "base.html" %}
-{% load i18n accounts_tags %}
+{% load i18n accounts_tags ui %}
 
-{% block title %}{% trans "Management reviews" %} - Fairway{% endblock %}
+{% block title %}{% trans "Management reviews" %} - Cairn{% endblock %}
 
 {% block content %}
 {% has_perm "reports.management_review.create" as can_create_review %}
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-  <h1 class="mb-0">{% trans "Management reviews" %}</h1>
-  <div class="d-flex gap-2">
-    {% if can_create_review %}
-    <a href="{% url 'reports:management-review-new' %}" class="btn btn-primary">
-      <i class="bi bi-plus-lg me-1"></i>{% trans "New review" %}
-    </a>
-    {% endif %}
-    <a href="{% url 'reports:report-list' %}" class="btn btn-outline-secondary">
-      <i class="bi bi-file-earmark-text me-1"></i>{% trans "Generated reports" %}
-    </a>
-  </div>
-</div>
+{% page_header _("Management reviews") %}
+  {% if can_create_review %}
+  <a href="{% url 'reports:management-review-new' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>{% trans "New review" %}
+  </a>
+  {% endif %}
+  <a href="{% url 'reports:report-list' %}" class="btn btn-outline-secondary">
+    <i class="bi bi-file-earmark-text me-1"></i>{% trans "Generated reports" %}
+  </a>
+{% endpage_header %}
 
 <form method="get" class="mb-3">
   <div class="row g-2 align-items-end">
@@ -72,7 +69,7 @@
           <td class="text-end">{{ review.decisions.count }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="text-center text-muted py-4">{% trans "No management reviews yet." %}</td></tr>
+        {% empty_state title=_("No management review yet.") message=_("Management reviews are the periodic ISMS check-ins required by ISO 27001 § 9.3. Plan one, gather inputs, record decisions.") colspan=7 %}
         {% endfor %}
       </tbody>
     </table>

@@ -1,30 +1,21 @@
 {% extends "base.html" %}
-{% load i18n scope_tags %}
+{% load i18n scope_tags ui %}
 {% load help_tags %}
 {% load accounts_tags %}
 
-{% block title %}{{ supplier.name }} - Fairway{% endblock %}
+{% block title %}{{ supplier.name }} - Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div class="d-flex align-items-center gap-3">
-    {% if supplier.logo %}<img src="{{ supplier.logo_64|default:supplier.logo }}" alt="{{ supplier.name }}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border-light)">{% endif %}
-    <div>
-      <h1 class="mb-0">{{ supplier.name }}</h1>
-      <small class="ref">{{ supplier.reference }}</small>
-    </div>
-  </div>
-  <div class="d-flex gap-2">
-    <a href="{% url 'assets:supplier-update' supplier.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    {% if supplier.status != 'archived' %}
-    <form method="post" action="{% url 'assets:supplier-archive' supplier.pk %}">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-outline-warning" onclick="return confirm('{% trans "Archive this supplier?" %}')">{% trans "Archive" %}</button>
-    </form>
-    {% endif %}
-    <a href="{% url 'assets:supplier-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-  </div>
-</div>
+{% page_header supplier.name reference=supplier.reference %}
+  <a href="{% url 'assets:supplier-update' supplier.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+  {% if supplier.status != 'archived' %}
+  <form method="post" action="{% url 'assets:supplier-archive' supplier.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-outline-warning" onclick="return confirm('{% trans "Archive this supplier?" %}')">{% trans "Archive" %}</button>
+  </form>
+  {% endif %}
+  <a href="{% url 'assets:supplier-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+{% endpage_header %}
 {% help_modal "assets.supplier_detail" %}
 
 {% include "includes/approval_badge.html" %}

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "supplier type" %} — Fairway{% endblock %}
+{% block title %}{% if form.instance.pk %}{% trans "Edit" %}{% else %}{% trans "New" %}{% endif %} {% trans "supplier type" %} — Cairn{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -13,23 +13,37 @@
 {% endblock %}
 
 {% block content %}
-<h1>{% if form.instance.pk %}{% trans "Edit supplier type" %}{% else %}{% trans "New supplier type" %}{% endif %}</h1>
+{% if form.instance.pk %}{% trans "Edit supplier type" as page_title %}{% else %}{% trans "New supplier type" as page_title %}{% endif %}
+{% page_header page_title %}{% endpage_header %}
 
 <form method="post" class="mt-0">
   {% csrf_token %}
 
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
   {# ── General information ──────────────────────────── #}
   <div class="card mb-4">
     <div class="card-body">
       {% for field in form %}
+      {% if field.is_hidden %}
+      {{ field }}
+      {% else %}
       <div class="mb-3">
-        <label for="{{ field.id_for_label }}" class="form-label">
-          {{ field.label }}{% if field.field.required %} *{% endif %}
-        </label>
+        {% if field.field.widget.input_type == 'checkbox' %}
+        <div class="form-check">
+          {{ field }}
+          <label for="{{ field.id_for_label }}" class="form-check-label">{{ field.label }}</label>
+        </div>
+        {% else %}
+        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
         {{ field }}
+        {% endif %}
         {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
         {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
       </div>
+      {% endif %}
       {% endfor %}
     </div>
   </div>
@@ -71,7 +85,7 @@
   </div>
 
   <div class="d-flex gap-2 form-actions-sticky">
-    <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1" aria-hidden="true"></i>{% trans "Save" %}</button>
     <a href="{% url 'assets:supplier-type-list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
   </div>
 </form>

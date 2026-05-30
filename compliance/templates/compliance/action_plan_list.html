@@ -1,26 +1,18 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load table_tags %}
 
-{% block title %}{% trans "Action plans" %} — Fairway{% endblock %}
+{% block title %}{% trans "Action plans" %} — Cairn{% endblock %}
 
 {% load help_tags %}
 {% load versioning_tags %}
 
 {% block content %}
 {% approval_enabled_for "compliance.complianceactionplan" as show_approval %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Action plans" %}</h1>
-  <div class="header-actions">
-    <a href="{% url 'compliance:action-plan-kanban' %}" class="btn-header-action" title="{% trans 'Kanban board' %}">
-      <i class="bi bi-kanban"></i>
-    </a>
-    <button type="button" class="btn-header-action" title="{% trans 'New action plan' %}"
-            hx-get="{% url 'compliance:action-plan-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
-      <i class="bi bi-plus-lg"></i>
-    </button>
-  </div>
-</div>
+{% page_header _("Action plans") eyebrow=_("Compliance") accent="compliance" %}
+  <a href="{% url 'compliance:action-plan-kanban' %}" class="btn btn-outline-secondary"><i class="bi bi-kanban me-1" aria-hidden="true"></i>{% trans 'Kanban board' %}</a>
+  <button type="button" class="btn btn-primary" hx-get="{% url 'compliance:action-plan-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New action plan' %}</button>
+{% endpage_header %}
 {% help_modal "compliance.action_plan_list" %}
 
 {% include "includes/table_search.html" %}
@@ -99,7 +91,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="11" class="text-center py-4" style="color:var(--text-muted)">{% trans "No action plan defined." %}</td></tr>
+        {% empty_state title=_("No action plan opened yet.") message=_("Action plans track remediation work for assessment findings or risk treatments. Each one has an owner, a target date and a workflow.") colspan=11 %}
         {% endfor %}
       </tbody>
     </table>

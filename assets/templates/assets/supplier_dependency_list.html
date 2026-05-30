@@ -1,21 +1,16 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load help_tags %}
 {% load table_tags %}
 {% load versioning_tags %}
 
-{% block title %}{% trans "Supplier dependencies" %} — Fairway{% endblock %}
+{% block title %}{% trans "Supplier dependencies" %} — Cairn{% endblock %}
 
 {% block content %}
 {% approval_enabled_for "assets.supplierdependency" as show_approval %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Supplier dependencies" %}</h1>
-  <div class="header-actions">
-    <a href="{% url 'assets:supplier-dependency-create' %}" class="btn-header-action" title="{% trans 'New dependency' %}">
-      <i class="bi bi-plus-lg"></i>
-    </a>
-  </div>
-</div>
+{% page_header _("Supplier dependencies") eyebrow=_("Assets") accent="assets" %}
+  <a href="{% url 'assets:supplier-dependency-create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New dependency' %}</a>
+{% endpage_header %}
 {% help_modal "assets.supplier_dependency_list" %}
 
 {% include "includes/table_search.html" %}
@@ -80,7 +75,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No supplier dependencies defined." %}</td></tr>
+        {% empty_state title=_("No supplier dependency declared yet.") message=_("Track which assets depend on which suppliers - critical for vendor risk and continuity planning.") colspan=9 %}
         {% endfor %}
       </tbody>
     </table>

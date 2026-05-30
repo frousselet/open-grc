@@ -1,13 +1,11 @@
 {% extends "base.html" %}
-{% load help_tags %}
+{% load help_tags ui %}
 {% load i18n %}
 {% load table_tags %}
-{% block title %}{% trans "Access log — Fairway" %}{% endblock %}
+{% block title %}{% trans "Access log — Cairn" %}{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h2 class="mb-0">{% trans "Access log" %}</h2>
-</div>
+{% page_header _("Access log") eyebrow=_("Administration") accent="accounts" %}{% endpage_header %}
 {% help_modal "accounts.access_log_list" %}
 
 <form id="filterForm" method="get">
@@ -87,7 +85,7 @@ function setPill(param, value) {
           <td>{{ log.get_failure_reason_display|default:"-" }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="5" class="text-center py-4" style="color:var(--text-muted)">{% trans "No events." %}</td></tr>
+        {% empty_state title=_("No access events yet.") message=_("Access logs trace every sign-in, sign-out and impersonation attempt. They appear here as soon as activity happens.") colspan=5 %}
         {% endfor %}
       </tbody>
     </table>

@@ -1,26 +1,20 @@
 {% extends "base.html" %}
-{% load i18n scope_tags %}
+{% load i18n scope_tags ui %}
 {% load help_tags %}
 
-{% block title %}{{ indicator.name }} — Fairway{% endblock %}
+{% block title %}{{ indicator.name }} - Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h1 class="mb-0">{{ indicator.name }}</h1>
-    <small class="ref">{{ indicator.reference }}</small>
-    {% if indicator.is_internal %}<span class="badge text-bg-info ms-2">{% trans "Predefined Fairway" %}</span>{% endif %}
-  </div>
-  <div class="d-flex gap-2">
-    <a href="{% url 'context:indicator-update' indicator.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    <a href="{% url 'context:indicator-delete' indicator.pk %}" class="btn btn-outline-danger">{% trans "Delete" %}</a>
-    {% if indicator.indicator_type == "organizational" %}
-    <a href="{% url 'context:indicator-organizational-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-    {% else %}
-    <a href="{% url 'context:indicator-technical-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-    {% endif %}
-  </div>
-</div>
+{% page_header indicator.name reference=indicator.reference %}
+  {% if indicator.is_internal %}<span class="badge text-bg-info">{% trans "Predefined Cairn" %}</span>{% endif %}
+  <a href="{% url 'context:indicator-update' indicator.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+  <a href="{% url 'context:indicator-delete' indicator.pk %}" class="btn btn-outline-danger">{% trans "Delete" %}</a>
+  {% if indicator.indicator_type == "organizational" %}
+  <a href="{% url 'context:indicator-organizational-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+  {% else %}
+  <a href="{% url 'context:indicator-technical-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+  {% endif %}
+{% endpage_header %}
 {% help_modal "context.indicator_detail" %}
 {% include "includes/approval_badge.html" %}
 
@@ -147,7 +141,7 @@
       <form method="post" action="{% url 'context:indicator-refresh' indicator.pk %}" class="d-flex align-items-center gap-3">
         {% csrf_token %}
         <span class="inline-form-label"><i class="bi bi-arrow-clockwise me-1"></i>{% trans "Predefined" %}</span>
-        <span style="font-size:.8125rem;color:var(--text-secondary);flex:1">{% trans "Refresh the value from Fairway data." %}</span>
+        <span style="font-size:.8125rem;color:var(--text-secondary);flex:1">{% trans "Refresh the value from Cairn data." %}</span>
         <button type="submit" class="btn btn-outline-primary btn-sm">{% trans "Refresh" %}</button>
       </form>
     </div>

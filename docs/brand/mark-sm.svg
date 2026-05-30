@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!--
+    Cairn — Small mark (used at 16-22 px: favicon, tab icon,
+    OS app icon at low res, dense data tables).
+    Same C-bowl as the primary mark, but the inner stepped cairn
+    is replaced by a single clean triangular peak. At small sizes
+    the three layers of the stepped version turn into noise; the
+    triangle keeps the silhouette intact and the brand reading.
+  -->
+  <rect width="64" height="64" rx="13" fill="#1E3A8A"/>
+  <!-- C-bowl opening upward (identical to primary mark) -->
+  <path d="M 19 38 A 14 14 0 1 1 45 38" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <!-- Simplified peak: one triangle from a wide base to a clean apex -->
+  <path d="M 22 44 L 32 26 L 42 44 Z" fill="#FFFFFF"/>
+</svg>

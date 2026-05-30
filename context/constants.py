@@ -225,7 +225,7 @@ class CriticalThresholdOperator(models.TextChoices):
 class CollectionMethod(models.TextChoices):
     MANUAL = "manual", _("Manual")
     API = "api", _("API")
-    INTERNAL = "internal", _("Predefined Fairway")
+    INTERNAL = "internal", _("Predefined Cairn")
 
 
 class IndicatorStatus(models.TextChoices):

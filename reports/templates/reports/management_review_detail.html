@@ -1,30 +1,24 @@
 {% extends "base.html" %}
-{% load i18n accounts_tags %}
+{% load i18n accounts_tags ui %}
 
-{% block title %}{{ review.title }} - Fairway{% endblock %}
+{% block title %}{{ review.title }} - Cairn{% endblock %}
 
 {% block content %}
 {% has_perm "reports.management_review.update" as can_update_review %}
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-  <div>
-    <h1 class="mb-0">{{ review.title }}</h1>
-    <small class="ref">{{ review.reference }}</small>
+{% page_header review.title reference=review.reference %}
+  {% if can_update_review %}
+  <a href="{% url 'reports:management-review-edit' review.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+  {% endif %}
+  <div class="btn-group">
+    <a href="{% url 'reports:management-review-export' review.pk 'pptx' %}" class="btn btn-outline-secondary">
+      <i class="bi bi-filetype-pptx me-1"></i>PPTX
+    </a>
+    <a href="{% url 'reports:management-review-export' review.pk 'docx' %}" class="btn btn-outline-secondary">
+      <i class="bi bi-filetype-docx me-1"></i>DOCX
+    </a>
   </div>
-  <div class="d-flex gap-2 flex-wrap">
-    {% if can_update_review %}
-    <a href="{% url 'reports:management-review-edit' review.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    {% endif %}
-    <div class="btn-group">
-      <a href="{% url 'reports:management-review-export' review.pk 'pptx' %}" class="btn btn-outline-secondary">
-        <i class="bi bi-filetype-pptx me-1"></i>PPTX
-      </a>
-      <a href="{% url 'reports:management-review-export' review.pk 'docx' %}" class="btn btn-outline-secondary">
-        <i class="bi bi-filetype-docx me-1"></i>DOCX
-      </a>
-    </div>
-    <a href="{% url 'reports:management-review-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-  </div>
-</div>
+  <a href="{% url 'reports:management-review-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+{% endpage_header %}
 
 {% if data_source == "snapshot" %}
 <div class="alert alert-info d-flex align-items-center py-2 px-3 mb-3" role="alert">

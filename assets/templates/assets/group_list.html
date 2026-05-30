@@ -1,23 +1,17 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load table_tags %}
 
-{% block title %}{% trans "Asset groups" %} — Fairway{% endblock %}
+{% block title %}{% trans "Asset groups" %} — Cairn{% endblock %}
 
 {% load help_tags %}
 {% load versioning_tags %}
 
 {% block content %}
 {% approval_enabled_for "assets.assetgroup" as show_approval %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Asset groups" %}</h1>
-  <div class="header-actions">
-    <button type="button" class="btn-header-action" title="{% trans 'New group' %}"
-            hx-get="{% url 'assets:group-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
-      <i class="bi bi-plus-lg"></i>
-    </button>
-  </div>
-</div>
+{% page_header _("Asset groups") eyebrow=_("Assets") accent="assets" %}
+  <button type="button" class="btn btn-primary" hx-get="{% url 'assets:group-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New group' %}</button>
+{% endpage_header %}
 {% help_modal "assets.group_list" %}
 
 {% include "includes/table_search.html" %}
@@ -64,7 +58,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No groups defined." %}</td></tr>
+        {% empty_state title=_("No group created yet.") message=_("Groups bundle related items together so you can apply controls and analyses at the right granularity.") colspan=9 %}
         {% endfor %}
       </tbody>
     </table>

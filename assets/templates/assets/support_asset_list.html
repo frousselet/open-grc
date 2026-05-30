@@ -1,19 +1,13 @@
 {% extends "base.html" %}
-{% load dic_tags help_tags i18n table_tags versioning_tags %}
+{% load dic_tags help_tags i18n table_tags versioning_tags ui %}
 
-{% block title %}{% trans "Support assets" %} — Fairway{% endblock %}
+{% block title %}{% trans "Support assets" %} — Cairn{% endblock %}
 
 {% block content %}
 {% approval_enabled_for "assets.supportasset" as show_approval %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Support assets" %}</h1>
-  <div class="header-actions">
-    <button type="button" class="btn-header-action" title="{% trans 'New support asset' %}"
-            hx-get="{% url 'assets:support-asset-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
-      <i class="bi bi-plus-lg"></i>
-    </button>
-  </div>
-</div>
+{% page_header _("Support assets") eyebrow=_("Assets") accent="assets" %}
+  <button type="button" class="btn btn-primary" hx-get="{% url 'assets:support-asset-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New support asset' %}</button>
+{% endpage_header %}
 {% help_modal "assets.support_asset_list" %}
 
 <div class="mb-3 d-flex gap-2 flex-wrap">
@@ -85,7 +79,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="14" class="text-center py-4" style="color:var(--text-muted)">{% trans "No support assets." %}</td></tr>
+        {% empty_state title=_("No support asset registered yet.") message=_("Support assets are the IT components (servers, applications, network gear, data stores) that essential assets depend on.") colspan=14 %}
         {% endfor %}
       </tbody>
     </table>

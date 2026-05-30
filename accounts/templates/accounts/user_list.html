@@ -1,22 +1,17 @@
 {% extends "base.html" %}
-{% load accounts_tags %}
+{% load accounts_tags ui %}
 {% load help_tags %}
 {% load i18n %}
 {% load table_tags %}
-{% block title %}{% trans "Users — Fairway" %}{% endblock %}
+{% block title %}{% trans "Users — Cairn" %}{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h2 class="mb-0">{% trans "Users" %}</h2>
-  <div class="header-actions">
-    {% has_perm "system.users.create" as can_create %}
-    {% if can_create %}
-    <a href="{% url 'accounts:user-create' %}" class="btn-header-action" title="{% trans 'Create a user' %}">
-      <i class="bi bi-plus-lg"></i>
-    </a>
-    {% endif %}
-  </div>
-</div>
+{% has_perm "system.users.create" as can_create %}
+{% page_header _("Users") eyebrow=_("Administration") accent="accounts" %}
+  {% if can_create %}
+  <a href="{% url 'accounts:user-create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'Create a user' %}</a>
+  {% endif %}
+{% endpage_header %}
 {% help_modal "accounts.user_list" %}
 
 <div class="mb-3 d-flex gap-2">
@@ -47,7 +42,7 @@
               {% if u.avatar %}
               <img src="{{ u.avatar_32|default:u.avatar }}" alt="" style="width:24px;height:24px;border-radius:50%;object-fit:cover">
               {% else %}
-              <span class="d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--accent-soft),rgba(99,102,241,.15));color:var(--accent);font-size:.6875rem;font-weight:650">{{ u.display_name|truncatechars:1 }}</span>
+              <span class="d-inline-flex align-items-center justify-content-center" style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--accent-soft),color-mix(in srgb,var(--accent) 18%,transparent));color:var(--accent);font-size:.625rem;font-weight:600;letter-spacing:.02em">{{ u.display_name|initials }}</span>
               {% endif %}
               {{ u.display_name }}
             </a>
@@ -70,7 +65,7 @@
           <td>{{ u.last_login|date:"d/m/Y H:i"|default:"-" }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted)">{% trans "No user found." %}</td></tr>
+        {% empty_state title=_("No user found.") message=_("Users are the people who can sign in to Cairn. Invite a user to give them access.") colspan=6 %}
         {% endfor %}
       </tbody>
     </table>

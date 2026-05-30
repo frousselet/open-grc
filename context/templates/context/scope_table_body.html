@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n ui %}
 {% load versioning_tags %}
 {% approval_enabled_for "context.scope" as show_approval %}
 {% for scope in scopes %}
@@ -35,5 +35,5 @@
   </td>
 </tr>
 {% empty %}
-<tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No scope defined." %}</td></tr>
+{% empty_state title=_("No scope defined yet.") message=_("Scopes draw the boundaries of your ISMS. Define at least one (geographic, organisational, technical) to anchor every other entity.") colspan=9 %}
 {% endfor %}

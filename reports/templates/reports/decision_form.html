@@ -1,15 +1,13 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% if action == "update" %}{% trans "Edit decision" %}{% else %}{% trans "New decision" %}{% endif %} - Fairway{% endblock %}
+{% block title %}{% if action == "update" %}{% trans "Edit decision" %}{% else %}{% trans "New decision" %}{% endif %} - Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="mb-0">
-    {% if action == "update" %}{% trans "Edit decision" %}{% else %}{% trans "New decision" %}{% endif %}
-  </h1>
+{% if action == "update" %}{% trans "Edit decision" as page_title %}{% else %}{% trans "New decision" as page_title %}{% endif %}
+{% page_header page_title %}
   <a href="{% url 'reports:management-review-detail' review.pk %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-</div>
+{% endpage_header %}
 
 <div class="card"><div class="card-body">
   <form method="post" novalidate>
@@ -74,7 +72,7 @@
     </div>
 
     <div class="d-flex gap-2">
-      <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1" aria-hidden="true"></i>{% trans "Save" %}</button>
       <a href="{% url 'reports:management-review-detail' review.pk %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
     </div>
   </form>

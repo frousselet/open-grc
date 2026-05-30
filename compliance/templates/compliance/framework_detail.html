@@ -1,24 +1,15 @@
 {% extends "base.html" %}
-{% load i18n scope_tags %}
+{% load i18n scope_tags ui %}
 {% load help_tags %}
 {% load accounts_tags %}
 
-{% block title %}{{ framework.name }} — Fairway{% endblock %}
+{% block title %}{{ framework.name }} — Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div class="d-flex align-items-center gap-3">
-    {% if framework.logo %}<img src="{{ framework.logo_64|default:framework.logo }}" alt="{{ framework.name }}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border-light);background:#fff">{% else %}<div class="d-flex align-items-center justify-content-center" style="width:48px;min-width:48px;height:48px;min-height:48px;border-radius:6px;background:var(--accent-soft);color:var(--accent);font-size:1.25rem;border:1px solid var(--border-light)"><i class="bi bi-journal-bookmark"></i></div>{% endif %}
-    <div>
-      <h1 class="mb-0">{{ framework.name }}</h1>
-      <small class="ref">{{ framework.reference }}</small>
-    </div>
-  </div>
-  <div class="d-flex gap-2">
-    <a href="{% url 'compliance:framework-update' framework.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    <a href="{% url 'compliance:framework-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-  </div>
-</div>
+{% page_header framework.name reference=framework.reference %}
+  <a href="{% url 'compliance:framework-update' framework.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+  <a href="{% url 'compliance:framework-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+{% endpage_header %}
 {% help_modal "compliance.framework_detail" %}
 
 {% include "includes/approval_badge.html" %}

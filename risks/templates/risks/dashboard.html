@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% load i18n accounts_tags %}
+{% load i18n accounts_tags ui %}
 
-{% block title %}{% trans "Risk dashboard" %} - Fairway{% endblock %}
+{% block title %}{% trans "Risk dashboard" %} - Cairn{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -21,17 +21,10 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3 flex-wrap gap-2">
-  <h1 class="mb-0">{% trans "Risk dashboard" %}</h1>
-  <div class="header-actions">
-    <a href="{% url 'risks:assessment-list' %}" class="btn-header-action" title="{% trans 'Go to assessments' %}">
-      <i class="bi bi-clipboard-data"></i>
-    </a>
-    <a href="{% url 'risks:risk-list' %}" class="btn-header-action" title="{% trans 'Go to risk register' %}">
-      <i class="bi bi-exclamation-diamond"></i>
-    </a>
-  </div>
-</div>
+{% page_header _("Risk dashboard") %}
+  <a href="{% url 'risks:assessment-list' %}" class="btn btn-outline-secondary"><i class="bi bi-clipboard-data me-1" aria-hidden="true"></i>{% trans 'Go to assessments' %}</a>
+  <a href="{% url 'risks:risk-list' %}" class="btn btn-outline-secondary"><i class="bi bi-exclamation-diamond me-1" aria-hidden="true"></i>{% trans 'Go to risk register' %}</a>
+{% endpage_header %}
 
 {# ── Top counters ────────────────────────────────────────── #}
 <div class="row g-3 mb-4">

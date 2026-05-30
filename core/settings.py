@@ -1,5 +1,5 @@
 """
-Django settings for Fairway project.
+Django settings for Cairn project.
 """
 
 import os
@@ -205,7 +205,7 @@ REST_FRAMEWORK = {
 # WebAuthn / Passkeys
 # When not set, RPID and origin are derived from the request automatically.
 WEBAUTHN_RP_ID = os.environ.get("WEBAUTHN_RP_ID")
-WEBAUTHN_RP_NAME = os.environ.get("WEBAUTHN_RP_NAME", "Fairway")
+WEBAUTHN_RP_NAME = os.environ.get("WEBAUTHN_RP_NAME", "Cairn")
 WEBAUTHN_ORIGIN = os.environ.get("WEBAUTHN_ORIGIN")
 
 SIMPLE_JWT = {

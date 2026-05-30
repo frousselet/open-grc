@@ -1,21 +1,16 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load help_tags %}
 {% load table_tags %}
 {% load versioning_tags %}
 
-{% block title %}{% trans "Site–asset dependencies" %} — Fairway{% endblock %}
+{% block title %}{% trans "Site–asset dependencies" %} — Cairn{% endblock %}
 
 {% block content %}
 {% approval_enabled_for "assets.siteassetdependency" as show_approval %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Site–asset dependencies" %}</h1>
-  <div class="header-actions">
-    <a href="{% url 'assets:site-asset-dependency-create' %}" class="btn-header-action" title="{% trans 'New dependency' %}">
-      <i class="bi bi-plus-lg"></i>
-    </a>
-  </div>
-</div>
+{% page_header _("Site–asset dependencies") eyebrow=_("Assets") accent="assets" %}
+  <a href="{% url 'assets:site-asset-dependency-create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New dependency' %}</a>
+{% endpage_header %}
 {% help_modal "assets.site_asset_dependency_list" %}
 
 {% include "includes/table_search.html" %}
@@ -69,7 +64,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted)">{% trans "No site–asset dependencies defined." %}</td></tr>
+        {% empty_state title=_("No site-asset link declared yet.") message=_("Linking sites to assets shows where each asset physically lives or is processed.") colspan=9 %}
         {% endfor %}
       </tbody>
     </table>

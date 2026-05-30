@@ -1,12 +1,10 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 
-{% block title %}{% trans "Reports" %} — Fairway{% endblock %}
+{% block title %}{% trans "Reports" %} — Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Reports" %}</h1>
-</div>
+{% page_header _("Reports") %}{% endpage_header %}
 
 {# ── Report types ──────────────────────────────────────── #}
 <div class="row g-3 mb-4">
@@ -84,7 +82,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted)">{% trans "No report generated yet." %}</td></tr>
+        {% empty_state title=_("No report generated yet.") message=_("Generated reports (audit reports, SoA, management review packs) are listed here for download.") colspan=6 %}
         {% endfor %}
       </tbody>
     </table>

@@ -1,13 +1,11 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load help_tags %}
 
-{% block title %}{% trans "Tags" %} — Fairway{% endblock %}
+{% block title %}{% trans "Tags" %} — Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Tags" %}</h1>
-</div>
+{% page_header _("Tags") eyebrow=_("Administration") accent="accounts" %}{% endpage_header %}
 {% help_modal "context.tag_list" %}
 
 <div class="card">
@@ -48,7 +46,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="5" class="text-center py-4" style="color:var(--text-muted)">{% trans "No tag created yet." %}</td></tr>
+        {% empty_state title=_("No tag created yet.") message=_("Tags are free-form classifiers (project, criticality tier, regulation). Create the ones your team naturally reaches for.") colspan=5 %}
         {% endfor %}
       </tbody>
     </table>

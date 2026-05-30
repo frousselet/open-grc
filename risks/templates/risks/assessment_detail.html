@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% load i18n scope_tags %}
+{% load i18n scope_tags ui %}
 {% load help_tags %}
 {% load accounts_tags %}
 
-{% block title %}{{ assessment.name }} - Fairway{% endblock %}
+{% block title %}{{ assessment.name }} - Cairn{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -21,22 +21,16 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h1 class="mb-0">{{ assessment.name }}</h1>
-    <small class="ref">{{ assessment.reference }}</small>
-  </div>
-  <div class="d-flex gap-2">
-    {% has_perm "risks.export.read" as can_export_assessment %}
-    {% if can_export_assessment %}
-    <a href="{% url 'risks:assessment-export-docx' assessment.pk %}" class="btn btn-outline-primary" title="{% trans 'Export to Word' %}">
-      <i class="bi bi-file-earmark-word me-1"></i>{% trans "Export DOCX" %}
-    </a>
-    {% endif %}
-    <a href="{% url 'risks:assessment-update' assessment.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    <a href="{% url 'risks:assessment-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-  </div>
-</div>
+{% page_header assessment.name reference=assessment.reference %}
+  {% has_perm "risks.export.read" as can_export_assessment %}
+  {% if can_export_assessment %}
+  <a href="{% url 'risks:assessment-export-docx' assessment.pk %}" class="btn btn-outline-primary" title="{% trans 'Export to Word' %}">
+  <i class="bi bi-file-earmark-word me-1"></i>{% trans "Export DOCX" %}
+  </a>
+  {% endif %}
+  <a href="{% url 'risks:assessment-update' assessment.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+  <a href="{% url 'risks:assessment-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+{% endpage_header %}
 {% help_modal "risks.assessment_detail" %}
 {% include "includes/approval_badge.html" with object=assessment %}
 

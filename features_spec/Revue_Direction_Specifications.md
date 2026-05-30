@@ -13,7 +13,7 @@
 
 ### 1.1 Objectif
 
-Doter Fairway d'un processus complet de **revue de direction** conforme à la clause 9.3 de l'ISO 27001:2022. L'état actuel se limite à un **export ponctuel** (PPTX + DOCX) agrégeant les entrées de la clause 9.3.2. Cette spécification ajoute les éléments manquants pour produire des revues de direction **auditables, persistantes et traçables** :
+Doter Cairn d'un processus complet de **revue de direction** conforme à la clause 9.3 de l'ISO 27001:2022. L'état actuel se limite à un **export ponctuel** (PPTX + DOCX) agrégeant les entrées de la clause 9.3.2. Cette spécification ajoute les éléments manquants pour produire des revues de direction **auditables, persistantes et traçables** :
 
 - un cycle de vie complet de la revue (préparation, tenue, clôture)
 - la capture structurée des **décisions** et **changements SMSI** exigés par la clause 9.3.3

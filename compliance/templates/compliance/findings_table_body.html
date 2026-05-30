@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n ui %}
 {% for finding in findings %}
 <tr>
   <td>
@@ -44,9 +44,5 @@
   </td>
 </tr>
 {% empty %}
-<tr>
-  <td colspan="6" class="text-center" style="color:var(--text-muted);font-size:.85rem;padding:2rem">
-    {% trans "No findings recorded yet." %}
-  </td>
-</tr>
+{% empty_state title=_("No findings recorded yet.") colspan=6 %}
 {% endfor %}

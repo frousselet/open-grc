@@ -3,6 +3,29 @@ from django import template
 register = template.Library()
 
 
+@register.filter
+def initials(name):
+    """Return up to two uppercase initials extracted from a display name.
+
+    Examples::
+
+        "François Rousselet" -> "FR"
+        "François"           -> "F"
+        "alice"              -> "A"
+        ""                   -> "?"
+
+    Replaces the buggy ``{{ name|truncatechars:1 }}`` pattern, which always
+    rendered ``...`` because Django's truncatechars counts the marker in
+    the length budget.
+    """
+    parts = [p for p in (name or "").split() if p]
+    if not parts:
+        return "?"
+    if len(parts) == 1:
+        return parts[0][0].upper()
+    return (parts[0][0] + parts[-1][0]).upper()
+
+
 @register.simple_tag(takes_context=True)
 def has_perm(context, codename):
     """
@@ -61,10 +84,7 @@ def user_badge(user, size=28, link=False, name=True, block=False):
         else:
             avatar_src = user.avatar_16 or user.avatar
 
-    initial = ""
-    if user:
-        dn = user.display_name or ""
-        initial = dn[0].upper() if dn else "?"
+    initial = initials(user.display_name if user else "")
 
     return {
         "u": user,

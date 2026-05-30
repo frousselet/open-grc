@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load help_tags %}
 {% load accounts_tags %}
 
-{% block title %}{{ req.title }} — {{ supplier.name }} — Fairway{% endblock %}
+{% block title %}{{ req.title }} — {{ supplier.name }} — Cairn{% endblock %}
 
 {% block content %}
 <nav aria-label="breadcrumb" class="mb-3">
@@ -14,13 +14,10 @@
   </ol>
 </nav>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="mb-0">{{ req.title }}</h1>
-  <div class="d-flex gap-2">
-    <a href="{% url 'assets:supplier-requirement-update' req.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    <a href="{% url 'assets:supplier-detail' supplier.pk %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-  </div>
-</div>
+{% page_header req.title %}
+  <a href="{% url 'assets:supplier-requirement-update' req.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+  <a href="{% url 'assets:supplier-detail' supplier.pk %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+{% endpage_header %}
 {% help_modal "assets.supplier_requirement_detail" %}
 
 <div class="card mb-4">

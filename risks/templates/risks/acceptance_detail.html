@@ -1,21 +1,16 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load help_tags %}
 {% load accounts_tags %}
 
-{% block title %}{% trans "Risk acceptance" %} - Fairway{% endblock %}
+{% block title %}{% trans "Risk acceptance" %} - Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h1 class="mb-0">{% blocktrans with risk=acceptance.risk %}Acceptance - {{ risk }}{% endblocktrans %}</h1>
-    <small class="ref">{{ acceptance.reference }}</small>
-  </div>
-  <div class="d-flex gap-2">
-    <a href="{% url 'risks:acceptance-update' acceptance.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    <a href="{% url 'risks:acceptance-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-  </div>
-</div>
+{% blocktrans asvar acceptance_title with risk=acceptance.risk %}Acceptance - {{ risk }}{% endblocktrans %}
+{% page_header acceptance_title reference=acceptance.reference %}
+  <a href="{% url 'risks:acceptance-update' acceptance.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+  <a href="{% url 'risks:acceptance-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+{% endpage_header %}
 {% help_modal "risks.acceptance_detail" %}
 {% include "includes/approval_badge.html" with object=acceptance %}
 

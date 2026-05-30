@@ -1,20 +1,14 @@
 {% extends "base.html" %}
-{% load i18n scope_tags table_tags %}
+{% load i18n scope_tags table_tags ui %}
 
-{% block title %}{% trans "Threats" %} — Fairway{% endblock %}
+{% block title %}{% trans "Threats" %} — Cairn{% endblock %}
 
 {% load help_tags %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Threats" %}</h1>
-  <div class="header-actions">
-    <button type="button" class="btn-header-action" title="{% trans 'New threat' %}"
-            hx-get="{% url 'risks:threat-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
-      <i class="bi bi-plus-lg"></i>
-    </button>
-  </div>
-</div>
+{% page_header _("Threats") eyebrow=_("Risk management") accent="risks" %}
+  <button type="button" class="btn btn-primary" hx-get="{% url 'risks:threat-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New threat' %}</button>
+{% endpage_header %}
 {% help_modal "risks.threat_list" %}
 
 <div class="mb-3 d-flex gap-2">
@@ -63,7 +57,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted)">{% trans "No threats." %}</td></tr>
+        {% empty_state title=_("No threat catalogued yet.") message=_("Threats are the events or sources that could harm assets. Maintain a shared catalogue to keep assessments consistent.") colspan=10 %}
         {% endfor %}
       </tbody>
     </table>

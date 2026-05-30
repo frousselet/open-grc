@@ -1,21 +1,15 @@
 {% extends "base.html" %}
-{% load i18n scope_tags %}
+{% load i18n scope_tags ui %}
 {% load help_tags %}
 {% load accounts_tags %}
 
-{% block title %}{{ activity.name }} — Fairway{% endblock %}
+{% block title %}{{ activity.name }} — Cairn{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div>
-    <h1 class="mb-0">{{ activity.name }}</h1>
-    <small class="ref">{{ activity.reference }}</small>
-  </div>
-  <div class="d-flex gap-2">
-    <a href="{% url 'context:activity-update' activity.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
-    <a href="{% url 'context:activity-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
-  </div>
-</div>
+{% page_header activity.name reference=activity.reference %}
+  <a href="{% url 'context:activity-update' activity.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
+  <a href="{% url 'context:activity-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
+{% endpage_header %}
 {% help_modal "context.activity_detail" %}
 {% include "includes/approval_badge.html" %}
 

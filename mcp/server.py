@@ -137,7 +137,7 @@ class McpServer:
                 "tools": {"listChanged": False},
             },
             "serverInfo": {
-                "name": "Fairway MCP Server",
+                "name": "Cairn MCP Server",
                 "version": "1.0.0",
             },
         }

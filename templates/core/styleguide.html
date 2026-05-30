@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load ui %}
 
-{% block title %}{% trans "Styleguide" %} - Fairway{% endblock %}
+{% block title %}{% trans "Styleguide" %} - Cairn{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -18,8 +18,8 @@
 {% endblock %}
 
 {% block content %}
-{% page_header _("Styleguide") subtitle=_("Shared UI primitives used across Fairway") icon="palette" %}
-  <a href="{% url 'home' %}" class="btn-header-action" title="{% trans 'Back to home' %}"><i class="bi bi-house" aria-hidden="true"></i></a>
+{% page_header _("Styleguide") subtitle=_("Shared UI primitives used across Cairn") icon="palette" %}
+  <a href="{% url 'home' %}" class="btn btn-outline-secondary"><i class="bi bi-house me-1" aria-hidden="true"></i>{% trans "Back to home" %}</a>
 {% endpage_header %}
 
 <div class="alert alert-info">
@@ -52,8 +52,8 @@
   <div class="sg-section__title">{% trans "Component - page_header" %}</div>
   <div class="sg-card-shell">
     {% page_header _("Risk register") subtitle=_("Top-level register of identified risks") reference="MOD-RISK" icon="exclamation-triangle" %}
-      <a href="#" class="btn-header-action" title="{% trans 'Export' %}"><i class="bi bi-download" aria-hidden="true"></i></a>
-      <a href="#" class="btn-header-action" title="{% trans 'New' %}"><i class="bi bi-plus-lg" aria-hidden="true"></i></a>
+      <a href="#" class="btn btn-outline-secondary"><i class="bi bi-download me-1" aria-hidden="true"></i>{% trans "Export" %}</a>
+      <a href="#" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans "New risk" %}</a>
     {% endpage_header %}
   </div>
   <h6 class="mt-4 mb-2 text-muted">{% trans "Module accent variants - editorial signal per module" %}</h6>

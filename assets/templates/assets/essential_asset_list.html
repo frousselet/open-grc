@@ -1,19 +1,13 @@
 {% extends "base.html" %}
-{% load dic_tags help_tags i18n table_tags versioning_tags %}
+{% load dic_tags help_tags i18n table_tags versioning_tags ui %}
 
-{% block title %}{% trans "Essential assets" %} — Fairway{% endblock %}
+{% block title %}{% trans "Essential assets" %} — Cairn{% endblock %}
 
 {% block content %}
 {% approval_enabled_for "assets.essentialasset" as show_approval %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Essential assets" %}</h1>
-  <div class="header-actions">
-    <button type="button" class="btn-header-action" title="{% trans 'New essential asset' %}"
-            hx-get="{% url 'assets:essential-asset-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
-      <i class="bi bi-plus-lg"></i>
-    </button>
-  </div>
-</div>
+{% page_header _("Essential assets") eyebrow=_("Assets") accent="assets" %}
+  <button type="button" class="btn btn-primary" hx-get="{% url 'assets:essential-asset-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New essential asset' %}</button>
+{% endpage_header %}
 {% help_modal "assets.essential_asset_list" %}
 
 <div class="mb-3 d-flex gap-2">
@@ -72,7 +66,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="12" class="text-center py-4" style="color:var(--text-muted)">{% trans "No essential assets." %}</td></tr>
+        {% empty_state title=_("No essential asset registered yet.") message=_("Essential assets are the information, processes and services whose loss would hurt the business. They sit at the top of every dependency chain.") colspan=12 %}
         {% endfor %}
       </tbody>
     </table>

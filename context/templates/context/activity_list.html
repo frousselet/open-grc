@@ -1,23 +1,17 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n ui %}
 {% load table_tags %}
 
-{% block title %}{% trans "Activities" %} — Fairway{% endblock %}
+{% block title %}{% trans "Activities" %} — Cairn{% endblock %}
 
 {% load help_tags %}
 {% load versioning_tags %}
 
 {% block content %}
 {% approval_enabled_for "context.activity" as show_approval %}
-<div class="d-flex align-items-center mb-3">
-  <h1 class="mb-0">{% trans "Activities and processes" %}</h1>
-  <div class="header-actions">
-    <button type="button" class="btn-header-action" title="{% trans 'New activity' %}"
-            hx-get="{% url 'context:activity-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
-      <i class="bi bi-plus-lg"></i>
-    </button>
-  </div>
-</div>
+{% page_header _("Activities and processes") eyebrow=_("Governance") accent="context" %}
+  <button type="button" class="btn btn-primary" hx-get="{% url 'context:activity-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New activity' %}</button>
+{% endpage_header %}
 {% help_modal "context.activity_list" %}
 
 <div class="mb-3 d-flex gap-2 flex-wrap align-items-center">
