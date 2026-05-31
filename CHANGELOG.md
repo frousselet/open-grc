@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **EBIOS backfill migration `risks.0024`**: the data migration that backfills `StudyFramework`, `SecurityBaseline`, `EbiosSummary` and the six `EbiosWorkshopProgress` rows on pre-existing `ebios_rm` assessments was inserting new rows with an empty `reference`. Historical models obtained via `apps.get_model` bypass `ReferenceGeneratorMixin.save()`, so the second insert collided on the `unique=True` constraint (`duplicate key value violates unique constraint "risks_ebiosworkshopprogress_reference_key" DETAIL: Key (reference)=() already exists.`). References are now assigned explicitly per model (`EFRA`, `EBSL`, `ESUM`, `EWSP`) with a locally incremented counter seeded from the current DB max; the migration also heals any `reference=""` rows left by a prior failed run, so it is safe to re-apply
+
 ## [0.24.0] - 2026-05-31
 
 ### Changed
