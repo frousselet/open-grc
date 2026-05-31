@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-05-31
+
 ### Changed
 
 - **Rebrand from Fairway to Cairn.** New identity: `Cairn`, from Gaelic _càrn_, a deliberate stack of stones built to mark a safe path. The metaphor maps directly to GRC (the cairns guide the way through complex regulatory terrain). Pronounced identically in FR (`/kɛʁn/`) and EN (`/kɛərn/`)
@@ -767,7 +769,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Actions CI with pytest
 - Docker Hub publish workflow on version tags
 
-[Unreleased]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.22.0...HEAD
+[Unreleased]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.24.0...HEAD
+[0.24.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.23.0...v0.24.0
 [0.23.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.22.0...v0.23.0
 [0.22.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.21.4...v0.22.0
 [0.21.4]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.21.3...v0.21.4
