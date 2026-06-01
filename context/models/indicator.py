@@ -358,7 +358,12 @@ class IndicatorMeasurement(models.Model):
         verbose_name=_("Indicator"),
     )
     value = models.CharField(_("Value"), max_length=255)
-    recorded_at = models.DateTimeField(_("Recorded at"), auto_now_add=True)
+    # Use default=timezone.now (writable) instead of auto_now_add (immutable)
+    # so callers can backdate measurements when importing historical series
+    # (QA report CAIRN-IND-03). New rows still default to the current time.
+    recorded_at = models.DateTimeField(
+        _("Recorded at"), default=timezone.now, db_index=True
+    )
     recorded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

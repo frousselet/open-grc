@@ -1960,7 +1960,8 @@ def _register_context_tools(server):
     # Indicator measurements (child of Indicator, no approve)
     measurement_fields = ["id", "indicator_id", "value", "recorded_at",
                           "recorded_by_id", "notes"]
-    measurement_writable = ["indicator_id", "value", "notes"]
+    measurement_writable = ["indicator_id", "value", "recorded_at",
+                            "recorded_by_id", "notes"]
 
     _register_crud(server, "indicator_measurement", IndicatorMeasurement,
                    "context.indicator",
@@ -1974,6 +1975,8 @@ def _register_context_tools(server):
                    field_overrides={
                        "indicator_id": {"type": "string", "description": "UUID of the indicator this measurement belongs to (required)."},
                        "value": {"type": "string", "description": "Measured value (number or boolean as string)."},
+                       "recorded_at": {"type": "string", "description": "Measurement timestamp (ISO 8601). Defaults to the current time if omitted; backdate historical measurements by passing an earlier datetime."},
+                       "recorded_by_id": {"type": "string", "description": "UUID of the user recording the measurement."},
                        "notes": {"type": "string", "description": "Free-form notes."},
                    })
 
