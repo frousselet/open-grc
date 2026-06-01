@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **MCP server URL surfaced in the profile UI**. The OAuth credentials card on the profile page now exposes the MCP endpoint URL (`{scheme}://{host}/api/v1/mcp`) with a copy button at the top of the card and inside the secret-display modal that opens after creating credentials. A short hint clarifies that the URL is what gets pasted into Claude Desktop / Claude Code (which register themselves automatically via PKCE), while the manually created credentials are only needed for server-to-server scripts using the `client_credentials` grant. Resolves user confusion about which URL to point their MCP client at after creating credentials
+
 ## [0.24.1] - 2026-05-31
 
 ### Fixed

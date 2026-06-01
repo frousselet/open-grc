@@ -956,6 +956,15 @@ msgstr "Identifiants OAuth créés"
 msgid "Copy the secret now. It will not be shown again."
 msgstr "Copiez le secret maintenant. Il ne sera plus affiché."
 
+msgid "MCP server URL"
+msgstr "URL du serveur MCP"
+
+msgid "Paste this URL into your MCP client (Claude Desktop, Claude Code). Claude registers itself automatically via PKCE. The credentials below are only needed for server-to-server scripts using the client_credentials grant."
+msgstr "Collez cette URL dans votre client MCP (Claude Desktop, Claude Code). Claude s'enregistre automatiquement via PKCE. Les identifiants ci-dessous ne sont nécessaires que pour des scripts serveur à serveur utilisant le grant client_credentials."
+
+msgid "Copy"
+msgstr "Copier"
+
 msgid "Done"
 msgstr "Terminé"
 
