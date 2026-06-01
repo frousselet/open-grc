@@ -40,7 +40,9 @@ class TestFrameworkCompliance:
             assessment=assessment, requirement=req2,
             compliance_status=ComplianceStatus.MINOR_NON_CONFORMITY, compliance_level=50,
         )
-        fw.recalculate_compliance()
+        # Framework now reads requirement state, which recalculate_counts
+        # populates from the latest assessment results.
+        assessment.recalculate_counts()
         fw.refresh_from_db()
         assert fw.compliance_level == 75
 
@@ -60,7 +62,7 @@ class TestFrameworkCompliance:
             assessment=assessment, requirement=req2,
             compliance_status=ComplianceStatus.NOT_APPLICABLE, compliance_level=0,
         )
-        fw.recalculate_compliance()
+        assessment.recalculate_counts()
         fw.refresh_from_db()
         assert fw.compliance_level == 100
 
@@ -76,7 +78,7 @@ class TestFrameworkCompliance:
             assessment=assessment, requirement=req1,
             compliance_status=ComplianceStatus.COMPLIANT, compliance_level=80,
         )
-        fw.recalculate_compliance()
+        assessment.recalculate_counts()
         fw.refresh_from_db()
         assert fw.compliance_level == 80
 
@@ -102,7 +104,10 @@ class TestFrameworkCompliance:
             assessment=new_assessment, requirement=req1,
             compliance_status=ComplianceStatus.NOT_ASSESSED, compliance_level=0,
         )
-        fw.recalculate_compliance()
+        # recalculate_counts on the new assessment falls back to the old
+        # evaluation when its own result is NOT_ASSESSED; it writes that
+        # fallback to Requirement.compliance_level, which Framework now reads.
+        new_assessment.recalculate_counts()
         fw.refresh_from_db()
         # Should use the old assessment's value (100), not 0
         assert fw.compliance_level == 100
@@ -183,3 +188,43 @@ class TestRequirementMapping:
         assert RequirementMapping.objects.filter(
             source_requirement=req2, target_requirement=req1
         ).count() == 1
+
+
+class TestRequirementSignalRecalculation:
+    """CAIRN-REQ-03: requirement save / delete triggers section + framework recalc."""
+
+    def test_framework_recalc_on_requirement_save(self):
+        fw = FrameworkFactory()
+        req = RequirementFactory(
+            framework=fw,
+            is_applicable=True,
+            compliance_status=ComplianceStatus.NOT_ASSESSED,
+            compliance_level=0,
+        )
+        fw.refresh_from_db()
+        assert fw.compliance_level == 0
+        req.compliance_status = ComplianceStatus.COMPLIANT
+        req.compliance_level = 100
+        req.save()
+        fw.refresh_from_db()
+        assert fw.compliance_level == 100
+
+    def test_framework_recalc_on_requirement_delete(self):
+        fw = FrameworkFactory()
+        RequirementFactory(
+            framework=fw,
+            is_applicable=True,
+            compliance_status=ComplianceStatus.COMPLIANT,
+            compliance_level=100,
+        )
+        bad = RequirementFactory(
+            framework=fw,
+            is_applicable=True,
+            compliance_status=ComplianceStatus.NON_COMPLIANT,
+            compliance_level=0,
+        )
+        fw.refresh_from_db()
+        assert fw.compliance_level == 50
+        bad.delete()
+        fw.refresh_from_db()
+        assert fw.compliance_level == 100

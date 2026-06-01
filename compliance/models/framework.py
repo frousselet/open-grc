@@ -84,16 +84,19 @@ class Framework(BaseModel):
         return f"{self.reference} : {self.name}"
 
     def recalculate_compliance(self):
-        """RC-01: compliance level from latest audit results (by end date).
+        """RC-01: compliance level from the current state of applicable requirements.
 
-        For each applicable requirement, use the result from the latest
-        assessment (by assessment_end_date).  If a requirement is NOT_ASSESSED
-        or EVALUATED in that assessment, fall back to the most recent
-        assessment that truly evaluated it.  If never evaluated → 0%.
-        NOT_APPLICABLE → 100%.
+        Historically this method walked the AssessmentResult timeline to find
+        the latest result per requirement. That worked when results were the
+        only entry point, but it left the framework level stuck at zero
+        whenever a requirement was edited directly via the API (QA report
+        CAIRN-REQ-03). recalculate_counts already propagates the latest
+        assessment outcome into Requirement.compliance_status /
+        compliance_level, so reading those fields here mirrors Section's
+        algorithm and stays consistent with the requirement-level source of
+        truth — for both direct edits and assessment-driven flows.
         """
         from compliance.constants import ComplianceStatus
-        from compliance.models.assessment import AssessmentResult, ComplianceAssessment
 
         reqs = self.requirements.filter(is_applicable=True)
         if not reqs.exists():
@@ -103,54 +106,15 @@ class Framework(BaseModel):
             )
             return
 
-        req_ids = set(reqs.values_list("pk", flat=True))
-
-        # All assessment results for this framework's requirements,
-        # ordered by assessment end date (latest first)
-        all_results = (
-            AssessmentResult.objects.filter(
-                assessment__frameworks=self,
-                requirement_id__in=req_ids,
-            )
-            .select_related("assessment")
-            .order_by("-assessment__assessment_end_date", "-assessment__created_at")
-        )
-
-        # Build best result per requirement: latest assessment's result,
-        # with fallback to the most recent truly-evaluated result
-        NOT_EVALUATED = {ComplianceStatus.NOT_ASSESSED, ComplianceStatus.EVALUATED}
-        latest_result = {}       # req_id → (status, level) from latest assessment
-        fallback_result = {}     # req_id → (status, level) from latest truly-evaluated
-
-        for r in all_results:
-            rid = r.requirement_id
-            if rid not in latest_result:
-                latest_result[rid] = (r.compliance_status, r.compliance_level)
-            if rid not in fallback_result and r.compliance_status not in NOT_EVALUATED:
-                fallback_result[rid] = (r.compliance_status, r.compliance_level)
-
-        total = 0
-        for rid in req_ids:
-            latest = latest_result.get(rid)
-            if latest is None:
-                # No assessment result at all → 0%
-                total += 0
+        levels = []
+        for req in reqs:
+            if req.compliance_status == ComplianceStatus.NOT_APPLICABLE:
+                # Mirror SoA convention applied elsewhere: NOT_APPLICABLE
+                # contributes nothing to the ratio.
                 continue
-            status, level = latest
-            if status == ComplianceStatus.NOT_APPLICABLE:
-                total += 100
-            elif status in NOT_EVALUATED:
-                # Fall back to latest truly-evaluated result
-                fb = fallback_result.get(rid)
-                if fb:
-                    fb_status, fb_level = fb
-                    total += 100 if fb_status == ComplianceStatus.NOT_APPLICABLE else (fb_level or 0)
-                else:
-                    total += 0  # Never evaluated
-            else:
-                total += level or 0
+            levels.append(req.compliance_level or 0)
 
-        self.compliance_level = total / len(req_ids)
+        self.compliance_level = sum(levels) / len(levels) if levels else 0
         Framework.objects.filter(pk=self.pk).update(
             compliance_level=self.compliance_level
         )
