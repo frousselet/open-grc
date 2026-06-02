@@ -3518,6 +3518,25 @@
   <script src="https://unpkg.com/htmx.org@2.0.4"
           integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
           crossorigin="anonymous"></script>
+  <script>
+    /* Disable HTMX history cache.
+     *
+     * htmx 2.0's history-save logic saves the CURRENT body to
+     * localStorage under the OUTGOING URL at the moment its
+     * `beforeHistorySave` hook fires; with our hx-boost setup that
+     * moment lands AFTER the body has already been swapped to the new
+     * page, so the NEW page's body ends up cached under the OLD URL.
+     * On Back, htmx then restores the (corrupted) cache: the address
+     * bar shows the previous URL but the body still shows the page
+     * the user just came from, exactly the symptom the user
+     * reported. With the cache disabled, Back triggers a fresh GET
+     * for the previous URL, which fires our boost beforeSwap hook
+     * (it parses the response, extracts #page-shell, and syncs
+     * document.title from the response's <title>), giving correct
+     * content AND title in one go.
+     */
+    htmx.config.historyCacheSize = 0;
+  </script>
   <script src="{% static 'js/split-pane.js' %}" defer></script>
   <script>
   /* ── ARIA live announcer for HTMX swaps (WCAG 4.1.3 Status Messages) ── */
@@ -3803,6 +3822,7 @@
           window.location.reload();
         }
       });
+
     })();
   </script>
   <script>
@@ -4640,12 +4660,18 @@
     });
 
     /* Cleanup drawer content on hide. If the close was UI-driven (X
-     * button, form save, ESC) and our marker is still on top of the
+     * button, ESC, form save) and our marker is still on top of the
      * stack, pop it so Back returns to the page state that preceded
-     * the drawer instead of replaying the drawer-open entry. */
+     * the drawer instead of replaying the drawer-open entry. The
+     * isOnDrawerEntry() check distinguishes UI-driven close (entry
+     * still on top, must pop) from popstate-driven close (entry
+     * already popped by the browser when Back was pressed). The
+     * `internalHide` flag is no longer load-bearing now that we key
+     * off history.state directly; it stays as documentation for the
+     * formSaved path. */
     drawerEl.addEventListener('hidden.bs.offcanvas', function() {
       document.getElementById('drawer-form-content').innerHTML = '';
-      if (internalHide && isOnDrawerEntry()) {
+      if (isOnDrawerEntry()) {
         internalHide = false;
         history.back();
       } else {
