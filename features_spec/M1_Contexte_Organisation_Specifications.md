@@ -272,7 +272,7 @@ Représente une activité ou un processus métier de l'organisme.
 | ID | Règle |
 |---|---|
 | RG-01 | Tout objet du module doit être rattaché à un **Scope** (périmètre). |
-| RG-02 | Un seul **Scope** peut être actif (`status = active`) à un instant donné. Les versions précédentes passent en `archived`. |
+| ~~RG-02~~ | *Règle retirée.* Initialement : « un seul Scope actif à la fois, les anciennes versions passent en `archived` ». Depuis l'introduction de la hiérarchie de périmètres (`parent_scope_id`), plusieurs Scopes peuvent légitimement être actifs simultanément (un groupe et ses filiales, ou plusieurs périmètres SMSI couvrant des entités distinctes). Le cycle de vie du `status` reste libre - c'est à l'organisation de choisir quels périmètres elle considère actifs. |
 | RG-03 | La suppression d'un objet référencé par un autre module est interdite. Une désactivation (`status = inactive` ou `archived`) est utilisée à la place. |
 | RG-04 | Toute modification d'un objet génère une entrée dans le **journal d'audit** (audit trail) avec l'identifiant utilisateur, la date, l'ancien et le nouveau état. |
 | RG-05 | Les champs `created_at` et `updated_at` sont gérés automatiquement par le système. |
