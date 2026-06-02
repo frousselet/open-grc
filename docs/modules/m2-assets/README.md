@@ -15,7 +15,7 @@
 - [AssetDependency](./asset-dependency.md)
 - [AssetGroup](./asset-group.md)
 - [AssetValuation](./asset-valuation.md)
-- ⚠ Site : implemented but not specced, see [issue #30](https://gitlab.rslt.fr/fairway/fairway/-/issues/30)
+- [Site](./site.md) (geographic / physical location, defined in the context app)
 - ⚠ Supplier and related entities : implemented but not specced, see [issue #35](https://gitlab.rslt.fr/fairway/fairway/-/issues/35)
 
 ---

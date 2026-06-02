@@ -75,9 +75,11 @@ class SupportAssetType(models.TextChoices):
     SOFTWARE = "software", _("Software")
     NETWORK = "network", _("Network")
     PERSON = "person", _("Person")
-    SITE = "site", _("Site")
     SERVICE = "service", _("Service")
     PAPER = "paper", _("Paper")
+    # `site` was previously a SupportAsset type; physical locations now live
+    # in their own `context.Site` entity, linked back through SiteAssetDependency.
+    # See docs/modules/m2-assets/site.md.
 
 
 class SupportAssetCategory(models.TextChoices):
@@ -117,12 +119,6 @@ class SupportAssetCategory(models.TextChoices):
     ADMINISTRATOR = "administrator", _("Administrator")
     DEVELOPER = "developer", _("Developer")
     OTHER_PERSON = "other_person", _("Other person")
-    # Site
-    DATACENTER = "datacenter", _("Datacenter")
-    OFFICE = "office", _("Office")
-    REMOTE_SITE = "remote_site", _("Remote site")
-    CLOUD_REGION = "cloud_region", _("Cloud region")
-    OTHER_SITE = "other_site", _("Other site")
     # Service
     CLOUD_SERVICE = "cloud_service", _("Cloud service")
     HOSTING_SERVICE = "hosting_service", _("Hosting service")
@@ -155,7 +151,6 @@ SUPPORT_ASSET_CATEGORY_MAP = {
         "internal_staff", "contractor", "external_provider",
         "administrator", "developer", "other_person",
     ],
-    "site": ["datacenter", "office", "remote_site", "cloud_region", "other_site"],
     "service": [
         "cloud_service", "hosting_service", "managed_service",
         "telecom_service", "outsourced_service", "other_service",

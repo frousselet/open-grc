@@ -688,14 +688,14 @@ Writable: name (required), description (HTML), type (required), category, owner_
   ip_address, hostname, operating_system,
   acquisition_date, end_of_life_date, warranty_expiry_date, contract_reference,
   exposure_level, environment, parent_asset_id, status, review_date, tags, scopes
-- type: hardware | software | network | person | site | service | paper
+- type: hardware | software | network | person | service | paper
 - category (hardware): server | workstation | laptop | mobile_device | network_equipment | storage | peripheral | iot_device | removable_media | other_hardware
 - category (software): operating_system | database | application | middleware | security_tool | development_tool | saas_application | other_software
 - category (network): lan | wan | wifi | vpn | internet_link | firewall_zone | dmz | other_network
 - category (person): internal_staff | contractor | external_provider | administrator | developer | other_person
-- category (site): datacenter | office | remote_site | cloud_region | other_site
 - category (service): cloud_service | hosting_service | managed_service | telecom_service | outsourced_service | other_service
 - category (paper): archive | printed_document | form | other_paper
+- Physical locations are modelled as `context.Site` (use create_site / list_sites). The `site` type was removed from SupportAsset; existing rows were converted to Site by migration assets.0029.
 - exposure_level: internal | exposed | internet_facing | dmz
 - environment: production | staging | development | test | disaster_recovery
 - status: in_stock | deployed | active | under_maintenance | decommissioned | disposed
@@ -720,7 +720,7 @@ Filters: essential_asset_id
 
 ## asset_group
 Writable: name (required), description, type, members (array of support_asset UUIDs), owner_id, status, tags, scopes
-- type: hardware | software | network | person | site | service | paper
+- type: hardware | software | network | person | service | paper
 - status: active | inactive
 Filters: type, status, owner_id
 Ref prefix: AGRP
@@ -1832,17 +1832,18 @@ def _register_context_tools(server):
                        },
                    })
 
-    site_fields = ["id", "reference", "name", "description", "type", "status",
-                   "address", "is_approved", "created_at"]
+    site_fields = ["id", "reference", "scopes", "name", "description", "type", "status",
+                   "address", "parent_site_id", "is_approved", "created_at"]
     site_writable = ["name", "description", "type", "status", "address",
-                     "parent_site_id"]
+                     "parent_site_id", "scope_ids"]
 
     _register_crud(server, "site", Site, "context.site",
                    list_fields=site_fields,
                    writable_fields=site_writable,
                    search_fields=["name", "description"],
-                   filters=["type", "status"],
+                   filters=["type", "status", "parent_site_id"],
                    required_fields=["name"],
+                   m2m_fields={"scope_ids": "scopes"},
                    field_overrides={
                        "description": _html_field("Description"),
                        "type": {
@@ -1857,6 +1858,15 @@ def _register_context_tools(server):
                            "type": "string",
                            "description": "Site status.",
                            "enum": ["draft", "active", "archived"],
+                       },
+                       "parent_site_id": {
+                           "type": "string",
+                           "description": "UUID of the parent site (for site hierarchies). Cycles are rejected.",
+                       },
+                       "scope_ids": {
+                           "type": "array",
+                           "items": {"type": "string"},
+                           "description": "Scopes this site belongs to.",
                        },
                    })
 
@@ -2179,8 +2189,12 @@ def _register_assets_tools(server):
                        "description": _html_field("Description"),
                        "type": {
                            "type": "string",
-                           "description": "Support asset type.",
-                           "enum": ["hardware", "software", "network", "person", "site", "service", "paper"],
+                           "description": (
+                               "Support asset type. Physical locations live in `context.Site`, "
+                               "not here: the legacy `site` type was removed (migration assets.0029 "
+                               "converted existing rows to Site)."
+                           ),
+                           "enum": ["hardware", "software", "network", "person", "service", "paper"],
                        },
                        "category": {
                            "type": "string",
@@ -2190,7 +2204,6 @@ def _register_assets_tools(server):
                                "Software: operating_system, database, application, middleware, security_tool, development_tool, saas_application, other_software. "
                                "Network: lan, wan, wifi, vpn, internet_link, firewall_zone, dmz, other_network. "
                                "Person: internal_staff, contractor, external_provider, administrator, developer, other_person. "
-                               "Site: datacenter, office, remote_site, cloud_region, other_site. "
                                "Service: cloud_service, hosting_service, managed_service, telecom_service, outsourced_service, other_service. "
                                "Paper: archive, printed_document, form, other_paper."
                            ),
@@ -2281,7 +2294,7 @@ def _register_assets_tools(server):
                        "type": {
                            "type": "string",
                            "description": "Asset group type (matches SupportAsset.type).",
-                           "enum": ["hardware", "software", "network", "person", "site", "service", "paper"],
+                           "enum": ["hardware", "software", "network", "person", "service", "paper"],
                        },
                        "status": {
                            "type": "string",

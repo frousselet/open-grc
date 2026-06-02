@@ -4,10 +4,10 @@ from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from context.constants import SiteType, Status
-from .base import BaseModel
+from .base import ScopedModel
 
 
-class Site(BaseModel):
+class Site(ScopedModel):
     REFERENCE_PREFIX = "SITE"
 
     name = models.CharField(_("Name"), max_length=255)
@@ -30,7 +30,7 @@ class Site(BaseModel):
 
     history = HistoricalRecords()
 
-    class Meta(BaseModel.Meta):
+    class Meta(ScopedModel.Meta):
         ordering = ["name"]
         verbose_name = _("Site")
         verbose_name_plural = _("Sites")
