@@ -4098,15 +4098,23 @@
       /* After every boost swap, sync the highlight to the new URL.
        * Also expand the section containing the new active link, but
        * don't touch other sections so the user's open/closed state
-       * is preserved. */
-      document.body.addEventListener('htmx:afterSettle', function() {
+       * is preserved.
+       *
+       * htmx:afterSettle covers forward boosted navigation.
+       * htmx:historyRestore covers Back/Forward (popstate-driven swap
+       * goes through loadHistoryFromServer, which does NOT fire the
+       * full request lifecycle, so afterSettle alone leaves the
+       * sidebar stuck on the previously-active link). */
+      function syncActiveAndExpand() {
         var ac = syncActive();
         if (ac && !ac.classList.contains('show')) {
           ac.classList.add('show');
           var btn = document.querySelector('[data-bs-target="#' + ac.id + '"]');
           if (btn) btn.setAttribute('aria-expanded', 'true');
         }
-      });
+      }
+      document.body.addEventListener('htmx:afterSettle', syncActiveAndExpand);
+      document.body.addEventListener('htmx:historyRestore', syncActiveAndExpand);
     })();
   </script>
   <script>
