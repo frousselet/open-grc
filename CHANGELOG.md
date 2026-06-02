@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Browser Back getting stuck after the first pop**. The previous fix (v0.24.2) disabled the HTMX history cache so every popstate triggers a fresh GET, but `loadHistoryFromServer` was falling back to a whole-body innerHTML swap (no `hx-history-elt` was set). That re-injected every inline `<script>` block that lives in `<body>` (boost wiring, drawer, tabs, sort persistence) on each Back, stacking duplicate listeners and silently breaking the second pop. `#page-shell` now carries `hx-history-elt` so popstate restores stay scoped to the shell, and a new `htmx:historyCacheMissLoad` listener syncs `document.title` from the response (our boosted `htmx:beforeSwap` hook does not fire on popstate-driven swaps because the request is not marked `boosted`).
+
 ### Added
 
 - **#70 : user-selectable display theme (Light / Dark / System)**. Adds `User.theme_preference` (default `system`, choices `light` / `dark` / `system`) exposed through the profile form (Preferences card), the DRF `MeSerializer` / `UserDetailSerializer` / `UserCreateSerializer`, the login response, and a new `update_me` MCP tool (which also lets external clients edit first_name, last_name, phone, language, timezone). The inline FOUC-safe theme bootstrap script (factored across `templates/base.html`, `accounts/templates/accounts/login.html` and `mcp/templates/mcp/authorize.html`) reads the server-rendered `data-theme-preference` attribute on `<html>`, falls back to `localStorage`, then to `prefers-color-scheme`, and only re-reacts to OS changes when the preference is `system`. Profile changes apply instantly via `window.cairnTheme.apply()` before the form is even submitted. Migration `accounts.0039`.

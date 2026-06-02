@@ -3525,7 +3525,7 @@
   and clean themselves up when the user leaves the page. The sidebar
   stays mounted, preserving its scroll position across navigations.
   {% endcomment %}
-  <main class="main-content" id="page-shell">
+  <main class="main-content" id="page-shell" hx-history-elt>
     {% block extra_css %}{% endblock %}
     <div class="container-xl">
       {% block content %}{% endblock %}
@@ -3541,23 +3541,43 @@
           integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
           crossorigin="anonymous"></script>
   <script>
-    /* Disable HTMX history cache.
+    /* ── HTMX history handling ───────────────────────────────────────
      *
-     * htmx 2.0's history-save logic saves the CURRENT body to
-     * localStorage under the OUTGOING URL at the moment its
-     * `beforeHistorySave` hook fires; with our hx-boost setup that
-     * moment lands AFTER the body has already been swapped to the new
-     * page, so the NEW page's body ends up cached under the OLD URL.
-     * On Back, htmx then restores the (corrupted) cache: the address
-     * bar shows the previous URL but the body still shows the page
-     * the user just came from, exactly the symptom the user
-     * reported. With the cache disabled, Back triggers a fresh GET
-     * for the previous URL, which fires our boost beforeSwap hook
-     * (it parses the response, extracts #page-shell, and syncs
-     * document.title from the response's <title>), giving correct
-     * content AND title in one go.
+     * historyCacheSize = 0 disables the cache. htmx 2.0's
+     * beforeHistorySave snapshot lands AFTER our hx-boost swap, so the
+     * NEW page's body ends up cached under the OLD URL; disabling the
+     * cache forces a fresh GET on every popstate, which gives correct
+     * URL / title / content in one go.
+     *
+     * With the cache off, popstate restores go through
+     * loadHistoryFromServer, which swaps the innerHTML of the element
+     * carrying [hx-history-elt] (set on #page-shell below) with the
+     * matching element from the fresh response. Scoping to #page-shell
+     * matters for two reasons:
+     *   1. Sidebar / scroll position survive Back the same way they
+     *      survive forward boosted navigation.
+     *   2. The inline <script> blocks that live in <body> below
+     *      (boost wiring, drawer, tabs, sort persistence...) do NOT
+     *      get re-executed on Back; otherwise each restore re-adds
+     *      their event listeners, and after a couple of pops the
+     *      duplicated handlers silently fight each other and the next
+     *      Back appears stuck on the current page.
+     *
+     * The popstate-driven swap is NOT marked `boosted`, so our boost
+     * beforeSwap hook (further down) does not run on Back. The
+     * htmx:historyCacheMissLoad listener below picks up the response
+     * and syncs document.title from it.
      */
     htmx.config.historyCacheSize = 0;
+    document.body.addEventListener('htmx:historyCacheMissLoad', function(evt) {
+      try {
+        var xhr = evt.detail && evt.detail.xhr;
+        if (!xhr || !xhr.responseText) return;
+        var doc = new DOMParser().parseFromString(xhr.responseText, 'text/html');
+        var t = doc.querySelector('title');
+        if (t) document.title = t.textContent.trim();
+      } catch (_) { /* leave title untouched on parse error */ }
+    });
   </script>
   <script src="{% static 'js/split-pane.js' %}" defer></script>
   <script>
