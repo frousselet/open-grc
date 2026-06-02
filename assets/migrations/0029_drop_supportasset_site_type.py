@@ -103,20 +103,38 @@ CATEGORY_TO_SITE_TYPE = {
 }
 
 
+def _next_site_reference_index(Site):
+    """Compute the next SITE-N suffix from existing references."""
+    prefix = "SITE-"
+    prefix_len = len(prefix)
+    max_num = 0
+    for ref in Site.objects.filter(reference__startswith=prefix).values_list(
+        "reference", flat=True
+    ):
+        try:
+            max_num = max(max_num, int(ref[prefix_len:]))
+        except (ValueError, IndexError):
+            continue
+    return max_num + 1
+
+
 def convert_site_support_assets(apps, schema_editor):
     SupportAsset = apps.get_model("assets", "SupportAsset")
     AssetGroup = apps.get_model("assets", "AssetGroup")
     Site = apps.get_model("context", "Site")
 
     site_assets = SupportAsset.objects.filter(type="site")
+    next_index = _next_site_reference_index(Site)
     for asset in site_assets:
         Site.objects.create(
+            reference=f"SITE-{next_index}",
             name=asset.name,
             type=CATEGORY_TO_SITE_TYPE.get(asset.category, "other"),
             address=asset.location or "",
             description=asset.description or "",
             status="active",
         )
+        next_index += 1
         # Remove from every asset group: groups hold real assets only.
         for group in AssetGroup.objects.filter(members=asset):
             group.members.remove(asset)

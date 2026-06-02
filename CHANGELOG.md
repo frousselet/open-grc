@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Migration `assets.0029` crash on duplicate empty Site reference**. The data migration that converts `SupportAsset[type=site]` rows into `Site` records called `Site.objects.create()` without setting `reference`. Migrations get the historical model frozen by `apps.get_model()`, which does not include the `ReferenceGeneratorMixin.save()` override responsible for generating `SITE-N`, so every new Site was inserted with an empty `reference` and the second insert collided with the first on the `unique=True` constraint (`duplicate key value violates unique constraint "context_site_reference_a8056d23_uniq"`). The migration now computes the next index from existing `SITE-` references and assigns `reference` explicitly on each create.
+
 ## [0.24.3] - 2026-06-02
 
 ### Fixed
