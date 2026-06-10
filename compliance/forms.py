@@ -27,6 +27,7 @@ from .models import (
     Section,
 )
 from .models.assessment import ALLOWED_ATTACHMENT_EXTENSIONS
+from core.modal_forms import Step, SteppedFormMixin
 
 User = get_user_model()
 
@@ -340,7 +341,25 @@ class FindingForm(forms.ModelForm):
             self.fields["requirements"].queryset = Requirement.objects.none()
 
 
-class RequirementMappingForm(forms.ModelForm):
+class RequirementMappingBaseForm(SteppedFormMixin, forms.ModelForm):
+    """Shared base for the inter-framework mapping create / edit modals.
+
+    A single-step form: the modal shows a required-fields completion meter
+    instead of a stepper.
+    """
+
+    steps = [
+        Step(
+            _("Requirements"),
+            "arrow-left-right",
+            [
+                "source_requirement", "target_requirement",
+                "mapping_type", "coverage_level",
+                "description", "justification",
+            ],
+        ),
+    ]
+
     class Meta:
         model = RequirementMapping
         fields = [
@@ -356,6 +375,26 @@ class RequirementMappingForm(forms.ModelForm):
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "justification": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
         }
+        help_texts = {
+            "source_requirement": _("The requirement being mapped from."),
+            "target_requirement": _("The requirement it maps to."),
+            "mapping_type": _(
+                "Nature of the relationship between the two requirements."
+            ),
+            "coverage_level": _(
+                "How fully the source requirement is covered by the target."
+            ),
+            "description": _("Optional summary of the mapping."),
+            "justification": _("Why this mapping holds."),
+        }
+
+
+class RequirementMappingCreateForm(RequirementMappingBaseForm):
+    """Mapping creation modal form."""
+
+
+class RequirementMappingUpdateForm(RequirementMappingBaseForm):
+    """Mapping edition modal form."""
 
 
 MAX_IMPORT_FILE_SIZE = 10 * 1024 * 1024  # 10 MB

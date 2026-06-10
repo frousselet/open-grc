@@ -8651,3 +8651,21 @@ msgstr "Étapes du formulaire"
 
 msgid "Fill the required fields to continue."
 msgstr "Renseignez les champs obligatoires pour continuer."
+
+msgid "The requirement being mapped from."
+msgstr "L'exigence source du rapprochement."
+
+msgid "The requirement it maps to."
+msgstr "L'exigence cible du rapprochement."
+
+msgid "Nature of the relationship between the two requirements."
+msgstr "Nature de la relation entre les deux exigences."
+
+msgid "How fully the source requirement is covered by the target."
+msgstr "Degré de couverture de l'exigence source par la cible."
+
+msgid "Optional summary of the mapping."
+msgstr "Résumé facultatif du rapprochement."
+
+msgid "Why this mapping holds."
+msgstr "Justification de ce rapprochement."
