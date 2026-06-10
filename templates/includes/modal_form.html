@@ -1,8 +1,17 @@
 {% load i18n %}
-{# Shared shell for every create / edit / confirm form. Rendered into
-   #drawer-form-content (the .modal-content of the global #itemDrawer
-   modal). Entity templates extend this and fill modal_form_fields. #}
-<form method="post" {% block form_enctype %}{% endblock %} hx-post="{{ request.path }}" hx-target="#drawer-form-content" hx-swap="innerHTML" hx-disabled-elt="find button[type='submit']">
+{% comment %}
+  Shared shell for every create / edit / confirm form. Rendered into
+  #drawer-form-content (the .modal-content of the global #itemDrawer modal).
+
+  Two modes:
+  - Declarative (form mixes in core.modal_forms.SteppedFormMixin): the shell
+    auto-renders the stepper / completion meter and the fields from the
+    form's `steps`. Entity templates only set the header icon.
+  - Legacy: the entity template overrides `modal_form_fields` with
+    hand-written markup; the progress bar and step footer stay off because
+    `form.is_stepped` is falsey.
+{% endcomment %}
+<form method="post" {% block form_enctype %}{% endblock %} hx-post="{{ request.path }}" hx-target="#drawer-form-content" hx-swap="innerHTML" hx-disabled-elt="find button[type='submit']"{% if form.is_stepped %} data-mform{% endif %}>
   {% csrf_token %}
   <div class="modal-header">
     <h5 class="modal-title">
@@ -11,13 +20,21 @@
     </h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
   </div>
+  {% if form.is_stepped %}{% include "includes/form_progress.html" %}{% endif %}
   <div class="modal-body drawer-body">
-    {% block modal_form_fields %}{% endblock %}
+    {% block modal_form_fields %}{% include "includes/form_steps.html" %}{% endblock %}
   </div>
   <div class="modal-footer drawer-footer">
     {% block modal_form_actions %}
-    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
-    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{% trans "Save" %}</button>
+      {% if form.is_multistep %}
+      <button type="button" class="btn btn-outline-secondary me-auto" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+      <button type="button" class="btn btn-outline-secondary" data-mform-back hidden><i class="bi bi-arrow-left me-1" aria-hidden="true"></i>{% trans "Back" %}</button>
+      <button type="button" class="btn btn-primary" data-mform-next data-required-msg="{% trans 'Fill the required fields to continue.' %}">{% trans "Next" %}<i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></button>
+      <button type="submit" class="btn btn-primary" data-mform-submit hidden><i class="bi bi-check-lg me-1" aria-hidden="true"></i>{% trans "Save" %}</button>
+      {% else %}
+      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1" aria-hidden="true"></i>{% trans "Save" %}</button>
+      {% endif %}
     {% endblock %}
   </div>
 </form>

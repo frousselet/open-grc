@@ -2332,6 +2332,93 @@
     }
     .modal-title { font-weight: 700; letter-spacing: -.01em; }
 
+    /* ── Stepped / metered modal form ──────────────── */
+    .mform-stepper { padding: .85rem 1.5rem .25rem; flex-shrink: 0; }
+    .mform-stepper ol {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: .25rem;
+      margin: 0;
+      padding: 0;
+    }
+    .mform-pill {
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+      font-size: .75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      min-width: 0;
+    }
+    .mform-pill-num {
+      width: 1.5rem;
+      height: 1.5rem;
+      flex-shrink: 0;
+      border-radius: 50%;
+      border: 1px solid var(--border-light);
+      background: var(--surface);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      transition: background-color .2s var(--ease-out), border-color .2s var(--ease-out), color .2s var(--ease-out);
+    }
+    .mform-pill-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mform-pill::after {
+      content: "";
+      flex: 1 1 auto;
+      height: 1px;
+      min-width: .75rem;
+      margin-left: .25rem;
+      background: var(--border-light);
+    }
+    .mform-pill:last-child::after { content: none; }
+    .mform-pill.is-current { color: var(--text-primary); }
+    .mform-pill.is-current .mform-pill-num {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .mform-pill.is-done { color: var(--text-secondary); cursor: pointer; }
+    .mform-pill.is-done .mform-pill-num {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .mform-meter { padding: .7rem 1.5rem .1rem; display: flex; align-items: center; gap: .625rem; flex-shrink: 0; }
+    .mform-meter-track {
+      flex: 1 1 auto;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--surface-subtle);
+      overflow: hidden;
+    }
+    .mform-meter-fill {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width .22s var(--ease-out);
+    }
+    .mform-meter-text { font-size: .7rem; color: var(--text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .mform-step-head {
+      display: flex;
+      align-items: center;
+      gap: .375rem;
+      font-size: .6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      margin-bottom: .85rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .mform-step-head i { font-size: .7rem; opacity: .6; }
+    .form-required { color: var(--text-muted); font-weight: 400; }
+
     /* ── Modal form header ─────────────────────────── */
     #itemDrawer .modal-header {
       background: var(--surface);
@@ -4651,12 +4738,13 @@
   {% endif %}
   {# extra_js now lives inside main#page-shell so it ships with the boosted swap. #}
 
-  {# ── Generic HTMX modal for create/edit forms ──────────────────────
-       The container id stays `itemDrawer` and the swap region stays
-       `drawer-form-content` for backward compatibility: every list
-       trigger targets `#drawer-form-content` and the shared
-       HtmxFormMixin keys on that id. The container is now a centered
-       Bootstrap modal (was an offcanvas drawer). #}
+  {% comment %}
+    Generic HTMX modal for create/edit forms. The container id stays
+    `itemDrawer` and the swap region stays `drawer-form-content` for
+    backward compatibility: every list trigger targets
+    `#drawer-form-content` and the shared HtmxFormMixin keys on that id.
+    The container is now a centered Bootstrap modal (was an offcanvas).
+  {% endcomment %}
   <div class="modal fade" tabindex="-1" id="itemDrawer" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div id="drawer-form-content" class="modal-content"></div>
@@ -4732,6 +4820,136 @@
       if (drawerEl.classList.contains('show') && !isOnDrawerEntry()) {
         internalHide = false;
         getDrawer().hide();
+      }
+    });
+  })();
+  </script>
+
+  {% comment %}
+    Generic stepped / metered modal form behaviour. Driven entirely by
+    data attributes emitted by the shared shell, so no per-entity JS is
+    ever needed. Initialised whenever HTMX swaps a form into the modal.
+  {% endcomment %}
+  <script>
+  (function() {
+    function controlsIn(scope) {
+      return Array.prototype.slice.call(
+        scope.querySelectorAll('[data-mform-required]')
+      ).map(function(w) {
+        return w.querySelector('input, select, textarea');
+      }).filter(Boolean);
+    }
+
+    function isFilled(c) {
+      if (!c) return false;
+      if (c.type === 'checkbox' || c.type === 'radio') return c.checked;
+      if (c.multiple) return c.selectedOptions && c.selectedOptions.length > 0;
+      return String(c.value).trim() !== '';
+    }
+
+    /* ── Single-step: required-fields completion meter ── */
+    function initMeter(form, meterEl) {
+      var fill = meterEl.querySelector('.mform-meter-fill');
+      var text = meterEl.querySelector('[data-mform-meter-text]');
+      var tpl = text ? (text.getAttribute('data-template') || '') : '';
+      function update() {
+        var ctrls = controlsIn(form);
+        var total = ctrls.length;
+        var done = ctrls.filter(isFilled).length;
+        if (fill) fill.style.width = total ? Math.round(done / total * 100) + '%' : '0%';
+        if (text) text.textContent = tpl
+          .replace('{done}', done).replace('{total}', total);
+      }
+      form.addEventListener('input', update);
+      form.addEventListener('change', update);
+      update();
+    }
+
+    /* ── Multi-step: wizard with stepper, Back / Next / Save ── */
+    function initStepper(form) {
+      var steps = Array.prototype.slice.call(form.querySelectorAll('[data-mform-step]'));
+      var pills = Array.prototype.slice.call(form.querySelectorAll('[data-mform-pill]'));
+      var backBtn = form.querySelector('[data-mform-back]');
+      var nextBtn = form.querySelector('[data-mform-next]');
+      var submitBtn = form.querySelector('[data-mform-submit]');
+      if (!steps.length) return;
+
+      var current = 0;
+      /* If the server re-rendered with errors, open the first step that
+       * contains one so the user lands on what needs fixing. */
+      for (var i = 0; i < steps.length; i++) {
+        if (steps[i].querySelector('.is-invalid, .invalid-feedback')) { current = i; break; }
+      }
+
+      function render() {
+        steps.forEach(function(s, i) { s.hidden = (i !== current); });
+        pills.forEach(function(p, i) {
+          p.classList.toggle('is-current', i === current);
+          p.classList.toggle('is-done', i < current);
+          if (i === current) { p.setAttribute('aria-current', 'step'); }
+          else { p.removeAttribute('aria-current'); }
+        });
+        if (backBtn) backBtn.hidden = (current === 0);
+        var last = (current === steps.length - 1);
+        if (nextBtn) nextBtn.hidden = last;
+        if (submitBtn) submitBtn.hidden = !last;
+        var firstField = steps[current].querySelector('input, select, textarea');
+        if (firstField) { try { firstField.focus(); } catch (_) {} }
+      }
+
+      function validateCurrent() {
+        var ok = true;
+        controlsIn(steps[current]).forEach(function(c) {
+          var wrap = c.closest('[data-mform-required]');
+          if (!isFilled(c)) {
+            ok = false;
+            c.classList.add('is-invalid');
+            if (wrap && !wrap.querySelector('.mform-step-error')) {
+              var msg = document.createElement('div');
+              msg.className = 'invalid-feedback d-block mform-step-error';
+              msg.textContent = nextBtn ? (nextBtn.getAttribute('data-required-msg') || '') : '';
+              wrap.appendChild(msg);
+            }
+          } else {
+            c.classList.remove('is-invalid');
+            if (wrap) {
+              var e = wrap.querySelector('.mform-step-error');
+              if (e) e.remove();
+            }
+          }
+        });
+        return ok;
+      }
+
+      if (nextBtn) nextBtn.addEventListener('click', function() {
+        if (validateCurrent() && current < steps.length - 1) { current++; render(); }
+      });
+      if (backBtn) backBtn.addEventListener('click', function() {
+        if (current > 0) { current--; render(); }
+      });
+      pills.forEach(function(p, i) {
+        p.addEventListener('click', function() {
+          /* Only allow jumping back to an already-seen step. */
+          if (i < current) { current = i; render(); }
+        });
+      });
+      render();
+    }
+
+    function initModalForm() {
+      var root = document.getElementById('drawer-form-content');
+      if (!root) return;
+      var form = root.querySelector('form[data-mform]');
+      if (!form || form.dataset.mformReady) return;
+      form.dataset.mformReady = '1';
+      if (form.querySelector('[data-mform-stepper]')) initStepper(form);
+      var meter = form.querySelector('[data-mform-meter]');
+      if (meter) initMeter(form, meter);
+    }
+
+    document.body.addEventListener('htmx:afterSettle', function(evt) {
+      if (evt.detail.target && evt.detail.target.id === 'drawer-form-content') {
+        initModalForm();
       }
     });
   })();

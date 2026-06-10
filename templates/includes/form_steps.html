@@ -1,0 +1,23 @@
+{% load i18n %}
+{% comment %}
+  Declarative field layout for a stepped modal form. Multi-step forms
+  render one section per step (JS shows one at a time); single-step forms
+  render all fields in order. Fed by SteppedFormMixin.
+{% endcomment %}
+{% if form.non_field_errors %}
+<div class="alert alert-danger" role="alert">
+  {% for error in form.non_field_errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+</div>
+{% endif %}
+{% if form.is_multistep %}
+  {% for step in form.iter_steps %}
+  <section class="mform-step" data-mform-step="{{ step.index }}"{% if not step.is_first %} hidden{% endif %}>
+    <div class="mform-step-head"><i class="bi bi-{{ step.icon }}" aria-hidden="true"></i> {{ step.title }}</div>
+    {% for field in step.fields %}{% include "includes/form_field.html" %}{% endfor %}
+  </section>
+  {% endfor %}
+{% else %}
+  {% for step in form.iter_steps %}
+    {% for field in step.fields %}{% include "includes/form_field.html" %}{% endfor %}
+  {% endfor %}
+{% endif %}

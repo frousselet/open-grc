@@ -31,7 +31,8 @@ from .forms import (
     PredefinedIndicatorForm,
     IssueForm,
     ObjectiveForm,
-    RoleForm,
+    RoleCreateForm,
+    RoleUpdateForm,
     ScopeForm,
     StakeholderForm,
     SwotAnalysisForm,
@@ -837,7 +838,7 @@ class RoleDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMix
 class RoleCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Role
     permission_required = "context.role.create"
-    form_class = RoleForm
+    form_class = RoleCreateForm
     template_name = "context/role_form.html"
     modal_template_name = "context/role_form_modal.html"
     modal_title_create = _l("New role")
@@ -853,7 +854,7 @@ class RoleCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin,
 class RoleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Role
     permission_required = "context.role.update"
-    form_class = RoleForm
+    form_class = RoleUpdateForm
     template_name = "context/role_form.html"
     modal_template_name = "context/role_form_modal.html"
     modal_title_create = _l("New role")

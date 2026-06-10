@@ -1,0 +1,22 @@
+{% load i18n %}
+{% comment %}
+  Progress header for a stepped modal form: a stepper for multi-step forms,
+  a required-fields completion meter for single-step forms.
+{% endcomment %}
+{% if form.is_multistep %}
+<nav class="mform-stepper" data-mform-stepper aria-label="{% trans 'Form steps' %}">
+  <ol>
+    {% for step in form.iter_steps %}
+    <li class="mform-pill{% if step.is_first %} is-current{% endif %}" data-mform-pill="{{ step.index }}"{% if step.is_first %} aria-current="step"{% endif %}>
+      <span class="mform-pill-num">{{ step.number }}</span>
+      <span class="mform-pill-label">{{ step.title }}</span>
+    </li>
+    {% endfor %}
+  </ol>
+</nav>
+{% else %}
+<div class="mform-meter" data-mform-meter>
+  <div class="mform-meter-track"><span class="mform-meter-fill"></span></div>
+  <span class="mform-meter-text" data-mform-meter-text data-template="{% trans '{done} of {total} required' %}"></span>
+</div>
+{% endif %}

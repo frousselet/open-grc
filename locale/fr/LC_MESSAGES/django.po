@@ -8615,3 +8615,39 @@ msgstr "Clair, Sombre, ou Système (suit la préférence du système d'exploitat
 
 msgid "System follows your OS preference and reacts to its changes in real time."
 msgstr "Système suit la préférence de votre système d'exploitation et réagit à ses changements en temps réel."
+
+msgid "Short, recognizable title for the role."
+msgstr "Intitulé court et reconnaissable du rôle."
+
+msgid "Category the role belongs to."
+msgstr "Catégorie à laquelle appartient le rôle."
+
+msgid "Standard or framework the role originates from, if any."
+msgstr "Norme ou référentiel dont le rôle est issu, le cas échéant."
+
+msgid "What the role is responsible for."
+msgstr "Ce dont le rôle est responsable."
+
+msgid "A mandatory role must always have an assigned user."
+msgstr "Un rôle obligatoire doit toujours avoir un utilisateur assigné."
+
+msgid "Organizational scopes this role applies to."
+msgstr "Périmètres organisationnels auxquels ce rôle s'applique."
+
+msgid "Lifecycle state of the role."
+msgstr "État du cycle de vie du rôle."
+
+msgid "Free-form labels for filtering and grouping."
+msgstr "Étiquettes libres pour filtrer et regrouper."
+
+msgid "Scope & status"
+msgstr "Périmètre et statut"
+
+msgid "{done} of {total} required"
+msgstr "{done} sur {total} requis"
+
+msgid "Form steps"
+msgstr "Étapes du formulaire"
+
+msgid "Fill the required fields to continue."
+msgstr "Renseignez les champs obligatoires pour continuer."

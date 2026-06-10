@@ -20,6 +20,7 @@ from .models import (
     Tag,
 )
 from .widgets import ScopeTreeRadioWidget, ScopeTreeWidget
+from core.modal_forms import Step, SteppedFormMixin
 
 FORM_WIDGET_ATTRS = {"class": "form-control"}
 SELECT_ATTRS = {"class": "form-select"}
@@ -260,7 +261,22 @@ class SwotStrategyForm(forms.ModelForm):
         }
 
 
-class RoleForm(ScopedFormMixin, forms.ModelForm):
+class RoleBaseForm(SteppedFormMixin, ScopedFormMixin, forms.ModelForm):
+    """Shared base for the Role create / edit modals.
+
+    Declares the step grouping and per-field helpers once; the create and
+    update forms are thin subclasses (one form per action).
+    """
+
+    steps = [
+        Step(
+            _("Identity"),
+            "shield-check",
+            ["name", "type", "source_standard", "description", "is_mandatory"],
+        ),
+        Step(_("Scope & status"), "diagram-3", ["scopes", "status", "tags"]),
+    ]
+
     class Meta:
         model = Role
         fields = [
@@ -277,6 +293,26 @@ class RoleForm(ScopedFormMixin, forms.ModelForm):
             "status": forms.Select(attrs=SELECT_ATTRS),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+        help_texts = {
+            "name": _("Short, recognizable title for the role."),
+            "type": _("Category the role belongs to."),
+            "source_standard": _(
+                "Standard or framework the role originates from, if any."
+            ),
+            "description": _("What the role is responsible for."),
+            "is_mandatory": _("A mandatory role must always have an assigned user."),
+            "scopes": _("Organizational scopes this role applies to."),
+            "status": _("Lifecycle state of the role."),
+            "tags": _("Free-form labels for filtering and grouping."),
+        }
+
+
+class RoleCreateForm(RoleBaseForm):
+    """Role creation modal form."""
+
+
+class RoleUpdateForm(RoleBaseForm):
+    """Role edition modal form."""
 
 
 class ActivityForm(ScopedFormMixin, forms.ModelForm):

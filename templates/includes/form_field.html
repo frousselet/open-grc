@@ -1,10 +1,12 @@
 {% load i18n %}
-{# Single reusable field renderer: label, control, helper, error.
-   Used by the modal shell's declarative step rendering. The helper is
-   shown whenever the field defines help_text (mandatory per the Forms
-   doctrine). Checkboxes use the form-check layout. #}
+{% comment %}
+  Single reusable field renderer: label, control, helper, error. Used by
+  the modal shell's declarative step rendering. The helper is shown
+  whenever the field defines help_text (mandatory per the Forms doctrine).
+  Checkboxes use the form-check layout.
+{% endcomment %}
 {% if field.field.widget.input_type == 'checkbox' %}
-<div class="mb-3 form-check">
+<div class="mb-3 form-check"{% if field.field.required %} data-mform-required{% endif %}>
   {{ field }}
   <label for="{{ field.id_for_label }}" class="form-check-label">
     {{ field.label }}{% if field.field.required %} <span class="form-required" aria-hidden="true">*</span>{% endif %}
@@ -13,7 +15,7 @@
   {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
 </div>
 {% else %}
-<div class="mb-3">
+<div class="mb-3"{% if field.field.required %} data-mform-required{% endif %}>
   <label for="{{ field.id_for_label }}" class="form-label">
     {{ field.label }}{% if field.field.required %} <span class="form-required" aria-hidden="true">*</span>{% endif %}
   </label>
