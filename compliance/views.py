@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _l
 from django.views import View
 from django.views.generic import (
     CreateView,
@@ -34,7 +35,8 @@ from .forms import (
     FrameworkForm,
     FrameworkImportForm,
     RequirementForm,
-    RequirementMappingForm,
+    RequirementMappingCreateForm,
+    RequirementMappingUpdateForm,
     SectionForm,
 )
 from .import_utils import (
@@ -1526,9 +1528,11 @@ class MappingDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilter
 class MappingCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreateView):
     model = RequirementMapping
     permission_required = "compliance.mapping.create"
-    form_class = RequirementMappingForm
+    form_class = RequirementMappingCreateForm
     template_name = "compliance/mapping_form.html"
     modal_template_name = "compliance/mapping_form_modal.html"
+    modal_title_create = _l("New mapping")
+    modal_title_update = _l("Edit mapping")
     success_url = reverse_lazy("compliance:mapping-list")
 
     def form_valid(self, form):
@@ -1540,9 +1544,11 @@ class MappingUpdateView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilter
     model = RequirementMapping
     permission_required = "compliance.mapping.update"
     scope_parent_lookup = "source_requirement__framework__scopes"
-    form_class = RequirementMappingForm
+    form_class = RequirementMappingUpdateForm
     template_name = "compliance/mapping_form.html"
     modal_template_name = "compliance/mapping_form_modal.html"
+    modal_title_create = _l("New mapping")
+    modal_title_update = _l("Edit mapping")
     success_url = reverse_lazy("compliance:mapping-list")
 
 
