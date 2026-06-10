@@ -332,9 +332,9 @@ Focus draws an accent ring (`0 0 0 3px var(--accent-glow)`) and switches
 the border to `--accent`. Labels are 13 px, weight 600, in
 `--text-secondary`.
 
-For anatomy, layouts, validation, deletion, accessibility, and copy, see
-the dedicated [Forms](#forms) section below — it is the operational
-reference when building any create / edit / delete screen.
+For the doctrine, anatomy, steps, validation, deletion, accessibility and
+copy, see the dedicated [Forms](#forms) section below : it is the
+operational reference when building any create, edit or delete modal.
 
 ### Tables
 
@@ -360,22 +360,128 @@ helper removes ambiguity, the error tells the user what to fix. Forms
 default to server-side validation and always preserve the user's input on
 error.
 
-### Patterns at a glance
+### Principles
 
-Pick the lightest pattern that fits the task. Don't open a full page when
-a drawer will do; don't cram twelve fields into a drawer.
+These seven rules govern **every** form in the product. They are not
+suggestions to weigh case by case : a screen that breaks one of them is a
+bug, not a variant. The aim is the 2026 baseline for data-entry surfaces -
+focused, single-task overlays that never make the user lose their place,
+never make them scroll to find the next field, and always tell them how
+far they have left to go.
 
-| Pattern | Use when | Reference |
+| # | Principle | What it means concretely |
 | --- | --- | --- |
-| **Drawer form** | Quick create / edit triggered from a list or detail page. HTMX-driven, never navigates away. ≤ 12 fields. | [`templates/includes/modal_form.html`](../../templates/includes/modal_form.html) |
-| **Single-column page form** | Simple object with ≤ 8 fields, no metadata to surface. Wrap in a `.card`. | [`risks/templates/risks/risk_form.html`](../../risks/templates/risks/risk_form.html) |
-| **Two-column page form** | Rich object with logical groups. `col-lg-8` for primary fields, `col-lg-4` for status / dates / tags. | [`context/templates/context/issue_form.html`](../../context/templates/context/issue_form.html) |
-| **Confirmation form** | Single destructive action (delete, archive). One sentence + danger / cancel buttons. | [`reports/templates/reports/decision_confirm_delete.html`](../../reports/templates/reports/decision_confirm_delete.html) |
+| 1 | **One model, everywhere** | All forms share the same shell, the same field anatomy, the same footer, the same motion. A user who has filled one form knows how every other form behaves. |
+| 2 | **Overlay, never a new page** | A form opens as a modal layered above the dimmed current interface. It never navigates away. Closing it returns the user to the exact context (scroll position, filters, selection) they left. |
+| 3 | **Reusable by construction** | The shell, the field partials and the step chrome are shared components. A new form composes them; it never re-implements layout, validation rendering or footer. |
+| 4 | **One form per action** | Create and edit are distinct forms - distinct form classes, distinct endpoints, distinct modals, distinct titles. No single template branches on `instance.pk` to do both jobs. |
+| 5 | **No vertical scroll, visible progress** | Every step fits within the viewport on a 13-inch laptop. A form too large for one step becomes a multi-step modal, and the user always sees where they are and what remains. |
+| 6 | **Required fields are unmistakable** | Required fields are marked at the label and counted in the progress meter. The user never discovers a field was mandatory only after submitting. |
+| 7 | **Every field has a helper** | Each field carries a short, always-visible helper under the control. Guidance is never hidden behind a tooltip or an info icon. |
+
+### One model, everywhere : the form modal
+
+There is a single form surface : a **modal layered over a scrim** that
+dims the current interface. It is HTMX-driven, opened from a list row, a
+detail page or a header action, and it is the canonical shell for create,
+edit and confirm alike.
+
+- The form **never navigates**. The URL behind it does not change to a
+  full-page form route; the underlying screen stays mounted and dimmed.
+- Closing (Escape, scrim click, Cancel) **restores the exact context** :
+  scroll position, applied filters, table selection. The user resumes
+  where they were, not on a reloaded list.
+- Width follows content : a single-column modal for compact forms, a
+  wider multi-step modal for rich objects. Never a two-column metadata
+  sidebar - that pattern belonged to the page forms this doctrine
+  replaces.
+- The scrim uses `--shadow-lg` on the modal and a soft dim on the page;
+  it enters with `.fw-pop` (honouring `prefers-reduced-motion`).
+
+Canonical shell : [`templates/includes/modal_form.html`](../../templates/includes/modal_form.html).
+Build every form by extending it and filling its field block. Do not
+author bespoke form pages.
+
+> Migration note : the previous single-column / two-column **page form**
+> patterns and the standalone delete **page** are retired. Existing page
+> forms (e.g. `risk_form.html`, `issue_form.html`) move into the modal
+> shell as create / edit modals; their content is unchanged, only the
+> container is.
+
+### Reusable by construction
+
+A form is assembled from shared parts, never hand-built :
+
+- **Shell** : `modal_form.html` provides the scrim, the header (title +
+  close), the step chrome, the body region and the sticky footer.
+- **Field** : a single field partial renders label, control, helper and
+  error in the fixed [anatomy](#anatomy-of-a-field) order. Templates
+  iterate fields through it; they do not lay out `<label>` / control by
+  hand.
+- **Footer** : the action cluster (primary + cancel) is one include with
+  fixed order and styling.
+
+If a form needs a layout the shared parts do not offer, extend the shared
+part - do not fork it into the template.
+
+### One form per action
+
+Create and edit are **separate forms**, not one template toggled by a
+conditional.
+
+- Distinct form classes (`RiskCreateForm`, `RiskUpdateForm`) and distinct
+  endpoints / modals. Each can carry the field set, defaults and helpers
+  that its action actually needs.
+- Create starts empty, focuses the first field, and may hide audit fields
+  that only exist after a first save (approval, history).
+- Edit pre-fills from the instance, keeps audit-relevant fields visible
+  (readonly where appropriate, never silently stripped), and never
+  repeats the stored value in a placeholder or helper.
+- Titles state the action and the object : **New risk** / **Edit risk**,
+  never "Risk form" or "Create".
+
+This costs a little duplication and buys clarity : each form does exactly
+one job, and neither carries dead branches for the other.
+
+### No vertical scroll, visible progress
+
+A form must never make the user scroll to reach a field or the submit
+button. Two mechanisms keep this true :
+
+**Fit, or split.** A form whose fields fit one viewport is a single-step
+modal. A form with more fields becomes a **multi-step modal** : fields are
+grouped by meaning (see [Field grouping](#field-grouping)) into steps,
+each step short enough to fit without scrolling. Never let a single step
+overflow - add a step instead.
+
+**Always show progress.** The user always knows where they are and what
+remains :
+
+- **Multi-step** : a step indicator sits in the modal header - numbered,
+  labelled pills connected by a thin rule, with done / current / upcoming
+  states (the same visual language as the workflow stepper). The current
+  step is the navy pill; done steps carry a checkmark; upcoming steps are
+  faded. Forward is gated on the current step's required fields being
+  valid; backward is always free and never loses input.
+- **Single-step** : a slim **completion meter** in the header counts
+  required fields - "2 of 5 required" - filling toward navy as the user
+  progresses. It is a calm progress signal, not a validation alarm :
+  neutral until submit.
+
+| Need | Mechanism | Treatment |
+| --- | --- | --- |
+| Form fits one viewport | Completion meter | Header chip "N of M required", `--accent` fill, `--surface-subtle` track. |
+| Form exceeds one viewport | Step indicator | Header stepper, pills navy / check / faded, thin connecting rule. |
+
+The footer is **sticky** to the modal so the primary action is reachable
+without scrolling regardless of step height.
 
 ### Anatomy of a field
 
 The four parts of any field, always in this order: label, control,
-helper, error.
+helper, error. Helper is **mandatory** : every field defines `help_text`,
+and the partial renders it unconditionally. A field with no helper is an
+unfinished field.
 
 ```django
 <div class="mb-3">
@@ -383,7 +489,7 @@ helper, error.
     {{ field.label }}{% if field.field.required %} *{% endif %}
   </label>
   {{ field }}
-  {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+  <div class="form-text">{{ field.help_text }}</div>
   {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
 </div>
 ```
@@ -392,7 +498,7 @@ helper, error.
 | --- | --- | --- |
 | Label | `.form-label` | 13 px / 600 / `--text-secondary`. Trailing `*` on required (with a space before it). Never hidden, never replaced by a placeholder. |
 | Control | `.form-control` / `.form-select` / `.form-check-input` | 15 px / 500 / `--text-primary`. 1 px border, radius `0.75rem`, padding `.5625rem .875rem`. |
-| Helper | `.form-text` | 13 px / 400 / `--text-muted`. Short, concrete. No terminal punctuation unless it's a full sentence. |
+| Helper | `.form-text` | 13 px / 400 / `--text-muted`. **Always present.** Short, concrete, says what the value is for or how to fill it. No terminal punctuation unless it's a full sentence. |
 | Error | `.invalid-feedback.d-block` | 13 px / 400 / `--danger`. Says what to fix, not just "invalid". Use `.d-block` so it appears unconditionally below the control. |
 
 ### Visual states
@@ -407,69 +513,55 @@ helper, error.
 | Disabled / readonly | Background `--surface-muted`, text `--text-secondary`. |
 | Invalid | Add Bootstrap `.is-invalid` (red border). Error appears below as `.invalid-feedback.d-block`. |
 
-### Layouts
+### Layout inside the modal
 
-#### Single column
+Everything lives in one column, inside the modal body. There is no
+metadata sidebar and no full-width page grid : those belonged to the
+retired page forms.
 
-The canonical pattern for objects with ≤ 8 fields and no metadata
-sidebar. Wrap the form in a single `.card`, iterate fields, end with a
-sticky action bar.
+#### Single step
 
-#### Two columns
-
-For rich objects: `col-lg-8` for primary fields grouped in cards,
-`col-lg-4` for the status / dates / tags sidebar. Each column hosts
-one or more `.card` blocks, each card carrying one logical group.
+For a form that fits one viewport : iterate fields through the field
+partial in a single column, show the completion meter in the header, and
+end with the sticky footer. This is the default.
 
 ```django
-<form method="post">
-  {% csrf_token %}
-  <div class="row">
-    <div class="col-lg-8">
-      <div class="card mb-4">
-        <div class="card-header">
-          <h6 class="mb-0">
-            <i class="bi bi-flag me-2" style="color:var(--accent)"></i>
-            {% trans "Identity" %}
-          </h6>
-        </div>
-        <div class="card-body">… fields …</div>
-      </div>
-      {# more cards: analysis, relations, etc. #}
-    </div>
-    <div class="col-lg-4">
-      {# status, dates, tags #}
-    </div>
-  </div>
-  <div class="d-flex gap-2 form-actions-sticky">
-    <button type="submit" class="btn btn-primary">
-      <i class="bi bi-check-lg me-1" aria-hidden="true"></i>{% trans "Save" %}
-    </button>
-    <a href="..." class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-  </div>
-</form>
+{% extends "includes/modal_form.html" %}
+{% block modal_form_title %}{% trans "New risk" %}{% endblock %}
+{% block modal_form_fields %}
+  {% for field in form %}{% include "includes/form_field.html" %}{% endfor %}
+{% endblock %}
 ```
 
-#### Drawer
+Submission is HTMX (`hx-post` on the form). The modal **never closes on
+validation failure** : the partial returns with errors re-rendered and
+the user keeps every value.
 
-Extends [`templates/includes/modal_form.html`](../../templates/includes/modal_form.html)
-and fills the `{% block modal_form_fields %}` block. The drawer renders
-inputs at a tighter scale (13 px, radius `--radius-xs`, min-height
-36 px) so ~12 fields fit without scrolling on a 13-inch laptop. Form
-submission is HTMX (`hx-post` on the form, target `#drawer-form-content`);
-the drawer never closes on validation failure - the partial returns with
-errors re-rendered.
+#### Multi-step
 
-#### Grid inside a card
+For a form too large for one viewport : split it into steps along the
+[field grouping](#field-grouping). Each step is one column of fields,
+short enough to fit without scrolling. The header carries the step
+indicator; the footer carries Back / Next (and Save on the last step).
+Step navigation is HTMX-driven and never loses input on either direction.
 
-Bootstrap rows + columns are encouraged when two fields are short and
-related (e.g., `type` + `category`). Don't split a long textarea; let it
-take the full width.
+Order the steps so the most identifying fields come first (Identity), and
+the optional or relational ones come last - a user who abandons after
+step one has still given the essentials.
+
+#### Pairing short fields
+
+Two short, tightly related fields (e.g. `type` + `category`) may share a
+row via a Bootstrap grid inside the step. Never split a long textarea or
+a rich-text area : it takes the full width.
 
 ### Field grouping
 
-Group fields by **meaning**, not by widget type. A card carries one
-concept; its header names that concept with an icon + section title:
+Group fields by **meaning**, not by widget type. The grouping drives both
+the visual order within a step and the split into steps when a form goes
+multi-step. A group names one concept with an icon + a short title in the
+action-oriented voice of [Voice and tone](#voice-and-tone) ("Analysis",
+not "Step 2"; "Identity", not "Basic info").
 
 | Group | Typical fields |
 | --- | --- |
@@ -481,10 +573,11 @@ concept; its header names that concept with an icon + section title:
 
 Rules:
 
-- A card with more than ~6 fields usually splits into two.
-- Don't create a card for a single field unless it's a rich-text area.
-- Card titles use the action-oriented voice of [Voice and tone](#voice-and-tone)
-  ("Analysis", not "Step 2"; "Identity", not "Basic info").
+- One group, one step (when multi-step). A group with more than ~6 fields
+  usually splits into two steps.
+- A single-step form still orders its fields by these groups, top to
+  bottom.
+- Identity leads; Tags and Relations trail.
 
 ### Required vs. optional
 
@@ -501,58 +594,56 @@ Rules:
 
 #### Order, style, hierarchy
 
+The actions live in the **sticky modal footer**, never inline among the
+fields.
+
 | Position | Style | Action |
 | --- | --- | --- |
 | Left | `btn btn-primary` | **Save** (primary CTA). Carries `<i class="bi bi-check-lg me-1"></i>`. |
-| Right | `btn btn-outline-secondary` | **Cancel** (escape hatch). Always present. |
+| Right | `btn btn-outline-secondary` | **Cancel** (escape hatch). Always present; dismisses the modal and restores the underlying context. |
 
-Drawer footer mirrors the same order: Cancel on the far left of the
-footer cluster (dismisses the drawer), Save on the right (primary CTA).
-The asymmetry is intentional - it follows the platform convention
-established by the offcanvas component.
+On a **multi-step** form, the footer carries **Back** (outline, far left)
+and **Next** (primary, right) on intermediate steps; the last step
+swaps Next for **Save**. Cancel is always reachable. Back never loses
+input.
 
 #### Destructive actions
 
-Never put a destructive button beside Save. Delete, archive, reject and
-similar actions live on their own page or in a confirmation modal. They
-use `btn btn-danger`.
+Never put a destructive button beside Save. Delete, archive and reject
+open their **own confirmation modal** (see [Delete](#delete)). They use
+`btn btn-danger`.
 
-#### Sticky action bar
+#### Sticky footer
 
-For any form longer than one viewport, wrap the actions in
-`.form-actions-sticky`. The bar pins to the bottom of the viewport with a
-soft gradient mask so the form content fades into it rather than
-colliding.
+The footer is pinned to the bottom of the modal with a soft gradient mask
+so the content fades into it rather than colliding. Because the form
+never scrolls past one step, the primary action is always in view.
 
-### Create vs. edit
+### Create and edit
 
-Same template, conditional title - the form structure stays identical so
-the user's mental model carries over from one mode to the other.
+Create and edit are **two forms**, not one template branching on
+`instance.pk` (see [One form per action](#one-form-per-action)). The
+shell, the field anatomy and the footer are shared, so the two read
+identically; only the form class, the endpoint and the title differ.
 
-```django
-{% if form.instance.pk %}
-  {% trans "Edit risk" as page_title %}
-{% else %}
-  {% trans "New risk" as page_title %}
-{% endif %}
-{% page_header page_title %}{% endpage_header %}
-```
-
-- Pre-filled values come from `ModelForm` - never repeat them in
-  placeholder or help text. The user already sees the value in the field.
-- The page title says **Edit \<object\>** or **New \<object\>**, never
-  "Edit form" or "Create".
-- In edit mode, audit-relevant fields (status, approval, history) stay
-  visible but may be readonly. Never silently strip them.
+- Create starts empty, focuses the first field, and may omit audit fields
+  that only exist after a first save (approval, history).
+- Edit pre-fills from the `ModelForm`. Never repeat a stored value in a
+  placeholder or helper - the user already sees it in the control.
+- Audit-relevant fields (status, approval, history) stay visible in edit,
+  readonly where appropriate. Never silently strip them.
+- The modal title states the action and the object : **New risk** /
+  **Edit risk**, never "Risk form" or "Create".
 
 ### Delete
 
-Deletion is a separate page (or HTMX-driven modal for trivial in-list
-objects). The canonical pattern:
+Deletion is a **confirmation modal**, layered over the dimmed interface
+like every other form - never a separate page. The canonical pattern:
 
 ```django
-{% page_header _("Delete decision") %}{% endpage_header %}
-<div class="card"><div class="card-body">
+{% extends "includes/modal_form.html" %}
+{% block modal_form_title %}{% trans "Delete decision" %}{% endblock %}
+{% block modal_form_fields %}
   <p>
     {% blocktrans with ref=object.reference title=object.title %}
     Delete decision <strong>{{ ref }} - {{ title }}</strong>?
@@ -561,16 +652,13 @@ objects). The canonical pattern:
   <p class="text-muted">
     {% trans "This action cannot be undone. The 4 linked actions will become orphaned." %}
   </p>
-  <form method="post">
-    {% csrf_token %}
-    <div class="d-flex gap-2">
-      <button type="submit" class="btn btn-danger">
-        <i class="bi bi-trash me-1" aria-hidden="true"></i>{% trans "Delete permanently" %}
-      </button>
-      <a href="..." class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-    </div>
-  </form>
-</div></div>
+{% endblock %}
+{% block modal_form_actions %}
+  <button type="submit" class="btn btn-danger">
+    <i class="bi bi-trash me-1" aria-hidden="true"></i>{% trans "Delete permanently" %}
+  </button>
+  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+{% endblock %}
 ```
 
 Rules:
@@ -613,7 +701,10 @@ manually inside a template.
   `<div class="alert alert-danger">` at the top of the form, before the
   first field.
 - HTMX submissions return the same partial with errors re-rendered; the
-  drawer stays open and the user keeps their input.
+  modal stays open and the user keeps their input.
+- On a multi-step form, a failed step keeps the user on that step with its
+  errors shown; the step indicator marks the step as incomplete rather
+  than done.
 - The ARIA polite region `#hx-live` announces the error count after each
   HTMX submit. Screen readers hear "3 fields need attention" without
   having to re-scan the form.
@@ -635,6 +726,11 @@ manually inside a template.
   semantically (`required` attribute carried by the widget).
 - Disabled inputs stay reachable in the tab order; truly hidden inputs
   use `display: none` and `aria-hidden="true"`.
+- The modal traps focus while open and returns focus to the trigger when
+  it closes. Escape and the scrim both dismiss it, equivalent to Cancel.
+- The step indicator marks the current step with `aria-current="step"`;
+  the completion meter exposes its count via `aria-label` so the progress
+  is heard, not only seen.
 
 ### Copy
 
@@ -797,4 +893,4 @@ Any change to the palette, motion tokens or core components must:
 
 ---
 
-_Last updated: 2026-05-30. Cairn (formerly Fairway)._
+_Last updated: 2026-06-10. Cairn (formerly Fairway)._

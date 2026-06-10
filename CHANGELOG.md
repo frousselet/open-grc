@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Form doctrine in the brand guidelines**. The `Forms` section of `docs/brand/brand-guidelines.md` is rewritten around a single modal-first model: every form opens as an overlay above the dimmed interface (never a new page), built from one reusable shell and field partial. Create and edit become distinct forms (one form per action, no `instance.pk` branching), forms never scroll vertically (large forms split into a multi-step modal), the user always sees a step indicator or a required-fields completion meter, required fields are marked and counted, and every field carries a mandatory always-visible helper. The retired single-column / two-column page-form and standalone delete-page patterns are documented as superseded; deletion becomes a confirmation modal.
+
 ## [0.24.5] - 2026-06-10
 
 ### Changed
