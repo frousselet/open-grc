@@ -141,4 +141,4 @@ Un indicateur critique s'affiche avec une bordure rouge sur le tableau de bord e
 
 - ISO/IEC 27001:2022 §6.2 (Objectifs de sécurité et mesurabilité) et §9.1 (Surveillance, mesure, analyse, évaluation)
 - [Objective](objective.md), [Requirement](../m3-compliance/requirement.md) : entités cibles des liens M2M
-- [Indicator MCP tools](https://github.com/frousselet/open-grc/blob/main/mcp/tools.py) : implémentation
+- [Indicator MCP tools](https://github.com/frousselet/cairn/blob/main/mcp/tools.py) : implémentation
