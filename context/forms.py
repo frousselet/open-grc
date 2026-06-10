@@ -79,7 +79,7 @@ class ScopedFormMixin:
 class ScopeBaseForm(SteppedFormMixin, forms.ModelForm):
     steps = [
         Step(_("Identity"), "diagram-3",
-             ["name", "parent_scope", "status", "icon", "description"]),
+             [[("icon", "auto"), "name"], "parent_scope", "status", "description"]),
         Step(_("Boundaries"), "bounding-box",
              ["boundaries", "justification_exclusions",
               "geographic_scope", "organizational_scope", "technical_scope"]),

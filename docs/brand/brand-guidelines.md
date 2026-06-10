@@ -551,9 +551,19 @@ step one has still given the essentials.
 
 #### Pairing short fields
 
-Two short, tightly related fields (e.g. `type` + `category`) may share a
-row via a Bootstrap grid inside the step. Never split a long textarea or
-a rich-text area : it takes the full width.
+Two short, tightly related fields (e.g. `type` + `category`, or an icon
+picker + a name) may share a row via a Bootstrap grid inside the step.
+Never split a long textarea or a rich-text area : it takes the full
+width. In the declarative engine this is expressed by nesting a list
+inside the step's fields, with an optional width per cell (`"auto"` or a
+1-12 Bootstrap span):
+
+```python
+Step(_("Identity"), "diagram-3", [
+    [("icon", "auto"), "name"],   # icon (narrow) + name (fills) on one row
+    "description",                # full-width field
+])
+```
 
 ### Field grouping
 

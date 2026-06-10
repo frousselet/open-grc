@@ -1,0 +1,12 @@
+{% comment %}
+  Renders one layout row of a stepped form. A single-cell row is a plain
+  full-width field; a multi-cell row lays its fields out in Bootstrap
+  columns (each cell carries its own col class). Expects `row`.
+{% endcomment %}
+{% if row|length == 1 %}
+  {% include "includes/form_field.html" with field=row.0.field %}
+{% else %}
+<div class="row g-2">
+  {% for cell in row %}<div class="{{ cell.col_class }}">{% include "includes/form_field.html" with field=cell.field %}</div>{% endfor %}
+</div>
+{% endif %}

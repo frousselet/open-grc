@@ -13,11 +13,11 @@
   {% for step in form.iter_steps %}
   <section class="mform-step" data-mform-step="{{ step.index }}"{% if not step.is_first %} hidden{% endif %}>
     <div class="mform-step-head"><i class="bi bi-{{ step.icon }}" aria-hidden="true"></i> {{ step.title }}</div>
-    {% for field in step.fields %}{% include "includes/form_field.html" %}{% endfor %}
+    {% for row in step.rows %}{% include "includes/form_row.html" %}{% endfor %}
   </section>
   {% endfor %}
 {% else %}
   {% for step in form.iter_steps %}
-    {% for field in step.fields %}{% include "includes/form_field.html" %}{% endfor %}
+    {% for row in step.rows %}{% include "includes/form_row.html" %}{% endfor %}
   {% endfor %}
 {% endif %}

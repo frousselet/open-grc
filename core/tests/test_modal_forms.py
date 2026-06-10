@@ -91,3 +91,35 @@ def test_uncovered_visible_field_raises():
 
     with pytest.raises(ImproperlyConfigured, match="not assigned to any step"):
         BadForm()
+
+
+class RowForm(SteppedFormMixin, forms.Form):
+    a = forms.CharField()
+    b = forms.CharField()
+    c = forms.CharField(required=False)
+
+    steps = [Step("S", "x", [[("a", "auto"), "b"], "c"])]
+
+
+def test_row_layout():
+    step = list(RowForm().iter_steps())[0]
+    rows = step["rows"]
+    assert len(rows) == 2
+    # first row: two columns (a auto-width, b equal-width)
+    assert [c["field"].name for c in rows[0]] == ["a", "b"]
+    assert rows[0][0]["col_class"] == "col-auto"
+    assert rows[0][1]["col_class"] == "col-sm"
+    # second row: single full-width field
+    assert len(rows[1]) == 1
+    assert rows[1][0]["field"].name == "c"
+    # flat field list still complete and ordered
+    assert [bf.name for bf in step["fields"]] == ["a", "b", "c"]
+
+
+def test_row_validation_flattens_names():
+    class BadRowForm(SteppedFormMixin, forms.Form):
+        a = forms.CharField()
+        steps = [Step("S", "x", [[("a", "auto"), "nope"]])]
+
+    with pytest.raises(ImproperlyConfigured, match="unknown field 'nope'"):
+        BadRowForm()
