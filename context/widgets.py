@@ -144,3 +144,15 @@ class ScopeTreeRadioWidget(forms.RadioSelect):
 
         self.tree_data = result
         return result
+
+
+class IconPickerWidget(forms.Widget):
+    """Visible Bootstrap-icon picker bound to a hidden text value.
+
+    Renders a preview button, a clear button and a searchable icon grid
+    popover. All behaviour is wired by the generic icon-picker JS in
+    ``base.html`` (data-attribute driven), so the widget works anywhere,
+    including inside the HTMX modal.
+    """
+
+    template_name = "widgets/icon_picker_widget.html"

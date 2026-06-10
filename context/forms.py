@@ -19,7 +19,7 @@ from .models import (
     Responsibility,
     Tag,
 )
-from .widgets import ScopeTreeRadioWidget, ScopeTreeWidget
+from .widgets import IconPickerWidget, ScopeTreeRadioWidget, ScopeTreeWidget
 from core.modal_forms import Step, SteppedFormMixin
 
 FORM_WIDGET_ATTRS = {"class": "form-control"}
@@ -76,7 +76,19 @@ class ScopedFormMixin:
             field.widget.build_tree_data(qs, selected_ids)
 
 
-class ScopeForm(forms.ModelForm):
+class ScopeBaseForm(SteppedFormMixin, forms.ModelForm):
+    steps = [
+        Step(_("Identity"), "diagram-3",
+             ["name", "parent_scope", "status", "icon", "description"]),
+        Step(_("Boundaries"), "bounding-box",
+             ["boundaries", "justification_exclusions",
+              "geographic_scope", "organizational_scope", "technical_scope"]),
+        Step(_("Sites & people"), "geo-alt",
+             ["included_sites", "excluded_sites", "managers"]),
+        Step(_("Dates & tags"), "calendar-event",
+             ["effective_date", "review_date", "tags"]),
+    ]
+
     class Meta:
         model = Scope
         fields = [
@@ -92,7 +104,7 @@ class ScopeForm(forms.ModelForm):
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "parent_scope": ScopeTreeRadioWidget(),
             "status": forms.Select(attrs=SELECT_ATTRS),
-            "icon": forms.HiddenInput(attrs={"id": "id_icon"}),
+            "icon": IconPickerWidget(),
             "boundaries": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "justification_exclusions": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "geographic_scope": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
@@ -104,6 +116,24 @@ class ScopeForm(forms.ModelForm):
             "effective_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
+        }
+        help_texts = {
+            "name": _("Name of the scope."),
+            "parent_scope": _("Parent scope, if this is a sub-scope."),
+            "status": _("Lifecycle state of the scope."),
+            "icon": _("Icon representing the scope."),
+            "description": _("What this scope covers."),
+            "boundaries": _("Where the scope starts and stops."),
+            "justification_exclusions": _("Why certain elements are excluded."),
+            "geographic_scope": _("Geographic perimeter covered."),
+            "organizational_scope": _("Organizational perimeter covered."),
+            "technical_scope": _("Technical perimeter covered."),
+            "included_sites": _("Sites inside the scope."),
+            "excluded_sites": _("Sites explicitly left out."),
+            "managers": _("Users responsible for this scope; they automatically get access."),
+            "effective_date": _("Date the scope takes effect."),
+            "review_date": _("Next date this scope should be reviewed."),
+            "tags": _("Free-form labels for filtering and grouping."),
         }
 
     def __init__(self, *args, **kwargs):
@@ -128,6 +158,14 @@ class ScopeForm(forms.ModelForm):
         from django.contrib.auth import get_user_model
         User = get_user_model()
         self.fields["managers"].queryset = User.objects.filter(is_active=True).order_by("first_name", "last_name", "email")
+
+
+class ScopeCreateForm(ScopeBaseForm):
+    """Scope creation modal form."""
+
+
+class ScopeUpdateForm(ScopeBaseForm):
+    """Scope edition modal form."""
 
 
 class IssueBaseForm(SteppedFormMixin, ScopedFormMixin, forms.ModelForm):

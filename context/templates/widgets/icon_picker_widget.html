@@ -1,0 +1,18 @@
+{% load i18n %}
+<div class="icon-picker" data-icon-picker>
+  <input type="hidden" name="{{ widget.name }}"{% if widget.value %} value="{{ widget.value }}"{% endif %}{% if widget.attrs.id %} id="{{ widget.attrs.id }}"{% endif %} data-icon-picker-input>
+  <div class="d-flex align-items-center gap-2">
+    <button type="button" class="btn btn-outline-secondary d-flex align-items-center justify-content-center" data-icon-picker-btn title="{% trans 'Choose icon' %}" style="width:32px;height:32px;font-size:.9rem;border-radius:var(--radius-xs)">
+      <i class="bi {{ widget.value|default:'bi-diagram-3' }}" data-icon-preview aria-hidden="true"></i>
+    </button>
+    <button type="button" class="btn btn-sm btn-link text-muted p-0" data-icon-picker-clear title="{% trans 'Reset' %}" style="font-size:.7rem">
+      <i class="bi bi-x-lg" aria-hidden="true"></i>
+    </button>
+  </div>
+  <div class="icon-picker-popover" data-icon-picker-popover>
+    <div class="p-2">
+      <input type="text" class="form-control form-control-sm" data-icon-picker-search placeholder="{% trans 'Search icons…' %}">
+    </div>
+    <div class="icon-picker-grid" data-icon-picker-grid></div>
+  </div>
+</div>

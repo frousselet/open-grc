@@ -2419,6 +2419,46 @@
     .mform-step-head i { font-size: .7rem; opacity: .6; }
     .form-required { color: var(--text-muted); font-weight: 400; }
 
+    /* ── Icon picker widget ────────────────────────── */
+    .icon-picker { position: relative; }
+    .icon-picker-popover {
+      display: none;
+      position: fixed;
+      z-index: 1085;
+      width: 320px;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+    }
+    .icon-picker-popover.show { display: block; }
+    .icon-picker-grid {
+      max-height: 240px;
+      overflow-y: auto;
+      padding: 0 .5rem .5rem;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 2px;
+    }
+    .icon-picker-grid button {
+      width: 34px;
+      height: 34px;
+      font-size: 1rem;
+      color: var(--text-primary);
+      border: 1px solid transparent;
+      border-radius: var(--radius-xs);
+      background: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color .12s var(--ease-out);
+    }
+    .icon-picker-grid button:hover { background: var(--surface-muted); }
+    .icon-picker-grid button.is-selected {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
     /* ── Modal form header ─────────────────────────── */
     #itemDrawer .modal-header {
       background: var(--surface);
@@ -4952,6 +4992,105 @@
         initModalForm();
       }
     });
+  })();
+  </script>
+
+  {% comment %}
+    Generic Bootstrap-icon picker. Wires every IconPickerWidget instance
+    (data-icon-picker) emitted anywhere, including inside the modal.
+  {% endcomment %}
+  <script>
+  (function() {
+    var ICONS = [
+      "bi-building","bi-buildings","bi-house-door","bi-globe","bi-globe-europe-africa",
+      "bi-globe-americas","bi-globe-asia-australia","bi-geo-alt","bi-geo","bi-pin-map",
+      "bi-diagram-3","bi-diagram-2","bi-share","bi-bezier2","bi-layers",
+      "bi-stack","bi-collection","bi-grid","bi-grid-3x3","bi-bounding-box",
+      "bi-shield-lock","bi-shield-check","bi-shield-exclamation","bi-shield",
+      "bi-lock","bi-unlock","bi-key","bi-fingerprint","bi-eye","bi-eye-slash",
+      "bi-server","bi-hdd-network","bi-hdd-stack","bi-cpu","bi-motherboard",
+      "bi-router","bi-wifi","bi-ethernet","bi-cloud","bi-cloud-check",
+      "bi-database","bi-device-ssd","bi-usb-drive",
+      "bi-people","bi-person","bi-person-badge","bi-person-lock","bi-person-check",
+      "bi-briefcase","bi-bank","bi-shop","bi-hospital","bi-mortarboard",
+      "bi-truck","bi-airplane","bi-train-front","bi-ev-front",
+      "bi-file-earmark-text","bi-file-earmark-lock","bi-file-earmark-check","bi-files",
+      "bi-folder","bi-folder-check","bi-folder2-open",
+      "bi-gear","bi-tools","bi-wrench","bi-sliders","bi-toggles",
+      "bi-code-square","bi-terminal","bi-braces","bi-bug","bi-git",
+      "bi-bar-chart","bi-graph-up","bi-pie-chart","bi-speedometer2","bi-clipboard-data",
+      "bi-flag","bi-bookmark-star","bi-award","bi-trophy","bi-star",
+      "bi-lightning","bi-activity","bi-bell","bi-megaphone","bi-broadcast",
+      "bi-box","bi-boxes","bi-archive","bi-inbox","bi-recycle",
+      "bi-heart-pulse","bi-radioactive","bi-binoculars","bi-camera-video","bi-headset"
+    ];
+    var DEFAULT_ICON = "bi-diagram-3";
+
+    function initPicker(root) {
+      if (root.dataset.iconPickerReady) return;
+      root.dataset.iconPickerReady = '1';
+      var input = root.querySelector('[data-icon-picker-input]');
+      var btn = root.querySelector('[data-icon-picker-btn]');
+      var preview = root.querySelector('[data-icon-preview]');
+      var clearBtn = root.querySelector('[data-icon-picker-clear]');
+      var popover = root.querySelector('[data-icon-picker-popover]');
+      var grid = root.querySelector('[data-icon-picker-grid]');
+      var search = root.querySelector('[data-icon-picker-search]');
+      if (!input || !btn || !popover) return;
+
+      function renderGrid(filter) {
+        var q = (filter || '').toLowerCase();
+        grid.innerHTML = '';
+        ICONS.forEach(function(ic) {
+          if (q && ic.replace('bi-', '').indexOf(q) === -1) return;
+          var cell = document.createElement('button');
+          cell.type = 'button';
+          cell.title = ic.replace('bi-', '');
+          cell.innerHTML = '<i class="bi ' + ic + '"></i>';
+          if (input.value === ic) cell.classList.add('is-selected');
+          cell.addEventListener('click', function() {
+            input.value = ic;
+            preview.className = 'bi ' + ic;
+            close();
+          });
+          grid.appendChild(cell);
+        });
+      }
+      function open() {
+        var rect = btn.getBoundingClientRect();
+        popover.classList.add('show');
+        popover.style.top = (rect.bottom + 4) + 'px';
+        popover.style.left = Math.min(rect.left, window.innerWidth - 330) + 'px';
+        renderGrid('');
+        if (search) { search.value = ''; search.focus(); }
+      }
+      function close() { popover.classList.remove('show'); }
+
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        popover.classList.contains('show') ? close() : open();
+      });
+      if (clearBtn) clearBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        input.value = '';
+        preview.className = 'bi ' + DEFAULT_ICON;
+        close();
+      });
+      if (search) search.addEventListener('input', function() { renderGrid(this.value); });
+      document.addEventListener('click', function(e) {
+        if (!root.contains(e.target)) close();
+      });
+    }
+
+    function initAll() {
+      document.querySelectorAll('[data-icon-picker]').forEach(initPicker);
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAll);
+    } else {
+      initAll();
+    }
+    document.body.addEventListener('htmx:afterSettle', initAll);
   })();
   </script>
 </body>

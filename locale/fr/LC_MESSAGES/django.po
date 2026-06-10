@@ -8879,3 +8879,54 @@ msgstr "Source de données Cairn alimentant cet indicateur."
 
 msgid "Parameter passed to the data source."
 msgstr "Paramètre transmis à la source de données."
+
+msgid "Sites & people"
+msgstr "Sites et personnes"
+
+msgid "Dates & tags"
+msgstr "Dates et étiquettes"
+
+msgid "Name of the scope."
+msgstr "Nom du périmètre."
+
+msgid "Parent scope, if this is a sub-scope."
+msgstr "Périmètre parent, s'il s'agit d'un sous-périmètre."
+
+msgid "Lifecycle state of the scope."
+msgstr "État du cycle de vie du périmètre."
+
+msgid "Icon representing the scope."
+msgstr "Icône représentant le périmètre."
+
+msgid "What this scope covers."
+msgstr "Ce que couvre ce périmètre."
+
+msgid "Where the scope starts and stops."
+msgstr "Où commence et s'arrête le périmètre."
+
+msgid "Why certain elements are excluded."
+msgstr "Pourquoi certains éléments sont exclus."
+
+msgid "Geographic perimeter covered."
+msgstr "Périmètre géographique couvert."
+
+msgid "Organizational perimeter covered."
+msgstr "Périmètre organisationnel couvert."
+
+msgid "Technical perimeter covered."
+msgstr "Périmètre technique couvert."
+
+msgid "Sites inside the scope."
+msgstr "Sites inclus dans le périmètre."
+
+msgid "Sites explicitly left out."
+msgstr "Sites explicitement exclus."
+
+msgid "Users responsible for this scope; they automatically get access."
+msgstr "Utilisateurs responsables de ce périmètre ; ils y ont automatiquement accès."
+
+msgid "Date the scope takes effect."
+msgstr "Date de prise d'effet du périmètre."
+
+msgid "Next date this scope should be reviewed."
+msgstr "Prochaine date de revue du périmètre."
