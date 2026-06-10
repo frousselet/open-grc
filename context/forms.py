@@ -180,7 +180,14 @@ class IssueUpdateForm(IssueBaseForm):
     """Issue edition modal form."""
 
 
-class StakeholderForm(ScopedFormMixin, forms.ModelForm):
+class StakeholderBaseForm(SteppedFormMixin, ScopedFormMixin, forms.ModelForm):
+    steps = [
+        Step(_("Identity"), "person-badge", ["name", "type", "category", "description"]),
+        Step(_("Contact"), "envelope", ["contact_name", "contact_email", "contact_phone"]),
+        Step(_("Assessment & status"), "graph-up",
+             ["influence_level", "interest_level", "review_date", "status", "scopes", "tags"]),
+    ]
+
     class Meta:
         model = Stakeholder
         fields = [
@@ -203,6 +210,29 @@ class StakeholderForm(ScopedFormMixin, forms.ModelForm):
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+        help_texts = {
+            "name": _("Name of the stakeholder or group."),
+            "type": _("Internal or external stakeholder."),
+            "category": _("Kind of stakeholder."),
+            "description": _("Who they are and their relationship to the organization."),
+            "contact_name": _("Primary contact person."),
+            "contact_email": _("Email of the primary contact."),
+            "contact_phone": _("Phone of the primary contact."),
+            "influence_level": _("How much influence this stakeholder has."),
+            "interest_level": _("How interested this stakeholder is."),
+            "review_date": _("Next date this stakeholder should be reviewed."),
+            "status": _("Lifecycle state of the stakeholder."),
+            "scopes": _("Organizational scopes this stakeholder applies to."),
+            "tags": _("Free-form labels for filtering and grouping."),
+        }
+
+
+class StakeholderCreateForm(StakeholderBaseForm):
+    """Stakeholder creation modal form."""
+
+
+class StakeholderUpdateForm(StakeholderBaseForm):
+    """Stakeholder edition modal form."""
 
 
 class StakeholderExpectationForm(forms.ModelForm):

@@ -8744,3 +8744,39 @@ msgstr "État du cycle de vie de l'analyse."
 
 msgid "Organizational scopes this analysis applies to."
 msgstr "Périmètres organisationnels concernés par l'analyse."
+
+msgid "Name of the stakeholder or group."
+msgstr "Nom de la partie intéressée ou du groupe."
+
+msgid "Internal or external stakeholder."
+msgstr "Partie intéressée interne ou externe."
+
+msgid "Kind of stakeholder."
+msgstr "Type de partie intéressée."
+
+msgid "Who they are and their relationship to the organization."
+msgstr "Qui elle est et sa relation avec l'organisation."
+
+msgid "Primary contact person."
+msgstr "Personne de contact principale."
+
+msgid "Email of the primary contact."
+msgstr "Courriel du contact principal."
+
+msgid "Phone of the primary contact."
+msgstr "Téléphone du contact principal."
+
+msgid "How much influence this stakeholder has."
+msgstr "Niveau d'influence de la partie intéressée."
+
+msgid "How interested this stakeholder is."
+msgstr "Niveau d'intérêt de la partie intéressée."
+
+msgid "Next date this stakeholder should be reviewed."
+msgstr "Prochaine date de revue de la partie intéressée."
+
+msgid "Lifecycle state of the stakeholder."
+msgstr "État du cycle de vie de la partie intéressée."
+
+msgid "Organizational scopes this stakeholder applies to."
+msgstr "Périmètres organisationnels concernés par la partie intéressée."

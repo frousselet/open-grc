@@ -36,7 +36,8 @@ from .forms import (
     RoleCreateForm,
     RoleUpdateForm,
     ScopeForm,
-    StakeholderForm,
+    StakeholderCreateForm,
+    StakeholderUpdateForm,
     SwotAnalysisCreateForm,
     SwotAnalysisUpdateForm,
     SwotItemForm,
@@ -449,7 +450,7 @@ class StakeholderDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFi
 class StakeholderCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Stakeholder
     permission_required = "context.stakeholder.create"
-    form_class = StakeholderForm
+    form_class = StakeholderCreateForm
     template_name = "context/stakeholder_form.html"
     modal_template_name = "context/stakeholder_form_modal.html"
     modal_title_create = _l("New stakeholder")
@@ -465,7 +466,7 @@ class StakeholderCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFor
 class StakeholderUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Stakeholder
     permission_required = "context.stakeholder.update"
-    form_class = StakeholderForm
+    form_class = StakeholderUpdateForm
     template_name = "context/stakeholder_form.html"
     modal_template_name = "context/stakeholder_form_modal.html"
     modal_title_create = _l("New stakeholder")
