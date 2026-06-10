@@ -20,3 +20,5 @@
     {% for row in step.rows %}{% include "includes/form_row.html" %}{% endfor %}
   {% endfor %}
 {% endif %}
+{% comment %}Always emit hidden fields so they submit even when no step lists them.{% endcomment %}
+{% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}

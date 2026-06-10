@@ -9104,3 +9104,48 @@ msgstr "Environnement (production, test, etc.)."
 
 msgid "Parent asset, if this is a component."
 msgstr "Bien parent, s'il s'agit d'un composant."
+
+msgid "Upload image"
+msgstr "Téléverser une image"
+
+msgid "Name of the supplier."
+msgstr "Nom du fournisseur."
+
+msgid "Kind of supplier."
+msgstr "Type de fournisseur."
+
+msgid "How critical this supplier is."
+msgstr "Criticité du fournisseur."
+
+msgid "Person accountable for the relationship."
+msgstr "Personne responsable de la relation."
+
+msgid "What the supplier provides."
+msgstr "Ce que fournit le fournisseur."
+
+msgid "Supplier website."
+msgstr "Site web du fournisseur."
+
+msgid "Country where the supplier operates."
+msgstr "Pays où le fournisseur opère."
+
+msgid "Postal address of the supplier."
+msgstr "Adresse postale du fournisseur."
+
+msgid "Reference of the governing contract."
+msgstr "Référence du contrat applicable."
+
+msgid "Contract start date."
+msgstr "Date de début du contrat."
+
+msgid "Contract end date."
+msgstr "Date de fin du contrat."
+
+msgid "Free-form notes about the supplier."
+msgstr "Notes libres sur le fournisseur."
+
+msgid "Lifecycle state of the supplier."
+msgstr "État du cycle de vie du fournisseur."
+
+msgid "Organizational scopes this supplier applies to."
+msgstr "Périmètres organisationnels concernés par le fournisseur."

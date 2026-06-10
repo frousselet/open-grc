@@ -156,3 +156,16 @@ class IconPickerWidget(forms.Widget):
     """
 
     template_name = "widgets/icon_picker_widget.html"
+
+
+class ImageUploadWidget(forms.Widget):
+    """Image upload bound to a text value holding a PNG data-URI.
+
+    Renders a square preview, a camera button (file picker) and a clear
+    button. The generic image-upload JS in ``base.html`` resizes the chosen
+    file client-side (via resizeImageFile) and stores the data-URI in the
+    hidden input, so no multipart upload is needed and it works inside the
+    modal.
+    """
+
+    template_name = "widgets/image_upload_widget.html"
