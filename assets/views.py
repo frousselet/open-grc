@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _l
 from django.views import View
 from django.views.generic import (
     CreateView,
@@ -21,10 +22,12 @@ from core.mixins import HtmxFormMixin, SortableListMixin
 from context.models import Scope, Site
 from .forms import (
     AssetDependencyForm,
-    AssetGroupForm,
+    AssetGroupCreateForm,
+    AssetGroupUpdateForm,
     EssentialAssetForm,
     SiteAssetDependencyForm,
-    SiteForm,
+    SiteCreateForm,
+    SiteUpdateForm,
     SiteSupplierDependencyForm,
     SupplierDependencyForm,
     SupplierForm,
@@ -342,10 +345,12 @@ class GroupDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMi
 
 class GroupCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = AssetGroup
-    form_class = AssetGroupForm
+    form_class = AssetGroupCreateForm
     template_name = "assets/group_form.html"
     permission_required = "assets.group.create"
     modal_template_name = "assets/group_form_modal.html"
+    modal_title_create = _l("New asset group")
+    modal_title_update = _l("Edit asset group")
     success_url = reverse_lazy("assets:group-list")
 
     def get_form_kwargs(self):
@@ -356,10 +361,12 @@ class GroupCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin
 
 class GroupUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = AssetGroup
-    form_class = AssetGroupForm
+    form_class = AssetGroupUpdateForm
     template_name = "assets/group_form.html"
     permission_required = "assets.group.update"
     modal_template_name = "assets/group_form_modal.html"
+    modal_title_create = _l("New asset group")
+    modal_title_update = _l("Edit asset group")
     success_url = reverse_lazy("assets:group-list")
 
     def get_form_kwargs(self):
@@ -840,19 +847,23 @@ class SiteDetailView(LoginRequiredMixin, PermissionRequiredMixin, ApprovalContex
 
 class SiteCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Site
-    form_class = SiteForm
+    form_class = SiteCreateForm
     template_name = "assets/site_form.html"
     permission_required = "context.site.create"
     modal_template_name = "assets/site_form_modal.html"
+    modal_title_create = _l("New site")
+    modal_title_update = _l("Edit site")
     success_url = reverse_lazy("assets:site-list")
 
 
 class SiteUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
     model = Site
-    form_class = SiteForm
+    form_class = SiteUpdateForm
     template_name = "assets/site_form.html"
     permission_required = "context.site.update"
     modal_template_name = "assets/site_form_modal.html"
+    modal_title_create = _l("New site")
+    modal_title_update = _l("Edit site")
     success_url = reverse_lazy("assets:site-list")
 
 

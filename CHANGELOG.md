@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Assets forms migrated to the modal engine (batch 1)**: the Asset group and Site create / edit forms are split into `Create` / `Update` subclasses over a shared stepped base (two steps each, column rows, a helper on every field) and now set proper modal titles; their templates are reduced to the header icon. FR translations added. The Supplier form is left for a follow-up because its logo upload needs a reusable image-upload widget first.
+
 - **Multi-column rows in the modal form engine**: a step entry can now be a list of cells rendered side by side instead of always full width, with an optional per-cell width (`"auto"` or a 1-12 Bootstrap span) - e.g. `[[("icon", "auto"), "name"], "description"]`. Coverage validation flattens rows, so the same exactly-once rule applies. Documented in the Forms doctrine.
 - **Tightened layouts across the migrated forms**: column rows are applied to every migrated context form and the compliance Mapping form (paired short selects, date pairs, threshold pairs, contact email/phone, etc.), so steps read denser without scrolling. The Scope icon picker sits inline with the name and drops its own helper (a self-evident adornment control may omit it, per the refined doctrine); its button height matches the inputs for clean alignment.
 

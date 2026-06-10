@@ -8930,3 +8930,48 @@ msgstr "Date de prise d'effet du périmètre."
 
 msgid "Next date this scope should be reviewed."
 msgstr "Prochaine date de revue du périmètre."
+
+msgid "New asset group"
+msgstr "Nouveau groupe d'actifs"
+
+msgid "Edit asset group"
+msgstr "Modifier le groupe d'actifs"
+
+msgid "Location & tags"
+msgstr "Localisation et étiquettes"
+
+msgid "Name of the asset group."
+msgstr "Nom du groupe d'actifs."
+
+msgid "Kind of asset group."
+msgstr "Type de groupe d'actifs."
+
+msgid "Person accountable for the group."
+msgstr "Personne responsable du groupe."
+
+msgid "What the group covers."
+msgstr "Ce que recouvre le groupe."
+
+msgid "Organizational scopes this group applies to."
+msgstr "Périmètres organisationnels concernés par le groupe."
+
+msgid "Lifecycle state of the group."
+msgstr "État du cycle de vie du groupe."
+
+msgid "Name of the site."
+msgstr "Nom du site."
+
+msgid "Kind of site."
+msgstr "Type de site."
+
+msgid "Lifecycle state of the site."
+msgstr "État du cycle de vie du site."
+
+msgid "Parent site, if this is a sub-site."
+msgstr "Site parent, s'il s'agit d'un sous-site."
+
+msgid "What this site is."
+msgstr "Ce qu'est ce site."
+
+msgid "Postal address of the site."
+msgstr "Adresse postale du site."

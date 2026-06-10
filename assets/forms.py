@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from context.models import Scope, Site
 from context.widgets import ScopeTreeWidget
+from core.modal_forms import Step, SteppedFormMixin
 from helpers.image_utils import generate_image_variants
 
 from .models import (
@@ -168,7 +169,13 @@ class AssetDependencyForm(forms.ModelForm):
         }
 
 
-class AssetGroupForm(ScopedFormMixin, forms.ModelForm):
+class AssetGroupBaseForm(SteppedFormMixin, ScopedFormMixin, forms.ModelForm):
+    steps = [
+        Step(_("Identity"), "collection",
+             ["name", ["type", "owner"], "description"]),
+        Step(_("Scope & status"), "diagram-3", ["scopes", "status", "tags"]),
+    ]
+
     class Meta:
         model = AssetGroup
         fields = [
@@ -183,6 +190,23 @@ class AssetGroupForm(ScopedFormMixin, forms.ModelForm):
             "status": forms.Select(attrs=SELECT_ATTRS),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+        help_texts = {
+            "name": _("Name of the asset group."),
+            "type": _("Kind of asset group."),
+            "owner": _("Person accountable for the group."),
+            "description": _("What the group covers."),
+            "scopes": _("Organizational scopes this group applies to."),
+            "status": _("Lifecycle state of the group."),
+            "tags": _("Free-form labels for filtering and grouping."),
+        }
+
+
+class AssetGroupCreateForm(AssetGroupBaseForm):
+    """Asset group creation modal form."""
+
+
+class AssetGroupUpdateForm(AssetGroupBaseForm):
+    """Asset group edition modal form."""
 
 
 class SupplierForm(ScopedFormMixin, forms.ModelForm):
@@ -355,7 +379,13 @@ def _site_tree_choices(queryset):
     return choices
 
 
-class SiteForm(forms.ModelForm):
+class SiteBaseForm(SteppedFormMixin, forms.ModelForm):
+    steps = [
+        Step(_("Identity"), "geo-alt",
+             ["name", ["type", "status"], "parent_site", "description"]),
+        Step(_("Location & tags"), "pin-map", ["address", "tags"]),
+    ]
+
     class Meta:
         model = Site
         fields = [
@@ -370,6 +400,15 @@ class SiteForm(forms.ModelForm):
             "status": forms.Select(attrs=SELECT_ATTRS),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+        help_texts = {
+            "name": _("Name of the site."),
+            "type": _("Kind of site."),
+            "status": _("Lifecycle state of the site."),
+            "parent_site": _("Parent site, if this is a sub-site."),
+            "description": _("What this site is."),
+            "address": _("Postal address of the site."),
+            "tags": _("Free-form labels for filtering and grouping."),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -379,6 +418,14 @@ class SiteForm(forms.ModelForm):
         field = self.fields["parent_site"]
         field.queryset = qs
         field.choices = [("", field.empty_label or "---------")] + _site_tree_choices(qs)
+
+
+class SiteCreateForm(SiteBaseForm):
+    """Site creation modal form."""
+
+
+class SiteUpdateForm(SiteBaseForm):
+    """Site edition modal form."""
 
 
 class SiteAssetDependencyForm(forms.ModelForm):
