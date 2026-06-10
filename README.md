@@ -5,18 +5,6 @@ Manage your organisation's security posture, track compliance with regulatory fr
 
 ---
 
-## Screenshots
-
-<details>
-<summary>Click to expand the full dashboard</summary>
-
-![Dashboard](docs/screenshots/dashboard.png)
-*Real-time dashboard with KPIs, compliance progress by framework, risk matrices, SPOF alerts and upcoming events.*
-
-</details>
-
----
-
 ## Features
 
 ### Governance (Context & Organisation)
@@ -33,9 +21,6 @@ Manage your organisation's security posture, track compliance with regulatory fr
 | Activities | Hierarchical business processes (core, support, management) with criticality levels |
 | Tags | Reusable tags assignable to any domain object for cross-cutting classification |
 
-![Scopes](docs/screenshots/scopes.png)
-*Hierarchical scopes with versioning, status filters, tags and approval workflow.*
-
 ### Asset Management
 
 | Feature | Description |
@@ -48,9 +33,6 @@ Manage your organisation's security posture, track compliance with regulatory fr
 | DIC Inheritance | Support assets automatically inherit max DIC levels from linked essential assets |
 | Valuations | Historical DIC evaluation tracking per essential asset |
 | Suppliers | Supplier registry with types, contractual requirements, evidence reviews and dependency mapping |
-
-![Support Assets](docs/screenshots/support-assets.png)
-*Support asset inventory with inherited CIA levels, lifecycle tracking and type filters.*
 
 ### Risk Management
 
@@ -71,9 +53,6 @@ Manage your organisation's security posture, track compliance with regulatory fr
 | Risk Acceptance | Formal acceptance records with expiry dates, conditions, review tracking and two-step approval workflow |
 | Risk Matrices | Visual heatmaps (current vs residual) |
 
-![Risk Assessment](docs/screenshots/risk-assessment.png)
-*ISO 27005 risk assessment with 4-step guided workflow: threats, vulnerabilities, scenarios and risk consolidation.*
-
 ### Compliance
 
 | Feature | Description |
@@ -86,12 +65,6 @@ Manage your organisation's security posture, track compliance with regulatory fr
 | Action Plans | Gap remediation plans with priority, progress, cost tracking and threaded comments |
 | Inter-Framework Mappings | Requirement-to-requirement mappings across frameworks (equivalent, partial, includes, related) |
 | Framework Import | Excel-based bulk import of frameworks and requirements |
-
-![Compliance Assessment](docs/screenshots/compliance-assessment.png)
-*Compliance assessment with workflow stepper, compliance/coverage donut charts and per-requirement results.*
-
-![Action Plan](docs/screenshots/action-plan-detail.png)
-*Action plan detail with 2-column layout, workflow stepper, remediation details, linked findings and metadata sidebar.*
 
 ### Users & Access Control
 
@@ -106,9 +79,6 @@ Manage your organisation's security posture, track compliance with regulatory fr
 | Passkey Authentication | FIDO2 WebAuthn passwordless login with discoverable credentials |
 | Access Logs | Full audit trail of authentication events (login, logout, lockout, password change) |
 
-![Groups & RBAC](docs/screenshots/groups.png)
-*Role-based access control with 6 system groups and custom groups, each with granular permission sets.*
-
 ### Indicators (KPI Tracking)
 
 | Feature | Description |
@@ -118,9 +88,6 @@ Manage your organisation's security posture, track compliance with regulatory fr
 | Thresholds | Critical threshold detection with configurable operators and min/max bounds |
 | Measurement History | Timestamped measurements with trend and delta tracking |
 | Sparklines | Inline charts on the dashboard for numeric indicators |
-
-![Indicators](docs/screenshots/indicators.png)
-*Organizational indicators with predefined auto-computed metrics, threshold alerts and collection frequency.*
 
 ### Platform Capabilities
 
@@ -143,11 +110,6 @@ Manage your organisation's security posture, track compliance with regulatory fr
 | REST API | Full CRUD + filtering, search, pagination, batch creation and export on all resources |
 | HTMX Integration | Dynamic partial updates without full page reloads |
 | MCP Server | JSON-RPC 2.0 server with 50+ tools and OAuth 2.0 authentication for external clients |
-
-![Calendar](docs/screenshots/calendar.png)
-*Unified calendar with month/year/timeline views, color-coded event categories and iCal subscription support.*
-
-![Calendar](docs/screenshots/calendar.png)
 
 ---
 
@@ -327,7 +289,7 @@ Additional tools:
 | Calendar | icalendar |
 | Linting | Ruff |
 | Container | Docker & Docker Compose |
-| CI/CD | GitLab CI (syntax + unit tests, Docker image publish) |
+| CI/CD | GitHub Actions (tests, Docker image publish, CodeQL) |
 
 ---
 
@@ -366,7 +328,7 @@ Create a `docker-compose.yml` file:
 ```yaml
 services:
   web:
-    image: registry.gitlab.rslt.fr/cairn/cairn:latest
+    image: frousselet/cairn:latest
     ports:
       - "8000:8000"
     environment:

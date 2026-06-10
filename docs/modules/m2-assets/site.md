@@ -146,6 +146,6 @@ Les autres champs du bien support (propriétaire, DIC, dates de cycle de vie, et
 
 ## Références
 
-- [SupportAsset](support-asset.md), [AssetDependency](asset-dependency.md), [Supplier](#m2-assets-supplier-mdtbd) (fournisseur, spec à venir, issue [#35](https://gitlab.rslt.fr/fairway/fairway/-/issues/35))
+- [SupportAsset](support-asset.md), [AssetDependency](asset-dependency.md), [Supplier](#m2-assets-supplier-mdtbd) (fournisseur, spec à venir, issue [#35](https://github.com/frousselet/open-grc/issues/35))
 - Migrations : `context.0027` (rename FR -> EN), `context.0028` (scopes M2M), `assets.0029` (drop site type + conversion)
-- Issues GitLab : [#30](https://gitlab.rslt.fr/fairway/fairway/-/issues/30) (cette spec), [#31](https://gitlab.rslt.fr/fairway/fairway/-/issues/31) (rename FR -> EN)
+- Issues : [#30](https://github.com/frousselet/open-grc/issues/30) (cette spec), [#31](https://github.com/frousselet/open-grc/issues/31) (rename FR -> EN)

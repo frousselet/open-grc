@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Move CI back to GitHub Actions: the `Tests` workflow now also runs `ruff check` as a quality gate, and `docker-publish.yml` publishes release images to Docker Hub (`frousselet/cairn`) on version tags. Documentation, the Dockerfile image source label, the published-image instructions and the CHANGELOG comparison links now point to GitHub instead of GitLab.
+
+### Removed
+
+- GitLab CI configuration (`.gitlab-ci.yml`) and GitLab references across the README, `CLAUDE.md` and module specs.
+
 ## [0.24.4] - 2026-06-02
 
 ### Fixed
@@ -850,49 +858,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Actions CI with pytest
 - Docker Hub publish workflow on version tags
 
-[Unreleased]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.24.3...HEAD
-[0.24.4]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.24.3...v0.24.4
-[0.24.3]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.24.2...v0.24.3
-[0.24.2]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.24.1...v0.24.2
-[0.24.1]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.24.0...v0.24.1
-[0.24.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.23.0...v0.24.0
-[0.23.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.22.0...v0.23.0
-[0.22.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.21.4...v0.22.0
-[0.21.4]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.21.3...v0.21.4
-[0.21.3]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.21.2...v0.21.3
-[0.21.2]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.21.1...v0.21.2
-[0.21.1]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.21.0...v0.21.1
-[0.21.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.20.0...v0.21.0
-[0.20.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.19.1...v0.20.0
-[0.19.1]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.19.0...v0.19.1
-[0.19.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.18.3...v0.19.0
-[0.18.3]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.18.2...v0.18.3
-[0.18.2]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.18.1...v0.18.2
-[0.18.1]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.18.0...v0.18.1
-[0.18.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.17.0...v0.18.0
-[0.17.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.16.0...v0.17.0
-[0.16.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.15.0...v0.16.0
-[0.15.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.14.2...v0.15.0
-[0.14.0 - 0.14.2]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.13.0...v0.14.2
-[0.13.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.12.1...v0.13.0
-[0.12.0 - 0.12.1]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.11.2...v0.12.1
-[0.11.0 - 0.11.2]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.10.2...v0.11.2
-[0.10.0 - 0.10.2]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.9.1...v0.10.2
-[0.9.0 - 0.9.1]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.8.0...v0.9.1
-[0.8.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.7.5...v0.8.0
-[0.7.0 - 0.7.5]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.6.0...v0.7.5
-[0.6.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.5.0...v0.6.0
-[0.5.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.4.8...v0.5.0
-[0.4.5 - 0.4.8]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.4.4...v0.4.8
-[0.4.2 - 0.4.4]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.4.1...v0.4.4
-[0.4.0 - 0.4.1]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.3.1...v0.4.1
-[0.3.0 - 0.3.1]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.2.16...v0.3.1
-[0.2.12 - 0.2.16]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.2.11...v0.2.16
-[0.2.7 - 0.2.11]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.2.6...v0.2.11
-[0.2.1 - 0.2.6]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.2.0...v0.2.6
-[0.2.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.1.1...v0.2.0
-[0.1.1]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.1.0...v0.1.1
-[0.1.0]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.0.5...v0.1.0
-[0.0.5]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.0.4...v0.0.5
-[0.0.2 - 0.0.4]: https://gitlab.rslt.fr/fairway/fairway/-/compare/v0.0.1...v0.0.4
-[0.0.1]: https://gitlab.rslt.fr/fairway/fairway/-/tags/v0.0.1
+[Unreleased]: https://github.com/frousselet/open-grc/compare/v0.24.3...HEAD
+[0.24.4]: https://github.com/frousselet/open-grc/compare/v0.24.3...v0.24.4
+[0.24.3]: https://github.com/frousselet/open-grc/compare/v0.24.2...v0.24.3
+[0.24.2]: https://github.com/frousselet/open-grc/compare/v0.24.1...v0.24.2
+[0.24.1]: https://github.com/frousselet/open-grc/compare/v0.24.0...v0.24.1
+[0.24.0]: https://github.com/frousselet/open-grc/compare/v0.23.0...v0.24.0
+[0.23.0]: https://github.com/frousselet/open-grc/compare/v0.22.0...v0.23.0
+[0.22.0]: https://github.com/frousselet/open-grc/compare/v0.21.4...v0.22.0
+[0.21.4]: https://github.com/frousselet/open-grc/compare/v0.21.3...v0.21.4
+[0.21.3]: https://github.com/frousselet/open-grc/compare/v0.21.2...v0.21.3
+[0.21.2]: https://github.com/frousselet/open-grc/compare/v0.21.1...v0.21.2
+[0.21.1]: https://github.com/frousselet/open-grc/compare/v0.21.0...v0.21.1
+[0.21.0]: https://github.com/frousselet/open-grc/compare/v0.20.0...v0.21.0
+[0.20.0]: https://github.com/frousselet/open-grc/compare/v0.19.1...v0.20.0
+[0.19.1]: https://github.com/frousselet/open-grc/compare/v0.19.0...v0.19.1
+[0.19.0]: https://github.com/frousselet/open-grc/compare/v0.18.3...v0.19.0
+[0.18.3]: https://github.com/frousselet/open-grc/compare/v0.18.2...v0.18.3
+[0.18.2]: https://github.com/frousselet/open-grc/compare/v0.18.1...v0.18.2
+[0.18.1]: https://github.com/frousselet/open-grc/compare/v0.18.0...v0.18.1
+[0.18.0]: https://github.com/frousselet/open-grc/compare/v0.17.0...v0.18.0
+[0.17.0]: https://github.com/frousselet/open-grc/compare/v0.16.0...v0.17.0
+[0.16.0]: https://github.com/frousselet/open-grc/compare/v0.15.0...v0.16.0
+[0.15.0]: https://github.com/frousselet/open-grc/compare/v0.14.2...v0.15.0
+[0.14.0 - 0.14.2]: https://github.com/frousselet/open-grc/compare/v0.13.0...v0.14.2
+[0.13.0]: https://github.com/frousselet/open-grc/compare/v0.12.1...v0.13.0
+[0.12.0 - 0.12.1]: https://github.com/frousselet/open-grc/compare/v0.11.2...v0.12.1
+[0.11.0 - 0.11.2]: https://github.com/frousselet/open-grc/compare/v0.10.2...v0.11.2
+[0.10.0 - 0.10.2]: https://github.com/frousselet/open-grc/compare/v0.9.1...v0.10.2
+[0.9.0 - 0.9.1]: https://github.com/frousselet/open-grc/compare/v0.8.0...v0.9.1
+[0.8.0]: https://github.com/frousselet/open-grc/compare/v0.7.5...v0.8.0
+[0.7.0 - 0.7.5]: https://github.com/frousselet/open-grc/compare/v0.6.0...v0.7.5
+[0.6.0]: https://github.com/frousselet/open-grc/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/frousselet/open-grc/compare/v0.4.8...v0.5.0
+[0.4.5 - 0.4.8]: https://github.com/frousselet/open-grc/compare/v0.4.4...v0.4.8
+[0.4.2 - 0.4.4]: https://github.com/frousselet/open-grc/compare/v0.4.1...v0.4.4
+[0.4.0 - 0.4.1]: https://github.com/frousselet/open-grc/compare/v0.3.1...v0.4.1
+[0.3.0 - 0.3.1]: https://github.com/frousselet/open-grc/compare/v0.2.16...v0.3.1
+[0.2.12 - 0.2.16]: https://github.com/frousselet/open-grc/compare/v0.2.11...v0.2.16
+[0.2.7 - 0.2.11]: https://github.com/frousselet/open-grc/compare/v0.2.6...v0.2.11
+[0.2.1 - 0.2.6]: https://github.com/frousselet/open-grc/compare/v0.2.0...v0.2.6
+[0.2.0]: https://github.com/frousselet/open-grc/compare/v0.1.1...v0.2.0
+[0.1.1]: https://github.com/frousselet/open-grc/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/frousselet/open-grc/compare/v0.0.5...v0.1.0
+[0.0.5]: https://github.com/frousselet/open-grc/compare/v0.0.4...v0.0.5
+[0.0.2 - 0.0.4]: https://github.com/frousselet/open-grc/compare/v0.0.1...v0.0.4
+[0.0.1]: https://github.com/frousselet/open-grc/releases/tag/v0.0.1

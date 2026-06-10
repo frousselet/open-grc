@@ -1,6 +1,6 @@
 FROM python:slim
 
-LABEL org.opencontainers.image.source="https://gitlab.rslt.fr/cairn/cairn"
+LABEL org.opencontainers.image.source="https://github.com/frousselet/open-grc"
 LABEL org.opencontainers.image.description="Cairn - Governance, Risk & Compliance platform"
 LABEL org.opencontainers.image.licenses="MIT"
 

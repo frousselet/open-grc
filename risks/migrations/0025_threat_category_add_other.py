@@ -3,7 +3,7 @@
 """Add `other` to Threat.category choices (closes the THR-01 schema half).
 
 When the QA report flagged that `ThreatCategory` was missing an
-`OTHER` value (CAIRN-THR-01 / GitLab #52), the constant was added
+`OTHER` value (CAIRN-THR-01 / issue #52), the constant was added
 in commit 4c001b3 but no migration captured the choices refresh
 on the threat / historicalthreat fields. Tests didn't catch it
 because settings_test builds the schema from the live model rather
