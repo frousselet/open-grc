@@ -38,7 +38,8 @@ from .forms import (
     ObjectiveUpdateForm,
     RoleCreateForm,
     RoleUpdateForm,
-    ScopeForm,
+    ScopeCreateForm,
+    ScopeUpdateForm,
     StakeholderCreateForm,
     StakeholderUpdateForm,
     SwotAnalysisCreateForm,
@@ -302,7 +303,7 @@ class ScopeDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMi
 class ScopeCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Scope
     permission_required = "context.scope.create"
-    form_class = ScopeForm
+    form_class = ScopeCreateForm
     template_name = "context/scope_form.html"
     modal_template_name = "context/scope_form_modal.html"
     modal_title_create = _l("New scope")
@@ -313,7 +314,7 @@ class ScopeCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin
 class ScopeUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
     model = Scope
     permission_required = "context.scope.update"
-    form_class = ScopeForm
+    form_class = ScopeUpdateForm
     template_name = "context/scope_form.html"
     modal_template_name = "context/scope_form_modal.html"
     modal_title_create = _l("New scope")
