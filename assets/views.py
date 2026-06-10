@@ -24,7 +24,8 @@ from .forms import (
     AssetDependencyForm,
     AssetGroupCreateForm,
     AssetGroupUpdateForm,
-    EssentialAssetForm,
+    EssentialAssetCreateForm,
+    EssentialAssetUpdateForm,
     SiteAssetDependencyForm,
     SiteCreateForm,
     SiteUpdateForm,
@@ -36,7 +37,8 @@ from .forms import (
     SupplierTypeForm,
     SupplierTypeRequirementForm,
     SupplierTypeRequirementFormSet,
-    SupportAssetForm,
+    SupportAssetCreateForm,
+    SupportAssetUpdateForm,
 )
 from .models import (
     AssetDependency,
@@ -145,10 +147,12 @@ class EssentialAssetDetailView(LoginRequiredMixin, PermissionRequiredMixin, Scop
 
 class EssentialAssetCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = EssentialAsset
-    form_class = EssentialAssetForm
+    form_class = EssentialAssetCreateForm
     template_name = "assets/essential_asset_form.html"
     permission_required = "assets.essential_asset.create"
     modal_template_name = "assets/essential_asset_form_modal.html"
+    modal_title_create = _l("New essential asset")
+    modal_title_update = _l("Edit essential asset")
     success_url = reverse_lazy("assets:essential-asset-list")
 
     def get_form_kwargs(self):
@@ -159,10 +163,12 @@ class EssentialAssetCreateView(LoginRequiredMixin, PermissionRequiredMixin, Htmx
 
 class EssentialAssetUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = EssentialAsset
-    form_class = EssentialAssetForm
+    form_class = EssentialAssetUpdateForm
     template_name = "assets/essential_asset_form.html"
     permission_required = "assets.essential_asset.update"
     modal_template_name = "assets/essential_asset_form_modal.html"
+    modal_title_create = _l("New essential asset")
+    modal_title_update = _l("Edit essential asset")
     success_url = reverse_lazy("assets:essential-asset-list")
 
     def get_form_kwargs(self):
@@ -228,10 +234,12 @@ class SupportAssetDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeF
 
 class SupportAssetCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = SupportAsset
-    form_class = SupportAssetForm
+    form_class = SupportAssetCreateForm
     template_name = "assets/support_asset_form.html"
     permission_required = "assets.support_asset.create"
     modal_template_name = "assets/support_asset_form_modal.html"
+    modal_title_create = _l("New support asset")
+    modal_title_update = _l("Edit support asset")
     success_url = reverse_lazy("assets:support-asset-list")
 
     def get_form_kwargs(self):
@@ -242,10 +250,12 @@ class SupportAssetCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFo
 
 class SupportAssetUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = SupportAsset
-    form_class = SupportAssetForm
+    form_class = SupportAssetUpdateForm
     template_name = "assets/support_asset_form.html"
     permission_required = "assets.support_asset.update"
     modal_template_name = "assets/support_asset_form_modal.html"
+    modal_title_create = _l("New support asset")
+    modal_title_update = _l("Edit support asset")
     success_url = reverse_lazy("assets:support-asset-list")
 
     def get_form_kwargs(self):

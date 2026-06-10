@@ -8975,3 +8975,132 @@ msgstr "Ce qu'est ce site."
 
 msgid "Postal address of the site."
 msgstr "Adresse postale du site."
+
+msgid "Security needs"
+msgstr "Besoins de sécurité"
+
+msgid "Continuity & data"
+msgstr "Continuité et données"
+
+msgid "Relations & status"
+msgstr "Relations et statut"
+
+msgid "Hardware & network"
+msgstr "Matériel et réseau"
+
+msgid "Category of the asset."
+msgstr "Catégorie du bien."
+
+msgid "Person accountable for the asset."
+msgstr "Personne responsable du bien."
+
+msgid "Person operating the asset day to day."
+msgstr "Personne exploitant le bien au quotidien."
+
+msgid "What the asset is and why it matters."
+msgstr "Ce qu'est le bien et son importance."
+
+msgid "Lifecycle state of the asset."
+msgstr "État du cycle de vie du bien."
+
+msgid "Next date this asset should be reviewed."
+msgstr "Prochaine date de revue du bien."
+
+msgid "Organizational scopes this asset applies to."
+msgstr "Périmètres organisationnels concernés par le bien."
+
+msgid "Name of the essential asset."
+msgstr "Nom du bien essentiel."
+
+msgid "Kind of essential asset."
+msgstr "Type de bien essentiel."
+
+msgid "Required confidentiality level."
+msgstr "Niveau de confidentialité requis."
+
+msgid "Required integrity level."
+msgstr "Niveau d'intégrité requis."
+
+msgid "Required availability level."
+msgstr "Niveau de disponibilité requis."
+
+msgid "Why this confidentiality level."
+msgstr "Justification du niveau de confidentialité."
+
+msgid "Why this integrity level."
+msgstr "Justification du niveau d'intégrité."
+
+msgid "Why this availability level."
+msgstr "Justification du niveau de disponibilité."
+
+msgid "Maximum time the asset can stay unavailable (MTD)."
+msgstr "Durée maximale d'indisponibilité du bien (DMIA)."
+
+msgid "Target time to restore the asset (RTO)."
+msgstr "Délai cible de rétablissement (RTO)."
+
+msgid "Maximum tolerable data loss (RPO)."
+msgstr "Perte de données maximale tolérée (RPO)."
+
+msgid "Sensitivity classification of the data."
+msgstr "Classification de sensibilité des données."
+
+msgid "Tick if the asset handles personal data."
+msgstr "Cochez si le bien traite des données personnelles."
+
+msgid "Laws or regulations applying to the asset."
+msgstr "Lois ou réglementations applicables au bien."
+
+msgid "Business activities relying on this asset."
+msgstr "Activités métier qui dépendent de ce bien."
+
+msgid "Name of the support asset."
+msgstr "Nom du bien support."
+
+msgid "Kind of support asset."
+msgstr "Type de bien support."
+
+msgid "Physical location of the asset."
+msgstr "Emplacement physique du bien."
+
+msgid "Manufacturer or vendor."
+msgstr "Fabricant ou fournisseur."
+
+msgid "Model name or number."
+msgstr "Nom ou numéro de modèle."
+
+msgid "Serial number."
+msgstr "Numéro de série."
+
+msgid "Software or firmware version."
+msgstr "Version logicielle ou firmware."
+
+msgid "IP address, if applicable."
+msgstr "Adresse IP, le cas échéant."
+
+msgid "Network hostname."
+msgstr "Nom d'hôte réseau."
+
+msgid "Operating system."
+msgstr "Système d'exploitation."
+
+msgid "Date the asset was acquired."
+msgstr "Date d'acquisition du bien."
+
+msgid "Planned end-of-life date."
+msgstr "Date de fin de vie prévue."
+
+msgid "Warranty expiry date."
+msgstr "Date d'expiration de la garantie."
+
+msgid "Related contract reference."
+msgstr "Référence du contrat associé."
+
+msgid "How exposed the asset is to threats."
+msgstr "Niveau d'exposition du bien aux menaces."
+
+msgid "Environment (production, test, etc.)."
+msgstr "Environnement (production, test, etc.)."
+
+msgid "Parent asset, if this is a component."
+msgstr "Bien parent, s'il s'agit d'un composant."

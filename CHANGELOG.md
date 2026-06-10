@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Assets forms migrated to the modal engine (batch 2)**: the Essential asset (four steps: Identity / Security needs / Continuity & data / Relations & status) and Support asset (Identity / Hardware & network / Lifecycle / Relations & status) create / edit forms are split into `Create` / `Update` subclasses over a shared stepped base, with dense column rows (CIA levels, MTD/RTO/RPO, hardware pairs, dates) and a helper on every field; both view pairs set modal titles. Templates reduced to the header icon; FR translations added (using the `bien` vocabulary, consistent with the rest of the app).
 - **Assets forms migrated to the modal engine (batch 1)**: the Asset group and Site create / edit forms are split into `Create` / `Update` subclasses over a shared stepped base (two steps each, column rows, a helper on every field) and now set proper modal titles; their templates are reduced to the header icon. FR translations added. The Supplier form is left for a follow-up because its logo upload needs a reusable image-upload widget first.
 
 - **Multi-column rows in the modal form engine**: a step entry can now be a list of cells rendered side by side instead of always full width, with an optional per-cell width (`"auto"` or a 1-12 Bootstrap span) - e.g. `[[("icon", "auto"), "name"], "description"]`. Coverage validation flattens rows, so the same exactly-once rule applies. Documented in the Forms doctrine.

@@ -67,7 +67,21 @@ class ScopedFormMixin:
             field.widget.build_tree_data(qs, selected_ids)
 
 
-class EssentialAssetForm(ScopedFormMixin, forms.ModelForm):
+class EssentialAssetBaseForm(SteppedFormMixin, ScopedFormMixin, forms.ModelForm):
+    steps = [
+        Step(_("Identity"), "gem",
+             ["name", ["type", "category"], ["owner", "custodian"], "description"]),
+        Step(_("Security needs"), "shield-lock",
+             [["confidentiality_level", "integrity_level", "availability_level"],
+              "confidentiality_justification", "integrity_justification",
+              "availability_justification"]),
+        Step(_("Continuity & data"), "arrow-repeat",
+             [["max_tolerable_downtime", "recovery_time_objective", "recovery_point_objective"],
+              ["data_classification", "personal_data"], "regulatory_constraints"]),
+        Step(_("Relations & status"), "diagram-3",
+             ["related_activities", ["status", "review_date"], "scopes", "tags"]),
+    ]
+
     class Meta:
         model = EssentialAsset
         fields = [
@@ -107,9 +121,56 @@ class EssentialAssetForm(ScopedFormMixin, forms.ModelForm):
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+        help_texts = {
+            "name": _("Name of the essential asset."),
+            "type": _("Kind of essential asset."),
+            "category": _("Category of the asset."),
+            "owner": _("Person accountable for the asset."),
+            "custodian": _("Person operating the asset day to day."),
+            "description": _("What the asset is and why it matters."),
+            "confidentiality_level": _("Required confidentiality level."),
+            "integrity_level": _("Required integrity level."),
+            "availability_level": _("Required availability level."),
+            "confidentiality_justification": _("Why this confidentiality level."),
+            "integrity_justification": _("Why this integrity level."),
+            "availability_justification": _("Why this availability level."),
+            "max_tolerable_downtime": _("Maximum time the asset can stay unavailable (MTD)."),
+            "recovery_time_objective": _("Target time to restore the asset (RTO)."),
+            "recovery_point_objective": _("Maximum tolerable data loss (RPO)."),
+            "data_classification": _("Sensitivity classification of the data."),
+            "personal_data": _("Tick if the asset handles personal data."),
+            "regulatory_constraints": _("Laws or regulations applying to the asset."),
+            "related_activities": _("Business activities relying on this asset."),
+            "status": _("Lifecycle state of the asset."),
+            "review_date": _("Next date this asset should be reviewed."),
+            "scopes": _("Organizational scopes this asset applies to."),
+            "tags": _("Free-form labels for filtering and grouping."),
+        }
 
 
-class SupportAssetForm(ScopedFormMixin, forms.ModelForm):
+class EssentialAssetCreateForm(EssentialAssetBaseForm):
+    """Essential asset creation modal form."""
+
+
+class EssentialAssetUpdateForm(EssentialAssetBaseForm):
+    """Essential asset edition modal form."""
+
+
+class SupportAssetBaseForm(SteppedFormMixin, ScopedFormMixin, forms.ModelForm):
+    steps = [
+        Step(_("Identity"), "hdd-stack",
+             ["name", ["type", "category"], ["owner", "custodian"], "description"]),
+        Step(_("Hardware & network"), "hdd-network",
+             [["manufacturer", "model_name"], ["serial_number", "software_version"],
+              ["ip_address", "hostname"], ["operating_system", "location"]]),
+        Step(_("Lifecycle"), "calendar-event",
+             [["acquisition_date", "end_of_life_date"],
+              ["warranty_expiry_date", "contract_reference"],
+              ["exposure_level", "environment"]]),
+        Step(_("Relations & status"), "diagram-3",
+             ["parent_asset", ["status", "review_date"], "scopes", "tags"]),
+    ]
+
     class Meta:
         model = SupportAsset
         fields = [
@@ -149,6 +210,41 @@ class SupportAssetForm(ScopedFormMixin, forms.ModelForm):
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+        help_texts = {
+            "name": _("Name of the support asset."),
+            "type": _("Kind of support asset."),
+            "category": _("Category of the asset."),
+            "owner": _("Person accountable for the asset."),
+            "custodian": _("Person operating the asset day to day."),
+            "description": _("What the asset is and why it matters."),
+            "location": _("Physical location of the asset."),
+            "manufacturer": _("Manufacturer or vendor."),
+            "model_name": _("Model name or number."),
+            "serial_number": _("Serial number."),
+            "software_version": _("Software or firmware version."),
+            "ip_address": _("IP address, if applicable."),
+            "hostname": _("Network hostname."),
+            "operating_system": _("Operating system."),
+            "acquisition_date": _("Date the asset was acquired."),
+            "end_of_life_date": _("Planned end-of-life date."),
+            "warranty_expiry_date": _("Warranty expiry date."),
+            "contract_reference": _("Related contract reference."),
+            "exposure_level": _("How exposed the asset is to threats."),
+            "environment": _("Environment (production, test, etc.)."),
+            "parent_asset": _("Parent asset, if this is a component."),
+            "status": _("Lifecycle state of the asset."),
+            "review_date": _("Next date this asset should be reviewed."),
+            "scopes": _("Organizational scopes this asset applies to."),
+            "tags": _("Free-form labels for filtering and grouping."),
+        }
+
+
+class SupportAssetCreateForm(SupportAssetBaseForm):
+    """Support asset creation modal form."""
+
+
+class SupportAssetUpdateForm(SupportAssetBaseForm):
+    """Support asset edition modal form."""
 
 
 class AssetDependencyForm(forms.ModelForm):
