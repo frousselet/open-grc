@@ -5,7 +5,7 @@ from django.forms import inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 
 from context.models import Scope, Site
-from context.widgets import ScopeTreeWidget
+from context.widgets import ImageUploadWidget, ScopeTreeWidget
 from core.modal_forms import Step, SteppedFormMixin
 from helpers.image_utils import generate_image_variants
 
@@ -305,13 +305,19 @@ class AssetGroupUpdateForm(AssetGroupBaseForm):
     """Asset group edition modal form."""
 
 
-class SupplierForm(ScopedFormMixin, forms.ModelForm):
-    logo = forms.ImageField(
-        label=_("Logo"),
-        required=False,
-        widget=forms.FileInput(attrs={**FORM_WIDGET_ATTRS, "accept": "image/*"}),
-    )
-    logo_resized = forms.CharField(required=False, widget=forms.HiddenInput())
+class SupplierBaseForm(SteppedFormMixin, ScopedFormMixin, forms.ModelForm):
+    logo = forms.CharField(label=_("Logo"), required=False, widget=ImageUploadWidget())
+
+    steps = [
+        Step(_("Identity"), "truck",
+             [[("logo", "auto"), "name"], ["type", "criticality"], "owner", "description"]),
+        Step(_("Contact"), "person-lines-fill",
+             ["contact_name", ["contact_email", "contact_phone"], "website",
+              "country", "address"]),
+        Step(_("Contract"), "file-earmark-text",
+             ["contract_reference", ["contract_start_date", "contract_end_date"], "notes"]),
+        Step(_("Scope & status"), "diagram-3", ["scopes", "status", "tags"]),
+    ]
 
     class Meta:
         model = Supplier
@@ -343,18 +349,55 @@ class SupplierForm(ScopedFormMixin, forms.ModelForm):
             "notes": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 3}),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+        help_texts = {
+            "logo": "",
+            "name": _("Name of the supplier."),
+            "type": _("Kind of supplier."),
+            "criticality": _("How critical this supplier is."),
+            "owner": _("Person accountable for the relationship."),
+            "description": _("What the supplier provides."),
+            "contact_name": _("Primary contact person."),
+            "contact_email": _("Email of the primary contact."),
+            "contact_phone": _("Phone of the primary contact."),
+            "website": _("Supplier website."),
+            "country": _("Country where the supplier operates."),
+            "address": _("Postal address of the supplier."),
+            "contract_reference": _("Reference of the governing contract."),
+            "contract_start_date": _("Contract start date."),
+            "contract_end_date": _("Contract end date."),
+            "notes": _("Free-form notes about the supplier."),
+            "status": _("Lifecycle state of the supplier."),
+            "scopes": _("Organizational scopes this supplier applies to."),
+            "tags": _("Free-form labels for filtering and grouping."),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and getattr(self.instance, "logo", ""):
+            self.fields["logo"].initial = self.instance.logo
 
     def save(self, commit=True):
         supplier = super().save(commit=False)
-        resized = self.cleaned_data.get("logo_resized")
-        if resized:
-            _set_logo_with_variants(supplier, resized)
-        elif self.files.get("logo"):
-            _set_logo_with_variants(supplier, _file_to_data_uri(self.files["logo"]))
+        data_uri = self.cleaned_data.get("logo")
+        if data_uri:
+            _set_logo_with_variants(supplier, data_uri)
+        elif self.instance.pk:
+            supplier.logo = ""
+            supplier.logo_16 = ""
+            supplier.logo_32 = ""
+            supplier.logo_64 = ""
         if commit:
             supplier.save()
             self.save_m2m()
         return supplier
+
+
+class SupplierCreateForm(SupplierBaseForm):
+    """Supplier creation modal form."""
+
+
+class SupplierUpdateForm(SupplierBaseForm):
+    """Supplier edition modal form."""
 
 
 class SupplierTypeForm(forms.ModelForm):

@@ -2445,6 +2445,38 @@
       background: var(--accent-soft);
     }
 
+    /* ── Image upload widget ───────────────────────── */
+    .image-upload { display: flex; align-items: center; gap: .625rem; }
+    .image-upload-preview {
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      background: var(--surface-muted);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .image-upload-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .image-upload-btn {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      border-radius: var(--radius-xs);
+      border: 1px solid var(--border-light);
+      background: var(--surface);
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color .12s var(--ease-out);
+    }
+    .image-upload-btn:hover { background: var(--surface-muted); }
+
     /* ── Modal form header ─────────────────────────── */
     #itemDrawer .modal-header {
       background: var(--surface);
@@ -5070,6 +5102,54 @@
 
     function initAll() {
       document.querySelectorAll('[data-icon-picker]').forEach(initPicker);
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAll);
+    } else {
+      initAll();
+    }
+    document.body.addEventListener('htmx:afterSettle', initAll);
+  })();
+  </script>
+
+  {% comment %}resizeImageFile() used by the generic image-upload widget below.{% endcomment %}
+  {% include "includes/image_resize.html" %}
+  {% comment %}
+    Generic image upload (data-image-upload). Resizes the chosen file to a
+    128px PNG data-URI client-side and stores it in the hidden input, so it
+    works inside the modal without a multipart submit.
+  {% endcomment %}
+  <script>
+  (function() {
+    function initUpload(root) {
+      if (root.dataset.imageUploadReady) return;
+      root.dataset.imageUploadReady = '1';
+      var input = root.querySelector('[data-image-upload-input]');
+      var file = root.querySelector('[data-image-upload-file]');
+      var preview = root.querySelector('[data-image-upload-preview]');
+      var clearBtn = root.querySelector('[data-image-upload-clear]');
+      if (!input || !file || !preview) return;
+      function setPreview(uri) {
+        preview.innerHTML = uri
+          ? '<img src="' + uri + '" alt="">'
+          : '<i class="bi bi-image" aria-hidden="true"></i>';
+      }
+      file.addEventListener('change', function(e) {
+        var f = e.target.files[0];
+        if (!f || typeof resizeImageFile !== 'function') return;
+        resizeImageFile(f, 128, function(uri) {
+          input.value = uri;
+          setPreview(uri);
+        });
+      });
+      if (clearBtn) clearBtn.addEventListener('click', function() {
+        input.value = '';
+        file.value = '';
+        setPreview('');
+      });
+    }
+    function initAll() {
+      document.querySelectorAll('[data-image-upload]').forEach(initUpload);
     }
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initAll);

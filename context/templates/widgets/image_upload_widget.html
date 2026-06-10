@@ -1,0 +1,14 @@
+{% load i18n %}
+<div class="image-upload" data-image-upload>
+  <input type="hidden" name="{{ widget.name }}"{% if widget.value %} value="{{ widget.value }}"{% endif %}{% if widget.attrs.id %} id="{{ widget.attrs.id }}"{% endif %} data-image-upload-input>
+  <div class="image-upload-preview" data-image-upload-preview>
+    {% if widget.value %}<img src="{{ widget.value }}" alt="">{% else %}<i class="bi bi-image" aria-hidden="true"></i>{% endif %}
+  </div>
+  <label class="image-upload-btn" title="{% trans 'Upload image' %}">
+    <i class="bi bi-camera-fill" aria-hidden="true"></i>
+    <input type="file" accept="image/*" data-image-upload-file hidden>
+  </label>
+  <button type="button" class="btn btn-sm btn-link text-muted p-0" data-image-upload-clear title="{% trans 'Remove' %}">
+    <i class="bi bi-x-lg" aria-hidden="true"></i>
+  </button>
+</div>

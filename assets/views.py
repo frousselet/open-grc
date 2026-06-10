@@ -31,7 +31,8 @@ from .forms import (
     SiteUpdateForm,
     SiteSupplierDependencyForm,
     SupplierDependencyForm,
-    SupplierForm,
+    SupplierCreateForm,
+    SupplierUpdateForm,
     SupplierRequirementForm,
     SupplierRequirementReviewForm,
     SupplierTypeForm,
@@ -444,10 +445,12 @@ class SupplierDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilte
 
 class SupplierCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Supplier
-    form_class = SupplierForm
+    form_class = SupplierCreateForm
     template_name = "assets/supplier_form.html"
     permission_required = "assets.supplier.create"
     modal_template_name = "assets/supplier_form_modal.html"
+    modal_title_create = _l("New supplier")
+    modal_title_update = _l("Edit supplier")
     success_url = reverse_lazy("assets:supplier-list")
 
     def get_form_kwargs(self):
@@ -458,10 +461,12 @@ class SupplierCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMi
 
 class SupplierUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = Supplier
-    form_class = SupplierForm
+    form_class = SupplierUpdateForm
     template_name = "assets/supplier_form.html"
     permission_required = "assets.supplier.update"
     modal_template_name = "assets/supplier_form_modal.html"
+    modal_title_create = _l("New supplier")
+    modal_title_update = _l("Edit supplier")
     success_url = reverse_lazy("assets:supplier-list")
 
     def get_form_kwargs(self):
