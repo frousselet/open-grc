@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Inter-framework Mapping form migrated to the modal engine** (single-step pilot): `RequirementMappingCreateForm` / `RequirementMappingUpdateForm` over a shared `RequirementMappingBaseForm` with one declarative step, a helper on every field, and proper `New mapping` / `Edit mapping` modal titles (previously empty). Verified in the browser: live completion meter (`0 of 3 required` -> `3 of 3`), server-side error re-render keeping the modal open and input intact (duplicate-mapping non-field error), create + table refresh, and edit pre-fill.
 - **Modal form presentation layer + Role pilot**: the shared shell auto-renders a stepper (multi-step) or a required-fields completion meter (single-step) plus the fields of a stepped form, driven by generic attribute-based JS (step navigation, per-step required-field gating, live meter, focus) and brand-compliant CSS - no per-entity JS. The Role create / edit forms are the first migration: split into `RoleCreateForm` / `RoleUpdateForm` over a shared `RoleBaseForm`, two declarative steps, and a helper on every field; the entity template is reduced to its header icon. Legacy (unmigrated) forms are unaffected (they keep their hand-written fields and a plain footer). Verified end to end in the browser: create, per-step validation gating, light and dark themes, save and list refresh.
 
+### Fixed
+
+- **Multi-step modal forms could not be submitted** ("An invalid form control with name=... is not focusable"): native browser validation tried to focus a constrained field (e.g. `contact_email`, `website`) sitting on a hidden step, which aborted the submit. Multi-step forms now carry `novalidate`; validation is gated per step in JS and enforced server-side, which re-renders the modal on error. Verified by creating a supplier end to end.
+
 ## [0.24.5] - 2026-06-10
 
 ### Changed

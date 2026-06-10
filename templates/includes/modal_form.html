@@ -11,7 +11,13 @@
     hand-written markup; the progress bar and step footer stay off because
     `form.is_stepped` is falsey.
 {% endcomment %}
-<form method="post" {% block form_enctype %}{% endblock %} hx-post="{{ request.path }}" hx-target="#drawer-form-content" hx-swap="innerHTML" hx-disabled-elt="find button[type='submit']"{% if form.is_stepped %} data-mform{% endif %}>
+<form method="post" {% block form_enctype %}{% endblock %} hx-post="{{ request.path }}" hx-target="#drawer-form-content" hx-swap="innerHTML" hx-disabled-elt="find button[type='submit']"{% if form.is_stepped %} data-mform{% endif %}{% if form.is_multistep %} novalidate{% endif %}>
+  {% comment %}
+    novalidate on multi-step forms: native browser validation can't focus a
+    field on a hidden step ("invalid form control is not focusable"), which
+    would block submit. Validation is gated per step in JS and enforced
+    server-side (the source of truth), which re-renders the modal on error.
+  {% endcomment %}
   {% csrf_token %}
   <div class="modal-header">
     <h5 class="modal-title">
