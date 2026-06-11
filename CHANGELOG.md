@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Workflow framework (foundation)**: a new `core/workflow.py` introduces the lifecycle engine that will unify the approval and per-model status systems (see issue #105). A `Workflow` is an ordered set of `State` objects, each carrying governance flags (`counts_in_reports`, `linkable`, `deletable`, `is_initial`, `is_terminal`), plus the allowed `Transition` objects (required permission action, optional mandatory comment, declarative side effects). The module ships the default 4-state lifecycle (`draft` -> `pending` -> `validated` -> `archived`), a workflow registry, permission-aware transition validation (`validate_transition` / `allowed_transitions` / `apply_transition`) and queryset helpers (`reportable_states` / `linkable_states` / `deletable_states`). Pure-Python and fully unit tested (27 tests); no model, database or UI wiring yet (those land in the following phases).
+
 ## [0.25.0] - 2026-06-11
 
 ### Changed
