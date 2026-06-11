@@ -2286,6 +2286,18 @@ msgstr "Soumettre"
 msgid "Send back to draft"
 msgstr "Repasser en brouillon"
 
+msgid "Lifecycle state"
+msgstr "État du cycle de vie"
+
+msgid "Current state of the element in its lifecycle workflow."
+msgstr "État actuel de l'élément dans son workflow de cycle de vie."
+
+msgid "Workflow"
+msgstr "Workflow"
+
+msgid "Name of the lifecycle workflow for this item type. Leave blank to use the default workflow."
+msgstr "Nom du workflow de cycle de vie pour ce type d'élément. Laisser vide pour utiliser le workflow par défaut."
+
 msgid "Deprecated"
 msgstr "Obsolète"
 

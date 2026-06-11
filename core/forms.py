@@ -32,6 +32,7 @@ def get_model_field_choices(model_label):
     base_fields = {
         "id", "created_at", "updated_at", "created_by",
         "is_approved", "approved_by", "approved_at", "version", "reference",
+        "workflow_state",
     }
     choices = []
     for field in model._meta.get_fields():

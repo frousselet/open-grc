@@ -39,6 +39,15 @@ class VersioningConfig(models.Model):
             "and approval reset. If empty, all field changes are considered major."
         ),
     )
+    workflow_name = models.CharField(
+        _("Workflow"),
+        max_length=100,
+        blank=True,
+        help_text=_(
+            "Name of the lifecycle workflow for this item type. "
+            "Leave blank to use the default workflow."
+        ),
+    )
 
     class Meta:
         verbose_name = _("Versioning configuration")
@@ -109,6 +118,15 @@ class VersioningConfig(models.Model):
         if not fields:
             return None  # Empty list means all fields are major
         return set(fields)
+
+    @classmethod
+    def get_workflow_name(cls, model_class):
+        """Return the assigned workflow name for a model, or None for the default."""
+        label = f"{model_class._meta.app_label}.{model_class._meta.model_name}"
+        config = cls._get_config_cached(label)
+        if config is None or not config.workflow_name:
+            return None
+        return config.workflow_name
 
     @classmethod
     def clear_cache(cls):

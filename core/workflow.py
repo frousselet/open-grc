@@ -226,13 +226,38 @@ def default_workflow() -> Workflow:
     return WORKFLOW_REGISTRY[DEFAULT_WORKFLOW_NAME]
 
 
+def _resolve_model(model_or_label):
+    """Return a model class from a class or an ``app_label.model_name`` label."""
+    if isinstance(model_or_label, str):
+        try:
+            from django.apps import apps
+
+            return apps.get_model(model_or_label)
+        except Exception:
+            return None
+    if isinstance(model_or_label, type):
+        return model_or_label
+    return None
+
+
 def workflow_name_for(model_or_label) -> str:
     """Resolve the workflow name assigned to a model.
 
-    Per-model assignment via DB config lands in a later phase; for now every model
-    uses the default workflow. This is the single place to extend so that callers
-    never branch on assignment logic themselves.
+    Reads the per-model assignment from ``VersioningConfig.workflow_name``. An
+    unset, unknown or unreadable assignment (including contexts with no database)
+    falls back to the default workflow, so callers never branch on assignment
+    logic themselves.
     """
+    model = _resolve_model(model_or_label)
+    if model is not None:
+        try:
+            from core.models import VersioningConfig
+
+            name = VersioningConfig.get_workflow_name(model)
+        except Exception:
+            name = None
+        if name and name in WORKFLOW_REGISTRY:
+            return name
     return DEFAULT_WORKFLOW_NAME
 
 
