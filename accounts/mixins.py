@@ -97,6 +97,116 @@ class ApprovalContextMixin:
         return ctx
 
 
+class WorkflowStepperMixin:
+    """Build the generic lifecycle stepper context for a detail view.
+
+    Reads the object's workflow definition (states in declaration order, the
+    caller's allowed transitions, branch states like cancelled / archived) and
+    produces the context consumed by ``includes/workflow_stepper.html``. The
+    transition itself is posted to the shared ``core:workflow-transition`` URL.
+    """
+
+    def get_context_data(self, **kwargs):
+        from core.workflow import allowed_transitions
+
+        ctx = super().get_context_data(**kwargs)
+        obj = self.object
+        if not hasattr(obj, "get_workflow"):
+            return ctx
+        workflow = obj.get_workflow()
+        current = obj.workflow_state or workflow.initial_state.code
+        user = self.request.user
+
+        def has_perm(codename):
+            return user.is_superuser or user.has_perm(codename)
+
+        allowed = allowed_transitions(
+            workflow, current,
+            has_perm=has_perm, perm_namespace=obj.workflow_perm_namespace,
+        ) if workflow.has_state(current) else ()
+
+        main_states = [s for s in workflow.states if not s.branch]
+        branch_state = next((s for s in workflow.states if s.branch), None)
+        main_codes = [s.code for s in main_states]
+        current_idx = main_codes.index(current) if current in main_codes else None
+        on_branch = branch_state is not None and current == branch_state.code
+
+        # Forward step: the allowed transition to the next main-flow state.
+        next_transition = None
+        if current_idx is not None and current_idx + 1 < len(main_codes):
+            next_code = main_codes[current_idx + 1]
+            next_transition = next(
+                (t for t in allowed if t.target == next_code and not t.requires_comment),
+                None,
+            )
+
+        steps = []
+        for i, state in enumerate(main_states):
+            if current_idx is None:
+                step_state = "future"
+            elif i < current_idx:
+                step_state = "done"
+            elif i == current_idx:
+                step_state = "current"
+            elif next_transition is not None and state.code == next_transition.target:
+                step_state = "next"
+            else:
+                step_state = "future"
+            steps.append({"value": state.code, "label": state.label, "state": step_state})
+
+        # Backward move (refusal / rework): first allowed transition going back.
+        refusal_transition = None
+        if current_idx is not None:
+            for t in allowed:
+                if t.target in main_codes and main_codes.index(t.target) < current_idx:
+                    refusal_transition = t
+                    break
+
+        branch_transition = None
+        if branch_state is not None:
+            branch_transition = next(
+                (t for t in allowed if t.target == branch_state.code), None,
+            )
+
+        ctx.update({
+            "wf_enabled": True,
+            "wf_steps": steps,
+            "wf_container_id": f"workflow-stepper-{obj.pk}",
+            "wf_entity_id": str(obj.pk),
+            "wf_transition_url": reverse(
+                "workflow:transition",
+                kwargs={
+                    "app_label": obj._meta.app_label,
+                    "model": obj._meta.model_name,
+                    "pk": obj.pk,
+                },
+            ),
+            "wf_next_status": next_transition.target if next_transition else None,
+            "wf_cancelled": {
+                "value": branch_state.code,
+                "label": branch_state.label,
+                "state": "current" if on_branch else "future",
+            } if branch_state else None,
+            "wf_can_cancel": branch_transition is not None,
+            "wf_cancel_requires_comment": bool(
+                branch_transition and branch_transition.requires_comment
+            ),
+            "wf_cancel_verb": branch_transition.verb if branch_transition else None,
+            "wf_refusal": {
+                "status": refusal_transition.target,
+                "label": refusal_transition.verb,
+            } if refusal_transition else None,
+            "wf_can_refuse": refusal_transition is not None,
+            "wf_refuse_requires_comment": bool(
+                refusal_transition and refusal_transition.requires_comment
+            ),
+            "wf_start_value": main_codes[0] if main_codes else None,
+            "wf_branch_value": main_codes[-1] if main_codes else None,
+            "wf_terminal_value": main_codes[-1] if main_codes else None,
+        })
+        return ctx
+
+
 class ScopeFilterMixin:
     """Filter queryset by the user's allowed scopes (UI views).
 

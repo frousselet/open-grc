@@ -51,6 +51,7 @@ def _build_management_review_workflow():
                 is_initial=initial,
                 is_terminal=terminal,
                 tone=tone,
+                branch=status == ManagementReviewStatus.CANCELLED,
             )
         )
 

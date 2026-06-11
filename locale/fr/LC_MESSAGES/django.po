@@ -2313,6 +2313,12 @@ msgstr "Élément en attente de validation"
 msgid "Mark all as read"
 msgstr "Tout marquer comme lu"
 
+msgid "A comment is required for this transition."
+msgstr "Un commentaire est requis pour cette transition."
+
+msgid "%(label)s moved to \"%(state)s\"."
+msgstr "%(label)s est passé à « %(state)s »."
+
 msgid "No notifications"
 msgstr "Aucune notification"
 

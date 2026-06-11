@@ -128,7 +128,7 @@ _VULNERABILITY_TRANSITIONS = [
 ]
 
 
-def _build(name, status_enum, flags, transition_pairs, *, subsumes_approval=None):
+def _build(name, status_enum, flags, transition_pairs, *, subsumes_approval=None, branch_codes=frozenset()):
     """Build a workflow from per-state flags and (source, target[, options]) pairs.
 
     A transition tuple may carry an options dict as third element with
@@ -148,6 +148,7 @@ def _build(name, status_enum, flags, transition_pairs, *, subsumes_approval=None
                 is_initial=initial,
                 is_terminal=terminal,
                 tone=tone,
+                branch=str(status.value) in branch_codes,
             )
         )
     transitions = []
@@ -375,8 +376,17 @@ _DEFINITIONS = [
     ),
 ]
 
+_BRANCH_CODES = {
+    TREATMENT_PLAN_WORKFLOW_NAME: frozenset({"cancelled"}),
+    EBIOS_PACS_MEASURE_WORKFLOW_NAME: frozenset({"cancelled"}),
+}
+
 for _name, _enum, _flags, _pairs, _subsumes in _DEFINITIONS:
     if _name not in WORKFLOW_REGISTRY:
         register_workflow(
-            _build(_name, _enum, _flags, _pairs, subsumes_approval=_subsumes)
+            _build(
+                _name, _enum, _flags, _pairs,
+                subsumes_approval=_subsumes,
+                branch_codes=_BRANCH_CODES.get(_name, frozenset()),
+            )
         )

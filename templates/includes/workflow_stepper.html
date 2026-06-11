@@ -1,0 +1,56 @@
+{% load i18n %}
+{% if wf_enabled %}
+{% include "components/stepper.html" with steps=wf_steps next_status=wf_next_status transition_url=wf_transition_url entity_id=wf_entity_id container_id=wf_container_id cancelled=wf_cancelled can_cancel=wf_can_cancel refusal=wf_refusal can_refuse=wf_can_refuse transition_modal_callback="cairnWorkflowTransition" start_value=wf_start_value branch_value=wf_branch_value terminal_value=wf_terminal_value %}
+
+{# ── Generic transition comment modal (refusals, cancellations) ── #}
+<div class="modal fade" id="workflowTransitionModal" tabindex="-1" aria-labelledby="workflowTransitionModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post" action="{{ wf_transition_url }}" id="workflowTransitionForm">
+        {% csrf_token %}
+        <input type="hidden" name="target_status" id="workflowTransitionTarget" value="">
+        <div class="modal-header">
+          <h5 class="modal-title" id="workflowTransitionModalTitle">{% trans "Transition" %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+        </div>
+        <div class="modal-body">
+          <label for="workflowTransitionComment" class="form-label" id="workflowTransitionCommentLabel">{% trans "Comment" %}</label>
+          <textarea class="form-control" name="comment" id="workflowTransitionComment" rows="3"></textarea>
+          <div class="form-text" id="workflowTransitionCommentHelp">{% trans "A comment is required for this transition." %}</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
+          <button type="submit" class="btn btn-primary" id="workflowTransitionSubmit">{% trans "Confirm" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+function cairnWorkflowTransition(entityId, targetStatus, requiresComment, title) {
+  var modalEl = document.getElementById('workflowTransitionModal');
+  var form = document.getElementById('workflowTransitionForm');
+  var comment = document.getElementById('workflowTransitionComment');
+  var help = document.getElementById('workflowTransitionCommentHelp');
+  document.getElementById('workflowTransitionTarget').value = targetStatus;
+  document.getElementById('workflowTransitionModalTitle').textContent = title;
+  comment.value = '';
+  comment.required = !!requiresComment;
+  help.style.display = requiresComment ? '' : 'none';
+  if (!form.dataset.bound) {
+    form.dataset.bound = '1';
+    form.addEventListener('submit', function(e) {
+      if (comment.required && !comment.value.trim()) {
+        e.preventDefault();
+        comment.classList.add('is-invalid');
+        comment.focus();
+      }
+    });
+    comment.addEventListener('input', function() {
+      comment.classList.remove('is-invalid');
+    });
+  }
+  bootstrap.Modal.getOrCreateInstance(modalEl).show();
+}
+</script>
+{% endif %}

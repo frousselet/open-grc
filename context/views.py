@@ -20,7 +20,7 @@ from django.views.generic import (
     UpdateView,
 )
 
-from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
+from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin, WorkflowStepperMixin
 from accounts.views import PermissionRequiredMixin
 from core.mixins import HtmxFormMixin, SortableListMixin
 from .constants import CollectionMethod, IndicatorType, PREDEFINED_SOURCE_FORMAT
@@ -283,7 +283,7 @@ class ScopeListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixi
         return result
 
 
-class ScopeDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class ScopeDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, WorkflowStepperMixin, HistoryMixin, DetailView):
     model = Scope
     permission_required = "context.scope.read"
     template_name = "context/scope_detail.html"

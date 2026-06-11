@@ -47,6 +47,7 @@ urlpatterns = [
     path("api/v1/reports/", include("reports.api.urls")),
     path("api/v1/", include("mcp.urls")),
     path("config/", include("core.versioning_urls")),
+    path("workflow/", include("core.workflow_urls")),
 ]
 
 if settings.DEBUG:

@@ -63,7 +63,9 @@ class State:
 
     ``label`` and ``tone`` are excluded from equality so that two states are equal
     iff they share the same code and the same governance flags. ``tone`` is a UI
-    badge category (mapped to a semantic colour in the templates).
+    badge category (mapped to a semantic colour in the templates). ``branch``
+    marks an off-ramp state (cancelled, archived) rendered by the stepper as a
+    branch below the main flow instead of a step on it.
     """
 
     code: str
@@ -74,6 +76,7 @@ class State:
     is_initial: bool = False
     is_terminal: bool = False
     tone: str = field(default="neutral", compare=False)
+    branch: bool = field(default=False, compare=False)
 
 
 @dataclass(frozen=True)
@@ -535,7 +538,7 @@ DEFAULT_WORKFLOW = register_workflow(
                 linkable=True,
                 tone="success",
             ),
-            State("archived", _("Archived"), is_terminal=True, tone="muted"),
+            State("archived", _("Archived"), is_terminal=True, tone="muted", branch=True),
         ],
         transitions=[
             Transition(

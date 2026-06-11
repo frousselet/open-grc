@@ -56,6 +56,7 @@ def _build_action_plan_workflow():
                 is_initial=initial,
                 is_terminal=terminal,
                 tone=tone,
+                branch=status == ActionPlanStatus.CANCELLED,
             )
         )
 
@@ -116,6 +117,7 @@ def _build_assessment_workflow():
                 is_initial=initial,
                 is_terminal=terminal,
                 tone=tone,
+                branch=status == AssessmentStatus.CANCELLED,
             )
         )
 
