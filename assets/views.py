@@ -16,7 +16,7 @@ from django.views.generic import (
     UpdateView,
 )
 
-from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
+from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin, WorkflowStepperMixin
 from accounts.views import PermissionRequiredMixin
 from core.mixins import HtmxFormMixin, SortableListMixin
 from context.models import Scope, Site
@@ -129,7 +129,7 @@ class EssentialAssetListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeF
         return qs
 
 
-class EssentialAssetDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class EssentialAssetDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView):
     model = EssentialAsset
     template_name = "assets/essential_asset_detail.html"
     context_object_name = "asset"
@@ -216,7 +216,7 @@ class SupportAssetListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFil
         return qs
 
 
-class SupportAssetDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class SupportAssetDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView):
     model = SupportAsset
     template_name = "assets/support_asset_detail.html"
     context_object_name = "asset"
@@ -342,7 +342,7 @@ class GroupListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixi
         )
 
 
-class GroupDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class GroupDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView):
     model = AssetGroup
     template_name = "assets/group_detail.html"
     context_object_name = "group"
@@ -422,7 +422,7 @@ class SupplierListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterM
         return qs
 
 
-class SupplierDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class SupplierDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView):
     model = Supplier
     template_name = "assets/supplier_detail.html"
     context_object_name = "supplier"
@@ -843,7 +843,7 @@ class SiteListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         return result
 
 
-class SiteDetailView(LoginRequiredMixin, PermissionRequiredMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class SiteDetailView(LoginRequiredMixin, PermissionRequiredMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView):
     model = Site
     template_name = "assets/site_detail.html"
     context_object_name = "site"

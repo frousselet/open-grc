@@ -102,9 +102,28 @@ class WorkflowStepperMixin:
 
     Reads the object's workflow definition (states in declaration order, the
     caller's allowed transitions, branch states like cancelled / archived) and
-    produces the context consumed by ``includes/workflow_stepper.html``. The
-    transition itself is posted to the shared ``core:workflow-transition`` URL.
+    produces the context consumed by ``includes/workflow_stepper.html``.
+
+    The transition is posted to the shared ``workflow:transition`` URL by
+    default; views whose bespoke transition endpoint carries extra side effects
+    (required-fields gating, recalculations) set
+    ``workflow_transition_url_name`` or override
+    :meth:`get_workflow_transition_url`.
     """
+
+    workflow_transition_url_name = None
+
+    def get_workflow_transition_url(self, obj):
+        if self.workflow_transition_url_name:
+            return reverse(self.workflow_transition_url_name, kwargs={"pk": obj.pk})
+        return reverse(
+            "workflow:transition",
+            kwargs={
+                "app_label": obj._meta.app_label,
+                "model": obj._meta.model_name,
+                "pk": obj.pk,
+            },
+        )
 
     def get_context_data(self, **kwargs):
         from core.workflow import allowed_transitions
@@ -173,14 +192,7 @@ class WorkflowStepperMixin:
             "wf_steps": steps,
             "wf_container_id": f"workflow-stepper-{obj.pk}",
             "wf_entity_id": str(obj.pk),
-            "wf_transition_url": reverse(
-                "workflow:transition",
-                kwargs={
-                    "app_label": obj._meta.app_label,
-                    "model": obj._meta.model_name,
-                    "pk": obj.pk,
-                },
-            ),
+            "wf_transition_url": self.get_workflow_transition_url(obj),
             "wf_next_status": next_transition.target if next_transition else None,
             "wf_cancelled": {
                 "value": branch_state.code,

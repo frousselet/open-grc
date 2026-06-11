@@ -362,7 +362,7 @@ class IssueListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixi
         return qs
 
 
-class IssueDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class IssueDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView):
     model = Issue
     permission_required = "context.issue.read"
     template_name = "context/issue_detail.html"
@@ -440,7 +440,7 @@ class StakeholderListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilt
         return qs
 
 
-class StakeholderDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class StakeholderDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView):
     model = Stakeholder
     permission_required = "context.stakeholder.read"
     template_name = "context/stakeholder_detail.html"
@@ -520,7 +520,7 @@ class ObjectiveListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilter
         return qs
 
 
-class ObjectiveDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class ObjectiveDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView):
     model = Objective
     permission_required = "context.objective.read"
     template_name = "context/objective_detail.html"
@@ -598,7 +598,7 @@ class SwotListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin
         return qs
 
 
-class SwotDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class SwotDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView):
     model = SwotAnalysis
     permission_required = "context.swot.read"
     template_name = "context/swot_detail.html"
@@ -830,7 +830,7 @@ class RoleListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin
         return qs
 
 
-class RoleDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class RoleDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView):
     model = Role
     permission_required = "context.role.read"
     template_name = "context/role_detail.html"
@@ -911,7 +911,7 @@ class ActivityListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterM
         return qs
 
 
-class ActivityDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class ActivityDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView):
     model = Activity
     permission_required = "context.activity.read"
     template_name = "context/activity_detail.html"
@@ -1288,7 +1288,7 @@ class IndicatorTableBodyView(LoginRequiredMixin, PermissionRequiredMixin, ScopeF
         return qs
 
 
-class IndicatorDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView):
+class IndicatorDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView):
     model = Indicator
     permission_required = "context.indicator.read"
     template_name = "context/indicator_detail.html"

@@ -19,6 +19,7 @@
 {% help_modal "assets.supplier_detail" %}
 
 {% include "includes/approval_badge.html" %}
+{% include "includes/workflow_stepper.html" %}
 
 {% if supplier.is_contract_expired %}
 <div class="alert alert-warning">{% trans "The contract for this supplier has expired" %} ({{ supplier.contract_end_date }}).</div>

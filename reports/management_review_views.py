@@ -22,6 +22,7 @@ from django.views.generic import (
     UpdateView,
 )
 
+from accounts.mixins import WorkflowStepperMixin
 from accounts.views import PermissionRequiredMixin
 from core.mixins import SortableListMixin
 from compliance.constants import ActionPlanStatus
@@ -105,9 +106,10 @@ class ManagementReviewListView(
 # ─── Detail with stepper and all sections ─────────────────────────────
 
 class ManagementReviewDetailView(
-    LoginRequiredMixin, PermissionRequiredMixin, DetailView,
+    LoginRequiredMixin, PermissionRequiredMixin, WorkflowStepperMixin, DetailView,
 ):
     permission_required = "reports.management_review.read"
+    workflow_transition_url_name = "reports:management-review-transition"
     model = ManagementReview
     template_name = "reports/management_review_detail.html"
     context_object_name = "review"
@@ -117,75 +119,6 @@ class ManagementReviewDetailView(
         review = self.object
         user = self.request.user
 
-        # Workflow stepper
-        main_statuses = [
-            s for s in ManagementReviewStatus
-            if s != ManagementReviewStatus.CANCELLED
-        ]
-        is_cancelled = review.status == ManagementReviewStatus.CANCELLED
-        current_idx = next(
-            (i for i, s in enumerate(main_statuses) if s.value == review.status),
-            None,
-        )
-        if is_cancelled:
-            current_idx = None
-
-        forward_transitions = MANAGEMENT_REVIEW_TRANSITIONS.get(review.status, [])
-        main_next = forward_transitions[0] if forward_transitions else None
-        if main_next and not user.has_perm("reports.management_review.update"):
-            main_next = None
-        # Closure requires approve permission
-        if (
-            main_next == ManagementReviewStatus.CLOSED
-            and not user.has_perm("reports.management_review.approve")
-        ):
-            main_next = None
-        ctx["next_status"] = main_next
-        if main_next:
-            ctx["next_status_label"] = ManagementReviewStatus(main_next).label
-
-        next_main_idx = (
-            (current_idx + 1) if (current_idx is not None and main_next) else None
-        )
-
-        steps = []
-        for i, s in enumerate(main_statuses):
-            if current_idx is not None:
-                if i < current_idx:
-                    state = "done"
-                elif i == current_idx:
-                    state = "current"
-                elif next_main_idx is not None and i == next_main_idx:
-                    state = "next"
-                else:
-                    state = "future"
-            else:
-                state = "future"
-            steps.append({"value": s.value, "label": s.label, "state": state})
-        ctx["workflow_steps"] = steps
-
-        can_cancel = (
-            review.status in MANAGEMENT_REVIEW_CANCELLABLE_STATUSES
-            and user.has_perm("reports.management_review.update")
-        )
-        ctx["can_cancel"] = can_cancel
-
-        if is_cancelled:
-            ctx["cancelled_step"] = {
-                "value": ManagementReviewStatus.CANCELLED.value,
-                "label": ManagementReviewStatus.CANCELLED.label,
-                "state": "current",
-            }
-            ctx["branch_line_color"] = "var(--danger)"
-            ctx["branch_line_opacity"] = "1"
-        else:
-            ctx["cancelled_step"] = {
-                "value": ManagementReviewStatus.CANCELLED.value,
-                "label": ManagementReviewStatus.CANCELLED.label,
-                "state": "future",
-            }
-            ctx["branch_line_color"] = "var(--border-light)"
-            ctx["branch_line_opacity"] = "1" if can_cancel else "0.3"
 
         # Closure blockers (if status == held)
         if review.status == ManagementReviewStatus.HELD:
@@ -701,3 +634,4 @@ class ParticipantSignatureView(LoginRequiredMixin, View):
         participant.save(update_fields=["signature_data", "attended"])
         messages.success(request, _("Signature saved."))
         return redirect("reports:management-review-detail", pk=participant.review_id)
+

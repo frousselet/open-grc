@@ -157,6 +157,50 @@ class TestTransitionEndpoint:
         assert plan.status == "to_define"
 
 
+class TestStepperRollout:
+    def test_risk_detail_renders_generic_stepper(self):
+        from risks.tests.factories import RiskFactory
+
+        client = _client(UserFactory(is_superuser=True))
+        risk = RiskFactory()
+        response = client.get(reverse("risks:risk-detail", args=[risk.pk]))
+        assert response.status_code == 200
+        assert "workflow-stepper-" in response.content.decode()
+        steps = response.context["wf_steps"]
+        assert steps[0]["value"] == "identified"
+        assert steps[0]["state"] == "current"
+
+    def test_assessment_detail_uses_bespoke_transition_url(self):
+        from datetime import date
+
+        from compliance.tests.factories import (
+            ComplianceAssessmentFactory,
+            FrameworkFactory,
+        )
+
+        client = _client(UserFactory(is_superuser=True))
+        assessment = ComplianceAssessmentFactory(
+            assessment_start_date=date(2026, 1, 1),
+            assessment_end_date=date(2026, 6, 30),
+        )
+        assessment.frameworks.add(FrameworkFactory())
+        response = client.get(
+            reverse("compliance:assessment-detail", args=[assessment.pk])
+        )
+        assert response.status_code == 200
+        assert response.context["wf_transition_url"] == reverse(
+            "compliance:assessment-transition", args=[assessment.pk]
+        )
+        # The bespoke endpoint (required-fields gating, close side effects)
+        # accepts the shared component's parameter name.
+        response = client.post(
+            response.context["wf_transition_url"], {"target_status": "planned"},
+        )
+        assessment.refresh_from_db()
+        assert assessment.status == "planned"
+        assert assessment.workflow_state == "planned"
+
+
 class TestWorkflowBadgeTag:
     def test_badge_renders_tone_and_label(self):
         from helpers.templatetags.workflow_tags import workflow_badge

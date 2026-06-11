@@ -11,6 +11,7 @@
 {% endpage_header %}
 {% help_modal "context.role_detail" %}
 {% include "includes/approval_badge.html" %}
+{% include "includes/workflow_stepper.html" %}
 
 {% if role.compliance_alert %}
 <div class="alert alert-danger" role="alert">{{ role.compliance_alert }}</div>

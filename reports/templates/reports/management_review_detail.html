@@ -27,57 +27,7 @@
 </div>
 {% endif %}
 
-{# Workflow stepper #}
-<div class="card mb-3">
-  <div class="card-body py-2 px-3">
-    <div style="overflow-x:auto;position:relative" data-stepper-container>
-      <div class="d-flex align-items-center gap-0 flex-wrap">
-        {% for step in workflow_steps %}
-          {% if not forloop.first %}
-          <div class="flex-shrink-0" style="width:32px;height:2px;{% if step.state == 'done' or step.state == 'current' %}background:var(--accent){% else %}background:var(--border-light){% endif %}"></div>
-          {% endif %}
-
-          {% if step.state == 'next' and next_status %}
-          <form method="post" action="{% url 'reports:management-review-transition' review.pk %}" class="flex-shrink-0" data-stepper-step="{{ step.value }}">
-            {% csrf_token %}
-            <input type="hidden" name="target_status" value="{{ next_status }}">
-            <button type="submit" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1 rounded-pill px-3"
-                    {% if next_status == 'closed' and not closure_ready %}disabled title="{% trans 'Closure blocked' %}"{% endif %}
-                    style="white-space:nowrap;font-size:.8rem;border-width:2px">
-              <i class="bi bi-arrow-right-circle"></i> {{ step.label }}
-            </button>
-          </form>
-          {% else %}
-          <span class="flex-shrink-0 d-inline-flex align-items-center gap-1 rounded-pill px-3"
-                data-stepper-step="{{ step.value }}"
-                style="white-space:nowrap;font-size:.8rem;padding:.3rem 0;
-                {% if step.state == 'done' %}color:var(--text-muted);background:var(--bg-subtle);border:1px solid var(--border-light){% elif step.state == 'current' %}color:#fff;background:var(--accent);font-weight:600;border:2px solid var(--accent){% else %}color:var(--text-muted);opacity:.45;background:var(--bg-subtle);border:1px dashed var(--border-light){% endif %}">
-            {% if step.state == 'done' %}<i class="bi bi-check-circle-fill" style="font-size:.7rem"></i>{% elif step.state == 'current' %}<i class="bi bi-circle-fill" style="font-size:.5rem"></i>{% else %}<i class="bi bi-circle" style="font-size:.5rem"></i>{% endif %}
-            {{ step.label }}
-          </span>
-          {% endif %}
-        {% endfor %}
-      </div>
-      {# Cancel row #}
-      <div class="mt-3">
-      {% if can_cancel %}
-        <button type="button" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 rounded-pill px-3"
-                data-bs-toggle="modal" data-bs-target="#cancelReviewModal"
-                style="white-space:nowrap;font-size:.8rem;border-width:2px">
-          <i class="bi bi-x-circle"></i> {{ cancelled_step.label }}
-        </button>
-      {% else %}
-        <span class="d-inline-flex align-items-center gap-1 rounded-pill px-3"
-              style="white-space:nowrap;font-size:.8rem;padding:.3rem 0;
-              {% if cancelled_step.state == 'current' %}color:#fff;background:var(--danger);font-weight:600;border:2px solid var(--danger){% else %}color:var(--text-muted);opacity:.45;background:var(--bg-subtle);border:1px dashed var(--border-light){% endif %}">
-          {% if cancelled_step.state == 'current' %}<i class="bi bi-x-circle-fill" style="font-size:.7rem"></i>{% else %}<i class="bi bi-circle" style="font-size:.5rem"></i>{% endif %}
-          {{ cancelled_step.label }}
-        </span>
-      {% endif %}
-      </div>
-    </div>
-  </div>
-</div>
+{% include "includes/workflow_stepper.html" %}
 
 {% if review.status == 'held' and closure_blockers %}
 <div class="alert alert-warning py-2 px-3 mb-3">
@@ -331,29 +281,5 @@
   </div>
 </div>
 
-{# Cancel modal #}
-{% if can_cancel %}
-<div class="modal fade" id="cancelReviewModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form method="post" action="{% url 'reports:management-review-transition' review.pk %}" class="modal-content">
-      {% csrf_token %}
-      <input type="hidden" name="target_status" value="cancelled">
-      <div class="modal-header">
-        <h5 class="modal-title">{% trans "Cancel review" %}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label">{% trans "Cancellation reason" %} <span class="text-danger">*</span></label>
-          <textarea name="comment" class="form-control" rows="3" required></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
-        <button type="submit" class="btn btn-danger">{% trans "Confirm cancellation" %}</button>
-      </div>
-    </form>
-  </div>
-</div>
-{% endif %}
+
 {% endblock %}

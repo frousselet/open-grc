@@ -23,7 +23,7 @@ from django.views.generic import (
     UpdateView,
 )
 
-from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin
+from accounts.mixins import ApprovableUpdateMixin, ApprovalContextMixin, ScopeFilterMixin, WorkflowStepperMixin
 from accounts.views import PermissionRequiredMixin
 from core.mixins import HtmxFormMixin, SortableListMixin
 from .forms import (
@@ -160,7 +160,7 @@ class FrameworkListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilter
 
 
 class FrameworkDetailView(
-    LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView
+    LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView
 ):
     model = Framework
     permission_required = "compliance.framework.read"
@@ -401,7 +401,7 @@ class RequirementListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilt
 
 
 class RequirementDetailView(
-    LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView
+    LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView
 ):
     model = Requirement
     permission_required = "compliance.requirement.read"
@@ -479,9 +479,10 @@ class AssessmentListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilte
 
 
 class AssessmentDetailView(
-    LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView
+    LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView
 ):
     model = ComplianceAssessment
+    workflow_transition_url_name = "compliance:assessment-transition"
     permission_required = "compliance.assessment.read"
     template_name = "compliance/assessment_detail.html"
     context_object_name = "assessment"
@@ -563,75 +564,10 @@ class AssessmentDetailView(
         from compliance.constants import (
             ASSESSMENT_FROZEN_STATUSES,
             ASSESSMENT_LOCKED_STATUSES,
-            ASSESSMENT_STATUS_TRANSITIONS,
         )
         ctx["is_locked"] = assessment.status in ASSESSMENT_LOCKED_STATUSES
         ctx["is_frozen"] = assessment.status not in ASSESSMENT_EDITABLE_STATUSES
         ctx["is_toggleable"] = assessment.status in ASSESSMENT_TOGGLEABLE_STATUSES
-        next_statuses = ASSESSMENT_STATUS_TRANSITIONS.get(assessment.status, [])
-        # For the main flow, the "next" transition is the first non-cancelled option
-        main_next = next(
-            (s for s in next_statuses if s != AssessmentStatus.CANCELLED), None
-        )
-        ctx["next_status"] = main_next
-        ctx["next_status_label"] = (
-            AssessmentStatus(main_next).label if main_next else ""
-        )
-        # Can the assessment be cancelled from current status?
-        ctx["can_cancel"] = AssessmentStatus.CANCELLED in next_statuses
-
-        # Workflow stepper: build ordered list of main-flow steps (excludes CANCELLED)
-        main_statuses = [
-            s for s in AssessmentStatus if s != AssessmentStatus.CANCELLED
-        ]
-        is_cancelled = assessment.status == AssessmentStatus.CANCELLED
-        current_idx = next(
-            (i for i, s in enumerate(main_statuses) if s.value == assessment.status),
-            None,
-        )
-        # For cancelled assessments, determine how far the main flow got
-        # (cancelled from DRAFT → idx 0, from PLANNED → idx 1)
-        if is_cancelled:
-            current_idx = None  # no main-flow step is "current"
-        next_main_idx = (current_idx + 1) if (current_idx is not None and main_next) else None
-        steps = []
-        for i, s in enumerate(main_statuses):
-            if current_idx is not None:
-                if i < current_idx:
-                    state = "done"
-                elif i == current_idx:
-                    state = "current"
-                elif next_main_idx is not None and i == next_main_idx:
-                    state = "next"
-                else:
-                    state = "future"
-            else:
-                # Cancelled: all main-flow steps are faded
-                state = "future"
-            steps.append({"value": s.value, "label": s.label, "state": state})
-        ctx["workflow_steps"] = steps
-
-        # Cancelled step (separate from main flow)
-        if is_cancelled:
-            ctx["cancelled_step"] = {
-                "value": AssessmentStatus.CANCELLED.value,
-                "label": AssessmentStatus.CANCELLED.label,
-                "state": "current",
-            }
-            ctx["branch_line_color"] = "var(--danger)"
-            ctx["branch_line_opacity"] = "1"
-        else:
-            ctx["cancelled_step"] = {
-                "value": AssessmentStatus.CANCELLED.value,
-                "label": AssessmentStatus.CANCELLED.label,
-                "state": "future",
-            }
-            if AssessmentStatus.CANCELLED in next_statuses:
-                ctx["branch_line_color"] = "var(--border-light)"
-                ctx["branch_line_opacity"] = "1"
-            else:
-                ctx["branch_line_color"] = "var(--border-light)"
-                ctx["branch_line_opacity"] = "0.3"
         return ctx
 
 
@@ -720,7 +656,7 @@ class AssessmentTransitionView(LoginRequiredMixin, PermissionRequiredMixin, View
 
     def post(self, request, pk):
         assessment = get_object_or_404(ComplianceAssessment, pk=pk)
-        new_status = request.POST.get("status")
+        new_status = request.POST.get("target_status") or request.POST.get("status")
 
         # Validate required fields for the target status
         required = self.REQUIRED_FIELDS.get(new_status, [])
@@ -1600,9 +1536,10 @@ class ActionPlanListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilte
 
 
 class ActionPlanDetailView(
-    LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, DetailView
+    LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, ApprovalContextMixin, HistoryMixin, WorkflowStepperMixin, DetailView
 ):
     model = ComplianceActionPlan
+    workflow_transition_url_name = "compliance:action-plan-transition"
     permission_required = "compliance.action_plan.read"
     template_name = "compliance/action_plan_detail.html"
     context_object_name = "action_plan"
@@ -1633,93 +1570,6 @@ class ActionPlanDetailView(
                 })
         ctx["allowed_transitions"] = allowed
 
-        # ── Workflow stepper ──
-        main_statuses = [
-            s for s in ActionPlanStatus if s != ActionPlanStatus.CANCELLED
-        ]
-        is_cancelled = ap.status == ActionPlanStatus.CANCELLED
-        current_idx = next(
-            (i for i, s in enumerate(main_statuses) if s.value == ap.status),
-            None,
-        )
-        if is_cancelled:
-            current_idx = None
-
-        # Determine the forward (non-refusal, non-cancel) next transition
-        forward_transitions = ACTION_PLAN_TRANSITIONS.get(ap.status, [])
-        refusal_target = ACTION_PLAN_REFUSAL_TRANSITIONS.get(ap.status)
-        main_next = next(
-            (s for s in forward_transitions if s != refusal_target),
-            None,
-        )
-        # Check permission for the forward transition
-        if main_next:
-            fwd_perm = ACTION_PLAN_TRANSITION_PERMISSIONS.get((ap.status, main_next))
-            if fwd_perm and not user.has_perm(fwd_perm):
-                main_next = None
-        ctx["next_status"] = main_next
-
-        next_main_idx = (current_idx + 1) if (current_idx is not None and main_next) else None
-
-        steps = []
-        for i, s in enumerate(main_statuses):
-            if current_idx is not None:
-                if i < current_idx:
-                    state = "done"
-                elif i == current_idx:
-                    state = "current"
-                elif next_main_idx is not None and i == next_main_idx:
-                    state = "next"
-                else:
-                    state = "future"
-            else:
-                state = "future"
-            steps.append({"value": s.value, "label": s.label, "state": state})
-        ctx["workflow_steps"] = steps
-
-        # Can cancel? (permission check)
-        can_cancel = ap.status in ACTION_PLAN_CANCELLABLE_STATUSES
-        if can_cancel:
-            cancel_perm = "compliance.action_plan.cancel"
-            if not user.has_perm(cancel_perm):
-                can_cancel = False
-        ctx["can_cancel"] = can_cancel
-
-        # Can refuse? (backward transition with comment)
-        can_refuse = False
-        refusal_info = None
-        if refusal_target:
-            ref_perm = ACTION_PLAN_TRANSITION_PERMISSIONS.get((ap.status, refusal_target))
-            if not ref_perm or user.has_perm(ref_perm):
-                can_refuse = True
-                refusal_info = {
-                    "status": refusal_target,
-                    "label": ActionPlanStatus(refusal_target).label,
-                }
-        ctx["can_refuse"] = can_refuse
-        ctx["refusal_info"] = refusal_info
-
-        # Cancelled step
-        if is_cancelled:
-            ctx["cancelled_step"] = {
-                "value": ActionPlanStatus.CANCELLED.value,
-                "label": ActionPlanStatus.CANCELLED.label,
-                "state": "current",
-            }
-            ctx["branch_line_color"] = "var(--danger)"
-            ctx["branch_line_opacity"] = "1"
-        else:
-            ctx["cancelled_step"] = {
-                "value": ActionPlanStatus.CANCELLED.value,
-                "label": ActionPlanStatus.CANCELLED.label,
-                "state": "future",
-            }
-            if can_cancel:
-                ctx["branch_line_color"] = "var(--border-light)"
-                ctx["branch_line_opacity"] = "1"
-            else:
-                ctx["branch_line_color"] = "var(--border-light)"
-                ctx["branch_line_opacity"] = "0.3"
 
         ctx["transition_history"] = ap.transitions.select_related("performed_by").all()[:20]
         ctx["status_colors"] = ACTION_PLAN_STATUS_COLORS

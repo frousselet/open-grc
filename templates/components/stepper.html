@@ -34,7 +34,7 @@
         {% if can_cancel and transition_modal_callback and entity_id %}
           <button type="button" class="btn btn-sm btn-outline-danger stepper__pill stepper__pill--cancel"
                   data-stepper-step="{{ cancelled.value }}"
-                  onclick="{{ transition_modal_callback }}('{{ entity_id }}', '{{ cancelled.value }}', false, '{% trans "Cancel" %}: {{ cancelled.label }}')">
+                  onclick="{{ transition_modal_callback }}('{{ entity_id }}', '{{ cancelled.value }}', {{ cancel_requires_comment|yesno:'true,false' }}, '{% trans "Cancel" %}: {{ cancelled.label }}')">
             <i class="bi bi-x-circle" aria-hidden="true"></i> {{ cancelled.label }}
           </button>
         {% else %}
@@ -52,7 +52,7 @@
       {% if can_refuse and refusal and transition_modal_callback and entity_id %}
       <div class="stepper__refuse-row">
         <button type="button" class="btn btn-sm btn-outline-warning stepper__pill stepper__pill--refuse"
-                onclick="{{ transition_modal_callback }}('{{ entity_id }}', '{{ refusal.status }}', true, '{% trans 'Refuse' %}: {{ refusal.label }}')">
+                onclick="{{ transition_modal_callback }}('{{ entity_id }}', '{{ refusal.status }}', {{ refuse_requires_comment|yesno:'true,false' }}, '{% trans 'Refuse' %}: {{ refusal.label }}')">
           <i class="bi bi-arrow-return-left" aria-hidden="true"></i> {% trans "Refuse" %}
         </button>
       </div>
