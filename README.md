@@ -99,7 +99,7 @@ Manage your organisation's security posture, track compliance with regulatory fr
 | Reports | Configurable report generation (SoA PDF, Audit report PDF, Management review PPTX/DOCX) with status tracking |
 | Management reviews | Persistent ISO 27001:2022 clause 9.3 workflow with life cycle, decisions, ISMS changes, participants, snapshot-based auditability, and retrochaining to action plans, treatment plans, and objectives |
 | Stakeholder feedback | Formal feedback channel (clause 9.3.2.e) with sentiment, severity, and traceability to issues and expectations |
-| Approval Workflows | Two-step approval (submit / approve) on all domain models with dedicated permissions |
+| Lifecycle Workflows | Unified lifecycle on every domain model (Draft / Pending validation / Validated / Archived by default, plus 15 entity-specific workflows), driving report inclusion, linking, deletion and notifications, with a generic stepper UI, per-transition permissions and mandatory comments on refusals / cancellations |
 | Notifications | In-app + email notifications on lifecycle events (element submitted for validation), with a live bell badge (WebSocket), recipient fallback chain (scope managers, approvers, creator) and per-user email opt-out |
 | Audit Trail | Full change history on every model via django-simple-history |
 | Versioning | Automatic version increment on all domain objects |

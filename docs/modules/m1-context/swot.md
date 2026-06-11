@@ -11,7 +11,7 @@ Représente une analyse SWOT réalisée pour un périmètre donné.
 | `name` | string | requis, max 255 | Intitulé de l'analyse |
 | `description` | text | optionnel | Contexte de l'analyse |
 | `analysis_date` | date | requis | Date de réalisation |
-| `status` | enum | requis | `draft`, `validated`, `archived` |
+| `workflow_state` | enum | requis, défaut `draft` | Cycle de vie unifié : `draft`, `pending`, `validated`, `archived`. Voir [governance/workflow.md](../governance/workflow.md). |
 | `validated_by` | relation | FK → User | Validateur |
 | `validated_at` | datetime | optionnel | Date de validation |
 | `items` | relation | O2M → SwotItem | Éléments SWOT |

@@ -10,7 +10,7 @@ Représente le périmètre couvert par le dispositif GRC.
 | `name` | string | requis, max 255 | Nom du périmètre |
 | `description` | text | requis | Description détaillée du périmètre |
 | `version` | string | requis | Version du document de périmètre |
-| `status` | enum | requis | `draft`, `active`, `archived` |
+| `workflow_state` | enum | requis, défaut `draft` | Cycle de vie unifié : `draft`, `pending`, `validated`, `archived`. Voir [governance/workflow.md](../governance/workflow.md). |
 | `boundaries` | text | optionnel | Limites et exclusions du périmètre |
 | `justification_exclusions` | text | optionnel | Justification des exclusions |
 | `geographic_scope` | text | optionnel | Périmètre géographique |

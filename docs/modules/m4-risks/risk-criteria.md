@@ -20,7 +20,7 @@ Définit les échelles, la matrice et les seuils d'acceptation utilisés pour un
 | `risk_levels` | relation | O2M → RiskLevel | Niveaux de risque résultants |
 | `acceptance_threshold` | integer | requis | Seuil d'acceptation (niveau de risque au-delà duquel le traitement est obligatoire) |
 | `is_default` | boolean | requis, défaut false | Critères par défaut pour les nouvelles appréciations |
-| `status` | enum | requis | `draft`, `active`, `archived` |
+| `workflow_state` | enum | requis, défaut `draft` | Cycle de vie unifié : `draft`, `pending`, `validated`, `archived`. Voir [governance/workflow.md](../governance/workflow.md). |
 | `created_by` | relation | FK → User | Créateur |
 | `created_at` | datetime | auto | Date de création |
 | `updated_at` | datetime | auto | Date de dernière modification |
