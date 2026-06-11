@@ -30,13 +30,19 @@ def build_soa_frameworks_data(frameworks):
     invoking weasyprint. Each framework dict carries `framework`, `rows`
     (sorted by requirement number) and `linked_risk_count` (deduplicated).
     """
+    from django.db.models import Prefetch
+
+    from compliance.models import ComplianceActionPlan
+    from core.workflow import reportable
+    from risks.models import Risk
+
     frameworks_data = []
-    for fw in frameworks:
-        requirements = fw.requirements.select_related(
+    for fw in reportable(frameworks):
+        requirements = reportable(fw.requirements.all()).select_related(
             "section",
         ).prefetch_related(
-            "linked_risks",
-            "action_plans",
+            Prefetch("linked_risks", queryset=reportable(Risk.objects.all())),
+            Prefetch("action_plans", queryset=reportable(ComplianceActionPlan.objects.all())),
         ).order_by("requirement_number", "created_at")
 
         rows = []
@@ -490,12 +496,17 @@ def generate_risk_register_xlsx(risks_qs, user):
     """Generate an Excel workbook listing the risks in `risks_qs`.
 
     Returns a tuple (filename, content_bytes). The caller is responsible for
-    filtering `risks_qs` by scope and any other criteria before calling.
+    filtering `risks_qs` by scope and any other criteria before calling; the
+    lifecycle rule (only reportable elements appear in reports) is applied here.
     """
     import io
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Font, PatternFill
     from openpyxl.utils import get_column_letter
+
+    from core.workflow import reportable
+
+    risks_qs = reportable(risks_qs)
 
     now = timezone.now()
     org_name = ""

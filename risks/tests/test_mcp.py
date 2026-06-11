@@ -319,8 +319,8 @@ class TestGenerateRiskRegisterMCPFilters:
         self.user = UserFactory(is_superuser=True)
 
     def test_filter_by_status(self):
-        RiskFactory(name="StatusKeep", status="analyzed")
-        RiskFactory(name="StatusDrop", status="closed")
+        RiskFactory(name="StatusKeep", status="analyzed", is_approved=True)
+        RiskFactory(name="StatusDrop", status="closed", is_approved=True)
         result = _call_tool(
             self.srv, self.user, "generate_risk_register",
             {"status": "analyzed"},

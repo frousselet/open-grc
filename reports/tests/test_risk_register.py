@@ -50,6 +50,7 @@ class TestRiskRegisterXlsx:
             name="Data leak",
             current_likelihood=3,
             current_impact=4,
+            is_approved=True,
         )
         _, content = generate_risk_register_xlsx(
             Risk.objects.filter(pk=risk.pk), user,
@@ -64,9 +65,24 @@ class TestRiskRegisterXlsx:
         assert row_values[idx["Current likelihood"]] == 3
         assert row_values[idx["Current impact"]] == 4
 
+    def test_non_validated_risks_are_excluded(self):
+        """Draft risks never appear in the risk register (RG-LC-01)."""
+        user = UserFactory(is_superuser=True)
+        RiskFactory(name="DraftRisk")
+        RiskFactory(name="LiveRisk", is_approved=True)
+        _, content = generate_risk_register_xlsx(Risk.objects.all(), user)
+        wb = _read_workbook(content)
+        ws = wb.active
+        all_text = "\n".join(
+            " ".join(str(c.value) for c in row if c.value)
+            for row in ws.iter_rows(min_row=5)
+        )
+        assert "LiveRisk" in all_text
+        assert "DraftRisk" not in all_text
+
     def test_includes_linked_requirements(self):
         user = UserFactory(is_superuser=True)
-        risk = RiskFactory()
+        risk = RiskFactory(is_approved=True)
         framework = FrameworkFactory()
         req1 = RequirementFactory(framework=framework, requirement_number="A.5.1")
         req2 = RequirementFactory(framework=framework, requirement_number="A.5.2")
@@ -118,8 +134,8 @@ class TestRiskRegisterExportView:
         assessment_in.scopes.add(scope_in)
         assessment_out = RiskAssessmentFactory()
         assessment_out.scopes.add(scope_out)
-        risk_in = RiskFactory(assessment=assessment_in, name="Inside")
-        risk_out = RiskFactory(assessment=assessment_out, name="Outside")
+        risk_in = RiskFactory(assessment=assessment_in, name="Inside", is_approved=True)
+        risk_out = RiskFactory(assessment=assessment_out, name="Outside", is_approved=True)
 
         from accounts.models import Group, Permission
         group = Group.objects.create(name="Test scope group")
@@ -158,8 +174,8 @@ class TestRiskRegisterExportView:
         user = UserFactory(is_superuser=True, is_staff=True)
         client = Client()
         client.force_login(user)
-        RiskFactory(name="StatusA", status="analyzed")
-        RiskFactory(name="StatusB", status="closed")
+        RiskFactory(name="StatusA", status="analyzed", is_approved=True)
+        RiskFactory(name="StatusB", status="closed", is_approved=True)
         resp = client.get(
             reverse("risks:risk-register-export-xlsx") + "?status=closed",
         )
