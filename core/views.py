@@ -1000,15 +1000,6 @@ class StyleGuideView(LoginRequiredMixin, TemplateView):
         ]
         ctx["stepper_cancelled"] = Step(value="cancelled", label=_("Cancelled"), state="future")
 
-        class _DemoObject:
-            is_approved = False
-
-        ctx["pending_obj"] = _DemoObject()
-        approved = _DemoObject()
-        approved.is_approved = True
-        approved.approved_by = self.request.user
-        approved.approved_at = timezone.now()
-        ctx["approved_obj"] = approved
         ctx["bulk_actions"] = [
             {"label": _("Export"), "url": "#", "variant": "secondary", "icon": "download"},
             {"label": _("Approve"), "url": "#", "variant": "success", "icon": "check-lg"},

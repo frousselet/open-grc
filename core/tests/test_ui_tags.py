@@ -213,50 +213,6 @@ class TestKpiCardTag:
 # ───────────────────────── approval_banner ─────────────────────────────
 
 
-class TestApprovalBannerTag:
-    class _Obj:
-        is_approved = False
-        approved_by = None
-        approved_at = None
-
-    def test_pending_renders_button_when_can_approve(self):
-        obj = self._Obj()
-        out = render(
-            '{% approval_banner obj can_approve=True approve_url="/approve/" %}',
-            {"obj": obj},
-        )
-        assert "Pending approval" in out
-        assert 'action="/approve/"' in out
-        assert "Approve" in out
-
-    def test_pending_no_button_without_can_approve(self):
-        obj = self._Obj()
-        out = render(
-            '{% approval_banner obj %}',
-            {"obj": obj},
-        )
-        assert "Pending approval" in out
-        assert 'action=' not in out
-
-    def test_approved_shows_approver(self):
-        obj = self._Obj()
-        obj.is_approved = True
-        user = UserFactory(email="alice@example.org")
-        obj.approved_by = user
-        from django.utils import timezone
-
-        obj.approved_at = timezone.now()
-        out = render(
-            '{% approval_banner obj %}',
-            {"obj": obj},
-        )
-        assert "Approved" in out
-        assert user.display_name in out
-
-
-# ───────────────────────── filter_chip ─────────────────────────────────
-
-
 class TestFilterChipTag:
     def test_inactive_when_param_missing(self):
         factory = RequestFactory()
@@ -456,4 +412,3 @@ class TestStyleGuideView:
         assert b"filter-chip" in resp.content
         assert b"stepper__pill" in resp.content
         assert b"bulk-actions-bar" in resp.content
-        assert b"approval-badge" in resp.content

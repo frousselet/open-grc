@@ -12,7 +12,6 @@
   <a href="{% url 'risks:acceptance-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
 {% endpage_header %}
 {% help_modal "risks.acceptance_detail" %}
-{% include "includes/approval_badge.html" with object=acceptance %}
 {% include "includes/workflow_stepper.html" %}
 
 {# ══════════════════════════════════════════════════════════ #}

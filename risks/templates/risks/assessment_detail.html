@@ -32,7 +32,6 @@
   <a href="{% url 'risks:assessment-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
 {% endpage_header %}
 {% help_modal "risks.assessment_detail" %}
-{% include "includes/approval_badge.html" with object=assessment %}
 {% include "includes/workflow_stepper.html" %}
 
 {# ══════════════════════════════════════════════════════════ #}
