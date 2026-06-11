@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _l
 from django.views import View
 from django.views.generic import (
     CreateView,
@@ -36,15 +37,20 @@ from .forms import (
     ImpactFormSet,
     ISO27005RiskForm,
     LikelihoodFormSet,
-    RiskAcceptanceForm,
-    RiskAssessmentForm,
+    RiskAcceptanceCreateForm,
+    RiskAcceptanceUpdateForm,
+    RiskAssessmentCreateForm,
+    RiskAssessmentUpdateForm,
     RiskCriteriaForm,
     RiskForm,
     RiskLevelFormSet,
     RiskTreatmentPlanForm,
-    ThreatForm,
-    TreatmentActionForm,
-    VulnerabilityForm,
+    ThreatCreateForm,
+    ThreatUpdateForm,
+    TreatmentActionCreateForm,
+    TreatmentActionUpdateForm,
+    VulnerabilityCreateForm,
+    VulnerabilityUpdateForm,
 )
 from context.models import Scope
 from .models import (
@@ -475,10 +481,12 @@ class RiskAssessmentDetailView(LoginRequiredMixin, PermissionRequiredMixin, Scop
 
 class RiskAssessmentCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = RiskAssessment
-    form_class = RiskAssessmentForm
+    form_class = RiskAssessmentCreateForm
     template_name = "risks/assessment_form.html"
     modal_template_name = "risks/assessment_form_modal.html"
     permission_required = "risks.assessment.create"
+    modal_title_create = _l("New risk assessment")
+    modal_title_update = _l("Edit risk assessment")
     success_url = reverse_lazy("risks:assessment-list")
 
     def get_form_kwargs(self):
@@ -489,10 +497,12 @@ class RiskAssessmentCreateView(LoginRequiredMixin, PermissionRequiredMixin, Htmx
 
 class RiskAssessmentUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ApprovableUpdateMixin, ScopeFilterMixin, UpdateView):
     model = RiskAssessment
-    form_class = RiskAssessmentForm
+    form_class = RiskAssessmentUpdateForm
     template_name = "risks/assessment_form.html"
     modal_template_name = "risks/assessment_form_modal.html"
     permission_required = "risks.assessment.update"
+    modal_title_create = _l("New risk assessment")
+    modal_title_update = _l("Edit risk assessment")
     success_url = reverse_lazy("risks:assessment-list")
 
     def get_form_kwargs(self):
@@ -1106,10 +1116,12 @@ class TreatmentPlanDeleteView(LoginRequiredMixin, PermissionRequiredMixin, Scope
 
 class TreatmentActionCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = TreatmentAction
-    form_class = TreatmentActionForm
+    form_class = TreatmentActionCreateForm
     template_name = "risks/treatment_action_form.html"
     modal_template_name = "risks/treatment_action_form_modal.html"
     permission_required = "risks.treatment.update"
+    modal_title_create = _l("New treatment action")
+    modal_title_update = _l("Edit treatment action")
 
     def get_initial(self):
         initial = super().get_initial()
@@ -1129,10 +1141,12 @@ class TreatmentActionCreateView(LoginRequiredMixin, PermissionRequiredMixin, Htm
 
 class TreatmentActionUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, UpdateView):
     model = TreatmentAction
-    form_class = TreatmentActionForm
+    form_class = TreatmentActionUpdateForm
     template_name = "risks/treatment_action_form.html"
     modal_template_name = "risks/treatment_action_form_modal.html"
     permission_required = "risks.treatment.update"
+    modal_title_create = _l("New treatment action")
+    modal_title_update = _l("Edit treatment action")
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -1223,20 +1237,24 @@ class RiskAcceptanceDetailView(LoginRequiredMixin, PermissionRequiredMixin, Scop
 
 class RiskAcceptanceCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = RiskAcceptance
-    form_class = RiskAcceptanceForm
+    form_class = RiskAcceptanceCreateForm
     template_name = "risks/acceptance_form.html"
     modal_template_name = "risks/acceptance_form_modal.html"
     permission_required = "risks.acceptance.create"
+    modal_title_create = _l("New risk acceptance")
+    modal_title_update = _l("Edit risk acceptance")
     success_url = reverse_lazy("risks:acceptance-list")
 
 
 class RiskAcceptanceUpdateView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin, HtmxFormMixin, ApprovableUpdateMixin, UpdateView):
     scope_parent_lookup = "risk__assessment__scopes"
     model = RiskAcceptance
-    form_class = RiskAcceptanceForm
+    form_class = RiskAcceptanceUpdateForm
     template_name = "risks/acceptance_form.html"
     modal_template_name = "risks/acceptance_form_modal.html"
     permission_required = "risks.acceptance.update"
+    modal_title_create = _l("New risk acceptance")
+    modal_title_update = _l("Edit risk acceptance")
     success_url = reverse_lazy("risks:acceptance-list")
 
 
@@ -1299,10 +1317,12 @@ class ThreatDetailView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterM
 
 class ThreatCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Threat
-    form_class = ThreatForm
+    form_class = ThreatCreateForm
     template_name = "risks/threat_form.html"
     modal_template_name = "risks/threat_form_modal.html"
     permission_required = "risks.threat.create"
+    modal_title_create = _l("New threat")
+    modal_title_update = _l("Edit threat")
     success_url = reverse_lazy("risks:threat-list")
 
     def get_form_kwargs(self):
@@ -1313,10 +1333,12 @@ class ThreatCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixi
 
 class ThreatUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ScopeFilterMixin, ApprovableUpdateMixin, UpdateView):
     model = Threat
-    form_class = ThreatForm
+    form_class = ThreatUpdateForm
     template_name = "risks/threat_form.html"
     modal_template_name = "risks/threat_form_modal.html"
     permission_required = "risks.threat.update"
+    modal_title_create = _l("New threat")
+    modal_title_update = _l("Edit threat")
     success_url = reverse_lazy("risks:threat-list")
 
     def get_form_kwargs(self):
@@ -1381,10 +1403,12 @@ class VulnerabilityDetailView(LoginRequiredMixin, PermissionRequiredMixin, Scope
 
 class VulnerabilityCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, CreatedByMixin, CreateView):
     model = Vulnerability
-    form_class = VulnerabilityForm
+    form_class = VulnerabilityCreateForm
     template_name = "risks/vulnerability_form.html"
     modal_template_name = "risks/vulnerability_form_modal.html"
     permission_required = "risks.vulnerability.create"
+    modal_title_create = _l("New vulnerability")
+    modal_title_update = _l("Edit vulnerability")
     success_url = reverse_lazy("risks:vulnerability-list")
 
     def get_form_kwargs(self):
@@ -1395,10 +1419,12 @@ class VulnerabilityCreateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxF
 
 class VulnerabilityUpdateView(LoginRequiredMixin, PermissionRequiredMixin, HtmxFormMixin, ScopeFilterMixin, ApprovableUpdateMixin, UpdateView):
     model = Vulnerability
-    form_class = VulnerabilityForm
+    form_class = VulnerabilityUpdateForm
     template_name = "risks/vulnerability_form.html"
     modal_template_name = "risks/vulnerability_form_modal.html"
     permission_required = "risks.vulnerability.update"
+    modal_title_create = _l("New vulnerability")
+    modal_title_update = _l("Edit vulnerability")
     success_url = reverse_lazy("risks:vulnerability-list")
 
     def get_form_kwargs(self):
