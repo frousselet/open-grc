@@ -186,6 +186,10 @@ class BaseModel(ReferenceGeneratorMixin):
             self.approved_at = timezone.now()
         if save:
             self.save()
+            if Effect.NOTIFY_OWNER in transition.effects:
+                from accounts.notifications import notify_lifecycle_submitted
+
+                notify_lifecycle_submitted(self, actor=user)
         return transition
 
     def _sync_lifecycle_with_approval(self, save_kwargs):

@@ -213,6 +213,23 @@ REST_FRAMEWORK = {
     ],
 }
 
+# Email (notifications)
+# Defaults to the console backend in DEBUG so no SMTP setup is needed in dev.
+EMAIL_BACKEND = os.environ.get(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.console.EmailBackend"
+    if DEBUG
+    else "django.core.mail.backends.smtp.EmailBackend",
+)
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "localhost")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "25"))
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False").lower() in ("true", "1", "yes")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "cairn@localhost")
+# Absolute URL prefix used in notification emails (e.g. https://grc.example.com).
+SITE_URL = os.environ.get("SITE_URL", "")
+
 # Simple JWT
 # WebAuthn / Passkeys
 # When not set, RPID and origin are derived from the request automatically.

@@ -47,6 +47,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=ThemePreference.SYSTEM,
         help_text=_("Light, Dark, or System (follows the OS preference)."),
     )
+    email_notifications = models.BooleanField(
+        _("Email notifications"),
+        default=True,
+        help_text=_("Also receive in-app notifications by email."),
+    )
     is_active = models.BooleanField(_("Active"), default=True)
     is_staff = models.BooleanField(_("Django admin access"), default=False)
 
