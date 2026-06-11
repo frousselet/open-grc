@@ -149,6 +149,16 @@ class TestWorkflowAssignment:
 
 
 @pytest.mark.django_db
+def test_reportable_and_linkable_queryset_helpers():
+    from core.workflow import linkable, reportable
+
+    ScopeFactory()  # draft
+    ScopeFactory(is_approved=True)  # validated
+    assert reportable(Scope.objects.all()).count() == 1
+    assert linkable(Scope.objects.all()).count() == 1
+
+
+@pytest.mark.django_db
 class TestDeletionGuard:
     def test_draft_object_can_be_deleted(self):
         scope = ScopeFactory()  # draft, deletable

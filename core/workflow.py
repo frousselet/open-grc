@@ -402,6 +402,16 @@ def deletable_states(model_or_label) -> frozenset:
     return resolve_workflow(model_or_label).deletable_state_codes
 
 
+def reportable(queryset):
+    """Restrict a queryset to elements whose state counts in reports / KPIs / calendar."""
+    return queryset.filter(workflow_state__in=reportable_states(queryset.model))
+
+
+def linkable(queryset):
+    """Restrict a queryset to elements that may currently be linked."""
+    return queryset.filter(workflow_state__in=linkable_states(queryset.model))
+
+
 # --- Default workflow -------------------------------------------------------
 #
 # The 4-state lifecycle applied to every model that is not assigned a specific
