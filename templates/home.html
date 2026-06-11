@@ -76,42 +76,7 @@
 
 {% block content %}
 {% page_header _("Dashboard") eyebrow=_("Today") subtitle=_("Compliance, risks and operational signals at a glance.") accent="dashboard" %}
-  <span id="ws-status" style="display:none" title="{% trans 'Real-time connection' %}">
-    <span class="ws-dot-wrapper" id="ws-dot">
-      <span class="ws-dot-core"></span>
-      <span class="ws-dot-ping"></span>
-    </span>
-  </span>
 {% endpage_header %}
-<style>
-  .ws-dot-wrapper {
-    position: relative;
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-  }
-  .ws-dot-core {
-    position: absolute;
-    inset: 2px;
-    border-radius: 50%;
-    background: currentColor;
-    z-index: 1;
-  }
-  .ws-dot-ping {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    border: 1.5px solid currentColor;
-    opacity: 0;
-  }
-  .ws-connected .ws-dot-ping {
-    animation: ws-sonar 2s ease-out infinite;
-  }
-  @keyframes ws-sonar {
-    0%   { transform: scale(1); opacity: .7; }
-    100% { transform: scale(2.4); opacity: 0; }
-  }
-</style>
 {% help_modal "home" %}
 
 {# ── Today's actions ────────────────────────────────────── #}
@@ -1050,40 +1015,10 @@ window.initSparklines = function(root) {
 {# ── WebSocket real-time dashboard ───────────────────── #}
 <script>
 (function() {
-  {% trans "Connected" as t_connected %}
-  {% trans "Reconnecting..." as t_reconnecting %}
-
-  var TXT_CONNECTED = '{{ t_connected|escapejs }}';
-  var TXT_RECONNECTING = '{{ t_reconnecting|escapejs }}';
-
-  var wsStatus = document.getElementById('ws-status');
   var ws = null;
   var retryDelay = 1000;
   var maxRetryDelay = 30000;
   var retryTimer = null;
-
-  function setStatus(connected) {
-    // Guard both wsStatus and dot: the dashboard's WebSocket connection
-    // stays alive across HTMX boost navigations, but the status indicator
-    // UI is page-local. Once the user navigates away, ws.onclose still
-    // fires (during reconnects, network blips, etc.) and tries to update
-    // a status element that no longer exists in the DOM. Without the dot
-    // guard, ws.onclose throws `Cannot read properties of null (reading
-    // 'style')` and pollutes the console (issue #67).
-    if (!wsStatus) return;
-    wsStatus.style.display = '';
-    var dot = document.getElementById('ws-dot');
-    if (!dot) return;
-    if (connected) {
-      wsStatus.title = TXT_CONNECTED;
-      dot.style.color = 'var(--bs-success)';
-      dot.classList.add('ws-connected');
-    } else {
-      wsStatus.title = TXT_RECONNECTING;
-      dot.style.color = 'var(--bs-warning)';
-      dot.classList.remove('ws-connected');
-    }
-  }
 
   /**
    * Format a number with locale-aware thousand separators,
@@ -1256,7 +1191,6 @@ window.initSparklines = function(root) {
 
     ws.onopen = function() {
       retryDelay = 1000;
-      setStatus(true);
     };
 
     ws.onmessage = function(e) {
@@ -1269,7 +1203,6 @@ window.initSparklines = function(root) {
     };
 
     ws.onclose = function() {
-      setStatus(false);
       scheduleReconnect();
     };
 

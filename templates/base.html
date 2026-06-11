@@ -294,13 +294,31 @@
       width: var(--sidebar-w);
       background: var(--bg-page);
       border: 0;
-      border-right: 1px solid var(--border-subtle);
       border-radius: 0;
       overflow: hidden;
       z-index: 1040;
       display: flex;
       flex-direction: column;
       transition: width .35s var(--ease-out-expo), transform .3s var(--ease-out-expo);
+    }
+    /* Soft demarcation: a hairline on the right edge fading out
+     * toward the top and the bottom of the window */
+    .sidebar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      width: 1px;
+      /* Above the brand veil and the sticky glass cards, so the line
+       * never gets covered and stays continuous */
+      z-index: 10;
+      background: linear-gradient(to bottom,
+        transparent,
+        var(--border-subtle) 18%,
+        var(--border-subtle) 82%,
+        transparent);
+      pointer-events: none;
     }
     /* Invisible scrollbar: the menu scrolls but shows no persistent bar */
     .sidebar,
@@ -311,12 +329,31 @@
     .sidebar::-webkit-scrollbar,
     .sidebar-body::-webkit-scrollbar { display: none; width: 0; }
 
+    /* No border under the brand: a gradient veil hangs below it
+     * (page background fading to transparent) so scrolling entries
+     * melt away progressively from the logo level instead of being
+     * cut by a hard line. */
     .sidebar-brand {
+      position: relative;
+      z-index: 4;
       padding: 1.25rem 1.25rem 1.125rem;
-      border-bottom: 1px solid var(--border-light);
       display: flex;
       align-items: center;
       justify-content: space-between;
+    }
+    .sidebar-brand::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      height: 3rem;
+      background: linear-gradient(to bottom,
+        var(--bg-page) 0%,
+        color-mix(in srgb, var(--bg-page) 72%, transparent) 30%,
+        color-mix(in srgb, var(--bg-page) 30%, transparent) 65%,
+        transparent 100%);
+      pointer-events: none;
     }
     .sidebar-brand a {
       font-weight: 700;
@@ -448,8 +485,10 @@
     .sidebar-body .collapse {
       position: relative;
     }
-    /* Vertical guide line for sub-menus (not the user menu in the footer) */
-    .sidebar-body .collapse:not(#sidebarUserMenu)::before {
+    /* Vertical guide line for nav sub-menus only: direct children of the
+     * body, so the collapses inside the user card (user menu,
+     * notifications) never inherit it */
+    .sidebar-body > .collapse::before {
       content: '';
       position: absolute;
       left: 1.875rem;
@@ -531,7 +570,24 @@
       text-align: left;
       white-space: nowrap;
       overflow: hidden;
+      position: relative;
       transition: background-color var(--transition-fast);
+    }
+    /* Unread dot shown on the avatar when the sidebar is collapsed
+     * (the bell and its badge are hidden in that mode) */
+    .sidebar-user-avatar-dot {
+      display: none;
+      position: absolute;
+      top: .25rem;
+      right: .3125rem;
+      width: .5625rem;
+      height: .5625rem;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 2px var(--bg-page);
+    }
+    .sidebar-collapsed .sidebar-user-avatar-dot:not(.d-none) {
+      display: block;
     }
     .sidebar-user:hover {
       background: var(--sidebar-glass-hover);
@@ -574,10 +630,54 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .sidebar-user-dots {
-      color: var(--text-muted);
-      font-size: .875rem;
+    .sidebar-user-row {
+      display: flex;
+      align-items: center;
+      gap: .125rem;
+    }
+    .sidebar-user-row .sidebar-user {
+      flex: 1 1 auto;
+      min-width: 0;
+      width: auto;
+    }
+    .sidebar-notif-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.125rem;
+      height: 2.125rem;
       flex-shrink: 0;
+      background: none;
+      border: none;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: .9375rem;
+      cursor: pointer;
+      position: relative;
+      transition: background-color var(--transition-fast), color var(--transition-fast);
+    }
+    .sidebar-notif-btn:hover {
+      background: var(--sidebar-glass-hover);
+      color: var(--text-secondary);
+    }
+    .sidebar-notif-panel {
+      margin-bottom: .25rem;
+    }
+    .sidebar-notif-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .5rem;
+      padding: .5rem .625rem .375rem;
+    }
+    .sidebar-notif-title {
+      font-size: .8125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .sidebar-notif-panel .notif-list {
+      max-height: min(40vh, 18rem);
+      border-radius: var(--radius-sm);
     }
     #sidebarUserMenu {
       margin-bottom: .25rem;
@@ -705,9 +805,10 @@
       top: .25rem;
       bottom: .25rem;
     }
-    /* Hide sub-links in collapsed (the user menu in the footer stays usable) */
-    .sidebar-collapsed .sidebar-body .collapse:not(#sidebarUserMenu),
-    .sidebar-collapsed .sidebar-body .collapsing:not(#sidebarUserMenu) {
+    /* Hide nav sub-links in collapsed (direct children only: the
+     * collapses inside the user card stay usable) */
+    .sidebar-collapsed .sidebar-body > .collapse,
+    .sidebar-collapsed .sidebar-body > .collapsing {
       display: none !important;
     }
     /* Collapse buttons: icon-only, centered */
@@ -782,8 +883,12 @@
       gap: 0;
     }
     .sidebar-collapsed .sidebar-user-info,
-    .sidebar-collapsed .sidebar-user-dots {
+    .sidebar-collapsed .sidebar-notif-btn,
+    .sidebar-collapsed .sidebar-notif-panel {
       display: none;
+    }
+    .sidebar-collapsed .sidebar-user-row {
+      justify-content: center;
     }
     /* Tooltip on hover for collapsed items */
     .sidebar-collapsed .sidebar-link:hover .sidebar-tooltip {
@@ -2169,108 +2274,15 @@
       border-radius: var(--radius-xs);
     }
 
-    /* ── User header bubble ────────────────────────────── */
     /*
      * z-index discipline (low to high):
      *   100   page-sticky bulk-actions-bar
-     *   900   user-header-bubble (sits above content but below modals)
      *   1020  sticky sub-headers
      *   1040  Bootstrap modals
      *   1080  toast stack (always wins for transient feedback)
      *  10000  impersonation banner (security signal)
      */
-    .user-header-bubble {
-      position: fixed;
-      top: .875rem;
-      right: 1.25rem;
-      z-index: 900;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-    }
-    .user-header-bubble .btn-bubble {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.25rem;
-      height: 2.25rem;
-      border-radius: 50%;
-      border: 1px solid var(--border-light);
-      background: var(--surface-raised);
-      box-shadow: var(--shadow-sm);
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: box-shadow .15s var(--ease-out-expo), border-color .15s ease;
-      padding: 0;
-      font-size: .9375rem;
-    }
-    .user-header-bubble .btn-bubble:hover {
-      box-shadow: var(--shadow-md);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    .user-header-dropdown {
-      position: absolute;
-      top: calc(100% + .5rem);
-      right: 0;
-      min-width: 220px;
-      background: var(--surface-raised);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-lg);
-      padding: .5rem 0;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-4px);
-      transition: opacity .2s var(--ease-out-expo), transform .2s var(--ease-out-expo), visibility .2s;
-    }
-    .user-header-dropdown.show {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-    .user-header-dropdown .dropdown-header {
-      padding: .625rem 1rem;
-      border-bottom: 1px solid var(--border-light);
-      margin-bottom: .25rem;
-    }
-    .user-header-dropdown .dropdown-header .user-name {
-      font-size: .8125rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    .user-header-dropdown .dropdown-header .user-email {
-      font-size: .75rem;
-      color: var(--text-muted);
-      margin-top: .125rem;
-    }
-    .user-header-dropdown .dropdown-item {
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      padding: .5rem 1rem;
-      font-size: .8125rem;
-      color: var(--text-secondary);
-      text-decoration: none;
-      transition: background .15s ease, color .15s ease;
-      cursor: pointer;
-      border: none;
-      background: none;
-      width: 100%;
-    }
-    .user-header-dropdown .dropdown-item:hover {
-      background: var(--surface-subtle);
-      color: var(--text-primary);
-    }
-    .user-header-dropdown .dropdown-item i { font-size: .9375rem; width: 1.125rem; text-align: center; }
-    .user-header-dropdown .dropdown-divider {
-      height: 0;
-      border-top: 1px solid var(--border-light);
-      margin: .25rem 0;
-    }
-
     /* ── Notifications bell ───────────────────────────── */
-    .user-header-bubble #notifToggleBtn { position: relative; }
     .notif-badge {
       position: absolute;
       top: -.125rem;
@@ -2285,13 +2297,6 @@
       font-weight: 600;
       line-height: 1rem;
       text-align: center;
-    }
-    .notif-dropdown { width: 21rem; max-width: calc(100vw - 2rem); }
-    .notif-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: .5rem;
     }
     .notif-mark-all {
       border: 0;
@@ -2331,11 +2336,6 @@
       color: var(--text-secondary);
       text-align: center;
     }
-    @media (max-width: 991.98px) {
-      .user-header-bubble { top: .75rem; right: .75rem; }
-      .user-header-bubble .btn-bubble { width: 2rem; height: 2rem; font-size: .75rem; }
-    }
-
     /* ── Modals — theme-aware ─────────────────────────── */
     .modal-content {
       background: var(--surface-raised);
@@ -2353,6 +2353,16 @@
     .about-modal-content .about-logo svg { width: 4rem; height: 4rem; border-radius: var(--radius-sm); }
     .about-modal-content .about-version { font-size: .8125rem; color: var(--text-muted); margin-top: .25rem; }
     .about-modal-content .about-license { font-size: .75rem; color: var(--text-muted); margin-top: 1rem; padding-top: .75rem; border-top: 1px solid var(--border-light); }
+    .about-modal-content .about-github-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .375rem;
+      font-size: .8125rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+    }
+    .about-modal-content .about-github-link:hover { color: var(--accent); }
 
     /* ── Mobile ────────────────────────────────────────── */
     .sidebar-backdrop {
@@ -3502,12 +3512,10 @@
     :root { --imp-h: 38px; }
     .sidebar { top: calc(var(--sidebar-inset) + var(--imp-h)) !important; }
     .sidebar-collapse-toggle { top: calc(var(--sidebar-inset) + 3.625rem + var(--imp-h)) !important; }
-    .user-header-bubble { top: calc(.875rem + var(--imp-h)) !important; }
     .main-content { padding-top: calc(2.5rem + var(--imp-h)) !important; }
     @media (max-width: 991.98px) {
       .sidebar { top: var(--imp-h) !important; }
       .mobile-menu-toggle { top: calc(.75rem + var(--imp-h)) !important; }
-      .user-header-bubble { top: calc(.75rem + var(--imp-h)) !important; }
       .main-content { padding-top: calc(4.5rem + var(--imp-h)) !important; }
     }
   </style>
@@ -3761,6 +3769,10 @@
               <i class="bi bi-person"></i> <span class="sidebar-link-text">{% trans "Profile" %}</span>
               <span class="sidebar-tooltip">{% trans "Profile" %}</span>
             </a>
+            <button type="button" class="sidebar-link" data-bs-toggle="modal" data-bs-target="#aboutModal">
+              <i class="bi bi-info-circle"></i> <span class="sidebar-link-text">{% trans "About" %}</span>
+              <span class="sidebar-tooltip">{% trans "About" %}</span>
+            </button>
             <form method="post" action="{% url 'accounts:logout' %}" class="m-0" hx-boost="false">
               {% csrf_token %}
               <button type="submit" class="sidebar-link sidebar-link--danger">
@@ -3769,20 +3781,35 @@
               </button>
             </form>
           </div>
-          <button class="sidebar-user" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarUserMenu" aria-expanded="false" aria-label="{% trans 'User menu' %}">
-            <span class="sidebar-user-avatar">
-              {% if user.avatar %}
-              <img src="{{ user.avatar_64|default:user.avatar }}" alt="">
-              {% else %}
-              {{ user.display_name|initials }}
-              {% endif %}
-            </span>
-            <span class="sidebar-user-info">
-              <span class="sidebar-user-name">{{ user.display_name }}</span>
-              <span class="sidebar-user-email">{{ user.email }}</span>
-            </span>
-            <i class="bi bi-three-dots sidebar-user-dots" aria-hidden="true"></i>
-          </button>
+          <div class="sidebar-notif-panel collapse" id="notifDropdown" aria-label="{% trans 'Notifications' %}">
+            <div class="sidebar-notif-head">
+              <span class="sidebar-notif-title">{% trans "Notifications" %}</span>
+              <button type="button" class="notif-mark-all" id="notifMarkAllBtn">{% trans "Mark all as read" %}</button>
+            </div>
+            <div class="notif-list" id="notifList">
+              <div class="notif-empty">{% trans "No notifications" %}</div>
+            </div>
+          </div>
+          <div class="sidebar-user-row">
+            <button class="sidebar-user" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarUserMenu" aria-expanded="false" aria-label="{% trans 'User menu' %}">
+              <span class="sidebar-user-avatar">
+                {% if user.avatar %}
+                <img src="{{ user.avatar_64|default:user.avatar }}" alt="">
+                {% else %}
+                {{ user.display_name|initials }}
+                {% endif %}
+              </span>
+              <span class="sidebar-user-info">
+                <span class="sidebar-user-name">{{ user.display_name }}</span>
+                <span class="sidebar-user-email">{{ user.email }}</span>
+              </span>
+              <span class="sidebar-user-avatar-dot d-none" id="sidebarAvatarDot" aria-hidden="true"></span>
+            </button>
+            <button class="sidebar-notif-btn" type="button" id="notifToggleBtn" title="{% trans 'Notifications' %}" aria-label="{% trans 'Notifications' %}">
+              <i class="bi bi-bell"></i>
+              <span class="notif-badge d-none" id="notifBadge" aria-hidden="true"></span>
+            </button>
+          </div>
         </div>
       </div>
       {% endif %}
@@ -3803,30 +3830,7 @@
     </div>
   </button>
 
-  {# ── User header bubble (top-right) ─────────────────── #}
   {% if user.is_authenticated %}
-  <div class="user-header-bubble" id="userHeaderBubble">
-    <button class="btn-bubble" type="button" title="{% trans 'Search' %} (Ctrl+K)" id="searchToggleBtn" aria-label="{% trans 'Search' %}">
-      <i class="bi bi-search"></i>
-    </button>
-    <button class="btn-bubble" type="button" title="{% trans 'About' %}" data-bs-toggle="modal" data-bs-target="#aboutModal">
-      <i class="bi bi-info-circle"></i>
-    </button>
-    <button class="btn-bubble" type="button" title="{% trans 'Notifications' %}" id="notifToggleBtn" aria-label="{% trans 'Notifications' %}">
-      <i class="bi bi-bell"></i>
-      <span class="notif-badge d-none" id="notifBadge" aria-hidden="true"></span>
-    </button>
-    <div class="user-header-dropdown notif-dropdown" id="notifDropdown" aria-label="{% trans 'Notifications' %}">
-      <div class="dropdown-header notif-header">
-        <span class="user-name">{% trans "Notifications" %}</span>
-        <button type="button" class="notif-mark-all" id="notifMarkAllBtn">{% trans "Mark all as read" %}</button>
-      </div>
-      <div class="notif-list" id="notifList">
-        <div class="notif-empty">{% trans "No notifications" %}</div>
-      </div>
-    </div>
-  </div>
-
   {# ── About modal ──────────────────────────────────────── #}
   <div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
@@ -3840,6 +3844,11 @@
           <h5 id="aboutModalLabel" class="mb-1">Cairn</h5>
           <div class="about-version">
             {% if APP_VERSION %}{% trans "Version" %} {{ APP_VERSION }}{% else %}{% trans "Version" %} dev{% endif %}
+          </div>
+          <div class="mt-2">
+            <a href="https://github.com/frousselet/cairn" target="_blank" rel="noopener" class="about-github-link">
+              <i class="bi bi-github" aria-hidden="true"></i> GitHub
+            </a>
           </div>
           <div class="about-license">
             {% trans "MIT License" %}<br>
@@ -4311,18 +4320,43 @@
       var collapsed = document.documentElement.classList.toggle('sidebar-collapsed');
       try { localStorage.setItem('sidebar-collapsed', collapsed ? '1' : ''); } catch(e) {}
     }
-    /* ── Sidebar user menu: close after clicking an item ── */
+    /* ── Sidebar user menu: close after clicking an item,
+       and keep it mutually exclusive with the notifications panel ── */
     (function() {
       var menu = document.getElementById('sidebarUserMenu');
       if (!menu) return;
-      menu.addEventListener('click', function(e) {
-        if (!e.target.closest('.sidebar-link')) return;
+      function hideMenu() {
         if (window.bootstrap && bootstrap.Collapse) {
           bootstrap.Collapse.getOrCreateInstance(menu, { toggle: false }).hide();
         } else {
           menu.classList.remove('show');
         }
+      }
+      menu.addEventListener('click', function(e) {
+        if (e.target.closest('.sidebar-link')) hideMenu();
       });
+      var notifBtn = document.getElementById('notifToggleBtn');
+      if (notifBtn) notifBtn.addEventListener('click', hideMenu);
+      document.addEventListener('click', function(e) {
+        if (!menu.classList.contains('show')) return;
+        if (e.target.closest('.sidebar-user-card')) return;
+        hideMenu();
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && menu.classList.contains('show')) hideMenu();
+      });
+      var userBtn = document.querySelector('.sidebar-user');
+      var notifPanel = document.getElementById('notifDropdown');
+      if (userBtn && notifPanel) {
+        userBtn.addEventListener('click', function() {
+          if (!notifPanel.classList.contains('show')) return;
+          if (window.bootstrap && bootstrap.Collapse) {
+            bootstrap.Collapse.getOrCreateInstance(notifPanel, { toggle: false }).hide();
+          } else {
+            notifPanel.classList.remove('show');
+          }
+        });
+      }
     })();
     /* ── Sidebar flyout for collapsed sub-menus ─────── */
     (function() {
@@ -4533,6 +4567,7 @@
       var payload = (json && json.data !== undefined) ? json.data : json;
       return payload || {};
     }
+    var avatarDot = document.getElementById('sidebarAvatarDot');
     function setBadge(count) {
       if (count > 0) {
         badge.textContent = count > 99 ? '99+' : String(count);
@@ -4540,6 +4575,7 @@
       } else {
         badge.classList.add('d-none');
       }
+      if (avatarDot) avatarDot.classList.toggle('d-none', !(count > 0));
     }
     function refreshCount() {
       fetch('/api/v1/notifications/unread_count/', {credentials: 'same-origin'})
@@ -4591,18 +4627,29 @@
         .catch(function() {});
     }
 
+    function panelVisible() {
+      return dropdown.classList.contains('show') || dropdown.classList.contains('collapsing');
+    }
+    function setPanel(show) {
+      if (window.bootstrap && bootstrap.Collapse) {
+        bootstrap.Collapse.getOrCreateInstance(dropdown, { toggle: false })[show ? 'show' : 'hide']();
+      } else {
+        dropdown.classList.toggle('show', show);
+      }
+    }
     toggle.addEventListener('click', function(e) {
       e.stopPropagation();
-      dropdown.classList.toggle('show');
-      if (dropdown.classList.contains('show')) refreshList();
+      var willShow = !panelVisible();
+      setPanel(willShow);
+      if (willShow) refreshList();
     });
     document.addEventListener('click', function(e) {
       if (!dropdown.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) {
-        dropdown.classList.remove('show');
+        if (dropdown.classList.contains('show')) setPanel(false);
       }
     });
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') dropdown.classList.remove('show');
+      if (e.key === 'Escape' && dropdown.classList.contains('show')) setPanel(false);
     });
     if (markAllBtn) {
       markAllBtn.addEventListener('click', function() {
@@ -5051,7 +5098,7 @@
       input.setAttribute('aria-activedescendant', '');
     }
 
-    toggleBtn.addEventListener('click', openSearch);
+    if (toggleBtn) toggleBtn.addEventListener('click', openSearch);
 
     var sidebarSearchBtn = document.getElementById('sidebarSearchBtn');
     if (sidebarSearchBtn) sidebarSearchBtn.addEventListener('click', openSearch);
