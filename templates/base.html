@@ -2305,6 +2305,9 @@
     #itemDrawer .modal-dialog {
       max-width: min(42rem, 96vw);
     }
+    #itemDrawer .modal-dialog.mform-sm { max-width: min(28rem, 96vw); }
+    #itemDrawer .modal-dialog.mform-md { max-width: min(36rem, 96vw); }
+    #itemDrawer .modal-dialog.mform-lg { max-width: min(48rem, 96vw); }
     #itemDrawer .modal-content {
       max-height: calc(100dvh - 3rem);
       background: var(--surface);
@@ -4839,12 +4842,32 @@
 
     /* After HTMX loads content into the modal, show it and push a
      * matching history entry so Back closes it. */
+    function applyModalSize() {
+      var form = document.querySelector('#drawer-form-content form');
+      var dialog = drawerEl.querySelector('.modal-dialog');
+      if (!dialog) return;
+      dialog.classList.remove('mform-sm', 'mform-md', 'mform-lg');
+      var size = form && form.getAttribute('data-modal-size');
+      if (size) dialog.classList.add('mform-' + size);
+    }
+
+    function announceFormErrors() {
+      var form = document.querySelector('#drawer-form-content form');
+      var live = document.getElementById('hx-live');
+      if (!form || !live) return;
+      var count = form.querySelectorAll('.invalid-feedback.d-block').length;
+      var tpl = form.getAttribute('data-mform-error-tpl') || '';
+      if (count && tpl) live.textContent = tpl.replace('{n}', count);
+    }
+
     document.body.addEventListener('htmx:afterSettle', function(evt) {
       if (evt.detail.target && evt.detail.target.id === 'drawer-form-content') {
         if (!drawerEl.classList.contains('show')) {
           pushDrawerEntry();
         }
         getDrawer().show();
+        applyModalSize();
+        announceFormErrors();
       }
     });
 

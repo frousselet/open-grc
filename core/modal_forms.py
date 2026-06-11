@@ -88,6 +88,11 @@ class SteppedFormMixin:
 
     steps = []
 
+    #: A step should stay short enough to fit one viewport without scrolling.
+    #: Each layout row (a full-width field or one column row) counts as one;
+    #: exceeding this raises, forcing the step to be split.
+    max_rows_per_step = 7
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.steps:
@@ -113,6 +118,12 @@ class SteppedFormMixin:
                         f"than one step."
                     )
                 seen.append(name)
+            if len(step.fields) > self.max_rows_per_step:
+                raise ImproperlyConfigured(
+                    f"{type(self).__name__}: step '{step.title}' has "
+                    f"{len(step.fields)} layout rows (max {self.max_rows_per_step}); "
+                    f"split it so the step fits one viewport without scrolling."
+                )
         uncovered = [n for n in self._visible_field_names() if n not in seen]
         if uncovered:
             raise ImproperlyConfigured(
@@ -129,6 +140,18 @@ class SteppedFormMixin:
     @property
     def is_multistep(self):
         return len(self.steps) > 1
+
+    @property
+    def modal_size(self):
+        """Bootstrap-ish modal width hint consumed by the shell / JS.
+
+        Single-step forms stay compact (``md``); multi-step wizards get a
+        wider dialog (``lg``). Non-stepped forms return ``""`` (the default
+        width).
+        """
+        if not self.steps:
+            return ""
+        return "lg" if self.is_multistep else "md"
 
     @property
     def required_field_count(self):

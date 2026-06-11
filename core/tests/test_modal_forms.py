@@ -123,3 +123,22 @@ def test_row_validation_flattens_names():
 
     with pytest.raises(ImproperlyConfigured, match="unknown field 'nope'"):
         BadRowForm()
+
+
+def test_modal_size():
+    assert MultiStepForm().modal_size == "lg"
+    assert SingleStepForm().modal_size == "md"
+    assert PlainForm().modal_size == ""
+
+
+def test_too_many_rows_raises():
+    class FatForm(SteppedFormMixin, forms.Form):
+        max_rows_per_step = 3
+        a = forms.CharField()
+        b = forms.CharField()
+        c = forms.CharField()
+        d = forms.CharField()
+        steps = [Step("S", "x", ["a", "b", "c", "d"])]
+
+    with pytest.raises(ImproperlyConfigured, match="4 layout rows"):
+        FatForm()

@@ -9557,3 +9557,6 @@ msgstr "Impact sur la disponibilité (0-4)."
 
 msgid "Controls already in place."
 msgstr "Mesures déjà en place."
+
+msgid "{n} fields need attention"
+msgstr "{n} champs nécessitent votre attention"
