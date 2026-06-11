@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **CI actions upgraded to Node 24 runtimes**: GitHub deprecates Node 20 action runtimes (forced to Node 24 on June 16, 2026; removed from runners on September 16, 2026). The workflows move to the latest majors, all running on Node 24: `actions/checkout` v4 -> v6, `actions/setup-python` v5 -> v6, `docker/setup-buildx-action` v3 -> v4, `docker/login-action` v3 -> v4, `docker/metadata-action` v5 -> v6, `docker/build-push-action` v6 -> v7.
+
 ## [0.26.1] - 2026-06-11
 
 ### Changed
