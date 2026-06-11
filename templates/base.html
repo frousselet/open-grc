@@ -100,10 +100,11 @@
       --sidebar-w: 264px;
       --sidebar-collapsed-w: 4.25rem;
       --sidebar-inset: .4375rem;
-      /* Recessed sidebar: a zone carved into the page (darker than the
-       * page background, inner shadow) instead of a raised card. */
-      --sidebar-recess-bg: var(--color-neutral-150);
-      --sidebar-recess-shadow: inset 0 1px 3px rgba(0,0,0,.05), inset 0 0 1px rgba(0,0,0,.04);
+      /* Recessed sidebar: the menu sits at page-background level inside
+       * a shallow well - the depth comes only from the inner shadow on
+       * the edges, not from a darker fill. */
+      --sidebar-recess-bg: var(--bg-page);
+      --sidebar-recess-shadow: inset 0 1px 4px rgba(0,0,0,.06), inset 0 0 2px rgba(0,0,0,.03);
       --radius-xs: .375rem;
       --radius-sm: .5rem;
       --radius-md: .625rem;
@@ -216,8 +217,7 @@
       --shadow-xl: 0 20px 48px rgba(0,0,0,.4);
       --shadow-glow: 0 0 0 1px rgba(129,140,248,.1), 0 4px 16px rgba(129,140,248,.06);
       --text-sidebar-sub: var(--color-charcoal-400);
-      --sidebar-recess-bg: #0A0B0C;
-      --sidebar-recess-shadow: inset 0 1px 3px rgba(0,0,0,.45), inset 0 0 1px rgba(0,0,0,.3);
+      --sidebar-recess-shadow: inset 0 1px 4px rgba(0,0,0,.5), inset 0 0 2px rgba(0,0,0,.35);
       /* Module accents (dark mode) - all aliased to the single brand colour. */
       --module-accent-risks:        var(--accent);
       --module-accent-risks-soft:   var(--accent-soft);
@@ -374,7 +374,7 @@
       overflow: hidden;
     }
     .sidebar-link:hover {
-      background: var(--surface-muted);
+      background: var(--surface);
       color: var(--text-primary);
     }
     .sidebar-link.active {
