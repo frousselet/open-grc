@@ -9305,3 +9305,126 @@ msgstr "Coût estimé."
 
 msgid "Organizational scopes this plan applies to."
 msgstr "Périmètres organisationnels concernés par le plan."
+
+msgid "Criteria & planning"
+msgstr "Critères et planification"
+
+msgid "Validity"
+msgstr "Validité"
+
+msgid "Acceptance"
+msgstr "Acceptation"
+
+msgid "Edit risk assessment"
+msgstr "Modifier l'évaluation des risques"
+
+msgid "Edit threat"
+msgstr "Modifier la menace"
+
+msgid "Edit vulnerability"
+msgstr "Modifier la vulnérabilité"
+
+msgid "Edit risk acceptance"
+msgstr "Modifier l'acceptation du risque"
+
+msgid "Name of the risk assessment."
+msgstr "Nom de l'évaluation des risques."
+
+msgid "Risk methodology used."
+msgstr "Méthodologie de risque utilisée."
+
+msgid "Risk criteria scale to apply."
+msgstr "Échelle de critères de risque à appliquer."
+
+msgid "Date the assessment is conducted."
+msgstr "Date de réalisation de l'évaluation."
+
+msgid "Next date this assessment should be reviewed."
+msgstr "Prochaine date de revue de l'évaluation."
+
+msgid "Executive summary of the results."
+msgstr "Synthèse des résultats."
+
+msgid "Name of the threat."
+msgstr "Nom de la menace."
+
+msgid "Kind of threat."
+msgstr "Type de menace."
+
+msgid "Origin of the threat."
+msgstr "Origine de la menace."
+
+msgid "Category of the threat."
+msgstr "Catégorie de la menace."
+
+msgid "Typical likelihood of occurrence."
+msgstr "Vraisemblance typique d'occurrence."
+
+msgid "What the threat is."
+msgstr "Ce qu'est la menace."
+
+msgid "Tick if taken from a catalog."
+msgstr "Cochez si issu d'un catalogue."
+
+msgid "Lifecycle state of the threat."
+msgstr "État du cycle de vie de la menace."
+
+msgid "Organizational scopes this threat applies to."
+msgstr "Périmètres organisationnels concernés par la menace."
+
+msgid "Name of the vulnerability."
+msgstr "Nom de la vulnérabilité."
+
+msgid "Category of the vulnerability."
+msgstr "Catégorie de la vulnérabilité."
+
+msgid "Severity level."
+msgstr "Niveau de gravité."
+
+msgid "What the vulnerability is."
+msgstr "Ce qu'est la vulnérabilité."
+
+msgid "How to remediate it."
+msgstr "Comment y remédier."
+
+msgid "Assets affected by this vulnerability."
+msgstr "Biens affectés par cette vulnérabilité."
+
+msgid "Lifecycle state of the vulnerability."
+msgstr "État du cycle de vie de la vulnérabilité."
+
+msgid "Organizational scopes this vulnerability applies to."
+msgstr "Périmètres organisationnels concernés par la vulnérabilité."
+
+msgid "Risk being accepted."
+msgstr "Risque accepté."
+
+msgid "Why the risk is accepted."
+msgstr "Pourquoi le risque est accepté."
+
+msgid "Conditions attached to the acceptance."
+msgstr "Conditions liées à l'acceptation."
+
+msgid "Date until which the acceptance is valid."
+msgstr "Date jusqu'à laquelle l'acceptation est valable."
+
+msgid "Next date to review the acceptance."
+msgstr "Prochaine date de revue de l'acceptation."
+
+msgid "Treatment plan this action belongs to."
+msgstr "Plan de traitement auquel appartient l'action."
+
+msgid "What the action consists of."
+msgstr "En quoi consiste l'action."
+
+msgid "Person responsible for the action."
+msgstr "Personne responsable de l'action."
+
+msgid "Target completion date."
+msgstr "Date d'achèvement cible."
+
+msgid "Lifecycle state of the action."
+msgstr "État du cycle de vie de l'action."
+
+msgid "Display order within the plan."
+msgstr "Ordre d'affichage dans le plan."

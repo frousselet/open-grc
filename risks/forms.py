@@ -1,7 +1,9 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from context.models import Scope
 from context.widgets import ScopeTreeWidget
+from core.modal_forms import Step, SteppedFormMixin
 from .constants import DEFAULT_IMPACT_SCALES, DEFAULT_LIKELIHOOD_SCALES
 from .models import (
     ISO27005Risk,
@@ -114,7 +116,15 @@ class RiskCriteriaForm(ScopedFormMixin, forms.ModelForm):
         }
 
 
-class RiskAssessmentForm(ScopedFormMixin, forms.ModelForm):
+class RiskAssessmentBaseForm(SteppedFormMixin, ScopedFormMixin, forms.ModelForm):
+    steps = [
+        Step(_("Identity"), "clipboard-data",
+             ["name", ["methodology", "assessor"], "description"]),
+        Step(_("Criteria & planning"), "sliders",
+             ["risk_criteria", ["assessment_date", "next_review_date"], "summary"]),
+        Step(_("Scope & status"), "diagram-3", ["status", "scopes", "tags"]),
+    ]
+
     class Meta:
         model = RiskAssessment
         fields = [
@@ -135,6 +145,27 @@ class RiskAssessmentForm(ScopedFormMixin, forms.ModelForm):
             "summary": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+        help_texts = {
+            "name": _("Name of the risk assessment."),
+            "methodology": _("Risk methodology used."),
+            "assessor": _("Person leading the assessment."),
+            "description": _("Scope and purpose of the assessment."),
+            "risk_criteria": _("Risk criteria scale to apply."),
+            "assessment_date": _("Date the assessment is conducted."),
+            "next_review_date": _("Next date this assessment should be reviewed."),
+            "summary": _("Executive summary of the results."),
+            "status": _("Lifecycle state of the assessment."),
+            "scopes": _("Organizational scopes this assessment applies to."),
+            "tags": _("Free-form labels for filtering and grouping."),
+        }
+
+
+class RiskAssessmentCreateForm(RiskAssessmentBaseForm):
+    """Risk assessment creation modal form."""
+
+
+class RiskAssessmentUpdateForm(RiskAssessmentBaseForm):
+    """Risk assessment edition modal form."""
 
 
 class RiskForm(forms.ModelForm):
@@ -266,7 +297,14 @@ class RiskTreatmentPlanForm(forms.ModelForm):
         )
 
 
-class RiskAcceptanceForm(forms.ModelForm):
+class RiskAcceptanceBaseForm(SteppedFormMixin, forms.ModelForm):
+    steps = [
+        Step(_("Acceptance"), "check2-circle",
+             ["risk", "justification", "conditions"]),
+        Step(_("Validity"), "calendar-check",
+             [["valid_until", "review_date"], "tags"]),
+    ]
+
     class Meta:
         model = RiskAcceptance
         fields = [
@@ -280,9 +318,32 @@ class RiskAcceptanceForm(forms.ModelForm):
             "review_date": forms.DateInput(attrs={**FORM_WIDGET_ATTRS, "type": "date"}, format="%Y-%m-%d"),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+        help_texts = {
+            "risk": _("Risk being accepted."),
+            "justification": _("Why the risk is accepted."),
+            "conditions": _("Conditions attached to the acceptance."),
+            "valid_until": _("Date until which the acceptance is valid."),
+            "review_date": _("Next date to review the acceptance."),
+            "tags": _("Free-form labels for filtering and grouping."),
+        }
 
 
-class ThreatForm(ScopedFormMixin, forms.ModelForm):
+class RiskAcceptanceCreateForm(RiskAcceptanceBaseForm):
+    """Risk acceptance creation modal form."""
+
+
+class RiskAcceptanceUpdateForm(RiskAcceptanceBaseForm):
+    """Risk acceptance edition modal form."""
+
+
+class ThreatBaseForm(SteppedFormMixin, ScopedFormMixin, forms.ModelForm):
+    steps = [
+        Step(_("Identity"), "lightning",
+             ["name", ["type", "origin"], ["category", "typical_likelihood"], "description"]),
+        Step(_("Scope & status"), "diagram-3",
+             ["is_from_catalog", "status", "scopes", "tags"]),
+    ]
+
     class Meta:
         model = Threat
         fields = [
@@ -301,9 +362,36 @@ class ThreatForm(ScopedFormMixin, forms.ModelForm):
             "status": forms.Select(attrs=SELECT_ATTRS),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+        help_texts = {
+            "name": _("Name of the threat."),
+            "type": _("Kind of threat."),
+            "origin": _("Origin of the threat."),
+            "category": _("Category of the threat."),
+            "typical_likelihood": _("Typical likelihood of occurrence."),
+            "description": _("What the threat is."),
+            "is_from_catalog": _("Tick if taken from a catalog."),
+            "status": _("Lifecycle state of the threat."),
+            "scopes": _("Organizational scopes this threat applies to."),
+            "tags": _("Free-form labels for filtering and grouping."),
+        }
 
 
-class VulnerabilityForm(ScopedFormMixin, forms.ModelForm):
+class ThreatCreateForm(ThreatBaseForm):
+    """Threat creation modal form."""
+
+
+class ThreatUpdateForm(ThreatBaseForm):
+    """Threat edition modal form."""
+
+
+class VulnerabilityBaseForm(SteppedFormMixin, ScopedFormMixin, forms.ModelForm):
+    steps = [
+        Step(_("Identity"), "bug",
+             ["name", ["category", "severity"], "description", "remediation_guidance"]),
+        Step(_("Scope & status"), "diagram-3",
+             ["affected_assets", "is_from_catalog", "status", "scopes", "tags"]),
+    ]
+
     class Meta:
         model = Vulnerability
         fields = [
@@ -323,6 +411,26 @@ class VulnerabilityForm(ScopedFormMixin, forms.ModelForm):
             "status": forms.Select(attrs=SELECT_ATTRS),
             "tags": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 4}),
         }
+        help_texts = {
+            "name": _("Name of the vulnerability."),
+            "category": _("Category of the vulnerability."),
+            "severity": _("Severity level."),
+            "description": _("What the vulnerability is."),
+            "remediation_guidance": _("How to remediate it."),
+            "affected_assets": _("Assets affected by this vulnerability."),
+            "is_from_catalog": _("Tick if taken from a catalog."),
+            "status": _("Lifecycle state of the vulnerability."),
+            "scopes": _("Organizational scopes this vulnerability applies to."),
+            "tags": _("Free-form labels for filtering and grouping."),
+        }
+
+
+class VulnerabilityCreateForm(VulnerabilityBaseForm):
+    """Vulnerability creation modal form."""
+
+
+class VulnerabilityUpdateForm(VulnerabilityBaseForm):
+    """Vulnerability edition modal form."""
 
 
 # ── Matrix configuration formsets ────────────────────────────
@@ -406,7 +514,13 @@ class ISO27005RiskForm(forms.ModelForm):
         )
 
 
-class TreatmentActionForm(forms.ModelForm):
+class TreatmentActionBaseForm(SteppedFormMixin, forms.ModelForm):
+    steps = [
+        Step(_("Action"), "list-task",
+             ["treatment_plan", "description", ["owner", "target_date"],
+              ["status", "order"]]),
+    ]
+
     class Meta:
         model = TreatmentAction
         fields = [
@@ -420,3 +534,19 @@ class TreatmentActionForm(forms.ModelForm):
             "status": forms.Select(attrs=SELECT_ATTRS),
             "order": forms.NumberInput(attrs=FORM_WIDGET_ATTRS),
         }
+        help_texts = {
+            "treatment_plan": _("Treatment plan this action belongs to."),
+            "description": _("What the action consists of."),
+            "owner": _("Person responsible for the action."),
+            "target_date": _("Target completion date."),
+            "status": _("Lifecycle state of the action."),
+            "order": _("Display order within the plan."),
+        }
+
+
+class TreatmentActionCreateForm(TreatmentActionBaseForm):
+    """Treatment action creation modal form."""
+
+
+class TreatmentActionUpdateForm(TreatmentActionBaseForm):
+    """Treatment action edition modal form."""
