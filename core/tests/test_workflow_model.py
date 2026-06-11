@@ -6,12 +6,14 @@ Exercised through a concrete model (context.Scope, on the default workflow).
 import pytest
 
 from accounts.tests.factories import UserFactory
+from context.models import Scope
 from context.tests.factories import ScopeFactory
 from core.models import VersioningConfig
 from core.workflow import (
     DEFAULT_WORKFLOW,
     WORKFLOW_REGISTRY,
     IllegalTransitionError,
+    LifecycleProtectedError,
     State,
     Transition,
     Workflow,
@@ -144,3 +146,25 @@ class TestWorkflowAssignment:
     def test_assigned_workflow_is_resolved(self):
         VersioningConfig.objects.create(model_name="context.scope", workflow_name=_ASSIGN_WF)
         assert ScopeFactory().get_workflow().name == _ASSIGN_WF
+
+
+@pytest.mark.django_db
+class TestDeletionGuard:
+    def test_draft_object_can_be_deleted(self):
+        scope = ScopeFactory()  # draft, deletable
+        pk = scope.pk
+        scope.delete()
+        assert not Scope.objects.filter(pk=pk).exists()
+
+    def test_validated_object_cannot_be_deleted(self):
+        scope = ScopeFactory(is_approved=True)  # validated, not deletable
+        with pytest.raises(LifecycleProtectedError):
+            scope.delete()
+        assert Scope.objects.filter(pk=scope.pk).exists()
+
+    def test_pending_object_cannot_be_deleted(self):
+        scope = ScopeFactory()
+        scope.transition_to("pending")
+        with pytest.raises(LifecycleProtectedError):
+            scope.delete()
+        assert Scope.objects.filter(pk=scope.pk).exists()

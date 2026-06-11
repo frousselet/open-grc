@@ -218,6 +218,23 @@ class BaseModel(ReferenceGeneratorMixin):
         self._sync_lifecycle_with_approval(kwargs)
         super().save(*args, **kwargs)
 
+    def delete(self, *args, **kwargs):
+        """Block direct deletion unless the current lifecycle state allows it.
+
+        Single source of truth for RG-LC-05 (only a deletable state may be
+        deleted), covering the UI, the API and the MCP server. Cascade and bulk
+        deletes bypass ``Model.delete()`` by design, so this guards only the
+        user-initiated deletion of a single element.
+        """
+        if not self.is_deletable:
+            from core.workflow import LifecycleProtectedError
+
+            raise LifecycleProtectedError(
+                f"{self._meta.verbose_name} cannot be deleted in its current "
+                f"lifecycle state ('{self.workflow_state}')."
+            )
+        return super().delete(*args, **kwargs)
+
     class Meta:
         abstract = True
         ordering = ["-created_at"]

@@ -116,6 +116,10 @@ class CommentRequiredError(WorkflowError):
     """The transition requires a comment but none was provided."""
 
 
+class LifecycleProtectedError(Exception):
+    """Raised when deleting an element whose current state is not deletable."""
+
+
 # --- Workflow ---------------------------------------------------------------
 
 
