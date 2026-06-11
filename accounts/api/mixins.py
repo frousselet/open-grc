@@ -137,8 +137,18 @@ class ApprovableAPIMixin:
         except PermissionDeniedError as e:
             logger.warning("Permission denied during workflow transition validation: %s", e)
             raise PermissionDenied("You do not have permission to perform this transition.")
-        except WorkflowError as e:
-            return Response({"detail": str(e)}, status=http_status.HTTP_400_BAD_REQUEST)
+        except WorkflowError:
+            logger.warning(
+                "Workflow transition validation failed (user_id=%s, current=%s, target=%s)",
+                getattr(request.user, "id", None),
+                current,
+                target,
+                exc_info=True,
+            )
+            return Response(
+                {"detail": "Invalid workflow transition request."},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
         obj.transition_to(target, request.user, comment=comment)
         serializer = self.get_serializer(obj)
         return Response(serializer.data)
