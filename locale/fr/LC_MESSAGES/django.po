@@ -2289,6 +2289,42 @@ msgstr "Repasser en brouillon"
 msgid "Lifecycle state"
 msgstr "État du cycle de vie"
 
+msgid "Recipient"
+msgstr "Destinataire"
+
+msgid "Actor"
+msgstr "Acteur"
+
+msgid "Message"
+msgstr "Message"
+
+msgid "Target URL"
+msgstr "URL de la cible"
+
+msgid "Read at"
+msgstr "Lu le"
+
+msgid "Notification"
+msgstr "Notification"
+
+msgid "Element pending validation"
+msgstr "Élément en attente de validation"
+
+msgid "Email notifications"
+msgstr "Notifications par email"
+
+msgid "Also receive in-app notifications by email."
+msgstr "Recevoir également les notifications par email."
+
+msgid "%(label)s \"%(name)s\" is pending validation"
+msgstr "%(label)s « %(name)s » est en attente de validation"
+
+msgid "%(actor)s submitted %(label)s \"%(name)s\" for validation."
+msgstr "%(actor)s a soumis %(label)s « %(name)s » pour validation."
+
+msgid "%(label)s \"%(name)s\" was submitted for validation."
+msgstr "%(label)s « %(name)s » a été soumis pour validation."
+
 msgid "Current state of the element in its lifecycle workflow."
 msgstr "État actuel de l'élément dans son workflow de cycle de vie."
 

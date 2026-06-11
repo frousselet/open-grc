@@ -46,6 +46,10 @@ class FailureReason(models.TextChoices):
     USER_NOT_FOUND = "user_not_found", _("User not found")
 
 
+class NotificationType(models.TextChoices):
+    LIFECYCLE_SUBMITTED = "lifecycle_submitted", _("Element pending validation")
+
+
 # Lockout settings
 MAX_FAILED_ATTEMPTS = 5
 LOCKOUT_DURATION_MINUTES = 15
