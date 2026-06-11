@@ -309,21 +309,6 @@ def kpi_card(*, icon, value, label, variant="accent", trend=None, trend_label=No
     }
 
 
-@register.inclusion_tag("components/approval_banner.html")
-def approval_banner(obj, *, can_approve=False, approve_url=None):
-    """Render the approval state banner for an audit-grade object.
-
-    ``obj`` must expose ``is_approved`` and (when approved)
-    ``approved_by`` / ``approved_at``. Set ``can_approve=True`` and
-    pass ``approve_url`` to render the one-click approve button.
-    """
-    return {
-        "object": obj,
-        "can_approve": can_approve,
-        "approve_url": approve_url,
-    }
-
-
 @register.inclusion_tag("components/filter_chip.html", takes_context=True)
 def filter_chip(context, *, label, param, value, count=None, icon=None, variant="accent"):
     """Render a single filter chip that toggles a query parameter.

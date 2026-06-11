@@ -298,7 +298,10 @@ class TestRiskAssessmentApproveView:
         assessment = RiskAssessmentFactory()
         resp = client.get(reverse("risks:assessment-detail", args=[assessment.pk]))
         assert resp.status_code == 200
-        assert reverse("risks:assessment-approve", args=[assessment.pk]).encode() in resp.content
+        # The legacy approval bar is retired: validation goes through the
+        # lifecycle stepper (the approve endpoint stays for API compat).
+        assert reverse("risks:assessment-approve", args=[assessment.pk]).encode() not in resp.content
+        assert b"workflow-stepper-" in resp.content
 
 
 # ── Risk Views ──────────────────────────────────────────────
@@ -543,7 +546,10 @@ class TestRiskApproveView:
         risk = RiskFactory()
         resp = client.get(reverse("risks:risk-detail", args=[risk.pk]))
         assert resp.status_code == 200
-        assert reverse("risks:risk-approve", args=[risk.pk]).encode() in resp.content
+        # The legacy approval bar is retired: validation goes through the
+        # lifecycle stepper (the approve endpoint stays for API compat).
+        assert reverse("risks:risk-approve", args=[risk.pk]).encode() not in resp.content
+        assert b"workflow-stepper-" in resp.content
 
 
 # ── Treatment Plan Views ────────────────────────────────────
@@ -838,7 +844,10 @@ class TestTreatmentPlanApproveView:
         )
         resp = client.get(reverse("risks:treatment-plan-detail", args=[plan.pk]))
         assert resp.status_code == 200
-        assert reverse("risks:treatment-plan-approve", args=[plan.pk]).encode() in resp.content
+        # The legacy approval bar is retired: validation goes through the
+        # lifecycle stepper (the approve endpoint stays for API compat).
+        assert reverse("risks:treatment-plan-approve", args=[plan.pk]).encode() not in resp.content
+        assert b"workflow-stepper-" in resp.content
 
 
 # ── Risk Acceptance Views ───────────────────────────────────
@@ -949,7 +958,10 @@ class TestRiskAcceptanceApproveView:
         acceptance = RiskAcceptance.objects.create(risk=risk, justification="J")
         resp = client.get(reverse("risks:acceptance-detail", args=[acceptance.pk]))
         assert resp.status_code == 200
-        assert reverse("risks:acceptance-approve", args=[acceptance.pk]).encode() in resp.content
+        # The legacy approval bar is retired: validation goes through the
+        # lifecycle stepper (the approve endpoint stays for API compat).
+        assert reverse("risks:acceptance-approve", args=[acceptance.pk]).encode() not in resp.content
+        assert b"workflow-stepper-" in resp.content
 
     def test_update_resets_approval(self):
         client, user = _superuser_client()
@@ -1154,7 +1166,10 @@ class TestThreatApproveView:
         threat = Threat.objects.create(name="Phish2", type=ThreatType.DELIBERATE)
         resp = client.get(reverse("risks:threat-detail", args=[threat.pk]))
         assert resp.status_code == 200
-        assert reverse("risks:threat-approve", args=[threat.pk]).encode() in resp.content
+        # The legacy approval bar is retired: validation goes through the
+        # lifecycle stepper (the approve endpoint stays for API compat).
+        assert reverse("risks:threat-approve", args=[threat.pk]).encode() not in resp.content
+        assert b"workflow-stepper-" in resp.content
 
     def test_update_resets_approval(self):
         client, user = _superuser_client()
@@ -1188,7 +1203,10 @@ class TestVulnerabilityApproveView:
         vuln = Vulnerability.objects.create(name="VulnApprove2", severity="low")
         resp = client.get(reverse("risks:vulnerability-detail", args=[vuln.pk]))
         assert resp.status_code == 200
-        assert reverse("risks:vulnerability-approve", args=[vuln.pk]).encode() in resp.content
+        # The legacy approval bar is retired: validation goes through the
+        # lifecycle stepper (the approve endpoint stays for API compat).
+        assert reverse("risks:vulnerability-approve", args=[vuln.pk]).encode() not in resp.content
+        assert b"workflow-stepper-" in resp.content
 
 
 class TestISO27005RiskApproveView:
@@ -1216,7 +1234,10 @@ class TestISO27005RiskApproveView:
         analysis = self._make_analysis()
         resp = client.get(reverse("risks:iso27005-detail", args=[analysis.pk]))
         assert resp.status_code == 200
-        assert reverse("risks:iso27005-approve", args=[analysis.pk]).encode() in resp.content
+        # The legacy approval bar is retired: validation goes through the
+        # lifecycle stepper (the approve endpoint stays for API compat).
+        assert reverse("risks:iso27005-approve", args=[analysis.pk]).encode() not in resp.content
+        assert b"workflow-stepper-" in resp.content
 
 
 # ── Risk Criteria Views ─────────────────────────────────────

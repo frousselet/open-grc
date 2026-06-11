@@ -10,7 +10,6 @@
   <a href="{% url 'risks:iso27005-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
 {% endpage_header %}
 {% help_modal "risks.iso27005_risk_detail" %}
-{% include "includes/approval_badge.html" with object=analysis %}
 {% include "includes/workflow_stepper.html" %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">

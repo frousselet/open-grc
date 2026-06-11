@@ -10,7 +10,6 @@
   <a href="{% url 'risks:threat-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
 {% endpage_header %}
 {% help_modal "risks.threat_detail" %}
-{% include "includes/approval_badge.html" with object=threat %}
 {% include "includes/workflow_stepper.html" %}
 
 <ul class="nav nav-tabs mb-3" role="tablist">

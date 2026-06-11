@@ -11,7 +11,6 @@
   <a href="{% url 'risks:risk-list' %}" class="btn btn-outline-secondary">{% trans "Back" %}</a>
 {% endpage_header %}
 {% help_modal "risks.risk_detail" %}
-{% include "includes/approval_badge.html" with object=risk %}
 {% include "includes/workflow_stepper.html" %}
 
 {# ══════════════════════════════════════════════════════════ #}
