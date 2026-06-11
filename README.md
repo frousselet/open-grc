@@ -129,8 +129,10 @@ Most domain entities expose a standard set of operations generated automatically
 | Create | `create_{entity}` | Create a new object |
 | Batch Create | `batch_create_{entity}s` | Create up to 500 objects with partial success (non-atomic) |
 | Update | `update_{entity}` | Update an existing object |
-| Delete | `delete_{entity}` | Delete an object |
-| Approve | `approve_{entity}` | Approve an object (where approval workflow applies) |
+| Delete | `delete_{entity}` | Delete an object (only allowed from a deletable lifecycle state) |
+| Transition | `transition_{entity}` | Change the object's lifecycle state (draft / pending / validated / archived), validating permissions, mandatory comments and side effects |
+| Allowed transitions | `{entity}_allowed_transitions` | List the lifecycle transitions the caller may perform from the current state |
+| Approve | `approve_{entity}` | Deprecated alias of `transition_{entity}` with `target_state="validated"` |
 
 ### Context module
 

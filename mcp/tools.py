@@ -412,7 +412,13 @@ def _delete_handler(model_class, scope_filtered=True):
 
 
 def _approve_handler(model_class, scope_filtered=True):
-    """Create a generic approve handler."""
+    """Create a generic approve handler.
+
+    Deprecated alias of the validate transition: kept for backward
+    compatibility, it directly stamps the approval fields and relies on the
+    BaseModel save sync to promote ``workflow_state`` to ``validated``.
+    Terminal-state elements can no longer be approved.
+    """
     def handler(user, arguments):
         pk = arguments.get("id")
         if not pk:
@@ -421,11 +427,110 @@ def _approve_handler(model_class, scope_filtered=True):
             obj = model_class.objects.get(pk=pk)
         except model_class.DoesNotExist:
             return _error(f"{model_class.__name__} not found.")
+        try:
+            if obj.get_lifecycle_state().is_terminal:
+                return _error(
+                    f"Cannot approve {model_class.__name__}: it is in the "
+                    f"terminal '{obj.workflow_state}' lifecycle state."
+                )
+        except Exception:
+            pass
         obj.is_approved = True
         obj.approved_by = user
         obj.approved_at = timezone.now()
         obj.save(update_fields=["is_approved", "approved_by", "approved_at"])
-        return {"approved": True, "id": str(pk)}
+        return {"approved": True, "id": str(pk), "workflow_state": obj.workflow_state}
+    return handler
+
+
+def _transition_handler(model_class, perm_namespace, scope_filtered=True):
+    """Create a generic lifecycle transition handler.
+
+    The required permission depends on the transition being performed (e.g.
+    ``.update`` to submit, ``.approve`` to validate), so it is checked here via
+    the workflow definition rather than at tool registration.
+    """
+    def handler(user, arguments):
+        pk = arguments.get("id")
+        target = arguments.get("target_state")
+        comment = arguments.get("comment") or None
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        if not target:
+            raise InvalidParamsError("target_state is required.")
+        try:
+            obj = model_class.objects.get(pk=pk)
+        except model_class.DoesNotExist:
+            return _error(f"{model_class.__name__} not found.")
+        if scope_filtered:
+            qs = _filter_by_scopes(model_class.objects.filter(pk=pk), user)
+            if not qs.exists():
+                return _error("Access denied: object is outside your allowed scopes.")
+
+        from core.workflow import WorkflowError, validate_transition
+
+        workflow = obj.get_workflow()
+        current = obj.workflow_state or workflow.initial_state.code
+
+        def has_perm(codename):
+            return user.is_superuser or user.has_perm(codename)
+
+        try:
+            validate_transition(
+                workflow, current, target,
+                has_perm=has_perm, perm_namespace=perm_namespace, comment=comment,
+            )
+        except WorkflowError as e:
+            return _error(str(e))
+        obj.transition_to(target, user, comment=comment)
+        return {
+            "id": str(pk),
+            "previous_state": current,
+            "workflow_state": obj.workflow_state,
+        }
+    return handler
+
+
+def _allowed_transitions_handler(model_class, perm_namespace, scope_filtered=True):
+    """Create a handler listing the lifecycle transitions the caller may perform."""
+    def handler(user, arguments):
+        pk = arguments.get("id")
+        if not pk:
+            raise InvalidParamsError("id is required.")
+        try:
+            obj = model_class.objects.get(pk=pk)
+        except model_class.DoesNotExist:
+            return _error(f"{model_class.__name__} not found.")
+        if scope_filtered:
+            qs = _filter_by_scopes(model_class.objects.filter(pk=pk), user)
+            if not qs.exists():
+                return _error("Access denied: object is outside your allowed scopes.")
+
+        from core.workflow import allowed_transitions
+
+        workflow = obj.get_workflow()
+        current = obj.workflow_state or workflow.initial_state.code
+
+        def has_perm(codename):
+            return user.is_superuser or user.has_perm(codename)
+
+        transitions = allowed_transitions(
+            workflow, current, has_perm=has_perm, perm_namespace=perm_namespace,
+        )
+        return {
+            "id": str(pk),
+            "workflow_state": current,
+            "workflow": workflow.name,
+            "allowed_transitions": [
+                {
+                    "target": t.target,
+                    "verb": str(t.verb),
+                    "action": t.action,
+                    "requires_comment": t.requires_comment,
+                }
+                for t in transitions
+            ],
+        }
     return handler
 
 
@@ -6264,16 +6369,58 @@ def _register_crud(server, entity_name, model_class, perm_prefix,
         ),
     )
 
-    # Approve
+    # Approve (deprecated alias) + lifecycle transitions
     if has_approve:
         server.register_tool(
             f"approve_{entity_name}",
-            f"Approve a {display_name}",
+            f"Approve a {display_name}. Deprecated: prefer transition_{entity_name} "
+            f"with target_state='validated', which validates the workflow and "
+            f"runs its side effects.",
             _id_schema(),
             require_perm(f"{perm_prefix}.approve")(
                 _approve_handler(model_class, scope_filtered)
             ),
         )
+
+        transition_tool = f"transition_{entity_name}"
+        if transition_tool not in server._tools:
+            server.register_tool(
+                transition_tool,
+                f"Change the lifecycle state of a {display_name} "
+                f"(e.g. draft -> pending -> validated -> archived). The transition is "
+                f"validated against the entity's workflow: required permission, "
+                f"mandatory comment, and side effects (owner notification on submit, "
+                f"validation stamping).",
+                _obj_schema(
+                    {
+                        "id": {"type": "string", "description": f"UUID of the {display_name}"},
+                        "target_state": {
+                            "type": "string",
+                            "description": "Target lifecycle state code (see <entity>_allowed_transitions).",
+                        },
+                        "comment": {
+                            "type": "string",
+                            "description": "Comment, mandatory for transitions that require one.",
+                        },
+                    },
+                    required=["id", "target_state"],
+                ),
+                require_perm(f"{perm_prefix}.read")(
+                    _transition_handler(model_class, perm_prefix, scope_filtered)
+                ),
+            )
+
+        allowed_tool = f"{entity_name}_allowed_transitions"
+        if allowed_tool not in server._tools:
+            server.register_tool(
+                allowed_tool,
+                f"List the lifecycle transitions the caller may perform on a "
+                f"{display_name} from its current state.",
+                _id_schema(),
+                require_perm(f"{perm_prefix}.read")(
+                    _allowed_transitions_handler(model_class, perm_prefix, scope_filtered)
+                ),
+            )
 
 
 # ── Reports Module ────────────────────────────────────────

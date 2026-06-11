@@ -15,14 +15,18 @@ class ApprovableAPIMixin:
     approval fields are left unchanged.
     """
 
-    def _get_approve_codename(self):
+    def _get_perm_namespace(self):
+        """``module.feature`` permission path of the entity (workflow codenames)."""
         module = getattr(self, "permission_module", None)
         if not module and hasattr(self, "queryset") and self.queryset is not None:
             module = self.queryset.model._meta.app_label
         feature = getattr(self, "permission_feature", None)
         if not feature and hasattr(self, "queryset") and self.queryset is not None:
             feature = self.queryset.model._meta.model_name
-        return f"{module}.{feature}.approve"
+        return f"{module}.{feature}"
+
+    def _get_approve_codename(self):
+        return f"{self._get_perm_namespace()}.approve"
 
     def _is_major_change(self, serializer):
         """Determine if the update includes at least one major field."""
@@ -49,12 +53,101 @@ class ApprovableAPIMixin:
         else:
             serializer.save()
 
+    def _terminal_state_response(self, obj):
+        """A 400 response if the element is in a terminal lifecycle state, else None."""
+        try:
+            if obj.get_lifecycle_state().is_terminal:
+                return Response(
+                    {"detail": (
+                        f"Element is in the terminal '{obj.workflow_state}' "
+                        "lifecycle state."
+                    )},
+                    status=http_status.HTTP_400_BAD_REQUEST,
+                )
+        except Exception:
+            pass
+        return None
+
+    def get_queryset(self):
+        """Support filtering any lifecycle entity list by ``?workflow_state=``."""
+        qs = super().get_queryset()
+        raw = self.request.query_params.get("workflow_state") if self.request else None
+        if raw:
+            try:
+                qs.model._meta.get_field("workflow_state")
+            except Exception:
+                return qs
+            states = [s for s in raw.split(",") if s]
+            if states:
+                qs = qs.filter(workflow_state__in=states)
+        return qs
+
+    @action(detail=True, methods=["get", "post"], url_path="transition")
+    def transition(self, request, **kwargs):
+        """GET: list the caller's allowed lifecycle transitions. POST: perform one."""
+        from core.workflow import (
+            PermissionDeniedError,
+            WorkflowError,
+            allowed_transitions,
+            validate_transition,
+        )
+
+        obj = self.get_object()
+        workflow = obj.get_workflow()
+        current = obj.workflow_state or workflow.initial_state.code
+        namespace = self._get_perm_namespace()
+
+        def has_perm(codename):
+            return request.user.is_superuser or request.user.has_perm(codename)
+
+        if request.method == "GET":
+            transitions = allowed_transitions(
+                workflow, current, has_perm=has_perm, perm_namespace=namespace,
+            )
+            return Response({
+                "workflow": workflow.name,
+                "workflow_state": current,
+                "allowed_transitions": [
+                    {
+                        "target": t.target,
+                        "verb": str(t.verb),
+                        "action": t.action,
+                        "requires_comment": t.requires_comment,
+                    }
+                    for t in transitions
+                ],
+            })
+
+        target = request.data.get("target_state")
+        comment = request.data.get("comment") or None
+        if not target:
+            return Response(
+                {"detail": "target_state is required."},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            validate_transition(
+                workflow, current, target,
+                has_perm=has_perm, perm_namespace=namespace, comment=comment,
+            )
+        except PermissionDeniedError as e:
+            raise PermissionDenied(str(e))
+        except WorkflowError as e:
+            return Response({"detail": str(e)}, status=http_status.HTTP_400_BAD_REQUEST)
+        obj.transition_to(target, request.user, comment=comment)
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data)
+
     @action(detail=True, methods=["post"])
     def approve(self, request, **kwargs):
+        """Deprecated alias of the validate transition (kept for compatibility)."""
         obj = self.get_object()
         codename = self._get_approve_codename()
         if not request.user.is_superuser and not request.user.has_perm(codename):
             raise PermissionDenied("Permission d'approbation requise.")
+        terminal = self._terminal_state_response(obj)
+        if terminal is not None:
+            return terminal
         obj.is_approved = True
         obj.approved_by = request.user
         obj.approved_at = timezone.now()
@@ -68,6 +161,9 @@ class ApprovableAPIMixin:
         codename = self._get_approve_codename()
         if not request.user.is_superuser and not request.user.has_perm(codename):
             raise PermissionDenied("Permission d'approbation requise.")
+        terminal = self._terminal_state_response(obj)
+        if terminal is not None:
+            return terminal
         obj.is_approved = False
         obj.approved_by = None
         obj.approved_at = None
