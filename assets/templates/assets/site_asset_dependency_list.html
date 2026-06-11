@@ -1,13 +1,11 @@
 {% extends "base.html" %}
-{% load i18n ui %}
+{% load i18n ui workflow_tags %}
 {% load help_tags %}
 {% load table_tags %}
-{% load versioning_tags %}
 
 {% block title %}{% trans "Site–asset dependencies" %} — Cairn{% endblock %}
 
 {% block content %}
-{% approval_enabled_for "assets.siteassetdependency" as show_approval %}
 {% page_header _("Site–asset dependencies") eyebrow=_("Assets") accent="assets" %}
   <a href="{% url 'assets:site-asset-dependency-create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New dependency' %}</a>
 {% endpage_header %}
@@ -27,7 +25,7 @@
           {% sortable_th "criticality" "Criticality" %}
           <th>{% trans "SPOF" %}</th>
           <th>{% trans "Redundancy" %}</th>
-          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
+          {% sortable_th "workflow_state" "Status" %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -51,13 +49,7 @@
             {% endif %}
           </td>
           <td>{{ dep.get_redundancy_level_display|default:"—" }}</td>
-          {% if show_approval %}
-          <td>
-            <span class="badge text-bg-{% if dep.is_approved %}success{% else %}warning{% endif %}">
-              {% if dep.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          {% endif %}
+          <td>{% workflow_badge dep %}</td>
           <td class="text-end">
             <a href="{% url 'assets:site-asset-dependency-update' dep.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
             <a href="{% url 'assets:site-asset-dependency-delete' dep.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>

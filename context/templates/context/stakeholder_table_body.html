@@ -1,4 +1,4 @@
-{% load i18n scope_tags ui %}
+{% load i18n scope_tags ui workflow_tags %}
 {% for sh in stakeholders %}
 <tr>
   <td><a href="{% url 'context:stakeholder-detail' sh.pk %}" class="ref" style="text-decoration:none">{{ sh.reference }}</a></td>
@@ -8,19 +8,8 @@
   <td>{{ sh.get_category_display }}</td>
   <td>{{ sh.get_influence_level_display }}</td>
   <td>{{ sh.get_interest_level_display }}</td>
-  <td>
-    <span class="badge text-bg-{% if sh.status == 'active' %}success{% else %}secondary{% endif %}">
-      {{ sh.get_status_display }}
-    </span>
-  </td>
+  <td>{% workflow_badge sh %}</td>
   <td>{% for tag in sh.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-  {% if show_approval %}
-  <td>
-    <span class="badge text-bg-{% if sh.is_approved %}success{% else %}warning{% endif %}">
-      {% if sh.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-    </span>
-  </td>
-  {% endif %}
   <td class="text-end">
     <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
             hx-get="{% url 'context:stakeholder-update' sh.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
@@ -29,5 +18,5 @@
   </td>
 </tr>
 {% empty %}
-{% empty_state title=_("No stakeholder mapped yet.") message=_("Stakeholders are the parties who care about your ISMS (clients, regulators, suppliers). Map who they are and what they expect.") colspan=11 %}
+{% empty_state title=_("No stakeholder mapped yet.") message=_("Stakeholders are the parties who care about your ISMS (clients, regulators, suppliers). Map who they are and what they expect.") colspan=10 %}
 {% endfor %}

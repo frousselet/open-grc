@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n accounts_tags ui %}
+{% load i18n accounts_tags ui workflow_tags %}
 
 {% block title %}{% trans "Management reviews" %} - Cairn{% endblock %}
 
@@ -64,7 +64,7 @@
           <td><a href="{% url 'reports:management-review-detail' review.pk %}">{{ review.title }}</a></td>
           <td class="small text-muted">{{ review.period_start|date:"d/m/Y" }} - {{ review.period_end|date:"d/m/Y" }}</td>
           <td class="small">{{ review.planned_date|date:"d/m/Y" }}</td>
-          <td><span class="badge bg-secondary">{{ review.get_status_display }}</span></td>
+          <td>{% workflow_badge review %}</td>
           <td class="small">{{ review.facilitator }}</td>
           <td class="text-end">{{ review.decisions.count }}</td>
         </tr>

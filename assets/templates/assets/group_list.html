@@ -1,14 +1,12 @@
 {% extends "base.html" %}
-{% load i18n ui %}
+{% load i18n ui workflow_tags %}
 {% load table_tags %}
 
 {% block title %}{% trans "Asset groups" %} — Cairn{% endblock %}
 
 {% load help_tags %}
-{% load versioning_tags %}
 
 {% block content %}
-{% approval_enabled_for "assets.assetgroup" as show_approval %}
 {% page_header _("Asset groups") eyebrow=_("Assets") accent="assets" %}
   <button type="button" class="btn btn-primary" hx-get="{% url 'assets:group-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New group' %}</button>
 {% endpage_header %}
@@ -26,9 +24,8 @@
           {% sortable_th "type" "Type" %}
           <th>{% trans "Members" %}</th>
           <th>{% trans "Owner" %}</th>
-          {% sortable_th "status" "Status" %}
+          {% sortable_th "workflow_state" "Status" %}
           <th>{% trans "Tags" %}</th>
-          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -40,25 +37,14 @@
           <td>{{ group.get_type_display }}</td>
           <td>{{ group.member_count }}</td>
           <td>{{ group.owner|default:"—" }}</td>
-          <td>
-            <span class="badge text-bg-{% if group.status == 'active' %}success{% else %}secondary{% endif %}">
-              {{ group.get_status_display }}
-            </span>
-          </td>
+          <td>{% workflow_badge group %}</td>
           <td>{% for tag in group.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          {% if show_approval %}
-          <td>
-            <span class="badge text-bg-{% if group.is_approved %}success{% else %}warning{% endif %}">
-              {% if group.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          {% endif %}
           <td class="text-end">
             <a hx-get="{% url 'assets:group-update' group.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}
-        {% empty_state title=_("No group created yet.") message=_("Groups bundle related items together so you can apply controls and analyses at the right granularity.") colspan=9 %}
+        {% empty_state title=_("No group created yet.") message=_("Groups bundle related items together so you can apply controls and analyses at the right granularity.") colspan=8 %}
         {% endfor %}
       </tbody>
     </table>

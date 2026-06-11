@@ -1,10 +1,9 @@
 {% extends "base.html" %}
-{% load dic_tags help_tags i18n table_tags versioning_tags ui %}
+{% load dic_tags help_tags i18n table_tags ui workflow_tags %}
 
 {% block title %}{% trans "Essential assets" %} — Cairn{% endblock %}
 
 {% block content %}
-{% approval_enabled_for "assets.essentialasset" as show_approval %}
 {% page_header _("Essential assets") eyebrow=_("Assets") accent="assets" %}
   <button type="button" class="btn btn-primary" hx-get="{% url 'assets:essential-asset-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New essential asset' %}</button>
 {% endpage_header %}
@@ -31,9 +30,8 @@
           <th class="text-center">C</th>
           <th class="text-center">I</th>
           <th class="text-center">A</th>
-          {% sortable_th "status" "Status" %}
+          {% sortable_th "workflow_state" "Status" %}
           <th>{% trans "Tags" %}</th>
-          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -48,25 +46,14 @@
           <td class="text-center">{{ asset.confidentiality_level|dic_badge }}</td>
           <td class="text-center">{{ asset.integrity_level|dic_badge }}</td>
           <td class="text-center">{{ asset.availability_level|dic_badge }}</td>
-          <td>
-            <span class="badge text-bg-{% if asset.status == 'active' %}success{% elif asset.status == 'identified' %}info{% elif asset.status == 'under_review' %}warning{% else %}secondary{% endif %}">
-              {{ asset.get_status_display }}
-            </span>
-          </td>
+          <td>{% workflow_badge asset %}</td>
           <td>{% for tag in asset.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          {% if show_approval %}
-          <td>
-            <span class="badge text-bg-{% if asset.is_approved %}success{% else %}warning{% endif %}">
-              {% if asset.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          {% endif %}
           <td class="text-end">
             <a hx-get="{% url 'assets:essential-asset-update' asset.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}
-        {% empty_state title=_("No essential asset registered yet.") message=_("Essential assets are the information, processes and services whose loss would hurt the business. They sit at the top of every dependency chain.") colspan=12 %}
+        {% empty_state title=_("No essential asset registered yet.") message=_("Essential assets are the information, processes and services whose loss would hurt the business. They sit at the top of every dependency chain.") colspan=11 %}
         {% endfor %}
       </tbody>
     </table>

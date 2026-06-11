@@ -1,14 +1,12 @@
 {% extends "base.html" %}
-{% load i18n ui %}
+{% load i18n ui workflow_tags %}
 {% load table_tags %}
 
 {% block title %}{% trans "Audits & compliance" %} — Cairn{% endblock %}
 
 {% load help_tags %}
-{% load versioning_tags %}
 
 {% block content %}
-{% approval_enabled_for "compliance.complianceassessment" as show_approval %}
 {% page_header _("Audits & compliance") eyebrow=_("Compliance") accent="compliance" %}
   <button type="button" class="btn btn-primary" hx-get="{% url 'compliance:assessment-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New assessment' %}</button>
 {% endpage_header %}
@@ -28,9 +26,8 @@
           <th>{% trans "Assessor" %}</th>
           <th>{% trans "Coverage" %}</th>
           <th>{% trans "Compliance" %}</th>
-          {% sortable_th "status" "Status" %}
+          {% sortable_th "workflow_state" "Status" %}
           <th>{% trans "Tags" %}</th>
-          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -61,25 +58,14 @@
               <small class="fw-semibold" style="font-size:.75rem;min-width:2rem;text-align:right">{{ a.compliance_pct }}%</small>
             </div>
           </td>
-          <td>
-            <span class="badge text-bg-{% if a.status == 'closed' %}success{% elif a.status == 'completed' %}primary{% elif a.status == 'in_progress' %}info{% elif a.status == 'planned' %}warning{% elif a.status == 'cancelled' %}danger{% else %}secondary{% endif %}">
-              {{ a.get_status_display }}
-            </span>
-          </td>
+          <td>{% workflow_badge a %}</td>
           <td>{% for tag in a.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          {% if show_approval %}
-          <td>
-            <span class="badge text-bg-{% if a.is_approved %}success{% else %}warning{% endif %}">
-              {% if a.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          {% endif %}
           <td class="text-end">
             <a hx-get="{% url 'compliance:assessment-update' a.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}
-        {% empty_state title=_("No assessment yet.") message=_("Assessments evaluate your conformance to a framework at a point in time. Open one to score every requirement and gather findings.") colspan=12 %}
+        {% empty_state title=_("No assessment yet.") message=_("Assessments evaluate your conformance to a framework at a point in time. Open one to score every requirement and gather findings.") colspan=11 %}
         {% endfor %}
       </tbody>
     </table>

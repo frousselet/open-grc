@@ -1,14 +1,12 @@
 {% extends "base.html" %}
-{% load i18n ui %}
+{% load i18n ui workflow_tags %}
 {% load table_tags %}
 
 {% block title %}{% trans "Frameworks" %} — Cairn{% endblock %}
 
 {% load help_tags %}
-{% load versioning_tags %}
 
 {% block content %}
-{% approval_enabled_for "compliance.framework" as show_approval %}
 {% page_header _("Frameworks") eyebrow=_("Compliance") accent="compliance" %}
   <button type="button" class="btn btn-primary" hx-get="{% url 'compliance:framework-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New framework' %}</button>
 {% endpage_header %}
@@ -26,9 +24,8 @@
           {% sortable_th "category" "Category" %}
           <th>{% trans "Mandatory" %}</th>
           {% sortable_th "compliance" "Compliance" %}
-          {% sortable_th "status" "Status" %}
+          {% sortable_th "workflow_state" "Status" %}
           <th>{% trans "Tags" %}</th>
-          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -50,25 +47,14 @@
               <div class="progress-bar {% if fw.compliance_level >= 80 %}bg-success{% elif fw.compliance_level >= 50 %}bg-warning{% else %}bg-danger{% endif %}" style="width: {{ fw.compliance_level|floatformat:0 }}%">{{ fw.compliance_level|floatformat:0 }}%</div>
             </div>
           </td>
-          <td>
-            <span class="badge text-bg-{% if fw.status == 'active' %}success{% elif fw.status == 'draft' %}secondary{% elif fw.status == 'under_review' %}info{% else %}dark{% endif %}">
-              {{ fw.get_status_display }}
-            </span>
-          </td>
+          <td>{% workflow_badge fw %}</td>
           <td>{% for tag in fw.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          {% if show_approval %}
-          <td>
-            <span class="badge text-bg-{% if fw.is_approved %}success{% else %}warning{% endif %}">
-              {% if fw.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          {% endif %}
           <td class="text-end">
             <a hx-get="{% url 'compliance:framework-update' fw.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}
-        {% empty_state title=_("No framework loaded yet.") message=_("Frameworks are the regulatory or normative texts you measure against (ISO 27001, NIS 2, GDPR). Import or create one to start mapping requirements.") colspan=10 %}
+        {% empty_state title=_("No framework loaded yet.") message=_("Frameworks are the regulatory or normative texts you measure against (ISO 27001, NIS 2, GDPR). Import or create one to start mapping requirements.") colspan=9 %}
         {% endfor %}
       </tbody>
     </table>

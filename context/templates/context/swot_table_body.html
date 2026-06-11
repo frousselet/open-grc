@@ -1,6 +1,4 @@
 {% load i18n ui workflow_tags %}
-{% load versioning_tags %}
-{% approval_enabled_for "context.swotanalysis" as show_approval %}
 {% for analysis in analyses %}
 <tr>
   <td><a href="{% url 'context:swot-detail' analysis.pk %}" class="ref" style="text-decoration:none">{{ analysis.reference }}</a></td>
@@ -20,13 +18,6 @@
   </td>
   <td>{{ analysis.validated_by|default:"—" }}</td>
   <td>{% for tag in analysis.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-  {% if show_approval %}
-  <td>
-    <span class="badge text-bg-{% if analysis.is_approved %}success{% else %}warning{% endif %}">
-      {% if analysis.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-    </span>
-  </td>
-  {% endif %}
   <td class="text-end">
     <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
             hx-get="{% url 'context:swot-update' analysis.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
@@ -35,5 +26,5 @@
   </td>
 </tr>
 {% empty %}
-{% empty_state title=_("No SWOT analysis yet.") message=_("A SWOT analysis surfaces strengths, weaknesses, opportunities and threats. One per scope or major initiative is the common cadence.") colspan=9 %}
+{% empty_state title=_("No SWOT analysis yet.") message=_("A SWOT analysis surfaces strengths, weaknesses, opportunities and threats. One per scope or major initiative is the common cadence.") colspan=8 %}
 {% endfor %}

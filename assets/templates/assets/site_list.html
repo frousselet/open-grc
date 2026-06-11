@@ -5,10 +5,8 @@
 {% block title %}{% trans "Sites" %} — Cairn{% endblock %}
 
 {% load help_tags %}
-{% load versioning_tags %}
 
 {% block content %}
-{% approval_enabled_for "assets.site" as show_approval %}
 {% page_header _("Sites") eyebrow=_("Assets") accent="assets" %}
   <button type="button" class="btn btn-primary" hx-get="{% url 'assets:site-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New site' %}</button>
 {% endpage_header %}
@@ -26,7 +24,6 @@
           <th>{% trans "Type" %}</th>
           <th>{% trans "Status" %}</th>
           <th>{% trans "Tags" %}</th>
-          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -45,20 +42,13 @@
             {% workflow_badge site %}
           </td>
           <td>{% for tag in site.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          {% if show_approval %}
-          <td>
-            <span class="badge text-bg-{% if site.is_approved %}success{% else %}warning{% endif %}">
-              {% if site.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          {% endif %}
           <td class="text-end">
             <a hx-get="{% url 'assets:site-update' site.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
             <a href="{% url 'assets:site-delete' site.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
           </td>
         </tr>
         {% empty %}
-        {% empty_state title=_("No site declared yet.") message=_("Sites are the physical locations covered by your ISMS - offices, datacenters, factories, anywhere data lives or is processed.") colspan=7 %}
+        {% empty_state title=_("No site declared yet.") message=_("Sites are the physical locations covered by your ISMS - offices, datacenters, factories, anywhere data lives or is processed.") colspan=6 %}
         {% endfor %}
       </tbody>
     </table>

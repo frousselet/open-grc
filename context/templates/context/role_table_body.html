@@ -1,6 +1,4 @@
-{% load i18n ui %}
-{% load versioning_tags %}
-{% approval_enabled_for "context.role" as show_approval %}
+{% load i18n ui workflow_tags %}
 {% for role in roles %}
 <tr{% if role.is_mandatory and role.user_count == 0 %} class="table-danger"{% endif %}>
   <td><a href="{% url 'context:role-detail' role.pk %}" class="ref" style="text-decoration:none">{{ role.reference }}</a></td>
@@ -8,19 +6,8 @@
   <td>{{ role.get_type_display }}</td>
   <td>{{ role.user_count }}</td>
   <td>{% if role.is_mandatory %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</td>
-  <td>
-    <span class="badge text-bg-{% if role.status == 'active' %}success{% else %}secondary{% endif %}">
-      {{ role.get_status_display }}
-    </span>
-  </td>
+  <td>{% workflow_badge role %}</td>
   <td>{% for tag in role.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-  {% if show_approval %}
-  <td>
-    <span class="badge text-bg-{% if role.is_approved %}success{% else %}warning{% endif %}">
-      {% if role.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-    </span>
-  </td>
-  {% endif %}
   <td class="text-end">
     <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
             hx-get="{% url 'context:role-update' role.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
@@ -29,5 +16,5 @@
   </td>
 </tr>
 {% empty %}
-{% empty_state title=_("No role described yet.") message=_("Roles formalise who does what in the ISMS. Map each role to its responsibilities, then assign it to a person.") colspan=9 %}
+{% empty_state title=_("No role described yet.") message=_("Roles formalise who does what in the ISMS. Map each role to its responsibilities, then assign it to a person.") colspan=8 %}
 {% endfor %}

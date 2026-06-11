@@ -1,13 +1,11 @@
 {% extends "base.html" %}
-{% load i18n scope_tags table_tags ui %}
+{% load i18n scope_tags table_tags ui workflow_tags %}
 
 {% block title %}{% trans "Risk assessments" %} — Cairn{% endblock %}
 
 {% load help_tags %}
-{% load versioning_tags %}
 
 {% block content %}
-{% approval_enabled_for "risks.riskassessment" as show_approval %}
 {% page_header _("Risk assessments") eyebrow=_("Risk management") accent="risks" %}
   <button type="button" class="btn btn-primary" hx-get="{% url 'risks:assessment-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New assessment' %}</button>
 {% endpage_header %}
@@ -33,9 +31,8 @@
           <th>{% trans "Scopes" %}</th>
           <th>{% trans "Assessor" %}</th>
           {% sortable_th "date" "Date" %}
-          {% sortable_th "status" "Status" %}
+          {% sortable_th "workflow_state" "Status" %}
           <th>{% trans "Tags" %}</th>
-          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -48,25 +45,14 @@
           <td>{% scope_popover a.scopes.all %}</td>
           <td>{{ a.assessor|default:"—" }}</td>
           <td>{{ a.assessment_date|default:"—" }}</td>
-          <td>
-            <span class="badge text-bg-{% if a.status == 'validated' %}success{% elif a.status == 'in_progress' %}warning{% elif a.status == 'completed' %}info{% else %}secondary{% endif %}">
-              {{ a.get_status_display }}
-            </span>
-          </td>
+          <td>{% workflow_badge a %}</td>
           <td>{% for tag in a.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          {% if show_approval %}
-          <td>
-            <span class="badge text-bg-{% if a.is_approved %}success{% else %}warning{% endif %}">
-              {% if a.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          {% endif %}
           <td class="text-end">
             <a hx-get="{% url 'risks:assessment-update' a.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}
-        {% empty_state title=_("No assessment yet.") message=_("Assessments evaluate your conformance to a framework at a point in time. Open one to score every requirement and gather findings.") colspan=10 %}
+        {% empty_state title=_("No assessment yet.") message=_("Assessments evaluate your conformance to a framework at a point in time. Open one to score every requirement and gather findings.") colspan=9 %}
         {% endfor %}
       </tbody>
     </table>

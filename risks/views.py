@@ -431,7 +431,7 @@ class RiskAssessmentListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeF
         "name": "name",
         "methodology": "methodology",
         "date": "assessment_date",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]
@@ -594,7 +594,7 @@ class RiskCriteriaListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFil
     sortable_fields = {
         "reference": "reference",
         "name": "name",
-        "status": "workflow_state",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]
@@ -750,7 +750,7 @@ class RiskListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin
         "priority": "priority",
         "current_level": "current_risk_level",
         "treatment": "treatment_decision",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]
@@ -1056,7 +1056,7 @@ class TreatmentPlanListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFi
         "type": "treatment_type",
         "target_date": "target_date",
         "progress": "progress_percentage",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name", "risk__reference"]
@@ -1219,7 +1219,7 @@ class RiskAcceptanceListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeF
         "reference": "reference",
         "risk": "risk__reference",
         "valid_until": "valid_until",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "risk__reference", "risk__name"]
@@ -1290,7 +1290,7 @@ class ThreatListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMix
         "name": "name",
         "type": "type",
         "origin": "origin",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]
@@ -1378,7 +1378,7 @@ class VulnerabilityListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFi
         "name": "name",
         "category": "category",
         "severity": "severity",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]

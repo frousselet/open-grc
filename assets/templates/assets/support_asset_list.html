@@ -1,10 +1,9 @@
 {% extends "base.html" %}
-{% load dic_tags help_tags i18n table_tags versioning_tags ui %}
+{% load dic_tags help_tags i18n table_tags ui workflow_tags %}
 
 {% block title %}{% trans "Support assets" %} — Cairn{% endblock %}
 
 {% block content %}
-{% approval_enabled_for "assets.supportasset" as show_approval %}
 {% page_header _("Support assets") eyebrow=_("Assets") accent="assets" %}
   <button type="button" class="btn btn-primary" hx-get="{% url 'assets:support-asset-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New support asset' %}</button>
 {% endpage_header %}
@@ -35,10 +34,9 @@
           <th class="text-center">I</th>
           <th class="text-center">A</th>
           <th>{% trans "Env." %}</th>
-          {% sortable_th "status" "Status" %}
+          {% sortable_th "workflow_state" "Status" %}
           {% sortable_th "eol" "End of life" %}
           <th>{% trans "Tags" %}</th>
-          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -54,11 +52,7 @@
           <td class="text-center">{{ asset.inherited_integrity|dic_badge }}</td>
           <td class="text-center">{{ asset.inherited_availability|dic_badge }}</td>
           <td>{{ asset.get_environment_display|default:"—" }}</td>
-          <td>
-            <span class="badge text-bg-{% if asset.status == 'active' %}success{% elif asset.status == 'deployed' %}primary{% elif asset.status == 'decommissioned' or asset.status == 'disposed' %}dark{% else %}secondary{% endif %}">
-              {{ asset.get_status_display }}
-            </span>
-          </td>
+          <td>{% workflow_badge asset %}</td>
           <td>
             {% if asset.end_of_life_date %}
               {{ asset.end_of_life_date }}
@@ -66,19 +60,12 @@
             {% else %}—{% endif %}
           </td>
           <td>{% for tag in asset.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          {% if show_approval %}
-          <td>
-            <span class="badge text-bg-{% if asset.is_approved %}success{% else %}warning{% endif %}">
-              {% if asset.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          {% endif %}
           <td class="text-end">
             <a hx-get="{% url 'assets:support-asset-update' asset.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}
-        {% empty_state title=_("No support asset registered yet.") message=_("Support assets are the IT components (servers, applications, network gear, data stores) that essential assets depend on.") colspan=14 %}
+        {% empty_state title=_("No support asset registered yet.") message=_("Support assets are the IT components (servers, applications, network gear, data stores) that essential assets depend on.") colspan=13 %}
         {% endfor %}
       </tbody>
     </table>

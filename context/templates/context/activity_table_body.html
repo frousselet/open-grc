@@ -1,6 +1,4 @@
-{% load i18n ui %}
-{% load versioning_tags %}
-{% approval_enabled_for "context.activity" as show_approval %}
+{% load i18n ui workflow_tags %}
 {% for activity in activities %}
 <tr>
   <td><a href="{% url 'context:activity-detail' activity.pk %}" class="ref" style="text-decoration:none">{{ activity.reference }}</a></td>
@@ -12,19 +10,8 @@
     </span>
   </td>
   <td>{{ activity.owner }}</td>
-  <td>
-    <span class="badge text-bg-{% if activity.status == 'active' %}success{% elif activity.status == 'planned' %}info{% else %}secondary{% endif %}">
-      {{ activity.get_status_display }}
-    </span>
-  </td>
+  <td>{% workflow_badge activity %}</td>
   <td>{% for tag in activity.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-  {% if show_approval %}
-  <td>
-    <span class="badge text-bg-{% if activity.is_approved %}success{% else %}warning{% endif %}">
-      {% if activity.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-    </span>
-  </td>
-  {% endif %}
   <td class="text-end">
     <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
             hx-get="{% url 'context:activity-update' activity.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
@@ -33,5 +20,5 @@
   </td>
 </tr>
 {% empty %}
-{% empty_state title=_("No activity catalogued yet.") message=_("Activities are the business processes your ISMS protects. Cataloguing them lets you trace risks and controls back to what the organisation actually does.") colspan=9 %}
+{% empty_state title=_("No activity catalogued yet.") message=_("Activities are the business processes your ISMS protects. Cataloguing them lets you trace risks and controls back to what the organisation actually does.") colspan=8 %}
 {% endfor %}

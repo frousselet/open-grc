@@ -143,7 +143,7 @@ class FrameworkListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilter
         "type": "type",
         "category": "category",
         "compliance": "compliance_level",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name", "short_name"]
@@ -385,6 +385,7 @@ class RequirementListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilt
         "type": "type",
         "compliance": "compliance_status",
         "priority": "priority",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "requirement_number", "name", "framework__name"]
@@ -465,7 +466,7 @@ class AssessmentListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilte
         "name": "name",
         "start_date": "assessment_start_date",
         "end_date": "assessment_end_date",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]
@@ -1522,7 +1523,7 @@ class ActionPlanListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilte
         "priority": "priority",
         "target_date": "target_date",
         "progress": "progress_percentage",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]

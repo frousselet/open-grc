@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n scope_tags table_tags ui %}
+{% load i18n scope_tags table_tags ui workflow_tags %}
 
 {% block title %}{% trans "Risk criteria" %} — Cairn{% endblock %}
 
@@ -41,11 +41,7 @@
           <td>{% scope_popover c.scopes.all %}</td>
           <td>{{ c.acceptance_threshold }}</td>
           <td>{% if c.is_default %}<span class="badge text-bg-success">{% trans "Yes" %}</span>{% else %}—{% endif %}</td>
-          <td>
-            <span class="badge text-bg-{% if c.status == 'active' %}success{% elif c.status == 'draft' %}secondary{% else %}dark{% endif %}">
-              {{ c.get_status_display }}
-            </span>
-          </td>
+          <td>{% workflow_badge c %}</td>
           <td>{% for tag in c.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
           <td class="text-end">
             <a href="{% url 'risks:criteria-update' c.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>

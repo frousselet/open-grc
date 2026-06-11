@@ -260,33 +260,3 @@ class TestVersioningConfigViews(TestCase):
         assert "is_approved" not in field_values
         assert "version" not in field_values
 
-
-@pytest.mark.django_db
-class TestTemplateTag(TestCase):
-    """Test the approval_enabled_for template tag."""
-
-    def setUp(self):
-        VersioningConfig.clear_cache()
-
-    def tearDown(self):
-        VersioningConfig.clear_cache()
-
-    def test_tag_with_string_enabled(self):
-        from helpers.templatetags.versioning_tags import approval_enabled_for
-        assert approval_enabled_for("context.scope") is True
-
-    def test_tag_with_string_disabled(self):
-        from helpers.templatetags.versioning_tags import approval_enabled_for
-        VersioningConfig.objects.create(
-            model_name="context.scope",
-            approval_enabled=False,
-        )
-        assert approval_enabled_for("context.scope") is False
-
-    def test_tag_with_model_class(self):
-        from helpers.templatetags.versioning_tags import approval_enabled_for
-        assert approval_enabled_for(Scope) is True
-
-    def test_tag_with_invalid_string(self):
-        from helpers.templatetags.versioning_tags import approval_enabled_for
-        assert approval_enabled_for("nonexistent.model") is True

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n table_tags accounts_tags ui %}
+{% load i18n table_tags accounts_tags ui workflow_tags %}
 
 {% block title %}{% trans "Risk register" %} - Cairn{% endblock %}
 
@@ -145,7 +145,7 @@
           {% sortable_th "priority" "Priority" %}
           {% sortable_th "current_level" "Current level" %}
           {% sortable_th "treatment" "Treatment" %}
-          {% sortable_th "status" "Status" %}
+          {% sortable_th "workflow_state" "Status" %}
           <th>{% trans "Owner" %}</th>
           <th>{% trans "Tags" %}</th>
           <th class="text-end">{% trans "Actions" %}</th>
@@ -166,7 +166,7 @@
           </td>
           <td class="tabular-nums" style="font-weight:600;font-size:.85rem">{{ r.current_risk_level|default:"-" }}</td>
           <td style="font-size:.85rem">{{ r.get_treatment_decision_display }}</td>
-          <td style="font-size:.85rem">{{ r.get_status_display }}</td>
+          <td>{% workflow_badge r %}</td>
           <td style="font-size:.85rem">{{ r.risk_owner|default:"—" }}</td>
           <td>{% for tag in r.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
           <td class="text-end">

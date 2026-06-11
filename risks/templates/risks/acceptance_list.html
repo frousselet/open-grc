@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n table_tags ui %}
+{% load i18n table_tags ui workflow_tags %}
 
 {% block title %}{% trans "Risk acceptances" %} — Cairn{% endblock %}
 
@@ -28,7 +28,7 @@
           <th>{% trans "Accepted by" %}</th>
           <th>{% trans "Level at acceptance" %}</th>
           {% sortable_th "valid_until" "Valid until" %}
-          {% sortable_th "status" "Status" %}
+          {% sortable_th "workflow_state" "Status" %}
           <th>{% trans "Tags" %}</th>
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
@@ -41,11 +41,7 @@
           <td>{{ acc.accepted_by|default:"—" }}</td>
           <td>{{ acc.risk_level_at_acceptance|default:"—" }}</td>
           <td>{{ acc.valid_until|default:"—" }}</td>
-          <td>
-            <span class="badge text-bg-{% if acc.status == 'active' %}success{% elif acc.status == 'expired' %}danger{% else %}secondary{% endif %}">
-              {{ acc.get_status_display }}
-            </span>
-          </td>
+          <td>{% workflow_badge acc %}</td>
           <td>{% for tag in acc.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
           <td class="text-end">
             <a hx-get="{% url 'risks:acceptance-update' acc.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>

@@ -1,13 +1,11 @@
 {% extends "base.html" %}
-{% load i18n ui %}
+{% load i18n ui workflow_tags %}
 {% load help_tags %}
 {% load table_tags %}
-{% load versioning_tags %}
 
 {% block title %}{% trans "Suppliers" %} — Cairn{% endblock %}
 
 {% block content %}
-{% approval_enabled_for "assets.supplier" as show_approval %}
 {% page_header _("Suppliers") eyebrow=_("Assets") accent="assets" %}
   <button type="button" class="btn btn-primary" hx-get="{% url 'assets:supplier-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New supplier' %}</button>
 {% endpage_header %}
@@ -34,9 +32,8 @@
           {% sortable_th "criticality" "Criticality" %}
           <th>{% trans "Owner" %}</th>
           {% sortable_th "contract_end" "Contract end" %}
-          {% sortable_th "status" "Status" %}
+          {% sortable_th "workflow_state" "Status" %}
           <th>{% trans "Tags" %}</th>
-          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -63,25 +60,14 @@
               {% if supplier.is_contract_expired %}<span class="badge text-bg-danger">{% trans "Expired" %}</span>{% endif %}
             {% else %}—{% endif %}
           </td>
-          <td>
-            <span class="badge text-bg-{% if supplier.status == 'active' %}success{% elif supplier.status == 'under_evaluation' %}info{% elif supplier.status == 'suspended' %}warning{% else %}dark{% endif %}">
-              {{ supplier.get_status_display }}
-            </span>
-          </td>
+          <td>{% workflow_badge supplier %}</td>
           <td>{% for tag in supplier.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          {% if show_approval %}
-          <td>
-            <span class="badge text-bg-{% if supplier.is_approved %}success{% else %}warning{% endif %}">
-              {% if supplier.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          {% endif %}
           <td class="text-end">
             <a hx-get="{% url 'assets:supplier-update' supplier.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>
         </tr>
         {% empty %}
-        {% empty_state title=_("No supplier registered yet.") message=_("Suppliers are external parties you depend on - SaaS vendors, hosting providers, contractors. Track them to assess third-party risk.") colspan=10 %}
+        {% empty_state title=_("No supplier registered yet.") message=_("Suppliers are external parties you depend on - SaaS vendors, hosting providers, contractors. Track them to assess third-party risk.") colspan=9 %}
         {% endfor %}
       </tbody>
     </table>

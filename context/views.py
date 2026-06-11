@@ -229,7 +229,7 @@ class ScopeListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixi
         "reference": "reference",
         "name": "name",
         "version": "version",
-        "status": "workflow_state",
+        "workflow_state": "workflow_state",
         "effective_date": "effective_date",
         "review_date": "review_date",
     }
@@ -343,7 +343,7 @@ class IssueListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixi
         "type": "type",
         "category": "category",
         "impact": "impact_level",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]
@@ -424,7 +424,7 @@ class StakeholderListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilt
         "category": "category",
         "influence": "influence_level",
         "interest": "interest_level",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]
@@ -503,7 +503,7 @@ class ObjectiveListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilter
         "name": "name",
         "category": "category",
         "progress": "progress_percentage",
-        "status": "status",
+        "workflow_state": "workflow_state",
         "target_date": "target_date",
     }
     default_sort = "reference"
@@ -579,7 +579,7 @@ class SwotListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin
         "reference": "reference",
         "name": "name",
         "date": "analysis_date",
-        "status": "workflow_state",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]
@@ -812,7 +812,7 @@ class RoleListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixin
         "reference": "reference",
         "name": "name",
         "type": "type",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]
@@ -895,7 +895,7 @@ class ActivityListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterM
         "name": "name",
         "type": "type",
         "criticality": "criticality",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]
@@ -1247,7 +1247,7 @@ class IndicatorListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilter
         "reference": "reference",
         "name": "name",
         "format": "format",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]

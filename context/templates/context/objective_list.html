@@ -5,10 +5,8 @@
 {% block title %}{% trans "Objectives" %} — Cairn{% endblock %}
 
 {% load help_tags %}
-{% load versioning_tags %}
 
 {% block content %}
-{% approval_enabled_for "context.objective" as show_approval %}
 {% page_header _("Objectives") eyebrow=_("Governance") accent="context" %}
   <button type="button" class="btn btn-primary" hx-get="{% url 'context:objective-create' %}" hx-target="#drawer-form-content" hx-swap="innerHTML"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New objective' %}</button>
 {% endpage_header %}
@@ -35,10 +33,9 @@
           {% sortable_th "category" "Category" %}
           <th>{% trans "Owner" %}</th>
           {% sortable_th "progress" "Progress" %}
-          {% sortable_th "status" "Status" %}
+          {% sortable_th "workflow_state" "Status" %}
           {% sortable_th "target_date" "Target date" %}
           <th>{% trans "Tags" %}</th>
-          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>

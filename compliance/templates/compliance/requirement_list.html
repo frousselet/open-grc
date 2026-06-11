@@ -1,14 +1,12 @@
 {% extends "base.html" %}
 {% load i18n ui %}
-{% load table_tags %}
+{% load table_tags workflow_tags %}
 
 {% block title %}{% trans "Requirements" %} — Cairn{% endblock %}
 
 {% load help_tags %}
-{% load versioning_tags %}
 
 {% block content %}
-{% approval_enabled_for "compliance.requirement" as show_approval %}
 {% page_header _("Requirements") eyebrow=_("Compliance") accent="compliance" %}
   <a href="{% url 'compliance:requirement-create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{% trans 'New requirement' %}</a>
 {% endpage_header %}
@@ -29,7 +27,7 @@
           <th>{% trans "Level" %}</th>
           {% sortable_th "priority" "Priority" %}
           <th>{% trans "Tags" %}</th>
-          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
+          {% sortable_th "workflow_state" "Status" %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
@@ -59,13 +57,7 @@
             {% else %}—{% endif %}
           </td>
           <td>{% for tag in req.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-          {% if show_approval %}
-          <td>
-            <span class="badge text-bg-{% if req.is_approved %}success{% else %}warning{% endif %}">
-              {% if req.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-            </span>
-          </td>
-          {% endif %}
+          <td>{% workflow_badge req %}</td>
           <td class="text-end">
             <a href="{% url 'compliance:requirement-update' req.pk %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
           </td>

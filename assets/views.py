@@ -113,7 +113,7 @@ class EssentialAssetListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeF
         "type": "type",
         "category": "category",
         "owner": "owner__last_name",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name", "owner__last_name", "owner__first_name"]
@@ -199,7 +199,7 @@ class SupportAssetListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFil
         "type": "type",
         "category": "category",
         "owner": "owner__last_name",
-        "status": "status",
+        "workflow_state": "workflow_state",
         "eol": "end_of_life_date",
     }
     default_sort = "reference"
@@ -286,6 +286,7 @@ class DependencyListView(LoginRequiredMixin, PermissionRequiredMixin, SortableLi
         "support": "support_asset__name",
         "type": "dependency_type",
         "criticality": "criticality",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "essential_asset__name", "support_asset__name"]
@@ -331,7 +332,7 @@ class GroupListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterMixi
         "reference": "reference",
         "name": "name",
         "type": "type",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name"]
@@ -406,7 +407,7 @@ class SupplierListView(LoginRequiredMixin, PermissionRequiredMixin, ScopeFilterM
         "name": "name",
         "criticality": "criticality",
         "contract_end": "contract_end_date",
-        "status": "status",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "name", "contact_name"]
@@ -769,6 +770,7 @@ class SupplierDependencyListView(LoginRequiredMixin, PermissionRequiredMixin, So
         "supplier": "supplier__name",
         "type": "dependency_type",
         "criticality": "criticality",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "support_asset__name", "supplier__name"]
@@ -903,6 +905,7 @@ class SiteAssetDependencyListView(LoginRequiredMixin, PermissionRequiredMixin, S
         "site": "site__name",
         "type": "dependency_type",
         "criticality": "criticality",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "support_asset__name", "site__name"]
@@ -948,6 +951,7 @@ class SiteSupplierDependencyListView(LoginRequiredMixin, PermissionRequiredMixin
         "supplier": "supplier__name",
         "type": "dependency_type",
         "criticality": "criticality",
+        "workflow_state": "workflow_state",
     }
     default_sort = "reference"
     search_fields = ["reference", "site__name", "supplier__name"]

@@ -7,10 +7,8 @@
 {% endblock %}
 
 {% load help_tags %}
-{% load versioning_tags %}
 
 {% block content %}
-{% approval_enabled_for "context.indicator" as show_approval %}
 {% if indicator_type == "organizational" %}{% trans "Organizational indicators" as page_title %}{% else %}{% trans "Technical indicators" as page_title %}{% endif %}
 {% page_header page_title eyebrow=_("Governance") accent="context" %}
   {% if indicator_type == "organizational" %}
@@ -46,9 +44,8 @@
           <th>{% trans "Expected level" %}</th>
           <th>{% trans "Collection" %}</th>
           <th>{% trans "Frequency" %}</th>
-          {% sortable_th "status" "Status" %}
+          {% sortable_th "workflow_state" "Status" %}
           <th>{% trans "Tags" %}</th>
-          {% if show_approval %}<th>{% trans "Approval" %}</th>{% endif %}
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>

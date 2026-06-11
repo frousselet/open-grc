@@ -1,6 +1,4 @@
-{% load i18n ui %}
-{% load versioning_tags %}
-{% approval_enabled_for "context.objective" as show_approval %}
+{% load i18n ui workflow_tags %}
 {% for obj in objectives %}
 <tr>
   <td><a href="{% url 'context:objective-detail' obj.pk %}" class="ref" style="text-decoration:none">{{ obj.reference }}</a></td>
@@ -15,20 +13,9 @@
     </div>
     {% else %}—{% endif %}
   </td>
-  <td>
-    <span class="badge text-bg-{% if obj.status == 'achieved' %}success{% elif obj.status == 'active' %}primary{% elif obj.status == 'not_achieved' %}danger{% else %}secondary{% endif %}">
-      {{ obj.get_status_display }}
-    </span>
-  </td>
+  <td>{% workflow_badge obj %}</td>
   <td>{{ obj.target_date|default:"—" }}</td>
   <td>{% for tag in obj.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-  {% if show_approval %}
-  <td>
-    <span class="badge text-bg-{% if obj.is_approved %}success{% else %}warning{% endif %}">
-      {% if obj.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-    </span>
-  </td>
-  {% endif %}
   <td class="text-end">
     <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
             hx-get="{% url 'context:objective-update' obj.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
@@ -37,5 +24,5 @@
   </td>
 </tr>
 {% empty %}
-{% empty_state title=_("No security objective defined yet.") message=_("Objectives translate strategy into measurable security commitments. Tie each one to scopes and indicators.") colspan=10 %}
+{% empty_state title=_("No security objective defined yet.") message=_("Objectives translate strategy into measurable security commitments. Tie each one to scopes and indicators.") colspan=9 %}
 {% endfor %}

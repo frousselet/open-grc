@@ -1,4 +1,4 @@
-{% load i18n scope_tags ui %}
+{% load i18n scope_tags ui workflow_tags %}
 {% for issue in issues %}
 <tr>
   <td><a href="{% url 'context:issue-detail' issue.pk %}" class="ref" style="text-decoration:none">{{ issue.reference }}</a></td>
@@ -12,15 +12,8 @@
     </span>
   </td>
   <td>{{ issue.get_trend_display|default:"—" }}</td>
-  <td>{{ issue.get_status_display }}</td>
+  <td>{% workflow_badge issue %}</td>
   <td>{% for tag in issue.tags.all %}<span class="badge me-1" style="background-color:{{ tag.color }};color:#fff;font-size:.6875rem">{{ tag.name }}</span>{% endfor %}</td>
-  {% if show_approval %}
-  <td>
-    <span class="badge text-bg-{% if issue.is_approved %}success{% else %}warning{% endif %}">
-      {% if issue.is_approved %}{% trans "Approved" %}{% else %}{% trans "Pending" %}{% endif %}
-    </span>
-  </td>
-  {% endif %}
   <td class="text-end">
     <button type="button" class="btn btn-sm btn-outline-primary" title="{% trans 'Edit' %}"
             hx-get="{% url 'context:issue-update' issue.pk %}" hx-target="#drawer-form-content" hx-swap="innerHTML">
@@ -29,5 +22,5 @@
   </td>
 </tr>
 {% empty %}
-{% empty_state title=_("No issue identified yet.") message=_("Issues are internal/external factors that influence your ISMS - strategic context, regulatory pressure, notable incidents.") colspan=11 %}
+{% empty_state title=_("No issue identified yet.") message=_("Issues are internal/external factors that influence your ISMS - strategic context, regulatory pressure, notable incidents.") colspan=10 %}
 {% endfor %}
