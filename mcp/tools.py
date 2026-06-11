@@ -401,6 +401,11 @@ def _delete_handler(model_class, scope_filtered=True):
             qs = _filter_by_scopes(model_class.objects.filter(pk=pk), user)
             if not qs.exists():
                 return _error("Access denied: object is outside your allowed scopes.")
+        if getattr(obj, "is_deletable", True) is False:
+            return _error(
+                f"Cannot delete {model_class.__name__}: it is in the "
+                f"'{getattr(obj, 'workflow_state', '')}' lifecycle state and is not deletable."
+            )
         obj.delete()
         return {"deleted": True, "id": str(pk)}
     return handler
