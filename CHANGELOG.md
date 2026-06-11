@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-06-11
+
 ### Changed
 
 - **Modal form engine documented**: the brand guidelines gain an "Engine (implementation)" subsection (the `SteppedFormMixin` / `Step` API, the shell / partials / JS layout, the custom widgets and the enforced rules); the `/styleguide` page gains a "modal form engine" section showcasing the stepper, completion meter and field-row anatomy; the README tech-stack table notes the shared modal form engine.
@@ -890,7 +892,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Actions CI with pytest
 - Docker Hub publish workflow on version tags
 
-[Unreleased]: https://github.com/frousselet/cairn/compare/v0.24.5...HEAD
+[Unreleased]: https://github.com/frousselet/cairn/compare/v0.25.0...HEAD
+[0.25.0]: https://github.com/frousselet/cairn/compare/v0.24.5...v0.25.0
 [0.24.5]: https://github.com/frousselet/cairn/compare/v0.24.4...v0.24.5
 [0.24.4]: https://github.com/frousselet/cairn/compare/v0.24.3...v0.24.4
 [0.24.3]: https://github.com/frousselet/cairn/compare/v0.24.2...v0.24.3
