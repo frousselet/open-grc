@@ -20,6 +20,8 @@ class EbiosSummary(BaseModel):
     the user controls when the cartography baseline is set.
     """
 
+    WORKFLOW_NAME = "ebios_summary"
+
     REFERENCE_PREFIX = "ESUM"
 
     assessment = models.OneToOneField(
@@ -70,6 +72,16 @@ class EbiosSummary(BaseModel):
         ordering = ["-created_at"]
         verbose_name = _("EBIOS RM summary")
         verbose_name_plural = _("EBIOS RM summaries")
+
+    @property
+    def workflow_perm_namespace(self):
+        return "risks.ebios_summary"
+
+    def save(self, *args, **kwargs):
+        from core.workflow import sync_legacy_status
+
+        sync_legacy_status(self, kwargs, EbiosSummaryStatus.DRAFT)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.reference} : {self.assessment.name}"

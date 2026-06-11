@@ -13,6 +13,8 @@ class SecurityBaseline(BaseModel):
     and baseline references. Exactly one instance per ebios_rm RiskAssessment.
     """
 
+    WORKFLOW_NAME = "ebios_security_baseline"
+
     REFERENCE_PREFIX = "EBSL"
 
     assessment = models.OneToOneField(
@@ -58,6 +60,16 @@ class SecurityBaseline(BaseModel):
         ordering = ["-created_at"]
         verbose_name = _("EBIOS RM security baseline")
         verbose_name_plural = _("EBIOS RM security baselines")
+
+    @property
+    def workflow_perm_namespace(self):
+        return "risks.ebios_baseline"
+
+    def save(self, *args, **kwargs):
+        from core.workflow import sync_legacy_status
+
+        sync_legacy_status(self, kwargs, EbiosBaselineStatus.DRAFT)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.reference} : {self.assessment.name}"

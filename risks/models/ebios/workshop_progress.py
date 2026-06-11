@@ -19,6 +19,8 @@ class EbiosWorkshopProgress(BaseModel):
     iteration_number=1). New iterations are created via the `iterate` action.
     """
 
+    WORKFLOW_NAME = "ebios_workshop"
+
     REFERENCE_PREFIX = "EWSP"
 
     assessment = models.ForeignKey(
@@ -72,6 +74,16 @@ class EbiosWorkshopProgress(BaseModel):
                 name="unique_ebios_workshop_iteration",
             ),
         ]
+
+    @property
+    def workflow_perm_namespace(self):
+        return "risks.ebios_assessment"
+
+    def save(self, *args, **kwargs):
+        from core.workflow import sync_legacy_status
+
+        sync_legacy_status(self, kwargs, EbiosWorkshopStatus.NOT_STARTED)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.reference} : W{self.workshop_number} ({self.get_status_display()})"

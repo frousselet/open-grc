@@ -15,6 +15,8 @@ class StudyFramework(BaseModel):
     Exactly one instance per ebios_rm RiskAssessment.
     """
 
+    WORKFLOW_NAME = "ebios_study_framework"
+
     REFERENCE_PREFIX = "EFRA"
 
     assessment = models.OneToOneField(
@@ -67,6 +69,16 @@ class StudyFramework(BaseModel):
         ordering = ["-created_at"]
         verbose_name = _("EBIOS RM study framework")
         verbose_name_plural = _("EBIOS RM study frameworks")
+
+    @property
+    def workflow_perm_namespace(self):
+        return "risks.ebios_assessment"
+
+    def save(self, *args, **kwargs):
+        from core.workflow import sync_legacy_status
+
+        sync_legacy_status(self, kwargs, EbiosStudyFrameworkStatus.DRAFT)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.reference} : {self.assessment.name}"

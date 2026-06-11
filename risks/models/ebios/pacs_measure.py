@@ -20,6 +20,8 @@ class PACSMeasure(BaseModel):
     as a traceability matrix.
     """
 
+    WORKFLOW_NAME = "ebios_pacs_measure"
+
     REFERENCE_PREFIX = "EPAC"
 
     summary = models.ForeignKey(
@@ -95,6 +97,16 @@ class PACSMeasure(BaseModel):
         ordering = ["summary", "order", "target_date"]
         verbose_name = _("EBIOS RM PACS measure")
         verbose_name_plural = _("EBIOS RM PACS measures")
+
+    @property
+    def workflow_perm_namespace(self):
+        return "risks.ebios_summary"
+
+    def save(self, *args, **kwargs):
+        from core.workflow import sync_legacy_status
+
+        sync_legacy_status(self, kwargs, PACSMeasureStatus.PLANNED)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.reference} : {self.name}"

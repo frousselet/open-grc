@@ -23,6 +23,12 @@ from core.workflow import (
 )
 from risks.constants import (
     AcceptanceStatus,
+    BaselineGapStatus,
+    EbiosBaselineStatus,
+    EbiosStudyFrameworkStatus,
+    EbiosSummaryStatus,
+    EbiosWorkshopStatus,
+    PACSMeasureStatus,
     RiskStatus,
     TreatmentPlanStatus,
     VulnerabilityStatus,
@@ -121,7 +127,13 @@ _VULNERABILITY_TRANSITIONS = [
 ]
 
 
-def _build(name, status_enum, flags, transition_pairs):
+def _build(name, status_enum, flags, transition_pairs, *, subsumes_approval=None):
+    """Build a workflow from per-state flags and (source, target[, options]) pairs.
+
+    A transition tuple may carry an options dict as third element with
+    ``action`` (permission action suffix, default ``update``) and
+    ``requires_comment``.
+    """
     states = []
     for status in status_enum:
         counts, linkable, deletable, initial, terminal, tone = flags[status]
@@ -137,40 +149,200 @@ def _build(name, status_enum, flags, transition_pairs):
                 tone=tone,
             )
         )
-    transitions = [
-        Transition(
-            str(source.value),
-            str(target.value),
-            status_enum(target).label,
-            action="update",
+    transitions = []
+    for pair in transition_pairs:
+        source, target = pair[0], pair[1]
+        options = pair[2] if len(pair) > 2 else {}
+        transitions.append(
+            Transition(
+                str(source.value),
+                str(target.value),
+                status_enum(target).label,
+                action=options.get("action", "update"),
+                requires_comment=options.get("requires_comment", False),
+            )
         )
-        for source, target in transition_pairs
-    ]
-    return Workflow(name, states, transitions)
+    return Workflow(name, states, transitions, subsumes_approval=subsumes_approval)
 
+
+# ── EBIOS RM deliverables ──────────────────────────────────
+#
+# Workshop reviews carry the dedicated `validate` permission action
+# (`risks.ebios_assessment.validate`); rejecting a workshop requires a
+# comment. The study framework and summary keep `is_approved` as an
+# independent axis (explicit opt-out: their draft / validated state names
+# would otherwise trip the subsumes-approval heuristic and fight the
+# status sync).
+
+EBIOS_WORKSHOP_WORKFLOW_NAME = "ebios_workshop"
+EBIOS_STUDY_FRAMEWORK_WORKFLOW_NAME = "ebios_study_framework"
+EBIOS_SECURITY_BASELINE_WORKFLOW_NAME = "ebios_security_baseline"
+EBIOS_SUMMARY_WORKFLOW_NAME = "ebios_summary"
+EBIOS_BASELINE_GAP_WORKFLOW_NAME = "ebios_baseline_gap"
+EBIOS_PACS_MEASURE_WORKFLOW_NAME = "ebios_pacs_measure"
+
+_EBIOS_WORKSHOP_STATE_FLAGS = {
+    EbiosWorkshopStatus.NOT_STARTED: (True, False, True, True, False, "secondary"),
+    EbiosWorkshopStatus.IN_PROGRESS: (True, False, False, False, False, "primary"),
+    EbiosWorkshopStatus.UNDER_REVIEW: (True, False, False, False, False, "warning"),
+    EbiosWorkshopStatus.VALIDATED: (True, False, False, False, True, "success"),
+    EbiosWorkshopStatus.REJECTED: (True, False, False, False, False, "danger"),
+}
+
+_EBIOS_WORKSHOP_TRANSITIONS = [
+    (EbiosWorkshopStatus.NOT_STARTED, EbiosWorkshopStatus.IN_PROGRESS),
+    (EbiosWorkshopStatus.IN_PROGRESS, EbiosWorkshopStatus.UNDER_REVIEW),
+    (EbiosWorkshopStatus.UNDER_REVIEW, EbiosWorkshopStatus.VALIDATED, {"action": "validate"}),
+    (
+        EbiosWorkshopStatus.UNDER_REVIEW,
+        EbiosWorkshopStatus.REJECTED,
+        {"action": "validate", "requires_comment": True},
+    ),
+    (EbiosWorkshopStatus.REJECTED, EbiosWorkshopStatus.IN_PROGRESS),
+]
+
+_EBIOS_STUDY_FRAMEWORK_STATE_FLAGS = {
+    EbiosStudyFrameworkStatus.DRAFT: (True, False, True, True, False, "secondary"),
+    EbiosStudyFrameworkStatus.VALIDATED: (True, False, False, False, True, "success"),
+}
+
+_EBIOS_STUDY_FRAMEWORK_TRANSITIONS = [
+    (
+        EbiosStudyFrameworkStatus.DRAFT,
+        EbiosStudyFrameworkStatus.VALIDATED,
+        {"action": "validate"},
+    ),
+]
+
+_EBIOS_SECURITY_BASELINE_STATE_FLAGS = {
+    EbiosBaselineStatus.DRAFT: (True, False, True, True, False, "secondary"),
+    EbiosBaselineStatus.IN_PROGRESS: (True, False, False, False, False, "primary"),
+    EbiosBaselineStatus.COMPLETED: (True, False, False, False, True, "success"),
+}
+
+_EBIOS_SECURITY_BASELINE_TRANSITIONS = [
+    (EbiosBaselineStatus.DRAFT, EbiosBaselineStatus.IN_PROGRESS),
+    (EbiosBaselineStatus.IN_PROGRESS, EbiosBaselineStatus.COMPLETED),
+]
+
+_EBIOS_SUMMARY_STATE_FLAGS = {
+    EbiosSummaryStatus.DRAFT: (True, False, True, True, False, "secondary"),
+    EbiosSummaryStatus.IN_PROGRESS: (True, False, False, False, False, "primary"),
+    EbiosSummaryStatus.UNDER_REVIEW: (True, False, False, False, False, "warning"),
+    EbiosSummaryStatus.VALIDATED: (True, False, False, False, True, "success"),
+}
+
+_EBIOS_SUMMARY_TRANSITIONS = [
+    (EbiosSummaryStatus.DRAFT, EbiosSummaryStatus.IN_PROGRESS),
+    (EbiosSummaryStatus.IN_PROGRESS, EbiosSummaryStatus.UNDER_REVIEW),
+    (EbiosSummaryStatus.UNDER_REVIEW, EbiosSummaryStatus.VALIDATED, {"action": "approve"}),
+    (EbiosSummaryStatus.UNDER_REVIEW, EbiosSummaryStatus.IN_PROGRESS),
+]
+
+_EBIOS_BASELINE_GAP_STATE_FLAGS = {
+    BaselineGapStatus.IDENTIFIED: (True, False, True, True, False, "secondary"),
+    BaselineGapStatus.ACCEPTED: (True, False, False, False, False, "info"),
+    BaselineGapStatus.IN_REMEDIATION: (True, False, False, False, False, "warning"),
+    BaselineGapStatus.REMEDIATED: (True, False, False, False, True, "success"),
+}
+
+_EBIOS_BASELINE_GAP_TRANSITIONS = [
+    (BaselineGapStatus.IDENTIFIED, BaselineGapStatus.ACCEPTED),
+    (BaselineGapStatus.IDENTIFIED, BaselineGapStatus.IN_REMEDIATION),
+    # An accepted deviation can later be scheduled for remediation.
+    (BaselineGapStatus.ACCEPTED, BaselineGapStatus.IN_REMEDIATION),
+    (BaselineGapStatus.IN_REMEDIATION, BaselineGapStatus.REMEDIATED),
+]
+
+_EBIOS_PACS_MEASURE_STATE_FLAGS = {
+    PACSMeasureStatus.PLANNED: (True, False, True, True, False, "info"),
+    PACSMeasureStatus.IN_PROGRESS: (True, False, False, False, False, "primary"),
+    PACSMeasureStatus.OVERDUE: (True, False, False, False, False, "danger"),
+    PACSMeasureStatus.COMPLETED: (True, False, False, False, True, "success"),
+    PACSMeasureStatus.CANCELLED: (False, False, False, False, True, "danger"),
+}
+
+_EBIOS_PACS_MEASURE_TRANSITIONS = [
+    (PACSMeasureStatus.PLANNED, PACSMeasureStatus.IN_PROGRESS),
+    (PACSMeasureStatus.IN_PROGRESS, PACSMeasureStatus.COMPLETED),
+    (PACSMeasureStatus.PLANNED, PACSMeasureStatus.OVERDUE),
+    (PACSMeasureStatus.IN_PROGRESS, PACSMeasureStatus.OVERDUE),
+    (PACSMeasureStatus.OVERDUE, PACSMeasureStatus.IN_PROGRESS),
+    (PACSMeasureStatus.OVERDUE, PACSMeasureStatus.COMPLETED),
+    (PACSMeasureStatus.PLANNED, PACSMeasureStatus.CANCELLED),
+    (PACSMeasureStatus.IN_PROGRESS, PACSMeasureStatus.CANCELLED),
+    (PACSMeasureStatus.OVERDUE, PACSMeasureStatus.CANCELLED),
+]
 
 _DEFINITIONS = [
-    (RISK_WORKFLOW_NAME, RiskStatus, _RISK_STATE_FLAGS, _RISK_TRANSITIONS),
+    (RISK_WORKFLOW_NAME, RiskStatus, _RISK_STATE_FLAGS, _RISK_TRANSITIONS, None),
     (
         TREATMENT_PLAN_WORKFLOW_NAME,
         TreatmentPlanStatus,
         _TREATMENT_PLAN_STATE_FLAGS,
         _TREATMENT_PLAN_TRANSITIONS,
+        None,
     ),
     (
         ACCEPTANCE_WORKFLOW_NAME,
         AcceptanceStatus,
         _ACCEPTANCE_STATE_FLAGS,
         _ACCEPTANCE_TRANSITIONS,
+        None,
     ),
     (
         VULNERABILITY_WORKFLOW_NAME,
         VulnerabilityStatus,
         _VULNERABILITY_STATE_FLAGS,
         _VULNERABILITY_TRANSITIONS,
+        None,
+    ),
+    (
+        EBIOS_WORKSHOP_WORKFLOW_NAME,
+        EbiosWorkshopStatus,
+        _EBIOS_WORKSHOP_STATE_FLAGS,
+        _EBIOS_WORKSHOP_TRANSITIONS,
+        None,
+    ),
+    (
+        EBIOS_STUDY_FRAMEWORK_WORKFLOW_NAME,
+        EbiosStudyFrameworkStatus,
+        _EBIOS_STUDY_FRAMEWORK_STATE_FLAGS,
+        _EBIOS_STUDY_FRAMEWORK_TRANSITIONS,
+        False,  # is_approved stays independent of the draft/validated states
+    ),
+    (
+        EBIOS_SECURITY_BASELINE_WORKFLOW_NAME,
+        EbiosBaselineStatus,
+        _EBIOS_SECURITY_BASELINE_STATE_FLAGS,
+        _EBIOS_SECURITY_BASELINE_TRANSITIONS,
+        None,
+    ),
+    (
+        EBIOS_SUMMARY_WORKFLOW_NAME,
+        EbiosSummaryStatus,
+        _EBIOS_SUMMARY_STATE_FLAGS,
+        _EBIOS_SUMMARY_TRANSITIONS,
+        False,  # is_approved stays independent of the draft/validated states
+    ),
+    (
+        EBIOS_BASELINE_GAP_WORKFLOW_NAME,
+        BaselineGapStatus,
+        _EBIOS_BASELINE_GAP_STATE_FLAGS,
+        _EBIOS_BASELINE_GAP_TRANSITIONS,
+        None,
+    ),
+    (
+        EBIOS_PACS_MEASURE_WORKFLOW_NAME,
+        PACSMeasureStatus,
+        _EBIOS_PACS_MEASURE_STATE_FLAGS,
+        _EBIOS_PACS_MEASURE_TRANSITIONS,
+        None,
     ),
 ]
 
-for _name, _enum, _flags, _pairs in _DEFINITIONS:
+for _name, _enum, _flags, _pairs, _subsumes in _DEFINITIONS:
     if _name not in WORKFLOW_REGISTRY:
-        register_workflow(_build(_name, _enum, _flags, _pairs))
+        register_workflow(
+            _build(_name, _enum, _flags, _pairs, subsumes_approval=_subsumes)
+        )

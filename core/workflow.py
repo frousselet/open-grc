@@ -136,11 +136,12 @@ class Workflow:
     and no transition leaves a terminal state.
     """
 
-    def __init__(self, name: str, states, transitions) -> None:
+    def __init__(self, name: str, states, transitions, *, subsumes_approval=None) -> None:
         self.name = name
         self.states = tuple(states)
         self.transitions = tuple(transitions)
         self._by_code = {s.code: s for s in self.states}
+        self._subsumes_approval = subsumes_approval
         self._validate()
 
     def _validate(self) -> None:
@@ -200,11 +201,16 @@ class Workflow:
     def subsumes_approval(self) -> bool:
         """Whether this workflow replaces the legacy ``is_approved`` axis.
 
-        True for workflows shaped like the default lifecycle (both ``draft``
-        and ``validated`` states): there, the approval flag mirrors the state.
-        Specific operational workflows (e.g. the action plan's) keep
-        ``is_approved`` as an independent approval axis.
+        By default, true for workflows shaped like the default lifecycle (both
+        ``draft`` and ``validated`` states): there, the approval flag mirrors
+        the state. Specific operational workflows keep ``is_approved`` as an
+        independent approval axis; a workflow whose state names merely happen
+        to overlap (e.g. an EBIOS deliverable with draft / validated stages
+        synced to a legacy ``status`` field) opts out explicitly via the
+        constructor parameter.
         """
+        if self._subsumes_approval is not None:
+            return self._subsumes_approval
         return self.has_state("draft") and self.has_state("validated")
 
     @property

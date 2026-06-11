@@ -14,6 +14,8 @@ class BaselineGap(BaseModel):
     a compliance Requirement for traceability.
     """
 
+    WORKFLOW_NAME = "ebios_baseline_gap"
+
     REFERENCE_PREFIX = "EBGP"
 
     baseline = models.ForeignKey(
@@ -58,6 +60,16 @@ class BaselineGap(BaseModel):
         ordering = ["baseline", "order", "-created_at"]
         verbose_name = _("EBIOS RM baseline gap")
         verbose_name_plural = _("EBIOS RM baseline gaps")
+
+    @property
+    def workflow_perm_namespace(self):
+        return "risks.ebios_baseline"
+
+    def save(self, *args, **kwargs):
+        from core.workflow import sync_legacy_status
+
+        sync_legacy_status(self, kwargs, BaselineGapStatus.IDENTIFIED)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.reference} : {self.reference_source}"
