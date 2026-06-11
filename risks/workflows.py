@@ -23,6 +23,7 @@ from core.workflow import (
 )
 from risks.constants import (
     AcceptanceStatus,
+    AssessmentStatus,
     BaselineGapStatus,
     EbiosBaselineStatus,
     EbiosStudyFrameworkStatus,
@@ -165,6 +166,32 @@ def _build(name, status_enum, flags, transition_pairs, *, subsumes_approval=None
     return Workflow(name, states, transitions, subsumes_approval=subsumes_approval)
 
 
+# ── Risk assessment campaign ────────────────────────────────
+#
+# Validation and archiving are approval acts; the assessment keeps its own
+# validated_by stamp and the independent is_approved axis (explicit opt-out:
+# the draft / validated state names would otherwise trip the heuristic).
+
+RISK_ASSESSMENT_WORKFLOW_NAME = "risk_assessment"
+
+_RISK_ASSESSMENT_STATE_FLAGS = {
+    AssessmentStatus.DRAFT: (False, False, True, True, False, "secondary"),
+    AssessmentStatus.IN_PROGRESS: (True, False, False, False, False, "primary"),
+    AssessmentStatus.COMPLETED: (True, False, False, False, False, "info"),
+    AssessmentStatus.VALIDATED: (True, False, False, False, False, "success"),
+    AssessmentStatus.ARCHIVED: (False, False, False, False, True, "dark"),
+}
+
+_RISK_ASSESSMENT_TRANSITIONS = [
+    (AssessmentStatus.DRAFT, AssessmentStatus.IN_PROGRESS),
+    (AssessmentStatus.IN_PROGRESS, AssessmentStatus.COMPLETED),
+    # A completed campaign found lacking returns to work.
+    (AssessmentStatus.COMPLETED, AssessmentStatus.IN_PROGRESS),
+    (AssessmentStatus.COMPLETED, AssessmentStatus.VALIDATED, {"action": "approve"}),
+    (AssessmentStatus.VALIDATED, AssessmentStatus.ARCHIVED, {"action": "approve"}),
+]
+
+
 # ── EBIOS RM deliverables ──────────────────────────────────
 #
 # Workshop reviews carry the dedicated `validate` permission action
@@ -276,6 +303,13 @@ _EBIOS_PACS_MEASURE_TRANSITIONS = [
 
 _DEFINITIONS = [
     (RISK_WORKFLOW_NAME, RiskStatus, _RISK_STATE_FLAGS, _RISK_TRANSITIONS, None),
+    (
+        RISK_ASSESSMENT_WORKFLOW_NAME,
+        AssessmentStatus,
+        _RISK_ASSESSMENT_STATE_FLAGS,
+        _RISK_ASSESSMENT_TRANSITIONS,
+        False,  # is_approved / validated_by stay independent of the states
+    ),
     (
         TREATMENT_PLAN_WORKFLOW_NAME,
         TreatmentPlanStatus,

@@ -9,6 +9,7 @@ from risks.constants import AssessmentStatus, Methodology
 
 class RiskAssessment(ScopedModel):
     REFERENCE_PREFIX = "RASS"
+    WORKFLOW_NAME = "risk_assessment"
 
     name = models.CharField(_("Name"), max_length=255)
     description = models.TextField(_("Description"), blank=True)
@@ -58,6 +59,16 @@ class RiskAssessment(ScopedModel):
         ordering = ["-created_at"]
         verbose_name = _("Risk assessment")
         verbose_name_plural = _("Risk assessments")
+
+    @property
+    def workflow_perm_namespace(self):
+        return "risks.assessment"
+
+    def save(self, *args, **kwargs):
+        from core.workflow import sync_legacy_status
+
+        sync_legacy_status(self, kwargs, AssessmentStatus.DRAFT)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.reference} : {self.name}"
