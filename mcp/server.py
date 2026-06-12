@@ -62,6 +62,14 @@ class McpServer:
             "handler": handler,
         }
 
+    def get_tool(self, name):
+        """Return a registered tool definition dict, or None.
+
+        Public accessor used for in-process tool execution (e.g. by the
+        assistant app) so callers never touch the private registry.
+        """
+        return self._tools.get(name)
+
     def handle_request(self, body, user):
         """Process a JSON-RPC request and return a response dict (or None for notifications)."""
         try:

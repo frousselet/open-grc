@@ -16,6 +16,7 @@ channels
 channels-redis
 icalendar
 uvicorn[standard]
+httpx
 # Testing & linting
 ruff
 pytest

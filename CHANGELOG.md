@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Ask Cairn, an optional local AI question mode in the command palette**: with the new `ai` Docker Compose profile running an [Ollama](https://ollama.com/) sidecar (default model `qwen3:1.7b`, configurable), the command palette (Ctrl+K) gains an "Ask Cairn" entry that answers simple natural-language questions like "Quelles décisions ont été prises lors de la dernière revue de direction ?". A small local model only routes the question to a curated allowlist of 21 read-only MCP tools executed in-process with the requesting user (existing permissions and scope filters apply, nothing is bypassed); the answer shows the real matching records as clickable cards plus a short AI-labeled summary sentence in the user's language. Data never leaves the host. The feature is disabled by default (`AI_ASSISTANT_ENABLED`), degrades gracefully when Ollama is missing, and ships with a REST endpoint (`POST /api/v1/assistant/ask/`) and an `ask_assistant` MCP tool.
+
 ## [0.26.3] - 2026-06-12
 
 ### Added

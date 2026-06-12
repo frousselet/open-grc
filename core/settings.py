@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "risks",
     "reports",
     "mcp",
+    "assistant",
 ]
 
 MIDDLEWARE = [
@@ -245,3 +246,16 @@ SIMPLE_JWT = {
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
 }
+
+# AI assistant ("Ask Cairn"): optional natural-language question mode in the
+# command palette, backed by a local Ollama sidecar
+# (docker compose --profile ai up). Disabled by default; the rest of the
+# application works normally without it.
+AI_ASSISTANT_ENABLED = os.environ.get("AI_ASSISTANT_ENABLED", "False").lower() in ("true", "1", "yes")
+AI_ASSISTANT_OLLAMA_URL = os.environ.get("AI_ASSISTANT_OLLAMA_URL", "http://ollama:11434")
+AI_ASSISTANT_MODEL = os.environ.get("AI_ASSISTANT_MODEL", "qwen3:1.7b")
+AI_ASSISTANT_CONNECT_TIMEOUT = float(os.environ.get("AI_ASSISTANT_CONNECT_TIMEOUT", "2"))
+AI_ASSISTANT_TIMEOUT = float(os.environ.get("AI_ASSISTANT_TIMEOUT", "30"))
+AI_ASSISTANT_MAX_TOOL_ROUNDS = int(os.environ.get("AI_ASSISTANT_MAX_TOOL_ROUNDS", "2"))
+AI_ASSISTANT_MAX_RECORDS_PER_TOOL = int(os.environ.get("AI_ASSISTANT_MAX_RECORDS_PER_TOOL", "5"))
+AI_ASSISTANT_NUM_CTX = int(os.environ.get("AI_ASSISTANT_NUM_CTX", "8192"))
