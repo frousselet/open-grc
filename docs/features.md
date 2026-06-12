@@ -4,6 +4,8 @@ Detailed feature reference for Cairn. For module-level specifications (business 
 
 ## Governance (Context & Organisation)
 
+![Scopes](screenshots/scopes.png)
+
 | Feature | Description |
 | ------- | ----------- |
 | Scopes | Hierarchical organisational perimeters with versioning, approval workflow and assignable managers |
@@ -18,6 +20,8 @@ Detailed feature reference for Cairn. For module-level specifications (business 
 
 ## Asset Management
 
+![Support assets](screenshots/support-assets.png)
+
 | Feature | Description |
 | ------- | ----------- |
 | Essential Assets | Business processes and information assets with DIC valuation (Confidentiality, Integrity, Availability on a 5-level scale) |
@@ -30,6 +34,8 @@ Detailed feature reference for Cairn. For module-level specifications (business 
 | Suppliers | Supplier registry with types, contractual requirements, evidence reviews and dependency mapping |
 
 ## Risk Management
+
+![Risk assessment](screenshots/risk-assessment.png)
 
 | Feature | Description |
 | ------- | ----------- |
@@ -50,6 +56,8 @@ Detailed feature reference for Cairn. For module-level specifications (business 
 
 ## Compliance
 
+![Compliance assessment](screenshots/compliance-assessment.png)
+
 | Feature | Description |
 | ------- | ----------- |
 | Frameworks | Regulatory and standard frameworks (ISO 27001, GDPR, NIS2, etc.) with type, category and jurisdiction |
@@ -61,7 +69,11 @@ Detailed feature reference for Cairn. For module-level specifications (business 
 | Inter-Framework Mappings | Requirement-to-requirement mappings across frameworks (equivalent, partial, includes, related) |
 | Framework Import | Excel-based bulk import of frameworks and requirements |
 
+![Action plan detail](screenshots/action-plan-detail.png)
+
 ## Users & Access Control
+
+![Groups](screenshots/groups.png)
 
 | Feature | Description |
 | ------- | ----------- |
@@ -76,6 +88,8 @@ Detailed feature reference for Cairn. For module-level specifications (business 
 
 ## Indicators (KPI Tracking)
 
+![Indicators](screenshots/indicators.png)
+
 | Feature | Description |
 | ------- | ----------- |
 | Custom Indicators | Manual KPI, metric and compliance metric tracking with number, boolean or percentage formats |
@@ -85,6 +99,8 @@ Detailed feature reference for Cairn. For module-level specifications (business 
 | Sparklines | Inline charts on the dashboard for numeric indicators |
 
 ## Platform Capabilities
+
+![Calendar](screenshots/calendar.png)
 
 | Feature | Description |
 | ------- | ----------- |

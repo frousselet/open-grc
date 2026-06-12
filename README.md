@@ -30,7 +30,7 @@ docker compose exec web python manage.py migrate
 docker compose exec web python manage.py createsuperuser
 ```
 
-Then open [http://localhost:8000](http://localhost:8000).
+Then open [http://localhost:8000](http://localhost:8000). To try Cairn with realistic sample content, load the [demo dataset](docs/installation.md#demo-data-optional).
 
 To run the published image without cloning the repository, and for production notes (scheduled commands), see the [installation guide](docs/installation.md).
 

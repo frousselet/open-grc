@@ -91,6 +91,16 @@ docker compose exec web python manage.py migrate
 docker compose exec web python manage.py createsuperuser
 ```
 
+## Demo data (optional)
+
+To explore Cairn with realistic sample content, load the fictional **Voltara Energy** dataset (a mid-size renewable energy operator: ISO 27001 / NIS2 / GDPR frameworks, audits, risks, EBIOS RM study, indicators, management reviews) on a **fresh, empty database**:
+
+```bash
+docker compose exec -T web python manage.py shell -c "exec(open('scripts/seed_demo_data.py').read())"
+```
+
+Then sign in with `elise.moreau@voltara.example` / `VoltaraDemo!2026` (superuser). All seeded accounts share the same password. This script is intended for development and demo environments only.
+
 ## Scheduled lifecycle commands
 
 Two management commands keep the risk register in sync with time and are intended to be run **once a day** by a cron job (host or container side):

@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Demo dataset seed script**: `scripts/seed_demo_data.py` (with `scripts/seed_demo_tables.py`) populates a fresh database with the fictional "Voltara Energy" company: users in every system group, scopes, sites, stakeholders, issues, objectives, SWOT, roles, activities, essential and support assets with dependencies and SPOFs, suppliers with contractual requirements, the full ISO/IEC 27001:2022 Annex A plus NIS2, GDPR and an internal baseline (133 requirements), audits with findings and action plans, an ISO 27005 risk assessment (threats, vulnerabilities, analyses, risks, treatment plans, acceptances), an EBIOS RM study (workshops 0-3), indicators with measurement history, and management reviews. Documented in `docs/installation.md`.
+
 ### Changed
 
 - **README rewritten for accessibility**: the public README is now a short overview (what Cairn does, quick start, documentation links, tech stack). The detailed content moves to `docs/`: feature tables to `docs/features.md`, the full MCP tool reference to `docs/mcp-server.md`, installation and scheduled-command details to `docs/installation.md`, plus a new REST API overview (`docs/api.md`) and a documentation index (`docs/README.md`).
+- **Documentation screenshots refreshed**: all `docs/screenshots/` captures retaken in 4:3 (1440x1080) on the current brand with the demo dataset, and embedded in the README (dashboard) and `docs/features.md` (one per module section).
 
 ## [0.26.2] - 2026-06-12
 
