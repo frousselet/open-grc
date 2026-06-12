@@ -1569,15 +1569,17 @@
       white-space: nowrap;
     }
 
-    /* ── Forms — Soft wells ──────────────────────────────
-     * Form inputs are chrome, not features. Like the sidebar's flat
-     * panel, fields rest as soft wells (muted background, subtle
-     * hairline) and surface to white with an accent ring on focus.
+    /* ── Forms — Floating glass fields ───────────────────
+     * Form inputs are chrome, not features. Fields use the sidebar
+     * search field recipe: translucent glass resting on the surface,
+     * soft shadow lift, glass border, brighter on hover, surfacing
+     * to solid with the accent ring on focus.
      */
     .form-control, .form-select {
       border-radius: .75rem;
-      border: 1px solid var(--border-subtle);
-      background-color: var(--surface-muted);
+      border: 1px solid var(--border-glass);
+      background-color: var(--glass);
+      box-shadow: var(--shadow-sm);
       font-size: .9375rem;
       font-weight: 500;
       padding: .5625rem .875rem;
@@ -1586,6 +1588,7 @@
     }
     .form-control:hover:not(:focus):not(:disabled):not([readonly]),
     .form-select:hover:not(:focus):not(:disabled) {
+      background-color: var(--glass-hover);
       border-color: var(--border-light);
     }
     .form-control:focus, .form-select:focus {
@@ -1595,14 +1598,15 @@
     }
     .form-control:disabled, .form-control[readonly],
     .form-select:disabled {
-      background-color: var(--surface-subtle);
+      background-color: var(--surface-muted);
       color: var(--text-secondary);
       border-color: var(--border-subtle);
+      box-shadow: none;
     }
     .form-control::placeholder { color: var(--text-muted); opacity: .7; font-weight: 400; }
     .input-group-text {
-      background: var(--surface-muted);
-      border: 1px solid var(--border-subtle);
+      background: var(--glass);
+      border: 1px solid var(--border-glass);
       color: var(--text-muted);
     }
     .form-label {
@@ -2169,14 +2173,16 @@
       padding: .125rem .5rem;
     }
     .ts-wrapper .ts-control {
-      background: var(--surface-muted);
-      border-color: var(--border-subtle);
-      border-radius: var(--radius-sm);
+      background: var(--glass);
+      border-color: var(--border-glass);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
       font-size: .8125rem;
       padding: .375rem .625rem;
       transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
     }
     .ts-wrapper:hover:not(.focus) .ts-control {
+      background: var(--glass-hover);
       border-color: var(--border-light);
     }
     .ts-wrapper.focus .ts-control {
@@ -2206,9 +2212,9 @@
       color: var(--accent);
     }
     [data-bs-theme="dark"] .ts-wrapper .ts-control {
-      background: var(--surface-muted);
+      background: var(--glass);
       color: var(--text-primary);
-      border-color: var(--border-subtle);
+      border-color: var(--border-glass);
     }
     [data-bs-theme="dark"] .ts-dropdown {
       background: var(--surface-glass);
@@ -2227,15 +2233,16 @@
       .ts-control .item { max-width: 45%; font-size: .78rem; }
     }
 
-    /* ── Jodit — flat soft well (both themes) ─────────── */
+    /* ── Jodit — floating glass field (both themes) ───── */
     /* The default Jodit chrome (grey segmented toolbar, hard borders)
-     * is replaced by the form-field language: a soft well that
+     * is replaced by the form-field language: a glass card that
      * surfaces on focus, a transparent toolbar over it, and a fading
      * hairline between toolbar and canvas. */
     .jodit-container:not(.jodit_inline) {
-      background: var(--surface-muted) !important;
-      border: 1px solid var(--border-subtle) !important;
-      border-radius: var(--radius-sm) !important;
+      background: var(--glass) !important;
+      border: 1px solid var(--border-glass) !important;
+      border-radius: var(--radius-md) !important;
+      box-shadow: var(--shadow-sm);
       overflow: hidden;
       transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
     }
@@ -2598,7 +2605,9 @@
     #itemDrawer .modal-dialog.mform-lg { max-width: min(48rem, 96vw); }
     #itemDrawer .modal-content {
       max-height: calc(100dvh - 3rem);
-      background: var(--surface);
+      /* Flat page-level background, like the sidebar panel: the glass
+       * fields float over it exactly as the sidebar search does */
+      background: var(--bg-page);
       overflow: hidden;
     }
     #itemDrawer .modal-content > form {
@@ -2652,8 +2661,9 @@
       height: 1.5rem;
       flex-shrink: 0;
       border-radius: 50%;
-      border: 1px solid var(--border-subtle);
-      background: var(--surface-muted);
+      border: 1px solid var(--border-glass);
+      background: var(--glass);
+      box-shadow: var(--shadow-xs);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -2766,8 +2776,9 @@
       height: 32px;
       flex-shrink: 0;
       border-radius: var(--radius-xs);
-      border: 1px solid var(--border-subtle);
-      background: var(--surface-muted);
+      border: 1px solid var(--border-glass);
+      background: var(--glass);
+      box-shadow: var(--shadow-xs);
       color: var(--text-secondary);
       display: inline-flex;
       align-items: center;
@@ -2779,7 +2790,7 @@
 
     /* ── Modal form header ─────────────────────────── */
     #itemDrawer .modal-header {
-      background: var(--surface);
+      background: transparent;
       gap: .625rem;
       flex-shrink: 0;
     }
@@ -2816,7 +2827,7 @@
       overflow-y: auto;
       flex: 1 1 auto;
       min-height: 0;
-      background: var(--surface);
+      background: transparent;
       scrollbar-width: thin;
       scrollbar-color: var(--border-light) transparent;
     }
@@ -2832,7 +2843,7 @@
       padding: .875rem 1.5rem;
       border-top: 1px solid transparent;
       border-image: linear-gradient(to right, transparent, var(--border-light) 12%, var(--border-light) 88%, transparent) 1;
-      background: var(--surface);
+      background: transparent;
       gap: .625rem;
       display: flex;
       justify-content: flex-end;
@@ -2886,15 +2897,15 @@
       font-size: .8125rem;
       padding: .3125rem .625rem;
       min-height: 2rem;
-      background: var(--surface);
     }
 
     /* ── Form fields ─────────────────────────────── */
     #itemDrawer .form-control,
     #itemDrawer .form-select {
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border-subtle);
-      background: var(--surface-muted);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-glass);
+      background: var(--glass);
+      box-shadow: var(--shadow-sm);
       font-size: .8125rem;
       padding: .4375rem .75rem;
       min-height: 2.25rem;
@@ -2902,6 +2913,7 @@
     }
     #itemDrawer .form-control:hover:not(:focus),
     #itemDrawer .form-select:hover:not(:focus) {
+      background: var(--glass-hover);
       border-color: var(--border-light);
     }
     #itemDrawer .form-control:focus,
@@ -2944,15 +2956,16 @@
     }
 
     /* ── Scope widget compact ────────────────────── */
-    /* Soft well like the other fields; the embedded search is
+    /* Glass card like the other fields; the embedded search is
      * borderless and separated from the tree by a fading hairline,
      * echoing the sidebar search over the scrolling menu */
     #itemDrawer .scope-tree-widget {
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
       padding: .5rem;
       scrollbar-width: thin;
-      background: var(--surface-muted);
+      background: var(--glass);
+      box-shadow: var(--shadow-sm);
       transition: border-color var(--transition-fast);
     }
     #itemDrawer .scope-tree-widget:hover {

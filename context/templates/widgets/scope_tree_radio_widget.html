@@ -4,11 +4,11 @@
 <div class="scope-tree-widget scope-tree-radio" id="stw-{{ widget_id }}">
   <div class="scope-tree-search mb-2">
     <div class="input-group input-group-sm">
-      <span class="input-group-text" style="background:var(--surface-muted);border-color:var(--border-subtle)"><i class="bi bi-search" style="color:var(--text-muted)"></i></span>
+      <span class="input-group-text"><i class="bi bi-search" style="color:var(--text-muted)"></i></span>
       <input type="text" class="form-control form-control-sm scope-tree-filter" placeholder="{% trans 'Search scopes…' %}">
     </div>
   </div>
-  <div class="scope-tree-container" style="max-height:220px;overflow-y:auto;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);background:var(--surface-muted);padding:.25rem 0">
+  <div class="scope-tree-container" style="max-height:220px;overflow-y:auto;border:1px solid var(--border-glass);border-radius:var(--radius-md);background:var(--glass);box-shadow:var(--shadow-sm);padding:.25rem 0">
     {# "None" option #}
     <div class="scope-tree-node" data-depth="0" data-id="" data-parent="">
       <label class="d-flex align-items-center gap-1 px-1 py-1 scope-tree-label" style="cursor:pointer;margin:0;font-size:.85rem;border-radius:var(--radius-xs)">
