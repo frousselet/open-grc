@@ -91,9 +91,9 @@
       <div class="d-flex align-items-center gap-2">
         <span class="today-actions__badge-icon" aria-hidden="true"><i class="bi bi-list-check"></i></span>
         <h2 class="today-actions__title mb-0">{% trans "Today's actions" %}</h2>
-        <span class="today-actions__count tabular-nums">{{ today_action_count }}</span>
+        {% if today_action_count %}<span class="today-actions__count tabular-nums">{{ today_action_count }}</span>{% endif %}
       </div>
-      <span class="today-actions__hint">{% blocktrans count count=today_action_count %}{{ count }} item needs your attention.{% plural %}{{ count }} items need your attention.{% endblocktrans %}</span>
+      {% if today_action_count %}<span class="today-actions__hint">{% blocktrans count count=today_action_count %}{{ count }} item needs your attention.{% plural %}{{ count }} items need your attention.{% endblocktrans %}</span>{% endif %}
     </div>
     {% if today_action_groups %}
     <div class="row g-3">
