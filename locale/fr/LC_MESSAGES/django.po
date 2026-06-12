@@ -4614,6 +4614,9 @@ msgstr "Traiter %(count)d SPOF dans les dépendances site-fournisseur"
 msgid "Deadlines and events"
 msgstr "Échéances et événements"
 
+msgid "in the next 30 days"
+msgstr "dans les 30 prochains jours"
+
 msgctxt "today actions group"
 msgid "Priority"
 msgstr "Prioritaire"
@@ -8197,6 +8200,10 @@ msgstr "Tout afficher"
 #, python-format
 msgid "in %%(days)s days"
 msgstr "dans %%(days)s jours"
+
+#, python-format
+msgid "in %(days)s days"
+msgstr "dans %(days)s jours"
 
 msgid "Token created. Copy the password now, it will not be shown again."
 msgstr "Jeton créé. Copiez le mot de passe maintenant, il ne sera plus affiché."
