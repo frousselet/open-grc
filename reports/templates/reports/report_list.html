@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load i18n ui %}
 
-{% block title %}{% trans "Reports" %} — Cairn{% endblock %}
+{% block title %}{% trans "Reports" %} - Cairn{% endblock %}
 
 {% block content %}
-{% page_header _("Reports") %}{% endpage_header %}
+{% page_header _("Reports") eyebrow=_("Governance") accent="reports" %}{% endpage_header %}
 
 {# ── Report types ──────────────────────────────────────── #}
 <div class="row g-3 mb-4">

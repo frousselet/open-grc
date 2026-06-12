@@ -5,7 +5,7 @@
 
 {% block content %}
 {% has_perm "reports.management_review.create" as can_create_review %}
-{% page_header _("Management reviews") %}
+{% page_header _("Management reviews") eyebrow=_("Governance") accent="reports" %}
   {% if can_create_review %}
   <a href="{% url 'reports:management-review-new' %}" class="btn btn-primary">
     <i class="bi bi-plus-lg me-1"></i>{% trans "New review" %}
