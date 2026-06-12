@@ -1569,14 +1569,15 @@
       white-space: nowrap;
     }
 
-    /* ── Forms — Soft chrome ──────────────────────────────
-     * Form inputs are chrome, not features. Subtle 1px border on
-     * cream background, accent ring on focus. No outline-overload.
+    /* ── Forms — Soft wells ──────────────────────────────
+     * Form inputs are chrome, not features. Like the sidebar's flat
+     * panel, fields rest as soft wells (muted background, subtle
+     * hairline) and surface to white with an accent ring on focus.
      */
     .form-control, .form-select {
       border-radius: .75rem;
-      border: 1px solid var(--border-light);
-      background-color: var(--surface);
+      border: 1px solid var(--border-subtle);
+      background-color: var(--surface-muted);
       font-size: .9375rem;
       font-weight: 500;
       padding: .5625rem .875rem;
@@ -1585,7 +1586,7 @@
     }
     .form-control:hover:not(:focus):not(:disabled):not([readonly]),
     .form-select:hover:not(:focus):not(:disabled) {
-      border-color: rgba(22,19,18,.22);
+      border-color: var(--border-light);
     }
     .form-control:focus, .form-select:focus {
       border-color: var(--accent);
@@ -1594,11 +1595,16 @@
     }
     .form-control:disabled, .form-control[readonly],
     .form-select:disabled {
-      background-color: var(--surface-muted);
+      background-color: var(--surface-subtle);
       color: var(--text-secondary);
-      border-color: var(--border-light);
+      border-color: var(--border-subtle);
     }
     .form-control::placeholder { color: var(--text-muted); opacity: .7; font-weight: 400; }
+    .input-group-text {
+      background: var(--surface-muted);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+    }
     .form-label {
       font-size: .8125rem;
       font-weight: 600;
@@ -2163,16 +2169,25 @@
       padding: .125rem .5rem;
     }
     .ts-wrapper .ts-control {
-      border-color: var(--border-light);
+      background: var(--surface-muted);
+      border-color: var(--border-subtle);
       border-radius: var(--radius-sm);
       font-size: .8125rem;
       padding: .375rem .625rem;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+    }
+    .ts-wrapper:hover:not(.focus) .ts-control {
+      border-color: var(--border-light);
     }
     .ts-wrapper.focus .ts-control {
+      background: var(--surface);
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-glow);
     }
     .ts-dropdown {
+      background: var(--surface-glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-color: var(--border-light);
       border-radius: var(--radius-sm);
       box-shadow: var(--shadow-lg);
@@ -2191,12 +2206,12 @@
       color: var(--accent);
     }
     [data-bs-theme="dark"] .ts-wrapper .ts-control {
-      background: var(--surface);
+      background: var(--surface-muted);
       color: var(--text-primary);
-      border-color: var(--border-light);
+      border-color: var(--border-subtle);
     }
     [data-bs-theme="dark"] .ts-dropdown {
-      background: var(--surface);
+      background: var(--surface-glass);
       color: var(--text-primary);
       border-color: var(--border-light);
     }
@@ -2212,52 +2227,73 @@
       .ts-control .item { max-width: 45%; font-size: .78rem; }
     }
 
-    /* ── Jodit dark-theme overrides ───────────────────── */
-    [data-bs-theme="dark"] .jodit-container,
-    [data-bs-theme="dark"] .jodit-container:not(.jodit_inline) {
-      background: var(--surface) !important;
-      border-color: var(--border-light) !important;
-    }
-    [data-bs-theme="dark"] .jodit-toolbar__box,
-    [data-bs-theme="dark"] .jodit-toolbar-editor-collection {
-      background: var(--surface-raised) !important;
-      border-color: var(--border-light) !important;
-    }
-    [data-bs-theme="dark"] .jodit-toolbar-button__button {
-      color: var(--text-secondary) !important;
-    }
-    [data-bs-theme="dark"] .jodit-toolbar-button__button:hover {
+    /* ── Jodit — flat soft well (both themes) ─────────── */
+    /* The default Jodit chrome (grey segmented toolbar, hard borders)
+     * is replaced by the form-field language: a soft well that
+     * surfaces on focus, a transparent toolbar over it, and a fading
+     * hairline between toolbar and canvas. */
+    .jodit-container:not(.jodit_inline) {
       background: var(--surface-muted) !important;
-      color: var(--text-primary) !important;
+      border: 1px solid var(--border-subtle) !important;
+      border-radius: var(--radius-sm) !important;
+      overflow: hidden;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
     }
-    [data-bs-theme="dark"] .jodit-workplace,
-    [data-bs-theme="dark"] .jodit-wysiwyg {
+    .jodit-container:not(.jodit_inline):hover:not(:focus-within) {
+      border-color: var(--border-light) !important;
+    }
+    .jodit-container:not(.jodit_inline):focus-within {
+      background: var(--surface) !important;
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .jodit-toolbar__box,
+    .jodit-toolbar-editor-collection {
+      background: transparent !important;
+      border-bottom: 1px solid transparent !important;
+      border-image: linear-gradient(to right, transparent, var(--border-subtle) 12%, var(--border-subtle) 88%, transparent) 1;
+    }
+    .jodit-toolbar-button__button,
+    .jodit-toolbar-button__trigger {
+      color: var(--text-secondary) !important;
+      border-radius: var(--radius-xs);
+    }
+    .jodit-toolbar-button__button:hover,
+    .jodit-toolbar-button__trigger:hover {
       background: var(--surface) !important;
       color: var(--text-primary) !important;
     }
-    [data-bs-theme="dark"] .jodit-placeholder {
-      color: var(--text-muted) !important;
-    }
-    [data-bs-theme="dark"] .jodit-status-bar {
-      background: var(--surface-raised) !important;
-      border-color: var(--border-light) !important;
-      color: var(--text-muted) !important;
-    }
-    [data-bs-theme="dark"] .jodit-toolbar-button__trigger svg,
-    [data-bs-theme="dark"] .jodit-toolbar-button__button svg {
+    .jodit-toolbar-button__button svg,
+    .jodit-toolbar-button__trigger svg {
       fill: var(--text-secondary) !important;
     }
-    [data-bs-theme="dark"] .jodit-toolbar-button__button:hover svg {
+    .jodit-toolbar-button__button:hover svg {
       fill: var(--text-primary) !important;
     }
-    [data-bs-theme="dark"] .jodit-ui-separator {
-      border-color: var(--border-light) !important;
+    .jodit-workplace,
+    .jodit-wysiwyg {
+      background: transparent !important;
+      color: var(--text-primary) !important;
     }
-    [data-bs-theme="dark"] .jodit-popup,
-    [data-bs-theme="dark"] .jodit-popup__content {
+    .jodit-placeholder {
+      color: var(--text-muted) !important;
+    }
+    .jodit-status-bar {
+      background: transparent !important;
+      border-top: 1px solid transparent !important;
+      border-image: linear-gradient(to right, transparent, var(--border-subtle) 12%, var(--border-subtle) 88%, transparent) 1;
+      color: var(--text-muted) !important;
+    }
+    .jodit-ui-separator {
+      border-color: var(--border-subtle) !important;
+    }
+    .jodit-popup,
+    .jodit-popup__content {
       background: var(--surface-raised) !important;
       color: var(--text-primary) !important;
       border-color: var(--border-light) !important;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
     }
 
     /* ── Sticky form action bar ───────────────────────── */
@@ -2536,7 +2572,10 @@
       .main-content { padding: 6.5rem 2rem 3.5rem; }
     }
     /* ── Scope tree widget ──────────────────────────── */
-    .scope-tree-label:hover { background: var(--surface-muted); }
+    .scope-tree-label { transition: background-color var(--transition-fast); }
+    .scope-tree-label:hover { background: var(--surface-subtle); }
+    /* Selected row tinted like an active sidebar link */
+    .scope-tree-label:has(input:checked) { background: var(--accent-soft); }
     .scope-tree-node.hidden { display: none; }
     .scope-tree-node.collapsed-child { display: none; }
     .scope-tree-toggle .bi { transition: transform .2s ease; }
@@ -2574,12 +2613,17 @@
       border-radius: 1rem;
       box-shadow: var(--shadow-lg);
     }
+    /* Hairlines fading at both ends, like the sidebar demarcation
+     * (re-declared here because this block wins over the theme-aware
+     * modal rules above) */
     .modal-header {
-      border-bottom: 1px solid var(--border-light);
+      border-bottom: 1px solid transparent;
+      border-image: linear-gradient(to right, transparent, var(--border-light) 12%, var(--border-light) 88%, transparent) 1;
       padding: 1rem 1.25rem;
     }
     .modal-footer {
-      border-top: 1px solid var(--border-light);
+      border-top: 1px solid transparent;
+      border-image: linear-gradient(to right, transparent, var(--border-light) 12%, var(--border-light) 88%, transparent) 1;
       padding: .875rem 1.25rem;
     }
     .modal-title { font-weight: 700; letter-spacing: -.01em; }
@@ -2608,8 +2652,8 @@
       height: 1.5rem;
       flex-shrink: 0;
       border-radius: 50%;
-      border: 1px solid var(--border-light);
-      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      background: var(--surface-muted);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -2617,13 +2661,15 @@
       transition: background-color .2s var(--ease-out), border-color .2s var(--ease-out), color .2s var(--ease-out);
     }
     .mform-pill-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* Connector dissolving toward the next step, like the sidebar
+     * hairlines fading at their ends */
     .mform-pill::after {
       content: "";
       flex: 1 1 auto;
       height: 1px;
       min-width: .75rem;
       margin-left: .25rem;
-      background: var(--border-light);
+      background: linear-gradient(to right, var(--border-light), transparent);
     }
     .mform-pill:last-child::after { content: none; }
     .mform-pill.is-current { color: var(--text-primary); }
@@ -2664,7 +2710,9 @@
       position: fixed;
       z-index: 1085;
       width: 320px;
-      background: var(--surface);
+      background: var(--surface-glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--border-light);
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-lg);
@@ -2691,7 +2739,7 @@
       justify-content: center;
       transition: background-color .12s var(--ease-out);
     }
-    .icon-picker-grid button:hover { background: var(--surface-muted); }
+    .icon-picker-grid button:hover { background: var(--glass-hover); }
     .icon-picker-grid button.is-selected {
       border-color: var(--accent);
       background: var(--accent-soft);
@@ -2718,8 +2766,8 @@
       height: 32px;
       flex-shrink: 0;
       border-radius: var(--radius-xs);
-      border: 1px solid var(--border-light);
-      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      background: var(--surface-muted);
       color: var(--text-secondary);
       display: inline-flex;
       align-items: center;
@@ -2782,7 +2830,8 @@
     /* ── Drawer footer ────────────────────────────── */
     #itemDrawer .drawer-footer {
       padding: .875rem 1.5rem;
-      border-top: 1px solid var(--border-light);
+      border-top: 1px solid transparent;
+      border-image: linear-gradient(to right, transparent, var(--border-light) 12%, var(--border-light) 88%, transparent) 1;
       background: var(--surface);
       gap: .625rem;
       display: flex;
@@ -2843,22 +2892,23 @@
     /* ── Form fields ─────────────────────────────── */
     #itemDrawer .form-control,
     #itemDrawer .form-select {
-      border-radius: var(--radius-xs);
-      border: 1px solid var(--border-light);
-      background: var(--surface);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      background: var(--surface-muted);
       font-size: .8125rem;
       padding: .4375rem .75rem;
       min-height: 2.25rem;
-      transition: border-color .15s, box-shadow .15s;
+      transition: border-color .15s, box-shadow .15s, background-color .15s;
     }
     #itemDrawer .form-control:hover:not(:focus),
     #itemDrawer .form-select:hover:not(:focus) {
-      border-color: color-mix(in srgb, var(--accent) 40%, var(--border-light));
+      border-color: var(--border-light);
     }
     #itemDrawer .form-control:focus,
     #itemDrawer .form-select:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 2px var(--accent-glow);
+      background: var(--surface);
     }
     #itemDrawer .form-control::placeholder {
       color: var(--text-muted);
@@ -2894,15 +2944,25 @@
     }
 
     /* ── Scope widget compact ────────────────────── */
+    /* Soft well like the other fields; the embedded search is
+     * borderless and separated from the tree by a fading hairline,
+     * echoing the sidebar search over the scrolling menu */
     #itemDrawer .scope-tree-widget {
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-xs);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
       padding: .5rem;
       scrollbar-width: thin;
-      background: var(--surface);
+      background: var(--surface-muted);
+      transition: border-color var(--transition-fast);
+    }
+    #itemDrawer .scope-tree-widget:hover {
+      border-color: var(--border-light);
     }
     #itemDrawer .scope-tree-widget .scope-tree-search {
       margin-bottom: .375rem !important;
+      padding-bottom: .375rem;
+      border-bottom: 1px solid transparent;
+      border-image: linear-gradient(to right, transparent, var(--border-subtle) 12%, var(--border-subtle) 88%, transparent) 1;
     }
     #itemDrawer .scope-tree-widget .scope-tree-container {
       max-height: 9rem;
@@ -2914,24 +2974,26 @@
       font-size: .8rem !important;
       padding: .1875rem .375rem !important;
     }
-    #itemDrawer .scope-tree-radio .input-group {
+    #itemDrawer .scope-tree-widget .input-group {
       border: none;
     }
-    #itemDrawer .scope-tree-radio .input-group .input-group-text {
-      background: transparent;
-      border: none;
+    #itemDrawer .scope-tree-widget .input-group .input-group-text {
+      background: transparent !important;
+      border: none !important;
       padding-left: .25rem;
       padding-right: 0;
     }
-    #itemDrawer .scope-tree-radio .input-group .form-control {
+    #itemDrawer .scope-tree-widget .input-group .form-control {
       border: none;
+      background: transparent;
       box-shadow: none !important;
       padding-left: .25rem;
       min-height: unset;
       font-size: .8rem;
     }
-    #itemDrawer .scope-tree-radio .input-group .form-control:focus {
+    #itemDrawer .scope-tree-widget .input-group .form-control:focus {
       border: none;
+      background: transparent;
     }
 
     /* ── Tags widget compact ─────────────────────── */
@@ -2951,7 +3013,7 @@
     .scope-pop-btn { background: var(--success-soft); color: var(--success); border: 0; border-radius: 999px; padding: .2em .65em; font-size: .75rem; font-weight: 700; cursor: pointer; white-space: nowrap; line-height: 1.4; transition: background-color .15s, color .15s; }
     .scope-pop-btn:hover { background: var(--accent); color: #fff; }
     .scope-pop-btn .bi { font-size: .7rem; }
-    .scope-pop-panel { display: none; position: fixed; z-index: 1050; background: var(--surface); border: 1px solid var(--border-light); border-radius: .875rem; padding: .625rem .75rem; box-shadow: var(--shadow-lg); min-width: max-content; max-width: 360px; }
+    .scope-pop-panel { display: none; position: fixed; z-index: 1050; background: var(--surface-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border-light); border-radius: .875rem; padding: .625rem .75rem; box-shadow: var(--shadow-lg); min-width: max-content; max-width: 360px; }
     .scope-pop-panel.show { display: flex; flex-wrap: wrap; gap: .3em; align-items: center; }
 
     /* ── Utilities ─────────────────────────────────── */
