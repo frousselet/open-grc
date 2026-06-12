@@ -1,10 +1,14 @@
 import json
+from datetime import timedelta
 
 import pytest
 from django.test import Client
 from django.urls import reverse
+from django.utils import timezone
 
 from accounts.tests.factories import UserFactory
+from compliance.constants import ActionPlanStatus
+from compliance.tests.factories import ComplianceActionPlanFactory
 from context.tests.factories import ScopeFactory
 
 pytestmark = pytest.mark.django_db
@@ -198,6 +202,121 @@ class TestCalendarEventsView:
             {"categories": ["scope", "risk_assessment"]},
         )
         assert resp.status_code == 200
+
+
+# ── Calendar Upcoming API ───────────────────────────────────
+
+
+class TestCalendarUpcomingView:
+    """Upcoming-deadlines feed: next-milestone dates, never negative day counts.
+
+    Regression tests for issue #112: the old client-side list used the
+    range start of in-progress plans and showed "in -131 days".
+    """
+
+    def _items(self, client, **params):
+        resp = client.get(reverse("calendar-upcoming"), params)
+        assert resp.status_code == 200
+        return json.loads(resp.content)["items"]
+
+    def test_empty_without_data(self):
+        client, user = _superuser_client()
+        assert self._items(client) == []
+
+    def test_in_progress_range_shows_target_not_start(self):
+        """A plan started 131 days ago shows its target date as the milestone."""
+        today = timezone.now().date()
+        ComplianceActionPlanFactory(
+            start_date=today - timedelta(days=131),
+            target_date=today + timedelta(days=10),
+            status=ActionPlanStatus.TO_IMPLEMENT,
+        )
+        client, user = _superuser_client()
+        items = self._items(client)
+        assert len(items) == 1
+        assert items[0]["due"] == (today + timedelta(days=10)).isoformat()
+        assert items[0]["days_left"] == 10
+        assert items[0]["overdue"] is False
+
+    def test_not_started_range_shows_start(self):
+        today = timezone.now().date()
+        ComplianceActionPlanFactory(
+            start_date=today + timedelta(days=5),
+            target_date=today + timedelta(days=25),
+            status=ActionPlanStatus.TO_IMPLEMENT,
+        )
+        client, user = _superuser_client()
+        items = self._items(client)
+        assert len(items) == 1
+        assert items[0]["due"] == (today + timedelta(days=5)).isoformat()
+        assert items[0]["days_left"] == 5
+
+    def test_past_due_plan_flagged_overdue(self):
+        today = timezone.now().date()
+        ComplianceActionPlanFactory(
+            start_date=today - timedelta(days=72),
+            target_date=today - timedelta(days=5),
+            status=ActionPlanStatus.TO_IMPLEMENT,
+        )
+        client, user = _superuser_client()
+        items = self._items(client)
+        assert len(items) == 1
+        assert items[0]["overdue"] is True
+        assert items[0]["due"] == (today - timedelta(days=5)).isoformat()
+
+    def test_never_a_negative_day_count_without_overdue_flag(self):
+        today = timezone.now().date()
+        for delta_start, delta_target in [(-131, 10), (-88, 2), (-72, -5), (3, 20)]:
+            ComplianceActionPlanFactory(
+                start_date=today + timedelta(days=delta_start),
+                target_date=today + timedelta(days=delta_target),
+                status=ActionPlanStatus.TO_IMPLEMENT,
+            )
+        client, user = _superuser_client()
+        items = self._items(client)
+        assert len(items) == 4
+        for item in items:
+            assert item["overdue"] or item["days_left"] >= 0
+
+    def test_sorted_by_milestone_date(self):
+        today = timezone.now().date()
+        # Created in reverse milestone order: started long ago but due in
+        # 20 days, vs starting in 2 days. Sorting on the raw range start
+        # would rank the first one on top.
+        ComplianceActionPlanFactory(
+            start_date=today - timedelta(days=131),
+            target_date=today + timedelta(days=20),
+            status=ActionPlanStatus.TO_IMPLEMENT,
+        )
+        ComplianceActionPlanFactory(
+            start_date=today + timedelta(days=2),
+            target_date=today + timedelta(days=25),
+            status=ActionPlanStatus.TO_IMPLEMENT,
+        )
+        client, user = _superuser_client()
+        items = self._items(client)
+        assert [i["days_left"] for i in items] == [2, 20]
+
+    def test_concluded_items_excluded(self):
+        today = timezone.now().date()
+        ComplianceActionPlanFactory(
+            start_date=today - timedelta(days=60),
+            target_date=today - timedelta(days=5),
+            status=ActionPlanStatus.CLOSED,
+        )
+        client, user = _superuser_client()
+        assert self._items(client) == []
+
+    def test_respects_categories_filter(self):
+        today = timezone.now().date()
+        ComplianceActionPlanFactory(
+            start_date=today - timedelta(days=10),
+            target_date=today + timedelta(days=10),
+            status=ActionPlanStatus.TO_IMPLEMENT,
+        )
+        client, user = _superuser_client()
+        assert len(self._items(client, categories="action_plan")) == 1
+        assert self._items(client, categories="scope") == []
 
 
 # ── Calendar Subscribe ──────────────────────────────────────

@@ -153,6 +153,14 @@
     color:var(--accent); background:var(--accent-soft); padding:.0625rem .375rem;
     border-radius:100px; line-height:1.5;
   }
+  .upcoming-item-date .upcoming-days--overdue {
+    color:var(--danger); background:var(--danger-soft);
+  }
+  .upcoming-item-kind {
+    flex-shrink:0; font-size:.625rem; font-weight:550; line-height:1.5;
+    color:var(--text-secondary); background:var(--surface-subtle);
+    padding:.0625rem .375rem; border-radius:100px; white-space:nowrap;
+  }
   .upcoming-item-title { font-size:.8125rem; font-weight:500; color:var(--text-primary); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .upcoming-item-cat { font-size:.6875rem; color:var(--text-muted); flex-shrink:0; }
   .upcoming-empty { text-align:center; padding:1.25rem 1rem; color:var(--text-muted); font-size:.8125rem; }
@@ -252,7 +260,7 @@
   {% trans "Upcoming events" as t_upcoming %}{% trans "next 30 days" as t_next30 %}
   {% trans "No upcoming events" as t_noupcoming %}{% trans "today" as t_todaylabel %}
   {% trans "tomorrow" as t_tomorrow %}{% trans "Show all" as t_showall %}
-  {% trans "in %(days)s days" as t_indays %}
+  {% trans "in %(days)s days" as t_indays %}{% trans "Overdue" as t_overdue %}
 
   var CAT = {
     risk_assessment:'{{ t_ra|escapejs }}', compliance_assessment:'{{ t_ca|escapejs }}',
@@ -272,6 +280,7 @@
   var TXT_TOMORROW = '{{ t_tomorrow|escapejs }}';
   var TXT_SHOWALL = '{{ t_showall|escapejs }}';
   var TXT_INDAYS = '{{ t_indays|escapejs }}';
+  var TXT_OVERDUE = '{{ t_overdue|escapejs }}';
 
   // ── State ───────────────────────────────────────────
   var view = 'month';
@@ -576,22 +585,24 @@
   }
 
   // ── UPCOMING EVENTS ─────────────────────────────────
+  // The list comes from the dedicated upcoming endpoint: each item
+  // carries its next milestone (`due`), the overdue flag and the day
+  // count, all computed server-side with the same logic as the
+  // dashboard's Today's actions card. No date arithmetic here: using
+  // the raw event range start produced "in -131 days" badges for
+  // plans already started (issue #112).
   var upcomingExpanded = false;
   function renderUpcoming() {
     var cats=getActiveCats(), p=new URLSearchParams();
-    var now=new Date();
-    var todayStr=iso(now);
-    var future=new Date(now.getTime()+30*24*60*60*1000);
-    p.set('start',todayStr); p.set('end',iso(future));
     cats.forEach(function(c){ p.append('categories',c); });
-    fetch('{% url "calendar-events" %}?'+p.toString())
+    fetch('{% url "calendar-upcoming" %}?'+p.toString())
       .then(function(r){return r.json();})
-      .then(function(events){
-        events.sort(function(a,b){ return a.start.localeCompare(b.start); });
+      .then(function(data){
+        var items=data.items;
         var body=document.getElementById('upcomingBody');
-        var count=events.length;
+        var count=items.length;
         var collapsed=5;
-        var shown=upcomingExpanded?events:events.slice(0,collapsed);
+        var shown=upcomingExpanded?items:items.slice(0,collapsed);
 
         var h='<div class="upcoming-header">'
           +'<h6><i class="bi bi-clock-history me-1"></i>'+TXT_UPCOMING
@@ -608,22 +619,21 @@
         } else {
           h+='<div class="upcoming-list">';
           shown.forEach(function(ev){
-            var evDate=new Date(ev.start+'T00:00:00');
-            var diffDays=Math.round((evDate-new Date(todayStr+'T00:00:00'))/(86400000));
-            var dayLabel;
-            if(diffDays===0) dayLabel=TXT_TODAYLABEL;
-            else if(diffDays===1) dayLabel=TXT_TOMORROW;
-            else dayLabel=TXT_INDAYS.replace('%(days)s',diffDays);
+            var dayLabel, daysCls='upcoming-days';
+            if(ev.overdue){ dayLabel=TXT_OVERDUE; daysCls+=' upcoming-days--overdue'; }
+            else if(ev.days_left===0) dayLabel=TXT_TODAYLABEL;
+            else if(ev.days_left===1) dayLabel=TXT_TOMORROW;
+            else dayLabel=TXT_INDAYS.replace('%(days)s',ev.days_left);
 
-            var d=evDate;
+            var d=new Date(ev.due+'T00:00:00');
             var ds=pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear();
-            var cat=CAT[ev.category]||ev.category;
             var href=ev.url?' href="'+esc(ev.url)+'"':'';
             h+='<a class="upcoming-item"'+href+'>'
               +'<span class="upcoming-item-dot" style="background:'+ev.color+'"></span>'
-              +'<span class="upcoming-item-date">'+ds+' <span class="upcoming-days">'+esc(dayLabel)+'</span></span>'
+              +'<span class="upcoming-item-date">'+ds+' <span class="'+daysCls+'">'+esc(dayLabel)+'</span></span>'
+              +(ev.kind?'<span class="upcoming-item-kind">'+esc(ev.kind)+'</span>':'')
               +'<span class="upcoming-item-title" title="'+esc(ev.title)+'">'+esc(ev.title)+'</span>'
-              +'<span class="upcoming-item-cat">'+esc(cat)+'</span>'
+              +'<span class="upcoming-item-cat">'+esc(ev.category_label)+'</span>'
               +'</a>';
           });
           h+='</div>';

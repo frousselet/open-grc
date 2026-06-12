@@ -326,65 +326,7 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
         ctx["today_action_groups"] = [g for g in action_groups if g["items"]]
 
         # ── Deadlines & events (rendered inside Today's actions) ──
-        # Upcoming dates for the next 30 days, plus overdue deadlines
-        # (reviews, target dates, expiries) from the last 90 days,
-        # flagged as overdue instead of showing a negative day count.
-        category_labels = {
-            "risk_assessment": _("Risk assessments"),
-            "compliance_assessment": _("Compliance assessments"),
-            "action_plan": _("Action plans"),
-            "treatment_plan": _("Treatment plans"),
-            "scope": _("Scopes"),
-            "objective": _("Objectives"),
-            "framework": _("Frameworks"),
-            "swot": _("SWOT analyses"),
-            "acceptance": _("Risk acceptances"),
-            "supplier_review": _("Supplier reviews"),
-        }
-        raw_events = get_calendar_events(
-            self.request.user,
-            start=today - timedelta(days=90),
-            end=today + timedelta(days=30),
-        )
-        calendar_items = []
-        for ev in raw_events:
-            # Concluded items (closed / completed / cancelled plans,
-            # achieved objectives...) are no longer actionable: they stay
-            # on the calendar but leave the Today's actions card.
-            if ev.get("is_done"):
-                continue
-            start_d = date.fromisoformat(ev["start"])
-            end_d = date.fromisoformat(ev["end"]) if ev.get("end") else None
-            # For ranges, the next milestone is the start while it has not
-            # begun, then the end (the deadline). The previous upcoming list
-            # always showed the range start, yielding "in -131 days" for
-            # plans already started.
-            if end_d and start_d >= today:
-                due = start_d
-                kind = ev.get("kind_start") or ev.get("kind")
-            else:
-                due = end_d or start_d
-                kind = (ev.get("kind_end") if end_d else None) or ev.get("kind")
-            if due > today + timedelta(days=30):
-                continue
-            overdue = due < today
-            # Past dates only matter when something is due: informational
-            # dates (effective dates, analysis dates) are dropped.
-            if overdue and not ev.get("is_deadline"):
-                continue
-            calendar_items.append({
-                # The nature of the date lives in `kind`; the title stays
-                # free of the "Review: " / "Expiry: " prefixes.
-                "title": ev.get("plain_title") or ev["title"],
-                "url": ev.get("url"),
-                "color": ev["color"],
-                "category_label": category_labels.get(ev["category"], ev["category"]),
-                "kind": kind,
-                "due": due,
-                "overdue": overdue,
-                "days_left": (due - today).days,
-            })
-        calendar_items.sort(key=lambda e: e["due"])
+        calendar_items = build_upcoming_deadlines(self.request.user, today)
         ctx["calendar_items"] = calendar_items
         overdue_event_count = sum(1 for e in calendar_items if e["overdue"])
 
@@ -659,6 +601,75 @@ def get_calendar_events(user, start=None, end=None, categories=None):
     return events
 
 
+def build_upcoming_deadlines(user, today, categories=None):
+    """Upcoming dates for the next 30 days, plus overdue deadlines
+    (reviews, target dates, expiries) from the last 90 days, flagged as
+    overdue instead of showing a negative day count.
+
+    Each item carries the next milestone (`due`): for ranged events the
+    start date until the range has begun, then the end date (the
+    deadline). Shared by the dashboard's Today's actions card and the
+    calendar page's Upcoming events card so both lists agree.
+    """
+    category_labels = {
+        "risk_assessment": _("Risk assessments"),
+        "compliance_assessment": _("Compliance assessments"),
+        "action_plan": _("Action plans"),
+        "treatment_plan": _("Treatment plans"),
+        "scope": _("Scopes"),
+        "objective": _("Objectives"),
+        "framework": _("Frameworks"),
+        "swot": _("SWOT analyses"),
+        "acceptance": _("Risk acceptances"),
+        "supplier_review": _("Supplier reviews"),
+    }
+    raw_events = get_calendar_events(
+        user,
+        start=today - timedelta(days=90),
+        end=today + timedelta(days=30),
+        categories=categories,
+    )
+    items = []
+    for ev in raw_events:
+        # Concluded items (closed / completed / cancelled plans,
+        # achieved objectives...) are no longer actionable: they stay
+        # on the calendar but leave the upcoming lists.
+        if ev.get("is_done"):
+            continue
+        start_d = date.fromisoformat(ev["start"])
+        end_d = date.fromisoformat(ev["end"]) if ev.get("end") else None
+        # For ranges, the next milestone is the start while it has not
+        # begun, then the end (the deadline). Showing the range start
+        # unconditionally yielded "in -131 days" for plans already started.
+        if end_d and start_d >= today:
+            due = start_d
+            kind = ev.get("kind_start") or ev.get("kind")
+        else:
+            due = end_d or start_d
+            kind = (ev.get("kind_end") if end_d else None) or ev.get("kind")
+        if due > today + timedelta(days=30):
+            continue
+        overdue = due < today
+        # Past dates only matter when something is due: informational
+        # dates (effective dates, analysis dates) are dropped.
+        if overdue and not ev.get("is_deadline"):
+            continue
+        items.append({
+            # The nature of the date lives in `kind`; the title stays
+            # free of the "Review: " / "Expiry: " prefixes.
+            "title": ev.get("plain_title") or ev["title"],
+            "url": ev.get("url"),
+            "color": ev["color"],
+            "category_label": category_labels.get(ev["category"], ev["category"]),
+            "kind": kind,
+            "due": due,
+            "overdue": overdue,
+            "days_left": (due - today).days,
+        })
+    items.sort(key=lambda e: e["due"])
+    return items
+
+
 class CalendarEventsView(LoginRequiredMixin, View):
     """Return calendar events as JSON."""
 
@@ -670,6 +681,28 @@ class CalendarEventsView(LoginRequiredMixin, View):
             categories=request.GET.getlist("categories") or None,
         )
         return JsonResponse(events, safe=False)
+
+
+class CalendarUpcomingView(LoginRequiredMixin, View):
+    """Return the upcoming-deadlines list as JSON.
+
+    Backs the calendar page's "Upcoming events" card. Unlike the raw
+    events feed, each item carries its next milestone (`due`), the
+    overdue flag and the precomputed day count, so the client never
+    does date arithmetic on range starts (issue #112: "in -131 days").
+    """
+
+    def get(self, request):
+        today = timezone.now().date()
+        items = build_upcoming_deadlines(
+            request.user,
+            today,
+            categories=request.GET.getlist("categories") or None,
+        )
+        for item in items:
+            item["due"] = item["due"].isoformat()
+            item["kind"] = str(item["kind"]) if item["kind"] else ""
+        return JsonResponse({"items": items})
 
 
 # ── iCal subscription feed ──────────────────────────────────

@@ -8,8 +8,8 @@ from django.urls import include, path
 from mcp.views import OAuthAuthorizeView, oauth_authorization_server_metadata
 
 from .views import (
-    CalendarEventsView, CalendarSubscribeView, CalendarView,
-    ChangelogDismissView, DashboardIndicatorsPartialView,
+    CalendarEventsView, CalendarSubscribeView, CalendarUpcomingView,
+    CalendarView, ChangelogDismissView, DashboardIndicatorsPartialView,
     GeneralDashboardView, GlobalSearchView,
     ICalFeedView, StyleGuideView,
 )
@@ -29,6 +29,7 @@ urlpatterns = [
     path("calendar/subscribe/", CalendarSubscribeView.as_view(), name="calendar-subscribe"),
     path("calendar.ics", ICalFeedView.as_view(), name="calendar-ical"),
     path("api/calendar-events/", CalendarEventsView.as_view(), name="calendar-events"),
+    path("api/calendar-upcoming/", CalendarUpcomingView.as_view(), name="calendar-upcoming"),
     path("api/search/", GlobalSearchView.as_view(), name="global-search"),
     path("styleguide/", StyleGuideView.as_view(), name="styleguide"),
     path("admin/", admin.site.urls),
