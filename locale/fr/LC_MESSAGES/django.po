@@ -4595,6 +4595,25 @@ msgstr "Renouveler %(count)d contrat(s) fournisseur expiré(s)"
 msgid "Review %(count)d risk acceptance(s) expiring within 30 days"
 msgstr "Réexaminer %(count)d acceptation(s) de risque expirant sous 30 jours"
 
+#, python-format
+msgid "Mitigate %(count)d SPOF in asset dependencies"
+msgstr "Traiter %(count)d SPOF dans les dépendances d'actifs"
+
+#, python-format
+msgid "Mitigate %(count)d SPOF in supplier dependencies"
+msgstr "Traiter %(count)d SPOF dans les dépendances fournisseurs"
+
+#, python-format
+msgid "Mitigate %(count)d SPOF in site-asset dependencies"
+msgstr "Traiter %(count)d SPOF dans les dépendances site-bien"
+
+#, python-format
+msgid "Mitigate %(count)d SPOF in site-supplier dependencies"
+msgstr "Traiter %(count)d SPOF dans les dépendances site-fournisseur"
+
+msgid "Deadlines and events"
+msgstr "Échéances et événements"
+
 msgctxt "today actions group"
 msgid "Priority"
 msgstr "Prioritaire"

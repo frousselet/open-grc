@@ -1,0 +1,13 @@
+{% load i18n %}
+{# One deadline / event row inside the dashboard "Today's actions" card. Expects `ev`. #}
+<a class="upcoming-item"{% if ev.url %} href="{{ ev.url }}"{% endif %}>
+  <span class="upcoming-item-dot" style="background:{{ ev.color }}"></span>
+  <span class="upcoming-item-date">{{ ev.due|date:"d/m/Y" }}
+    {% if ev.overdue %}<span class="upcoming-days upcoming-days--overdue">{% trans "Overdue" %}</span>
+    {% elif ev.days_left == 0 %}<span class="upcoming-days">{% trans "today" %}</span>
+    {% elif ev.days_left == 1 %}<span class="upcoming-days">{% trans "tomorrow" %}</span>
+    {% else %}<span class="upcoming-days">{% blocktrans with days=ev.days_left %}in {{ days }} days{% endblocktrans %}</span>{% endif %}
+  </span>
+  <span class="upcoming-item-title" title="{{ ev.title }}">{{ ev.title }}</span>
+  <span class="upcoming-item-cat">{{ ev.category_label }}</span>
+</a>

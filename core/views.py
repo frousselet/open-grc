@@ -357,6 +357,23 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
                 _("Renew %(count)d expired supplier contract(s)"),
                 "assets:supplier-list", "bi-file-earmark-text",
             ))
+        # Single points of failure, one entry per dependency type
+        # (replaces the standalone SPOF banner)
+        spof_targets = [
+            ("asset", _("Mitigate %(count)d SPOF in asset dependencies"),
+             "assets:dependency-list", "bi-share"),
+            ("supplier", _("Mitigate %(count)d SPOF in supplier dependencies"),
+             "assets:supplier-dependency-list", "bi-truck"),
+            ("site_asset", _("Mitigate %(count)d SPOF in site-asset dependencies"),
+             "assets:site-asset-dependency-list", "bi-building"),
+            ("site_supplier", _("Mitigate %(count)d SPOF in site-supplier dependencies"),
+             "assets:site-supplier-dependency-list", "bi-buildings"),
+        ]
+        for key, label, url_name, icon in spof_targets:
+            if ctx["spof_detail"][key]:
+                plan_items.append(_action(
+                    ctx["spof_detail"][key], label, url_name, icon,
+                ))
 
         watch_items = []
         if ctx["expiring_acceptance_count"]:
@@ -372,9 +389,63 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
             {"key": "watch", "title": _("To watch"), "tone": "low", "items": watch_items},
         ]
         ctx["today_action_groups"] = [g for g in action_groups if g["items"]]
+
+        # ── Deadlines & events (rendered inside Today's actions) ──
+        # Upcoming dates for the next 30 days, plus overdue deadlines
+        # (reviews, target dates, expiries) from the last 90 days,
+        # flagged as overdue instead of showing a negative day count.
+        category_labels = {
+            "risk_assessment": _("Risk assessments"),
+            "compliance_assessment": _("Compliance assessments"),
+            "action_plan": _("Action plans"),
+            "treatment_plan": _("Treatment plans"),
+            "scope": _("Scopes"),
+            "objective": _("Objectives"),
+            "framework": _("Frameworks"),
+            "swot": _("SWOT analyses"),
+            "acceptance": _("Risk acceptances"),
+            "supplier_review": _("Supplier reviews"),
+        }
+        raw_events = get_calendar_events(
+            self.request.user,
+            start=today - timedelta(days=90),
+            end=today + timedelta(days=30),
+        )
+        calendar_items = []
+        for ev in raw_events:
+            start_d = date.fromisoformat(ev["start"])
+            end_d = date.fromisoformat(ev["end"]) if ev.get("end") else None
+            # For ranges, the next milestone is the start while it has not
+            # begun, then the end (the deadline). The previous upcoming list
+            # always showed the range start, yielding "in -131 days" for
+            # plans already started.
+            if end_d and start_d >= today:
+                due = start_d
+            else:
+                due = end_d or start_d
+            if due > today + timedelta(days=30):
+                continue
+            overdue = due < today
+            # Past dates only matter when something is due: informational
+            # dates (effective dates, analysis dates) are dropped.
+            if overdue and not ev.get("is_deadline"):
+                continue
+            calendar_items.append({
+                "title": ev["title"],
+                "url": ev.get("url"),
+                "color": ev["color"],
+                "category_label": category_labels.get(ev["category"], ev["category"]),
+                "due": due,
+                "overdue": overdue,
+                "days_left": (due - today).days,
+            })
+        calendar_items.sort(key=lambda e: e["due"])
+        ctx["calendar_items"] = calendar_items
+        overdue_event_count = sum(1 for e in calendar_items if e["overdue"])
+
         ctx["today_action_count"] = sum(
             item["count"] for g in action_groups for item in g["items"]
-        )
+        ) + overdue_event_count
 
         # ── Changelog popup ──────────────────────────────
         user = self.request.user
@@ -455,7 +526,10 @@ def get_calendar_events(user, start=None, end=None, categories=None):
     if not categories:
         categories = ALL_CATEGORIES
 
-    def add(queryset, date_field, category, color, url_name, label_prefix=""):
+    # `deadline=True` marks dates that represent something due (reviews,
+    # target dates, expiries) as opposed to informational dates (effective
+    # dates, analysis dates): the dashboard uses it to surface overdue items.
+    def add(queryset, date_field, category, color, url_name, label_prefix="", deadline=False):
         queryset = reportable(queryset)
         filters = {f"{date_field}__isnull": False}
         if start:
@@ -472,9 +546,10 @@ def get_calendar_events(user, start=None, end=None, categories=None):
                 "color": color,
                 "category": category,
                 "url": _safe_reverse(url_name, obj.pk),
+                "is_deadline": deadline,
             })
 
-    def add_range(queryset, sf, ef, category, color, url_name):
+    def add_range(queryset, sf, ef, category, color, url_name, deadline=False):
         queryset = reportable(queryset)
         qs = queryset.filter(
             Q(**{f"{sf}__isnull": False}) | Q(**{f"{ef}__isnull": False})
@@ -499,6 +574,7 @@ def get_calendar_events(user, start=None, end=None, categories=None):
                 "color": color,
                 "category": category,
                 "url": _safe_reverse(url_name, obj.pk),
+                "is_deadline": deadline,
             }
             if s and e:
                 ev["start"] = min(s, e).isoformat()
@@ -513,7 +589,7 @@ def get_calendar_events(user, start=None, end=None, categories=None):
         add(qs, "assessment_date", "risk_assessment", "#ef4444",
             "risks:assessment-detail")
         add(qs, "next_review_date", "risk_assessment", "#fca5a5",
-            "risks:assessment-detail", _("Review: "))
+            "risks:assessment-detail", _("Review: "), deadline=True)
 
     if "compliance_assessment" in categories:
         qs = _filter_scoped(ComplianceAssessment.objects.all(), user)
@@ -525,48 +601,48 @@ def get_calendar_events(user, start=None, end=None, categories=None):
         qs = _filter_scoped(ComplianceActionPlan.objects.all(), user)
         add_range(qs, "start_date", "target_date",
                   "action_plan", "#f59e0b",
-                  "compliance:action-plan-detail")
+                  "compliance:action-plan-detail", deadline=True)
 
     if "treatment_plan" in categories:
         qs = RiskTreatmentPlan.objects.all()
         add_range(qs, "start_date", "target_date",
                   "treatment_plan", "#475569",
-                  "risks:treatment-plan-detail")
+                  "risks:treatment-plan-detail", deadline=True)
 
     if "scope" in categories:
         qs = Scope.objects.all()
         add(qs, "effective_date", "scope", "#06b6d4", "context:scope-detail")
         add(qs, "review_date", "scope", "#67e8f9",
-            "context:scope-detail", _("Review: "))
+            "context:scope-detail", _("Review: "), deadline=True)
 
     if "objective" in categories:
         qs = _filter_scoped(Objective.objects.all(), user)
         add(qs, "target_date", "objective", "#14b8a6",
-            "context:objective-detail")
+            "context:objective-detail", deadline=True)
         add(qs, "review_date", "objective", "#5eead4",
-            "context:objective-detail", _("Review: "))
+            "context:objective-detail", _("Review: "), deadline=True)
 
     if "framework" in categories:
         qs = _filter_scoped(Framework.objects.all(), user)
         add(qs, "effective_date", "framework", "#3b82f6",
             "compliance:framework-detail")
         add(qs, "expiry_date", "framework", "#93c5fd",
-            "compliance:framework-detail", _("Expiry: "))
+            "compliance:framework-detail", _("Expiry: "), deadline=True)
         add(qs, "review_date", "framework", "#bfdbfe",
-            "compliance:framework-detail", _("Review: "))
+            "compliance:framework-detail", _("Review: "), deadline=True)
 
     if "swot" in categories:
         qs = _filter_scoped(SwotAnalysis.objects.all(), user)
         add(qs, "analysis_date", "swot", "#ec4899", "context:swot-detail")
         add(qs, "review_date", "swot", "#f9a8d4",
-            "context:swot-detail", _("Review: "))
+            "context:swot-detail", _("Review: "), deadline=True)
 
     if "acceptance" in categories:
         qs = RiskAcceptance.objects.all()
         add(qs, "valid_until", "acceptance", "#f97316",
-            "risks:acceptance-detail")
+            "risks:acceptance-detail", deadline=True)
         add(qs, "review_date", "acceptance", "#fdba74",
-            "risks:acceptance-detail", _("Review: "))
+            "risks:acceptance-detail", _("Review: "), deadline=True)
 
     if "supplier_review" in categories:
         filters = {"review_date__isnull": False}
@@ -589,6 +665,7 @@ def get_calendar_events(user, start=None, end=None, categories=None):
                     "assets:supplier-requirement-detail",
                     review.supplier_requirement.pk,
                 ),
+                "is_deadline": True,
             })
 
     return events
