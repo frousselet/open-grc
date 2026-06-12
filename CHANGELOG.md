@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **README rewritten for accessibility**: the public README is now a short overview (what Cairn does, quick start, documentation links, tech stack). The detailed content moves to `docs/`: feature tables to `docs/features.md`, the full MCP tool reference to `docs/mcp-server.md`, installation and scheduled-command details to `docs/installation.md`, plus a new REST API overview (`docs/api.md`) and a documentation index (`docs/README.md`).
+
 ## [0.26.2] - 2026-06-12
 
 ### Fixed
