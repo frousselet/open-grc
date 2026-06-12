@@ -14,7 +14,8 @@ docs/modules/
 ├── m4-risks/                    Risk assessment, threats, vulnerabilities, risks, treatment, acceptance
 │   └── ebios-rm/                EBIOS RM workshops (W0-W5) per ANSSI v1.5
 ├── management-review/           ISO 27001 §9.3 management review entities
-└── governance/                  Cross-cutting platform governance (lifecycle workflow framework)
+├── governance/                  Cross-cutting platform governance (lifecycle workflow framework)
+└── assistant/                   Ask Cairn: optional local AI question mode (no persistent entities)
 ```
 
 Each module directory contains:

@@ -101,6 +101,23 @@ docker compose exec -T web python manage.py shell -c "exec(open('scripts/seed_de
 
 Then sign in with `elise.moreau@voltara.example` / `VoltaraDemo!2026` (superuser). All seeded accounts share the same password. This script is intended for development and demo environments only.
 
+## AI assistant (optional)
+
+"Ask Cairn" answers simple natural-language questions from the command palette (Ctrl+K), e.g. *"Quelles décisions ont été prises lors de la dernière revue de direction ?"*. It runs entirely on your host through an [Ollama](https://ollama.com/) sidecar: no data leaves the machine, and every data access enforces the asking user's permissions.
+
+```bash
+# 1. Start the sidecar (the `ai` profile is opt-in)
+docker compose --profile ai up -d
+
+# 2. Pull the model once (kept in the ollama_models volume)
+docker compose exec ollama ollama pull qwen3:1.7b
+
+# 3. Enable the feature in .env, then restart web
+# AI_ASSISTANT_ENABLED=True
+```
+
+Sizing: the default `qwen3:1.7b` model needs roughly 2-4 GB of RAM (CPU-only inference). The first question after startup loads the model (10-20 extra seconds); warm questions take about 5-20 seconds. Any Ollama chat model can be used instead via `AI_ASSISTANT_MODEL`. Without the profile (or if Ollama is down) the palette works exactly as before. Details: [docs/modules/assistant/](modules/assistant/README.md).
+
 ## Scheduled lifecycle commands
 
 Two management commands keep the risk register in sync with time and are intended to be run **once a day** by a cron job (host or container side):

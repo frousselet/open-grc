@@ -12,6 +12,7 @@ Cairn exposes a full REST API under `/api/v1/`, built with Django REST Framework
 | Compliance | `/api/v1/compliance/` |
 | Risks | `/api/v1/risks/` |
 | Reports | `/api/v1/reports/` |
+| Assistant | `/api/v1/assistant/` |
 | MCP & OAuth | `/api/v1/mcp`, `/api/v1/oauth/` |
 
 The detailed per-entity contracts (fields, validation, business rules) are documented in each module's specification: see [docs/modules/](modules/README.md).
@@ -43,3 +44,13 @@ GET  /api/v1/auth/me/        # current user profile
 - **Lifecycle**: state transitions go through dedicated transition endpoints/actions, never by patching a status field. Deletion is only allowed from a deletable lifecycle state.
 - **Batch creation**: list resources accept batch creation (up to 500 objects, non-atomic with partial success reporting).
 - **Audit**: every write is recorded in the object's history (django-simple-history) and increments its version.
+
+## Assistant (Ask Cairn)
+
+`POST /api/v1/assistant/ask/` answers a simple natural-language question using the optional local AI assistant (see [docs/modules/assistant/](modules/assistant/README.md)).
+
+Request body: `{"q": "Quelles décisions ont été prises lors de la dernière revue de direction ?", "language": "fr"}` (`language` optional, defaults to the request language).
+
+Response `200`: `{"summary": "...", "language": "fr", "degraded": false, "refused_tools": [], "results": [{"tool": "list_management_review_decisions", "label": "Decisions", "error": null, "records": [{"title": "DECS-1 ...", "subtitle": "pending", "url": "/reports/decisions/<uuid>/", "icon": "bi-check2-square"}]}]}`. Records are real database objects the caller is allowed to read; the summary sentence is AI-generated and must be verified against them.
+
+Errors: `400` on invalid `q`; `503` with a stable code (`assistant_disabled`, `assistant_unreachable`, `model_missing`, `model_error`) when the assistant or its Ollama sidecar is unavailable.

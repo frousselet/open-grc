@@ -107,6 +107,7 @@ Detailed feature reference for Cairn. For module-level specifications (business 
 | Real-Time Dashboard | WebSocket-powered live statistics via Django Channels with animated counters and auto-reconnect |
 | Calendar & iCal | Unified calendar view across all modules with iCal subscription feed and per-user tokens |
 | Global Search | Multi-category search across all domain objects |
+| Ask Cairn (optional) | Natural-language questions in the command palette, answered by a small local AI model (Ollama sidecar, `ai` compose profile) routing to read-only data tools with the caller's permissions; answers cite real records under an AI-labeled summary, and data never leaves the host. See [docs/modules/assistant/](modules/assistant/README.md) |
 | Reports | Configurable report generation (SoA PDF, Audit report PDF, Management review PPTX/DOCX) with status tracking |
 | Management reviews | Persistent ISO 27001:2022 clause 9.3 workflow with life cycle, decisions, ISMS changes, participants, snapshot-based auditability, and retrochaining to action plans, treatment plans, and objectives |
 | Stakeholder feedback | Formal feedback channel (clause 9.3.2.e) with sentiment, severity, and traceability to issues and expectations |

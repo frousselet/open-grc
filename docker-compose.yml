@@ -36,5 +36,23 @@ services:
       timeout: 5s
       retries: 5
 
+  # Optional AI sidecar for the "Ask Cairn" assistant.
+  # Start with: docker compose --profile ai up -d
+  # Then pull the model once: docker compose exec ollama ollama pull qwen3:1.7b
+  # The web service starts and runs normally without this profile.
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ai"]
+    volumes:
+      - ollama_models:/root/.ollama
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: ["CMD", "ollama", "ls"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   postgres_data:
+  ollama_models:

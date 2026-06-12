@@ -1,6 +1,6 @@
 # MCP Server (Model Context Protocol)
 
-Cairn ships with a built-in JSON-RPC 2.0 MCP server exposing 55 tools across all modules, so AI assistants and external clients can read and manage GRC data directly. Authentication uses OAuth 2.0. All tools enforce RBAC permissions and scope-based tenancy.
+Cairn ships with a built-in JSON-RPC 2.0 MCP server exposing 536 tools across all modules, so AI assistants and external clients can read and manage GRC data directly. Authentication uses OAuth 2.0. All tools enforce RBAC permissions and scope-based tenancy.
 
 ## Endpoints
 
@@ -168,3 +168,9 @@ Additional tools:
 | `delete_report` | Delete a generated report |
 | `get_company_settings` | Get company settings (name, address) |
 | `update_company_settings` | Update company settings |
+
+## Assistant
+
+| Tool | Description |
+| ---- | ----------- |
+| `ask_assistant` | Ask the Ask Cairn natural-language assistant a read-only question about GRC data (e.g. "Which decisions were made at the last management review?"). Requires the optional Ollama sidecar (`AI_ASSISTANT_ENABLED`); the answer cites real records and data access enforces the caller's permissions. See [docs/modules/assistant/](modules/assistant/README.md). |
