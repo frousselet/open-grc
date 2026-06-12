@@ -9715,3 +9715,36 @@ msgstr "Nom court et reconnaissable."
 
 msgid "Lifecycle state."
 msgstr "État du cycle de vie."
+
+msgid "Ask Cairn"
+msgstr "Demander à Cairn"
+
+msgid "AI"
+msgstr "IA"
+
+msgid "Thinking..."
+msgstr "Réflexion en cours..."
+
+msgid "The assistant is disabled."
+msgstr "L'assistant est désactivé."
+
+msgid "The assistant is unreachable. Try again later."
+msgstr "L'assistant est injoignable. Réessayez plus tard."
+
+msgid "The assistant model is not installed. Run: ollama pull %(model_name)s"
+msgstr "Le modèle de l'assistant n'est pas installé. Exécutez : ollama pull %(model_name)s"
+
+msgid "The assistant could not produce an answer. Try rephrasing your question."
+msgstr "L'assistant n'a pas pu produire de réponse. Reformulez votre question."
+
+msgid "Summary unavailable. Here are the matching records."
+msgstr "Résumé indisponible. Voici les enregistrements correspondants."
+
+msgid "No matching records found."
+msgstr "Aucun enregistrement correspondant trouvé."
+
+msgid "Some results were hidden because you lack the required permission."
+msgstr "Certains résultats sont masqués faute de permission."
+
+msgid "AI-generated summary. Verify against the linked records."
+msgstr "Résumé généré par IA. Vérifiez les enregistrements liés."

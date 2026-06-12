@@ -1872,6 +1872,86 @@
     .search-spinner.show { display: block; }
     @keyframes search-spin { to { transform: rotate(360deg); } }
 
+    /* ── Ask Cairn (AI assistant in the palette) ──────── */
+    .search-ask-ai {
+      width: 100%;
+      border: none;
+      background: transparent;
+      text-align: left;
+      font-family: inherit;
+      margin-top: .375rem;
+      padding-top: .625rem;
+      border-top: 1px solid transparent;
+      border-image: linear-gradient(to right, transparent, var(--border-light) 12%, var(--border-light) 88%, transparent) 1;
+    }
+    .search-ask-ai .search-ask-q {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+    .ai-badge {
+      font-size: .625rem;
+      font-weight: 600;
+      padding: .1rem .35rem;
+      border-radius: .25rem;
+      border: 1px solid var(--border-light);
+      color: var(--accent);
+      background: var(--accent-soft);
+      line-height: 1;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+    .search-group-label .ai-badge { margin-left: .25rem; }
+    .assistant-summary {
+      padding: .5rem 1.125rem .25rem;
+      font-size: .875rem;
+      color: var(--text-primary);
+    }
+    .assistant-summary-muted { color: var(--text-muted); }
+    .assistant-note {
+      padding: .375rem 1.125rem;
+      font-size: .8125rem;
+      color: var(--text-muted);
+    }
+    .assistant-card-sub {
+      margin-left: auto;
+      font-size: .75rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .search-result-item:hover .assistant-card-sub,
+    .search-result-item.active .assistant-card-sub { color: var(--accent); }
+    .assistant-card-static { cursor: default; }
+    .assistant-disclaimer {
+      padding: .375rem 1.125rem .5rem;
+      font-size: .6875rem;
+      color: var(--text-muted);
+    }
+    .assistant-thinking {
+      display: flex;
+      align-items: center;
+      gap: .625rem;
+      padding: .875rem 1.125rem;
+      font-size: .875rem;
+      color: var(--text-muted);
+    }
+    .assistant-thinking .dots { display: inline-flex; gap: .25rem; }
+    .assistant-thinking .dots span {
+      width: .375rem;
+      height: .375rem;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: .25;
+      animation: assistant-pulse 1.2s ease-in-out infinite;
+    }
+    .assistant-thinking .dots span:nth-child(2) { animation-delay: .22s; }
+    .assistant-thinking .dots span:nth-child(3) { animation-delay: .44s; }
+    @keyframes assistant-pulse { 0%, 100% { opacity: .25; } 40% { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+      .assistant-thinking .dots span { animation: none; opacity: .6; }
+    }
+
     /* ── Hero section — Brutalist painted slab ────────── */
     .hero-section {
       background: var(--accent);
@@ -3991,7 +4071,7 @@
 
   {# ── Search overlay ─────────────────────────────────────── #}
   {% if user.is_authenticated %}
-  <div class="search-overlay" id="searchOverlay">
+  <div class="search-overlay" id="searchOverlay"{% if AI_ASSISTANT_ENABLED %} data-assistant-url="{% url 'assistant:ask' %}"{% endif %}>
     <div class="search-dialog" role="dialog" aria-label="{% trans 'Command palette' %}" aria-modal="true">
       <div class="search-input-wrap">
         <i class="bi bi-search" aria-hidden="true"></i>
@@ -5185,6 +5265,56 @@
     var activeIndex = -1;
     var currentQuery = '';
 
+    /* Ask Cairn: present only when AI_ASSISTANT_ENABLED exposes the URL. */
+    var assistantUrl = overlay.dataset.assistantUrl || null;
+    var askController = null;
+    var ASK_MIN_LEN = 4;
+
+    function abortAsk() {
+      if (askController) { askController.abort(); askController = null; }
+    }
+
+    function askRowHtml(q) {
+      return '<button type="button" class="search-result-item search-ask-ai" id="cmdk-ask" role="option" aria-selected="false">'
+        + '<i class="bi bi-robot" aria-hidden="true"></i>'
+        + '<span class="search-ask-q">{% trans "Ask Cairn" %}&nbsp;: ' + escapeHtml(q) + '</span>'
+        + '<span class="ai-badge">{% trans "AI" %}</span></button>';
+    }
+
+    function wantsAskRow(q) {
+      return assistantUrl && q && q.length >= ASK_MIN_LEN;
+    }
+
+    function askAssistant(q) {
+      if (!assistantUrl || !q) return;
+      abortAsk();
+      askController = new AbortController();
+      activeIndex = -1;
+      input.setAttribute('aria-activedescendant', '');
+      spinner.classList.remove('show');
+      results.innerHTML = '<div class="assistant-thinking" role="status">'
+        + '<i class="bi bi-robot" aria-hidden="true"></i>'
+        + '<span>{% trans "Thinking..." %}</span>'
+        + '<span class="dots" aria-hidden="true"><span></span><span></span><span></span></span></div>';
+      var body = new URLSearchParams();
+      body.append('q', q);
+      fetch(assistantUrl, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        body: body,
+        signal: askController.signal
+      })
+        .then(function(r) { return r.text(); })
+        .then(function(html) {
+          results.innerHTML = html;
+          activeIndex = -1;
+        })
+        .catch(function(err) {
+          if (err && err.name === 'AbortError') return;
+          results.innerHTML = '<div class="search-empty"><i class="bi bi-plug" aria-hidden="true"></i>{% trans "The assistant is unreachable. Try again later." %}</div>';
+        });
+    }
+
     function fetchDefault() {
       /* Fetch navigation + actions list when the query is empty. */
       fetch('{% url "global-search" %}?q=')
@@ -5239,6 +5369,7 @@
     }
 
     function closeSearch() {
+      abortAsk();
       overlay.classList.remove('show');
       input.value = '';
       results.innerHTML = '';
@@ -5283,6 +5414,7 @@
     input.addEventListener('input', function() {
       var q = input.value.trim();
       clearTimeout(debounceTimer);
+      abortAsk();
       if (q.length < 2) {
         spinner.classList.remove('show');
         activeIndex = -1;
@@ -5325,7 +5457,9 @@
       activeIndex = -1;
       input.setAttribute('aria-activedescendant', '');
       if (!groups || groups.length === 0) {
-        results.innerHTML = '<div class="search-empty"><i class="bi bi-search" aria-hidden="true"></i>{% trans "No results found" %}</div>';
+        var emptyHtml = '<div class="search-empty"><i class="bi bi-search" aria-hidden="true"></i>{% trans "No results found" %}</div>';
+        if (wantsAskRow(q)) emptyHtml += askRowHtml(q);
+        results.innerHTML = emptyHtml;
         return;
       }
       var html = '';
@@ -5342,11 +5476,29 @@
           optionIndex += 1;
         });
       });
+      if (wantsAskRow(q)) html += askRowHtml(q);
       results.innerHTML = html;
     }
 
+    /* Delegated click for the Ask Cairn row (re-rendered on each search). */
+    results.addEventListener('click', function(e) {
+      var askBtn = e.target.closest('.search-ask-ai');
+      if (askBtn) askAssistant(currentQuery || input.value.trim());
+    });
+
     /* Keyboard navigation */
     input.addEventListener('keydown', function(e) {
+      /* Enter on a question (ends with "?") with no highlighted result
+       * asks the assistant directly: type the question, hit Enter. */
+      if (e.key === 'Enter' && activeIndex < 0 && assistantUrl) {
+        var q = input.value.trim();
+        if (q.length >= ASK_MIN_LEN && q.slice(-1) === '?') {
+          e.preventDefault();
+          askAssistant(q);
+          return;
+        }
+      }
+
       var items = results.querySelectorAll('.search-result-item');
       if (!items.length) return;
 
