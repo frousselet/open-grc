@@ -10,10 +10,10 @@
   <a href="{% url 'reports:management-review-edit' review.pk %}" class="btn btn-primary">{% trans "Edit" %}</a>
   {% endif %}
   <div class="btn-group">
-    <a href="{% url 'reports:management-review-export' review.pk 'pptx' %}" class="btn btn-outline-secondary">
+    <a href="{% url 'reports:management-review-export' review.pk 'pptx' %}" hx-boost="false" download class="btn btn-outline-secondary">
       <i class="bi bi-filetype-pptx me-1"></i>PPTX
     </a>
-    <a href="{% url 'reports:management-review-export' review.pk 'docx' %}" class="btn btn-outline-secondary">
+    <a href="{% url 'reports:management-review-export' review.pk 'docx' %}" hx-boost="false" download class="btn btn-outline-secondary">
       <i class="bi bi-filetype-docx me-1"></i>DOCX
     </a>
   </div>

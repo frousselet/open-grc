@@ -27,6 +27,16 @@ class TestReportListView:
         assert resp.status_code == 200
         assert b"Report" in resp.content
 
+    def test_download_link_opts_out_of_hx_boost(self):
+        """Download links must bypass hx-boost: a boosted click swaps the
+        binary attachment into the page instead of downloading it."""
+        user = UserFactory(is_superuser=True)
+        ReportFactory(created_by=user, file_content=b"%PDF-1.4 fake", file_name="r.pdf")
+        client = Client()
+        client.force_login(user)
+        resp = client.get(reverse("reports:report-list"))
+        assert b'hx-boost="false"' in resp.content
+
 
 class TestSoaReportCreateView:
     def test_get_form(self):

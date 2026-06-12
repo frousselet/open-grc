@@ -10,7 +10,7 @@
 {% page_header _("Risk register") eyebrow=_("Risk management") accent="risks" %}
   <a href="{% url 'risks:assessment-list' %}" class="btn btn-outline-secondary"><i class="bi bi-clipboard-data me-1" aria-hidden="true"></i>{% trans 'Go to assessments' %}</a>
   {% if can_export_risks %}
-  <a href="{% url 'risks:risk-register-export-xlsx' %}?{{ request.GET.urlencode }}" class="btn btn-outline-secondary"><i class="bi bi-file-earmark-excel me-1" aria-hidden="true"></i>{% trans 'Export to Excel' %}</a>
+  <a href="{% url 'risks:risk-register-export-xlsx' %}?{{ request.GET.urlencode }}" hx-boost="false" download class="btn btn-outline-secondary"><i class="bi bi-file-earmark-excel me-1" aria-hidden="true"></i>{% trans 'Export to Excel' %}</a>
   {% endif %}
 {% endpage_header %}
 <div class="alert alert-info mb-3">

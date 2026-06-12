@@ -59,10 +59,10 @@
       <div class="card-body">
         <p class="small text-muted">{% trans "Download a pre-filled sample file to help you prepare your import." %}</p>
         <div class="d-grid gap-2">
-          <a href="{% url 'compliance:framework-import-sample' %}?format=json" class="btn btn-outline-secondary btn-sm">
+          <a href="{% url 'compliance:framework-import-sample' %}?format=json" hx-boost="false" download class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-filetype-json me-1"></i>{% trans "JSON sample" %}
           </a>
-          <a href="{% url 'compliance:framework-import-sample' %}?format=xlsx" class="btn btn-outline-secondary btn-sm">
+          <a href="{% url 'compliance:framework-import-sample' %}?format=xlsx" hx-boost="false" download class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-file-earmark-spreadsheet me-1"></i>{% trans "Excel sample" %}
           </a>
         </div>

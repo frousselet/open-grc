@@ -24,7 +24,7 @@
 {% page_header assessment.name reference=assessment.reference %}
   {% has_perm "risks.export.read" as can_export_assessment %}
   {% if can_export_assessment %}
-  <a href="{% url 'risks:assessment-export-docx' assessment.pk %}" class="btn btn-outline-primary" title="{% trans 'Export to Word' %}">
+  <a href="{% url 'risks:assessment-export-docx' assessment.pk %}" hx-boost="false" download class="btn btn-outline-primary" title="{% trans 'Export to Word' %}">
   <i class="bi bi-file-earmark-word me-1"></i>{% trans "Export DOCX" %}
   </a>
   {% endif %}

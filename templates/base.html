@@ -4311,6 +4311,7 @@
         '</div>';
 
       var pendingSkeletonTimer = null;
+      var shellSnapshot = null;
 
       function isBoost(evt) {
         return !!(evt.detail && evt.detail.boosted);
@@ -4319,9 +4320,10 @@
       document.body.addEventListener('htmx:beforeRequest', function(evt) {
         if (!isBoost(evt)) return;
         clearTimeout(pendingSkeletonTimer);
+        shellSnapshot = null;
         pendingSkeletonTimer = setTimeout(function() {
           var shell = document.getElementById('page-shell');
-          if (shell) shell.innerHTML = SKELETON_HTML;
+          if (shell) { shellSnapshot = shell.innerHTML; shell.innerHTML = SKELETON_HTML; }
         }, 120);
       });
 
@@ -4330,6 +4332,27 @@
       document.body.addEventListener('htmx:beforeSwap', function(evt) {
         if (!isBoost(evt)) return;
         clearTimeout(pendingSkeletonTimer);
+        /* Safety net for file downloads: a boosted <a> that points at a
+         * binary endpoint (report download, Excel export...) would get
+         * its attachment swapped into the page as garbled text. Links
+         * should opt out with hx-boost="false"; if one slips through,
+         * cancel the swap, restore the page and hand the URL to the
+         * browser, which downloads it without navigating. */
+        var disposition = '';
+        try { disposition = evt.detail.xhr.getResponseHeader('Content-Disposition') || ''; } catch (_) {}
+        if (disposition.toLowerCase().indexOf('attachment') !== -1) {
+          evt.detail.shouldSwap = false;
+          var shell = document.getElementById('page-shell');
+          if (shell && shellSnapshot !== null) {
+            shell.innerHTML = shellSnapshot;
+            if (window.htmx) htmx.process(shell);
+          }
+          shellSnapshot = null;
+          var dlUrl = evt.detail.xhr.responseURL
+            || (evt.detail.pathInfo && evt.detail.pathInfo.requestPath);
+          if (dlUrl) window.location.href = dlUrl;
+          return;
+        }
         var raw = evt.detail.serverResponse;
         if (!raw) return;
         try {
