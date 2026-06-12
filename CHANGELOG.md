@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Roles could not be assigned from the UI**: the role create / edit modal had no "Assigned users" field, even though the model, the API and the MCP tools expose it (and the dashboard nags about mandatory roles without a user). The second step of the modal becomes "Assignment & status" and gains a multi-select of active users.
+
 ### Changed
 
 - **SPOF and calendar deadlines fold into Today's actions**: the dashboard's standalone SPOF warning banner and "Upcoming events" card are gone. Single points of failure now appear as actionable items in the "To plan" group (one entry per dependency type, each linking to its list). Deadlines and events render as a section inside the Today's actions card, server-side (the client-side fetch is removed): upcoming dates for the next 30 days plus overdue deadlines (reviews, target dates, expiries) from the last 90 days. Ranged items (action / treatment plans, audits) now show their next milestone - the start date until they begin, then the target date - instead of always showing the range start, which produced nonsensical "in -131 days" badges; anything past due is flagged with a red "Overdue" badge instead of a negative day count. Overdue deadlines count toward the card's attention counter, and the list collapses beyond five items. Concluded items (closed or cancelled action plans, completed treatment plans, achieved objectives, revoked or renewed acceptances) stay on the calendar but leave the dashboard list: a closed plan is not "overdue". Each row names the nature of the date in a small chip (Review, Expiry, Effective date, Target date, Start date, Valid until, Audit start / end, Assessment or Analysis date) so an entry reads as "what is due", and the title drops the redundant "Review: " / "Expiry: " prefixes there.

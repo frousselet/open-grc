@@ -427,13 +427,14 @@ class RoleBaseForm(SteppedFormMixin, ScopedFormMixin, forms.ModelForm):
             "shield-check",
             ["name", ["type", "source_standard"], "description", "is_mandatory"],
         ),
-        Step(_("Scope & status"), "diagram-3", ["scopes", "status", "tags"]),
+        Step(_("Assignment & status"), "people",
+             ["assigned_users", "scopes", "status", "tags"]),
     ]
 
     class Meta:
         model = Role
         fields = [
-            "scopes", "name", "description", "type",
+            "scopes", "name", "description", "type", "assigned_users",
             "is_mandatory", "source_standard", "status", "tags",
         ]
         widgets = {
@@ -441,6 +442,7 @@ class RoleBaseForm(SteppedFormMixin, ScopedFormMixin, forms.ModelForm):
             "name": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "description": forms.Textarea(attrs={**FORM_WIDGET_ATTRS, "rows": 4}),
             "type": forms.Select(attrs=SELECT_ATTRS),
+            "assigned_users": forms.SelectMultiple(attrs={**SELECT_ATTRS, "size": 5}),
             "is_mandatory": forms.CheckboxInput(attrs=CHECKBOX_ATTRS),
             "source_standard": forms.TextInput(attrs=FORM_WIDGET_ATTRS),
             "status": forms.Select(attrs=SELECT_ATTRS),
@@ -453,11 +455,20 @@ class RoleBaseForm(SteppedFormMixin, ScopedFormMixin, forms.ModelForm):
                 "Standard or framework the role originates from, if any."
             ),
             "description": _("What the role is responsible for."),
+            "assigned_users": _("People who hold this role."),
             "is_mandatory": _("A mandatory role must always have an assigned user."),
             "scopes": _("Organizational scopes this role applies to."),
             "status": _("Lifecycle state of the role."),
             "tags": _("Free-form labels for filtering and grouping."),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        self.fields["assigned_users"].queryset = User.objects.filter(
+            is_active=True
+        ).order_by("first_name", "last_name", "email")
 
 
 class RoleCreateForm(RoleBaseForm):

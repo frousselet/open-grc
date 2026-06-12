@@ -8771,6 +8771,12 @@ msgstr "Étiquettes libres pour filtrer et regrouper."
 msgid "Scope & status"
 msgstr "Périmètre et statut"
 
+msgid "Assignment & status"
+msgstr "Affectation et statut"
+
+msgid "People who hold this role."
+msgstr "Personnes qui exercent ce rôle."
+
 msgid "{done} of {total} required"
 msgstr "{done} sur {total} requis"
 
