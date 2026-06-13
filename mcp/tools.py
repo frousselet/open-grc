@@ -2945,8 +2945,9 @@ def _register_compliance_tools(server):
                    list_fields=req_fields,
                    writable_fields=req_writable,
                    search_fields=["reference", "requirement_number", "name", "description"],
-                   filters=["framework_id", "section_id", "compliance_status",
-                            "type", "category", "priority", "is_applicable", "status"],
+                   filters=["framework_id", "section_id", "requirement_number",
+                            "compliance_status", "type", "category", "priority",
+                            "is_applicable", "status"],
                    scope_filtered=False,
                    required_fields=["name", "description", "type", "framework_id"],
                    m2m_fields={

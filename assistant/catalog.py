@@ -207,11 +207,12 @@ _SPECS = [
         "list_requirements",
         _("Requirements"),
         "bi-list-check",
-        "list_requirements(search, framework_id, compliance_status, type, priority, limit):"
-        " framework requirements / controls (e.g. ISO 27001 Annex A 'A.5.3'); search matches"
-        " the reference, number, name and text",
-        ("search", "framework_id", "section_id", "compliance_status", "type", "category",
-         "priority", "status", "limit", "offset"),
+        "list_requirements(requirement_number, search, framework_id, compliance_status, type,"
+        " priority, limit): framework requirements / controls. For an exact control code such"
+        " as ISO 27001 Annex A 'A.5.3', use requirement_number='A.5.3' (exact match); use"
+        " search only for free text (matches reference, number, name and description).",
+        ("requirement_number", "search", "framework_id", "section_id", "compliance_status",
+         "type", "category", "priority", "status", "limit", "offset"),
         title_fields=("requirement_number", "name"),
         subtitle_field="compliance_status",
         summary_fields=("reference", "description", "guidance"),
