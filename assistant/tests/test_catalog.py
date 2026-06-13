@@ -2,7 +2,15 @@
 
 import uuid
 
-from assistant.catalog import READ_ONLY_PREFIXES, TOOL_CATALOG, catalog_signatures, plan_schema
+from django.test import override_settings
+
+from assistant.catalog import (
+    READ_ONLY_PREFIXES,
+    TOOL_CATALOG,
+    active_specs,
+    catalog_signatures,
+    plan_schema,
+)
 
 WRITE_VERBS = ("create", "update", "delete", "transition", "approve", "batch", "set_", "link", "unlink")
 
@@ -27,14 +35,25 @@ def test_plan_schema_constrains_tool_names_and_step_count():
     schema = plan_schema(3)
     steps = schema["properties"]["steps"]
     assert steps["maxItems"] == 3
-    assert steps["items"]["properties"]["tool"]["enum"] == sorted(TOOL_CATALOG)
+    assert steps["items"]["properties"]["tool"]["enum"] == sorted(s.name for s in active_specs())
     assert "steps" in schema["required"]
 
 
 def test_signatures_fit_in_a_small_prompt():
     text = catalog_signatures()
     assert len(text) < 4000
-    assert text.count("\n") == len(TOOL_CATALOG) - 1
+    assert text.count("\n") == len(active_specs()) - 1
+
+
+def test_semantic_tool_gated_by_setting():
+    with override_settings(AI_ASSISTANT_SEMANTIC_ENABLED=False):
+        assert "semantic_search_requirements" not in {s.name for s in active_specs()}
+        enum = plan_schema(3)["properties"]["steps"]["items"]["properties"]["tool"]["enum"]
+        assert "semantic_search_requirements" not in enum
+    with override_settings(AI_ASSISTANT_SEMANTIC_ENABLED=True):
+        assert "semantic_search_requirements" in {s.name for s in active_specs()}
+    # Always present in the full catalog so the engine can execute it.
+    assert "semantic_search_requirements" in TOOL_CATALOG
 
 
 def test_detail_routes_reverse():

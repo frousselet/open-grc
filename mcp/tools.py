@@ -654,6 +654,62 @@ def _register_assistant_tools(server):
         ),
     )
 
+    _register_semantic_requirement_tool(server)
+
+
+SEMANTIC_REQUIREMENT_FIELDS = [
+    "id", "reference", "requirement_number", "name",
+    "compliance_status", "description", "guidance",
+]
+
+
+def _register_semantic_requirement_tool(server):
+    """Meaning-based requirement search (embeddings + in-Python cosine)."""
+
+    def semantic_search_requirements(user, arguments):
+        from django.conf import settings
+
+        if not settings.AI_ASSISTANT_SEMANTIC_ENABLED:
+            return {"total": 0, "items": []}
+        query = (arguments.get("query") or arguments.get("search") or "").strip()
+        if not query:
+            return {"total": 0, "items": []}
+        limit = max(1, min(int(arguments.get("limit", 5) or 5), 20))
+
+        from assistant.models import SemanticIndex
+        from assistant.providers import AssistantError
+        from assistant.semantic import embed_query, rank_object_ids
+        from compliance.models import Requirement
+
+        try:
+            vector = embed_query(query)
+        except AssistantError:
+            return _error("Semantic search is unavailable.")
+        if not vector:
+            return {"total": 0, "items": []}
+        ids = rank_object_ids(vector, SemanticIndex.REQUIREMENT, limit)
+        by_id = {r.pk: r for r in Requirement.objects.filter(pk__in=ids)}
+        ordered = [by_id[i] for i in ids if i in by_id]
+        items = [_serialize_obj(r, SEMANTIC_REQUIREMENT_FIELDS) for r in ordered]
+        return {"total": len(items), "items": items}
+
+    server.register_tool(
+        "semantic_search_requirements",
+        "Find framework requirements / controls by MEANING using embeddings "
+        "(language-agnostic). Use for conceptual / topic questions when an exact "
+        "reference is not given. Read-only; requires the semantic index to be "
+        "built (AI_ASSISTANT_SEMANTIC_ENABLED).",
+        {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Topic or concept to search for"},
+                "limit": {"type": "integer", "description": "Max results (default 5, max 20)"},
+            },
+            "required": ["query"],
+        },
+        require_perm("compliance.requirement.read")(semantic_search_requirements),
+    )
+
 
 # ── Help Tool ─────────────────────────────────────────────
 

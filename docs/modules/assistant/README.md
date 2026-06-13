@@ -45,6 +45,8 @@ Key code: `assistant/engine.py` (loop), `assistant/catalog.py` (allowlist), `ass
 | `AI_ASSISTANT_BASE_URL` | `https://api.mistral.ai/v1` | OpenAI-compatible API base URL (Mistral provider) |
 | `AI_ASSISTANT_MODEL` | `mistral-small-latest` | Chat model; a Mistral model id, or an Ollama model when `provider=ollama` |
 | `AI_ASSISTANT_MAX_TOKENS` | `1024` | Completion length cap (Mistral provider) |
+| `AI_ASSISTANT_SEMANTIC_ENABLED` | `False` | Enable meaning-based requirement search (see [Semantic search](#semantic-search)) |
+| `AI_ASSISTANT_EMBED_MODEL` | `mistral-embed` | Embedding model used to index and query requirements |
 | `AI_ASSISTANT_CONNECT_TIMEOUT` | `2` | Seconds; fast fail when the backend is unreachable |
 | `AI_ASSISTANT_TIMEOUT` | `30` | Seconds per LLM call |
 | `AI_ASSISTANT_MAX_TOOL_ROUNDS` | `3` | Hard cap on plan steps (also enforced in the plan JSON Schema) |
@@ -55,7 +57,7 @@ Key code: `assistant/engine.py` (loop), `assistant/catalog.py` (allowlist), `ass
 
 ## Tool allowlist
 
-Hard-coded in `assistant/catalog.py` (23 tools, strictly `list_*` / `get_*`). The routing JSON Schema constrains the tool name to this set at decoding time; the engine re-validates server-side. Permissions are those of the underlying MCP tools (nothing re-declared):
+Hard-coded in `assistant/catalog.py` (24 read-only tools: `list_*` / `get_*` plus `semantic_search_requirements`). The routing JSON Schema constrains the tool name to the active set at decoding time; the engine re-validates server-side. The semantic tool is only offered to the planner when `AI_ASSISTANT_SEMANTIC_ENABLED` is on (see [Semantic search](#semantic-search)). Permissions are those of the underlying MCP tools (nothing re-declared):
 
 | Tool | Permission |
 | ---- | ---------- |
@@ -66,7 +68,7 @@ Hard-coded in `assistant/catalog.py` (23 tools, strictly `list_*` / `get_*`). Th
 | `list_action_plans`, `get_action_plan` | `compliance.action_plan.read` |
 | `list_compliance_assessments` | `compliance.assessment.read` |
 | `list_frameworks`, `get_framework_compliance_summary` | `compliance.framework.read` |
-| `list_requirements`, `get_requirement` | `compliance.requirement.read` |
+| `list_requirements`, `get_requirement`, `semantic_search_requirements` | `compliance.requirement.read` |
 | `list_indicators`, `list_indicator_measurements` | `context.indicator.read` |
 | `list_issues` | `context.issue.read` |
 | `list_objectives` | `context.objective.read` |
@@ -129,6 +131,8 @@ AI_ASSISTANT_MODEL=mistral-small-latest
 
 No sidecar, no model download, no GPU. `mistral-small-latest` is the recommended default: a good cost/quality balance for the JSON tool routing and the short FR/EN summary sentence. `ministral-3b`/`8b` are cheaper but weaker on multi-step plans; `mistral-medium-latest` improves phrasing at a higher per-call cost. Any model id served by the configured `AI_ASSISTANT_BASE_URL` works without code changes.
 
+To enable meaning-based requirement search, add `AI_ASSISTANT_SEMANTIC_ENABLED=True` and build the index once: `docker compose exec web python manage.py rebuild_semantic_index` (re-run after bulk requirement imports). See [Semantic search](#semantic-search).
+
 ### Self-hosted alternative (Ollama)
 
 For a no-egress deployment, point the assistant at your own Ollama instance:
@@ -148,10 +152,22 @@ With the **Mistral** provider, data leaves the platform on two calls per questio
 - **Planning call**: the user's question plus the catalog tool signatures (no record data yet).
 - **Summary call**: the question plus the compact fields of the matching records (titles, statuses, dates), after `engine._strip_identifiers` recursively removes `id` / `*_id` keys and UUID-shaped values. Internal identifiers are never sent.
 
-Mistral is EU-hosted. The feature is **off by default** and must be enabled deliberately (`AI_ASSISTANT_ENABLED`), which is the opt-in: enabling it acknowledges that question text and the above record fields are sent to the third-party provider under its data-processing terms. The API key is read from the environment and never logged or surfaced in error messages. For a deployment that must keep all data on-premises, use the Ollama provider above (no egress).
+Mistral is EU-hosted. The feature is **off by default** and must be enabled deliberately (`AI_ASSISTANT_ENABLED`), which is the opt-in: enabling it acknowledges that question text and the above record fields are sent to the third-party provider under its data-processing terms. The API key is read from the environment and never logged or surfaced in error messages. For a deployment that must keep all data on-premises, use the Ollama provider above (no egress). With semantic search enabled, requirement text is additionally sent to the embedding model at index-build time and the query text at search time.
+
+## Semantic search
+
+Lexical search (`list_requirements` `search`) is substring-based and language-sensitive: a French topic question (e.g. "séparation des tâches") does not match an English control title ("Segregation of duties"). Feedback surfaced exactly this recall gap. Semantic search closes it with embeddings.
+
+How it works (opt-in via `AI_ASSISTANT_SEMANTIC_ENABLED`):
+
+- **Index**: `manage.py rebuild_semantic_index` embeds each requirement (number + name + description + guidance) via the provider's embedding model (`AI_ASSISTANT_EMBED_MODEL`, default `mistral-embed`) and stores the vector in `assistant.SemanticIndex`. The embedding is a plain JSON list of floats, so the column is portable across PostgreSQL and the SQLite test DB - no `pgvector` extension or Docker image change. The command is idempotent (a `content_hash` skips unchanged rows) and prunes embeddings of deleted requirements. Re-run it after enabling, after bulk imports, or on a schedule.
+- **Query**: the catalog gains `semantic_search_requirements(query, limit)`. The planner is taught (via a routing example) to pick it for conceptual / topic questions. The handler embeds the query and ranks stored requirement vectors by cosine similarity **in Python** - the corpus (hundreds to low thousands of requirements) is small enough that brute force is instant, so no vector index is needed. It returns real requirements, so the rest of the pipeline (cards, summary, permissions) is unchanged.
+
+The tool requires `compliance.requirement.read` and is only offered to the planner when the flag is on (otherwise it is absent from the routing prompt and the plan schema, though it stays in `TOOL_CATALOG` for server-side execution/validation). If the corpus ever grows to a scale where brute-force cosine is too slow, `SemanticIndex` can be backed by `pgvector` without changing the tool contract.
 
 ## Future work
 
-- Semantic search over record contents (embeddings, pgvector) for fuzzy "find things about X" questions.
+- Extend semantic search to other entities (risks, objectives, assets) beyond requirements.
+- Keep the index fresh automatically (signal/async re-embed on requirement save) instead of the manual reindex command.
 - Optional query audit log (persistent entity, would then follow the lifecycle/workflow conventions).
 - Streaming the summary sentence into the palette.

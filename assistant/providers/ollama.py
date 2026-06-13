@@ -86,3 +86,25 @@ class OllamaClient(BaseClient):
     def chat_text(self, messages):
         """Plain-text chat completion."""
         return self._chat(messages).strip()
+
+    def embed(self, texts):
+        """Return one embedding vector per input string (Ollama embeddings API)."""
+        if not texts:
+            return []
+        payload = {"model": settings.AI_ASSISTANT_EMBED_MODEL, "input": list(texts)}
+        try:
+            resp = httpx.post(
+                f"{self.base_url}/api/embed", json=payload, timeout=self.timeout
+            )
+        except (httpx.ConnectError, httpx.TimeoutException) as exc:
+            raise ServiceUnreachable(str(exc)) from exc
+        except httpx.HTTPError as exc:
+            raise ServiceUnreachable(str(exc)) from exc
+        if resp.status_code == 404:
+            raise ModelNotAvailable(settings.AI_ASSISTANT_EMBED_MODEL)
+        if resp.status_code >= 400:
+            raise ServiceUnreachable(f"HTTP {resp.status_code}: {resp.text[:200]}")
+        try:
+            return list(resp.json()["embeddings"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise MalformedModelOutput(resp.text[:200]) from exc

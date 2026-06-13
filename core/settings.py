@@ -264,6 +264,10 @@ AI_ASSISTANT_MAX_TOOL_ROUNDS = int(os.environ.get("AI_ASSISTANT_MAX_TOOL_ROUNDS"
 AI_ASSISTANT_MAX_RECORDS_PER_TOOL = int(os.environ.get("AI_ASSISTANT_MAX_RECORDS_PER_TOOL", "5"))
 # Cap on the completion length (Mistral / OpenAI-compatible backends).
 AI_ASSISTANT_MAX_TOKENS = int(os.environ.get("AI_ASSISTANT_MAX_TOKENS", "1024"))
+# Semantic search over requirement content (embeddings + in-Python cosine).
+# Opt-in: build the index with `manage.py rebuild_semantic_index` after enabling.
+AI_ASSISTANT_SEMANTIC_ENABLED = os.environ.get("AI_ASSISTANT_SEMANTIC_ENABLED", "False").lower() in ("true", "1", "yes")
+AI_ASSISTANT_EMBED_MODEL = os.environ.get("AI_ASSISTANT_EMBED_MODEL", "mistral-embed")
 # Ollama provider only: local instance URL, context window, and chain-of-thought
 # during routing (thinking models such as qwen3). Ignored by the Mistral provider.
 AI_ASSISTANT_OLLAMA_URL = os.environ.get("AI_ASSISTANT_OLLAMA_URL", "http://ollama:11434")

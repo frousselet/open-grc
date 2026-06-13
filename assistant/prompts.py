@@ -41,9 +41,17 @@ Response: {{"steps": [{{"tool": "list_scopes", "arguments": {{"search": "Voltara
 
 Question: "Que dit l'exigence A.5.3 ?"
 Response: {{"steps": [{{"tool": "list_requirements", "arguments": {{"requirement_number": "A.5.3", "limit": 1}}}}]}}
-
+{semantic_example}
 Question: "Hello, how are you?"
 Response: {{"steps": []}}
+"""
+
+# Added only when semantic search is enabled (the tool is otherwise absent
+# from the catalog, so the planner must not be taught to use it). Inserted as a
+# value into the already-formatted template, so it uses single braces.
+SEMANTIC_EXAMPLE = """
+Question: "Quelles sont les exigences relatives à la séparation des tâches ?"
+Response: {"steps": [{"tool": "semantic_search_requirements", "arguments": {"query": "séparation des tâches", "limit": 5}}]}
 """
 
 SUMMARY_PROMPT_TEMPLATE = """\
@@ -60,9 +68,13 @@ is empty, say that no matching records were found. Today is {today}.
 
 
 def routing_prompt():
+    from django.conf import settings
+
+    semantic_example = SEMANTIC_EXAMPLE if settings.AI_ASSISTANT_SEMANTIC_ENABLED else ""
     return ROUTING_PROMPT_TEMPLATE.format(
         today=timezone.localdate().isoformat(),
         signatures=catalog_signatures(),
+        semantic_example=semantic_example,
     )
 
 

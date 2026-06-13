@@ -107,3 +107,27 @@ class MistralClient(BaseClient):
         resp = self._post_chat(self._base_payload(messages))
         self._raise_for_status(resp)
         return self._content(resp).strip()
+
+    def embed(self, texts):
+        """Return one embedding vector per input string (Mistral embeddings API)."""
+        if not texts:
+            return []
+        headers = {"Authorization": f"Bearer {self.api_key}"}
+        payload = {"model": settings.AI_ASSISTANT_EMBED_MODEL, "input": list(texts)}
+        try:
+            resp = httpx.post(
+                f"{self.base_url}/embeddings",
+                json=payload,
+                headers=headers,
+                timeout=self.timeout,
+            )
+        except (httpx.ConnectError, httpx.TimeoutException) as exc:
+            raise ServiceUnreachable(str(exc)) from exc
+        except httpx.HTTPError as exc:
+            raise ServiceUnreachable(str(exc)) from exc
+        self._raise_for_status(resp)
+        try:
+            rows = sorted(resp.json()["data"], key=lambda d: d.get("index", 0))
+            return [row["embedding"] for row in rows]
+        except (KeyError, TypeError, ValueError) as exc:
+            raise MalformedModelOutput(resp.text[:200]) from exc

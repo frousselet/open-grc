@@ -8,6 +8,7 @@ language, the LLM response (summary and returned record cards), the provider /
 model, the thumbs rating and an optional comment.
 """
 
+import hashlib
 import uuid
 
 from django.conf import settings
@@ -70,3 +71,43 @@ class AssistantFeedback(models.Model):
             "provider": self.provider,
             "model": self.model_name,
         }
+
+
+def content_hash(model_name, text):
+    """Stable hash of the embedding model + text, to detect stale entries."""
+    return hashlib.sha256(f"{model_name}\x00{text}".encode()).hexdigest()
+
+
+class SemanticIndex(models.Model):
+    """Portable embedding store for semantic search (no pgvector).
+
+    One row per indexed object (currently requirements). The embedding is kept
+    as a plain JSON list of floats so the column works on PostgreSQL and on the
+    SQLite test database alike; ranking is done in Python (see
+    ``assistant.semantic``). ``content_hash`` lets the reindex command skip
+    objects whose text and model are unchanged.
+    """
+
+    REQUIREMENT = "requirement"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    content_type = models.CharField(_("Content type"), max_length=40)
+    object_id = models.UUIDField(_("Object id"))
+    text = models.TextField(_("Embedded text"))
+    content_hash = models.CharField(_("Content hash"), max_length=64)
+    embedding = models.JSONField(_("Embedding"), default=list)
+    model_name = models.CharField(_("Embedding model"), max_length=100, blank=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("Semantic index entry")
+        verbose_name_plural = _("Semantic index entries")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["content_type", "object_id"], name="unique_semantic_object"
+            )
+        ]
+        indexes = [models.Index(fields=["content_type"])]
+
+    def __str__(self):
+        return f"{self.content_type}:{self.object_id}"

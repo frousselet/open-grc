@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-READ_ONLY_PREFIXES = ("list_", "get_")
+READ_ONLY_PREFIXES = ("list_", "get_", "semantic_search_")
 
 
 @dataclass(frozen=True)
@@ -231,6 +231,20 @@ _SPECS = [
         detail_route="compliance:requirement-detail",
     ),
     _spec(
+        "semantic_search_requirements",
+        _("Requirements"),
+        "bi-stars",
+        "semantic_search_requirements(query, limit): find framework requirements / controls by"
+        " MEANING (embeddings), across languages. Use this for conceptual or topic questions"
+        " (e.g. 'separation of duties', 'sauvegarde des donnees', 'remote access') instead of"
+        " list_requirements search; 'query' is the topic in the user's own words.",
+        ("query", "limit"),
+        title_fields=("requirement_number", "name"),
+        subtitle_field="compliance_status",
+        summary_fields=("reference", "description", "guidance"),
+        detail_route="compliance:requirement-detail",
+    ),
+    _spec(
         "get_framework_compliance_summary",
         _("Frameworks"),
         "bi-journal-check",
@@ -314,11 +328,25 @@ _SPECS = [
 
 TOOL_CATALOG = {spec.name: spec for spec in _SPECS}
 
+# Tools that depend on the semantic index being built and enabled. They are
+# only offered to the planner when AI_ASSISTANT_SEMANTIC_ENABLED is on, but
+# stay in TOOL_CATALOG so the engine can still execute / re-validate them.
+SEMANTIC_TOOL_NAMES = frozenset({"semantic_search_requirements"})
+
+
+def active_specs():
+    """Specs offered to the planner, honouring the semantic-search flag."""
+    from django.conf import settings
+
+    if settings.AI_ASSISTANT_SEMANTIC_ENABLED:
+        return list(_SPECS)
+    return [spec for spec in _SPECS if spec.name not in SEMANTIC_TOOL_NAMES]
+
 
 def plan_schema(max_steps):
     """JSON Schema constraining the model's one-shot execution plan.
 
-    The ``enum`` on the tool name makes any tool outside the catalog
+    The ``enum`` on the tool name makes any tool outside the active set
     impossible to decode; the engine still re-validates server-side.
     """
     return {
@@ -330,7 +358,10 @@ def plan_schema(max_steps):
                 "items": {
                     "type": "object",
                     "properties": {
-                        "tool": {"type": "string", "enum": sorted(TOOL_CATALOG)},
+                        "tool": {
+                            "type": "string",
+                            "enum": sorted(spec.name for spec in active_specs()),
+                        },
                         "arguments": {"type": "object"},
                     },
                     "required": ["tool"],
@@ -342,4 +373,4 @@ def plan_schema(max_steps):
 
 
 def catalog_signatures():
-    return "\n".join(spec.signature for spec in _SPECS)
+    return "\n".join(spec.signature for spec in active_specs())

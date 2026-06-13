@@ -44,6 +44,10 @@ class BaseClient:
     def chat_text(self, messages):  # pragma: no cover
         raise NotImplementedError
 
+    def embed(self, texts):  # pragma: no cover
+        """Return one embedding vector (list[float]) per input string."""
+        raise NotImplementedError
+
 
 def get_client():
     """Return the configured provider client.
