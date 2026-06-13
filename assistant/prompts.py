@@ -39,6 +39,9 @@ Response: {{"steps": [{{"tool": "list_risks", "arguments": {{"priority": "high",
 Question: "Qui est responsable du périmètre Voltara Group ?"
 Response: {{"steps": [{{"tool": "list_scopes", "arguments": {{"search": "Voltara Group", "limit": 5}}}}]}}
 
+Question: "Que dit l'exigence A.5.3 ?"
+Response: {{"steps": [{{"tool": "list_requirements", "arguments": {{"search": "A.5.3", "limit": 1}}}}]}}
+
 Question: "Hello, how are you?"
 Response: {{"steps": []}}
 """

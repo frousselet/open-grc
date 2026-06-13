@@ -212,9 +212,9 @@ _SPECS = [
         " the reference, number, name and text",
         ("search", "framework_id", "section_id", "compliance_status", "type", "category",
          "priority", "status", "limit", "offset"),
-        title_fields=("reference", "name"),
+        title_fields=("requirement_number", "name"),
         subtitle_field="compliance_status",
-        summary_fields=("description", "guidance"),
+        summary_fields=("reference", "description", "guidance"),
         detail_route="compliance:requirement-detail",
     ),
     _spec(
@@ -224,9 +224,9 @@ _SPECS = [
         "get_requirement(id): one requirement / control with its full text, guidance and"
         " compliance status",
         ("id",),
-        title_fields=("reference", "name"),
+        title_fields=("requirement_number", "name"),
         subtitle_field="compliance_status",
-        summary_fields=("description", "guidance"),
+        summary_fields=("reference", "description", "guidance"),
         detail_route="compliance:requirement-detail",
     ),
     _spec(
