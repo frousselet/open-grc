@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -229,6 +229,11 @@ class AssistantFeedbackResolveView(LoginRequiredMixin, PermissionRequiredMixin, 
     permission_required = FEEDBACK_READ_PERM
     http_method_names = ["post"]
 
+    # Only these list filters are echoed back into the redirect; rebuilding the
+    # query string from a whitelist keeps untrusted input out of the redirect
+    # target (the host is always the fixed feedback-list path).
+    FILTER_KEYS = ("status", "rating", "q", "date_from", "date_to")
+
     def post(self, request, pk):
         feedback = get_object_or_404(AssistantFeedback, pk=pk)
         if request.POST.get("action") == "reopen":
@@ -237,6 +242,14 @@ class AssistantFeedbackResolveView(LoginRequiredMixin, PermissionRequiredMixin, 
         else:
             feedback.mark_resolved(request.user)
             messages.success(request, _("Feedback marked as corrected."))
-        querystring = request.POST.get("next_qs", "")
-        url = reverse("assistant:feedback-list")
-        return redirect(f"{url}?{querystring}" if querystring else url)
+        return redirect(f"{reverse('assistant:feedback-list')}{self._safe_query(request)}")
+
+    def _safe_query(self, request):
+        posted = QueryDict(request.POST.get("next_qs", ""))
+        clean = QueryDict(mutable=True)
+        for key in self.FILTER_KEYS:
+            value = posted.get(key)
+            if value:
+                clean[key] = value
+        encoded = clean.urlencode()
+        return f"?{encoded}" if encoded else ""

@@ -334,6 +334,20 @@ def test_resolve_view_marks_corrected_and_redirects(client):
 
 
 @pytest.mark.django_db
+def test_resolve_redirect_only_keeps_whitelisted_filters(client):
+    fb = AssistantFeedback.objects.create(question="Q?", rating="down")
+    client.force_login(UserFactory(is_superuser=True))
+    url = reverse("assistant:feedback-resolve", args=[fb.pk])
+    # Untrusted junk (and an external-looking value) must not reach the redirect.
+    response = client.post(url, {"next_qs": "status=resolved&evil=//evil.com&x=1"})
+    assert response.status_code == 302
+    location = response["Location"]
+    assert location.startswith("/api/assistant/feedback/list/")
+    assert "status=resolved" in location
+    assert "evil" not in location and "evil.com" not in location
+
+
+@pytest.mark.django_db
 def test_resolve_view_requires_permission(client):
     fb = AssistantFeedback.objects.create(question="Q?", rating="down")
     client.force_login(UserFactory())
