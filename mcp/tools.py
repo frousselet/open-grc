@@ -1607,7 +1607,7 @@ def _register_context_tools(server):
                     "parent_scope_id", "icon",
                     "boundaries", "justification_exclusions",
                     "geographic_scope", "organizational_scope", "technical_scope",
-                    "included_sites", "excluded_sites", "managers",
+                    "included_sites", "excluded_sites", "managers", "manager_names",
                     "effective_date", "review_date",
                     "version", "is_approved", "created_at"]
     scope_writable = ["name", "description", "icon",

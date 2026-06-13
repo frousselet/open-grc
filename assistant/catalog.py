@@ -291,9 +291,11 @@ _SPECS = [
         "list_scopes",
         _("Scopes"),
         "bi-bullseye",
-        "list_scopes(search, limit): organizational scopes / perimeters",
+        "list_scopes(search, limit): organizational scopes / perimeters, with the names of"
+        " their managers (the users responsible for each scope)",
         ("search", "workflow_state", "limit", "offset"),
         subtitle_field="workflow_state",
+        summary_fields=("manager_names",),
         detail_route="context:scope-detail",
     ),
     # Assets

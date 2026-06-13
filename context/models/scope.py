@@ -74,6 +74,11 @@ class Scope(BaseModel):
     def __str__(self):
         return f"{self.reference} : {self.name}"
 
+    @property
+    def manager_names(self):
+        """Display names of the users responsible for this scope."""
+        return [m.display_name for m in self.managers.all()]
+
     def clean(self):
         super().clean()
         if self.parent_scope_id:
