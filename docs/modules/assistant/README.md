@@ -55,7 +55,7 @@ Key code: `assistant/engine.py` (loop), `assistant/catalog.py` (allowlist), `ass
 
 ## Tool allowlist
 
-Hard-coded in `assistant/catalog.py` (21 tools, strictly `list_*` / `get_*`). The routing JSON Schema constrains the tool name to this set at decoding time; the engine re-validates server-side. Permissions are those of the underlying MCP tools (nothing re-declared):
+Hard-coded in `assistant/catalog.py` (23 tools, strictly `list_*` / `get_*`). The routing JSON Schema constrains the tool name to this set at decoding time; the engine re-validates server-side. Permissions are those of the underlying MCP tools (nothing re-declared):
 
 | Tool | Permission |
 | ---- | ---------- |
@@ -66,6 +66,7 @@ Hard-coded in `assistant/catalog.py` (21 tools, strictly `list_*` / `get_*`). Th
 | `list_action_plans`, `get_action_plan` | `compliance.action_plan.read` |
 | `list_compliance_assessments` | `compliance.assessment.read` |
 | `list_frameworks`, `get_framework_compliance_summary` | `compliance.framework.read` |
+| `list_requirements`, `get_requirement` | `compliance.requirement.read` |
 | `list_indicators`, `list_indicator_measurements` | `context.indicator.read` |
 | `list_issues` | `context.issue.read` |
 | `list_objectives` | `context.objective.read` |
