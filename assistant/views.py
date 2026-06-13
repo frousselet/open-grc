@@ -14,6 +14,16 @@ from assistant.providers import (
 QUESTION_MIN_LENGTH = 3
 QUESTION_MAX_LENGTH = 500
 
+# Human-friendly names for the configured LLM backend, shown in the disclaimer.
+PROVIDER_LABELS = {"mistral": "Mistral", "ollama": "Ollama"}
+
+
+def _powered_by():
+    """Return the "<Provider> <model>" label for the active backend."""
+    provider = (settings.AI_ASSISTANT_PROVIDER or "").lower()
+    label = PROVIDER_LABELS.get(provider, provider.title() or "AI")
+    return f"{label} {settings.AI_ASSISTANT_MODEL}"
+
 
 class AskAssistantView(LoginRequiredMixin, View):
     """Answer a natural-language question with the palette HTML partial.
@@ -26,7 +36,10 @@ class AskAssistantView(LoginRequiredMixin, View):
 
     def post(self, request):
         question = (request.POST.get("q") or "").strip()
-        context = {"model_name": settings.AI_ASSISTANT_MODEL}
+        context = {
+            "model_name": settings.AI_ASSISTANT_MODEL,
+            "powered_by": _powered_by(),
+        }
         if not (QUESTION_MIN_LENGTH <= len(question) <= QUESTION_MAX_LENGTH):
             context["error_code"] = "invalid"
             return render(request, "assistant/_answer.html", context)

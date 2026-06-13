@@ -94,6 +94,8 @@ def test_happy_path_renders_summary_badge_and_cards(logged_client, stub_engine):
     assert 'href="/reports/decisions/abc/"' in content
     assert "DECS-1 Renew SOC contract" in content
     assert "AI-generated summary" in content
+    # The disclaimer names the active provider and model.
+    assert "Mistral mistral-small-latest" in content
 
 
 def test_out_of_scope_question_shows_hint_not_no_records(logged_client, stub_engine):

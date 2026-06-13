@@ -45,6 +45,6 @@
     <div class="search-empty"><i class="bi bi-search" aria-hidden="true"></i>{% trans "No matching records found." %}</div>
   {% endif %}
   {% if outcome.summary or outcome.has_cards %}
-    <div class="assistant-disclaimer">{% trans "AI-generated summary. Verify against the linked records." %}</div>
+    <div class="assistant-disclaimer">{% blocktrans %}AI-generated summary, powered by {{ powered_by }}. Verify against the linked records.{% endblocktrans %}</div>
   {% endif %}
 {% endif %}
