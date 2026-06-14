@@ -5344,8 +5344,8 @@
     function askRowHtml(q) {
       return '<button type="button" class="search-result-item search-ask-ai" id="cmdk-ask" role="option" aria-selected="false">'
         + '<i class="bi bi-robot" aria-hidden="true"></i>'
-        + '<span class="search-ask-q">{% trans "Ask Cairn" %}&nbsp;: ' + escapeHtml(q) + '</span>'
-        + '<span class="ai-badge">{% trans "AI" %}</span></button>';
+        + '<span class="search-ask-q">{% trans "Ask Cairn" as t %}{{ t|escapejs }}&nbsp;: ' + escapeHtml(q) + '</span>'
+        + '<span class="ai-badge">{% trans "AI" as t %}{{ t|escapejs }}</span></button>';
     }
 
     function wantsAskRow(q) {
@@ -5361,7 +5361,7 @@
       spinner.classList.remove('show');
       results.innerHTML = '<div class="assistant-thinking" role="status">'
         + '<i class="bi bi-robot" aria-hidden="true"></i>'
-        + '<span>{% trans "Thinking..." %}</span>'
+        + '<span>{% trans "Thinking..." as t %}{{ t|escapejs }}</span>'
         + '<span class="dots" aria-hidden="true"><span></span><span></span><span></span></span></div>';
       var body = new URLSearchParams();
       body.append('q', q);
@@ -5378,7 +5378,7 @@
         })
         .catch(function(err) {
           if (err && err.name === 'AbortError') return;
-          results.innerHTML = '<div class="search-empty"><i class="bi bi-plug" aria-hidden="true"></i>{% trans "The assistant is unreachable. Try again later." %}</div>';
+          results.innerHTML = '<div class="search-empty"><i class="bi bi-plug" aria-hidden="true"></i>{% trans "The assistant is unreachable. Try again later." as t %}{{ t|escapejs }}</div>';
         });
     }
 
@@ -5549,7 +5549,7 @@
       activeIndex = -1;
       input.setAttribute('aria-activedescendant', '');
       if (!groups || groups.length === 0) {
-        var emptyHtml = '<div class="search-empty"><i class="bi bi-search" aria-hidden="true"></i>{% trans "No results found" %}</div>';
+        var emptyHtml = '<div class="search-empty"><i class="bi bi-search" aria-hidden="true"></i>{% trans "No results found" as t %}{{ t|escapejs }}</div>';
         if (wantsAskRow(q)) emptyHtml += askRowHtml(q);
         results.innerHTML = emptyHtml;
         return;
