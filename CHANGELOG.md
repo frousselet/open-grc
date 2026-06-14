@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.27.1] - 2026-06-14
+
 ### Fixed
 
 - **Command palette no longer opens in a French locale**: the Ask Cairn palette script embedded `{% trans %}` strings inside single-quoted JS literals, and French translations contain apostrophes (e.g. "L'assistant est injoignable…") that terminated the string, throwing a `SyntaxError` that killed the whole palette script. Translated strings embedded in the palette JS are now escaped with `|escapejs`. (Surfaced only in production, which runs in French; English dev was unaffected.)
@@ -983,7 +985,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Actions CI with pytest
 - Docker Hub publish workflow on version tags
 
-[Unreleased]: https://github.com/frousselet/cairn/compare/v0.27.0...HEAD
+[Unreleased]: https://github.com/frousselet/cairn/compare/v0.27.1...HEAD
+[0.27.1]: https://github.com/frousselet/cairn/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/frousselet/cairn/compare/v0.26.3...v0.27.0
 [0.26.3]: https://github.com/frousselet/cairn/compare/v0.26.2...v0.26.3
 [0.26.2]: https://github.com/frousselet/cairn/compare/v0.26.1...v0.26.2
