@@ -139,3 +139,9 @@ Both accept `--dry-run` to preview changes. A typical host cron entry:
 15 2 * * * cd /opt/cairn && docker compose exec -T web python manage.py expire_risk_acceptances
 20 2 * * * cd /opt/cairn && docker compose exec -T web python manage.py mark_overdue_treatment_plans
 ```
+
+If the **semantic search** of the Ask Cairn assistant is enabled (`AI_ASSISTANT_SEMANTIC_ENABLED`), schedule the index refresh the same way. The command is idempotent (it only re-embeds changed requirements and prunes deleted ones), so a daily run is cheap. The index is also refreshed automatically when the app starts, a deleted requirement is pruned immediately, and an administrator can force a refresh from the Company settings page; the daily cron is the reliable, self-healing backstop.
+
+```cron
+25 2 * * * cd /opt/cairn && docker compose exec -T web python manage.py rebuild_semantic_index
+```

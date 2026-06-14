@@ -85,6 +85,49 @@
     </div>
   </div>
 </form>
+
+{# ── Ask Cairn: semantic search index ──────────────── #}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header"><h6 class="mb-0"><i class="bi bi-stars me-2" style="color:var(--accent)"></i>{% trans "Semantic search index" %}</h6></div>
+      <div class="card-body">
+        {% if not semantic.enabled %}
+        <p class="text-muted mb-0">{% trans "Semantic search is disabled." %} {% trans "Enable it with the AI_ASSISTANT_SEMANTIC_ENABLED setting to let topic questions match requirements across languages." %}</p>
+        {% elif not semantic.embeddings_supported %}
+        <p class="text-muted mb-0"><i class="bi bi-exclamation-triangle me-1"></i>{% trans "The current AI provider has no embeddings, so the semantic index cannot be built. Use the Mistral, OpenAI or Ollama provider to index requirements." %}</p>
+        {% else %}
+        <div class="row g-3 mb-3">
+          <div class="col-sm-4">
+            <div class="form-label mb-0">{% trans "Indexed requirements" %}</div>
+            <div style="font-weight:600;font-size:1.0625rem">{{ semantic.indexed }} / {{ semantic.total }}</div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-label mb-0">{% trans "Last updated" %}</div>
+            <div style="font-weight:600;font-size:1.0625rem">{% if semantic.last_updated %}{{ semantic.last_updated|date:"SHORT_DATETIME_FORMAT" }}{% else %}{% trans "Never" %}{% endif %}</div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-label mb-0">{% trans "Embedding model" %}</div>
+            <div style="font-weight:600;font-size:1.0625rem">{{ semantic.embed_model }}</div>
+          </div>
+        </div>
+        {% if semantic.running %}
+        <p class="text-muted mb-3"><span class="spinner-border spinner-border-sm me-2"></span>{% trans "An update is currently running." %}</p>
+        {% endif %}
+        <p class="text-muted small mb-3">{% trans "New and edited requirements are picked up automatically (daily and at startup); use this button to refresh immediately, e.g. after a bulk import." %}</p>
+        {% if can_edit %}
+        <form method="post" action="{% url 'assistant:rebuild-semantic-index' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-primary"{% if semantic.running %} disabled{% endif %}>
+            <i class="bi bi-arrow-repeat me-1"></i>{% trans "Update the index now" %}
+          </button>
+        </form>
+        {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}

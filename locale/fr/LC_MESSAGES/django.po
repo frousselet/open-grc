@@ -9866,3 +9866,42 @@ msgstr "Aucun retour pour l'instant."
 
 msgid "Feedback appears here when users rate an Ask Cairn answer with thumbs up or down. Export the set to hand it to an LLM for improvement."
 msgstr "Les retours apparaissent ici lorsque les utilisateurs évaluent une réponse d'Ask Cairn avec un pouce en haut ou en bas. Exportez l'ensemble pour le confier à un LLM en vue d'améliorations."
+
+msgid "Semantic search index"
+msgstr "Index de recherche sémantique"
+
+msgid "Semantic search is disabled."
+msgstr "La recherche sémantique est désactivée."
+
+msgid "Enable it with the AI_ASSISTANT_SEMANTIC_ENABLED setting to let topic questions match requirements across languages."
+msgstr "Activez-la via le paramètre AI_ASSISTANT_SEMANTIC_ENABLED pour que les questions par thème trouvent les exigences quelle que soit la langue."
+
+msgid "The current AI provider has no embeddings, so the semantic index cannot be built. Use the Mistral, OpenAI or Ollama provider to index requirements."
+msgstr "Le fournisseur d'IA actuel ne propose pas d'embeddings : l'index sémantique ne peut pas être construit. Utilisez le fournisseur Mistral, OpenAI ou Ollama pour indexer les exigences."
+
+msgid "Indexed requirements"
+msgstr "Exigences indexées"
+
+msgid "Last updated"
+msgstr "Dernière mise à jour"
+
+msgid "Never"
+msgstr "Jamais"
+
+msgid "Embedding model"
+msgstr "Modèle d'embedding"
+
+msgid "An update is currently running."
+msgstr "Une mise à jour est en cours."
+
+msgid "New and edited requirements are picked up automatically (daily and at startup); use this button to refresh immediately, e.g. after a bulk import."
+msgstr "Les exigences nouvelles ou modifiées sont prises en compte automatiquement (chaque jour et au démarrage) ; ce bouton force une mise à jour immédiate, par exemple après un import en masse."
+
+msgid "Update the index now"
+msgstr "Mettre à jour l'index maintenant"
+
+msgid "The semantic index update has started; it runs in the background."
+msgstr "La mise à jour de l'index sémantique a démarré ; elle s'exécute en arrière-plan."
+
+msgid "A semantic index update is already running."
+msgstr "Une mise à jour de l'index sémantique est déjà en cours."

@@ -195,14 +195,25 @@ Lexical search (`list_requirements` `search`) is substring-based and language-se
 
 How it works (opt-in via `AI_ASSISTANT_SEMANTIC_ENABLED`):
 
-- **Index**: `manage.py rebuild_semantic_index` embeds each requirement (number + name + description + guidance) via the provider's embedding model (`AI_ASSISTANT_EMBED_MODEL`, default `mistral-embed`) and stores the vector in `assistant.SemanticIndex`. The embedding is a plain JSON list of floats, so the column is portable across PostgreSQL and the SQLite test DB - no `pgvector` extension or Docker image change. The command is idempotent (a `content_hash` skips unchanged rows) and prunes embeddings of deleted requirements. Re-run it after enabling, after bulk imports, or on a schedule.
+- **Index**: the rebuild (`assistant.semantic.rebuild_index`, also exposed as `manage.py rebuild_semantic_index`) embeds each requirement (number + name + description + guidance) via the provider's embedding model (`AI_ASSISTANT_EMBED_MODEL`, default `mistral-embed`) and stores the vector in `assistant.SemanticIndex`. The embedding is a plain JSON list of floats, so the column is portable across PostgreSQL and the SQLite test DB - no `pgvector` extension or Docker image change. It is idempotent (a `content_hash` skips unchanged rows) and prunes embeddings of deleted requirements.
 - **Query**: the catalog gains `semantic_search_requirements(query, limit)`. The planner is taught (via a routing example) to pick it for conceptual / topic questions. The handler embeds the query and ranks stored requirement vectors by cosine similarity **in Python** - the corpus (hundreds to low thousands of requirements) is small enough that brute force is instant, so no vector index is needed. It returns real requirements, so the rest of the pipeline (cards, summary, permissions) is unchanged.
 
 The tool requires `compliance.requirement.read` and is only offered to the planner when the flag is on (otherwise it is absent from the routing prompt and the plan schema, though it stays in `TOOL_CATALOG` for server-side execution/validation). If the corpus ever grows to a scale where brute-force cosine is too slow, `SemanticIndex` can be backed by `pgvector` without changing the tool contract.
 
+### Keeping the index fresh
+
+The index drifts as requirements are created, edited or deleted, so it is refreshed automatically through several complementary mechanisms (all no-ops when the feature is off). Embedding calls a third-party provider, so they are kept **off the request path**: a requirement save never triggers an inline embed.
+
+- **On delete (immediate)**: a `post_delete` signal on `Requirement` (`assistant/signals.py`, wired from `AssistantConfig.ready()`) prunes the requirement's `SemanticIndex` row. This is a network-free DB delete, safe even when semantic search is disabled.
+- **On startup**: when a server process boots (uvicorn / `runserver`) with the feature on, `AssistantConfig.ready()` launches a guarded background thread that runs the rebuild once (skipped for management commands like `migrate`/`test`, so the work never blocks boot and a slow provider can't wedge startup).
+- **On demand (admin)**: the Company settings page (in-app Administration, gated by `system.config.update`) shows index status (indexed / total requirements, last updated, embedding model) and an **"Update the index now"** button that triggers a background rebuild (`assistant:rebuild-semantic-index`). The card warns when the active provider has no embeddings (e.g. `anthropic`).
+- **Scheduled (recommended backstop)**: run `manage.py rebuild_semantic_index` from cron (see [installation.md](../../installation.md)). It is the reliable, self-healing mechanism - it catches anything the others missed (e.g. an edit that no rebuild has run for yet, or an embed that failed transiently).
+
+A cache lock (`assistant.semantic.rebuild_index_async`) dedupes overlapping triggers (startup + button + a double click), and the startup/admin rebuilds run in daemon threads that close their own DB connections. New and edited requirements become searchable at the next rebuild (startup, daily cron, or the admin button) - lexical search covers them immediately in the meantime.
+
 ## Future work
 
 - Extend semantic search to other entities (risks, objectives, assets) beyond requirements.
-- Keep the index fresh automatically (signal/async re-embed on requirement save) instead of the manual reindex command.
+- Immediate re-embed on requirement *save* (currently new/edited requirements are picked up at the next rebuild - startup, daily cron, or the admin button - rather than inline, to keep provider calls off the request path).
 - Optional query audit log (persistent entity, would then follow the lifecycle/workflow conventions).
 - Streaming the summary sentence into the palette.

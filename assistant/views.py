@@ -260,3 +260,36 @@ class AssistantFeedbackResolveView(LoginRequiredMixin, PermissionRequiredMixin, 
                 clean[key] = value
         encoded = clean.urlencode()
         return f"?{encoded}" if encoded else ""
+
+
+class RebuildSemanticIndexView(LoginRequiredMixin, View):
+    """Trigger an on-demand background refresh of the requirement index.
+
+    Lives on the Company settings page (in-app Administration), gated by the
+    same permission as other system configuration changes. The rebuild runs in
+    a guarded background thread so the request returns immediately.
+    """
+
+    http_method_names = ["post"]
+
+    def post(self, request):
+        if not (
+            request.user.is_superuser
+            or request.user.has_perm("system.config.update")
+        ):
+            messages.error(request, _("You do not have the required permissions."))
+            return redirect("accounts:company-settings")
+        if not settings.AI_ASSISTANT_SEMANTIC_ENABLED:
+            messages.error(request, _("Semantic search is disabled."))
+            return redirect("accounts:company-settings")
+
+        from assistant.semantic import rebuild_index_async
+
+        if rebuild_index_async():
+            messages.success(
+                request,
+                _("The semantic index update has started; it runs in the background."),
+            )
+        else:
+            messages.info(request, _("A semantic index update is already running."))
+        return redirect("accounts:company-settings")

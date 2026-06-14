@@ -167,7 +167,7 @@ def test_rebuild_command_embeds_and_is_idempotent(monkeypatch):
     from django.core.management import call_command
 
     monkeypatch.setattr(
-        "assistant.management.commands.rebuild_semantic_index.get_client",
+        "assistant.semantic.get_client",
         lambda: _FakeEmbedClient(),
     )
     RequirementFactory(name="Backup policy")
@@ -194,7 +194,7 @@ def test_rebuild_command_reports_clear_error_on_backend_failure(monkeypatch):
             raise ServiceUnreachable("Mistral API key is not configured.")
 
     monkeypatch.setattr(
-        "assistant.management.commands.rebuild_semantic_index.get_client",
+        "assistant.semantic.get_client",
         lambda: FailingClient(),
     )
     RequirementFactory(name="Anything")

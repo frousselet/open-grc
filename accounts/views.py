@@ -162,11 +162,21 @@ class PasswordChangeView(LoginRequiredMixin, View):
 class CompanySettingsView(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = "system.config.read"
 
+    def _context(self, form, instance, can_edit):
+        from assistant.semantic import index_status
+
+        return {
+            "form": form,
+            "company": instance,
+            "can_edit": can_edit,
+            "semantic": index_status(),
+        }
+
     def get(self, request):
         instance = CompanySettings.get()
         form = CompanySettingsForm(instance=instance)
         can_edit = request.user.is_superuser or request.user.has_perm("system.config.update")
-        return render(request, "accounts/company_settings.html", {"form": form, "company": instance, "can_edit": can_edit})
+        return render(request, "accounts/company_settings.html", self._context(form, instance, can_edit))
 
     def post(self, request):
         can_edit = request.user.is_superuser or request.user.has_perm("system.config.update")
@@ -179,7 +189,7 @@ class CompanySettingsView(LoginRequiredMixin, PermissionRequiredMixin, View):
             form.save()
             messages.success(request, _("Company settings updated."))
             return redirect("accounts:company-settings")
-        return render(request, "accounts/company_settings.html", {"form": form, "company": instance, "can_edit": can_edit})
+        return render(request, "accounts/company_settings.html", self._context(form, instance, can_edit))
 
 
 # ── Users ───────────────────────────────────────────────────

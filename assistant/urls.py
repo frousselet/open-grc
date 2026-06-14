@@ -10,4 +10,5 @@ urlpatterns = [
     path("feedback/list/", views.AssistantFeedbackListView.as_view(), name="feedback-list"),
     path("feedback/export/", views.AssistantFeedbackExportView.as_view(), name="feedback-export"),
     path("feedback/<uuid:pk>/resolve/", views.AssistantFeedbackResolveView.as_view(), name="feedback-resolve"),
+    path("semantic-index/rebuild/", views.RebuildSemanticIndexView.as_view(), name="rebuild-semantic-index"),
 ]

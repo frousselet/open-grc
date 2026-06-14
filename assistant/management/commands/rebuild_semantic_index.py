@@ -6,12 +6,10 @@ model changed are re-embedded (unless --force), and embeddings for deleted
 requirements are pruned.
 """
 
-from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from assistant.models import SemanticIndex, content_hash
-from assistant.providers import AssistantError, get_client
-from assistant.semantic import requirement_text, upsert_embedding
+from assistant.providers import AssistantError
+from assistant.semantic import rebuild_index
 
 
 class Command(BaseCommand):
@@ -28,44 +26,15 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        from compliance.models import Requirement
+        def progress(done, total):
+            self.stdout.write(f"  embedded {done}/{total}")
 
-        force = options["force"]
-        batch = max(1, options["batch_size"])
-        model = settings.AI_ASSISTANT_EMBED_MODEL
-        content_type = SemanticIndex.REQUIREMENT
-
-        existing = dict(
-            SemanticIndex.objects.filter(content_type=content_type).values_list(
-                "object_id", "content_hash"
-            )
-        )
-        pending, seen = [], set()
-        for req in Requirement.objects.all().iterator():
-            seen.add(req.pk)
-            text = requirement_text(req)
-            if not text:
-                continue
-            if not force and existing.get(req.pk) == content_hash(model, text):
-                continue
-            pending.append((req, text))
-
-        stale_ids = set(existing) - seen
-        if stale_ids:
-            SemanticIndex.objects.filter(
-                content_type=content_type, object_id__in=stale_ids
-            ).delete()
-
-        client = get_client()
-        done = 0
         try:
-            for start in range(0, len(pending), batch):
-                chunk = pending[start:start + batch]
-                vectors = client.embed([text for _, text in chunk])
-                for (obj, text), vector in zip(chunk, vectors):
-                    upsert_embedding(content_type, obj, text, vector)
-                    done += 1
-                self.stdout.write(f"  embedded {done}/{len(pending)}")
+            result = rebuild_index(
+                force=options["force"],
+                batch_size=options["batch_size"],
+                progress=progress,
+            )
         except AssistantError as exc:
             raise CommandError(
                 f"Embedding failed: {exc}. Check the AI assistant configuration "
@@ -73,5 +42,6 @@ class Command(BaseCommand):
             ) from exc
 
         self.stdout.write(self.style.SUCCESS(
-            f"Semantic index updated: {done} embedded, {len(stale_ids)} pruned."
+            f"Semantic index updated: {result['embedded']} embedded, "
+            f"{result['pruned']} pruned."
         ))
