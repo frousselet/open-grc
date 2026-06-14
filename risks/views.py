@@ -200,6 +200,110 @@ def build_default_risk_matrix(risks_qs=None, likelihood_field="current_likelihoo
     }
 
 
+def build_risk_treatment_flow(risks_qs, criteria=None):
+    """Build Sankey flow data : current risk level -> residual risk level.
+
+    Visualises how treatment moves each risk from its current (before
+    treatment) severity level to its residual (after treatment) level, in the
+    spirit of a cash-flow / Sankey diagram. Each link is one transition
+    (current level -> residual level) weighted by the number of risks.
+
+    Returns a JSON-serialisable dict ``{nodes, links, total}`` consumed by the
+    ECharts sankey on the dashboard, or ``None`` when no risk carries both a
+    current and a residual evaluation.
+    """
+    # Resolve each severity level -> {name, color} and the (likelihood, impact)
+    # -> level matrix, from the configured criteria when available, otherwise
+    # from the default 5-level ISO 27005 scale. Levels are derived from the
+    # likelihood/impact pairs (mirroring the matrices) so the flow stays
+    # consistent even when risks were saved without a criteria snapshot.
+    level_info = {}
+    matrix = None
+    if criteria:
+        for rl in criteria.risk_levels.all():
+            level_info[rl.level] = {"name": str(rl.name), "color": rl.color}
+        if criteria.risk_matrix:
+            matrix = {
+                key: int(val) for key, val in criteria.risk_matrix.items()
+            }
+    if not level_info:
+        level_info = {
+            lvl: {"name": str(info["name"]), "color": info["color"]}
+            for lvl, info in DEFAULT_RISK_LEVELS.items()
+        }
+    if not matrix:
+        matrix = {f"{l},{i}": lvl for (l, i), lvl in DEFAULT_RISK_MATRIX.items()}
+
+    def level_of(likelihood, impact):
+        if likelihood is None or impact is None:
+            return None
+        return matrix.get(f"{likelihood},{impact}")
+
+    # Count transitions and per-column totals.
+    flow = {}
+    current_totals = {}
+    residual_totals = {}
+    for risk in risks_qs:
+        cl = risk.current_risk_level or level_of(
+            risk.current_likelihood, risk.current_impact
+        )
+        rl = risk.residual_risk_level or level_of(
+            risk.residual_likelihood, risk.residual_impact
+        )
+        if cl is None or rl is None:
+            continue
+        flow[(cl, rl)] = flow.get((cl, rl), 0) + 1
+        current_totals[cl] = current_totals.get(cl, 0) + 1
+        residual_totals[rl] = residual_totals.get(rl, 0) + 1
+
+    if not flow:
+        return None
+
+    default_color = "#9ca3af"
+
+    def label_for(level):
+        info = level_info.get(level)
+        if info:
+            return info["name"]
+        return _("Level %(n)s") % {"n": level}
+
+    def color_for(level):
+        info = level_info.get(level)
+        return info["color"] if info else default_color
+
+    # Nodes : current column (depth 0, label on the left) then residual column
+    # (depth 1, label on the right). Highest severity first so the heavy,
+    # high-risk flows sit at the top of each column.
+    nodes = []
+    for lvl in sorted(current_totals, reverse=True):
+        nodes.append({
+            "name": f"c{lvl}",
+            "displayName": f"{label_for(lvl)} ({current_totals[lvl]})",
+            "depth": 0,
+            "itemStyle": {"color": color_for(lvl)},
+            "label": {"position": "left"},
+        })
+    for lvl in sorted(residual_totals, reverse=True):
+        nodes.append({
+            "name": f"r{lvl}",
+            "displayName": f"{label_for(lvl)} ({residual_totals[lvl]})",
+            "depth": 1,
+            "itemStyle": {"color": color_for(lvl)},
+            "label": {"position": "right"},
+        })
+
+    links = [
+        {"source": f"c{cl}", "target": f"r{rl}", "value": count}
+        for (cl, rl), count in flow.items()
+    ]
+
+    return {
+        "nodes": nodes,
+        "links": links,
+        "total": sum(flow.values()),
+    }
+
+
 class CreatedByMixin:
     def form_valid(self, form):
         form.instance.created_by = self.request.user

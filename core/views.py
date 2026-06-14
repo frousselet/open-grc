@@ -44,7 +44,11 @@ from risks.models import (
     Threat,
     Vulnerability,
 )
-from risks.views import build_default_risk_matrix, build_risk_matrix
+from risks.views import (
+    build_default_risk_matrix,
+    build_risk_matrix,
+    build_risk_treatment_flow,
+)
 
 
 class GeneralDashboardView(LoginRequiredMixin, TemplateView):
@@ -177,6 +181,10 @@ class GeneralDashboardView(LoginRequiredMixin, TemplateView):
             ctx["matrix_residual"] = build_default_risk_matrix(
                 all_risks, "residual_likelihood", "residual_impact"
             )
+
+        # Risk treatment flow (current level -> residual level), rendered as a
+        # Sankey diagram above the matrices.
+        ctx["risk_treatment_flow"] = build_risk_treatment_flow(all_risks, criteria)
 
         # ── Conformité ───────────────────────────────────
         # Per-framework compliance segments and the overall average come

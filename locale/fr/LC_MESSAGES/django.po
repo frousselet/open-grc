@@ -9911,3 +9911,27 @@ msgstr "Index sémantique"
 
 msgid "Semantic index - Cairn"
 msgstr "Index sémantique - Cairn"
+
+msgid "Risk treatment flow"
+msgstr "Flux de traitement des risques"
+
+msgid ""
+"How treatment moves risks from their current level (before treatment) to "
+"their residual level (after treatment)"
+msgstr ""
+"Comment le traitement fait passer les risques de leur niveau actuel (avant "
+"traitement) à leur niveau résiduel (après traitement)"
+
+msgid "Sankey diagram of risk treatment flow from current to residual level"
+msgstr ""
+"Diagramme de Sankey du flux de traitement des risques, du niveau actuel au "
+"niveau résiduel"
+
+msgid "1 risk"
+msgstr "1 risque"
+
+msgid "risks"
+msgstr "risques"
+
+msgid "Level %(n)s"
+msgstr "Niveau %(n)s"

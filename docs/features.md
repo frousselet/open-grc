@@ -53,6 +53,7 @@ Detailed feature reference for Cairn. For module-level specifications (business 
 | Treatment Plans | Structured remediation with ordered actions, progress tracking, cost estimates and linkage to compliance action plans |
 | Risk Acceptance | Formal acceptance records with expiry dates, conditions, review tracking and two-step approval workflow |
 | Risk Matrices | Visual heatmaps (current vs residual) |
+| Risk Treatment Flow | Sankey (cash-flow style) chart on the dashboard showing how treatment moves risks from their current level to their residual level, weighted by the number of risks per transition |
 
 ## Compliance
 

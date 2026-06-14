@@ -757,6 +757,26 @@ window.initSparklines = function(root) {
   </div>
 </div>
 
+{# ── Risk treatment flow (current → residual) ───────── #}
+{% if risk_treatment_flow %}
+<div class="d-flex align-items-center mb-3 flex-wrap gap-2">
+  <h5 class="mb-0"><i class="bi bi-diagram-3 me-1" style="color:var(--accent)"></i> {% trans "Risk treatment flow" %}</h5>
+  <span class="text-muted" style="font-size:.8125rem">{% trans "How treatment moves risks from their current level (before treatment) to their residual level (after treatment)" %}</span>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        {{ risk_treatment_flow|json_script:"risk-flow-data" }}
+        <div id="risk-treatment-flow" role="img"
+             aria-label="{% trans 'Sankey diagram of risk treatment flow from current to residual level' %}"
+             style="width:100%;height:360px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 {# ── Risk matrices ─────────────────────────────────── #}
 {% if matrix_current or matrix_residual %}
 <div class="d-flex align-items-center mb-3 flex-wrap gap-2">
@@ -893,6 +913,76 @@ window.initSparklines = function(root) {
 {% endblock %}
 
 {% block extra_js %}
+
+{# ── Risk treatment flow (Sankey) ────────────────────── #}
+{% if risk_treatment_flow %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+(function() {
+  var el = document.getElementById('risk-treatment-flow');
+  var dataEl = document.getElementById('risk-flow-data');
+  if (!el || !dataEl || typeof echarts === 'undefined') return;
+
+  var flow = JSON.parse(dataEl.textContent);
+  var chart = echarts.init(el, null, {renderer: 'svg'});
+
+  function textColor() {
+    return getComputedStyle(document.documentElement)
+      .getPropertyValue('--text-secondary').trim() || '#475569';
+  }
+
+  function render() {
+    var color = textColor();
+    chart.setOption({
+      tooltip: {
+        trigger: 'item',
+        triggerOn: 'mousemove',
+        formatter: function(p) {
+          if (p.dataType === 'edge') {
+            return (p.data.value === 1
+              ? '{% trans "1 risk" %}'
+              : p.data.value + ' {% trans "risks" %}');
+          }
+          return p.data.displayName;
+        }
+      },
+      series: [{
+        type: 'sankey',
+        left: '8%',
+        right: '8%',
+        top: 20,
+        bottom: 20,
+        nodeGap: 14,
+        nodeWidth: 16,
+        draggable: false,
+        // Keep the column order we sent (highest severity at the top, lowest
+        // at the bottom) instead of ECharts reordering to reduce crossings.
+        layoutIterations: 0,
+        emphasis: {focus: 'adjacency'},
+        label: {
+          color: color,
+          fontFamily: 'Inter, sans-serif',
+          fontSize: 12,
+          formatter: function(p) { return p.data.displayName; }
+        },
+        lineStyle: {color: 'gradient', opacity: 0.45, curveness: 0.5},
+        data: flow.nodes,
+        links: flow.links
+      }]
+    });
+  }
+
+  render();
+  window.addEventListener('resize', function() { chart.resize(); });
+
+  // Re-render labels when the colour theme changes.
+  new MutationObserver(function() { render(); }).observe(
+    document.documentElement, {attributes: true, attributeFilter: ['data-bs-theme']}
+  );
+})();
+</script>
+{% endif %}
+
 {% if changelog_entries %}
 <script>
 (function() {

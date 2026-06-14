@@ -630,6 +630,62 @@ class TestDashboardRiskMatrices:
         assert resp.context["matrix_residual"] is not None
 
 
+class TestDashboardRiskTreatmentFlow:
+    """Sankey flow from current risk level to residual risk level."""
+
+    def test_no_flow_without_risks(self):
+        client, user = _superuser_client()
+        resp = client.get(reverse("home"))
+        assert resp.context["risk_treatment_flow"] is None
+
+    def test_flow_with_risk(self):
+        RiskFactory(
+            current_likelihood=4,
+            current_impact=5,
+            residual_likelihood=2,
+            residual_impact=2,
+        )
+        client, user = _superuser_client()
+        resp = client.get(reverse("home"))
+        flow = resp.context["risk_treatment_flow"]
+        assert flow is not None
+        assert flow["total"] == 1
+        assert len(flow["links"]) == 1
+        # One current-level node and one residual-level node.
+        assert len(flow["nodes"]) == 2
+        link = flow["links"][0]
+        assert link["value"] == 1
+        assert link["source"].startswith("c")
+        assert link["target"].startswith("r")
+
+    def test_flow_aggregates_identical_transitions(self):
+        for _i in range(3):
+            RiskFactory(
+                current_likelihood=4,
+                current_impact=5,
+                residual_likelihood=2,
+                residual_impact=2,
+            )
+        client, user = _superuser_client()
+        resp = client.get(reverse("home"))
+        flow = resp.context["risk_treatment_flow"]
+        assert flow["total"] == 3
+        assert len(flow["links"]) == 1
+        assert flow["links"][0]["value"] == 3
+
+    def test_flow_skips_risks_without_both_levels(self):
+        # Current evaluated but no residual evaluation -> excluded.
+        RiskFactory(
+            current_likelihood=3,
+            current_impact=3,
+            residual_likelihood=None,
+            residual_impact=None,
+        )
+        client, user = _superuser_client()
+        resp = client.get(reverse("home"))
+        assert resp.context["risk_treatment_flow"] is None
+
+
 # ── Company identity in the header ──────────────────────────
 
 

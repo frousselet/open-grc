@@ -12,7 +12,7 @@ Manage your organisation's security posture, track compliance with regulatory fr
 - **Assets** : essential and support assets with CIA valuation, dependencies, SPOF detection and a supplier registry
 - **Risks** : ISO 27005 and EBIOS RM (ANSSI v1.5, workshops 0 to 5) assessments, threat and vulnerability catalogs, treatment plans and formal risk acceptance
 - **Compliance** : frameworks, requirements, assessments, findings, action plans and inter-framework mappings, with Excel import
-- **Steering** : real-time dashboard, KPI indicators, ISO 27001 management reviews, and PDF/DOCX/PPTX report generation (SoA, audit report, risk register, meeting minutes)
+- **Steering** : real-time dashboard (risk matrices and a current-to-residual risk treatment flow chart), KPI indicators, ISO 27001 management reviews, and PDF/DOCX/PPTX report generation (SoA, audit report, risk register, meeting minutes)
 - **Ask Cairn (optional)** : natural-language questions in the command palette ("Which decisions were made at the last management review?"), answered by a pluggable LLM provider (Mistral AI by default; OpenAI / any OpenAI-compatible endpoint; Claude; self-hosted Ollama) that cites real records and enforces your permissions, with thumbs up/down feedback that admins can export to improve the assistant
 
 Everything is bilingual (English/French), audit-ready (full change history, versioning, lifecycle workflows with approvals) and access-controlled (role-based permissions, scope-based tenancy, passkey login).
@@ -47,7 +47,7 @@ To run the published image without cloning the repository, and for production no
 
 ## Tech stack
 
-Django 5.2 LTS, PostgreSQL 16, Django REST Framework, Django Channels + Redis (real-time), Bootstrap 5.3 + HTMX (frontend), Docker. Optional: Mistral AI, OpenAI / OpenAI-compatible endpoints, Claude (Anthropic), or self-hosted Ollama (Ask Cairn assistant).
+Django 5.2 LTS, PostgreSQL 16, Django REST Framework, Django Channels + Redis (real-time), Bootstrap 5.3 + HTMX + Apache ECharts (frontend), Docker. Optional: Mistral AI, OpenAI / OpenAI-compatible endpoints, Claude (Anthropic), or self-hosted Ollama (Ask Cairn assistant).
 
 ## Licence
 
